@@ -361,10 +361,10 @@ int main(int argc,char**argv)
 		{
 			_u8*argvpointer=argv[2]+1;
 			_u32 argvcursor=3;
-			_u32 argv_repeat_tooling_active;
+			_u32 argv_repeat_tooling_active=0;
 			_u8*argv_repeat_tooling_argvpointer=NULL;
 			_u32 argv_repeat_tooling_argvcursor=0x7FFFFFFF;
-			_u32 argv_repeat_tooling_section;
+			_u32 argv_repeat_tooling_section=0;
 			goto skip_argv_repeat_tooling;
 			argv_repeat_tooling_hook:;
 			while(argv_repeat_tooling_section<(*header1).NumberOfSections)

@@ -6,6 +6,7 @@
 #ifndef stringlength
 #define stringlength 256
 #endif
+#define bufferlength 256
 #define bufferlistsize 256
 #define multilistlength 256
 #define REGISTER_content the_template.possible_contents.add
@@ -16,6 +17,8 @@ struct stringstruct
 	stringstruct(){};
 };
 
+char tagnamestring[stringlength+1];
+char attstring[bufferlength+1];
 
 /*stringstruct operator = (char* input)
 {
@@ -97,7 +100,7 @@ template <class whatabout> class multilistreference
 	{
 		if (typeid(whatabout)==typeid(stringstruct))
 		{
-			multilistreference(&stringlist);
+			multilistreferenx(&stringlist);
 		}
 		else
 		{
@@ -106,8 +109,9 @@ template <class whatabout> class multilistreference
 			mynumber=(*instances).getme(this);
 		}
 	};
-	multilistreference(multilist<whatabout> * input)
+	void multilistreferenx(multilist<whatabout> * input)
 	{
+		instances=input;
 		mynumber=(*instances).getme(this);
 	};
 	~multilistreference(){};
@@ -183,9 +187,111 @@ template <class whatabout> class xml_element_set:basic_xml_element_set
 	~xml_element_set(){};
 };
 
+char sentenumeric(char input)
+{
+	if ((input>='a') && (input<='z'))
+	{
+		return 1;
+	}
+	if ((input>='A') && (input<='Z'))
+	{
+		return 1;
+	}
+	if ((input>='0') && (input<='9'))
+	{
+		return 1;
+	}
+	if (input=='_')
+	{
+		return 1;
+	}
+	return 0;
+}
+
+void entertag(){};
+void exittag(){};
+char spaciatic(char input)
+{
+	if (input==' ')
+	{
+		return 1;
+	}
+	if (input==10)
+	{
+		return 1;
+	}
+	if (input==13)
+	{
+		return 1;
+	}
+	return 0;
+}
+
 void input_fsm(FILE* infile)
 {
-	intl fsmint=0; //0: in_nothing. 1: bracket-opening 2: Tagreading 3: attstringreading 4: bracket-closing
+	intl fsmint=0; //0: in_nothing. 1: bracket-opening 2: Tagreading 3: attstringreading 4: bracket-closing 5: Qmark-ignoring 6: waiting_for_tagname
+	char ichar='A';
+	intl tagnamestring_length;
+	intl attstring_length;
+	iback:
+	fread(&ichar,1,1,infile);
+	switch (fsmint)
+	{
+		case 0:
+			if (ichar=='<')
+			{
+				fsmint=1;break;
+			}
+		break;
+		case 1:
+			if (sentenumeric(ichar))
+			{
+				tagnamestring[0]=ichar;
+				tagnamestring_length=1;
+			}
+		break;
+		case 2:
+			if (sentenumeric(ichar))
+			{
+				tagnamestring[tagnamestring_length]=ichar;
+				tagnamestring_length++;
+			}
+			else
+			{
+				tagnamestring[tagnamestring_length]=0;
+				entertag();
+				fsmint=6;
+			}
+		break;
+		case 5:
+			if (ichar=='>')
+			{
+				fsmint=1;break;	
+			}
+		break;
+		case 6:
+			if (ichar=='/')
+			{
+				exittag();
+				break;
+			}
+			if (ichar=='>')
+			{
+				
+			}
+			if (spaciatic(ichar))
+			{
+			}
+			else
+			{
+				attstring_length=0;//TODO****
+			}
+		break;
+	}
+	if (!feof(infile))
+	{
+		goto iback;
+	}
 }
 
 

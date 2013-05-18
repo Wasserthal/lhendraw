@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <typeinfo>
 #include <string.h>
+#include <stdarg.h>
 #define intl int
 #ifndef stringlength
 #define stringlength 256
@@ -19,6 +20,8 @@ struct stringstruct
 
 char tagnamestring[stringlength+1];
 char attstring[bufferlength+1];
+intl tagnamestring_length;
+intl attstring_length;
 
 /*stringstruct operator = (char* input)
 {
@@ -29,7 +32,7 @@ char attstring[bufferlength+1];
 class basic_xml_element_set;
 struct multilistlist_
 {
-	stringstruct names[multilistlength];
+	char names[multilistlength][stringlength+1];
 	void * instances[multilistlength];
 	
 } multilistlist;
@@ -73,18 +76,23 @@ template <class whatabout> class multilist
 		free(bufferlist);
 	};
 };
-multilist<stringstruct> stringlist;
+multilist<stringstruct> stringlist=multilist<stringstruct>();
+basic_xml_element_set* xml_set_register[bufferlistsize];
+intl xml_set_register_count=0;
 
 template <class whatabout> multilist<whatabout> * registermultilist(const char * thetypesname)
 {
 	for (int ilv1=0;ilv1<multilist_count;ilv1++)
 	{
-		if (strcmp(thetypesname,multilistlist.names[ilv1].a))
+		if (strcmp(thetypesname,multilistlist.names[ilv1]))
 		{
 			return (multilist<whatabout> *) multilistlist.instances[ilv1];
 		}
 	}
+	multilistlist.instances[multilist_count]=new(multilist<whatabout>);
+	strcpy(multilistlist.names[multilist_count++],thetypesname);
 }
+
 template <class whatabout> class multilistreference
 {
 	public:
@@ -100,7 +108,7 @@ template <class whatabout> class multilistreference
 	{
 		if (typeid(whatabout)==typeid(stringstruct))
 		{
-			multilistreferenx(&stringlist);
+			instances=(multilist<whatabout>*)&stringlist;
 		}
 		else
 		{
@@ -125,45 +133,39 @@ struct xml_template_element
 	basic_xml_element_set * content;
 };
 
-class basic_xml_element_set
-{
-	public:
-	xml_template_element the_template;
-	multilistreference<stringstruct> possible_contents;
-	basic_xml_element_set() 
-	{
-		possible_contents=*new(multilistreference<stringstruct>);
-	};
-	~basic_xml_element_set() {};
-};
-
 class basic_instance
 {
 	public:
 	basic_instance * master;
+	basic_instance * children;
+	char myname[stringlength+1];
 	basic_instance(){master=NULL;};
 	~basic_instance(){};
 };
 
-struct cdxml_instance:basic_instance
+class basic_xml_element_set
 {
+	public:
+	xml_template_element the_template;
+	basic_instance * instances;
+	char name[stringlength+1];
+	multilistreference<stringstruct> possible_contents;
+	basic_xml_element_set() 
+	{
+		possible_contents=multilistreference<stringstruct>();
+	};
+	~basic_xml_element_set() {};
 };
 
-struct page_instance:basic_instance
-{
-};
-struct group_instance:basic_instance
-{
-};
-struct fragment_instance:basic_instance
-{
-};
+
+
 template <class whatabout> class xml_element_set:basic_xml_element_set
 {
 	public:
 	multilistreference<whatabout> instances;
 	xml_element_set() 
 	{
+		/*
 		if (typeid(whatabout)==typeid(cdxml_instance))
 		{
 			REGISTER_content("page");
@@ -183,9 +185,51 @@ template <class whatabout> class xml_element_set:basic_xml_element_set
 			REGISTER_content("fragment");
 			REGISTER_content("group");
 		}
+		*/
+		strcpy(name,typeid(whatabout).name());
+		name[strlen(name)-strlen("_instance")]=0;
+		xml_set_register[xml_set_register_count++]=this;
 	};
+	xml_element_set(const char * first,...)
+	{
+		va_list inlist;
+		const char * wert=first;
+		va_start(inlist,first);
+		back:
+		REGISTER_content(wert);
+		wert=va_arg(inlist,char *);
+		if (wert!=0)
+		{
+			goto back;
+		}
+		va_end(inlist);
+		strcpy(name,typeid(whatabout).name());
+		name[strlen(name)-strlen("_instance")]=0;
+		xml_set_register[xml_set_register_count++]=this;
+	}
 	~xml_element_set(){};
 };
+
+
+struct cdxml_instance:basic_instance
+{
+};
+xml_element_set<cdxml_instance> cdxml_xml_element_set("page",NULL);
+
+struct page_instance:basic_instance
+{
+};
+xml_element_set<page_instance> page_xml_element_set("fragment","group",NULL);
+
+struct group_instance:basic_instance
+{
+};
+xml_element_set<group_instance> group_xml_element_set("fragment","group",NULL);
+
+struct fragment_instance:basic_instance
+{
+};
+xml_element_set<fragment_instance> fragment_xml_element_set("n","b",NULL);
 
 char sentenumeric(char input)
 {
@@ -208,7 +252,17 @@ char sentenumeric(char input)
 	return 0;
 }
 
-void entertag(){};
+void entertag()
+{
+	tagnamestring[tagnamestring_length]=0;
+	printf("enter %s\n",tagnamestring);
+};
+
+void concludeattstring()
+{
+	attstring[tagnamestring_length]=0;
+};
+
 void exittag(){};
 char spaciatic(char input)
 {
@@ -229,26 +283,80 @@ char spaciatic(char input)
 
 void input_fsm(FILE* infile)
 {
-	intl fsmint=0; //0: in_nothing. 1: bracket-opening 2: Tagreading 3: attstringreading 4: bracket-closing 5: Qmark-ignoring 6: waiting_for_tagname
+	intl fsmint=0; //0: in_nothing. 1: bracket-opening 2: Tagreading 3: attstringreading 4: bracket-closing 5: Qmark-ignoring 7: waiting_for_tag_end 8: Addstring - Hyphenation
 	char ichar='A';
-	intl tagnamestring_length;
-	intl attstring_length;
+	bool bexittag=0;
+	#ifdef DEBUG
+	intl debugcounter=0;
+	#endif
 	iback:
 	fread(&ichar,1,1,infile);
+	#ifdef DEBUG
+	debugcounter++;
+	#endif
 	switch (fsmint)
 	{
 		case 0:
 			if (ichar=='<')
 			{
-				fsmint=1;break;
+				fsmint=1;
+				break;
 			}
 		break;
 		case 1:
+			if (bexittag==1)
+			{
+				if (ichar=='/')
+				{
+					printf("Error: The Tag to end was defined by another /");exit(1);
+					break;
+				}
+				if (ichar=='>')
+				{
+					if (bexittag)
+					{
+						printf("Error: Only slash in Brackets!");exit(1);
+						exittag();
+					}
+					break;
+				}
+				if (spaciatic(ichar))
+				{
+					break;
+				}
+			}
+			if (spaciatic(ichar))
+			{
+				break;
+			}
 			if (sentenumeric(ichar))
 			{
 				tagnamestring[0]=ichar;
 				tagnamestring_length=1;
+				fsmint=2;
+				break;
 			}
+			if (ichar=='?')
+			{
+				fsmint=5;
+				break;
+			}
+			if (ichar=='!')
+			{
+				fsmint=5;
+				break;
+			}
+			if (ichar=='/')
+			{
+				bexittag=1;
+				break;
+			}
+			if (ichar=='>')
+			{
+				bexittag=0;
+				fsmint=8;
+			}
+			printf("Error: invalid beginning of tag!");exit(1);
 		break;
 		case 2:
 			if (sentenumeric(ichar))
@@ -258,35 +366,82 @@ void input_fsm(FILE* infile)
 			}
 			else
 			{
-				tagnamestring[tagnamestring_length]=0;
 				entertag();
-				fsmint=6;
+				fsmint=3;
 			}
-		break;
-		case 5:
-			if (ichar=='>')
-			{
-				fsmint=1;break;	
-			}
-		break;
-		case 6:
 			if (ichar=='/')
 			{
 				exittag();
+				fsmint=7;
+				break;
+			}
+		break;
+		case 3:
+			if (ichar=='"')
+			{
+				fsmint=8;
+			}
+			if (ichar=='>')
+			{
+				bexittag=0;
+				concludeattstring();
+				fsmint=4;
+			}
+		break;
+		case 8:
+			if (ichar=='"')
+			{
+				fsmint=3;
+				break;
+			}
+		break;
+		case 4:
+			if (ichar=='<')
+			{
+				printf("start ");
+				fsmint=1;
+			}
+		break;
+		case 5:
+			if (ichar=='?')
+			{
+				fsmint=7;
+				break;	
+			}
+			if (ichar=='>')
+			{
+				fsmint=4;
+				if (bexittag)
+				{
+					exittag();
+					bexittag=0;
+				}
+				break;	
+			}
+		break;
+		case 7:
+			if (spaciatic(ichar))
+			{
 				break;
 			}
 			if (ichar=='>')
 			{
-				
+				fsmint=4;break;	
 			}
-			if (spaciatic(ichar))
+			printf("Error: \">\" expected at end of tag");
+			for (int ilv1=0;ilv1<15;ilv1++)
 			{
+				#ifdef DEBUG
+					printf("%%-> %llX <-i\n",debugcounter);
+				#endif
+				fread(&ichar,1,1,infile);
+				printf("%c",ichar);
 			}
-			else
-			{
-				attstring_length=0;//TODO****
-			}
+			exit(1);
 		break;
+		default:
+		printf("Invalid fsmint!!!!");
+		exit(1);
 	}
 	if (!feof(infile))
 	{
@@ -297,7 +452,11 @@ void input_fsm(FILE* infile)
 
 int main(int argc, char * * argv)
 {
-	stringlist=*new(multilist<stringstruct>);
+	xml_set_register_count=0;
 	multilist_count=0;
+	FILE * infile;
+	infile=fopen(argv[1],"r+");
+	input_fsm(infile);
+	fclose(infile);
 	return 0;
 }

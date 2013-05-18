@@ -1,2 +1,2 @@
 all:
-	g++ -g parsecdxml.cxx -o parsexml
+	g++ -g parsecdxml.cxx -o parsexml -D DEBUG

@@ -1,2 +1,2 @@
 all:
-	g++ -g parsecdxml.cxx -o parsexml -D DEBUG
+	g++ -g -Wno-invalid-offsetof parsecdxml.cxx -o parsexml -D DEBUG -Wno-format

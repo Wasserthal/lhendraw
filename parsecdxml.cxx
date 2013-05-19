@@ -1,3 +1,4 @@
+#include <stddef.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <typeinfo>
@@ -38,7 +39,13 @@ struct multilistlist_
 } multilistlist;
 intl multilist_count = 0;
 template <class whatabout> class  multilistreference;
-template <class whatabout> class multilist
+class basicmultilist
+{
+	public:
+	basicmultilist(){};
+	~basicmultilist(){};
+};
+template <class whatabout> class multilist : basicmultilist
 {
 	public:
 	whatabout * bufferlist;
@@ -93,7 +100,14 @@ template <class whatabout> multilist<whatabout> * registermultilist(const char *
 	strcpy(multilistlist.names[multilist_count++],thetypesname);
 }
 
-template <class whatabout> class multilistreference
+class basicmultilistreference
+{
+	public:
+	basicmultilistreference(){};
+	~basicmultilistreference(){};
+};
+
+template <class whatabout> class multilistreference : basicmultilistreference
 {
 	public:
 	multilist<whatabout> * instances;
@@ -210,16 +224,31 @@ template <class whatabout> class xml_element_set:basic_xml_element_set
 	~xml_element_set(){};
 };
 
-
-struct cdxml_instance:basic_instance
+struct superconstellation
 {
+	char name[10];
+	char * ref;
 };
-xml_element_set<cdxml_instance> cdxml_xml_element_set("page",NULL);
-
+//This is a hack:
+//1. Objects dependent on variables initalized out of code area
+//2. Object stringlist which all depend on during initialization initialized out of code area
+//3. Offsetof with inherited objects.
+//4. Initialization of a static list members in order to obtain self-reflecting code.
 struct page_instance:basic_instance
 {
 };
 xml_element_set<page_instance> page_xml_element_set("fragment","group",NULL);
+
+struct cdxml_instance:basic_instance
+{
+	multilistreference<page_instance> page;
+	static superconstellation contents[];
+};
+superconstellation cdxml_instance::contents[]={{"name",(char*)offsetof(cdxml_instance,page)}};
+
+
+xml_element_set<cdxml_instance> cdxml_xml_element_set("page",NULL);
+
 
 struct group_instance:basic_instance
 {

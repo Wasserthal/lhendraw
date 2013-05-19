@@ -110,7 +110,7 @@ class basicmultilistreference
 template <class whatabout> class multilistreference : basicmultilistreference
 {
 	public:
-	multilist<whatabout> * instances;
+	basicmultilist * instances;
 	intl start_in_it;
 	intl count_in_it;
 	intl mynumber;
@@ -147,7 +147,12 @@ struct xml_template_element
 	basic_xml_element_set * content;
 };
 
-class basic_instance
+struct superconstellation
+{
+	char name[10];
+	char * ref;
+};
+struct basic_instance
 {
 	public:
 	basic_instance * master;
@@ -224,28 +229,24 @@ template <class whatabout> class xml_element_set:basic_xml_element_set
 	~xml_element_set(){};
 };
 
-struct superconstellation
-{
-	char name[10];
-	char * ref;
-};
 //This is a hack:
 //1. Objects dependent on variables initalized out of code area
 //2. Object stringlist which all depend on during initialization initialized out of code area
 //3. Offsetof with inherited objects.
 //4. Initialization of a static list members in order to obtain self-reflecting code.
+//#include "filestructure.hxx"
+
+struct cdxml_instance:basic_instance
+{
+	static superconstellation contents[];
+	basicmultilistreference page;
+};
+superconstellation cdxml_instance::contents[]={{"page",(char*)offsetof(cdxml_instance,page)}};
+
 struct page_instance:basic_instance
 {
 };
 xml_element_set<page_instance> page_xml_element_set("fragment","group",NULL);
-
-struct cdxml_instance:basic_instance
-{
-	multilistreference<page_instance> page;
-	static superconstellation contents[];
-};
-superconstellation cdxml_instance::contents[]={{"name",(char*)offsetof(cdxml_instance,page)}};
-
 
 xml_element_set<cdxml_instance> cdxml_xml_element_set("page",NULL);
 

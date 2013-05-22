@@ -38,13 +38,15 @@ struct multilistlist_
 	
 } multilistlist;
 intl multilist_count = 0;
-template <class whatabout> class  multilistreference;
+template <class whatabout> class multilistreference;
+
 class basicmultilist
 {
 	public:
 	basicmultilist(){};
 	~basicmultilist(){};
 };
+
 template <class whatabout> class multilist : basicmultilist
 {
 	public:
@@ -103,38 +105,38 @@ template <class whatabout> multilist<whatabout> * registermultilist(const char *
 class basicmultilistreference
 {
 	public:
-	basicmultilistreference(){};
-	~basicmultilistreference(){};
-};
-
-template <class whatabout> class multilistreference : basicmultilistreference
-{
-	public:
 	basicmultilist * instances;
 	intl start_in_it;
 	intl count_in_it;
 	intl mynumber;
+	basicmultilistreference(){};
+	~basicmultilistreference(){};
+};
+
+template <class whatabout> class multilistreference : public basicmultilistreference
+{
+	public:
 	void add(whatabout input)
 	{
-		(*instances).insert(input,start_in_it+count_in_it,mynumber);
+		(*((multilist<whatabout>*)instances)).insert(input,start_in_it+count_in_it,mynumber);
 	}
 	multilistreference()
 	{
 		if (typeid(whatabout)==typeid(stringstruct))
 		{
-			instances=(multilist<whatabout>*)&stringlist;
+			instances=(basicmultilist*)&stringlist;
 		}
 		else
 		{
-			instances=registermultilist<whatabout>(typeid(whatabout).name());
+			instances=(basicmultilist*)registermultilist<whatabout>(typeid(whatabout).name());
 			/*multilistreference(backvalue);*/
-			mynumber=(*instances).getme(this);
+			mynumber=(*((multilist<whatabout>*)instances)).getme(this);
 		}
 	};
 	void multilistreferenx(multilist<whatabout> * input)
 	{
-		instances=input;
-		mynumber=(*instances).getme(this);
+		instances=(basicmultilist*)input;
+		mynumber=(*((multilist<whatabout>*)instances)).getme(this);
 	};
 	~multilistreference(){};
 };
@@ -152,6 +154,7 @@ struct superconstellation
 	char name[10];
 	char * ref;
 };
+
 struct basic_instance
 {
 	public:

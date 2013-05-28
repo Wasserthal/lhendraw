@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <strings.h>
 #define stringlength 256
 #define maxunits 256
 char contents[maxunits][stringlength+1];
@@ -106,12 +108,17 @@ void main(void)
 	{
 		fprintf(outfile,"        %s %s;\n",properties_types[ilv1],properties[ilv1]);
 	}
-	fprintf(outfile,"        static superconstellation contents[];\n};\nsuperconstellation %s_instance::contents[]={\n",name);
+	fprintf(outfile,"        AUTOSTRUCT_GET_ROUTINE(contents)\nAUTOSTRUCT_GET_ROUTINE(properties)\n};\nsuperconstellation %s_instance::contents[]={\n",name);
 	for (int ilv1=0;ilv1<contents_count;ilv1++)
 	{
 		fprintf(outfile,"{\"%s\",(char*)offsetof(%s_instance,%s)}\n",contents[ilv1],name,contents[ilv1]);
 	}
-	fprintf(outfile,"};\n");
+	fprintf(outfile,"};\nsuperconstellation %s_instance::properties[]={\n",name);
+	for (int ilv1=0;ilv1<properties_count;ilv1++)
+	{
+		fprintf(outfile,"{\"%s\",(char*)offsetof(%s,%s)}\n",properties[ilv1],name,contents[ilv1]);
+	}
+	fprintf(outfile,"};");
 
 	if (fread(&ihv1,1,1,infile)==0){goto done;};
 	if (ihv1!='\n') {if(!feof(infile)){printf("no breakline");exit(1);}else goto done;}

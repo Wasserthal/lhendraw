@@ -12,6 +12,19 @@
 #define bufferlistsize 256
 #define multilistlength 256
 #define REGISTER_content the_template.possible_contents.add
+//This is vomittingly expensive. Why cant I make the contents[] "virtual static" ? :G
+#define AUTOSTRUCT_GET_ROUTINE(AUTOSTRUCT_MACRONAME) static superconstellation AUTOSTRUCT_MACRONAME[]; \
+        virtual	char* get ## AUTOSTRUCT_MACRONAME(char * name) \
+	{ \
+		for (int ilv1=0;ilv1<sizeof(AUTOSTRUCT_MACRONAME[0])/sizeof(superconstellation);ilv1++) \
+		{ \
+			if (strcmp(name,AUTOSTRUCT_MACRONAME[ilv1].name)==0) \
+			{ \
+				return AUTOSTRUCT_MACRONAME[ilv1].ref; \
+			} \
+		} \
+		return 0; \
+	}
 struct stringstruct
 {
 	char a[stringlength+1];
@@ -47,7 +60,7 @@ class basicmultilist
 	~basicmultilist(){};
 };
 
-template <class whatabout> class multilist : basicmultilist
+template <class whatabout> class multilist : public basicmultilist
 {
 	public:
 	whatabout * bufferlist;
@@ -158,6 +171,14 @@ struct superconstellation
 struct basic_instance
 {
 	public:
+	virtual char* getcontent(char * name)
+	{
+		return 0;
+	};
+	virtual char* getproperty(char * name)
+	{
+		return 0;
+	};
 	basic_instance * master;
 	basic_instance * children;
 	char myname[stringlength+1];
@@ -236,12 +257,16 @@ template <class whatabout> class xml_element_set:basic_xml_element_set
 //1. Objects dependent on variables initalized out of code area
 //2. Object stringlist which all depend on during initialization initialized out of code area
 //3. Offsetof with inherited objects.
-//4. Initialization of a static list members in order to obtain self-reflecting code.
+//4. Initialization of static list members in order to obtain self-reflecting code.
 //#include "filestructure.hxx"
 
-struct cdxml_instance:basic_instance
+struct cdxml_instance:public basic_instance
 {
-	static superconstellation contents[];
+	public:
+	AUTOSTRUCT_GET_ROUTINE(contents)
+	AUTOSTRUCT_GET_ROUTINE(properties)
+	cdxml_instance();
+	~cdxml_instance();
 	basicmultilistreference page;
 };
 superconstellation cdxml_instance::contents[]={{"page",(char*)offsetof(cdxml_instance,page)}};
@@ -254,7 +279,7 @@ xml_element_set<page_instance> page_xml_element_set("fragment","group",NULL);
 xml_element_set<cdxml_instance> cdxml_xml_element_set("page",NULL);
 
 
-struct group_instance:basic_instance
+/*struct group_instance:basic_instance
 {
 };
 xml_element_set<group_instance> group_xml_element_set("fragment","group",NULL);
@@ -262,7 +287,7 @@ xml_element_set<group_instance> group_xml_element_set("fragment","group",NULL);
 struct fragment_instance:basic_instance
 {
 };
-xml_element_set<fragment_instance> fragment_xml_element_set("n","b",NULL);
+xml_element_set<fragment_instance> fragment_xml_element_set("n","b",NULL);*/
 
 char sentenumeric(char input)
 {
@@ -316,7 +341,7 @@ char spaciatic(char input)
 
 void input_fsm(FILE* infile)
 {
-	intl fsmint=0; //0: in_nothing. 1: bracket-opening 2: Tagreading 3: attstringreading 4: bracket-closing 5: Qmark-ignoring 7: waiting_for_tag_end 8: Addstring - Hyphenation
+	intl fsmint=0; //0: in_nothing. 1: bracket-opening 2: Tagreading 3: attstringreading 4: bracket-closing 5: Qmark-ignoring 7: waiting_for_tag_end 8: Addstring - Hyphenation 9: After equals symbol.
 	char ichar='A';
 	bool bexittag=0;
 	#ifdef DEBUG
@@ -410,9 +435,15 @@ void input_fsm(FILE* infile)
 			}
 		break;
 		case 3:
+			if (ichar=='=')
+			{
+				fsmint=9;
+				break;
+			}
 			if (ichar=='"')
 			{
 				fsmint=8;
+				break;
 			}
 			if (ichar=='>')
 			{
@@ -471,6 +502,17 @@ void input_fsm(FILE* infile)
 				printf("%c",ichar);
 			}
 			exit(1);
+		break;
+		case 9:
+			if (ichar=='"')
+			{
+				fsmint=8;
+				break;
+			}
+			if (ichar=='>')
+			{
+				printf("Error:\">\" directly after equals");exit(1);
+			}
 		break;
 		default:
 		printf("Invalid fsmint!!!!");

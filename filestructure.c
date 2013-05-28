@@ -3,6 +3,13 @@
 #include <strings.h>
 #define stringlength 256
 #define maxunits 256
+#define bufferlength 65536
+#ifdef BITMODE64
+#define intl long long
+#endif
+#ifdef BITMODE32
+#define intl long
+#endif
 char contents[maxunits][stringlength+1];
 char properties[maxunits][stringlength+1];
 char name[stringlength+1];
@@ -12,12 +19,17 @@ int contents_count=0;
 int contents_length[maxunits];
 int properties_length[maxunits];
 char properties_types[maxunits][stringlength+1];
+char helpbuffer[65536];
+char * helpbufferpos;
 void main(void)
 {
 	FILE * infile,*outfile;
 	char ihv1;
+	int helpbufferreturnvalue;
 	infile=fopen("filestructure.draft","r");
 	outfile=fopen("filestructure.hxx","w");
+	helpbufferpos=&helpbuffer[0];
+	helpbuffer[0]=0;
 	lineback:
 	namelength=0;
 	properties_count=0;
@@ -102,24 +114,35 @@ void main(void)
 	fprintf(outfile,"struct %s_instance:basic_instance\n{\n",name);
 	for (int ilv1=0;ilv1<contents_count;ilv1++)
 	{
-		fprintf(outfile,"        multilistreference<%s_instance> %s;\n",contents[ilv1],contents[ilv1]);
+		fprintf(outfile,"        basicmultilistreference * %s;\n",contents[ilv1],contents[ilv1]);
 	}
 	for (int ilv1=0;ilv1<properties_count;ilv1++)
 	{
 		fprintf(outfile,"        %s %s;\n",properties_types[ilv1],properties[ilv1]);
 	}
-	fprintf(outfile,"        AUTOSTRUCT_GET_ROUTINE(contents)\nAUTOSTRUCT_GET_ROUTINE(properties)\n};\nsuperconstellation %s_instance::contents[]={\n",name);
+	fprintf(outfile,"        AUTOSTRUCT_GET_ROUTINE(contents)\n        AUTOSTRUCT_GET_ROUTINE(properties)\n        %s_instance();\n        ~%s_instance(){}\n};\nsuperconstellation %s_instance::contents[]={\n",name,name,name);
 	for (int ilv1=0;ilv1<contents_count;ilv1++)
 	{
-		fprintf(outfile,"{\"%s\",(char*)offsetof(%s_instance,%s)}\n",contents[ilv1],name,contents[ilv1]);
+		fprintf(outfile,"{\"%s\",offsetof(%s_instance,%s)}%s\n",contents[ilv1],name,contents[ilv1],(ilv1==properties_count-1) ? "" : ",");
 	}
 	fprintf(outfile,"};\nsuperconstellation %s_instance::properties[]={\n",name);
 	for (int ilv1=0;ilv1<properties_count;ilv1++)
 	{
-		fprintf(outfile,"{\"%s\",(char*)offsetof(%s,%s)}\n",properties[ilv1],name,contents[ilv1]);
+		fprintf(outfile,"{\"%s\",offsetof(%s_instance,%s)}%s\n",properties[ilv1],name,properties[ilv1],(ilv1==properties_count-1) ? "" : ",");
 	}
-	fprintf(outfile,"};");
-
+	fprintf(outfile,"};\n");
+	sprintf(helpbufferpos,"%s_instance::%s_instance()\n{\n%n",name,name,&helpbufferreturnvalue);
+	helpbufferpos+=helpbufferreturnvalue;
+	(*helpbufferpos)=0;
+	for (int ilv1=0;ilv1<contents_count;ilv1++)
+	{
+		sprintf(helpbufferpos,"        %s=new(multilistreference<%s_instance>);\n%n",contents[ilv1],contents[ilv1],&helpbufferreturnvalue);
+		helpbufferpos+=helpbufferreturnvalue;
+		(*helpbufferpos)=0;
+	}
+	sprintf(helpbufferpos,"}\n%n",&helpbufferreturnvalue);
+	helpbufferpos+=helpbufferreturnvalue;
+	(*helpbufferpos)=0;
 	if (fread(&ihv1,1,1,infile)==0){goto done;};
 	if (ihv1!='\n') {if(!feof(infile)){printf("no breakline");exit(1);}else goto done;}
 	if (!feof(infile))
@@ -127,6 +150,7 @@ void main(void)
 		goto lineback;
 	}
 	done:
+	fprintf(outfile,"%s",helpbuffer);
 	fclose(infile);
 	fclose(outfile);
 }

@@ -14,7 +14,7 @@
 #define REGISTER_content the_template.possible_contents.add
 //This is vomittingly expensive. Why cant I make the contents[] "virtual static" ? :G
 #define AUTOSTRUCT_GET_ROUTINE(AUTOSTRUCT_MACRONAME) static superconstellation AUTOSTRUCT_MACRONAME[]; \
-        virtual	char* get ## AUTOSTRUCT_MACRONAME(char * name) \
+        virtual	int get ## AUTOSTRUCT_MACRONAME(char * name) \
 	{ \
 		for (int ilv1=0;ilv1<sizeof(AUTOSTRUCT_MACRONAME[0])/sizeof(superconstellation);ilv1++) \
 		{ \
@@ -74,7 +74,7 @@ template <class whatabout> class multilist : public basicmultilist
 		bufferlist=(whatabout*)malloc(sizeof(whatabout)*bufferlistsize);
 		return;
 	}
-	intl insert(whatabout input,intl position,intl mynumber)
+	void * insert(whatabout input,intl position,intl mynumber)
 	{
 		for (int ilv1=filllevel;ilv1>position;ilv1--)
 		{
@@ -86,6 +86,7 @@ template <class whatabout> class multilist : public basicmultilist
 		}
 		bufferlist[position]=input;
 		filllevel++;
+		return &bufferlist[position];
 	}
 	intl getme(multilistreference<whatabout> * input)
 	{
@@ -122,6 +123,7 @@ class basicmultilistreference
 	intl start_in_it;
 	intl count_in_it;
 	intl mynumber;
+	virtual void * addnew(){};
 	basicmultilistreference(){};
 	~basicmultilistreference(){};
 };
@@ -129,9 +131,14 @@ class basicmultilistreference
 template <class whatabout> class multilistreference : public basicmultilistreference
 {
 	public:
-	void add(whatabout input)
+	void * add(whatabout input)
 	{
 		(*((multilist<whatabout>*)instances)).insert(input,start_in_it+count_in_it,mynumber);
+	}
+	void * addnew()
+	{
+		whatabout tempwert=whatabout();
+		return (*((multilist<whatabout>*)instances)).insert(tempwert,start_in_it+count_in_it,mynumber);
 	}
 	multilistreference()
 	{
@@ -165,22 +172,21 @@ struct xml_template_element
 struct superconstellation
 {
 	char name[10];
-	char * ref;
+	int ref;
 };
 
 struct basic_instance
 {
 	public:
-	virtual char* getcontent(char * name)
+	virtual int getcontents(char * name)
 	{
 		return 0;
 	};
-	virtual char* getproperty(char * name)
+	virtual int getproperties(char * name)
 	{
 		return 0;
 	};
 	basic_instance * master;
-	basic_instance * children;
 	char myname[stringlength+1];
 	basic_instance(){master=NULL;};
 	~basic_instance(){};
@@ -258,36 +264,7 @@ template <class whatabout> class xml_element_set:basic_xml_element_set
 //2. Object stringlist which all depend on during initialization initialized out of code area
 //3. Offsetof with inherited objects.
 //4. Initialization of static list members in order to obtain self-reflecting code.
-//#include "filestructure.hxx"
-
-struct cdxml_instance:public basic_instance
-{
-	public:
-	AUTOSTRUCT_GET_ROUTINE(contents)
-	AUTOSTRUCT_GET_ROUTINE(properties)
-	cdxml_instance();
-	~cdxml_instance();
-	basicmultilistreference page;
-};
-superconstellation cdxml_instance::contents[]={{"page",(char*)offsetof(cdxml_instance,page)}};
-
-struct page_instance:basic_instance
-{
-};
-xml_element_set<page_instance> page_xml_element_set("fragment","group",NULL);
-
-xml_element_set<cdxml_instance> cdxml_xml_element_set("page",NULL);
-
-
-/*struct group_instance:basic_instance
-{
-};
-xml_element_set<group_instance> group_xml_element_set("fragment","group",NULL);
-
-struct fragment_instance:basic_instance
-{
-};
-xml_element_set<fragment_instance> fragment_xml_element_set("n","b",NULL);*/
+#include "filestructure.hxx"
 
 char sentenumeric(char input)
 {
@@ -310,9 +287,15 @@ char sentenumeric(char input)
 	return 0;
 }
 
+basic_instance * currentinstance;
+
 void entertag()
 {
+	basicmultilistreference * nextinstance_list;
+	basic_instance * nextinstance;
 	tagnamestring[tagnamestring_length]=0;
+	nextinstance_list=*reinterpret_cast<basicmultilistreference**>((((char*)currentinstance)+currentinstance->getcontents(tagnamestring)));
+	printf("%s",typeid(nextinstance_list->addnew()).name());
 	printf("enter %s\n",tagnamestring);
 };
 
@@ -344,6 +327,7 @@ void input_fsm(FILE* infile)
 	intl fsmint=0; //0: in_nothing. 1: bracket-opening 2: Tagreading 3: attstringreading 4: bracket-closing 5: Qmark-ignoring 7: waiting_for_tag_end 8: Addstring - Hyphenation 9: After equals symbol.
 	char ichar='A';
 	bool bexittag=0;
+	currentinstance=new(Total_Document_instance);
 	#ifdef DEBUG
 	intl debugcounter=0;
 	#endif

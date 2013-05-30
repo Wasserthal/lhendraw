@@ -143,6 +143,9 @@ void main(void)
 	sprintf(helpbufferpos,"}\n%n",&helpbufferreturnvalue);
 	helpbufferpos+=helpbufferreturnvalue;
 	(*helpbufferpos)=0;
+	sprintf(helpbufferpos,"xml_element_set<%s_instance> %s_list=xml_element_set<%s_instance>();\n%n",name,name,name,&helpbufferreturnvalue);
+	helpbufferpos+=helpbufferreturnvalue;
+	(*helpbufferpos)=0;
 	if (fread(&ihv1,1,1,infile)==0){goto done;};
 	if (ihv1!='\n') {if(!feof(infile)){printf("no breakline");exit(1);}else goto done;}
 	if (!feof(infile))

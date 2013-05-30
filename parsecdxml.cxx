@@ -107,7 +107,7 @@ template <class whatabout> multilist<whatabout> * registermultilist(const char *
 {
 	for (int ilv1=0;ilv1<multilist_count;ilv1++)
 	{
-		if (strcmp(thetypesname,multilistlist.names[ilv1]))
+		if (strcmp(thetypesname,multilistlist.names[ilv1])==0)
 		{
 			return (multilist<whatabout> *) multilistlist.instances[ilv1];
 		}
@@ -171,7 +171,7 @@ struct xml_template_element
 
 struct superconstellation
 {
-	char name[10];
+	char name[30];
 	int ref;
 };
 
@@ -214,27 +214,6 @@ template <class whatabout> class xml_element_set:basic_xml_element_set
 	multilistreference<whatabout> instances;
 	xml_element_set() 
 	{
-		/*
-		if (typeid(whatabout)==typeid(cdxml_instance))
-		{
-			REGISTER_content("page");
-		}
-		if (typeid(whatabout)==typeid(page_instance))
-		{
-			REGISTER_content("fragment");
-			REGISTER_content("group");
-		}
-		if (typeid(whatabout)==typeid(group_instance))
-		{
-			REGISTER_content("fragment");
-			REGISTER_content("group");
-		}
-		if (typeid(whatabout)==typeid(fragment_instance))
-		{
-			REGISTER_content("fragment");
-			REGISTER_content("group");
-		}
-		*/
 		strcpy(name,typeid(whatabout).name());
 		name[strlen(name)-strlen("_instance")]=0;
 		xml_set_register[xml_set_register_count++]=this;
@@ -294,8 +273,17 @@ void entertag()
 	basicmultilistreference * nextinstance_list;
 	basic_instance * nextinstance;
 	tagnamestring[tagnamestring_length]=0;
-	nextinstance_list=*reinterpret_cast<basicmultilistreference**>((((char*)currentinstance)+currentinstance->getcontents(tagnamestring)));
-	printf("%s",typeid(nextinstance_list->addnew()).name());
+	printf("%i",tagnamestring_length);
+	printf(" %s ",tagnamestring,10);
+	nextinstance_list=* /*reinterpret_cast<*/(basicmultilistreference**)/*>*/((((char*)currentinstance)+currentinstance->getcontents(tagnamestring)));
+	if ((currentinstance->getcontents(tagnamestring))==0)
+	{
+		fprintf(stdout,"Unknown Element:%s",tagnamestring);
+		exit(1);
+	}
+	nextinstance=(basic_instance*)nextinstance_list->addnew();
+	(*nextinstance).master=currentinstance;
+	printf("%s",typeid(nextinstance).name());
 	printf("enter %s\n",tagnamestring);
 };
 
@@ -304,7 +292,10 @@ void concludeattstring()
 	attstring[tagnamestring_length]=0;
 };
 
-void exittag(){};
+void exittag()
+{
+	currentinstance=(*currentinstance).master;
+};
 char spaciatic(char input)
 {
 	if (input==' ')
@@ -511,8 +502,8 @@ void input_fsm(FILE* infile)
 
 int main(int argc, char * * argv)
 {
-	xml_set_register_count=0;
-	multilist_count=0;
+	/*xml_set_register_count=0;
+	multilist_count=0;*/ //contraproductive amongst the hack!
 	FILE * infile;
 	infile=fopen(argv[1],"r+");
 	input_fsm(infile);

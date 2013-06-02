@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <strings.h>
+#include <string.h>
 #define stringlength 256
 #define maxunits 256
 #define bufferlength 65536
@@ -111,7 +111,7 @@ void main(void)
 	properties_count++;
 	goto propertiesback;
 	propertiesdone:
-	fprintf(outfile,"struct %s_instance:basic_instance\n{\n",name);
+	fprintf(outfile,"struct %s_instance:basic_instance\n{\n        char * getName(){static char name[]=\"%s\";return (char*)&name;}",name,name);
 	for (int ilv1=0;ilv1<contents_count;ilv1++)
 	{
 		fprintf(outfile,"        basicmultilistreference * %s;\n",contents[ilv1],contents[ilv1]);

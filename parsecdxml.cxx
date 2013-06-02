@@ -85,6 +85,7 @@ template <class whatabout> class multilist : public basicmultilist
 			(*dependants[ilv1]).start_in_it++;
 		}
 		bufferlist[position]=input;
+		(*(intl*)&bufferlist[position])=*(intl*)&input;//hack for bug in gcc: vtable index not copied to array
 		filllevel++;
 		return &bufferlist[position];
 	}
@@ -186,8 +187,8 @@ struct basic_instance
 	{
 		return 0;
 	};
+	virtual char * getName(){return 0;}
 	basic_instance * master;
-	char myname[stringlength+1];
 	basic_instance(){master=NULL;};
 	~basic_instance(){};
 };
@@ -278,13 +279,15 @@ void entertag()
 	nextinstance_list=* /*reinterpret_cast<*/(basicmultilistreference**)/*>*/((((char*)currentinstance)+currentinstance->getcontents(tagnamestring)));
 	if ((currentinstance->getcontents(tagnamestring))==0)
 	{
-		fprintf(stdout,"Unknown Element:%s",tagnamestring);
+		fprintf(stdout,"Unknown Element:%s in %s\n",tagnamestring,currentinstance->getName());
 		exit(1);
 	}
 	nextinstance=(basic_instance*)nextinstance_list->addnew();
+	printf("next%llX,",nextinstance);
 	(*nextinstance).master=currentinstance;
 	printf("%s",typeid(nextinstance).name());
 	printf("enter %s\n",tagnamestring);
+	currentinstance=nextinstance;
 };
 
 void concludeattstring()

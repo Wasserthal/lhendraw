@@ -23,7 +23,7 @@
 				return AUTOSTRUCT_MACRONAME[ilv1].ref; \
 			} \
 		} \
-		return 0; \
+		return -1; \
 	}
 struct stringstruct
 {
@@ -181,11 +181,11 @@ struct basic_instance
 	public:
 	virtual int getcontents(char * name)
 	{
-		return 0;
+		return -1;
 	};
 	virtual int getproperties(char * name)
 	{
-		return 0;
+		return -1;
 	};
 	virtual char * getName(){return 0;}
 	basic_instance * master;
@@ -244,6 +244,12 @@ template <class whatabout> class xml_element_set:basic_xml_element_set
 //2. Object stringlist which all depend on during initialization initialized out of code area
 //3. Offsetof with inherited objects.
 //4. Initialization of static list members in order to obtain self-reflecting code.
+struct gummydummy_instance: basic_instance
+{
+	char * getName(){static char name[]="gummydummy"; return(char*)&name;}
+	int getcontents(char * name){return -1;}
+	int getproperties(char * name){return -1;}
+};
 #include "filestructure.hxx"
 
 char sentenumeric(char input)
@@ -271,33 +277,42 @@ basic_instance * currentinstance;
 
 void entertag()
 {
+	intl suboffset;
 	basicmultilistreference * nextinstance_list;
 	basic_instance * nextinstance;
 	tagnamestring[tagnamestring_length]=0;
 	printf("%i",tagnamestring_length);
 	printf(" %s ",tagnamestring,10);
-	nextinstance_list=* /*reinterpret_cast<*/(basicmultilistreference**)/*>*/((((char*)currentinstance)+currentinstance->getcontents(tagnamestring)));
-	if ((currentinstance->getcontents(tagnamestring))==0)
+	suboffset=(currentinstance->getcontents(tagnamestring));
+	if (suboffset!=-1)
 	{
-		fprintf(stdout,"Unknown Element:%s in %s\n",tagnamestring,currentinstance->getName());
-		exit(1);
+		nextinstance_list=*(basicmultilistreference**)(((char*)currentinstance)+suboffset);
+		nextinstance=(basic_instance*)nextinstance_list->addnew();
 	}
-	nextinstance=(basic_instance*)nextinstance_list->addnew();
+	else
+	{
+		nextinstance=new(gummydummy_instance);
+	}
 	printf("next%llX,",nextinstance);
+	printf(">>%s<<",nextinstance->getName());
 	(*nextinstance).master=currentinstance;
-	printf("%s",typeid(nextinstance).name());
 	printf("enter %s\n",tagnamestring);
 	currentinstance=nextinstance;
 };
 
 void concludeattstring()
 {
-	attstring[tagnamestring_length]=0;
+	attstring[attstring_length]=0;
 };
 
 void exittag()
 {
+	basic_instance * lastinstance=currentinstance;
 	currentinstance=(*currentinstance).master;
+	if (strcmp(lastinstance->getName(),"gummydummy")==0)
+	{
+		delete(lastinstance);
+	}
 };
 char spaciatic(char input)
 {
@@ -321,6 +336,8 @@ void input_fsm(FILE* infile)
 	intl fsmint=0; //0: in_nothing. 1: bracket-opening 2: Tagreading 3: attstringreading 4: bracket-closing 5: Qmark-ignoring 7: waiting_for_tag_end 8: Addstring - Hyphenation 9: After equals symbol.
 	char ichar='A';
 	bool bexittag=0;
+	tagnamestring_length=0;
+	attstring_length=0;
 	currentinstance=new(Total_Document_instance);
 	#ifdef DEBUG
 	intl debugcounter=0;
@@ -340,27 +357,6 @@ void input_fsm(FILE* infile)
 			}
 		break;
 		case 1:
-			if (bexittag==1)
-			{
-				if (ichar=='/')
-				{
-					printf("Error: The Tag to end was defined by another /");exit(1);
-					break;
-				}
-				if (ichar=='>')
-				{
-					if (bexittag)
-					{
-						printf("Error: Only slash in Brackets!");exit(1);
-						exittag();
-					}
-					break;
-				}
-				if (spaciatic(ichar))
-				{
-					break;
-				}
-			}
 			if (spaciatic(ichar))
 			{
 				break;
@@ -389,8 +385,12 @@ void input_fsm(FILE* infile)
 			}
 			if (ichar=='>')
 			{
+				if (bexittag==1)
+				{
+					printf("Error: only slash in brackets!");exit(1);
+				}
 				bexittag=0;
-				fsmint=8;
+				fsmint=4;
 			}
 			printf("Error: invalid beginning of tag!");exit(1);
 		break;
@@ -399,15 +399,53 @@ void input_fsm(FILE* infile)
 			{
 				tagnamestring[tagnamestring_length]=ichar;
 				tagnamestring_length++;
+				break;
 			}
 			else
 			{
-				entertag();
-				fsmint=3;
+				if (bexittag==1)
+				{
+					if (ichar=='/')
+					{
+						printf("Error: The Tag to end was defined by another /");exit(1);
+						break;
+					}
+					if (ichar=='>')
+					{
+						exittag();	
+						bexittag=0;
+						fsmint=4;
+						break;
+					}
+					if (spaciatic(ichar))
+					{
+						break;
+					}
+				}
+				else
+				{
+					printf("Enter");
+					fsmint=3;
+					entertag();
+					attstring_length=0;
+					//omission of break is intended here
+				}
+				if (ichar=='>')
+				{
+					bexittag=0;
+					fsmint=4;
+					break;
+				}
+				break;
 			}
 			if (ichar=='/')
 			{
+				if (bexittag==1)
+				{
+					printf("error: exiting tag had also exit on end");exit(1);
+				}
 				exittag();
+				bexittag=0;
 				fsmint=7;
 				break;
 			}
@@ -428,6 +466,14 @@ void input_fsm(FILE* infile)
 				bexittag=0;
 				concludeattstring();
 				fsmint=4;
+				break;
+			}
+			if (ichar=='/')
+			{
+				exittag();
+				bexittag=0;
+				fsmint=7;
+				break;
 			}
 		break;
 		case 8:
@@ -471,11 +517,11 @@ void input_fsm(FILE* infile)
 				fsmint=4;break;	
 			}
 			printf("Error: \">\" expected at end of tag");
+			#ifdef DEBUG
+				printf("%%-> %llX <-i\n",debugcounter);
+			#endif
 			for (int ilv1=0;ilv1<15;ilv1++)
 			{
-				#ifdef DEBUG
-					printf("%%-> %llX <-i\n",debugcounter);
-				#endif
 				fread(&ichar,1,1,infile);
 				printf("%c",ichar);
 			}
@@ -505,11 +551,13 @@ void input_fsm(FILE* infile)
 
 int main(int argc, char * * argv)
 {
+	setvbuf(stdout,NULL,_IONBF,0);
 	/*xml_set_register_count=0;
 	multilist_count=0;*/ //contraproductive amongst the hack!
 	FILE * infile;
 	infile=fopen(argv[1],"r+");
 	input_fsm(infile);
 	fclose(infile);
+	exit(0);
 	return 0;
 }

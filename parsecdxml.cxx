@@ -33,9 +33,11 @@ struct stringstruct
 };
 
 char tagnamestring[stringlength+1];
-char attstring[bufferlength+1];
+char parameterstring[bufferlength+1];
+char paramvaluestring[bufferlength+1];
 intl tagnamestring_length;
-intl attstring_length;
+intl parameterstring_length;
+intl paramvaluestring_length;
 
 /*stringstruct operator = (char* input)
 {
@@ -174,6 +176,7 @@ struct superconstellation
 {
 	char name[30];
 	int ref;
+	int type;
 };
 
 struct basic_instance
@@ -300,9 +303,15 @@ void entertag()
 	currentinstance=nextinstance;
 };
 
-void concludeattstring()
+void concludeparameterstring()
 {
-	attstring[attstring_length]=0;
+	parameterstring[parameterstring_length]=0;
+	parameterstring_length=0;
+};
+void concludeparamvaluestring()
+{
+	paramvaluestring[paramvaluestring_length]=0;
+	paramvaluestring_length=0;
 };
 
 void exittag()
@@ -333,11 +342,12 @@ char spaciatic(char input)
 
 void input_fsm(FILE* infile)
 {
-	intl fsmint=0; //0: in_nothing. 1: bracket-opening 2: Tagreading 3: attstringreading 4: bracket-closing 5: Qmark-ignoring 7: waiting_for_tag_end 8: Addstring - Hyphenation 9: After equals symbol.
+	intl fsmint=0; //0: in_nothing. 1: bracket-opening 2: Tagreading 3: parameterstringreading 4: bracket-closing 5: Qmark-ignoring 7: waiting_for_tag_end 8: Addstring - Hyphenation 9: After equals symbol 10 paramvaluestringreading.
 	char ichar='A';
 	bool bexittag=0;
 	tagnamestring_length=0;
-	attstring_length=0;
+	parameterstring_length=0;
+	paramvaluestring_length=0;
 	currentinstance=new(Total_Document_instance);
 	#ifdef DEBUG
 	intl debugcounter=0;
@@ -427,7 +437,8 @@ void input_fsm(FILE* infile)
 					printf("Enter");
 					fsmint=3;
 					entertag();
-					attstring_length=0;
+					parameterstring_length=0;
+					paramvaluestring_length=0;
 					//omission of break is intended here
 				}
 				if (ichar=='>')
@@ -456,15 +467,10 @@ void input_fsm(FILE* infile)
 				fsmint=9;
 				break;
 			}
-			if (ichar=='"')
-			{
-				fsmint=8;
-				break;
-			}
 			if (ichar=='>')
 			{
 				bexittag=0;
-				concludeattstring();
+				concludeparameterstring();
 				fsmint=4;
 				break;
 			}
@@ -479,7 +485,7 @@ void input_fsm(FILE* infile)
 		case 8:
 			if (ichar=='"')
 			{
-				fsmint=3;
+				fsmint=9;
 				break;
 			}
 		break;
@@ -530,12 +536,17 @@ void input_fsm(FILE* infile)
 		case 9:
 			if (ichar=='"')
 			{
-				fsmint=8;
+				concludeparamvaluestring();
+				fsmint=3;
 				break;
 			}
-			if (ichar=='>')
+			if (spaciatic(ichar))
 			{
-				printf("Error:\">\" directly after equals");exit(1);
+				break;
+			}
+			else
+			{
+				printf("error: invalid symbol \"%c\" directly after equals/after ",ichar);exit(1);
 			}
 		break;
 		default:

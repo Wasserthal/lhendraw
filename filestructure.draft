@@ -1,8 +1,11 @@
 Total_Document;CDXML ;;
-CDXML;colortable page ;;
+CDXML;colortable page fonttable ;;
 page;group fragment ;;
 group;group fragment ;;
 fragment;n b ;;
 n;;0 color 1 p 0 z ;
 b;;0 color 0 B 0 E 0 z ;
-colortable;;;
+colortable;color ;;
+color;;0 r 0 g 0 b ;
+fonttable;font ;;
+font;;;

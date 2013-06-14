@@ -65,7 +65,7 @@ void main(void)
 	goto contentsback;
 	contentsdone:
 	propertiesback:
-	strcpy(properties_types[properties_count],"intl");
+	strcpy(properties_types[properties_count],"_i32");
 	fread(&ihv1,1,1,infile);
 	if (ihv1==';')
 	{
@@ -73,11 +73,11 @@ void main(void)
 	}
 	switch(ihv1)
 	{
-		case 's' : strcpy(properties_types[properties_count],"string");break;
-		case '0' : strcpy(properties_types[properties_count],"intl");break;
+		case 's' : strcpy(properties_types[properties_count],"chararray");break;
+		case '0' : strcpy(properties_types[properties_count],"_i32");break;
 		case '1' : strcpy(properties_types[properties_count],"float");break;
-		case '2' : strcpy(properties_types[properties_count],"cdx_point");break;
-		case '4' : strcpy(properties_types[properties_count],"cdx_box");break;
+		case '2' : strcpy(properties_types[properties_count],"cdx_Coordinate");break;
+		case '4' : strcpy(properties_types[properties_count],"cdx_Rectangle");break;
 		case '\\' : 
 		;
 		int thisnamelength=0;
@@ -111,7 +111,7 @@ void main(void)
 	properties_count++;
 	goto propertiesback;
 	propertiesdone:
-	fprintf(outfile,"struct %s_instance:basic_instance\n{\n        char * getName(){static char name[]=\"%s\";return (char*)&name;}",name,name);
+	fprintf(outfile,"struct %s_instance:basic_instance\n{\n        char * getName(){static char name[]=\"%s\";return (char*)&name;}\n",name,name);
 	for (int ilv1=0;ilv1<contents_count;ilv1++)
 	{
 		fprintf(outfile,"        basicmultilistreference * %s;\n",contents[ilv1],contents[ilv1]);
@@ -120,7 +120,7 @@ void main(void)
 	{
 		fprintf(outfile,"        %s %s;\n",properties_types[ilv1],properties[ilv1]);
 	}
-	fprintf(outfile,"        AUTOSTRUCT_GET_ROUTINE(contents)\n        AUTOSTRUCT_GET_ROUTINE(properties)\n        %s_instance();\n        ~%s_instance(){}\n};\nsuperconstellation %s_instance::contents[]={\n",name,name,name);
+	fprintf(outfile,"        AUTOSTRUCT_GET_ROUTINE(contents,%i)\n        AUTOSTRUCT_PROPERTY_ROUTINE(%i)\n        %s_instance();\n        ~%s_instance(){}\n};\nsuperconstellation %s_instance::contents[]={\n",contents_count,properties_count,name,name,name);
 	for (int ilv1=0;ilv1<contents_count;ilv1++)
 	{
 		fprintf(outfile,"{\"%s\",offsetof(%s_instance,%s)}%s\n",contents[ilv1],name,contents[ilv1],(ilv1==properties_count-1) ? "" : ",");
@@ -128,7 +128,7 @@ void main(void)
 	fprintf(outfile,"};\nsuperconstellation %s_instance::properties[]={\n",name);
 	for (int ilv1=0;ilv1<properties_count;ilv1++)
 	{
-		fprintf(outfile,"{\"%s\",offsetof(%s_instance,%s)}%s\n",properties[ilv1],name,properties[ilv1],(ilv1==properties_count-1) ? "" : ",");
+		fprintf(outfile,"{\"%s\",offsetof(%s_instance,%s),CDXMLREAD_%s}%s\n",properties[ilv1],name,properties[ilv1],properties_types[ilv1],(ilv1==properties_count-1) ? "" : ",");
 	}
 	fprintf(outfile,"};\n");
 	sprintf(helpbufferpos,"%s_instance::%s_instance()\n{\n%n",name,name,&helpbufferreturnvalue);

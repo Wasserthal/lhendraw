@@ -12,15 +12,31 @@
 #define bufferlistsize 256
 #define multilistlength 256
 #define REGISTER_content the_template.possible_contents.add
+void CDXMLREAD_basic(char * input,void * output);
+typedef void __attribute__((sysv_abi))(*CDXMLREAD_functype)(char * input,void * output);
 //This is vomittingly expensive. Why cant I make the contents[] "virtual static" ? :G
-#define AUTOSTRUCT_GET_ROUTINE(AUTOSTRUCT_MACRONAME) static superconstellation AUTOSTRUCT_MACRONAME[]; \
+#define AUTOSTRUCT_GET_ROUTINE(AUTOSTRUCT_MACRONAME,COUNT_MACROPARAM) static superconstellation AUTOSTRUCT_MACRONAME[]; \
         virtual	int get ## AUTOSTRUCT_MACRONAME(char * name) \
 	{ \
-		for (int ilv1=0;ilv1<sizeof(AUTOSTRUCT_MACRONAME[0])/sizeof(superconstellation);ilv1++) \
+		for (int ilv1=0;ilv1<COUNT_MACROPARAM;ilv1++) \
 		{ \
+			printf(">>%s!.",AUTOSTRUCT_MACRONAME[ilv1].name); \
 			if (strcmp(name,AUTOSTRUCT_MACRONAME[ilv1].name)==0) \
 			{ \
 				return AUTOSTRUCT_MACRONAME[ilv1].ref; \
+			} \
+		} \
+		return -1; \
+	}
+#define AUTOSTRUCT_PROPERTY_ROUTINE(COUNT_MACROPARAM) static superconstellation properties[]; \
+	virtual int getproperties(char * name, CDXMLREAD_functype * delegateoutput) \
+	{ \
+		for (int ilv1=0;ilv1<COUNT_MACROPARAM;ilv1++) \
+		{ \
+			if (strcmp(name,properties[ilv1].name)==0) \
+			{ \
+				*(delegateoutput)=properties[ilv1].delegate; \
+				return properties[ilv1].ref; \
 			} \
 		} \
 		return -1; \
@@ -62,6 +78,22 @@ class basicmultilist
 	~basicmultilist(){};
 };
 
+char spaciatic(char input)
+{
+	if (input==' ')
+	{
+		return 1;
+	}
+	if (input==10)
+	{
+		return 1;
+	}
+	if (input==13)
+	{
+		return 1;
+	}
+	return 0;
+}
 template <class whatabout> class multilist : public basicmultilist
 {
 	public:
@@ -176,7 +208,7 @@ struct superconstellation
 {
 	char name[30];
 	int ref;
-	int type;
+	CDXMLREAD_functype delegate;
 };
 
 struct basic_instance
@@ -186,7 +218,7 @@ struct basic_instance
 	{
 		return -1;
 	};
-	virtual int getproperties(char * name)
+	virtual int getproperties(char * name,CDXMLREAD_functype * delegateoutput)
 	{
 		return -1;
 	};
@@ -251,8 +283,10 @@ struct gummydummy_instance: basic_instance
 {
 	char * getName(){static char name[]="gummydummy"; return(char*)&name;}
 	int getcontents(char * name){return -1;}
-	int getproperties(char * name){return -1;}
+	int getproperties(char * name,CDXMLREAD_functype * delegateoutput){return -1;}
 };
+#define chararray char *
+#include "cxxdata.h"
 #include "filestructure.hxx"
 
 char sentenumeric(char input)
@@ -278,6 +312,10 @@ char sentenumeric(char input)
 
 basic_instance * currentinstance;
 
+#ifdef DEBUG
+intl debugcounter=0;
+#endif
+
 void entertag()
 {
 	intl suboffset;
@@ -294,6 +332,7 @@ void entertag()
 	}
 	else
 	{
+		printf("%s has no member named %s at %X!\n",currentinstance->getName(),tagnamestring,debugcounter);
 		nextinstance=new(gummydummy_instance);
 	}
 	printf("next%llX,",nextinstance);
@@ -314,6 +353,23 @@ void concludeparamvaluestring()
 	paramvaluestring_length=0;
 };
 
+void scoopparam()
+{
+	CDXMLREAD_functype thisfunc;
+	int suboffset=(currentinstance->getproperties(parameterstring,&thisfunc));
+	if (suboffset!=-1)
+	{
+		thisfunc(paramvaluestring,((char*)currentinstance)+suboffset);
+		printf(" ;....; %s\n",paramvaluestring);
+	}
+	else
+	{
+		return;
+	}
+	
+	return;
+}
+
 void exittag()
 {
 	basic_instance * lastinstance=currentinstance;
@@ -323,22 +379,6 @@ void exittag()
 		delete(lastinstance);
 	}
 };
-char spaciatic(char input)
-{
-	if (input==' ')
-	{
-		return 1;
-	}
-	if (input==10)
-	{
-		return 1;
-	}
-	if (input==13)
-	{
-		return 1;
-	}
-	return 0;
-}
 
 void input_fsm(FILE* infile)
 {
@@ -349,9 +389,6 @@ void input_fsm(FILE* infile)
 	parameterstring_length=0;
 	paramvaluestring_length=0;
 	currentinstance=new(Total_Document_instance);
-	#ifdef DEBUG
-	intl debugcounter=0;
-	#endif
 	iback:
 	fread(&ichar,1,1,infile);
 	#ifdef DEBUG
@@ -434,7 +471,6 @@ void input_fsm(FILE* infile)
 				}
 				else
 				{
-					printf("Enter");
 					fsmint=3;
 					entertag();
 					parameterstring_length=0;
@@ -464,7 +500,9 @@ void input_fsm(FILE* infile)
 		case 3:
 			if (ichar=='=')
 			{
-				fsmint=9;
+				concludeparameterstring();
+				paramvaluestring_length=0;
+				fsmint=8;
 				break;
 			}
 			if (ichar=='>')
@@ -481,18 +519,30 @@ void input_fsm(FILE* infile)
 				fsmint=7;
 				break;
 			}
+			if (!spaciatic(ichar))
+			{
+				parameterstring[parameterstring_length++]=ichar;
+			}
 		break;
 		case 8:
 			if (ichar=='"')
 			{
+				if (paramvaluestring_length!=0)
+				{
+					printf("Error: Starting the Hypenation too late");exit(1);
+				}
+				paramvaluestring_length=0;
 				fsmint=9;
 				break;
+			}
+			else
+			{
+				paramvaluestring[paramvaluestring_length++]=ichar;
 			}
 		break;
 		case 4:
 			if (ichar=='<')
 			{
-				printf("start ");
 				fsmint=1;
 			}
 		break;
@@ -537,21 +587,14 @@ void input_fsm(FILE* infile)
 			if (ichar=='"')
 			{
 				concludeparamvaluestring();
+				scoopparam();
 				fsmint=3;
 				break;
 			}
-			if (spaciatic(ichar))
-			{
-				break;
-			}
-			else
-			{
-				printf("error: invalid symbol \"%c\" directly after equals/after ",ichar);exit(1);
-			}
+			paramvaluestring[paramvaluestring_length++]=ichar;
 		break;
 		default:
-		printf("Invalid fsmint!!!!");
-		exit(1);
+		printf("Error: Internal error!Invalid fsmint!!!!:%i",fsmint);exit(1);
 	}
 	if (!feof(infile))
 	{

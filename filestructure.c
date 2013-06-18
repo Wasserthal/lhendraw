@@ -1,3 +1,5 @@
+//This generates the hxx file with the filestructure object definitions from filestructure.draft.
+//Because this renders objects somehow obsolete, The main routine theoretically could be converted to ansi c99.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

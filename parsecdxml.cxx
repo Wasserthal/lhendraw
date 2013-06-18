@@ -1,3 +1,5 @@
+//This is the main unit, contains alsomost C++ code, and inserts the other units in the middle
+//Be aware that filestructure.hxx is dynamically generated from filestructure.draft by filestructure_maker (filestructuremaker.c)
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdio.h>

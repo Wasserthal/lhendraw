@@ -1,7 +1,7 @@
 #ifndef _i32
 #define _i32 int
 #endif
-
+/* This unit contains the readers for all datatypes that are no xml tags */
 typedef struct cdx_color
 {
 	int R,G,B;

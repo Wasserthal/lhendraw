@@ -13,9 +13,10 @@
 #define bufferlength 256
 #define bufferlistsize 256
 #define multilistlength 256
+#define multilistlistlength 256
 #define REGISTER_content the_template.possible_contents.add
 void CDXMLREAD_basic(char * input,void * output);
-typedef void __attribute__((sysv_abi))(*CDXMLREAD_functype)(char * input,void * output);
+typedef int __attribute__((sysv_abi))(*CDXMLREAD_functype)(char * input,void * output);
 //This is vomittingly expensive. Why cant I make the contents[] "virtual static" ? :G
 #define AUTOSTRUCT_GET_ROUTINE(AUTOSTRUCT_MACRONAME,COUNT_MACROPARAM) static superconstellation AUTOSTRUCT_MACRONAME[]; \
         virtual	int get ## AUTOSTRUCT_MACRONAME(char * name) \
@@ -67,7 +68,7 @@ class basic_xml_element_set;
 struct multilistlist_
 {
 	char names[multilistlength][stringlength+1];
-	void * instances[multilistlength];
+	void * instances[multilistlistlength];
 	
 } multilistlist;
 intl multilist_count = 0;
@@ -139,6 +140,18 @@ template <class whatabout> class multilist : public basicmultilist
 multilist<stringstruct> stringlist=multilist<stringstruct>();
 basic_xml_element_set* xml_set_register[bufferlistsize];
 intl xml_set_register_count=0;
+
+template <class whatabout> multilist<whatabout> * retrievemultilist()
+{
+	for (int ilv1=0;ilv1<multilist_count;ilv1++)
+	{
+		if (strcmp(typeid(whatabout).name(),multilistlist.names[ilv1])==0)
+		{
+			return (multilist<whatabout> *) multilistlist.instances[ilv1];
+		}
+	}
+	return 0;
+}
 
 template <class whatabout> multilist<whatabout> * registermultilist(const char * thetypesname)
 {
@@ -290,6 +303,7 @@ struct gummydummy_instance: basic_instance
 #define chararray char *
 #include "cxxdata.h"
 #include "filestructure.hxx"
+#include "createsvg.hxx"
 
 char sentenumeric(char input)
 {
@@ -614,6 +628,7 @@ int main(int argc, char * * argv)
 	infile=fopen(argv[1],"r+");
 	input_fsm(infile);
 	fclose(infile);
+	svg_main("output.svg");
 	exit(0);
 	return 0;
 }

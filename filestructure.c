@@ -21,7 +21,10 @@ int contents_count=0;
 int contents_length[maxunits];
 int properties_length[maxunits];
 char properties_types[maxunits][stringlength+1];
+intl properties_type_nrs[maxunits];
 char helpbuffer[65536];
+char resetmode_outline[4][31]={{"%1$n"},{"%2$s=0;\n%1$n"},{"clear_%3$s(%2$s);\n%1$n"},{"%2$s.a=0;\n%1$n"}};//very problematic: each operation must tell its length!
+//ATTENTION: the second matrix array size is critical: if it is too low, the strings are simply cut off!
 char * helpbufferpos;
 void main(void)
 {
@@ -68,6 +71,7 @@ void main(void)
 	contentsdone:
 	propertiesback:
 	strcpy(properties_types[properties_count],"_i32");
+	properties_type_nrs[properties_count]=0;
 	fread(&ihv1,1,1,infile);
 	if (ihv1==';')
 	{
@@ -75,11 +79,14 @@ void main(void)
 	}
 	switch(ihv1)
 	{
-		case 's' : strcpy(properties_types[properties_count],"chararray");break;
-		case '0' : strcpy(properties_types[properties_count],"_i32");break;
-		case '1' : strcpy(properties_types[properties_count],"float");break;
-		case '2' : strcpy(properties_types[properties_count],"cdx_Coordinate");break;
-		case '4' : strcpy(properties_types[properties_count],"cdx_Rectangle");break;
+		case 's' : strcpy(properties_types[properties_count],"chararray");properties_type_nrs[properties_count]=2;break;
+		case '0' : strcpy(properties_types[properties_count],"_i32");properties_type_nrs[properties_count]=1;break;
+		case '1' : strcpy(properties_types[properties_count],"float");properties_type_nrs[properties_count]=1;break;
+		case '2' : strcpy(properties_types[properties_count],"cdx_Point2D");properties_type_nrs[properties_count]=2;break;
+		case '3' : strcpy(properties_types[properties_count],"cdx_Point3D");properties_type_nrs[properties_count]=2;break;
+		case '4' : strcpy(properties_types[properties_count],"cdx_Rectangle");properties_type_nrs[properties_count]=2;break;
+		case '5' : strcpy(properties_types[properties_count],"cdx_Coordinate");properties_type_nrs[properties_count]=1;break;
+		case '!' : strcpy(properties_types[properties_count],"cdx_enum");properties_type_nrs[properties_count]=0;break;
 		case '\\' : 
 		;
 		int thisnamelength=0;
@@ -90,7 +97,7 @@ void main(void)
 			thisnamelength++;
 			goto propertiesname_back;
 		}
-		properties_types[properties_count][thisnamelength]=0;
+		properties_types[properties_count][thisnamelength]=0;properties_type_nrs[properties_count]=0;
 		goto start_symbolreading3;
 	}
 	fread(&ihv1,1,1,infile);//should be a blank
@@ -139,6 +146,15 @@ void main(void)
 	for (int ilv1=0;ilv1<contents_count;ilv1++)
 	{
 		sprintf(helpbufferpos,"        %s=new(multilistreference<%s_instance>);\n%n",contents[ilv1],contents[ilv1],&helpbufferreturnvalue);
+		helpbufferpos+=helpbufferreturnvalue;
+		(*helpbufferpos)=0;
+	}
+	for (int ilv1=0;ilv1<properties_count;ilv1++)
+	{
+		sprintf(helpbufferpos,"        %n",&helpbufferreturnvalue);
+		helpbufferpos+=helpbufferreturnvalue;
+		(*helpbufferpos)=0;
+		sprintf(helpbufferpos,resetmode_outline[properties_type_nrs[ilv1]],&helpbufferreturnvalue,properties[ilv1],properties_types[ilv1]);
 		helpbufferpos+=helpbufferreturnvalue;
 		(*helpbufferpos)=0;
 	}

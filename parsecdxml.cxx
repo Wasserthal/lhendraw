@@ -6,7 +6,7 @@
 #include <typeinfo>
 #include <string.h>
 #include <stdarg.h>
-#define intl int
+#define intl long long
 #ifndef stringlength
 #define stringlength 256
 #endif
@@ -70,7 +70,8 @@ struct multilistlist_
 	char names[multilistlength][stringlength+1];
 	void * instances[multilistlistlength];
 	
-} multilistlist;
+};
+multilistlist_ multilistlist;
 intl multilist_count = 0;
 template <class whatabout> class multilistreference;
 
@@ -104,10 +105,13 @@ template <class whatabout> class multilist : public basicmultilist
 	multilistreference<whatabout> * dependants[bufferlistsize];
 	intl filllevel;
 	intl ourcount;
+	intl testbeef;
 	multilist()
 	{
 		filllevel=0;
 		ourcount=0;
+		testbeef=0xdeadbeef;
+		printf("deadbeef");
 		bufferlist=(whatabout*)malloc(sizeof(whatabout)*bufferlistsize);
 		return;
 	}
@@ -119,17 +123,18 @@ template <class whatabout> class multilist : public basicmultilist
 		}
 		for (int ilv1=mynumber+1;ilv1<ourcount;ilv1++)
 		{
-			(*dependants[ilv1]).start_in_it++;
+			(*(dependants[ilv1])).start_in_it++;
 		}
 		bufferlist[position]=input;
-		(*(intl*)&bufferlist[position])=*(intl*)&input;//hack for bug in gcc: vtable index not copied to array
+		(*(intl*)&(bufferlist[position]))=*(intl*)&input;//hack for bug in gcc: vtable index not copied to array //not TODO checked if it has to be intl
 		filllevel++;
-		return &bufferlist[position];
+		return &(bufferlist[position]);
 	}
 	intl getme(multilistreference<whatabout> * input)
 	{
 		(*input).start_in_it=filllevel;
 		(*input).count_in_it=0;
+		dependants[ourcount]=input;
 		return ourcount++;
 	}
 	~multilist()
@@ -163,7 +168,8 @@ template <class whatabout> multilist<whatabout> * registermultilist(const char *
 		}
 	}
 	multilistlist.instances[multilist_count]=new(multilist<whatabout>);
-	strcpy(multilistlist.names[multilist_count++],thetypesname);
+	strcpy(multilistlist.names[multilist_count],thetypesname);
+	return (multilist<whatabout> *) multilistlist.instances[multilist_count++];
 }
 
 class basicmultilistreference
@@ -344,7 +350,7 @@ void entertag()
 	if (suboffset!=-1)
 	{
 		nextinstance_list=*(basicmultilistreference**)(((char*)currentinstance)+suboffset);
-		nextinstance=(basic_instance*)nextinstance_list->addnew();
+		nextinstance=(basic_instance*)nextinstance_list->addnew();//TODO error must be here.
 	}
 	else
 	{
@@ -380,6 +386,7 @@ void scoopparam()
 	}
 	else
 	{
+		printf("%s has no parameter named %s\n",currentinstance->getName(),parameterstring);
 		return;
 	}
 	

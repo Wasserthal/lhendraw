@@ -28,11 +28,19 @@ inline void clear_cdx_Rectangle(cdx_Rectangle & input)
 typedef struct cdx_String /*can be filled both by Property value and inter-Object-Text.
 If it is filled from PCDATA, its name is PCDATA*/
 {
-	char a[stringlength];
+	char a[stringlength+1];
 };
-inline void clear_cdx_String(cdx_String input)
+
+inline void clear_cdx_String(cdx_String & input)
 {
 	input.a[0]=0;
+}
+
+int __attribute__((sysv_abi))CDXMLREAD_cdx_String(char * input,void * output)
+{
+	strncpy(input,&((*((cdx_String*)output)).a[0]),stringlength);
+	((*((cdx_String*)output)).a[stringlength])=0;
+	return 0;
 }
 
 int __attribute__((sysv_abi))CDXMLREAD__i32(char * input,void * output)

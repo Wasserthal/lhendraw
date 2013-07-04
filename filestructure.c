@@ -79,7 +79,7 @@ void main(void)
 	}
 	switch(ihv1)
 	{
-		case 's' : strcpy(properties_types[properties_count],"chararray");properties_type_nrs[properties_count]=2;break;
+		case 's' : strcpy(properties_types[properties_count],"cdx_String");properties_type_nrs[properties_count]=2;break;
 		case '0' : strcpy(properties_types[properties_count],"_i32");properties_type_nrs[properties_count]=1;break;
 		case '1' : strcpy(properties_types[properties_count],"float");properties_type_nrs[properties_count]=1;break;
 		case '2' : strcpy(properties_types[properties_count],"cdx_Point2D");properties_type_nrs[properties_count]=2;break;
@@ -108,6 +108,10 @@ void main(void)
 	fread(&ihv1,1,1,infile);
 	if (ihv1==';')
 	{
+		if (properties_length[properties_count]>0)
+		{
+			printf("Something went wrong - no space after typename!");exit(1);
+		}
 		goto propertiesdone;
 	}
 	properties[properties_count][properties_length[properties_count]]=ihv1;
@@ -118,6 +122,7 @@ void main(void)
 	}
 	properties[properties_count][properties_length[properties_count]]=0;
 	properties_count++;
+	printf("..%s..\n",properties[properties_count-1]);
 	goto propertiesback;
 	propertiesdone:
 	fprintf(outfile,"struct %s_instance:basic_instance\n{\n        char * getName(){static char name[]=\"%s\";return (char*)&name;}\n",name,name);
@@ -132,7 +137,7 @@ void main(void)
 	fprintf(outfile,"        AUTOSTRUCT_GET_ROUTINE(contents,%i)\n        AUTOSTRUCT_PROPERTY_ROUTINE(%i)\n        %s_instance();\n        ~%s_instance(){}\n};\nsuperconstellation %s_instance::contents[]={\n",contents_count,properties_count,name,name,name);
 	for (int ilv1=0;ilv1<contents_count;ilv1++)
 	{
-		fprintf(outfile,"{\"%s\",offsetof(%s_instance,%s)}%s\n",contents[ilv1],name,contents[ilv1],(ilv1==properties_count-1) ? "" : ",");
+		fprintf(outfile,"{\"%s\",offsetof(%s_instance,%s)}%s\n",contents[ilv1],name,contents[ilv1],(ilv1==contents_count-1) ? "" : ",");
 	}
 	fprintf(outfile,"};\nsuperconstellation %s_instance::properties[]={\n",name);
 	for (int ilv1=0;ilv1<properties_count;ilv1++)

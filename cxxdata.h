@@ -134,3 +134,21 @@ int __attribute__((sysv_abi))CDXMLREAD_cdx_Point2D(char * input,void * output)
 	*((cdx_Point2D*)output)=wert;
 	return ilv1;
 }
+typedef struct bienum
+{
+	char name[40];
+	intl number;
+};
+intl get_bienum(bienum * ibienum,char * input,intl count)
+{
+	intl ilv1;
+	for (ilv1=0;ilv1<count;ilv1++)
+	{
+		if (strcmp(input,ibienum[ilv1].name)==0)
+		{
+			printf("bienum %s matches %s number %i",input,ibienum[ilv1].name,ilv1);
+			return ibienum[ilv1].number;
+		}
+	}
+	return 0;
+};

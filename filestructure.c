@@ -23,7 +23,7 @@ int properties_length[maxunits];
 char properties_types[maxunits][stringlength+1];
 intl properties_type_nrs[maxunits];
 char helpbuffer[65536];
-char resetmode_outline[4][31]={{"%1$n"},{"%2$s=0;\n%1$n"},{"clear_%3$s(%2$s);\n%1$n"},{"%2$s.a=0;\n%1$n"}};//very problematic: each operation must tell its length!
+char resetmode_outline[][31]={{"%1$n"},{"%2$s=0;\n%1$n"},{"clear_%3$s(%2$s);\n%1$n"},{"%2$s.a=0;\n%1$n"},{"%2$s=1;\n%1$n"},{"%2$s=0;\n%1$n"}};//very problematic: each operation must tell its length!
 //ATTENTION: the second matrix array size is critical: if it is too low, the strings are simply cut off!
 char * helpbufferpos;
 void main(void)
@@ -86,7 +86,8 @@ void main(void)
 		case '3' : strcpy(properties_types[properties_count],"cdx_Point3D");properties_type_nrs[properties_count]=2;break;
 		case '4' : strcpy(properties_types[properties_count],"cdx_Rectangle");properties_type_nrs[properties_count]=2;break;
 		case '5' : strcpy(properties_types[properties_count],"cdx_Coordinate");properties_type_nrs[properties_count]=1;break;
-		case '!' : strcpy(properties_types[properties_count],"cdx_enum");properties_type_nrs[properties_count]=0;break;
+		case '#' : strcpy(properties_types[properties_count],"_i32");properties_type_nrs[properties_count]=4;break;
+		case '!' : strcpy(properties_types[properties_count],"_i32");properties_type_nrs[properties_count]=5;break;//an ENUM
 		case '\\' : 
 		;
 		int thisnamelength=0;
@@ -139,10 +140,27 @@ void main(void)
 	{
 		fprintf(outfile,"{\"%s\",offsetof(%s_instance,%s)}%s\n",contents[ilv1],name,contents[ilv1],(ilv1==contents_count-1) ? "" : ",");
 	}
-	fprintf(outfile,"};\nsuperconstellation %s_instance::properties[]={\n",name);
+	fprintf(outfile,"};\n");
 	for (int ilv1=0;ilv1<properties_count;ilv1++)
 	{
-		fprintf(outfile,"{\"%s\",offsetof(%s_instance,%s),CDXMLREAD_%s}%s\n",properties[ilv1],name,properties[ilv1],properties_types[ilv1],(ilv1==properties_count-1) ? "" : ",");
+		if (properties_type_nrs[ilv1]==5)
+		{
+			printf("HHXHX");
+			fprintf(outfile,"int __attribute__((sysv_abi))CDXMLREAD_ENUM_%s(char * input,void * output)\n{\n        \
+	*((_i32 *)output)=get_bienum(CDXML_%s,input,CDXML_%s_max);\n}\n",properties[ilv1],properties[ilv1],properties[ilv1]);
+		}
+	}
+	fprintf(outfile,"superconstellation %s_instance::properties[]={\n",name);
+	for (int ilv1=0;ilv1<properties_count;ilv1++)
+	{
+		if (properties_type_nrs[ilv1]==5)
+		{
+			fprintf(outfile,"{\"%s\",offsetof(%s_instance,%s),CDXMLREAD_ENUM_%s}%s\n",properties[ilv1],name,properties[ilv1],properties[ilv1],(ilv1==properties_count-1) ? "" : ",");
+		}
+		else
+		{
+			fprintf(outfile,"{\"%s\",offsetof(%s_instance,%s),CDXMLREAD_%s}%s\n",properties[ilv1],name,properties[ilv1],properties_types[ilv1],(ilv1==properties_count-1) ? "" : ",");
+		}
 	}
 	fprintf(outfile,"};\n");
 	sprintf(helpbufferpos,"%s_instance::%s_instance()\n{\n%n",name,name,&helpbufferreturnvalue);

@@ -32,7 +32,7 @@ typedef int __attribute__((sysv_abi))(*CDXMLREAD_functype)(char * input,void * o
 		return -1; \
 	}
 #define AUTOSTRUCT_PROPERTY_ROUTINE(COUNT_MACROPARAM) static superconstellation properties[]; \
-	virtual int getproperties(char * name, CDXMLREAD_functype * delegateoutput) \
+	virtual int getproperties(const char * name, CDXMLREAD_functype * delegateoutput) \
 	{ \
 		for (int ilv1=0;ilv1<COUNT_MACROPARAM;ilv1++) \
 		{ \
@@ -190,11 +190,12 @@ template <class whatabout> class multilistreference : public basicmultilistrefer
 	void * add(whatabout input)
 	{
 		(*((multilist<whatabout>*)instances)).insert(input,start_in_it+count_in_it,mynumber);
+		count_in_it++;
 	}
 	void * addnew()
 	{
 		whatabout tempwert=whatabout();
-		return (*((multilist<whatabout>*)instances)).insert(tempwert,start_in_it+count_in_it,mynumber);
+		return (*((multilist<whatabout>*)instances)).insert(tempwert,start_in_it+(count_in_it++),mynumber);
 	}
 	multilistreference()
 	{
@@ -239,7 +240,7 @@ struct basic_instance
 	{
 		return -1;
 	};
-	virtual int getproperties(char * name,CDXMLREAD_functype * delegateoutput)
+	virtual int getproperties(const char * name,CDXMLREAD_functype * delegateoutput)
 	{
 		return -1;
 	};
@@ -304,10 +305,11 @@ struct gummydummy_instance: basic_instance
 {
 	char * getName(){static char name[]="gummydummy"; return(char*)&name;}
 	int getcontents(char * name){return -1;}
-	int getproperties(char * name,CDXMLREAD_functype * delegateoutput){return -1;}
+	int getproperties(const char * name,CDXMLREAD_functype * delegateoutput){return -1;}
 };
 #define chararray char *
 #include "cxxdata.h"
+#include "enums.hxx"
 #include "filestructure.hxx"
 #include "createsvg.hxx"
 
@@ -364,6 +366,31 @@ void entertag()
 	currentinstance=nextinstance;
 };
 
+void grow_pctext(char ichar)
+{
+	CDXMLREAD_functype thisfunc;
+	printf("as%c",ichar);
+	int txtoffset=currentinstance->getproperties("PCTEXT",&thisfunc);
+	if (txtoffset==-1)
+	{
+		return;
+	}
+	char * txtpos=((char*)currentinstance)+txtoffset;
+	int ctroffset=currentinstance->getproperties("PCTEXTcounter",&thisfunc);
+	int * ctrpos=(int*)(((char*)currentinstance)+ctroffset);
+	if (ctroffset==-1)
+	{
+		return;	
+	}
+	printf("is%c",ichar);
+	txtpos[(*ctrpos)++]=ichar;	
+}
+
+inline void concludepctext()
+{
+	grow_pctext(0);
+}
+
 void concludeparameterstring()
 {
 	parameterstring[parameterstring_length]=0;
@@ -378,6 +405,10 @@ void concludeparamvaluestring()
 void scoopparam()
 {
 	CDXMLREAD_functype thisfunc;
+	if (strcmp(parameterstring,"PCTEXTcounter")==0)
+	{
+		printf("Hacking attempt detected (PCSTRING)!");exit(1);
+	}
 	int suboffset=(currentinstance->getproperties(parameterstring,&thisfunc));
 	if (suboffset!=-1)
 	{
@@ -566,8 +597,13 @@ void input_fsm(FILE* infile)
 		case 4:
 			if (ichar=='<')
 			{
+				concludepctext();
 				fsmint=1;
 			}
+			else
+			{
+				grow_pctext(ichar);
+			}			
 		break;
 		case 5:
 			if (ichar=='?')

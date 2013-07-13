@@ -8,12 +8,11 @@
 #include <stdarg.h>
 #define intl long long
 #ifndef stringlength
-#define stringlength 256
+#define stringlength 512
 #endif
 #define bufferlength 256
-#define bufferlistsize 256
-#define multilistlength 256
-#define multilistlistlength 256
+#define bufferlistsize 4096
+#define multilistlistlength 512
 #define REGISTER_content the_template.possible_contents.add
 void CDXMLREAD_basic(char * input,void * output);
 typedef int __attribute__((sysv_abi))(*CDXMLREAD_functype)(char * input,void * output);
@@ -67,7 +66,7 @@ intl paramvaluestring_length;
 class basic_xml_element_set;
 struct multilistlist_
 {
-	char names[multilistlength][stringlength+1];
+	char names[multilistlistlength][stringlength+1];
 	void * instances[multilistlistlength];
 	
 };

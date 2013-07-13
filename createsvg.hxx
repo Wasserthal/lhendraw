@@ -1,7 +1,8 @@
 #include <math.h>
 float Pi=3.141592654;
-#define minfloat -1.0e20;
-#define maxfloat 1.0e20;
+#define minfloat -1.0e20
+#define maxfloat 1.0e20
+#define _small int
 float getangle(float dx,float dy)
 {
 	float frac;
@@ -38,6 +39,8 @@ float arrowdepth=10;
 float arrowthickness=10;
 
 multilist<color_instance> * glob_color_multilist;
+multilist<n_instance> * glob_n_multilist;
+multilist<b_instance> * glob_b_multilist;
 char colorstring[7]="AABBCC";
 color_instance * get_color(int number)
 {
@@ -141,12 +144,132 @@ void getcaptions(float * width,float * height)
 	(*height)=maxy;
 }
 
+struct atom_actual_node_
+{
+	_small bonds[10];
+	_small bondcount;
+	inline char operator += (_small input)
+	{
+		if (bondcount<10)
+		{
+			bonds[bondcount++]=input;
+			return 1;
+		}
+		else
+		{
+			return 0;
+		}
+	}
+};
+
+atom_actual_node_ atom_actual_node[bufferlistsize];
+struct bond_actual_node_
+{
+	_small start,end;
+};
+
+bond_actual_node_ bond_actual_node[bufferlistsize];
+
+char getleftof(cdx_Point2D * istart,cdx_Point2D * iend,cdx_Point2D * ikink)
+{
+	float diff1x,diff1y,diff2x,diff2y;
+	float iresult;
+	diff1x=(*iend).x-(*istart).x;
+	diff1y=(*iend).y-(*istart).y;
+	diff2x=(*ikink).x-(*iend).x;
+	diff2y=(*ikink).y-(*iend).y;
+	iresult=(diff1x*diff2y-diff1y*diff2x);
+	if (iresult==0) return 0;
+	return (diff1x*diff2y-diff1y*diff2x>0) ? 1 : 2;//then, it is right of=> return1, otherwise, it is left of=>return2;
+}
+
+_small getother(_small inatom, _small inbond)
+{
+	if (bond_actual_node[inbond].end==inatom)
+	{
+		return (bond_actual_node[inbond].start);
+	}
+	if (bond_actual_node[inbond].start==inatom)
+	{
+		return (bond_actual_node[inbond].end);
+	}
+}
+
+void getatoms()
+{
+	for (int ilv1=0;ilv1<bufferlistsize;ilv1++)
+	{
+		atom_actual_node[ilv1].bondcount=0;
+	}
+	for (int ilv1=0;ilv1<(*glob_b_multilist).filllevel;ilv1++)
+	{
+		for (int ilv2=0;ilv2<(*glob_n_multilist).filllevel;ilv2++)
+		{
+			if (((*glob_n_multilist).bufferlist)[ilv2].id==((*glob_b_multilist).bufferlist)[ilv1].E)
+			{
+				bond_actual_node[ilv1].end=ilv2;
+				atom_actual_node[ilv2]+=ilv1;
+			}
+			if (((*glob_n_multilist).bufferlist)[ilv2].id==((*glob_b_multilist).bufferlist)[ilv1].B)
+			{
+				bond_actual_node[ilv1].start=ilv2;
+				atom_actual_node[ilv2]+=ilv1;
+			}
+		}
+	}
+	for (int ilv1=0;ilv1<(*glob_n_multilist).filllevel;ilv1++)
+	{
+		for (int ilv2=0;ilv2<atom_actual_node[ilv1].bondcount;ilv2++)
+		{
+			_small partner=getother(ilv1,(atom_actual_node[ilv1]).bonds[ilv2]);
+		}
+	}
+	for (int ilv1=0;ilv1<(*glob_b_multilist).filllevel;ilv1++)
+	{
+		b_instance * currentbondinstance=&((*glob_b_multilist).bufferlist[ilv1]);
+		int i_side_orvariable;
+		int i_side_orvariable2;
+		i_side_orvariable=0;
+		i_side_orvariable2=0;
+		if (((*currentbondinstance).DoublePosition & 0x100)==0)
+		{
+			for (int ilv2=0;ilv2<atom_actual_node[bond_actual_node[ilv1].start].bondcount;ilv2++)//or operation
+			{
+				i_side_orvariable|=getleftof(&((*glob_n_multilist).bufferlist[bond_actual_node[ilv1].start].p),&((*glob_n_multilist).bufferlist[bond_actual_node[ilv1].end].p),&((*glob_n_multilist).bufferlist[getother((bond_actual_node[ilv1].start),atom_actual_node[bond_actual_node[ilv1].start].bonds[ilv2])].p));
+			}
+			if (i_side_orvariable==3)
+			{
+				i_side_orvariable=0;
+			}
+			for (int ilv2=0;ilv2<atom_actual_node[bond_actual_node[ilv1].end].bondcount;ilv2++)//or operation
+			{
+				i_side_orvariable2|=getleftof(&((*glob_n_multilist).bufferlist[bond_actual_node[ilv1].start].p),&((*glob_n_multilist).bufferlist[bond_actual_node[ilv1].end].p),&((*glob_n_multilist).bufferlist[getother((bond_actual_node[ilv1].end),atom_actual_node[bond_actual_node[ilv1].end].bonds[ilv2])].p));
+			}
+			if (i_side_orvariable2==3)
+			{
+				i_side_orvariable2=0;
+			}
+			i_side_orvariable|=i_side_orvariable2;
+			if (i_side_orvariable==3)
+			{
+				i_side_orvariable=2;
+			}
+			(*currentbondinstance).DoublePosition=i_side_orvariable;
+			printf("->%llX<-\n",(*currentbondinstance).DoublePosition);
+		}
+		
+	}
+}
+
 void svg_main(const char * filename)
 {
 	FILE * outfile;
 	float cangle;
 	float langle;
 	float width, height;
+	float ibonddist;
+	float ibonddist2;
+	int colornr;
 	outfile=fopen(filename,"w+");
 	fprintf(outfile,"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>");
 	getcaptions(&width,&height);
@@ -154,42 +277,55 @@ void svg_main(const char * filename)
 	height+=10;
 	fprintf(outfile,"<svg version=\"1.0\" width=\"%f\" height=\"%f\">\n",width,height);
 	glob_color_multilist=retrievemultilist<color_instance>();
-	multilist<b_instance> * i_b_multilist=retrievemultilist<b_instance>();
-	multilist<n_instance> * i_n_multilist=retrievemultilist<n_instance>();
+	glob_b_multilist=retrievemultilist<b_instance>();
+	glob_n_multilist=retrievemultilist<n_instance>();
+	getatoms();
 	n_instance * startnode, * endnode;
-	for (int ilv1=0;ilv1<(*i_b_multilist).filllevel;ilv1++)
+	for (int ilv1=0;ilv1<(*glob_b_multilist).filllevel;ilv1++)
 	{
-		for (int ilv2=0;ilv2<(*i_n_multilist).filllevel;ilv2++)
+		colornr=((*glob_b_multilist).bufferlist)[ilv1].color;
+		get_colorstring(colornr);
+		for (int ilv2=0;ilv2<(*glob_n_multilist).filllevel;ilv2++)
 		{
-			if (((*i_n_multilist).bufferlist)[ilv2].id==((*i_b_multilist).bufferlist)[ilv1].E)
+			if (((*glob_n_multilist).bufferlist)[ilv2].id==((*glob_b_multilist).bufferlist)[ilv1].E)
 			{
-				endnode=&(((*i_n_multilist).bufferlist)[ilv2]);
+				endnode=&(((*glob_n_multilist).bufferlist)[ilv2]);
 			}
-			if (((*i_n_multilist).bufferlist)[ilv2].id==((*i_b_multilist).bufferlist)[ilv1].B)
+			if (((*glob_n_multilist).bufferlist)[ilv2].id==((*glob_b_multilist).bufferlist)[ilv1].B)
 			{
-				startnode=&(((*i_n_multilist).bufferlist)[ilv2]);
+				startnode=&(((*glob_n_multilist).bufferlist)[ilv2]);
 			}
 		}
-		fprintf(outfile,"<path d=\"M %f %f L %f %f \" style=\"stroke:black\"/>",(*startnode).p.x,(*startnode).p.y,(*endnode).p.x,(*endnode).p.y);
-		if (((*i_b_multilist).bufferlist)[ilv1].Order==2)
+		ibonddist=0;ibonddist2=0;
+		if (((*glob_b_multilist).bufferlist)[ilv1].Order==2)
 		{
-			cangle=getangle((*endnode).p.x-(*startnode).p.x,(*endnode).p.y-(*startnode).p.y)+Pi/2;
-			fprintf(outfile,"<path d=\"M %f %f L %f %f \" style=\"stroke:black\"/>",(*startnode).p.x+bonddist*cos(cangle),(*startnode).p.y+bonddist*sin(cangle),(*endnode).p.x+bonddist*cos(cangle),(*endnode).p.y+bonddist*sin(cangle));
+			switch(((*glob_b_multilist).bufferlist)[ilv1].DoublePosition & 0xFF)
+			{
+				case 0 : ibonddist=bonddist/2;ibonddist2=-bonddist/2;break;
+				case 1 : ibonddist=bonddist;break;
+				case 2 : ibonddist=-bonddist;break;
+			}
+		}
+		cangle=getangle((*endnode).p.x-(*startnode).p.x,(*endnode).p.y-(*startnode).p.y)+Pi/2;
+		fprintf(outfile,"<path d=\"M %f %f L %f %f \" style=\"stroke:#%s\"/>",(*startnode).p.x+ibonddist2*cos(cangle),(*startnode).p.y+ibonddist2*sin(cangle),(*endnode).p.x+ibonddist2*cos(cangle),(*endnode).p.y+ibonddist2*sin(cangle),colorstring);
+		if (((*glob_b_multilist).bufferlist)[ilv1].Order==2)
+		{
+			fprintf(outfile,"<path d=\"M %f %f L %f %f \" style=\"stroke:#%s;stroke-dasharray:2,2\"/>",(*startnode).p.x+ibonddist*cos(cangle),(*startnode).p.y+ibonddist*sin(cangle),(*endnode).p.x+ibonddist*cos(cangle),(*endnode).p.y+ibonddist*sin(cangle),colorstring);
 		}
 	}
 	multilist<graphic_instance> * i_graphic_multilist=retrievemultilist<graphic_instance>();
 	for (int ilv1=0;ilv1<(*i_graphic_multilist).filllevel;ilv1++)
 	{
 		cdx_Rectangle iBBX=((*i_graphic_multilist).bufferlist)[ilv1].BoundingBox;
-		int colornr=((*i_graphic_multilist).bufferlist)[ilv1].color;
+		colornr=((*i_graphic_multilist).bufferlist)[ilv1].color;
 		get_colorstring(colornr);
 		fprintf(outfile,"<path d=\"M %f %f L %f %f \" style=\"stroke:#%s\"/>",iBBX.left,iBBX.top,iBBX.right,iBBX.bottom,colorstring);
 		cangle=getangle(iBBX.right-iBBX.left,iBBX.top-iBBX.bottom)+Pi/2;
 		langle=getangle(iBBX.right-iBBX.left,iBBX.top-iBBX.bottom);
 		if (((*i_graphic_multilist).bufferlist)[ilv1].ArrowType==2)
 		{
-		fprintf(outfile,"<path d=\"M %f %f L %f %f \" style=\"stroke:#%s fill:#%s\"/>",iBBX.left,iBBX.top,iBBX.left+cos(langle)*arrowdepth+cos(cangle)*arrowthickness,iBBX.top+sin(langle)*arrowdepth+sin(cangle)*arrowthickness,colorstring,colorstring);
-		fprintf(outfile,"<path d=\"M %f %f L %f %f \" style=\"stroke:#%s fill:#%s\"/>",iBBX.left,iBBX.top,iBBX.left+cos(langle)*arrowdepth-cos(cangle)*arrowthickness,iBBX.top+sin(langle)*arrowdepth-sin(cangle)*arrowthickness,colorstring,colorstring);
+			fprintf(outfile,"<path d=\"M %f %f L %f %f \" style=\"stroke:#%s fill:#%s\"/>",iBBX.left,iBBX.top,iBBX.left+cos(langle)*arrowdepth+cos(cangle)*arrowthickness,iBBX.top+sin(langle)*arrowdepth+sin(cangle)*arrowthickness,colorstring,colorstring);
+			fprintf(outfile,"<path d=\"M %f %f L %f %f \" style=\"stroke:#%s fill:#%s\"/>",iBBX.left,iBBX.top,iBBX.left+cos(langle)*arrowdepth-cos(cangle)*arrowthickness,iBBX.top+sin(langle)*arrowdepth-sin(cangle)*arrowthickness,colorstring,colorstring);
 		}
 	}
 	multilist<t_instance> * i_t_multilist=retrievemultilist<t_instance>();

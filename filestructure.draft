@@ -4,7 +4,7 @@ page;group fragment t graphic ;;
 group;group fragment t graphic ;;
 fragment;n b t graphic ;;
 n;;0 id 0 color 2 p 0 z 0 Z ;
-b;;0 id 0 color 0 B 0 E 0 z 0 Z 0 Order ;
+b;;0 id 0 color 0 B 0 E 0 z 0 Z 0 Order ! DoublePosition ;
 t;s ;2 p ;
 s;;0 PCTEXTcounter s PCTEXT ;
 colortable;color ;;

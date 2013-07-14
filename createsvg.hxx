@@ -35,13 +35,18 @@ float getangle(float dx,float dy)
 	return val;
 }
 float bonddist=4;
+float boldwidth=5;
 float arrowdepth=10;
 float arrowthickness=10;
 
 multilist<color_instance> * glob_color_multilist;
 multilist<n_instance> * glob_n_multilist;
 multilist<b_instance> * glob_b_multilist;
+multilist<t_instance> * glob_t_multilist;
+multilist<s_instance> * glob_s_multilist;
 char colorstring[7]="AABBCC";
+char resortedstring[stringlength];
+FILE * outfile;
 color_instance * get_color(int number)
 {
 	if (number==0)
@@ -64,10 +69,12 @@ int get_colorstring(int number)
 	if (number==0)
 	{
 		strcpy(colorstring,"000000");
+		return 0;
 	}
 	if (number==1)
 	{
 		strcpy(colorstring,"FFFFFF");
+		return 0;
 	}
 	if (number-2>=(*glob_color_multilist).filllevel)
 	{	
@@ -77,6 +84,13 @@ int get_colorstring(int number)
 	snprintf(colorstring,7,"%02hhX%02hhX%02hhX",char(((*glob_color_multilist).bufferlist)[number-2].r*255),char(((*glob_color_multilist).bufferlist)[number-2].g*255),char(((*glob_color_multilist).bufferlist)[number-2].b*255)); //is this really the best method? After all, colors have no IDs.
 	return 0;
 }
+inline int get_colorstring_passive(int number)
+{
+	if (number!=0)
+	{
+		get_colorstring(number);
+	}
+}
 
 void getcaptions(float * width,float * height)
 {
@@ -84,60 +98,65 @@ void getcaptions(float * width,float * height)
 	float miny=maxfloat;
 	float maxx=minfloat;
 	float maxy=minfloat;
+	n_instance * i_n_instance;
+	graphic_instance * i_graphic_instance;
 	multilist<n_instance> * i_n_multilist=retrievemultilist<n_instance>();
 	multilist<graphic_instance> * i_graphic_multilist=retrievemultilist<graphic_instance>();
+	
 	for (int ilv1=0;ilv1<(*i_n_multilist).filllevel;ilv1++)
 	{
-		if ((*i_n_multilist).bufferlist[ilv1].p.x>maxx)
+		i_n_instance=(*i_n_multilist).bufferlist+ilv1;
+		if ((*i_n_instance).p.x>maxx)
 		{
-			maxx=(*i_n_multilist).bufferlist[ilv1].p.x;
+			maxx=(*i_n_instance).p.x;
 		}
-		if ((*i_n_multilist).bufferlist[ilv1].p.y>maxy)
+		if ((*i_n_instance).p.y>maxy)
 		{
-			maxy=(*i_n_multilist).bufferlist[ilv1].p.y;
+			maxy=(*i_n_instance).p.y;
 		}
-		if ((*i_n_multilist).bufferlist[ilv1].p.x<minx)
+		if ((*i_n_instance).p.x<minx)
 		{
-			minx=(*i_n_multilist).bufferlist[ilv1].p.x;
+			minx=(*i_n_instance).p.x;
 		}
-		if ((*i_n_multilist).bufferlist[ilv1].p.y<miny)
+		if ((*i_n_instance).p.y<miny)
 		{
-			miny=(*i_n_multilist).bufferlist[ilv1].p.y;
+			miny=(*i_n_instance).p.y;
 		}
 	}
 	for (int ilv1=0;ilv1<(*i_graphic_multilist).filllevel;ilv1++)
 	{
-		if ((*i_graphic_multilist).bufferlist[ilv1].BoundingBox.left>maxx)
+		i_graphic_instance=(*i_graphic_multilist).bufferlist+ilv1;
+		if ((*i_graphic_instance).BoundingBox.left>maxx)
 		{
-			maxx=(*i_graphic_multilist).bufferlist[ilv1].BoundingBox.left;
+			maxx=(*i_graphic_instance).BoundingBox.left;
 		}
-		if ((*i_graphic_multilist).bufferlist[ilv1].BoundingBox.top>maxy)
+		if ((*i_graphic_instance).BoundingBox.top>maxy)
 		{
-			maxy=(*i_graphic_multilist).bufferlist[ilv1].BoundingBox.top;
+			maxy=(*i_graphic_instance).BoundingBox.top;
 		}
-		if ((*i_graphic_multilist).bufferlist[ilv1].BoundingBox.left<minx)
+		if ((*i_graphic_instance).BoundingBox.left<minx)
 		{
-			minx=(*i_graphic_multilist).bufferlist[ilv1].BoundingBox.left;
+			minx=(*i_graphic_instance).BoundingBox.left;
 		}
-		if ((*i_graphic_multilist).bufferlist[ilv1].BoundingBox.top<miny)
+		if ((*i_graphic_instance).BoundingBox.top<miny)
 		{
-			miny=(*i_graphic_multilist).bufferlist[ilv1].BoundingBox.top;
+			miny=(*i_graphic_instance).BoundingBox.top;
 		}
-		if ((*i_graphic_multilist).bufferlist[ilv1].BoundingBox.right>maxx)
+		if ((*i_graphic_instance).BoundingBox.right>maxx)
 		{
-			maxx=(*i_graphic_multilist).bufferlist[ilv1].BoundingBox.right;
+			maxx=(*i_graphic_instance).BoundingBox.right;
 		}
-		if ((*i_graphic_multilist).bufferlist[ilv1].BoundingBox.bottom>maxy)
+		if ((*i_graphic_instance).BoundingBox.bottom>maxy)
 		{
-			maxy=(*i_graphic_multilist).bufferlist[ilv1].BoundingBox.bottom;
+			maxy=(*i_graphic_instance).BoundingBox.bottom;
 		}
-		if ((*i_graphic_multilist).bufferlist[ilv1].BoundingBox.right<minx)
+		if ((*i_graphic_instance).BoundingBox.right<minx)
 		{
-			minx=(*i_graphic_multilist).bufferlist[ilv1].BoundingBox.right;
+			minx=(*i_graphic_instance).BoundingBox.right;
 		}
-		if ((*i_graphic_multilist).bufferlist[ilv1].BoundingBox.bottom<miny)
+		if ((*i_graphic_instance).BoundingBox.bottom<miny)
 		{
-			miny=(*i_graphic_multilist).bufferlist[ilv1].BoundingBox.bottom;
+			miny=(*i_graphic_instance).BoundingBox.bottom;
 		}
 	}
 	(*width)=maxx;
@@ -148,6 +167,7 @@ struct atom_actual_node_
 {
 	_small bonds[10];
 	_small bondcount;
+	_small special;
 	inline char operator += (_small input)
 	{
 		if (bondcount<10)
@@ -169,6 +189,11 @@ struct bond_actual_node_
 };
 
 bond_actual_node_ bond_actual_node[bufferlistsize];
+struct text_actual_node_
+{
+	_small owner;
+};
+text_actual_node_ text_actual_node[bufferlistsize];
 
 char getleftof(cdx_Point2D * istart,cdx_Point2D * iend,cdx_Point2D * ikink)
 {
@@ -195,11 +220,16 @@ _small getother(_small inatom, _small inbond)
 	}
 }
 
-void getatoms()
+void getatoms()//makes some preprocessing
 {
 	for (int ilv1=0;ilv1<bufferlistsize;ilv1++)
 	{
 		atom_actual_node[ilv1].bondcount=0;
+		atom_actual_node[ilv1].special=-1;
+	}
+	for (int ilv1=0;ilv1<bufferlistsize;ilv1++)
+	{
+		text_actual_node[ilv1].owner=-1;
 	}
 	for (int ilv1=0;ilv1<(*glob_b_multilist).filllevel;ilv1++)
 	{
@@ -222,6 +252,10 @@ void getatoms()
 		for (int ilv2=0;ilv2<atom_actual_node[ilv1].bondcount;ilv2++)
 		{
 			_small partner=getother(ilv1,(atom_actual_node[ilv1]).bonds[ilv2]);
+		}
+		for (int ilv2=(*((*glob_n_multilist).bufferlist)[ilv1].t).start_in_it;ilv2<(*((*glob_n_multilist).bufferlist)[ilv1].t).start_in_it+(*((*glob_n_multilist).bufferlist)[ilv1].t).count_in_it;ilv2++)
+		{
+			text_actual_node[ilv2].owner=ilv1;
 		}
 	}
 	for (int ilv1=0;ilv1<(*glob_b_multilist).filllevel;ilv1++)
@@ -255,32 +289,151 @@ void getatoms()
 				i_side_orvariable=2;
 			}
 			(*currentbondinstance).DoublePosition=i_side_orvariable;
-			printf("->%llX<-\n",(*currentbondinstance).DoublePosition);
 		}
 		
 	}
 }
 
+void expressline(float ileft,float itop,float iright,float ibottom,char * icolorstring)
+{
+	fprintf(outfile,"<path d=\"M %f %f L %f %f \" style=\"stroke:#%s\"/>",ileft,itop,iright,ibottom,icolorstring);
+}
+
+char iswedgenr(_small input)
+{
+	if (input==3) return 1;
+	if (input==4) return 2;
+	if (input==6) return 1;
+	if (input==7) return 2;
+	if (input==9) return 1;
+	if (input==10) return 2;
+	if (input==11) return 1;
+	if (input==12) return 2;
+	return 0;
+}
+
+char resortstring(char * input) //TODO: what about brackets?
+{
+	int ilength=strlen(input);
+	int fsm=0;
+	int start,end;
+	resortedstring[0]=0;
+	int resortedstringpos=0;
+	for (int ilv1=ilength-1;ilv1>=0;ilv1--)
+	{
+		if (input[ilv1]==' ') {return 0;}
+		if ((input[ilv1]>='0') && (input[ilv1]<='9'))
+		{
+			if (fsm==1)
+			{
+				start=ilv1;
+			}
+			else
+			{
+				if (fsm==2)
+				for (int ilv2=start;ilv2<=end;ilv2++)
+				{
+					resortedstring[resortedstringpos++]=input[ilv2];
+				}
+				end=ilv1;
+				start=ilv1;
+				fsm=1;
+			}
+		}
+		if ((input[ilv1]>='a') && (input[ilv1]<='z'))
+		{
+			if ((fsm==2) || (fsm==1))
+			{
+				start=ilv1;
+				fsm=2;
+			}
+			else
+			{
+				if (fsm==1)
+				{
+					for (int ilv2=start;ilv2<=end;ilv2++)//write down numbers
+					{
+						resortedstring[resortedstringpos++]=input[ilv2];
+					}
+				}
+				end=ilv1;
+				start=ilv1;
+				fsm=2;
+			}
+		}
+		if ((input[ilv1]>='A') && (input[ilv1]<='Z'))
+		{
+			if ((fsm!=2) && (fsm!=1))
+			{
+				if (fsm==1)
+				{
+					for (int ilv2=start;ilv2<=end;ilv2++)//write down numbers
+					{
+						resortedstring[resortedstringpos++]=input[ilv2];
+					}
+				}
+				end=ilv1;
+			}
+			start=ilv1;
+			fsm=0;
+			for (int ilv2=start;ilv2<=end;ilv2++)
+			{
+				resortedstring[resortedstringpos++]=input[ilv2];
+			}
+		}
+	}
+	return 1;
+}
+
 void svg_main(const char * filename)
 {
-	FILE * outfile;
 	float cangle;
 	float langle;
 	float width, height;
 	float ibonddist;
 	float ibonddist2;
+	float ibonddist3;
+	float ibonddist4;
 	int colornr;
+	_small owner;
 	outfile=fopen(filename,"w+");
 	fprintf(outfile,"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>");
-	getcaptions(&width,&height);
 	width+=10;
 	height+=10;
-	fprintf(outfile,"<svg version=\"1.0\" width=\"%f\" height=\"%f\">\n",width,height);
 	glob_color_multilist=retrievemultilist<color_instance>();
 	glob_b_multilist=retrievemultilist<b_instance>();
 	glob_n_multilist=retrievemultilist<n_instance>();
+	glob_t_multilist=retrievemultilist<t_instance>();
+	glob_s_multilist=retrievemultilist<s_instance>();
+	getcaptions(&width,&height);
+	fprintf(outfile,"<svg version=\"1.0\" width=\"%f\" height=\"%f\">\n",width,height);
 	getatoms();
 	n_instance * startnode, * endnode;
+	multilist<graphic_instance> * i_graphic_multilist=retrievemultilist<graphic_instance>();
+	for (int ilv1=0;ilv1<(*i_graphic_multilist).filllevel;ilv1++)
+	{
+		cdx_Rectangle iBBX=((*i_graphic_multilist).bufferlist)[ilv1].BoundingBox;
+		colornr=((*i_graphic_multilist).bufferlist)[ilv1].color;
+		get_colorstring(colornr);
+		if (((*i_graphic_multilist).bufferlist)[ilv1].GraphicType==1)
+		{
+			expressline(iBBX.left,iBBX.top,iBBX.right,iBBX.bottom,colorstring);
+			cangle=getangle(iBBX.right-iBBX.left,iBBX.top-iBBX.bottom)+Pi/2;
+			langle=getangle(iBBX.right-iBBX.left,iBBX.top-iBBX.bottom);
+			if (((*i_graphic_multilist).bufferlist)[ilv1].ArrowType==2)
+			{
+				fprintf(outfile,"<path d=\"M %f %f L %f %f \" style=\"stroke:#%s fill:#%s\"/>",iBBX.left,iBBX.top,iBBX.left+cos(langle)*arrowdepth+cos(cangle)*arrowthickness,iBBX.top+sin(langle)*arrowdepth+sin(cangle)*arrowthickness,colorstring,colorstring);
+				fprintf(outfile,"<path d=\"M %f %f L %f %f \" style=\"stroke:#%s fill:#%s\"/>",iBBX.left,iBBX.top,iBBX.left+cos(langle)*arrowdepth-cos(cangle)*arrowthickness,iBBX.top+sin(langle)*arrowdepth-sin(cangle)*arrowthickness,colorstring,colorstring);
+			}
+		}
+		if (((*i_graphic_multilist).bufferlist)[ilv1].GraphicType==3)
+		{
+			expressline(iBBX.left,iBBX.top,iBBX.right,iBBX.top,colorstring);
+			expressline(iBBX.left,iBBX.bottom,iBBX.right,iBBX.bottom,colorstring);
+			expressline(iBBX.left,iBBX.top,iBBX.left,iBBX.bottom,colorstring);
+			expressline(iBBX.right,iBBX.top,iBBX.right,iBBX.bottom,colorstring);
+		}
+	}
 	for (int ilv1=0;ilv1<(*glob_b_multilist).filllevel;ilv1++)
 	{
 		colornr=((*glob_b_multilist).bufferlist)[ilv1].color;
@@ -297,7 +450,7 @@ void svg_main(const char * filename)
 			}
 		}
 		ibonddist=0;ibonddist2=0;
-		if (((*glob_b_multilist).bufferlist)[ilv1].Order==2)
+		if (((*glob_b_multilist).bufferlist)[ilv1].Order>1.1)//floats, after all....
 		{
 			switch(((*glob_b_multilist).bufferlist)[ilv1].DoublePosition & 0xFF)
 			{
@@ -307,39 +460,76 @@ void svg_main(const char * filename)
 			}
 		}
 		cangle=getangle((*endnode).p.x-(*startnode).p.x,(*endnode).p.y-(*startnode).p.y)+Pi/2;
-		fprintf(outfile,"<path d=\"M %f %f L %f %f \" style=\"stroke:#%s\"/>",(*startnode).p.x+ibonddist2*cos(cangle),(*startnode).p.y+ibonddist2*sin(cangle),(*endnode).p.x+ibonddist2*cos(cangle),(*endnode).p.y+ibonddist2*sin(cangle),colorstring);
+		int iDisplaytype1=((*glob_b_multilist).bufferlist[ilv1].Display);
+		if (iswedgenr(iDisplaytype1)>0)
+		{
+			ibonddist3=0;
+			ibonddist4=0;
+			if (iswedgenr(iDisplaytype1)==2)
+			{
+				ibonddist3=boldwidth/2;
+			}
+			if (iswedgenr(iDisplaytype1)==1)
+			{
+				ibonddist4=boldwidth/2;
+			}
+			fprintf(outfile,"<path d=\"M %f %f L %f %f L %f %f L %f %f z \" style=\"stroke:#%s;fill:#%s\"/>",
+(*startnode).p.x+ibonddist3*cos(cangle),(*startnode).p.y+ibonddist3*sin(cangle),(*startnode).p.x-ibonddist3*cos(cangle),(*startnode).p.y-ibonddist3*sin(cangle),
+(*endnode).p.x+ibonddist4*cos(cangle),(*endnode).p.y+ibonddist4*sin(cangle),(*endnode).p.x-ibonddist4*cos(cangle),(*endnode).p.y-ibonddist4*sin(cangle),
+colorstring,((iDisplaytype1==3) || (iDisplaytype1==4) || (iDisplaytype1==9) || (iDisplaytype1==10))?"FFFFFF":colorstring);//TODO: to work with white-on-black...
+		}
+		else
+		{
+			fprintf(outfile,"<path d=\"M %f %f L %f %f \" style=\"stroke:#%s%s\"/>",(*startnode).p.x+ibonddist2*cos(cangle),(*startnode).p.y+ibonddist2*sin(cangle),(*endnode).p.x+ibonddist2*cos(cangle),(*endnode).p.y+ibonddist2*sin(cangle),colorstring,((*glob_b_multilist).bufferlist[ilv1].Display==5) ? ";stroke-width:5;stroke-linecap:round":"");
+		}
 		if (((*glob_b_multilist).bufferlist)[ilv1].Order==2)
 		{
-			fprintf(outfile,"<path d=\"M %f %f L %f %f \" style=\"stroke:#%s;stroke-dasharray:2,2\"/>",(*startnode).p.x+ibonddist*cos(cangle),(*startnode).p.y+ibonddist*sin(cangle),(*endnode).p.x+ibonddist*cos(cangle),(*endnode).p.y+ibonddist*sin(cangle),colorstring);
-		}
-	}
-	multilist<graphic_instance> * i_graphic_multilist=retrievemultilist<graphic_instance>();
-	for (int ilv1=0;ilv1<(*i_graphic_multilist).filllevel;ilv1++)
-	{
-		cdx_Rectangle iBBX=((*i_graphic_multilist).bufferlist)[ilv1].BoundingBox;
-		colornr=((*i_graphic_multilist).bufferlist)[ilv1].color;
-		get_colorstring(colornr);
-		fprintf(outfile,"<path d=\"M %f %f L %f %f \" style=\"stroke:#%s\"/>",iBBX.left,iBBX.top,iBBX.right,iBBX.bottom,colorstring);
-		cangle=getangle(iBBX.right-iBBX.left,iBBX.top-iBBX.bottom)+Pi/2;
-		langle=getangle(iBBX.right-iBBX.left,iBBX.top-iBBX.bottom);
-		if (((*i_graphic_multilist).bufferlist)[ilv1].ArrowType==2)
-		{
-			fprintf(outfile,"<path d=\"M %f %f L %f %f \" style=\"stroke:#%s fill:#%s\"/>",iBBX.left,iBBX.top,iBBX.left+cos(langle)*arrowdepth+cos(cangle)*arrowthickness,iBBX.top+sin(langle)*arrowdepth+sin(cangle)*arrowthickness,colorstring,colorstring);
-			fprintf(outfile,"<path d=\"M %f %f L %f %f \" style=\"stroke:#%s fill:#%s\"/>",iBBX.left,iBBX.top,iBBX.left+cos(langle)*arrowdepth-cos(cangle)*arrowthickness,iBBX.top+sin(langle)*arrowdepth-sin(cangle)*arrowthickness,colorstring,colorstring);
+			fprintf(outfile,"<path d=\"M %f %f L %f %f \" style=\"stroke:#%s%s\"/>",(*startnode).p.x+ibonddist*cos(cangle),(*startnode).p.y+ibonddist*sin(cangle),(*endnode).p.x+ibonddist*cos(cangle),(*endnode).p.y+ibonddist*sin(cangle),colorstring,((*glob_b_multilist).bufferlist[ilv1].Display2==1) ? ";stroke-dasharray:2,2":"");
 		}
 	}
 	multilist<t_instance> * i_t_multilist=retrievemultilist<t_instance>();
 	multilist<s_instance> * i_s_multilist=retrievemultilist<s_instance>();
 	for (int ilv1=0;ilv1<(*i_t_multilist).filllevel;ilv1++)
 	{
-		fprintf(outfile,"<text fill=\"black\" stroke=\"none\" transform=\"translate(%f,%f)\" font-size=\"10\">",((*i_t_multilist).bufferlist)[ilv1].p.x,((*i_t_multilist).bufferlist)[ilv1].p.y);
+		owner=text_actual_node[ilv1].owner;
+		colornr=0;
+		if (owner!=-1)
+		{
+			colornr=(*glob_n_multilist).bufferlist[text_actual_node[ilv1].owner].color;
+			get_colorstring(colornr);
+		}
+		colornr=((*i_t_multilist).bufferlist)[ilv1].color;
+		get_colorstring_passive(colornr);
+
+		printf("!!%i!!",(*i_t_multilist).bufferlist[ilv1].LabelAlignment);
+		fprintf(outfile,"<text fill=\"%s\" %s stroke=\"none\" transform=\"translate(%f,%f)\" font-size=\"18\">",colorstring,((*i_t_multilist).bufferlist[ilv1].LabelAlignment==-1) ? "text-anchor=\"end\" text-align=\"end\"" : "",((*i_t_multilist).bufferlist)[ilv1].p.x,((*i_t_multilist).bufferlist)[ilv1].p.y);
 		intl start,end;
 		start=(*(((*i_t_multilist).bufferlist)[ilv1].s)).start_in_it;
 		end=start+(*(((*i_t_multilist).bufferlist)[ilv1].s)).count_in_it;
-		printf("start:%i,end:%i",start,end);
+		printf("color=%s",colorstring);
+		char string_resorted=0;
+		if (owner!=-1)
+		{
+			if ((*((*i_t_multilist).bufferlist[ilv1].s)).count_in_it==1)
+			{
+				if (((*i_s_multilist).bufferlist[start].face & 0x60)>0)
+				{
+					if ((*i_t_multilist).bufferlist[ilv1].Justification==-1)
+					{
+						string_resorted=resortstring((((*i_s_multilist).bufferlist))[start].PCTEXT.a);
+					}
+				}
+			}
+		}
 		for (int ilv2=start;ilv2<end;ilv2++)
 		{
-			fprintf(outfile,"%s",(((*i_s_multilist).bufferlist))[ilv2].PCTEXT.a);
+			colornr=((*i_s_multilist).bufferlist)[ilv2].color;
+			if (colornr!=0)
+			{
+				get_colorstring(colornr);
+			}
+			printf("%s",(((*i_s_multilist).bufferlist))[ilv2].PCTEXT.a);	
+			fprintf(outfile,"<tspan style=\"fill:#%s\">%s</tspan>",colorstring,string_resorted ? resortedstring:(((*i_s_multilist).bufferlist))[ilv2].PCTEXT.a);
 		}
 		fprintf(outfile,"</text>");
 	}

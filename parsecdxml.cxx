@@ -308,9 +308,6 @@ struct gummydummy_instance: basic_instance
 };
 #define chararray char *
 #include "cxxdata.h"
-#include "enums.hxx"
-#include "filestructure.hxx"
-#include "createsvg.hxx"
 
 char sentenumeric(char input)
 {
@@ -332,6 +329,9 @@ char sentenumeric(char input)
 	}
 	return 0;
 }
+#include "enums.hxx"
+#include "filestructure.hxx"
+#include "createsvg.hxx"
 
 basic_instance * currentinstance;
 

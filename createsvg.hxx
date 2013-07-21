@@ -383,25 +383,38 @@ char iswedgenr(_small input)
 char resortstring(char * input) //TODO: what about brackets?
 {
 	int ilength=strlen(input);
-	int fsm=0;
+	int fsm=0;//0=done 1: number 2: little letter 3: Capital letter 4: plus/minus
 	int start,end;
 	resortedstring[0]=0;
 	int resortedstringpos=0;
 	for (int ilv1=ilength-1;ilv1>=0;ilv1--)
 	{
 		if (input[ilv1]==' ') {return 0;}
+		if ((input[ilv1]=='+') || (input[ilv1]=='-'))
+		{
+			if (fsm!=0)
+			{
+				for (int ilv2=start;ilv2<=end;ilv2++)
+				{
+					resortedstring[resortedstringpos++]=input[ilv2];
+				}
+			}
+			fsm=4;
+		}
 		if ((input[ilv1]>='0') && (input[ilv1]<='9'))
 		{
-			if (fsm==1)
+			if ((fsm==1) || (fsm==4))
 			{
 				start=ilv1;
 			}
 			else
 			{
 				if (fsm==2)
-				for (int ilv2=start;ilv2<=end;ilv2++)
 				{
-					resortedstring[resortedstringpos++]=input[ilv2];
+					for (int ilv2=start;ilv2<=end;ilv2++)
+					{
+						resortedstring[resortedstringpos++]=input[ilv2];
+					}
 				}
 				end=ilv1;
 				start=ilv1;
@@ -410,14 +423,14 @@ char resortstring(char * input) //TODO: what about brackets?
 		}
 		if ((input[ilv1]>='a') && (input[ilv1]<='z'))
 		{
-			if ((fsm==2) || (fsm==1))
+			if ((fsm==2) || (fsm==1) || (fsm==4))
 			{
 				start=ilv1;
 				fsm=2;
 			}
 			else
 			{
-				if (fsm==1)
+				if (fsm==1)//never executed -> obsolete
 				{
 					for (int ilv2=start;ilv2<=end;ilv2++)//write down numbers
 					{
@@ -431,9 +444,9 @@ char resortstring(char * input) //TODO: what about brackets?
 		}
 		if ((input[ilv1]>='A') && (input[ilv1]<='Z'))
 		{
-			if ((fsm!=2) && (fsm!=1))
+			if ((fsm!=2) && (fsm!=1) && (fsm!=4))
 			{
-				if (fsm==1)
+				if (fsm==1)//never executed _>obsolete
 				{
 					for (int ilv2=start;ilv2<=end;ilv2++)//write down numbers
 					{
@@ -659,7 +672,7 @@ stylestring);
 			stylegenestring(((iDisplaytype1==5) ?4:0) | ((iDisplaytype1==1) ?8:0) | 1);
 			expressline(iBBX.left+ibonddist2*cos(cangle),iBBX.top+ibonddist2*sin(cangle),iBBX.right+ibonddist2*cos(cangle),iBBX.bottom+ibonddist2*sin(cangle));
 		}
-		if (((*glob_b_multilist).bufferlist)[ilv1].Order==2)
+		if (((*glob_b_multilist).bufferlist)[ilv1].Order>1.1)
 		{
 			stylegenestring((((*glob_b_multilist).bufferlist[ilv1].Display2==1)?8:0)|1);
 			expressline(iBBX.left+ibonddist*cos(cangle),iBBX.top+ibonddist*sin(cangle),iBBX.right+ibonddist*cos(cangle),iBBX.bottom+ibonddist*sin(cangle));
@@ -671,6 +684,7 @@ stylestring);
 	{
 		owner=text_actual_node[ilv1].owner;
 		colornr=0;
+		get_colorstring(colornr);
 		if (owner!=-1)
 		{
 			colornr=(*glob_n_multilist).bufferlist[text_actual_node[ilv1].owner].color;
@@ -684,6 +698,7 @@ stylestring);
 		start=(*(((*i_t_multilist).bufferlist)[ilv1].s)).start_in_it;
 		end=start+(*(((*i_t_multilist).bufferlist)[ilv1].s)).count_in_it;
 		char string_resorted=0;
+		char ifsmat=0;//0: nothing //1: on a subscript number; 2: on text; 3: on a superscript
 		for (int ilv2=start;ilv2<end;ilv2++)
 		{
 			colornr=((*i_s_multilist).bufferlist)[ilv2].color;
@@ -694,7 +709,7 @@ stylestring);
 			{
 				if ((*((*i_t_multilist).bufferlist[ilv1].s)).count_in_it==1)
 				{
-					if (((*i_s_multilist).bufferlist[start].face & 0x60)>0)
+					if (((*i_s_multilist).bufferlist[start].face & 0x60)==0x60)
 					{
 						if ((*i_t_multilist).bufferlist[ilv1].Justification==-1)
 						{
@@ -716,7 +731,223 @@ stylestring);
 			{
 				get_colorstring(colornr);
 			}
-			fprintf(outfile,"<tspan style=\"fill:#%s\">%s</tspan>\n",colorstring,finalstring);
+			if ((((*i_s_multilist).bufferlist)[ilv2].face & 0x60)==0x60)
+			{
+				printf("Active:%s",finalstring);
+				int tlmax=strlen(finalstring);
+				int tlstart,tlend;
+				tlstart=0;tlend=0;
+				for (int ilv3=0;ilv3<tlmax;ilv3++)
+				{
+					if ((finalstring[ilv3]>='0') && (finalstring[ilv3]<='9'))
+					{
+						if (ifsmat==2)
+						{
+							fprintf(outfile,"<tspan style=\"fill:#%s\">",colorstring);
+							for (int ilv4=tlstart;ilv4<tlend;ilv4++)
+							{
+								fprintf(outfile,"%c",finalstring[ilv4]);
+							}
+							fprintf(outfile,"</tspan>");
+							tlstart=ilv3;
+							tlend=ilv3+1;
+							ifsmat=1;
+						}
+						else
+						{
+							if (ifsmat==0)
+							{
+								tlend=ilv3+1;
+								goto trivial;
+							}
+							if (ifsmat==1)
+							{
+								tlend=ilv3+1;
+								goto trivial;
+							}
+							if (ifsmat==4)
+							{
+								fprintf(outfile,"<tspan baseline-shift=\"super\" style=\"fill:#%s\">",colorstring);
+								for (int ilv4=tlstart;ilv4<tlend;ilv4++)
+								{
+									fprintf(outfile,"%c",finalstring[ilv4]);
+								}
+								fprintf(outfile,"</tspan>");
+								tlstart=ilv3;
+								tlend=ilv3+1;
+								ifsmat=0;
+								goto trivial;
+							}
+						}
+					}
+					else
+					{
+						if (sentenumeric(finalstring[ilv3]))
+						{
+							treatasbookstave:
+							if (ifsmat==0)
+							{
+								tlend=ilv3+1;
+								ifsmat=2;
+								goto trivial;
+							}
+							if (ifsmat==1)
+							{
+								fprintf(outfile,"<tspan baseline-shift=\"sub\" style=\"fill:#%s\">",colorstring);
+								for (int ilv4=tlstart;ilv4<tlend;ilv4++)
+								{
+									fprintf(outfile,"%c",finalstring[ilv4]);
+								}
+								fprintf(outfile,"</tspan>");
+								tlstart=ilv3;
+								tlend=ilv3+1;
+								ifsmat=2;
+								goto trivial;
+							}
+							if (ifsmat==2)
+							{
+								tlend=ilv3+1;
+								goto trivial;
+							}
+							if (ifsmat==4)
+							{
+								fprintf(outfile,"<tspan baseline-shift=\"super\" style=\"fill:#%s\">",colorstring);
+								for (int ilv4=tlstart;ilv4<tlend;ilv4++)
+								{
+									fprintf(outfile,"%c",finalstring[ilv4]);
+								}
+								fprintf(outfile,"</tspan>");
+								tlstart=ilv3;
+								tlend=ilv3+1;
+								ifsmat=2;
+								goto trivial;
+							}
+						}
+						else
+						{
+							if ((finalstring[ilv3]=='+') || (finalstring[ilv3]=='-'))
+							{
+								if (ifsmat==0)
+								{
+									tlend=ilv3+1;
+									goto trivial;
+								}
+								if (ifsmat==4)
+								{
+									tlend=ilv3+1;
+									goto trivial;
+								}
+								if (ifsmat==1)
+								{
+									fprintf(outfile,"<tspan baseline-shift=\"sub\" style=\"fill:#%s\">",colorstring);
+									for (int ilv4=tlstart;ilv4<tlend;ilv4++)
+									{
+										fprintf(outfile,"%c",finalstring[ilv4]);
+									}
+									fprintf(outfile,"</tspan>");
+									tlstart=ilv3;
+									tlend=ilv3+1;
+									ifsmat=4;
+									goto trivial;
+								}
+								if (ifsmat==2)
+								{
+									fprintf(outfile,"<tspan style=\"fill:#%s\">",colorstring);
+									for (int ilv4=tlstart;ilv4<tlend;ilv4++)
+									{
+										fprintf(outfile,"%c",finalstring[ilv4]);
+									}
+									fprintf(outfile,"</tspan>");
+									tlstart=ilv3;
+									tlend=ilv3+1;
+									ifsmat=4;
+									goto trivial;
+								}
+							}
+							else
+							{
+								if (spaciatic(finalstring[ilv3]))
+								{
+									treatasspace:
+									if (ifsmat==0)
+									{
+										tlend=ilv3+1;
+										goto trivial;
+									}
+									if (ifsmat==1)
+									{
+										fprintf(outfile,"<tspan baseline-shift=\"sub\" style=\"fill:#%s\">",colorstring);
+										for (int ilv4=tlstart;ilv4<tlend;ilv4++)
+										{
+											fprintf(outfile,"%c",finalstring[ilv4]);
+										}
+										fprintf(outfile,"</tspan>");
+										tlstart=ilv3;
+										tlend=ilv3+1;
+										ifsmat=0;
+										goto trivial;
+									}
+									if (ifsmat==2)
+									{
+										tlend=ilv3+1;
+										ifsmat=0;
+										goto trivial;
+									}
+									if (ifsmat==4)
+									{
+										fprintf(outfile,"<tspan baseline-shift=\"super\" style=\"fill:#%s\">",colorstring);
+										for (int ilv4=tlstart;ilv4<tlend;ilv4++)
+										{
+											fprintf(outfile,"%c",finalstring[ilv4]);
+										}
+										fprintf(outfile,"</tspan>");
+										tlstart=ilv3;
+										tlend=ilv3+1;
+										ifsmat=0;
+										goto trivial;
+									}
+								}
+								else
+								{
+									if (finalstring[ilv3] & 0x80)
+									{
+										goto treatasbookstave;
+									}
+									goto treatasspace;
+								}
+							}
+						}
+					}
+					trivial:
+					;
+				}
+				if (ifsmat==1)
+				{
+					fprintf(outfile,"<tspan baseline-shift=\"sub\" style=\"fill:#%s\">",colorstring);
+				}
+				if ((ifsmat==2) || (ifsmat==0))
+				{
+					fprintf(outfile,"<tspan style=\"fill:#%s\">",colorstring);
+				}
+				if (ifsmat==4)
+				{
+					fprintf(outfile,"<tspan baseline-shift=\"super\" style=\"fill:#%s\">",colorstring);
+				}
+				for (int ilv4=tlstart;ilv4<tlend;ilv4++)
+				{
+					fprintf(outfile,"%c",finalstring[ilv4]);
+				}
+				fprintf(outfile,"</tspan>");
+				fprintf(outfile,"\n");
+			}
+			else
+			{
+				printf("Passive:%s",finalstring);
+				int tlformlabeltype=((*i_s_multilist).bufferlist)[ilv2].face;
+				fprintf(outfile,"<tspan %s style=\"fill:#%s\">%s</tspan>\n",
+				(tlformlabeltype & 0x20) ? "baseline-shift=\"sub\"" : ((tlformlabeltype & 0x40) ? "baseline-shift=\"super\"":""),
+				colorstring,finalstring);
+			}
 		}
 		fprintf(outfile,"</text>\n");
 	}

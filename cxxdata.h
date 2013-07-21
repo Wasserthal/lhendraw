@@ -38,7 +38,7 @@ inline void clear_cdx_String(cdx_String & input)
 
 int __attribute__((sysv_abi))CDXMLREAD_cdx_String(char * input,void * output)
 {
-	strncpy(input,&((*((cdx_String*)output)).a[0]),stringlength);
+	strncpy(&((*((cdx_String*)output)).a[0]),input,stringlength);
 	((*((cdx_String*)output)).a[stringlength])=0;
 	return 0;
 }

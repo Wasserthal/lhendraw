@@ -75,10 +75,17 @@ int __attribute__((sysv_abi))CDXMLREAD_float(char * input,void * output)
 	float wert=0;
 	char commamode=0;
 	float factor=0.1;
+	char negative;
+	negative=0;
 	ilv1=0;
 	while (spaciatic(input[ilv1]))
 	{
 		ilv1++;
+	}
+	if (input[ilv1]=='-')
+	{
+		ilv1++;
+		negative=1;
 	}
 	goto ientry;
 	iback:
@@ -107,7 +114,7 @@ int __attribute__((sysv_abi))CDXMLREAD_float(char * input,void * output)
 		}
 		goto iback;
 	}
-	*((float*)output)=wert;
+	*((float*)output)=negative ? -wert:wert;
 	return ilv1;
 }
 

@@ -37,7 +37,7 @@ float getangle(float dx,float dy)
 }
 float bonddist=4;
 float boldwidth=5;
-float arrowdepth=15;
+float arrowheadlength=15;
 float arrowthickness=5;
 
 multilist<color_instance> * glob_color_multilist;
@@ -47,6 +47,7 @@ multilist<t_instance> * glob_t_multilist;
 multilist<s_instance> * glob_s_multilist;
 multilist<font_instance> * glob_font_multilist;
 char colorstring[7]="AABBCC";
+char colorstring2[7]="AABBCC";
 char resortedstring[stringlength];
 FILE * outfile;
 float currentbasex,currentbasey;
@@ -67,31 +68,36 @@ color_instance * get_color(int number)
 	return &(((*glob_color_multilist).bufferlist)[number-2]);//is this really the best method? After all, colors have no IDs.
 }
 
-int get_colorstring(int number)
+int get_colorstringv(int number,char * icolorstring)
 {
 	if (number==0)
 	{
-		strcpy(colorstring,"000000");
+		strcpy(icolorstring,"000000");
 		return 0;
 	}
 	if (number==1)
 	{
-		strcpy(colorstring,"FFFFFF");
+		strcpy(icolorstring,"FFFFFF");
 		return 0;
 	}
 	if (number-2>=(*glob_color_multilist).filllevel)
 	{	
-		strcpy(colorstring,"000000");
+		strcpy(icolorstring,"000000");
 		return -1;
 	}
-	snprintf(colorstring,7,"%02hhX%02hhX%02hhX",char(((*glob_color_multilist).bufferlist)[number-2].r*255),char(((*glob_color_multilist).bufferlist)[number-2].g*255),char(((*glob_color_multilist).bufferlist)[number-2].b*255)); //is this really the best method? After all, colors have no IDs.
+	snprintf(icolorstring,7,"%02hhX%02hhX%02hhX",char(((*glob_color_multilist).bufferlist)[number-2].r*255),char(((*glob_color_multilist).bufferlist)[number-2].g*255),char(((*glob_color_multilist).bufferlist)[number-2].b*255)); //is this really the best method? After all, colors have no IDs.
 	return 0;
 }
+int get_colorstring(int number)
+{
+	get_colorstringv(number,colorstring);
+}
+
 inline int get_colorstring_passive(int number)
 {
 	if (number!=0)
 	{
-		get_colorstring(number);
+		get_colorstringv(number,colorstring);
 	}
 }
 
@@ -366,6 +372,17 @@ void expresstetrangle(float ix1,float iy1,float ix2,float iy2,float ix3,float iy
         ix1-currentbasex,iy1-currentbasey,ix2-currentbasex,iy2-currentbasey,ix3-currentbasex,iy3-currentbasey,ix4-currentbasex,iy4-currentbasey,
 istylestring);
 }
+void expressarc(float centerx,float centery,float radiusx,float radiusy,float startangle,float endangle)
+{
+	float startx,starty;
+	float endx,endy;
+	startx=centerx+radiusx*cos(startangle)-currentbasex;
+	starty=centery+radiusy*sin(startangle)-currentbasey;
+	endx=centerx+radiusx*cos(endangle)-currentbasex;
+	endy=centery+radiusy*sin(endangle)-currentbasey;
+	printf(">%f %f\n",startangle,endangle);
+	fprintf(outfile,"<path d=\"M %f,%f A %f,%f %i %i %i %f %f\" %s />",startx,starty,radiusx,radiusy,(int)0,(int)(fabs(startangle-endangle)>=Pi),(int)(startangle-endangle)<0,endx,endy,stylestring);
+}
 
 char iswedgenr(_small input)
 {
@@ -544,6 +561,35 @@ void calcdelta(float * x1,float * y1,float inputx,float inputy)
 		(*y1)=8.0*((inputy>0) ? 1.0 :-1.0);
 	}
 }
+void printformatted(const char * iinput,int imode,int start,int end)
+{
+	if (imode==1)
+	{
+		fprintf(outfile,"<tspan dy=\"+3\" font-size=\"80%\" style=\"fill:#%s\">",colorstring);
+	}
+	if ((imode==2) || (imode==0))
+	{
+		fprintf(outfile,"<tspan style=\"fill:#%s\">",colorstring);
+	}
+	if (imode==4)
+	{
+		fprintf(outfile,"<tspan dy=\"-3\" font-size=\"80%\" style=\"fill:#%s\">",colorstring);
+	}
+	for (int ilv4=start;ilv4<end;ilv4++)
+	{
+		fprintf(outfile,"%c",iinput[ilv4]);
+	}
+	fprintf(outfile,"</tspan>",colorstring);
+	if (imode==1)
+	{
+		fprintf(outfile,"<tspan dy=\"-3\"/>",colorstring);
+	}
+	if (imode==4)
+	{
+		fprintf(outfile,"<tspan dy=\"3\"/>",colorstring);
+	}
+	fprintf(outfile,"\n");
+}
 
 void svg_main(const char * filename)
 {
@@ -581,26 +627,56 @@ void svg_main(const char * filename)
 	multilist<graphic_instance> * i_graphic_multilist=retrievemultilist<graphic_instance>();
 	for (int ilv1=0;ilv1<(*i_graphic_multilist).filllevel;ilv1++)
 	{
-		iBBX=((*i_graphic_multilist).bufferlist)[ilv1].BoundingBox;
-		colornr=((*i_graphic_multilist).bufferlist)[ilv1].color;
+		graphic_instance * i_graphic_instance=&((*i_graphic_multilist).bufferlist)[ilv1];
+		iBBX=(*i_graphic_instance).BoundingBox;
+		colornr=(*i_graphic_instance).color;
 		get_colorstring(colornr);
-		if (((*i_graphic_multilist).bufferlist)[ilv1].GraphicType==1)
+		if ((*i_graphic_instance).GraphicType==1)
 		{
 			stylegenestring(1);
 			expressline(iBBX.left,iBBX.top,iBBX.right,iBBX.bottom);
 			cangle=getangle(iBBX.right-iBBX.left,iBBX.top-iBBX.bottom)+Pi/2;
 			langle=getangle(iBBX.right-iBBX.left,iBBX.top-iBBX.bottom);
-			if (((*i_graphic_multilist).bufferlist)[ilv1].ArrowType==2)
+		}
+		else
+		if ((*i_graphic_instance).GraphicType==2)
+		{
+			float deltax,deltay;
+			deltax=iBBX.left-iBBX.right;
+			deltay=iBBX.top-iBBX.bottom;
+			float tlradius=sqrt(deltax*deltax+deltay*deltay);
+			float tlangle=getangle(deltax,deltay);
+			if ((*i_graphic_instance).AngularSize>0)
 			{
-				stylegenestring(3);
-				expresstetrangle(iBBX.left,iBBX.top,
-iBBX.left+cos(langle)*arrowdepth+cos(cangle)*arrowthickness,iBBX.top+sin(langle)*arrowdepth+sin(cangle)*arrowthickness,
-iBBX.left+cos(langle)*arrowdepth-cos(cangle)*arrowthickness,iBBX.top+sin(langle)*arrowdepth-sin(cangle)*arrowthickness,
+				 langle=(tlangle+Pi/2.0);
+			}
+			else
+			{
+				 langle=(tlangle-Pi/2.0);
+			}
+			cangle=langle+Pi/2.0;
+			printf(">>%f\n",(*i_graphic_instance).AngularSize);
+			stylegenestring(1);
+			expressarc(iBBX.right,iBBX.bottom,tlradius,tlradius,tlangle,tlangle+(((*i_graphic_instance).AngularSize/180.0)*Pi));
+			stylegenestring(3);
+			expresstetrangle(iBBX.left,iBBX.top,
+iBBX.left+cos(langle)*arrowheadlength+cos(cangle)*arrowthickness,iBBX.top+sin(langle)*arrowheadlength+sin(cangle)*arrowthickness,
+iBBX.left+cos(langle)*arrowheadlength-cos(cangle)*arrowthickness,iBBX.top+sin(langle)*arrowheadlength-sin(cangle)*arrowthickness,
 iBBX.left,iBBX.top,
 stylestring);
-			}
 		}
-		if (((*i_graphic_multilist).bufferlist)[ilv1].GraphicType==3)
+		else goto skiparrows;
+		if ((*i_graphic_instance).ArrowType==2)
+		{
+			stylegenestring(3);
+			expresstetrangle(iBBX.left,iBBX.top,
+iBBX.left+cos(langle)*arrowheadlength+cos(cangle)*arrowthickness,iBBX.top+sin(langle)*arrowheadlength+sin(cangle)*arrowthickness,
+iBBX.left+cos(langle)*arrowheadlength-cos(cangle)*arrowthickness,iBBX.top+sin(langle)*arrowheadlength-sin(cangle)*arrowthickness,
+iBBX.left,iBBX.top,
+stylestring);
+		}
+		skiparrows:
+		if ((*i_graphic_instance).GraphicType==3)
 		{
 			stylegenestring(1);
 			expressline(iBBX.left,iBBX.top,iBBX.right,iBBX.top);
@@ -608,6 +684,21 @@ stylestring);
 			expressline(iBBX.left,iBBX.top,iBBX.left,iBBX.bottom);
 			expressline(iBBX.right,iBBX.top,iBBX.right,iBBX.bottom);
 		}
+ 		if ((*i_graphic_instance).GraphicType==7)
+ 		{
+			stylegenestring(1);
+			switch((*i_graphic_instance).SymbolType)
+			{
+				case 4 : strcpy(colorstring2,"FF0000");break;
+				case 5 : strcpy(colorstring2,"0000FF");break;
+			}
+ 			fprintf(outfile,"<circle cx=\"%f\" cy=\"%f\" r=\"7\" stroke=\"#%s\" fill=\"#%s\"/>",iBBX.left-currentbasex,iBBX.top-currentbasey,colorstring,colorstring2);
+			expressline(iBBX.left-3,iBBX.top,iBBX.left+3,iBBX.top);
+			if ((*i_graphic_instance).SymbolType==4)
+			{
+				expressline(iBBX.left,iBBX.top-3,iBBX.left,iBBX.top+3);
+			}
+ 		}
 	}
 	for (int ilv1=0;ilv1<(*glob_b_multilist).filllevel;ilv1++)
 	{
@@ -743,12 +834,7 @@ stylestring);
 					{
 						if (ifsmat==2)
 						{
-							fprintf(outfile,"<tspan style=\"fill:#%s\">",colorstring);
-							for (int ilv4=tlstart;ilv4<tlend;ilv4++)
-							{
-								fprintf(outfile,"%c",finalstring[ilv4]);
-							}
-							fprintf(outfile,"</tspan>");
+							printformatted(finalstring,ifsmat,tlstart,tlend);
 							tlstart=ilv3;
 							tlend=ilv3+1;
 							ifsmat=1;
@@ -767,12 +853,7 @@ stylestring);
 							}
 							if (ifsmat==4)
 							{
-								fprintf(outfile,"<tspan baseline-shift=\"super\" style=\"fill:#%s\">",colorstring);
-								for (int ilv4=tlstart;ilv4<tlend;ilv4++)
-								{
-									fprintf(outfile,"%c",finalstring[ilv4]);
-								}
-								fprintf(outfile,"</tspan>");
+								printformatted(finalstring,ifsmat,tlstart,tlend);
 								tlstart=ilv3;
 								tlend=ilv3+1;
 								ifsmat=0;
@@ -793,12 +874,7 @@ stylestring);
 							}
 							if (ifsmat==1)
 							{
-								fprintf(outfile,"<tspan baseline-shift=\"sub\" style=\"fill:#%s\">",colorstring);
-								for (int ilv4=tlstart;ilv4<tlend;ilv4++)
-								{
-									fprintf(outfile,"%c",finalstring[ilv4]);
-								}
-								fprintf(outfile,"</tspan>");
+								printformatted(finalstring,ifsmat,tlstart,tlend);
 								tlstart=ilv3;
 								tlend=ilv3+1;
 								ifsmat=2;
@@ -811,12 +887,7 @@ stylestring);
 							}
 							if (ifsmat==4)
 							{
-								fprintf(outfile,"<tspan baseline-shift=\"super\" style=\"fill:#%s\">",colorstring);
-								for (int ilv4=tlstart;ilv4<tlend;ilv4++)
-								{
-									fprintf(outfile,"%c",finalstring[ilv4]);
-								}
-								fprintf(outfile,"</tspan>");
+								printformatted(finalstring,ifsmat,tlstart,tlend);
 								tlstart=ilv3;
 								tlend=ilv3+1;
 								ifsmat=2;
@@ -839,12 +910,7 @@ stylestring);
 								}
 								if (ifsmat==1)
 								{
-									fprintf(outfile,"<tspan baseline-shift=\"sub\" style=\"fill:#%s\">",colorstring);
-									for (int ilv4=tlstart;ilv4<tlend;ilv4++)
-									{
-										fprintf(outfile,"%c",finalstring[ilv4]);
-									}
-									fprintf(outfile,"</tspan>");
+									printformatted(finalstring,ifsmat,tlstart,tlend);
 									tlstart=ilv3;
 									tlend=ilv3+1;
 									ifsmat=4;
@@ -852,12 +918,7 @@ stylestring);
 								}
 								if (ifsmat==2)
 								{
-									fprintf(outfile,"<tspan style=\"fill:#%s\">",colorstring);
-									for (int ilv4=tlstart;ilv4<tlend;ilv4++)
-									{
-										fprintf(outfile,"%c",finalstring[ilv4]);
-									}
-									fprintf(outfile,"</tspan>");
+									printformatted(finalstring,ifsmat,tlstart,tlend);
 									tlstart=ilv3;
 									tlend=ilv3+1;
 									ifsmat=4;
@@ -876,12 +937,7 @@ stylestring);
 									}
 									if (ifsmat==1)
 									{
-										fprintf(outfile,"<tspan baseline-shift=\"sub\" style=\"fill:#%s\">",colorstring);
-										for (int ilv4=tlstart;ilv4<tlend;ilv4++)
-										{
-											fprintf(outfile,"%c",finalstring[ilv4]);
-										}
-										fprintf(outfile,"</tspan>");
+										printformatted(finalstring,ifsmat,tlstart,tlend);
 										tlstart=ilv3;
 										tlend=ilv3+1;
 										ifsmat=0;
@@ -895,12 +951,7 @@ stylestring);
 									}
 									if (ifsmat==4)
 									{
-										fprintf(outfile,"<tspan baseline-shift=\"super\" style=\"fill:#%s\">",colorstring);
-										for (int ilv4=tlstart;ilv4<tlend;ilv4++)
-										{
-											fprintf(outfile,"%c",finalstring[ilv4]);
-										}
-										fprintf(outfile,"</tspan>");
+										printformatted(finalstring,ifsmat,tlstart,tlend);
 										tlstart=ilv3;
 										tlend=ilv3+1;
 										ifsmat=0;
@@ -921,32 +972,15 @@ stylestring);
 					trivial:
 					;
 				}
-				if (ifsmat==1)
-				{
-					fprintf(outfile,"<tspan baseline-shift=\"sub\" style=\"fill:#%s\">",colorstring);
-				}
-				if ((ifsmat==2) || (ifsmat==0))
-				{
-					fprintf(outfile,"<tspan style=\"fill:#%s\">",colorstring);
-				}
-				if (ifsmat==4)
-				{
-					fprintf(outfile,"<tspan baseline-shift=\"super\" style=\"fill:#%s\">",colorstring);
-				}
-				for (int ilv4=tlstart;ilv4<tlend;ilv4++)
-				{
-					fprintf(outfile,"%c",finalstring[ilv4]);
-				}
-				fprintf(outfile,"</tspan>");
-				fprintf(outfile,"\n");
+				printformatted(finalstring,ifsmat,tlstart,tlend);
 			}
 			else
 			{
 				printf("Passive:%s",finalstring);
 				int tlformlabeltype=((*i_s_multilist).bufferlist)[ilv2].face;
-				fprintf(outfile,"<tspan %s style=\"fill:#%s\">%s</tspan>\n",
-				(tlformlabeltype & 0x20) ? "baseline-shift=\"sub\"" : ((tlformlabeltype & 0x40) ? "baseline-shift=\"super\"":""),
-				colorstring,finalstring);
+				fprintf(outfile,"<tspan %s style=\"fill:#%s\">%s</tspan>%s\n",
+				(tlformlabeltype & 0x20) ? "dy=\"+3\" font-size=\"80%\"" : ((tlformlabeltype & 0x40) ? "dy=\"-3\" font-size=\"80%\"":""),
+				colorstring,finalstring,(tlformlabeltype & 0x20)?"<tspan dy=\"-3\"/>":((tlformlabeltype & 0x40)?"<tspan dy=\"3\"/>":""));
 			}
 		}
 		fprintf(outfile,"</text>\n");

@@ -13,4 +13,4 @@ fonttable;font ;;
 font;;0 id s name ;
 arrow;;;
 line;;;
-graphic;;0 color 0 SupersededBy 0 id 4 BoundingBox 0 Z ! GraphicType ! ArrowType ;
+graphic;;0 color 0 SupersededBy 0 id 4 BoundingBox 0 Z ! GraphicType ! ArrowType ! SymbolType 1 AngularSize ;

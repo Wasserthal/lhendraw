@@ -19,6 +19,22 @@ bienum CDXML_GraphicType[] {
 	{{"Symbol"},7},
 };
 int CDXML_GraphicType_max=sizeof(CDXML_GraphicType)/sizeof(CDXML_GraphicType[0]);
+bienum CDXML_SymbolType[] {
+	{{"LonePair"},0},
+	{{"Electron"},1},
+	{{"RadicalCation"},2},
+	{{"RadicalAnion"},3},
+	{{"CirclePlus"},4},
+	{{"CircleMinus"},5},
+	{{"Dagger"},6},
+	{{"DoubleDagger"},7},
+	{{"Plus"},8},
+	{{"Minus"},9},
+	{{"Racemic"},10},
+	{{"Absolute"},11},
+	{{"Relative"},12},
+};
+int CDXML_SymbolType_max=sizeof(CDXML_SymbolType)/sizeof(CDXML_SymbolType[0]);
 bienum CDXML_DoublePosition[] {
 	{{"AutoCenter"},0},
 	{{"AutoRight"},1},

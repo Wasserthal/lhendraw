@@ -204,6 +204,7 @@ struct bond_actual_node_
 {
 	_small start,end;
 	float cotanleft[2],cotanright[2];//fw,bw==end,start NOTE: when [1], right and left are also seen from the other side.
+	float xcotanleft[2],xcotanright[2];//fw,bw==end,start NOTE: when [1], right and left are also seen from the other side.
 	float numberleft[2],numberright[2];
 };
 
@@ -272,10 +273,14 @@ void getatoms()//makes some preprocessing
 	}
 	for (int ilv1=0;ilv1<(*glob_b_multilist).filllevel;ilv1++)
 	{
-		bond_actual_node[ilv1].cotanleft[0]=Pi/2;
-		bond_actual_node[ilv1].cotanleft[1]=Pi/2;
-		bond_actual_node[ilv1].cotanright[0]=-Pi/2;
-		bond_actual_node[ilv1].cotanright[1]=-Pi/2;
+		bond_actual_node[ilv1].cotanleft[0]=Pi/4;
+		bond_actual_node[ilv1].cotanleft[1]=Pi/4;
+		bond_actual_node[ilv1].cotanright[0]=Pi/4;
+		bond_actual_node[ilv1].cotanright[1]=Pi/4;
+		bond_actual_node[ilv1].xcotanleft[0]=Pi/2;
+		bond_actual_node[ilv1].xcotanleft[1]=Pi/2;
+		bond_actual_node[ilv1].xcotanright[0]=Pi/2;
+		bond_actual_node[ilv1].xcotanright[1]=Pi/2;
 		bond_actual_node[ilv1].numberleft[0]=-1;
 		bond_actual_node[ilv1].numberleft[1]=-1;
 		bond_actual_node[ilv1].numberright[0]=-1;
@@ -301,14 +306,6 @@ void getatoms()//makes some preprocessing
 		{
 			_small partner=getother(ilv1,(atom_actual_node[ilv1]).bonds[ilv2]);
 			angle_between[ilv2][ilv2]=getangle((*glob_n_multilist).bufferlist[partner].p.x-(*tlatominstance).p.x,(*glob_n_multilist).bufferlist[partner].p.y-(*tlatominstance).p.y);//TODO:not good at real-time!!!
-			if (ilv1==65)
-			{
-				if (((atom_actual_node[ilv1]).bonds[ilv2]==57) || ((atom_actual_node[ilv1]).bonds[ilv2]==58))
-				{
-					printf("??%f;%i??",angle_between[ilv2][ilv2],(atom_actual_node[ilv1]).bonds[ilv2]);
-					printf(">>>>%f",compangle(5.76,1.32));
-				}
-			}
 			number_between[ilv2]=(atom_actual_node[ilv1]).bonds[ilv2];
 		}
 		for (int ilv2=0;ilv2<atom_actual_node[ilv1].bondcount;ilv2++)//TODO:not good at real-time!!!
@@ -328,37 +325,50 @@ void getatoms()//makes some preprocessing
 		{
 			bond_actual_node_ * i_bond_actual_node=&(bond_actual_node[atom_actual_node[ilv1].bonds[ilv2]]);
 			float tlleftest,tlrightest;
+			float tlxleftest,tlxrightest;
 			int tlleftnr,tlrightnr;
-			tlleftnr=0;tlrightnr=0;
+			tlleftnr=-1;tlrightnr=-1;
 			tlleftest=Pi;tlrightest=-Pi;
+			tlxleftest=Pi;tlxrightest=-Pi;
 			for (int ilv3=0;ilv3<atom_actual_node[ilv1].bondcount;ilv3++)
 			{
 				if (ilv3!=ilv2)
 				{
 					float iangle=angle_between[ilv2][ilv3];
-					if ((atom_actual_node[ilv1].bonds[ilv2]==57) && (ilv1==65))
-					{
-						printf("!!%f,%i,%i!!",iangle,atom_actual_node[ilv1].bonds[ilv2],atom_actual_node[ilv1].bonds[ilv3]);
-					}
-					if (fabs(iangle)<Pi/6){goto notfound;}
-					if (fabs(iangle)>5*Pi/6){goto notfound;}
-					if (iangle>0) if (iangle<tlleftest){tlleftest=iangle;tlleftnr=number_between[ilv3];}
-					if (iangle<0) if (iangle>tlrightest){tlrightest=iangle;tlrightnr=number_between[ilv3];}
+					int adequate;
+					adequate=1;
+					if (fabs(iangle)<Pi/6){adequate=0;}
+					if (fabs(iangle)>5*Pi/6){adequate=0;}
+					if (iangle>0) if (iangle<tlleftest) {if (adequate){tlleftest=iangle;tlleftnr=number_between[ilv3];}if (iangle<tlxleftest){tlxleftest=iangle;tlleftnr=number_between[ilv3];}}
+					if (iangle<0) if (iangle>tlrightest){if (adequate){tlrightest=iangle;tlrightnr=number_between[ilv3];}if (iangle>tlxrightest){tlxrightest=iangle;tlrightnr=number_between[ilv3];}}
 					notfound:
 					;
 				}
 			}
-//{printf("Achtung:%i;%i;%f;",(*i_bond_actual_node).start,ilv1,tlleftest);tlleftest=Pi/4;tlleftnr=0;}
 			//if the atom is a start atom, the bond has to be treated backwards
+			if (tlleftnr!=-1)
+			{
+				(*i_bond_actual_node).numberleft[(*i_bond_actual_node).start==ilv1]=tlleftnr;
+			}
+			if (tlrightnr!=-1)
+			{
+				(*i_bond_actual_node).numberright[(*i_bond_actual_node).start==ilv1]=tlrightnr;
+			}
 			if (tlleftest<Pi)
 			{
 				(*i_bond_actual_node).cotanleft[(*i_bond_actual_node).start==ilv1]=tlleftest;
-				(*i_bond_actual_node).numberleft[(*i_bond_actual_node).start==ilv1]=tlleftnr;
 			}
 			if (tlrightest>-Pi)
 			{
 				(*i_bond_actual_node).cotanright[(*i_bond_actual_node).start==ilv1]=-tlrightest;
-				(*i_bond_actual_node).numberright[(*i_bond_actual_node).start==ilv1]=tlrightnr;
+			}
+			if (tlxleftest<Pi/2)
+			{
+				(*i_bond_actual_node).xcotanleft[(*i_bond_actual_node).start==ilv1]=tlxleftest;
+			}
+			if (tlxrightest>-Pi/2)
+			{
+				(*i_bond_actual_node).xcotanright[(*i_bond_actual_node).start==ilv1]=-tlxrightest;
 			}
 		}
 		for (int ilv2=(*((*glob_n_multilist).bufferlist)[ilv1].t).start_in_it;ilv2<(*((*glob_n_multilist).bufferlist)[ilv1].t).start_in_it+(*((*glob_n_multilist).bufferlist)[ilv1].t).count_in_it;ilv2++)//allows for multiple text items on one atom. Nonsense.
@@ -461,6 +471,17 @@ void expresstetrangle(float ix1,float iy1,float ix2,float iy2,float ix3,float iy
 	fprintf(outfile,"<path d=\"M %f %f L %f %f L %f %f L %f %f z \" %s/>\n",
         ix1-currentbasex,iy1-currentbasey,ix2-currentbasex,iy2-currentbasey,ix3-currentbasex,iy3-currentbasey,ix4-currentbasex,iy4-currentbasey,
 istylestring);
+}
+#define dashdist 3
+void expresshashangle(float langle,float cangle,float ix1,float iy1,float ix2,float iy2,float bonddist3,float bonddist4)
+{
+	float ilength=sqrt((ix2-ix1)*(ix2-ix1)+(iy2-iy1)*(iy2-iy1));
+	for (float ilv1=0;ilv1<ilength;ilv1+=dashdist)
+	{
+		float share=(ilv1/ilength);
+		float share2=share*bonddist3+(1-share)*bonddist4;
+		expressline(ix1*(1-share)+ix2*share+cos(cangle)*share2,iy1*(1-share)+iy2*share+sin(langle)*share2,ix1*(1-share)+ix2*share-cos(cangle)*share2,iy1*(1-share)+iy2*share-sin(cangle)*share2);
+	}
 }
 void expresshexangle(float ix1,float iy1,float ix2,float iy2,float ix3,float iy3,float ix4,float iy4,float ix5,float iy5,float ix6,float iy6)
 {
@@ -828,11 +849,13 @@ stylestring);
 		cangle=langle+Pi/2;
 		float textdeltax,textdeltay;
 		calcdelta(&textdeltax,&textdeltay,(*endnode).p.x-(*startnode).p.x,(*endnode).p.y-(*startnode).p.y);
-		iBBX.left=(*startnode).p.x+textdeltax*(atom_actual_node[inr_S].special!=-1);
-		iBBX.top=(*startnode).p.y+textdeltay*(atom_actual_node[inr_S].special!=-1);
+		char specialS=(atom_actual_node[inr_S].special!=-1);
+		char specialE=(atom_actual_node[inr_E].special!=-1);
+		iBBX.left=(*startnode).p.x+textdeltax*specialS;
+		iBBX.top=(*startnode).p.y+textdeltay*specialS;
 		int iDisplaytype1=((*glob_b_multilist).bufferlist[ilv1].Display);
-		iBBX.right=(*endnode).p.x-textdeltax*(atom_actual_node[inr_E].special!=-1);
-		iBBX.bottom=(*endnode).p.y-textdeltay*(atom_actual_node[inr_E].special!=-1);
+		iBBX.right=(*endnode).p.x-textdeltax*specialE;
+		iBBX.bottom=(*endnode).p.y-textdeltay*specialE;
 		if (iswedgenr(iDisplaytype1)>0)
 		{
 			ibonddist3=0;
@@ -852,11 +875,27 @@ stylestring);
 			float tlrighttan=0;
 			float tllefttan2=0;
 			float tlrighttan2=0;
-			if ((bond_actual_node[ilv1]).numberleft[0]!=-1) {tllefttan=tan(Pi/2-bond_actual_node[ilv1].cotanleft[0]);}
-			if ((bond_actual_node[ilv1]).numberright[0]!=-1) {tlrighttan=tan(Pi/2-bond_actual_node[ilv1].cotanright[0]);}
-			if ((bond_actual_node[ilv1]).numberleft[1]!=-1) {tllefttan2=tan(Pi/2-bond_actual_node[ilv1].cotanleft[1]);}
-			if ((bond_actual_node[ilv1]).numberright[1]!=-1) {tlrighttan2=tan(Pi/2-bond_actual_node[ilv1].cotanright[1]);}
-			expresshexangle(
+if (specialE==0)
+{
+			if ((bond_actual_node[ilv1]).numberleft[0]!=-1) {tllefttan=tan(Pi/2-bond_actual_node[ilv1].cotanleft[0]);}else{if ((bond_actual_node[ilv1]).numberright[0]!=-1){tllefttan=tan(bond_actual_node[ilv1].xcotanright[0]/2);}}
+			if ((bond_actual_node[ilv1]).numberright[0]!=-1) {tlrighttan=tan(Pi/2-bond_actual_node[ilv1].cotanright[0]);}else{if ((bond_actual_node[ilv1]).numberleft[0]!=-1){tlrighttan=tan(bond_actual_node[ilv1].xcotanleft[0]/2);}}
+}
+if (specialS==0)
+{
+			if ((bond_actual_node[ilv1]).numberleft[1]!=-1) {tllefttan2=tan(Pi/2-bond_actual_node[ilv1].cotanleft[1]);}else{if ((bond_actual_node[ilv1]).numberright[1]!=-1){tllefttan2=tan(bond_actual_node[ilv1].xcotanright[1]/2);}}
+			if ((bond_actual_node[ilv1]).numberright[1]!=-1) {tlrighttan2=tan(Pi/2-bond_actual_node[ilv1].cotanright[1]);}else{if ((bond_actual_node[ilv1]).numberleft[1]!=-1){tlrighttan2=tan(bond_actual_node[ilv1].xcotanleft[1]/2);}}
+}
+			if ((iDisplaytype1==2) || (iDisplaytype1==3) || (iDisplaytype1==4))
+			{
+				expresshashangle(langle,cangle,
+			iBBX.right+ibonddist2*cos(cangle),iBBX.bottom+ibonddist2*sin(cangle),
+			iBBX.left+ibonddist2*cos(cangle),iBBX.top+ibonddist2*sin(cangle),
+			ibonddist3,ibonddist4
+);
+			}
+			else
+			{
+				expresshexangle(
 			iBBX.right+ibonddist2*cos(cangle),iBBX.bottom+ibonddist2*sin(cangle),
 iBBX.right+ibonddist2*cos(cangle)+ibonddist4*(-cos(cangle)-(cos(langle)*tllefttan)),iBBX.bottom+ibonddist2*sin(cangle)+ibonddist4*(-sin(cangle)-(sin(langle)*tllefttan)),
 iBBX.left+ibonddist2*cos(cangle)+ibonddist3*(-cos(cangle)+(cos(langle)*tlrighttan2)),iBBX.top+ibonddist2*sin(cangle)+ibonddist3*(-sin(cangle)+(sin(langle)*tlrighttan2)),
@@ -864,6 +903,7 @@ iBBX.left+ibonddist2*cos(cangle)+ibonddist3*(-cos(cangle)+(cos(langle)*tlrightta
 iBBX.left+ibonddist2*cos(cangle)+ibonddist3*(cos(cangle)+(cos(langle)*tllefttan2)),iBBX.top+ibonddist2*sin(cangle)+ibonddist3*(sin(cangle)+(sin(langle)*tllefttan2)),
 iBBX.right+ibonddist2*cos(cangle)+ibonddist4*(cos(cangle)-(cos(langle)*tlrighttan)),iBBX.bottom+ibonddist2*sin(cangle)+ibonddist4*(sin(cangle)-(sin(langle)*tlrighttan))
 			);
+			}
 /*			expresstetrangle(
 iBBX.left+ibonddist3*cos(cangle),iBBX.top+ibonddist3*sin(cangle),
 iBBX.left-ibonddist3*cos(cangle),iBBX.top-ibonddist3*sin(cangle),

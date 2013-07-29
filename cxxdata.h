@@ -15,6 +15,14 @@ inline void clear_cdx_Point2D(cdx_Point2D & input)
 {
 	input.x=0;input.y=0;
 }
+typedef struct cdx_Point3D
+{
+	float x,y,z;
+};
+inline void clear_cdx_Point3D(cdx_Point3D & input)
+{
+	input.x=0;input.y=0;input.z=0;
+}
 
 typedef struct cdx_Rectangle
 {
@@ -139,6 +147,17 @@ int __attribute__((sysv_abi))CDXMLREAD_cdx_Point2D(char * input,void * output)
 	ilv1=CDXMLREAD_float(input,&(wert.x));
 	ilv1+=CDXMLREAD_float(input+ilv1,&(wert.y));
 	*((cdx_Point2D*)output)=wert;
+	return ilv1;
+}
+int __attribute__((sysv_abi))CDXMLREAD_cdx_Point3D(char * input,void * output)
+{
+		
+	int ilv1;
+	cdx_Point3D wert;
+	ilv1=CDXMLREAD_float(input,&(wert.x));
+	ilv1+=CDXMLREAD_float(input+ilv1,&(wert.y));
+	ilv1+=CDXMLREAD_float(input+ilv1,&(wert.z));
+	*((cdx_Point3D*)output)=wert;
 	return ilv1;
 }
 typedef struct bienum

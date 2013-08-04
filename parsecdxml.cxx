@@ -660,7 +660,7 @@ void input_fsm(FILE* infile)
 	}
 }
 
-
+#ifndef PARSECDXML_IS_AUXPROG
 int main(int argc, char * * argv)
 {
 	setvbuf(stdout,NULL,_IONBF,0);
@@ -681,3 +681,4 @@ int main(int argc, char * * argv)
 	exit(0);
 	return 0;
 }
+#endif

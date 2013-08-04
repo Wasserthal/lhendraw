@@ -5,4 +5,4 @@ filestructure_maker: filestructure.c
 filestructure.hxx: filestructure_maker filestructure.draft
 	./filestructure_maker
 makeinf_test: makeinf.hxx makeinf_test.cxx
-	g++ -g -O0 -std=c++0x makeinf_test.cxx -o makeinftest -D DEBUG -Wno-format
+	g++ -g -O0 -std=c++0x -Wno-invalid-offsetof makeinf_test.cxx -o makeinftest -D DEBUG -Wno-format

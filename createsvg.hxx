@@ -45,12 +45,15 @@ multilist<n_instance> * glob_n_multilist;
 multilist<b_instance> * glob_b_multilist;
 multilist<t_instance> * glob_t_multilist;
 multilist<s_instance> * glob_s_multilist;
+multilist<graphic_instance> * glob_graphic_multilist;
+multilist<annotation_instance> * glob_annotation_multilist;
 multilist<font_instance> * glob_font_multilist;
 char colorstring[7]="AABBCC";
 char colorstring2[7]="AABBCC";
 char resortedstring[stringlength];
 FILE * outfile;
-float currentbasex,currentbasey;
+float SVG_ileft,SVG_itop;
+float SVG_width,SVG_height;
 color_instance * get_color(int number)
 {
 	if (number==0)
@@ -464,12 +467,12 @@ void stylegenestring(int flags)
 
 void expressline(float ileft,float itop,float iright,float ibottom)
 {
-	fprintf(outfile,"<path d=\"M %f %f L %f %f \" %s/>\n",ileft-currentbasex,itop-currentbasey,iright-currentbasex,ibottom-currentbasey,stylestring);
+	fprintf(outfile,"<path d=\"M %f %f L %f %f \" %s/>\n",ileft-SVG_ileft,itop-SVG_itop,iright-SVG_ileft,ibottom-SVG_itop,stylestring);
 }
 void expresstetrangle(float ix1,float iy1,float ix2,float iy2,float ix3,float iy3,float ix4,float iy4,char * istylestring)
 {
 	fprintf(outfile,"<path d=\"M %f %f L %f %f L %f %f L %f %f z \" %s/>\n",
-        ix1-currentbasex,iy1-currentbasey,ix2-currentbasex,iy2-currentbasey,ix3-currentbasex,iy3-currentbasey,ix4-currentbasex,iy4-currentbasey,
+        ix1-SVG_ileft,iy1-SVG_itop,ix2-SVG_ileft,iy2-SVG_itop,ix3-SVG_ileft,iy3-SVG_itop,ix4-SVG_ileft,iy4-SVG_itop,
 istylestring);
 }
 #define dashdist 3
@@ -486,17 +489,17 @@ void expresshashangle(float langle,float cangle,float ix1,float iy1,float ix2,fl
 void expresshexangle(float ix1,float iy1,float ix2,float iy2,float ix3,float iy3,float ix4,float iy4,float ix5,float iy5,float ix6,float iy6)
 {
 	fprintf(outfile,"<path d=\"M %f %f L %f %f L %f %f L %f %f L %f %f L %f %f z \" %s/>\n",
-        ix1-currentbasex,iy1-currentbasey,ix2-currentbasex,iy2-currentbasey,ix3-currentbasex,iy3-currentbasey,ix4-currentbasex,iy4-currentbasey,ix5-currentbasex,iy5-currentbasey,ix6-currentbasex,iy6-currentbasey,
+        ix1-SVG_ileft,iy1-SVG_itop,ix2-SVG_ileft,iy2-SVG_itop,ix3-SVG_ileft,iy3-SVG_itop,ix4-SVG_ileft,iy4-SVG_itop,ix5-SVG_ileft,iy5-SVG_itop,ix6-SVG_ileft,iy6-SVG_itop,
 stylestring);
 }
 void expressarc(float centerx,float centery,float radiusx,float radiusy,float startangle,float endangle)
 {
 	float startx,starty;
 	float endx,endy;
-	startx=centerx+radiusx*cos(startangle)-currentbasex;
-	starty=centery+radiusy*sin(startangle)-currentbasey;
-	endx=centerx+radiusx*cos(endangle)-currentbasex;
-	endy=centery+radiusy*sin(endangle)-currentbasey;
+	startx=centerx+radiusx*cos(startangle)-SVG_ileft;
+	starty=centery+radiusy*sin(startangle)-SVG_itop;
+	endx=centerx+radiusx*cos(endangle)-SVG_ileft;
+	endy=centery+radiusy*sin(endangle)-SVG_itop;
 	fprintf(outfile,"<path d=\"M %f,%f A %f,%f %i %i %i %f %f\" %s />",startx,starty,radiusx,radiusy,(int)0,(int)(fabs(startangle-endangle)>=Pi),(int)(startangle-endangle)<0,endx,endy,stylestring);
 }
 
@@ -708,12 +711,28 @@ void printformatted(const char * iinput,int imode,int start,int end)
 	fprintf(outfile,"\n");
 }
 
+void svg_findaround()
+{
+	glob_color_multilist=retrievemultilist<color_instance>();
+	glob_b_multilist=retrievemultilist<b_instance>();
+	glob_n_multilist=retrievemultilist<n_instance>();
+	glob_t_multilist=retrievemultilist<t_instance>();
+	glob_s_multilist=retrievemultilist<s_instance>();
+	glob_graphic_multilist=retrievemultilist<graphic_instance>();
+	glob_annotation_multilist=retrievemultilist<annotation_instance>();
+	glob_font_multilist=retrievemultilist<font_instance>();
+	getcaptions(&SVG_width,&SVG_height,&SVG_ileft,&SVG_itop);
+	SVG_ileft-=10;
+	SVG_itop-=10;
+	SVG_width+=20;
+	SVG_height+=20;
+	getatoms();
+}
+
 void svg_main(const char * filename)
 {
 	float cangle;
 	float langle;
-	float width, height;
-	float ileft,itop;
 	float ibonddist;
 	float ibonddist2;
 	float ibonddist3;
@@ -725,21 +744,9 @@ void svg_main(const char * filename)
 	_small owner;
 	outfile=fopen(filename,"w+");
 	fprintf(outfile,"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>");
-	glob_color_multilist=retrievemultilist<color_instance>();
-	glob_b_multilist=retrievemultilist<b_instance>();
-	glob_n_multilist=retrievemultilist<n_instance>();
-	glob_t_multilist=retrievemultilist<t_instance>();
-	glob_s_multilist=retrievemultilist<s_instance>();
-	glob_font_multilist=retrievemultilist<font_instance>();
-	getcaptions(&width,&height,&ileft,&itop);
-	ileft-=10;
-	itop-=10;
-	width+=20;
-	height+=20;
-	getatoms();
-	fprintf(outfile,"<svg version=\"1.0\" width=\"%f\" height=\"%f\">\n",width-ileft,height-itop);
-	currentbasex=ileft;
-	currentbasey=itop;
+	fprintf(outfile,"<svg version=\"1.0\" width=\"%f\" height=\"%f\">\n",SVG_width-SVG_ileft,SVG_height-SVG_itop);
+	SVG_ileft=SVG_ileft;
+	SVG_itop=SVG_itop;
 	n_instance * startnode, * endnode;
 	multilist<graphic_instance> * i_graphic_multilist=retrievemultilist<graphic_instance>();
 	for (int ilv1=0;ilv1<(*i_graphic_multilist).filllevel;ilv1++)
@@ -845,7 +852,7 @@ stylestring);
 				case 4 : strcpy(colorstring2,"FF0000");break;
 				case 5 : strcpy(colorstring2,"0000FF");break;
 			}
- 			fprintf(outfile,"<circle cx=\"%f\" cy=\"%f\" r=\"6\" stroke=\"#%s\" fill=\"#%s\"/>",iBBX.left-currentbasex,iBBX.top-currentbasey,colorstring,colorstring2);
+ 			fprintf(outfile,"<circle cx=\"%f\" cy=\"%f\" r=\"6\" stroke=\"#%s\" fill=\"#%s\"/>",iBBX.left-SVG_ileft,iBBX.top-SVG_itop,colorstring,colorstring2);
 			expressline(iBBX.left-3,iBBX.top,iBBX.left+3,iBBX.top);
 			if ((*i_graphic_instance).SymbolType==4)
 			{
@@ -974,7 +981,7 @@ stylestring);*/
 		colornr=((*i_t_multilist).bufferlist)[ilv1].color;
 		get_colorstring_passive(colornr);
 
-		fprintf(outfile,"<text fill=\"%s\" %s stroke=\"none\" transform=\"translate(%f,%f)\" font-size=\"18\">",colorstring,((*i_t_multilist).bufferlist[ilv1].LabelAlignment==-1) ? "text-anchor=\"end\" text-align=\"end\"" : "",((*i_t_multilist).bufferlist)[ilv1].p.x-currentbasex,((*i_t_multilist).bufferlist)[ilv1].p.y-currentbasey);
+		fprintf(outfile,"<text fill=\"%s\" %s stroke=\"none\" transform=\"translate(%f,%f)\" font-size=\"18\">",colorstring,((*i_t_multilist).bufferlist[ilv1].LabelAlignment==-1) ? "text-anchor=\"end\" text-align=\"end\"" : "",((*i_t_multilist).bufferlist)[ilv1].p.x-SVG_ileft,((*i_t_multilist).bufferlist)[ilv1].p.y-SVG_itop);
 		intl start,end;
 		start=(*(((*i_t_multilist).bufferlist)[ilv1].s)).start_in_it;
 		end=start+(*(((*i_t_multilist).bufferlist)[ilv1].s)).count_in_it;

@@ -4,3 +4,5 @@ filestructure_maker: filestructure.c
 	gcc -O0 -std=c99 -g filestructure.c -o filestructure_maker -D BITMODE32
 filestructure.hxx: filestructure_maker filestructure.draft
 	./filestructure_maker
+makeinf_test: makeinf.hxx makeinf_test.cxx
+	g++ -g -O0 -std=c++0x makeinf_test.cxx -o makeinftest -D DEBUG -Wno-format

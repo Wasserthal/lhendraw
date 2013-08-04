@@ -667,10 +667,17 @@ int main(int argc, char * * argv)
 	/*xml_set_register_count=0;
 	multilist_count=0;*/ //contraproductive amongst the hack!
 	FILE * infile;
-	infile=fopen(argv[1],"r");
+	infile=fopen(argv[1],"r+");
 	input_fsm(infile);
 	fclose(infile);
-	svg_main("output.svg");
+	if (argc<3)
+	{
+		svg_main("output.svg");
+	}
+	else
+	{
+		svg_main(argv[2]);
+	}
 	exit(0);
 	return 0;
 }

@@ -52,8 +52,9 @@ char colorstring[7]="AABBCC";
 char colorstring2[7]="AABBCC";
 char resortedstring[stringlength];
 FILE * outfile;
-float SVG_ileft,SVG_itop;
+float SVG_currentbasex,SVG_currentbasey;
 float SVG_width,SVG_height;
+float SVG_ileft,SVG_itop;
 color_instance * get_color(int number)
 {
 	if (number==0)
@@ -467,12 +468,12 @@ void stylegenestring(int flags)
 
 void expressline(float ileft,float itop,float iright,float ibottom)
 {
-	fprintf(outfile,"<path d=\"M %f %f L %f %f \" %s/>\n",ileft-SVG_ileft,itop-SVG_itop,iright-SVG_ileft,ibottom-SVG_itop,stylestring);
+	fprintf(outfile,"<path d=\"M %f %f L %f %f \" %s/>\n",ileft-SVG_currentbasex,itop-SVG_currentbasey,iright-SVG_currentbasex,ibottom-SVG_currentbasey,stylestring);
 }
 void expresstetrangle(float ix1,float iy1,float ix2,float iy2,float ix3,float iy3,float ix4,float iy4,char * istylestring)
 {
 	fprintf(outfile,"<path d=\"M %f %f L %f %f L %f %f L %f %f z \" %s/>\n",
-        ix1-SVG_ileft,iy1-SVG_itop,ix2-SVG_ileft,iy2-SVG_itop,ix3-SVG_ileft,iy3-SVG_itop,ix4-SVG_ileft,iy4-SVG_itop,
+        ix1-SVG_currentbasex,iy1-SVG_currentbasey,ix2-SVG_currentbasex,iy2-SVG_currentbasey,ix3-SVG_currentbasex,iy3-SVG_currentbasey,ix4-SVG_currentbasex,iy4-SVG_currentbasey,
 istylestring);
 }
 #define dashdist 3
@@ -489,17 +490,17 @@ void expresshashangle(float langle,float cangle,float ix1,float iy1,float ix2,fl
 void expresshexangle(float ix1,float iy1,float ix2,float iy2,float ix3,float iy3,float ix4,float iy4,float ix5,float iy5,float ix6,float iy6)
 {
 	fprintf(outfile,"<path d=\"M %f %f L %f %f L %f %f L %f %f L %f %f L %f %f z \" %s/>\n",
-        ix1-SVG_ileft,iy1-SVG_itop,ix2-SVG_ileft,iy2-SVG_itop,ix3-SVG_ileft,iy3-SVG_itop,ix4-SVG_ileft,iy4-SVG_itop,ix5-SVG_ileft,iy5-SVG_itop,ix6-SVG_ileft,iy6-SVG_itop,
+        ix1-SVG_currentbasex,iy1-SVG_currentbasey,ix2-SVG_currentbasex,iy2-SVG_currentbasey,ix3-SVG_currentbasex,iy3-SVG_currentbasey,ix4-SVG_currentbasex,iy4-SVG_currentbasey,ix5-SVG_currentbasex,iy5-SVG_currentbasey,ix6-SVG_currentbasex,iy6-SVG_currentbasey,
 stylestring);
 }
 void expressarc(float centerx,float centery,float radiusx,float radiusy,float startangle,float endangle)
 {
 	float startx,starty;
 	float endx,endy;
-	startx=centerx+radiusx*cos(startangle)-SVG_ileft;
-	starty=centery+radiusy*sin(startangle)-SVG_itop;
-	endx=centerx+radiusx*cos(endangle)-SVG_ileft;
-	endy=centery+radiusy*sin(endangle)-SVG_itop;
+	startx=centerx+radiusx*cos(startangle)-SVG_currentbasex;
+	starty=centery+radiusy*sin(startangle)-SVG_currentbasey;
+	endx=centerx+radiusx*cos(endangle)-SVG_currentbasex;
+	endy=centery+radiusy*sin(endangle)-SVG_currentbasey;
 	fprintf(outfile,"<path d=\"M %f,%f A %f,%f %i %i %i %f %f\" %s />",startx,starty,radiusx,radiusy,(int)0,(int)(fabs(startangle-endangle)>=Pi),(int)(startangle-endangle)<0,endx,endy,stylestring);
 }
 
@@ -726,7 +727,6 @@ void svg_findaround()
 	SVG_itop-=10;
 	SVG_width+=20;
 	SVG_height+=20;
-	getatoms();
 }
 
 void svg_main(const char * filename)
@@ -744,13 +744,23 @@ void svg_main(const char * filename)
 	_small owner;
 	outfile=fopen(filename,"w+");
 	fprintf(outfile,"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>");
-	fprintf(outfile,"<svg version=\"1.0\" width=\"%f\" height=\"%f\">\n",SVG_width-SVG_ileft,SVG_height-SVG_itop);
-	SVG_ileft=SVG_ileft;
-	SVG_itop=SVG_itop;
+	fprintf(outfile,"<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">");
+//	fprintf(outfile,"<svg version=\"1.0\" width=\"%f\" height=\"%f\">\n",SVG_width-SVG_ileft,SVG_height-SVG_itop);
+	fprintf(outfile,"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"%f\" height=\"%f\">\n",SVG_width,SVG_height);
+
+	svg_findaround();
+	getatoms();
+	SVG_currentbasex=SVG_ileft;
+	SVG_currentbasey=SVG_itop;
 	n_instance * startnode, * endnode;
 	multilist<graphic_instance> * i_graphic_multilist=retrievemultilist<graphic_instance>();
 	for (int ilv1=0;ilv1<(*i_graphic_multilist).filllevel;ilv1++)
 	{
+/* HOW ARROW MUST BE DONE:
+1. The arrow type determiner determines arrow type and bond spacing.
+2. The lines/arc are drawn. if it was something else, the next two points are skipped. 
+3. Otherwise, the arrow angles are calculated
+4. And the arrows are drawn.*/
 		graphic_instance * i_graphic_instance=&((*i_graphic_multilist).bufferlist)[ilv1];
 		iBBX=(*i_graphic_instance).BoundingBox;
 		colornr=(*i_graphic_instance).color;
@@ -852,7 +862,7 @@ stylestring);
 				case 4 : strcpy(colorstring2,"FF0000");break;
 				case 5 : strcpy(colorstring2,"0000FF");break;
 			}
- 			fprintf(outfile,"<circle cx=\"%f\" cy=\"%f\" r=\"6\" stroke=\"#%s\" fill=\"#%s\"/>",iBBX.left-SVG_ileft,iBBX.top-SVG_itop,colorstring,colorstring2);
+ 			fprintf(outfile,"<circle cx=\"%f\" cy=\"%f\" r=\"6\" stroke=\"#%s\" fill=\"#%s\"/>",iBBX.left-SVG_currentbasex,iBBX.top-SVG_currentbasey,colorstring,colorstring2);
 			expressline(iBBX.left-3,iBBX.top,iBBX.left+3,iBBX.top);
 			if ((*i_graphic_instance).SymbolType==4)
 			{
@@ -981,7 +991,7 @@ stylestring);*/
 		colornr=((*i_t_multilist).bufferlist)[ilv1].color;
 		get_colorstring_passive(colornr);
 
-		fprintf(outfile,"<text fill=\"%s\" %s stroke=\"none\" transform=\"translate(%f,%f)\" font-size=\"18\">",colorstring,((*i_t_multilist).bufferlist[ilv1].LabelAlignment==-1) ? "text-anchor=\"end\" text-align=\"end\"" : "",((*i_t_multilist).bufferlist)[ilv1].p.x-SVG_ileft,((*i_t_multilist).bufferlist)[ilv1].p.y-SVG_itop);
+		fprintf(outfile,"<text fill=\"%s\" %s stroke=\"none\" transform=\"translate(%f,%f)\" font-size=\"18\">",colorstring,((*i_t_multilist).bufferlist[ilv1].LabelAlignment==-1) ? "text-anchor=\"end\" text-align=\"end\"" : "",((*i_t_multilist).bufferlist)[ilv1].p.x-SVG_currentbasex,((*i_t_multilist).bufferlist)[ilv1].p.y-SVG_currentbasey);
 		intl start,end;
 		start=(*(((*i_t_multilist).bufferlist)[ilv1].s)).start_in_it;
 		end=start+(*(((*i_t_multilist).bufferlist)[ilv1].s)).count_in_it;

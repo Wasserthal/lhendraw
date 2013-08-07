@@ -60,22 +60,7 @@ void addframe(cdx_Rectangle & irect,int nr)
 	makeinf_frame[makeinf_frame_count].height=irect.bottom-irect.top;
 	makeinf_frame_count++;
 }
-void canonicalizeboundingbox(cdx_Rectangle * iBBX)
-{
-	float swap;
-	if ((*iBBX).left>(*iBBX).right)
-	{
-		swap=(*iBBX).left;
-		(*iBBX).left=(*iBBX).right;
-		(*iBBX).right=swap;
-	}
-	if ((*iBBX).top>(*iBBX).bottom)
-	{
-		swap=(*iBBX).top;
-		(*iBBX).top=(*iBBX).bottom;
-		(*iBBX).bottom=swap;
-	}
-}
+#ifndef CDXMAKEINF_READONLY
 void getframes()
 {
 	char isfound;
@@ -163,6 +148,7 @@ void scanfortext_picture(FILE * fileforthatpurpose)
 		scanfortext(fileforthatpurpose,tlframeinfo.posx,tlframeinfo.posy,tlframeinfo.endx,tlframeinfo.endy);
 	}
 }
+#endif
 char truefilename[stringlength];
 /*char tetrify()
 {
@@ -193,9 +179,12 @@ char truefilename[stringlength];
 void makeinf(const char * cdxname,const char * name)
 {
 	char tldowriteatend=makeinf_sortimentcount;
-	INFfile=fopen(name,"r");
+	strcpy(truefilename,name);
+	strcat(truefilename,".inf");
+	INFfile=fopen(truefilename,"r");
 	if (INFfile!=NULL)
 	{
+		printf("Im RAAAAVING");
 		fread(&makeinf_frame_count,4,1,INFfile);
 		fread(&makeinf_sortimentcount,4,1,INFfile);
 		fread(&makeinf_width,sizeof(float),1,INFfile);
@@ -220,8 +209,18 @@ void makeinf(const char * cdxname,const char * name)
 		}
 		fclose(INFfile);
 	}
+	#ifndef CDXMAKEINF_READONLY
 	else
 	{
+		infile=fopen(cdxname,"r+");
+		input_fsm(infile);
+		fclose(infile);
+		svg_findaround();
+		getframes();
+		getatoms();
+		makeinf_width=SVG_width-SVG_ileft;
+		makeinf_height=SVG_height-SVG_itop;
+		printf("w%fŋ",makeinf_width);
 		strcpy(truefilename,name);
 		strcat(truefilename,".inf");
 		INFfile=fopen(truefilename,"w");
@@ -229,12 +228,6 @@ void makeinf(const char * cdxname,const char * name)
 		fwrite(&makeinf_sortimentcount,4,1,INFfile);
 		fwrite(&makeinf_width,sizeof(float),1,INFfile);
 		fwrite(&makeinf_height,sizeof(float),1,INFfile);
-		infile=fopen(cdxname,"r+");
-		input_fsm(infile);
-		fclose(infile);
-		svg_findaround();
-		getframes();
-		getatoms();
 		FILE * scraptext;
 		if (makeinf_frame_count>0)
 		{
@@ -265,6 +258,7 @@ void makeinf(const char * cdxname,const char * name)
 		}
 		fclose(INFfile);
 	}
+	#endif
 	if (tldowriteatend==1)
 	{
 		strcpy(truefilename,name);

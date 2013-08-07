@@ -6,13 +6,7 @@
 #include <typeinfo>
 #include <string.h>
 #include <stdarg.h>
-#define intl long long
-#ifndef stringlength
-#define stringlength 512
-#endif
-#define bufferlength 256
-#define bufferlistsize 4096
-#define multilistlistlength 512
+#include "lendefs.h"
 #define REGISTER_content the_template.possible_contents.add
 void CDXMLREAD_basic(char * input,void * output);
 typedef int __attribute__((sysv_abi))(*CDXMLREAD_functype)(char * input,void * output);
@@ -80,23 +74,6 @@ class basicmultilist
 	basicmultilist(){};
 	~basicmultilist(){};
 };
-
-char spaciatic(char input)
-{
-	if (input==' ')
-	{
-		return 1;
-	}
-	if (input==10)
-	{
-		return 1;
-	}
-	if (input==13)
-	{
-		return 1;
-	}
-	return 0;
-}
 template <class whatabout> class multilist : public basicmultilist
 {
 	public:
@@ -309,26 +286,6 @@ struct gummydummy_instance: basic_instance
 #define chararray char *
 #include "cxxdata.h"
 
-char sentenumeric(char input)
-{
-	if ((input>='a') && (input<='z'))
-	{
-		return 1;
-	}
-	if ((input>='A') && (input<='Z'))
-	{
-		return 1;
-	}
-	if ((input>='0') && (input<='9'))
-	{
-		return 1;
-	}
-	if (input=='_')
-	{
-		return 1;
-	}
-	return 0;
-}
 #include "enums.hxx"
 #include "filestructure.hxx"
 #include "createsvg.hxx"

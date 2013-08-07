@@ -104,6 +104,22 @@ inline int get_colorstring_passive(int number)
 		get_colorstringv(number,colorstring);
 	}
 }
+void canonicalizeboundingbox(cdx_Rectangle * iBBX)
+{
+	float swap;
+	if ((*iBBX).left>(*iBBX).right)
+	{
+		swap=(*iBBX).left;
+		(*iBBX).left=(*iBBX).right;
+		(*iBBX).right=swap;
+	}
+	if ((*iBBX).top>(*iBBX).bottom)
+	{
+		swap=(*iBBX).top;
+		(*iBBX).top=(*iBBX).bottom;
+		(*iBBX).bottom=swap;
+	}
+}
 
 void getcaptions(float * width,float * height,float * left,float * top)
 {
@@ -743,13 +759,13 @@ void svg_main(const char * filename)
 	cdx_Rectangle iBBX;
 	_small owner;
 	outfile=fopen(filename,"w+");
-	fprintf(outfile,"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>");
-	fprintf(outfile,"<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">");
-//	fprintf(outfile,"<svg version=\"1.0\" width=\"%f\" height=\"%f\">\n",SVG_width-SVG_ileft,SVG_height-SVG_itop);
-	fprintf(outfile,"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"%f\" height=\"%f\">\n",SVG_width,SVG_height);
 
 	svg_findaround();
 	getatoms();
+	fprintf(outfile,"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>");
+	fprintf(outfile,"<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">");
+//	fprintf(outfile,"<svg version=\"1.0\" width=\"%f\" height=\"%f\">\n",SVG_width-SVG_ileft,SVG_height-SVG_itop);
+	fprintf(outfile,"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"%f\" height=\"%f\">\n",SVG_width-SVG_ileft,SVG_height-SVG_itop);
 	SVG_currentbasex=SVG_ileft;
 	SVG_currentbasey=SVG_itop;
 	n_instance * startnode, * endnode;

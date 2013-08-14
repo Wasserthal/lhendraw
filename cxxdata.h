@@ -104,6 +104,7 @@ int __attribute__((sysv_abi))CDXMLREAD_float(char * input,void * output)
 	else
 	{
 		wert+=(input[ilv1]-48)*factor;
+		factor=factor*0.1;
 	}
 	idone:
 	ilv1++;

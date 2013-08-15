@@ -781,12 +781,60 @@ void svg_main(const char * filename)
 		iBBX=(*i_graphic_instance).BoundingBox;
 		colornr=(*i_graphic_instance).color;
 		get_colorstring(colornr);
+		int currentArrowHeadType=0;
+		int currentArrowHeadTail=0;
+		int currentArrowHeadHead=0;
+		float tllinedist=0;
+		float tllefttan=0;
+		float tlrighttan=0;
+		float tllefttan2=0;
+		float tlrighttan2=0;
+		langle=0;cangle=0;
+		int currentLineType=0;//0: normal 5: Bold 0x100: Double
+		if ((*i_graphic_instance).ArrowType & 1)
+		{
+			currentArrowHeadType=55;
+			currentArrowHeadHead=2;
+		}
+		if ((*i_graphic_instance).ArrowType & 2)
+		{
+			currentArrowHeadHead=1;
+		}
+		if ((*i_graphic_instance).ArrowType & 4)
+		{
+			currentArrowHeadHead=1;
+			currentArrowHeadTail=1;
+		}
+		if ((*i_graphic_instance).ArrowType & 8)
+		{
+			currentLineType=0x100;
+			tllinedist=4;
+			currentArrowHeadType=55;
+			currentArrowHeadHead=2;
+			currentArrowHeadTail=2;
+		}
+		if ((*i_graphic_instance).ArrowType & 48)
+		{
+			tllinedist=8;
+			currentArrowHeadHead=1;//only valid when called from graphic
+			if ((*i_graphic_instance).ArrowType & 16) {currentArrowHeadType=1;if (currentArrowHeadHead&1){tllefttan2=2;}if (currentArrowHeadHead&2){tlrighttan2=2;}if (currentArrowHeadTail&1){tllefttan=2;}if (currentArrowHeadTail&2){tlrighttan=2;}}
+			if ((*i_graphic_instance).ArrowType & 32) {currentArrowHeadType=2;if (currentArrowHeadHead&1){tllefttan2=1;}if (currentArrowHeadHead&2){tlrighttan2=1;}if (currentArrowHeadTail&1){tllefttan=1;}if (currentArrowHeadTail&2){tlrighttan=1;}}
+			currentLineType=0x100;
+		}
 		if ((*i_graphic_instance).GraphicType==1)
 		{
 			stylegenestring(1);
-			expressline(iBBX.left,iBBX.top,iBBX.right,iBBX.bottom);
-			cangle=getangle(iBBX.right-iBBX.left,iBBX.top-iBBX.bottom)+Pi/2;
-			langle=getangle(iBBX.right-iBBX.left,iBBX.top-iBBX.bottom);
+			cangle=getangle(iBBX.right-iBBX.left,iBBX.bottom-iBBX.top)+Pi/2;
+			langle=getangle(iBBX.right-iBBX.left,iBBX.bottom-iBBX.top);
+			if (currentLineType &0x100)
+			{
+				expressline(iBBX.left+tllinedist*(cos(cangle)+(cos(langle)*tllefttan2)),iBBX.top+tllinedist*(sin(cangle)+(sin(langle)*tllefttan2)),iBBX.right+tllinedist*(cos(cangle)-(cos(langle)*tllefttan)),iBBX.bottom+tllinedist*(sin(cangle)-(sin(langle)*tllefttan)));
+				expressline(iBBX.left-tllinedist*(cos(cangle)-(cos(langle)*tllefttan2)),iBBX.top-tllinedist*(sin(cangle)-(sin(langle)*tllefttan2)),iBBX.right-tllinedist*(cos(cangle)+(cos(langle)*tllefttan)),iBBX.bottom-tllinedist*(sin(cangle)+(sin(langle)*tllefttan)));
+			}
+			else
+			{
+				expressline(iBBX.left,iBBX.top,iBBX.right,iBBX.bottom);
+			}
 		}
 		else
 		if ((*i_graphic_instance).GraphicType==2)
@@ -806,64 +854,108 @@ void svg_main(const char * filename)
 			}
 			cangle=langle+Pi/2.0;
 			stylegenestring(1);
+			if (currentLineType &0x100)
+			{
+//TODO****				expressarc(iBBX.right,iBBX.bottom
+			}
+			else
 			expressarc(iBBX.right,iBBX.bottom,tlradius,tlradius,tlangle,tlangle+(((*i_graphic_instance).AngularSize/180.0)*Pi));
-			stylegenestring(3);
-			expresstetrangle(iBBX.left,iBBX.top,
-iBBX.left+cos(langle)*arrowheadlength+cos(cangle)*arrowthickness,iBBX.top+sin(langle)*arrowheadlength+sin(cangle)*arrowthickness,
-iBBX.left+cos(langle)*arrowheadlength-cos(cangle)*arrowthickness,iBBX.top+sin(langle)*arrowheadlength-sin(cangle)*arrowthickness,
-iBBX.left,iBBX.top,
-stylestring);
 		}
 		else goto skiparrows;
-		if ((*i_graphic_instance).ArrowType==2)
+		for (int tlarrowside=-1;tlarrowside<2;tlarrowside+=2)
 		{
-			stylegenestring(3);
-			expresstetrangle(iBBX.left,iBBX.top,
-iBBX.left+cos(langle)*arrowheadlength+cos(cangle)*arrowthickness,iBBX.top+sin(langle)*arrowheadlength+sin(cangle)*arrowthickness,
-iBBX.left+cos(langle)*arrowheadlength-cos(cangle)*arrowthickness,iBBX.top+sin(langle)*arrowheadlength-sin(cangle)*arrowthickness,
-iBBX.left,iBBX.top,
+			int tlarrowHead=(tlarrowside==-1) ? currentArrowHeadTail : currentArrowHeadHead;
+			float tlArrowTopx=(tlarrowside==-1) ? iBBX.right : iBBX.left;
+			float tlArrowTopy=(tlarrowside==-1) ? iBBX.bottom : iBBX.top;
+			float tlcangle,tllangle;
+			tllangle=(tlarrowside==-1) ? langle/*changeit*/ : langle;
+			tlcangle=(tlarrowside==-1) ? cangle/*changeit*/ : cangle;
+			switch (tlarrowHead)
+			{
+				case 0 :
+				{
+					if (currentArrowHeadType==1)
+					{
+						expressline(tlArrowTopx+tllinedist*cos(tlcangle),tlArrowTopy+tllinedist*sin(tlcangle),tlArrowTopx-tllinedist*cos(tlcangle),tlArrowTopy-tllinedist*sin(tlcangle));
+					}
+					break;
+				}
+				case 1 : 
+				{
+					stylegenestring(3);
+					if (currentArrowHeadType==0)
+					{
+						expresstetrangle(tlArrowTopx,tlArrowTopy,
+tlArrowTopx+tlarrowside*cos(tllangle)*arrowheadlength+cos(tlcangle)*arrowthickness,tlArrowTopy+tlarrowside*sin(tllangle)*arrowheadlength+sin(tlcangle)*arrowthickness,
+tlArrowTopx+tlarrowside*cos(tllangle)*arrowheadlength-cos(tlcangle)*arrowthickness,tlArrowTopy+tlarrowside*sin(tllangle)*arrowheadlength-sin(tlcangle)*arrowthickness,
+tlArrowTopx,tlArrowTopy,
 stylestring);
-		}
-		if ((*i_graphic_instance).ArrowType==1)
-		{
-			stylegenestring(3);
-			expresstetrangle(iBBX.left,iBBX.top,
-iBBX.left+cos(langle)*arrowheadlength+cos(cangle)*arrowthickness,iBBX.top+sin(langle)*arrowheadlength+sin(cangle)*arrowthickness,
-iBBX.left+cos(langle)*arrowheadlength,iBBX.top+sin(langle)*arrowheadlength,
-iBBX.left,iBBX.top,
+					}
+					if ((currentArrowHeadType==2) || (currentArrowHeadType==1))
+					{
+						expressline(tlArrowTopx,tlArrowTopy,
+tlArrowTopx+tlarrowside*cos(tllangle)*tllinedist*2+cos(tlcangle)*tllinedist*2,tlArrowTopy+tlarrowside*sin(tllangle)*tllinedist*2+sin(tlcangle)*tllinedist*2);
+						expressline(tlArrowTopx,tlArrowTopy,
+tlArrowTopx+tlarrowside*cos(tllangle)*tllinedist*2-cos(tlcangle)*tllinedist*2,tlArrowTopy+tlarrowside*sin(tllangle)*tllinedist*2-sin(tlcangle)*tllinedist*2);
+
+					}
+					if (currentArrowHeadType==1)
+					{
+						expressline(tlArrowTopx+tlarrowside*cos(tllangle)*tllinedist*2+cos(tlcangle)*tllinedist,tlArrowTopy+tlarrowside*sin(tllangle)*tllinedist*2+sin(tlcangle)*tllinedist,
+tlArrowTopx+tlarrowside*cos(tllangle)*tllinedist*2+cos(tlcangle)*tllinedist*2,tlArrowTopy+tlarrowside*sin(tllangle)*tllinedist*2+sin(tlcangle)*tllinedist*2);
+						expressline(tlArrowTopx+tlarrowside*cos(tllangle)*tllinedist*2-cos(tlcangle)*tllinedist,tlArrowTopy+tlarrowside*sin(tllangle)*tllinedist*2-sin(tlcangle)*tllinedist,
+tlArrowTopx+tlarrowside*cos(tllangle)*tllinedist*2-cos(tlcangle)*tllinedist*2,tlArrowTopy+tlarrowside*sin(tllangle)*tllinedist*2-sin(tlcangle)*tllinedist*2);
+					}
+					break;
+				}
+				case 3 :
+				{
+					tllangle=tllangle+Pi;
+				}
+				case 2 :
+				{
+					stylegenestring(3);
+					if (currentArrowHeadType==0)
+					{
+						expresstetrangle(tlArrowTopx,tlArrowTopy,
+tlArrowTopx+tlarrowside*cos(tllangle)*arrowheadlength+tlarrowside*cos(tlcangle)*arrowthickness,tlArrowTopy+tlarrowside*sin(tllangle)*arrowheadlength+tlarrowside*sin(tlcangle)*arrowthickness,
+tlArrowTopx+tlarrowside*cos(tllangle)*arrowheadlength,tlArrowTopy+tlarrowside*sin(tllangle)*arrowheadlength,
+tlArrowTopx,tlArrowTopy,
 stylestring);
-		}
-		if ((*i_graphic_instance).ArrowType==8)
-		{
-			stylegenestring(3);
-			expresstetrangle(iBBX.left,iBBX.top,
-iBBX.left+cos(langle)*arrowheadlength+cos(cangle)*arrowthickness,iBBX.top+sin(langle)*arrowheadlength+sin(cangle)*arrowthickness,
-iBBX.left+cos(langle)*arrowheadlength,iBBX.top+sin(langle)*arrowheadlength,
-iBBX.left,iBBX.top,
+					}
+					if (currentArrowHeadType==55)
+					{
+						expresstetrangle(tlArrowTopx+tlarrowside*tllinedist*cos(tlcangle),tlArrowTopy+tlarrowside*tllinedist*sin(tlcangle),
+tlArrowTopx+tlarrowside*cos(tllangle)*arrowheadlength+tlarrowside*(arrowthickness+tllinedist)*cos(tlcangle),tlArrowTopy+tlarrowside*sin(tllangle)*arrowheadlength+tlarrowside*(arrowthickness+tllinedist)*sin(tlcangle),
+tlArrowTopx+tlarrowside*cos(tllangle)*arrowheadlength+tlarrowside*tllinedist*cos(tlcangle),tlArrowTopy+tlarrowside*sin(tllangle)*arrowheadlength+tlarrowside*tllinedist*sin(tlcangle),
+tlArrowTopx+tlarrowside*tllinedist*cos(tlcangle),tlArrowTopy+tlarrowside*tllinedist*sin(tlcangle),
 stylestring);
-			expresstetrangle(iBBX.right,iBBX.bottom,
-iBBX.right-cos(langle)*arrowheadlength,iBBX.bottom-sin(langle)*arrowheadlength,
-iBBX.right-cos(langle)*arrowheadlength-cos(cangle)*arrowthickness,iBBX.bottom-sin(langle)*arrowheadlength-sin(cangle)*arrowthickness,
-iBBX.right,iBBX.bottom,
-stylestring);
-		}
-		if ((*i_graphic_instance).ArrowType==4)
-		{
-			stylegenestring(3);
-			expresstetrangle(iBBX.left,iBBX.top,
-iBBX.left+cos(langle)*arrowheadlength+cos(cangle)*arrowthickness,iBBX.top+sin(langle)*arrowheadlength+sin(cangle)*arrowthickness,
-iBBX.left+cos(langle)*arrowheadlength-cos(cangle)*arrowthickness,iBBX.top+sin(langle)*arrowheadlength-sin(cangle)*arrowthickness,
-iBBX.left,iBBX.top,
-stylestring);
-			expresstetrangle(iBBX.right,iBBX.bottom,
-iBBX.right-cos(langle)*arrowheadlength+cos(cangle)*arrowthickness,iBBX.bottom-sin(langle)*arrowheadlength+sin(cangle)*arrowthickness,
-iBBX.right-cos(langle)*arrowheadlength-cos(cangle)*arrowthickness,iBBX.bottom-sin(langle)*arrowheadlength-sin(cangle)*arrowthickness,
-iBBX.right,iBBX.bottom,
-stylestring);
+					}
+					break;
+				}
+			}
 		}
 		skiparrows:
 		if ((*i_graphic_instance).GraphicType==3)
 		{
+			int tlisfound;
+			multilistreference<annotation_instance> * tlannotationmultilistreference=dynamic_cast<multilistreference<annotation_instance>*>((*glob_graphic_multilist).bufferlist[ilv1].annotation);
+			tlisfound=0;
+			for (int ilv2=0;ilv2<(*tlannotationmultilistreference).count_in_it;ilv2++)
+			{
+				annotation_instance * tlannotation=&((*glob_annotation_multilist).bufferlist[(*tlannotationmultilistreference).start_in_it+ilv2]);
+				if (strcmp((*tlannotation).Keyword.a,"Name")==0)
+				{
+					if ((strncmp((*tlannotation).Content.a,"Frame",5))==0)
+					{
+						tlisfound=1;
+					}
+				}
+			}
+			if (tlisfound==1)
+			{
+				goto skipthisgraphic;
+			}
 			stylegenestring(1);
 			expressline(iBBX.left,iBBX.top,iBBX.right,iBBX.top);
 			expressline(iBBX.left,iBBX.bottom,iBBX.right,iBBX.bottom);
@@ -875,16 +967,25 @@ stylestring);
 			stylegenestring(1);
 			switch((*i_graphic_instance).SymbolType)
 			{
-				case 4 : strcpy(colorstring2,"FF0000");break;
-				case 5 : strcpy(colorstring2,"0000FF");break;
+				case 4 : strcpy(colorstring2,"FF0000");goto charge;break;
+				case 5 : strcpy(colorstring2,"0000FF");goto charge;break;
+				case 1 : strcpy(colorstring2,colorstring);goto radical;break;
 			}
+			charge:
  			fprintf(outfile,"<circle cx=\"%f\" cy=\"%f\" r=\"6\" stroke=\"#%s\" fill=\"#%s\"/>",iBBX.left-SVG_currentbasex,iBBX.top-SVG_currentbasey,colorstring,colorstring2);
 			expressline(iBBX.left-3,iBBX.top,iBBX.left+3,iBBX.top);
 			if ((*i_graphic_instance).SymbolType==4)
 			{
 				expressline(iBBX.left,iBBX.top-3,iBBX.left,iBBX.top+3);
 			}
+			goto GraphicType7done;
+			radical:
+ 			fprintf(outfile,"<circle cx=\"%f\" cy=\"%f\" r=\"4\" stroke=\"#%s\" fill=\"#%s\"/>",iBBX.left-SVG_currentbasex,iBBX.top-SVG_currentbasey,colorstring,colorstring2);
+			GraphicType7done:
+			;
  		}
+		skipthisgraphic:
+		;
 	}
 	for (int ilv1=0;ilv1<(*glob_b_multilist).filllevel;ilv1++)
 	{
@@ -972,7 +1073,8 @@ iBBX.left+ibonddist2*cos(cangle)+ibonddist3*(-cos(cangle)+(cos(langle)*tlrightta
 			iBBX.left+ibonddist2*cos(cangle),iBBX.top+ibonddist2*sin(cangle),
 iBBX.left+ibonddist2*cos(cangle)+ibonddist3*(cos(cangle)+(cos(langle)*tllefttan2)),iBBX.top+ibonddist2*sin(cangle)+ibonddist3*(sin(cangle)+(sin(langle)*tllefttan2)),
 iBBX.right+ibonddist2*cos(cangle)+ibonddist4*(cos(cangle)-(cos(langle)*tlrighttan)),iBBX.bottom+ibonddist2*sin(cangle)+ibonddist4*(sin(cangle)-(sin(langle)*tlrighttan))
-			);
+				);
+				ibonddist+=abs(bonddist)*((ibonddist>0) ? 1 : -1);
 			}
 /*			expresstetrangle(
 iBBX.left+ibonddist3*cos(cangle),iBBX.top+ibonddist3*sin(cangle),

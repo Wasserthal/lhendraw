@@ -65,6 +65,15 @@ bienum CDXML_DoublePosition[] {
 	{{"Right"},0x102},
 };
 int CDXML_DoublePosition_max=sizeof(CDXML_DoublePosition)/sizeof(CDXML_DoublePosition[0]);
+bienum CDXML_OvalType[] {
+	{{"Circle"},0x1},
+	{{"Shaded"},0x2},
+	{{"Filled"},0x4},
+	{{"Dashed"},0x8},
+	{{"Bold"},0x10},
+	{{"Shadowed"},0x20},
+};
+int CDXML_OvalType_max=sizeof(CDXML_OvalType)/sizeof(CDXML_OvalType[0]);
 bienum CDXML_Display2[] {
 	{{"Solid"},0},
 	{{"Dash"},1},

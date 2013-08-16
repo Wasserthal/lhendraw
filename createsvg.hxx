@@ -39,6 +39,7 @@ float bonddist=4;
 float boldwidth=5;
 float arrowheadlength=15;
 float arrowthickness=5;
+float atomfontheight=18.0;
 
 multilist<color_instance> * glob_color_multilist;
 multilist<n_instance> * glob_n_multilist;
@@ -85,7 +86,7 @@ int get_colorstringv(int number,char * icolorstring)
 		return 0;
 	}
 	if (number-2>=(*glob_color_multilist).filllevel)
-	{	
+	{
 		strcpy(icolorstring,"000000");
 		return -1;
 	}
@@ -131,7 +132,6 @@ void getcaptions(float * width,float * height,float * left,float * top)
 	graphic_instance * i_graphic_instance;
 	multilist<n_instance> * i_n_multilist=retrievemultilist<n_instance>();
 	multilist<graphic_instance> * i_graphic_multilist=retrievemultilist<graphic_instance>();
-	
 	for (int ilv1=0;ilv1<(*i_n_multilist).filllevel;ilv1++)
 	{
 		i_n_instance=(*i_n_multilist).bufferlist+ilv1;
@@ -393,6 +393,15 @@ void getatoms()//makes some preprocessing
 		}
 		for (int ilv2=(*((*glob_n_multilist).bufferlist)[ilv1].t).start_in_it;ilv2<(*((*glob_n_multilist).bufferlist)[ilv1].t).start_in_it+(*((*glob_n_multilist).bufferlist)[ilv1].t).count_in_it;ilv2++)//allows for multiple text items on one atom. Nonsense.
 		{
+			if ((*glob_t_multilist).bufferlist[ilv2].LabelAlignment==-1)
+			{
+				(*glob_t_multilist).bufferlist[ilv2].p.x=((*glob_n_multilist).bufferlist)[ilv1].p.x+7;
+			}
+			else
+			{
+				(*glob_t_multilist).bufferlist[ilv2].p.x=((*glob_n_multilist).bufferlist)[ilv1].p.x-7;
+			}
+			(*glob_t_multilist).bufferlist[ilv2].p.y=((*glob_n_multilist).bufferlist)[ilv1].p.y+atomfontheight/3;
 			text_actual_node[ilv2].owner=ilv1;
 			atom_actual_node[ilv1].special=ilv2;
 		}
@@ -429,7 +438,6 @@ void getatoms()//makes some preprocessing
 			}
 			(*currentbondinstance).DoublePosition=i_side_orvariable;
 		}
-		
 	}
 }
 
@@ -486,10 +494,14 @@ void expressline(float ileft,float itop,float iright,float ibottom)
 {
 	fprintf(outfile,"<path d=\"M %f %f L %f %f \" %s/>\n",ileft-SVG_currentbasex,itop-SVG_currentbasey,iright-SVG_currentbasex,ibottom-SVG_currentbasey,stylestring);
 }
+void expresscircle(float ileft,float itop,float iright,float ibottom)
+{
+	fprintf(outfile,"<ellipse cx=\"%f\" cy=\"%f\" rx=\"%f\" ry=\"%f\" %s/>\n",ileft-SVG_currentbasex,itop-SVG_currentbasey,iright-ileft,ibottom-itop,stylestring);
+}
 void expresstetrangle(float ix1,float iy1,float ix2,float iy2,float ix3,float iy3,float ix4,float iy4,char * istylestring)
 {
 	fprintf(outfile,"<path d=\"M %f %f L %f %f L %f %f L %f %f z \" %s/>\n",
-        ix1-SVG_currentbasex,iy1-SVG_currentbasey,ix2-SVG_currentbasex,iy2-SVG_currentbasey,ix3-SVG_currentbasex,iy3-SVG_currentbasey,ix4-SVG_currentbasex,iy4-SVG_currentbasey,
+	ix1-SVG_currentbasex,iy1-SVG_currentbasey,ix2-SVG_currentbasex,iy2-SVG_currentbasey,ix3-SVG_currentbasex,iy3-SVG_currentbasey,ix4-SVG_currentbasex,iy4-SVG_currentbasey,
 istylestring);
 }
 #define dashdist 3
@@ -506,7 +518,7 @@ void expresshashangle(float langle,float cangle,float ix1,float iy1,float ix2,fl
 void expresshexangle(float ix1,float iy1,float ix2,float iy2,float ix3,float iy3,float ix4,float iy4,float ix5,float iy5,float ix6,float iy6)
 {
 	fprintf(outfile,"<path d=\"M %f %f L %f %f L %f %f L %f %f L %f %f L %f %f z \" %s/>\n",
-        ix1-SVG_currentbasex,iy1-SVG_currentbasey,ix2-SVG_currentbasex,iy2-SVG_currentbasey,ix3-SVG_currentbasex,iy3-SVG_currentbasey,ix4-SVG_currentbasex,iy4-SVG_currentbasey,ix5-SVG_currentbasex,iy5-SVG_currentbasey,ix6-SVG_currentbasex,iy6-SVG_currentbasey,
+	ix1-SVG_currentbasex,iy1-SVG_currentbasey,ix2-SVG_currentbasex,iy2-SVG_currentbasey,ix3-SVG_currentbasex,iy3-SVG_currentbasey,ix4-SVG_currentbasex,iy4-SVG_currentbasey,ix5-SVG_currentbasex,iy5-SVG_currentbasey,ix6-SVG_currentbasex,iy6-SVG_currentbasey,
 stylestring);
 }
 void expressarc(float centerx,float centery,float radiusx,float radiusy,float startangle,float endangle)
@@ -617,6 +629,7 @@ char resortstring(char * input) //TODO: what about brackets?
 			}
 		}
 	}
+	resortedstring[resortedstringpos]=0;
 	return 1;
 }
 
@@ -702,7 +715,7 @@ void printformatted(const char * iinput,int imode,int start,int end)
 {
 	if (imode==1)
 	{
-		fprintf(outfile,"<tspan dy=\"+3\" font-size=\"80%\" style=\"fill:#%s\">",colorstring);
+		fprintf(outfile,"<tspan dy=\"+3\" font-size=\"14\" style=\"fill:#%s\">",colorstring);
 	}
 	if ((imode==2) || (imode==0))
 	{
@@ -710,7 +723,7 @@ void printformatted(const char * iinput,int imode,int start,int end)
 	}
 	if (imode==4)
 	{
-		fprintf(outfile,"<tspan dy=\"-3\" font-size=\"80%\" style=\"fill:#%s\">",colorstring);
+		fprintf(outfile,"<tspan dy=\"-3\" font-size=\"14\" style=\"fill:#%s\">",colorstring);
 	}
 	for (int ilv4=start;ilv4<end;ilv4++)
 	{
@@ -962,8 +975,22 @@ stylestring);
 			expressline(iBBX.left,iBBX.top,iBBX.left,iBBX.bottom);
 			expressline(iBBX.right,iBBX.top,iBBX.right,iBBX.bottom);
 		}
- 		if ((*i_graphic_instance).GraphicType==7)
- 		{
+		if ((*i_graphic_instance).GraphicType==4)
+		{
+			stylegenestring(1);
+			if ((*i_graphic_instance).OvalType==1)
+			{
+				float tldistance=sqrt((iBBX.right-iBBX.left)*(iBBX.right-iBBX.left)+(iBBX.bottom-iBBX.top)*(iBBX.bottom-iBBX.top));
+				iBBX.left-=tldistance;
+				iBBX.right=iBBX.left+tldistance;
+				iBBX.bottom=iBBX.top+tldistance;
+				(*i_graphic_instance).BoundingBox.right=iBBX.right;
+				(*i_graphic_instance).BoundingBox.bottom=iBBX.bottom;
+			}
+			expresscircle(iBBX.left,iBBX.top,iBBX.right,iBBX.bottom);
+		}
+		if ((*i_graphic_instance).GraphicType==7)
+		{
 			stylegenestring(1);
 			switch((*i_graphic_instance).SymbolType)
 			{
@@ -972,7 +999,7 @@ stylestring);
 				case 1 : strcpy(colorstring2,colorstring);goto radical;break;
 			}
 			charge:
- 			fprintf(outfile,"<circle cx=\"%f\" cy=\"%f\" r=\"6\" stroke=\"#%s\" fill=\"#%s\"/>",iBBX.left-SVG_currentbasex,iBBX.top-SVG_currentbasey,colorstring,colorstring2);
+			fprintf(outfile,"<circle cx=\"%f\" cy=\"%f\" r=\"6\" stroke=\"#%s\" fill=\"#%s\"/>",iBBX.left-SVG_currentbasex,iBBX.top-SVG_currentbasey,colorstring,colorstring2);
 			expressline(iBBX.left-3,iBBX.top,iBBX.left+3,iBBX.top);
 			if ((*i_graphic_instance).SymbolType==4)
 			{
@@ -980,10 +1007,10 @@ stylestring);
 			}
 			goto GraphicType7done;
 			radical:
- 			fprintf(outfile,"<circle cx=\"%f\" cy=\"%f\" r=\"4\" stroke=\"#%s\" fill=\"#%s\"/>",iBBX.left-SVG_currentbasex,iBBX.top-SVG_currentbasey,colorstring,colorstring2);
+			fprintf(outfile,"<circle cx=\"%f\" cy=\"%f\" r=\"4\" stroke=\"#%s\" fill=\"#%s\"/>",iBBX.left-SVG_currentbasex,iBBX.top-SVG_currentbasey,colorstring,colorstring2);
 			GraphicType7done:
 			;
- 		}
+		}
 		skipthisgraphic:
 		;
 	}
@@ -1046,42 +1073,36 @@ stylestring);
 			float tlrighttan=0;
 			float tllefttan2=0;
 			float tlrighttan2=0;
-if (specialE==0)
-{
-			if ((bond_actual_node[ilv1]).numberleft[0]!=-1) {tllefttan=tan(Pi/2-bond_actual_node[ilv1].cotanleft[0]);}else{if ((bond_actual_node[ilv1]).numberright[0]!=-1){tllefttan=tan(bond_actual_node[ilv1].xcotanright[0]/2);}}
-			if ((bond_actual_node[ilv1]).numberright[0]!=-1) {tlrighttan=tan(Pi/2-bond_actual_node[ilv1].cotanright[0]);}else{if ((bond_actual_node[ilv1]).numberleft[0]!=-1){tlrighttan=tan(bond_actual_node[ilv1].xcotanleft[0]/2);}}
-}
-if (specialS==0)
-{
-			if ((bond_actual_node[ilv1]).numberleft[1]!=-1) {tllefttan2=tan(Pi/2-bond_actual_node[ilv1].cotanleft[1]);}else{if ((bond_actual_node[ilv1]).numberright[1]!=-1){tllefttan2=tan(bond_actual_node[ilv1].xcotanright[1]/2);}}
-			if ((bond_actual_node[ilv1]).numberright[1]!=-1) {tlrighttan2=tan(Pi/2-bond_actual_node[ilv1].cotanright[1]);}else{if ((bond_actual_node[ilv1]).numberleft[1]!=-1){tlrighttan2=tan(bond_actual_node[ilv1].xcotanleft[1]/2);}}
-}
+			if (specialE==0)
+			{
+				if ((bond_actual_node[ilv1]).numberleft[0]!=-1) {tllefttan=tan(Pi/2-bond_actual_node[ilv1].cotanleft[0]);}else{if ((bond_actual_node[ilv1]).numberright[0]!=-1){tllefttan=tan(bond_actual_node[ilv1].xcotanright[0]/2);}}
+				if ((bond_actual_node[ilv1]).numberright[0]!=-1) {tlrighttan=tan(Pi/2-bond_actual_node[ilv1].cotanright[0]);}else{if ((bond_actual_node[ilv1]).numberleft[0]!=-1){tlrighttan=tan(bond_actual_node[ilv1].xcotanleft[0]/2);}}
+			}
+			if (specialS==0)
+			{
+				if ((bond_actual_node[ilv1]).numberleft[1]!=-1) {tllefttan2=tan(Pi/2-bond_actual_node[ilv1].cotanleft[1]);}else{if ((bond_actual_node[ilv1]).numberright[1]!=-1){tllefttan2=tan(bond_actual_node[ilv1].xcotanright[1]/2);}}
+				if ((bond_actual_node[ilv1]).numberright[1]!=-1) {tlrighttan2=tan(Pi/2-bond_actual_node[ilv1].cotanright[1]);}else{if ((bond_actual_node[ilv1]).numberleft[1]!=-1){tlrighttan2=tan(bond_actual_node[ilv1].xcotanleft[1]/2);}}
+			}
 			if ((iDisplaytype1==2) || (iDisplaytype1==3) || (iDisplaytype1==4))
 			{
 				expresshashangle(langle,cangle,
-			iBBX.right+ibonddist2*cos(cangle),iBBX.bottom+ibonddist2*sin(cangle),
-			iBBX.left+ibonddist2*cos(cangle),iBBX.top+ibonddist2*sin(cangle),
-			ibonddist3,ibonddist4
-);
+				iBBX.right+ibonddist2*cos(cangle),iBBX.bottom+ibonddist2*sin(cangle),
+				iBBX.left+ibonddist2*cos(cangle),iBBX.top+ibonddist2*sin(cangle),
+				ibonddist3,ibonddist4
+				);
 			}
 			else
 			{
 				expresshexangle(
-			iBBX.right+ibonddist2*cos(cangle),iBBX.bottom+ibonddist2*sin(cangle),
+iBBX.right+ibonddist2*cos(cangle),iBBX.bottom+ibonddist2*sin(cangle),
 iBBX.right+ibonddist2*cos(cangle)+ibonddist4*(-cos(cangle)-(cos(langle)*tllefttan)),iBBX.bottom+ibonddist2*sin(cangle)+ibonddist4*(-sin(cangle)-(sin(langle)*tllefttan)),
 iBBX.left+ibonddist2*cos(cangle)+ibonddist3*(-cos(cangle)+(cos(langle)*tlrighttan2)),iBBX.top+ibonddist2*sin(cangle)+ibonddist3*(-sin(cangle)+(sin(langle)*tlrighttan2)),
-			iBBX.left+ibonddist2*cos(cangle),iBBX.top+ibonddist2*sin(cangle),
+iBBX.left+ibonddist2*cos(cangle),iBBX.top+ibonddist2*sin(cangle),
 iBBX.left+ibonddist2*cos(cangle)+ibonddist3*(cos(cangle)+(cos(langle)*tllefttan2)),iBBX.top+ibonddist2*sin(cangle)+ibonddist3*(sin(cangle)+(sin(langle)*tllefttan2)),
 iBBX.right+ibonddist2*cos(cangle)+ibonddist4*(cos(cangle)-(cos(langle)*tlrighttan)),iBBX.bottom+ibonddist2*sin(cangle)+ibonddist4*(sin(cangle)-(sin(langle)*tlrighttan))
 				);
 				ibonddist+=abs(bonddist)*((ibonddist>0) ? 1 : -1);
 			}
-/*			expresstetrangle(
-iBBX.left+ibonddist3*cos(cangle),iBBX.top+ibonddist3*sin(cangle),
-iBBX.left-ibonddist3*cos(cangle),iBBX.top-ibonddist3*sin(cangle),
-iBBX.right+ibonddist4*cos(cangle),iBBX.bottom+ibonddist4*sin(cangle),
-iBBX.right-ibonddist4*cos(cangle),iBBX.bottom-ibonddist4*sin(cangle),
-stylestring);*/
 		}
 		else
 		{
@@ -1109,7 +1130,7 @@ stylestring);*/
 		colornr=((*i_t_multilist).bufferlist)[ilv1].color;
 		get_colorstring_passive(colornr);
 
-		fprintf(outfile,"<text fill=\"%s\" %s stroke=\"none\" transform=\"translate(%f,%f)\" font-size=\"18\">",colorstring,((*i_t_multilist).bufferlist[ilv1].LabelAlignment==-1) ? "text-anchor=\"end\" text-align=\"end\"" : "",((*i_t_multilist).bufferlist)[ilv1].p.x-SVG_currentbasex,((*i_t_multilist).bufferlist)[ilv1].p.y-SVG_currentbasey);
+		fprintf(outfile,"<text fill=\"%s\" %s stroke=\"none\" transform=\"translate(%f,%f)\" font-size=\"%f\">",colorstring,((*i_t_multilist).bufferlist[ilv1].LabelAlignment==-1) ? "text-anchor=\"end\" text-align=\"end\"" : "",((*i_t_multilist).bufferlist)[ilv1].p.x-SVG_currentbasex,((*i_t_multilist).bufferlist)[ilv1].p.y-SVG_currentbasey,atomfontheight);
 		intl start,end;
 		start=(*(((*i_t_multilist).bufferlist)[ilv1].s)).start_in_it;
 		end=start+(*(((*i_t_multilist).bufferlist)[ilv1].s)).count_in_it;
@@ -1304,13 +1325,12 @@ stylestring);*/
 				printf("Passive:%s",finalstring);
 				int tlformlabeltype=((*i_s_multilist).bufferlist)[ilv2].face;
 				fprintf(outfile,"<tspan %s style=\"fill:#%s\">%s</tspan>%s\n",
-				(tlformlabeltype & 0x20) ? "dy=\"+3\" font-size=\"80%\"" : ((tlformlabeltype & 0x40) ? "dy=\"-3\" font-size=\"80%\"":""),
+				(tlformlabeltype & 0x20) ? "dy=\"+3\" font-size=\"14\"" : ((tlformlabeltype & 0x40) ? "dy=\"-3\" font-size=\"14%\"":""),
 				colorstring,finalstring,(tlformlabeltype & 0x20)?"<tspan dy=\"-3\"/>":((tlformlabeltype & 0x40)?"<tspan dy=\"3\"/>":""));
 			}
 		}
 		fprintf(outfile,"</text>\n");
 	}
-	
 //	for (int ilv1=0;ilv1<(*i_
 	fprintf(outfile,"</svg>");
 	fclose(outfile);

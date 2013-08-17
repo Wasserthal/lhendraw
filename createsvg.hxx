@@ -791,6 +791,43 @@ iBBX.left+cos(langle)*arrowheadlength-cos(cangle)*arrowthickness,iBBX.top+sin(la
 iBBX.left,iBBX.top,
 stylestring);
 		}
+		if ((*i_graphic_instance).ArrowType==1)
+		{
+			stylegenestring(3);
+			expresstetrangle(iBBX.left,iBBX.top,
+iBBX.left+cos(langle)*arrowheadlength+cos(cangle)*arrowthickness,iBBX.top+sin(langle)*arrowheadlength+sin(cangle)*arrowthickness,
+iBBX.left+cos(langle)*arrowheadlength,iBBX.top+sin(langle)*arrowheadlength,
+iBBX.left,iBBX.top,
+stylestring);
+		}
+		if ((*i_graphic_instance).ArrowType==8)
+		{
+			stylegenestring(3);
+			expresstetrangle(iBBX.left,iBBX.top,
+iBBX.left+cos(langle)*arrowheadlength+cos(cangle)*arrowthickness,iBBX.top+sin(langle)*arrowheadlength+sin(cangle)*arrowthickness,
+iBBX.left+cos(langle)*arrowheadlength,iBBX.top+sin(langle)*arrowheadlength,
+iBBX.left,iBBX.top,
+stylestring);
+			expresstetrangle(iBBX.right,iBBX.bottom,
+iBBX.right-cos(langle)*arrowheadlength,iBBX.bottom-sin(langle)*arrowheadlength,
+iBBX.right-cos(langle)*arrowheadlength-cos(cangle)*arrowthickness,iBBX.bottom-sin(langle)*arrowheadlength-sin(cangle)*arrowthickness,
+iBBX.right,iBBX.bottom,
+stylestring);
+		}
+		if ((*i_graphic_instance).ArrowType==4)
+		{
+			stylegenestring(3);
+			expresstetrangle(iBBX.left,iBBX.top,
+iBBX.left+cos(langle)*arrowheadlength+cos(cangle)*arrowthickness,iBBX.top+sin(langle)*arrowheadlength+sin(cangle)*arrowthickness,
+iBBX.left+cos(langle)*arrowheadlength-cos(cangle)*arrowthickness,iBBX.top+sin(langle)*arrowheadlength-sin(cangle)*arrowthickness,
+iBBX.left,iBBX.top,
+stylestring);
+			expresstetrangle(iBBX.right,iBBX.bottom,
+iBBX.right-cos(langle)*arrowheadlength+cos(cangle)*arrowthickness,iBBX.bottom-sin(langle)*arrowheadlength+sin(cangle)*arrowthickness,
+iBBX.right-cos(langle)*arrowheadlength-cos(cangle)*arrowthickness,iBBX.bottom-sin(langle)*arrowheadlength-sin(cangle)*arrowthickness,
+iBBX.right,iBBX.bottom,
+stylestring);
+		}
 		skiparrows:
 		if ((*i_graphic_instance).GraphicType==3)
 		{

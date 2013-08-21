@@ -16,7 +16,6 @@ typedef int __attribute__((sysv_abi))(*CDXMLREAD_functype)(char * input,void * o
 	{ \
 		for (int ilv1=0;ilv1<COUNT_MACROPARAM;ilv1++) \
 		{ \
-			printf(">>%s!.",AUTOSTRUCT_MACRONAME[ilv1].name); \
 			if (strcmp(name,AUTOSTRUCT_MACRONAME[ilv1].name)==0) \
 			{ \
 				return AUTOSTRUCT_MACRONAME[ilv1].ref; \
@@ -81,13 +80,10 @@ template <class whatabout> class multilist : public basicmultilist
 	multilistreference<whatabout> * dependants[bufferlistsize];
 	intl filllevel;
 	intl ourcount;
-	intl testbeef;
 	multilist()
 	{
 		filllevel=0;
 		ourcount=0;
-		testbeef=0xdeadbeef;
-		printf("deadbeef");
 		bufferlist=(whatabout*)malloc(sizeof(whatabout)*bufferlistsize);
 		return;
 	}
@@ -302,30 +298,26 @@ void entertag()
 	basicmultilistreference * nextinstance_list;
 	basic_instance * nextinstance;
 	tagnamestring[tagnamestring_length]=0;
-	printf("%i",tagnamestring_length);
-	printf(" %s ",tagnamestring,10);
 	suboffset=(currentinstance->getcontents(tagnamestring));
 	if (suboffset!=-1)
 	{
 		nextinstance_list=*(basicmultilistreference**)(((char*)currentinstance)+suboffset);
-		nextinstance=(basic_instance*)nextinstance_list->addnew();//TODO error must be here.
+		nextinstance=(basic_instance*)nextinstance_list->addnew();
 	}
 	else
 	{
 		printf("%s has no member named %s at %X!\n",currentinstance->getName(),tagnamestring,debugcounter);
+/*		printf("instead it got:");
+		printf("%s\n",page_instance::contents[5].name);*/
 		nextinstance=new(gummydummy_instance);
 	}
-	printf("next%llX,",nextinstance);
-	printf(">>%s<<",nextinstance->getName());
 	(*nextinstance).master=currentinstance;
-	printf("enter %s\n",tagnamestring);
 	currentinstance=nextinstance;
 };
 
 void grow_pctext(char ichar)
 {
 	CDXMLREAD_functype thisfunc;
-	printf("as%c",ichar);
 	int txtoffset=currentinstance->getproperties("PCTEXT",&thisfunc);
 	if (txtoffset==-1)
 	{
@@ -338,7 +330,6 @@ void grow_pctext(char ichar)
 	{
 		return;	
 	}
-	printf("is%c",ichar);
 	txtpos[(*ctrpos)++]=ichar;	
 }
 
@@ -363,17 +354,16 @@ void scoopparam()
 	CDXMLREAD_functype thisfunc;
 	if (strcmp(parameterstring,"PCTEXTcounter")==0)
 	{
-		printf("Hacking attempt detected (PCSTRING)!");exit(1);
+		fprintf(stderr,"Hacking attempt detected (PCSTRING)!");exit(1);
 	}
 	int suboffset=(currentinstance->getproperties(parameterstring,&thisfunc));
 	if (suboffset!=-1)
 	{
 		thisfunc(paramvaluestring,((char*)currentinstance)+suboffset);
-		printf(" ;....; %s\n",paramvaluestring);
 	}
 	else
 	{
-		printf("%s has no parameter named %s\n",currentinstance->getName(),parameterstring);
+		fprintf(stderr,"%s has no parameter named %s\n",currentinstance->getName(),parameterstring);
 		return;
 	}
 	
@@ -444,7 +434,7 @@ void input_fsm(FILE* infile)
 			{
 				if (bexittag==1)
 				{
-					printf("Error: only slash in brackets!");exit(1);
+					fprintf(stderr,"Error: only slash in brackets!");exit(1);
 				}
 				bexittag=0;
 				fsmint=4;
@@ -464,7 +454,7 @@ void input_fsm(FILE* infile)
 				{
 					if (ichar=='/')
 					{
-						printf("Error: The Tag to end was defined by another /");exit(1);
+						fprintf(stderr,"Error: The Tag to end was defined by another /");exit(1);
 						break;
 					}
 					if (ichar=='>')
@@ -499,7 +489,7 @@ void input_fsm(FILE* infile)
 			{
 				if (bexittag==1)
 				{
-					printf("error: exiting tag had also exit on end");exit(1);
+					fprintf(stderr,"error: exiting tag had also exit on end");exit(1);
 				}
 				exittag();
 				bexittag=0;
@@ -539,7 +529,7 @@ void input_fsm(FILE* infile)
 			{
 				if (paramvaluestring_length!=0)
 				{
-					printf("Error: Starting the Hypenation too late");exit(1);
+					fprintf(stderr,"Error: Starting the Hypenation too late");exit(1);
 				}
 				paramvaluestring_length=0;
 				fsmint=9;
@@ -587,14 +577,14 @@ void input_fsm(FILE* infile)
 			{
 				fsmint=4;break;	
 			}
-			printf("Error: \">\" expected at end of tag");
+			fprintf(stderr,"Error: \">\" expected at end of tag");
 			#ifdef DEBUG
-				printf("%%-> %llX <-i\n",debugcounter);
+				fprintf(stderr,"%%-> %llX <-i\n",debugcounter);
 			#endif
 			for (int ilv1=0;ilv1<15;ilv1++)
 			{
 				fread(&ichar,1,1,infile);
-				printf("%c",ichar);
+				fprintf(stderr,"%c",ichar);
 			}
 			exit(1);
 		break;
@@ -609,7 +599,7 @@ void input_fsm(FILE* infile)
 			paramvaluestring[paramvaluestring_length++]=ichar;
 		break;
 		default:
-		printf("Error: Internal error!Invalid fsmint!!!!:%i",fsmint);exit(1);
+		fprintf(stderr,"Error: Internal error!Invalid fsmint!!!!:%i",fsmint);exit(1);
 	}
 	if (!feof(infile))
 	{

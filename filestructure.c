@@ -22,10 +22,28 @@ int contents_length[maxunits];
 int properties_length[maxunits];
 char properties_types[maxunits][stringlength+1];
 intl properties_type_nrs[maxunits];
+char enums_registered[maxunits][stringlength+1];
+int enums_registered_count=0;
 char helpbuffer[65536];
-char resetmode_outline[][31]={{"%1$n"},{"%2$s=0;\n%1$n"},{"clear_%3$s(%2$s);\n%1$n"},{"%2$s.a=0;\n%1$n"},{"%2$s=1;\n%1$n"},{"%2$s=0;\n%1$n"}};//very problematic: each operation must tell its length!
+char resetmode_outline[][31]={{"%1$n"},{"%2$s=0;\n%1$n"},{"clear_%3$s(%2$s);\n%1$n"},{"%2$s.a=0;\n%1$n"},{"%2$s=1;\n%1$n"},{"%2$s=0;\n%1$n"},{"%2$s.count=0;\n%1$n"}};//very problematic: each operation must tell its length!
 //ATTENTION: the second matrix array size is critical: if it is too low, the strings are simply cut off!
 char * helpbufferpos;
+
+char register_enum(const char * input)
+{
+	int ilv1;
+	for (int ilv1=0;ilv1<enums_registered_count;ilv1++)
+	{
+		if (strcmp(enums_registered[ilv1],input)==0)
+		{
+			return 0;
+		}
+	}
+	strcpy(enums_registered[enums_registered_count],input);
+	enums_registered_count++;
+	return 1;
+}
+
 void main(void)
 {
 	FILE * infile,*outfile;
@@ -87,6 +105,7 @@ void main(void)
 		case '4' : strcpy(properties_types[properties_count],"cdx_Rectangle");properties_type_nrs[properties_count]=2;break;
 		case '5' : strcpy(properties_types[properties_count],"cdx_Coordinate");properties_type_nrs[properties_count]=1;break;
 		case '#' : strcpy(properties_types[properties_count],"_i32");properties_type_nrs[properties_count]=4;break;
+		case '~' : strcpy(properties_types[properties_count],"cdx_Bezierpoints");properties_type_nrs[properties_count]=6;break;
 		case '!' : strcpy(properties_types[properties_count],"_i32");properties_type_nrs[properties_count]=5;break;//an ENUM
 		case '\\' : 
 		;
@@ -102,7 +121,7 @@ void main(void)
 		goto start_symbolreading3;
 	}
 	fread(&ihv1,1,1,infile);//should be a blank
-	if (ihv1!=' ') {printf("Something went wrong - no space after type!");exit(1);};
+	if (ihv1!=' ') {printf("Something went wrong defining %s - no space after type! ",name);exit(1);};
 	start_symbolreading3:
 	properties_length[properties_count]=0;
 	symbolback3:
@@ -111,7 +130,7 @@ void main(void)
 	{
 		if (properties_length[properties_count]>0)
 		{
-			printf("Something went wrong - no space after typename!");exit(1);
+			printf("Something went wrong defining %s - no space after typename!",name);exit(1);
 		}
 		goto propertiesdone;
 	}
@@ -143,17 +162,20 @@ void main(void)
 	fprintf(outfile,"};\n");
 	for (int ilv1=0;ilv1<properties_count;ilv1++)
 	{
-		if (properties_type_nrs[ilv1]==5)
+		if ((properties_type_nrs[ilv1]==5) || (properties_type_nrs[ilv1]==4))
 		{
 			printf("HHXHX");
-			fprintf(outfile,"int __attribute__((sysv_abi))CDXMLREAD_ENUM_%s(char * input,void * output)\n{\n        \
+			if (register_enum(properties[ilv1]))
+			{
+				fprintf(outfile,"int __attribute__((sysv_abi))CDXMLREAD_ENUM_%s(char * input,void * output)\n{\n        \
 	*((_i32 *)output)=get_bienum(CDXML_%s,input,CDXML_%s_max);\n}\n",properties[ilv1],properties[ilv1],properties[ilv1]);
+			}
 		}
 	}
 	fprintf(outfile,"superconstellation %s_instance::properties[]={\n",name);
 	for (int ilv1=0;ilv1<properties_count;ilv1++)
 	{
-		if (properties_type_nrs[ilv1]==5)
+		if ((properties_type_nrs[ilv1]==5) || (properties_type_nrs[ilv1]==4))
 		{
 			fprintf(outfile,"{\"%s\",offsetof(%s_instance,%s),CDXMLREAD_ENUM_%s}%s\n",properties[ilv1],name,properties[ilv1],properties[ilv1],(ilv1==properties_count-1) ? "" : ",");
 		}

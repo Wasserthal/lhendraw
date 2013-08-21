@@ -49,6 +49,7 @@ multilist<s_instance> * glob_s_multilist;
 multilist<graphic_instance> * glob_graphic_multilist;
 multilist<annotation_instance> * glob_annotation_multilist;
 multilist<font_instance> * glob_font_multilist;
+multilist<curve_instance> * glob_curve_multilist;
 char colorstring[7]="AABBCC";
 char colorstring2[7]="AABBCC";
 char resortedstring[stringlength];
@@ -132,6 +133,30 @@ void getcaptions(float * width,float * height,float * left,float * top)
 	graphic_instance * i_graphic_instance;
 	multilist<n_instance> * i_n_multilist=retrievemultilist<n_instance>();
 	multilist<graphic_instance> * i_graphic_multilist=retrievemultilist<graphic_instance>();
+	multilist<curve_instance> * i_curve_multilist=retrievemultilist<curve_instance>();
+	for (int ilv1=0;ilv1<(*i_curve_multilist).filllevel;ilv1++)
+	{
+		curve_instance * i_curve_instance=(curve_instance*)&((*i_curve_multilist).bufferlist[ilv1]);
+		for (int ilv2=0;ilv2<(*i_curve_instance).CurvePoints.count;ilv2++)
+		{
+			if ((*i_curve_instance).CurvePoints.a[ilv2].x>maxx)
+			{
+				maxx=(*i_curve_instance).CurvePoints.a[ilv2].x;
+			}
+			if ((*i_curve_instance).CurvePoints.a[ilv2].y>maxy)
+			{
+				maxy=(*i_curve_instance).CurvePoints.a[ilv2].y;
+			}
+			if ((*i_curve_instance).CurvePoints.a[ilv2].x<minx)
+			{
+				minx=(*i_curve_instance).CurvePoints.a[ilv2].x;
+			}
+			if ((*i_curve_instance).CurvePoints.a[ilv2].y<miny)
+			{
+				miny=(*i_curve_instance).CurvePoints.a[ilv2].y;
+			}
+		}
+	}
 	for (int ilv1=0;ilv1<(*i_n_multilist).filllevel;ilv1++)
 	{
 		i_n_instance=(*i_n_multilist).bufferlist+ilv1;
@@ -751,11 +776,17 @@ void svg_findaround()
 	glob_graphic_multilist=retrievemultilist<graphic_instance>();
 	glob_annotation_multilist=retrievemultilist<annotation_instance>();
 	glob_font_multilist=retrievemultilist<font_instance>();
+	glob_curve_multilist=retrievemultilist<curve_instance>();
 	getcaptions(&SVG_width,&SVG_height,&SVG_ileft,&SVG_itop);
 	SVG_ileft-=10;
 	SVG_itop-=10;
 	SVG_width+=20;
 	SVG_height+=20;
+}
+
+void expressbezier(float x1,float y1,float x2,float y2,float x3,float y3,float x4,float y4)
+{
+	fprintf(outfile,"<path d=\"M %f %f C %f %f %f %f %f %f \" %s/>\n",x1-SVG_currentbasex,y1-SVG_currentbasey,x2-SVG_currentbasex,y2-SVG_currentbasey,x3-SVG_currentbasex,y3-SVG_currentbasey,x4-SVG_currentbasex,y4-SVG_currentbasey,stylestring);
 }
 
 void svg_main(const char * filename)
@@ -783,6 +814,23 @@ void svg_main(const char * filename)
 	SVG_currentbasey=SVG_itop;
 	n_instance * startnode, * endnode;
 	multilist<graphic_instance> * i_graphic_multilist=retrievemultilist<graphic_instance>();
+	for (int ilv1=0;ilv1<(*glob_curve_multilist).filllevel;ilv1++)
+	{
+		curve_instance * i_curve_instance=(curve_instance*)&((*glob_curve_multilist).bufferlist[ilv1]);
+		colornr=(*i_curve_instance).color;
+		get_colorstring(colornr);
+		stylegenestring(1|(((*i_curve_instance).CurveType & 128)?2:0));
+		int tllast=1;
+		for (int ilv2=1;ilv2<(*i_curve_instance).CurvePoints.count-3;ilv2+=3)
+		{
+			expressbezier((*i_curve_instance).CurvePoints.a[ilv2].x,(*i_curve_instance).CurvePoints.a[ilv2].y,(*i_curve_instance).CurvePoints.a[ilv2+1].x,(*i_curve_instance).CurvePoints.a[ilv2+1].y,(*i_curve_instance).CurvePoints.a[ilv2+2].x,(*i_curve_instance).CurvePoints.a[ilv2+2].y,(*i_curve_instance).CurvePoints.a[ilv2+3].x,(*i_curve_instance).CurvePoints.a[ilv2+3].y);
+			tllast=ilv2+3;
+		}
+		if ((*i_curve_instance).Closed)
+		{
+			expressbezier((*i_curve_instance).CurvePoints.a[tllast].x,(*i_curve_instance).CurvePoints.a[tllast].y,(*i_curve_instance).CurvePoints.a[tllast+1].x,(*i_curve_instance).CurvePoints.a[tllast+1].y,(*i_curve_instance).CurvePoints.a[0].x,(*i_curve_instance).CurvePoints.a[0].y,(*i_curve_instance).CurvePoints.a[1].x,(*i_curve_instance).CurvePoints.a[1].y);
+		}
+	}
 	for (int ilv1=0;ilv1<(*i_graphic_multilist).filllevel;ilv1++)
 	{
 /* HOW ARROW MUST BE DONE:

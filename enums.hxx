@@ -8,27 +8,37 @@ bienum CDXML_ArrowType[]{
 {{"RetroSynthetic"},32},
 };
 int CDXML_ArrowType_max=sizeof(CDXML_ArrowType)/sizeof(CDXML_ArrowType[0]);
-bienum CDXML_ArrowHeadHead[]{
+bienum CDXML_ArrowheadHead[]{
 {{"None"},0},
 {{"Full"},1},
 {{"HalfLeft"},2},
 {{"HalfRight"},3},
 };
-int CDXML_ArrowHeadHead_max=sizeof(CDXML_ArrowHeadHead)/sizeof(CDXML_ArrowHeadHead[0]);
-bienum CDXML_ArrowHeadTail[]{
+int CDXML_ArrowheadHead_max=sizeof(CDXML_ArrowheadHead)/sizeof(CDXML_ArrowheadHead[0]);
+bienum CDXML_ArrowheadTail[]{
 {{"None"},0},
 {{"Full"},1},
 {{"HalfLeft"},2},
 {{"HalfRight"},3},
 };
-int CDXML_ArrowHeadTail_max=sizeof(CDXML_ArrowHeadTail)/sizeof(CDXML_ArrowHeadTail[0]);
-bienum CDXML_ArrowHeadType[]{
+int CDXML_ArrowheadTail_max=sizeof(CDXML_ArrowheadTail)/sizeof(CDXML_ArrowheadTail[0]);
+bienum CDXML_FillType[] {//Unverified
+	{{"none"},0},
+	{{"Solid"},1},
+};
+int CDXML_FillType_max=sizeof(CDXML_FillType)/sizeof(CDXML_FillType[0]);
+bienum CDXML_Closed[] {//Unverified
+	{{"no"},0},
+	{{"yes"},1},
+};
+int CDXML_Closed_max=sizeof(CDXML_Closed)/sizeof(CDXML_Closed[0]);
+bienum CDXML_ArrowheadType[]{
 {{"Solid"},0},//electron move,electronpair move, reaction, equillibrium, Resonance
 {{"Hollow"},1},//Children's traffic arrow. Neat to show atom movements.
 {{"Angle"},2},//Retrosynthetic
 {{"LhendrawInternalOffByOne"},55},//Tells me that that arrowhead is shifted, as in equillibrium.
 };
-int CDXML_ArrowHeadType_max=sizeof(CDXML_ArrowHeadType)/sizeof(CDXML_ArrowHeadType[0]);
+int CDXML_ArrowheadType_max=sizeof(CDXML_ArrowheadType)/sizeof(CDXML_ArrowheadType[0]);
 bienum CDXML_GraphicType[] {
 	{{"Undefined"},0},
 	{{"Line"},1},

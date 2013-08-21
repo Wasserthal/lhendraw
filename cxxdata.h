@@ -1,6 +1,7 @@
 #ifndef _i32
 #define _i32 int
 #endif
+#define bezierpointmax 128
 /* This unit contains the readers for all datatypes that are no xml tags */
 typedef struct cdx_enum
 {
@@ -39,6 +40,12 @@ If it is filled from PCDATA, its name is PCDATA*/
 	char a[stringlength+1];
 };
 
+typedef struct cdx_Bezierpoints
+{
+	cdx_Point2D a[bezierpointmax]; //TODO**** turn this, and strings, into buffer indices
+	int count;
+};
+
 inline void clear_cdx_String(cdx_String & input)
 {
 	input.a[0]=0;
@@ -50,6 +57,7 @@ int __attribute__((sysv_abi))CDXMLREAD_cdx_String(char * input,void * output)
 	((*((cdx_String*)output)).a[stringlength])=0;
 	return 0;
 }
+
 
 int __attribute__((sysv_abi))CDXMLREAD__i32(char * input,void * output)
 {
@@ -69,7 +77,6 @@ int __attribute__((sysv_abi))CDXMLREAD__i32(char * input,void * output)
 		goto iback;
 	}
 	*((_i32*)output)=wert;
-	printf("Jetzt kommt ein Int: %i!",wert);
 	return ilv1;
 }
 int __attribute__((sysv_abi))CDXMLREAD_cdx_enum(char * input,void * output)
@@ -127,12 +134,34 @@ int __attribute__((sysv_abi))CDXMLREAD_float(char * input,void * output)
 	return ilv1;
 }
 
+int __attribute__((sysv_abi))CDXMLREAD_cdx_Bezierpoints(char * input,void * output)
+{
+	int ilv1;
+	cdx_Bezierpoints * list=(cdx_Bezierpoints*)output;
+	char ended=0;
+	(*list).count=0;
+	ilv1=0;
+	iback:
+	ilv1+=CDXMLREAD_float(input+ilv1,&((*list).a[(*list).count].x));
+	while(spaciatic(input[ilv1])) ilv1++;
+	if (input[ilv1]==0) return ilv1;
+	ilv1+=CDXMLREAD_float(input+ilv1,&((*list).a[(*list).count].y));
+	while(spaciatic(input[ilv1])) ilv1++;
+	if (input[ilv1]==0) ended=1;
+	(*list).count++;
+	if (!ended) goto iback;
+	return ilv1;
+}
+
 int __attribute__((sysv_abi))CDXMLREAD_cdx_Rectangle(char * input,void * output)
 {
 		
 	int ilv1;
 	cdx_Rectangle wert;
 	wert.left=0;
+	wert.right=0;
+	wert.top=0;
+	wert.bottom=0;
 	ilv1=CDXMLREAD_float(input,&(wert.left));
 	ilv1+=CDXMLREAD_float(input+ilv1,&(wert.top));
 	ilv1+=CDXMLREAD_float(input+ilv1,&(wert.right));
@@ -173,9 +202,9 @@ intl get_bienum(bienum * ibienum,char * input,intl count)
 	{
 		if (strcmp(input,ibienum[ilv1].name)==0)
 		{
-			printf("bienum %s matches %s number %i",input,ibienum[ilv1].name,ilv1);
 			return ibienum[ilv1].number;
 		}
 	}
+	fprintf(stderr,"unknown mark %s in context",input);
 	return 0;
 };

@@ -39,6 +39,15 @@ bienum CDXML_ArrowheadType[]{
 {{"LhendrawInternalOffByOne"},55},//Tells me that that arrowhead is shifted, as in equillibrium.
 };
 int CDXML_ArrowheadType_max=sizeof(CDXML_ArrowheadType)/sizeof(CDXML_ArrowheadType[0]);
+bienum CDXML_BracketType[] {
+	{{"RoundPair"},0},
+	{{"SquarePair"},1},
+	{{"CurlyPair"},2},
+	{{"Square"},3},
+	{{"Curly"},4},
+	{{"Round"},5},
+};
+int CDXML_BracketType_max=sizeof(CDXML_BracketType)/sizeof(CDXML_BracketType[0]);
 bienum CDXML_GraphicType[] {
 	{{"Undefined"},0},
 	{{"Line"},1},

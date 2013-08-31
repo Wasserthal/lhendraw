@@ -789,6 +789,83 @@ void expressbezier(float x1,float y1,float x2,float y2,float x3,float y3,float x
 	fprintf(outfile,"<path d=\"M %f %f C %f %f %f %f %f %f \" %s/>\n",x1-SVG_currentbasex,y1-SVG_currentbasey,x2-SVG_currentbasex,y2-SVG_currentbasey,x3-SVG_currentbasex,y3-SVG_currentbasey,x4-SVG_currentbasex,y4-SVG_currentbasey,stylestring);
 }
 
+void drawarrheads(cdx_Rectangle iBBX,float langle,float cangle,float otherlangle,float othercangle,int currentArrowHeadType,int currentArrowHeadTail,int currentArrowHeadHead,float tllinedist)
+{
+	for (int tlarrowside=-1;tlarrowside<2;tlarrowside+=2)
+	{
+		int tlarrowHead=(tlarrowside==-1) ? currentArrowHeadTail : currentArrowHeadHead;
+		float tlArrowTopx=(tlarrowside==-1) ? iBBX.right : iBBX.left;
+		float tlArrowTopy=(tlarrowside==-1) ? iBBX.bottom : iBBX.top;
+		float tlcangle,tllangle;
+		tllangle=(tlarrowside==-1) ? otherlangle : langle;
+		tlcangle=(tlarrowside==-1) ? othercangle : cangle;
+		switch (tlarrowHead)
+		{
+			case 0 :
+			{
+				if (currentArrowHeadType==1)
+				{
+					expressline(tlArrowTopx+tllinedist*cos(tlcangle),tlArrowTopy+tllinedist*sin(tlcangle),tlArrowTopx-tllinedist*cos(tlcangle),tlArrowTopy-tllinedist*sin(tlcangle));
+				}
+				break;
+			}
+			case 1 : 
+			{
+				stylegenestring(3);
+				if (currentArrowHeadType==0)
+				{
+					expresstetrangle(tlArrowTopx,tlArrowTopy,
+tlArrowTopx+tlarrowside*cos(tllangle)*arrowheadlength+cos(tlcangle)*arrowthickness,tlArrowTopy+tlarrowside*sin(tllangle)*arrowheadlength+sin(tlcangle)*arrowthickness,
+tlArrowTopx+tlarrowside*cos(tllangle)*arrowheadlength-cos(tlcangle)*arrowthickness,tlArrowTopy+tlarrowside*sin(tllangle)*arrowheadlength-sin(tlcangle)*arrowthickness,
+tlArrowTopx,tlArrowTopy,
+stylestring);
+				}
+				if ((currentArrowHeadType==2) || (currentArrowHeadType==1))
+				{
+					expressline(tlArrowTopx,tlArrowTopy,
+tlArrowTopx+tlarrowside*cos(tllangle)*tllinedist*2+cos(tlcangle)*tllinedist*2,tlArrowTopy+tlarrowside*sin(tllangle)*tllinedist*2+sin(tlcangle)*tllinedist*2);
+					expressline(tlArrowTopx,tlArrowTopy,
+tlArrowTopx+tlarrowside*cos(tllangle)*tllinedist*2-cos(tlcangle)*tllinedist*2,tlArrowTopy+tlarrowside*sin(tllangle)*tllinedist*2-sin(tlcangle)*tllinedist*2);
+
+				}
+				if (currentArrowHeadType==1)
+				{
+					expressline(tlArrowTopx+tlarrowside*cos(tllangle)*tllinedist*2+cos(tlcangle)*tllinedist,tlArrowTopy+tlarrowside*sin(tllangle)*tllinedist*2+sin(tlcangle)*tllinedist,
+tlArrowTopx+tlarrowside*cos(tllangle)*tllinedist*2+cos(tlcangle)*tllinedist*2,tlArrowTopy+tlarrowside*sin(tllangle)*tllinedist*2+sin(tlcangle)*tllinedist*2);
+					expressline(tlArrowTopx+tlarrowside*cos(tllangle)*tllinedist*2-cos(tlcangle)*tllinedist,tlArrowTopy+tlarrowside*sin(tllangle)*tllinedist*2-sin(tlcangle)*tllinedist,
+tlArrowTopx+tlarrowside*cos(tllangle)*tllinedist*2-cos(tlcangle)*tllinedist*2,tlArrowTopy+tlarrowside*sin(tllangle)*tllinedist*2-sin(tlcangle)*tllinedist*2);
+				}
+				break;
+			}
+			case 3 :
+			{
+				tllangle=tllangle+Pi;
+			}
+			case 2 :
+			{
+				stylegenestring(3);
+				if (currentArrowHeadType==0)
+				{
+					expresstetrangle(tlArrowTopx,tlArrowTopy,
+tlArrowTopx+tlarrowside*cos(tllangle)*arrowheadlength+tlarrowside*cos(tlcangle)*arrowthickness,tlArrowTopy+tlarrowside*sin(tllangle)*arrowheadlength+tlarrowside*sin(tlcangle)*arrowthickness,
+tlArrowTopx+tlarrowside*cos(tllangle)*arrowheadlength,tlArrowTopy+tlarrowside*sin(tllangle)*arrowheadlength,
+tlArrowTopx,tlArrowTopy,
+stylestring);
+				}
+				if (currentArrowHeadType==55)
+				{
+					expresstetrangle(tlArrowTopx+tlarrowside*tllinedist*cos(tlcangle),tlArrowTopy+tlarrowside*tllinedist*sin(tlcangle),
+tlArrowTopx+tlarrowside*cos(tllangle)*arrowheadlength+tlarrowside*(arrowthickness+tllinedist)*cos(tlcangle),tlArrowTopy+tlarrowside*sin(tllangle)*arrowheadlength+tlarrowside*(arrowthickness+tllinedist)*sin(tlcangle),
+tlArrowTopx+tlarrowside*cos(tllangle)*arrowheadlength+tlarrowside*tllinedist*cos(tlcangle),tlArrowTopy+tlarrowside*sin(tllangle)*arrowheadlength+tlarrowside*tllinedist*sin(tlcangle),
+tlArrowTopx+tlarrowside*tllinedist*cos(tlcangle),tlArrowTopy+tlarrowside*tllinedist*sin(tlcangle),
+stylestring);
+				}
+				break;
+			}
+		}
+	}
+}
+
 void svg_main(const char * filename)
 {
 	float cangle;
@@ -802,6 +879,8 @@ void svg_main(const char * filename)
 	char * finalstring;
 	cdx_Rectangle iBBX;
 	_small owner;
+	float othercangle;
+	float otherlangle;
 	outfile=fopen(filename,"w+");
 
 	svg_findaround();
@@ -896,6 +975,8 @@ void svg_main(const char * filename)
 			{
 				expressline(iBBX.left,iBBX.top,iBBX.right,iBBX.bottom);
 			}
+			othercangle=cangle+Pi;
+			otherlangle=langle+Pi;
 		}
 		else
 		if ((*i_graphic_instance).GraphicType==2)
@@ -921,81 +1002,29 @@ void svg_main(const char * filename)
 			}
 			else
 			expressarc(iBBX.right,iBBX.bottom,tlradius,tlradius,tlangle,tlangle+(((*i_graphic_instance).AngularSize/180.0)*Pi));
-		}
-		else goto skiparrows;
-		for (int tlarrowside=-1;tlarrowside<2;tlarrowside+=2)
-		{
-			int tlarrowHead=(tlarrowside==-1) ? currentArrowHeadTail : currentArrowHeadHead;
-			float tlArrowTopx=(tlarrowside==-1) ? iBBX.right : iBBX.left;
-			float tlArrowTopy=(tlarrowside==-1) ? iBBX.bottom : iBBX.top;
-			float tlcangle,tllangle;
-			tllangle=(tlarrowside==-1) ? langle/*changeit*/ : langle;
-			tlcangle=(tlarrowside==-1) ? cangle/*changeit*/ : cangle;
-			switch (tlarrowHead)
+			othercangle=cangle+Pi;
+			otherlangle=langle+Pi;
+			if (tlradius>arrowheadlength/2)
 			{
-				case 0 :
+				float dturn=asin(arrowheadlength/tlradius/2);
+				if ((*i_graphic_instance).AngularSize>0)
 				{
-					if (currentArrowHeadType==1)
-					{
-						expressline(tlArrowTopx+tllinedist*cos(tlcangle),tlArrowTopy+tllinedist*sin(tlcangle),tlArrowTopx-tllinedist*cos(tlcangle),tlArrowTopy-tllinedist*sin(tlcangle));
-					}
-					break;
+					langle+=dturn;
+					cangle+=dturn;
+					otherlangle-=dturn;
+					othercangle-=dturn;
 				}
-				case 1 : 
+				else
 				{
-					stylegenestring(3);
-					if (currentArrowHeadType==0)
-					{
-						expresstetrangle(tlArrowTopx,tlArrowTopy,
-tlArrowTopx+tlarrowside*cos(tllangle)*arrowheadlength+cos(tlcangle)*arrowthickness,tlArrowTopy+tlarrowside*sin(tllangle)*arrowheadlength+sin(tlcangle)*arrowthickness,
-tlArrowTopx+tlarrowside*cos(tllangle)*arrowheadlength-cos(tlcangle)*arrowthickness,tlArrowTopy+tlarrowside*sin(tllangle)*arrowheadlength-sin(tlcangle)*arrowthickness,
-tlArrowTopx,tlArrowTopy,
-stylestring);
-					}
-					if ((currentArrowHeadType==2) || (currentArrowHeadType==1))
-					{
-						expressline(tlArrowTopx,tlArrowTopy,
-tlArrowTopx+tlarrowside*cos(tllangle)*tllinedist*2+cos(tlcangle)*tllinedist*2,tlArrowTopy+tlarrowside*sin(tllangle)*tllinedist*2+sin(tlcangle)*tllinedist*2);
-						expressline(tlArrowTopx,tlArrowTopy,
-tlArrowTopx+tlarrowside*cos(tllangle)*tllinedist*2-cos(tlcangle)*tllinedist*2,tlArrowTopy+tlarrowside*sin(tllangle)*tllinedist*2-sin(tlcangle)*tllinedist*2);
-
-					}
-					if (currentArrowHeadType==1)
-					{
-						expressline(tlArrowTopx+tlarrowside*cos(tllangle)*tllinedist*2+cos(tlcangle)*tllinedist,tlArrowTopy+tlarrowside*sin(tllangle)*tllinedist*2+sin(tlcangle)*tllinedist,
-tlArrowTopx+tlarrowside*cos(tllangle)*tllinedist*2+cos(tlcangle)*tllinedist*2,tlArrowTopy+tlarrowside*sin(tllangle)*tllinedist*2+sin(tlcangle)*tllinedist*2);
-						expressline(tlArrowTopx+tlarrowside*cos(tllangle)*tllinedist*2-cos(tlcangle)*tllinedist,tlArrowTopy+tlarrowside*sin(tllangle)*tllinedist*2-sin(tlcangle)*tllinedist,
-tlArrowTopx+tlarrowside*cos(tllangle)*tllinedist*2-cos(tlcangle)*tllinedist*2,tlArrowTopy+tlarrowside*sin(tllangle)*tllinedist*2-sin(tlcangle)*tllinedist*2);
-					}
-					break;
-				}
-				case 3 :
-				{
-					tllangle=tllangle+Pi;
-				}
-				case 2 :
-				{
-					stylegenestring(3);
-					if (currentArrowHeadType==0)
-					{
-						expresstetrangle(tlArrowTopx,tlArrowTopy,
-tlArrowTopx+tlarrowside*cos(tllangle)*arrowheadlength+tlarrowside*cos(tlcangle)*arrowthickness,tlArrowTopy+tlarrowside*sin(tllangle)*arrowheadlength+tlarrowside*sin(tlcangle)*arrowthickness,
-tlArrowTopx+tlarrowside*cos(tllangle)*arrowheadlength,tlArrowTopy+tlarrowside*sin(tllangle)*arrowheadlength,
-tlArrowTopx,tlArrowTopy,
-stylestring);
-					}
-					if (currentArrowHeadType==55)
-					{
-						expresstetrangle(tlArrowTopx+tlarrowside*tllinedist*cos(tlcangle),tlArrowTopy+tlarrowside*tllinedist*sin(tlcangle),
-tlArrowTopx+tlarrowside*cos(tllangle)*arrowheadlength+tlarrowside*(arrowthickness+tllinedist)*cos(tlcangle),tlArrowTopy+tlarrowside*sin(tllangle)*arrowheadlength+tlarrowside*(arrowthickness+tllinedist)*sin(tlcangle),
-tlArrowTopx+tlarrowside*cos(tllangle)*arrowheadlength+tlarrowside*tllinedist*cos(tlcangle),tlArrowTopy+tlarrowside*sin(tllangle)*arrowheadlength+tlarrowside*tllinedist*sin(tlcangle),
-tlArrowTopx+tlarrowside*tllinedist*cos(tlcangle),tlArrowTopy+tlarrowside*tllinedist*sin(tlcangle),
-stylestring);
-					}
-					break;
+					langle-=dturn;
+					cangle-=dturn;
+					otherlangle+=dturn;
+					othercangle+=dturn;
 				}
 			}
 		}
+		else goto skiparrows;
+		drawarrheads(iBBX,langle,cangle,otherlangle,othercangle,currentArrowHeadType,currentArrowHeadTail,currentArrowHeadHead,tllinedist);
 		skiparrows:
 		if ((*i_graphic_instance).GraphicType==3)
 		{
@@ -1058,6 +1087,15 @@ stylestring);
 			fprintf(outfile,"<circle cx=\"%f\" cy=\"%f\" r=\"4\" stroke=\"#%s\" fill=\"#%s\"/>",iBBX.left-SVG_currentbasex,iBBX.top-SVG_currentbasey,colorstring,colorstring2);
 			GraphicType7done:
 			;
+		}
+		if ((*i_graphic_instance).GraphicType==6)
+		{
+			stylegenestring(1);
+			cangle=getangle(iBBX.right-iBBX.left,iBBX.bottom-iBBX.top)+Pi/2;
+			langle=getangle(iBBX.right-iBBX.left,iBBX.bottom-iBBX.top);
+			expressline(iBBX.left-6.7*cos(cangle),iBBX.top-6.7*sin(cangle),iBBX.right-6.7*cos(cangle),iBBX.bottom-6.7*sin(cangle));
+			expressline(iBBX.left,iBBX.top,iBBX.left-6.7*cos(cangle),iBBX.top-6.7*sin(cangle));
+			expressline(iBBX.right,iBBX.bottom,iBBX.right-6.7*cos(cangle),iBBX.bottom-6.7*sin(cangle));
 		}
 		skipthisgraphic:
 		;

@@ -306,7 +306,7 @@ void entertag()
 	}
 	else
 	{
-		printf("%s has no member named %s at %X!\n",currentinstance->getName(),tagnamestring,debugcounter);
+//		printf("%s has no member named %s at %X!\n",currentinstance->getName(),tagnamestring,debugcounter);
 /*		printf("instead it got:");
 		printf("%s\n",page_instance::contents[5].name);*/
 		nextinstance=new(gummydummy_instance);
@@ -363,7 +363,7 @@ void scoopparam()
 	}
 	else
 	{
-		fprintf(stderr,"%s has no parameter named %s\n",currentinstance->getName(),parameterstring);
+//		fprintf(stderr,"%s has no parameter named %s\n",currentinstance->getName(),parameterstring);
 		return;
 	}
 	

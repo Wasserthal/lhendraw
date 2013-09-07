@@ -815,25 +815,25 @@ void drawarrheads(cdx_Rectangle iBBX,float langle,float cangle,float otherlangle
 				if (currentArrowHeadType==0)
 				{
 					expresstetrangle(tlArrowTopx,tlArrowTopy,
-tlArrowTopx+tlarrowside*cos(tllangle)*arrowheadlength+cos(tlcangle)*arrowthickness,tlArrowTopy+tlarrowside*sin(tllangle)*arrowheadlength+sin(tlcangle)*arrowthickness,
-tlArrowTopx+tlarrowside*cos(tllangle)*arrowheadlength-cos(tlcangle)*arrowthickness,tlArrowTopy+tlarrowside*sin(tllangle)*arrowheadlength-sin(tlcangle)*arrowthickness,
+tlArrowTopx+cos(tllangle)*arrowheadlength+cos(tlcangle)*arrowthickness,tlArrowTopy+sin(tllangle)*arrowheadlength+sin(tlcangle)*arrowthickness,
+tlArrowTopx+cos(tllangle)*arrowheadlength-cos(tlcangle)*arrowthickness,tlArrowTopy+sin(tllangle)*arrowheadlength-sin(tlcangle)*arrowthickness,
 tlArrowTopx,tlArrowTopy,
 stylestring);
 				}
 				if ((currentArrowHeadType==2) || (currentArrowHeadType==1))
 				{
 					expressline(tlArrowTopx,tlArrowTopy,
-tlArrowTopx+tlarrowside*cos(tllangle)*tllinedist*2+cos(tlcangle)*tllinedist*2,tlArrowTopy+tlarrowside*sin(tllangle)*tllinedist*2+sin(tlcangle)*tllinedist*2);
+tlArrowTopx+cos(tllangle)*tllinedist*2+cos(tlcangle)*tllinedist*2,tlArrowTopy+sin(tllangle)*tllinedist*2+sin(tlcangle)*tllinedist*2);
 					expressline(tlArrowTopx,tlArrowTopy,
-tlArrowTopx+tlarrowside*cos(tllangle)*tllinedist*2-cos(tlcangle)*tllinedist*2,tlArrowTopy+tlarrowside*sin(tllangle)*tllinedist*2-sin(tlcangle)*tllinedist*2);
+tlArrowTopx+cos(tllangle)*tllinedist*2-cos(tlcangle)*tllinedist*2,tlArrowTopy+sin(tllangle)*tllinedist*2-sin(tlcangle)*tllinedist*2);
 
 				}
 				if (currentArrowHeadType==1)
 				{
-					expressline(tlArrowTopx+tlarrowside*cos(tllangle)*tllinedist*2+cos(tlcangle)*tllinedist,tlArrowTopy+tlarrowside*sin(tllangle)*tllinedist*2+sin(tlcangle)*tllinedist,
-tlArrowTopx+tlarrowside*cos(tllangle)*tllinedist*2+cos(tlcangle)*tllinedist*2,tlArrowTopy+tlarrowside*sin(tllangle)*tllinedist*2+sin(tlcangle)*tllinedist*2);
-					expressline(tlArrowTopx+tlarrowside*cos(tllangle)*tllinedist*2-cos(tlcangle)*tllinedist,tlArrowTopy+tlarrowside*sin(tllangle)*tllinedist*2-sin(tlcangle)*tllinedist,
-tlArrowTopx+tlarrowside*cos(tllangle)*tllinedist*2-cos(tlcangle)*tllinedist*2,tlArrowTopy+tlarrowside*sin(tllangle)*tllinedist*2-sin(tlcangle)*tllinedist*2);
+					expressline(tlArrowTopx+cos(tllangle)*tllinedist*2+cos(tlcangle)*tllinedist,tlArrowTopy+sin(tllangle)*tllinedist*2+sin(tlcangle)*tllinedist,
+tlArrowTopx+cos(tllangle)*tllinedist*2+cos(tlcangle)*tllinedist*2,tlArrowTopy+sin(tllangle)*tllinedist*2+sin(tlcangle)*tllinedist*2);
+					expressline(tlArrowTopx+cos(tllangle)*tllinedist*2-cos(tlcangle)*tllinedist,tlArrowTopy+sin(tllangle)*tllinedist*2-sin(tlcangle)*tllinedist,
+tlArrowTopx+cos(tllangle)*tllinedist*2-cos(tlcangle)*tllinedist*2,tlArrowTopy+sin(tllangle)*tllinedist*2-sin(tlcangle)*tllinedist*2);
 				}
 				break;
 			}
@@ -847,17 +847,17 @@ tlArrowTopx+tlarrowside*cos(tllangle)*tllinedist*2-cos(tlcangle)*tllinedist*2,tl
 				if (currentArrowHeadType==0)
 				{
 					expresstetrangle(tlArrowTopx,tlArrowTopy,
-tlArrowTopx+tlarrowside*cos(tllangle)*arrowheadlength+tlarrowside*cos(tlcangle)*arrowthickness,tlArrowTopy+tlarrowside*sin(tllangle)*arrowheadlength+tlarrowside*sin(tlcangle)*arrowthickness,
-tlArrowTopx+tlarrowside*cos(tllangle)*arrowheadlength,tlArrowTopy+tlarrowside*sin(tllangle)*arrowheadlength,
+tlArrowTopx+cos(tllangle)*arrowheadlength+cos(tlcangle)*arrowthickness,tlArrowTopy+sin(tllangle)*arrowheadlength+sin(tlcangle)*arrowthickness,
+tlArrowTopx+cos(tllangle)*arrowheadlength,tlArrowTopy+sin(tllangle)*arrowheadlength,
 tlArrowTopx,tlArrowTopy,
 stylestring);
 				}
 				if (currentArrowHeadType==55)
 				{
-					expresstetrangle(tlArrowTopx+tlarrowside*tllinedist*cos(tlcangle),tlArrowTopy+tlarrowside*tllinedist*sin(tlcangle),
-tlArrowTopx+tlarrowside*cos(tllangle)*arrowheadlength+tlarrowside*(arrowthickness+tllinedist)*cos(tlcangle),tlArrowTopy+tlarrowside*sin(tllangle)*arrowheadlength+tlarrowside*(arrowthickness+tllinedist)*sin(tlcangle),
-tlArrowTopx+tlarrowside*cos(tllangle)*arrowheadlength+tlarrowside*tllinedist*cos(tlcangle),tlArrowTopy+tlarrowside*sin(tllangle)*arrowheadlength+tlarrowside*tllinedist*sin(tlcangle),
-tlArrowTopx+tlarrowside*tllinedist*cos(tlcangle),tlArrowTopy+tlarrowside*tllinedist*sin(tlcangle),
+					expresstetrangle(tlArrowTopx+tllinedist*cos(tlcangle),tlArrowTopy+tllinedist*sin(tlcangle),
+tlArrowTopx+cos(tllangle)*arrowheadlength+(arrowthickness+tllinedist)*cos(tlcangle),tlArrowTopy+sin(tllangle)*arrowheadlength+(arrowthickness+tllinedist)*sin(tlcangle),
+tlArrowTopx+cos(tllangle)*arrowheadlength+tllinedist*cos(tlcangle),tlArrowTopy+sin(tllangle)*arrowheadlength+tllinedist*sin(tlcangle),
+tlArrowTopx+tllinedist*cos(tlcangle),tlArrowTopy+tllinedist*sin(tlcangle),
 stylestring);
 				}
 				break;
@@ -895,6 +895,7 @@ void svg_main(const char * filename)
 	multilist<graphic_instance> * i_graphic_multilist=retrievemultilist<graphic_instance>();
 	for (int ilv1=0;ilv1<(*glob_curve_multilist).filllevel;ilv1++)
 	{
+		float tllinedist=0;//TODO****
 		curve_instance * i_curve_instance=(curve_instance*)&((*glob_curve_multilist).bufferlist[ilv1]);
 		colornr=(*i_curve_instance).color;
 		get_colorstring(colornr);
@@ -908,6 +909,32 @@ void svg_main(const char * filename)
 		if ((*i_curve_instance).Closed)
 		{
 			expressbezier((*i_curve_instance).CurvePoints.a[tllast].x,(*i_curve_instance).CurvePoints.a[tllast].y,(*i_curve_instance).CurvePoints.a[tllast+1].x,(*i_curve_instance).CurvePoints.a[tllast+1].y,(*i_curve_instance).CurvePoints.a[0].x,(*i_curve_instance).CurvePoints.a[0].y,(*i_curve_instance).CurvePoints.a[1].x,(*i_curve_instance).CurvePoints.a[1].y);
+		}
+		else
+		{
+			int currentArrowHeadType=0;
+			int currentArrowHeadTail=0;
+			int currentArrowHeadHead=0;
+			float tllinedist=0;
+			float tllefttan=0;
+			float tlrighttan=0;
+			float tllefttan2=0;
+			float tlrighttan2=0;
+			langle=0;cangle=0;
+			int currentLineType=0;//0: normal 5: Bold 0x100: Double
+			currentArrowHeadType=(*i_curve_instance).ArrowheadType;
+			currentArrowHeadHead=(*i_curve_instance).ArrowheadHead;
+			currentArrowHeadTail=(*i_curve_instance).ArrowheadTail;
+			iBBX.left=(*i_curve_instance).CurvePoints.a[1].x;
+			iBBX.top=(*i_curve_instance).CurvePoints.a[1].y;
+
+			iBBX.right=(*i_curve_instance).CurvePoints.a[(*i_curve_instance).CurvePoints.count-2].x;
+			iBBX.bottom=(*i_curve_instance).CurvePoints.a[(*i_curve_instance).CurvePoints.count-2].y;
+			langle=getangle((*i_curve_instance).CurvePoints.a[(*i_curve_instance).CurvePoints.count-1].x-(*i_curve_instance).CurvePoints.a[(*i_curve_instance).CurvePoints.count-2].x,(*i_curve_instance).CurvePoints.a[(*i_curve_instance).CurvePoints.count-1].y-(*i_curve_instance).CurvePoints.a[(*i_curve_instance).CurvePoints.count-2].y);
+			otherlangle=getangle((*i_curve_instance).CurvePoints.a[0].x-(*i_curve_instance).CurvePoints.a[1].x,(*i_curve_instance).CurvePoints.a[0].y-(*i_curve_instance).CurvePoints.a[1].y);
+			cangle=langle+Pi/2;
+			othercangle=otherlangle+Pi/2;
+			drawarrheads(iBBX,langle,cangle,otherlangle,othercangle,currentArrowHeadType,currentArrowHeadTail,currentArrowHeadHead,tllinedist);
 		}
 	}
 	for (int ilv1=0;ilv1<(*i_graphic_multilist).filllevel;ilv1++)
@@ -933,7 +960,6 @@ void svg_main(const char * filename)
 		int currentLineType=0;//0: normal 5: Bold 0x100: Double
 		if ((*i_graphic_instance).ArrowType & 1)
 		{
-			currentArrowHeadType=55;
 			currentArrowHeadHead=2;
 		}
 		if ((*i_graphic_instance).ArrowType & 2)
@@ -1002,8 +1028,10 @@ void svg_main(const char * filename)
 			}
 			else
 			expressarc(iBBX.right,iBBX.bottom,tlradius,tlradius,tlangle,tlangle+(((*i_graphic_instance).AngularSize/180.0)*Pi));
-			othercangle=cangle+Pi;
-			otherlangle=langle+Pi;
+			otherlangle=langle+(((*i_graphic_instance).AngularSize/180.0)*Pi)+Pi;
+			othercangle=otherlangle+Pi/2.0;
+			iBBX.right+=tlradius*cos(tlangle+(((*i_graphic_instance).AngularSize/180.0)*Pi));
+			iBBX.bottom+=tlradius*sin(tlangle+(((*i_graphic_instance).AngularSize/180.0)*Pi));
 			if (tlradius>arrowheadlength/2)
 			{
 				float dturn=asin(arrowheadlength/tlradius/2);

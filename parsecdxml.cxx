@@ -70,7 +70,11 @@ template <class whatabout> class multilistreference;
 class basicmultilist
 {
 	public:
-	basicmultilist(){};
+	intl filllevel;
+	intl ourcount;
+	int itemsize;
+	void * pointer;
+	basicmultilist(){pointer=NULL;itemsize=0;};
 	~basicmultilist(){};
 };
 template <class whatabout> class multilist : public basicmultilist
@@ -78,13 +82,13 @@ template <class whatabout> class multilist : public basicmultilist
 	public:
 	whatabout * bufferlist;
 	multilistreference<whatabout> * dependants[bufferlistsize];
-	intl filllevel;
-	intl ourcount;
 	multilist()
 	{
 		filllevel=0;
 		ourcount=0;
 		bufferlist=(whatabout*)malloc(sizeof(whatabout)*bufferlistsize);
+		itemsize=sizeof(whatabout);
+		pointer=bufferlist;
 		return;
 	}
 	void * insert(whatabout input,intl position,intl mynumber)
@@ -125,6 +129,18 @@ template <class whatabout> multilist<whatabout> * retrievemultilist()
 		if (strcmp(typeid(whatabout).name(),multilistlist.names[ilv1])==0)
 		{
 			return (multilist<whatabout> *) multilistlist.instances[ilv1];
+		}
+	}
+	return 0;
+}
+
+basicmultilist * findmultilist(const char * thetypesname)
+{
+	for (int ilv1=0;ilv1<multilist_count;ilv1++)
+	{
+		if (strcmp(thetypesname,multilistlist.names[ilv1])==0)
+		{
+			return (basicmultilist*)multilistlist.instances[ilv1];
 		}
 	}
 	return 0;
@@ -229,10 +245,17 @@ class basic_xml_element_set
 	basic_instance * instances;
 	char name[stringlength+1];
 	multilistreference<stringstruct> possible_contents;
+	basicmultilist * hismultilist;
 	basic_xml_element_set() 
 	{
 		possible_contents=multilistreference<stringstruct>();
+		hismultilist=NULL;
 	};
+	virtual int getproperties(const char * name,CDXMLREAD_functype * delegateoutput)
+	{
+		fprintf(stderr,"Programming error! You asked for the properties of a basic xml element set!");
+		exit(1);
+	}
 	~basic_xml_element_set() {};
 };
 
@@ -247,6 +270,7 @@ template <class whatabout> class xml_element_set:basic_xml_element_set
 		strcpy(name,typeid(whatabout).name());
 		name[strlen(name)-strlen("_instance")]=0;
 		xml_set_register[xml_set_register_count++]=this;
+		hismultilist=findmultilist(typeid(whatabout).name());
 	};
 	xml_element_set(const char * first,...)
 	{
@@ -264,6 +288,13 @@ template <class whatabout> class xml_element_set:basic_xml_element_set
 		strcpy(name,typeid(whatabout).name());
 		name[strlen(name)-strlen("_instance")]=0;
 		xml_set_register[xml_set_register_count++]=this;
+	}
+	virtual int getproperties(const char* name,CDXMLREAD_functype * delegateoutput)
+	{
+		(*((whatabout*)0)).whatabout::getproperties(name,delegateoutput);
+//		(reinterpret_cast<whatabout>(*((whatabout*)1)).getproperties(name,delegateoutput);
+//		return (static_cast<whatabout*>((void*)0))->getproperties(name,delegateoutput);
+//		return ((*(static_cast<whatabout*>((void*)0))).getproperties(name,delegateoutput));
 	}
 	~xml_element_set(){};
 };

@@ -4,6 +4,7 @@ float Pi=3.141592654;
 #define maxfloat 1.0e20
 #define _small int
 #include "definitionlist.h"
+#include "janitor.hxx"
 float getangle(float dx,float dy)
 {
 	float frac;
@@ -893,6 +894,7 @@ void svg_main(const char * filename)
 	SVG_currentbasey=SVG_itop;
 	n_instance * startnode, * endnode;
 	multilist<graphic_instance> * i_graphic_multilist=retrievemultilist<graphic_instance>();
+	initlist();
 	for (int ilv1=0;ilv1<(*glob_curve_multilist).filllevel;ilv1++)
 	{
 		float tllinedist=0;//TODO****

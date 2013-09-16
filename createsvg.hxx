@@ -516,6 +516,8 @@ void stylegenestring(int flags)
 	}
 	stylestring[stylestringlength]=0;
 }
+int stylefromline(int input) {return 1|((input & 1)?8:0)|((input & 2)?4:0);}
+int stylefromrectangle(int input) {return 1|((input & 0x10)?8:0)|((input & 0x20)?4:0)|((input & 0x8)?2:0);}
 
 void expressline(float ileft,float itop,float iright,float ibottom)
 {
@@ -902,7 +904,7 @@ void svg_main(const char * filename)
 		curve_instance * i_curve_instance=(curve_instance*)&((*glob_curve_multilist).bufferlist[ilv1]);
 		colornr=(*i_curve_instance).color;
 		get_colorstring(colornr);
-		stylegenestring(1|(((*i_curve_instance).CurveType & 128)?2:0));
+		stylegenestring(1|(((*i_curve_instance).CurveType & 128)?2:0)|(((*i_curve_instance).CurveType & 4)?4:0));
 		int tllast=1;
 		for (int ilv2=1;ilv2<(*i_curve_instance).CurvePoints.count-3;ilv2+=3)
 		{
@@ -992,7 +994,7 @@ void svg_main(const char * filename)
 		}
 		if ((*i_graphic_instance).GraphicType==1)
 		{
-			stylegenestring(1);
+			stylegenestring(stylefromline((*i_graphic_instance).LineType));
 			cangle=getangle(iBBX.right-iBBX.left,iBBX.bottom-iBBX.top)+Pi/2;
 			langle=getangle(iBBX.right-iBBX.left,iBBX.bottom-iBBX.top);
 			if (currentLineType &0x100)
@@ -1024,7 +1026,7 @@ void svg_main(const char * filename)
 				 langle=(tlangle-Pi/2.0);
 			}
 			cangle=langle+Pi/2.0;
-			stylegenestring(1);
+			stylegenestring(stylefromline((*i_graphic_instance).LineType));
 			if (currentLineType &0x100)
 			{
 //TODO****				expressarc(iBBX.right,iBBX.bottom
@@ -1077,11 +1079,8 @@ void svg_main(const char * filename)
 			{
 				goto skipthisgraphic;
 			}
-			stylegenestring(1);
-			expressline(iBBX.left,iBBX.top,iBBX.right,iBBX.top);
-			expressline(iBBX.left,iBBX.bottom,iBBX.right,iBBX.bottom);
-			expressline(iBBX.left,iBBX.top,iBBX.left,iBBX.bottom);
-			expressline(iBBX.right,iBBX.top,iBBX.right,iBBX.bottom);
+			stylegenestring(stylefromrectangle((*i_graphic_instance).RectangleType));
+			expresstetrangle(iBBX.left,iBBX.top,iBBX.right,iBBX.top,iBBX.right,iBBX.bottom,iBBX.left,iBBX.bottom,stylestring);
 		}
 		if ((*i_graphic_instance).GraphicType==4)
 		{

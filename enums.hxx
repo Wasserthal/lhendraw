@@ -1,4 +1,4 @@
-bienum CDXML_ArrowType[]{
+bienum CDXML_ArrowType[] {
 {{"NoHead"},0},
 {{"HalfHead"},1},
 {{"FullHead"},2},
@@ -8,14 +8,14 @@ bienum CDXML_ArrowType[]{
 {{"RetroSynthetic"},32},
 };
 int CDXML_ArrowType_max=sizeof(CDXML_ArrowType)/sizeof(CDXML_ArrowType[0]);
-bienum CDXML_ArrowheadHead[]{
+bienum CDXML_ArrowheadHead[] {
 {{"None"},0},
 {{"Full"},1},
 {{"HalfLeft"},2},
 {{"HalfRight"},3},
 };
 int CDXML_ArrowheadHead_max=sizeof(CDXML_ArrowheadHead)/sizeof(CDXML_ArrowheadHead[0]);
-bienum CDXML_ArrowheadTail[]{
+bienum CDXML_ArrowheadTail[] {
 {{"None"},0},
 {{"Full"},1},
 {{"HalfLeft"},2},
@@ -32,7 +32,7 @@ bienum CDXML_Closed[] {//Unverified
 	{{"yes"},1},
 };
 int CDXML_Closed_max=sizeof(CDXML_Closed)/sizeof(CDXML_Closed[0]);
-bienum CDXML_ArrowheadType[]{
+bienum CDXML_ArrowheadType[] {
 {{"Solid"},0},//electron move,electronpair move, reaction, equillibrium, Resonance
 {{"Hollow"},1},//Children's traffic arrow. Neat to show atom movements.
 {{"Angle"},2},//Retrosynthetic
@@ -152,27 +152,44 @@ bienum CDXML_LabelAlignment[] {
 };
 int CDXML_LabelAlignment_max=sizeof(CDXML_LabelAlignment)/sizeof(CDXML_LabelAlignment[0]);
 bienum CDXML_OrbitalType[] {
-	{{"OrbitalType_s"},0},
-	{{"OrbitalType_oval"},1},
-	{{"OrbitalType_lobe"},2},
-	{{"OrbitalType_p"},3},
-	{{"OrbitalType_hybridPlus"},4},
-	{{"OrbitalType_hybridMinus"},5},
-	{{"OrbitalType_dz2Plus"},6},
-	{{"OrbitalType_dz2Minus"},7},
-	{{"OrbitalType_dxy"},8},
-	{{"OrbitalType_sShaded"},0x100},
-	{{"OrbitalType_ovalShaded"},0x101},
-	{{"OrbitalType_lobeShaded"},0x102},
-	{{"OrbitalType_pShaded"},0x103},
-	{{"OrbitalType_sFilled"},0x200},
-	{{"OrbitalType_ovalFilled"},0x201},
-	{{"OrbitalType_lobeFilled"},0x202},
-	{{"OrbitalType_pFilled"},0x203},
-	{{"OrbitalType_hybridPlusFilled"},0x204},
-	{{"OrbitalType_hybridMinusFilled"},0x205},
-	{{"OrbitalType_dz2PlusFilled"},0x206},
-	{{"OrbitalType_dz2MinusFilled"},0x207},
-	{{"OrbitalType_dxyFilled"},0x208},
+	{{"s"},0},
+	{{"oval"},1},
+	{{"lobe"},2},
+	{{"p"},3},
+	{{"hybridPlus"},4},
+	{{"hybridMinus"},5},
+	{{"dz2Plus"},6},
+	{{"dz2Minus"},7},
+	{{"dxy"},8},
+	{{"sShaded"},0x100},
+	{{"ovalShaded"},0x101},
+	{{"lobeShaded"},0x102},
+	{{"pShaded"},0x103},
+	{{"sFilled"},0x200},
+	{{"ovalFilled"},0x201},
+	{{"lobeFilled"},0x202},
+	{{"pFilled"},0x203},
+	{{"hybridPlusFilled"},0x204},
+	{{"hybridMinusFilled"},0x205},
+	{{"dz2PlusFilled"},0x206},
+	{{"dz2MinusFilled"},0x207},
+	{{"dxyFilled"},0x208},
 };
 int CDXML_OrbitalType_max=sizeof(CDXML_OrbitalType)/sizeof(CDXML_OrbitalType[0]);
+bienum CDXML_RectangleType[] {
+	{{"Plain"},0x0},
+	{{"RoundEdge"},0x1},
+	{{"Shadow"},0x2},
+	{{"Shaded"},0x4},
+	{{"Filled"},0x8},
+	{{"Dashed"},0x10},
+	{{"Bold"},0x20},
+};
+int CDXML_RectangleType_max=sizeof(CDXML_RectangleType)/sizeof(CDXML_RectangleType[0]);
+bienum CDXML_LineType[] {
+	{{"Solid"},0x0},
+	{{"Dashed"},0x1},
+	{{"Bold"},0x2},
+	{{"Wavy"},0x4},
+};
+int CDXML_LineType_max=sizeof(CDXML_LineType)/sizeof(CDXML_LineType[0]);

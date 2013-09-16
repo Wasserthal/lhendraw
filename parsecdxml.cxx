@@ -73,6 +73,7 @@ class basicmultilist
 	intl filllevel;
 	intl ourcount;
 	int itemsize;
+	intl index;
 	void * pointer;
 	basicmultilist(){pointer=NULL;itemsize=0;};
 	~basicmultilist(){};
@@ -157,6 +158,7 @@ template <class whatabout> multilist<whatabout> * registermultilist(const char *
 	}
 	multilistlist.instances[multilist_count]=new(multilist<whatabout>);
 	strcpy(multilistlist.names[multilist_count],thetypesname);
+	(*((basicmultilist*)(multilistlist.instances[multilist_count]))).index=multilist_count;
 	return (multilist<whatabout> *) multilistlist.instances[multilist_count++];
 }
 

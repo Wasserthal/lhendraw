@@ -38,6 +38,7 @@ float getangle(float dx,float dy)
 }
 float bonddist=4;
 float boldwidth=5;
+float xboldwidth=15;
 float arrowheadlength=15;
 float arrowthickness=5;
 float atomfontheight=18.0;
@@ -894,7 +895,7 @@ void svg_main(const char * filename)
 	SVG_currentbasey=SVG_itop;
 	n_instance * startnode, * endnode;
 	multilist<graphic_instance> * i_graphic_multilist=retrievemultilist<graphic_instance>();
-	initlist();
+	initZlist();
 	for (int ilv1=0;ilv1<(*glob_curve_multilist).filllevel;ilv1++)
 	{
 		float tllinedist=0;//TODO****

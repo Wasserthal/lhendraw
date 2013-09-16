@@ -886,7 +886,7 @@ void svg_main(const char * filename)
 	float othercangle;
 	float otherlangle;
 	outfile=fopen(filename,"w+");
-
+	int index_in_buffer;
 	svg_findaround();
 	getatoms();
 	fprintf(outfile,"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>");
@@ -898,10 +898,28 @@ void svg_main(const char * filename)
 	n_instance * startnode, * endnode;
 	multilist<graphic_instance> * i_graphic_multilist=retrievemultilist<graphic_instance>();
 	initZlist();
-	for (int ilv1=0;ilv1<(*glob_curve_multilist).filllevel;ilv1++)
+	multilist<t_instance> * i_t_multilist=retrievemultilist<t_instance>();
+	multilist<s_instance> * i_s_multilist=retrievemultilist<s_instance>();
+	int ilv1;
+	for (ilv1=0;ilv1<bufferlistsize*multilistZcount;ilv1++)
 	{
+		if (objectZorderlist[ilv1].listnr!=-1)
+		{
+			index_in_buffer=objectZorderlist[ilv1].nr;
+			if (multilistlist.instances[objectZorderlist[ilv1].listnr]==glob_curve_multilist) goto svg_main_curve;
+			if (multilistlist.instances[objectZorderlist[ilv1].listnr]==glob_graphic_multilist) goto svg_main_graphic;
+			if (multilistlist.instances[objectZorderlist[ilv1].listnr]==glob_b_multilist) goto svg_main_b;
+			if (multilistlist.instances[objectZorderlist[ilv1].listnr]==glob_t_multilist) goto svg_main_t;
+		}
+		svg_main_loop:
+		;
+	}
+	goto svg_main_end;
+	for (index_in_buffer=0;index_in_buffer<(*glob_curve_multilist).filllevel;index_in_buffer++)
+	{
+		svg_main_curve:
 		float tllinedist=0;//TODO****
-		curve_instance * i_curve_instance=(curve_instance*)&((*glob_curve_multilist).bufferlist[ilv1]);
+		curve_instance * i_curve_instance=(curve_instance*)&((*glob_curve_multilist).bufferlist[index_in_buffer]);
 		colornr=(*i_curve_instance).color;
 		get_colorstring(colornr);
 		stylegenestring(1|(((*i_curve_instance).CurveType & 128)?2:0)|(((*i_curve_instance).CurveType & 4)?4:0));
@@ -941,15 +959,17 @@ void svg_main(const char * filename)
 			othercangle=otherlangle+Pi/2;
 			drawarrheads(iBBX,langle,cangle,otherlangle,othercangle,currentArrowHeadType,currentArrowHeadTail,currentArrowHeadHead,tllinedist);
 		}
+		goto svg_main_loop;
 	}
-	for (int ilv1=0;ilv1<(*i_graphic_multilist).filllevel;ilv1++)
+	for (index_in_buffer=0;index_in_buffer<(*i_graphic_multilist).filllevel;index_in_buffer++)
 	{
+		svg_main_graphic:
 /* HOW ARROW MUST BE DONE:
 1. The arrow type determiner determines arrow type and bond spacing.
 2. The lines/arc are drawn. if it was something else, the next two points are skipped. 
 3. Otherwise, the arrow angles are calculated
 4. And the arrows are drawn.*/
-		graphic_instance * i_graphic_instance=&((*i_graphic_multilist).bufferlist)[ilv1];
+		graphic_instance * i_graphic_instance=&((*i_graphic_multilist).bufferlist)[index_in_buffer];
 		iBBX=(*i_graphic_instance).BoundingBox;
 		colornr=(*i_graphic_instance).color;
 		get_colorstring(colornr);
@@ -1062,7 +1082,7 @@ void svg_main(const char * filename)
 		if ((*i_graphic_instance).GraphicType==3)
 		{
 			int tlisfound;
-			multilistreference<annotation_instance> * tlannotationmultilistreference=dynamic_cast<multilistreference<annotation_instance>*>((*glob_graphic_multilist).bufferlist[ilv1].annotation);
+			multilistreference<annotation_instance> * tlannotationmultilistreference=dynamic_cast<multilistreference<annotation_instance>*>((*glob_graphic_multilist).bufferlist[index_in_buffer].annotation);
 			tlisfound=0;
 			for (int ilv2=0;ilv2<(*tlannotationmultilistreference).count_in_it;ilv2++)
 			{
@@ -1128,12 +1148,14 @@ void svg_main(const char * filename)
 			expressline(iBBX.right,iBBX.bottom,iBBX.right-6.7*cos(cangle),iBBX.bottom-6.7*sin(cangle));
 		}
 		skipthisgraphic:
-		;
+		;//always run over here. One might need this.
+		goto svg_main_loop;
 	}
-	for (int ilv1=0;ilv1<(*glob_b_multilist).filllevel;ilv1++)
+	for (index_in_buffer=0;index_in_buffer<(*glob_b_multilist).filllevel;index_in_buffer++)
 	{
+		svg_main_b:
 		_small inr_E,inr_S;
-		b_instance * i_b_instance=&(((*glob_b_multilist).bufferlist)[ilv1]);
+		b_instance * i_b_instance=&(((*glob_b_multilist).bufferlist)[index_in_buffer]);
 		colornr=(*i_b_instance).color;
 		get_colorstring(colornr);
 		for (int ilv2=0;ilv2<(*glob_n_multilist).filllevel;ilv2++)//TODO: base on pre-calcd. values
@@ -1167,7 +1189,7 @@ void svg_main(const char * filename)
 		char specialE=(atom_actual_node[inr_E].special!=-1);
 		iBBX.left=(*startnode).p.x+textdeltax*specialS;
 		iBBX.top=(*startnode).p.y+textdeltay*specialS;
-		int iDisplaytype1=((*glob_b_multilist).bufferlist[ilv1].Display);
+		int iDisplaytype1=((*glob_b_multilist).bufferlist[index_in_buffer].Display);
 		iBBX.right=(*endnode).p.x-textdeltax*specialE;
 		iBBX.bottom=(*endnode).p.y-textdeltay*specialE;
 		if (iswedgenr(iDisplaytype1)>0)
@@ -1191,13 +1213,13 @@ void svg_main(const char * filename)
 			float tlrighttan2=0;
 			if (specialE==0)
 			{
-				if ((bond_actual_node[ilv1]).numberleft[0]!=-1) {tllefttan=tan(Pi/2-bond_actual_node[ilv1].cotanleft[0]);}else{if ((bond_actual_node[ilv1]).numberright[0]!=-1){tllefttan=tan(bond_actual_node[ilv1].xcotanright[0]/2);}}
-				if ((bond_actual_node[ilv1]).numberright[0]!=-1) {tlrighttan=tan(Pi/2-bond_actual_node[ilv1].cotanright[0]);}else{if ((bond_actual_node[ilv1]).numberleft[0]!=-1){tlrighttan=tan(bond_actual_node[ilv1].xcotanleft[0]/2);}}
+				if ((bond_actual_node[index_in_buffer]).numberleft[0]!=-1) {tllefttan=tan(Pi/2-bond_actual_node[index_in_buffer].cotanleft[0]);}else{if ((bond_actual_node[index_in_buffer]).numberright[0]!=-1){tllefttan=tan(bond_actual_node[index_in_buffer].xcotanright[0]/2);}}
+				if ((bond_actual_node[index_in_buffer]).numberright[0]!=-1) {tlrighttan=tan(Pi/2-bond_actual_node[index_in_buffer].cotanright[0]);}else{if ((bond_actual_node[index_in_buffer]).numberleft[0]!=-1){tlrighttan=tan(bond_actual_node[index_in_buffer].xcotanleft[0]/2);}}
 			}
 			if (specialS==0)
 			{
-				if ((bond_actual_node[ilv1]).numberleft[1]!=-1) {tllefttan2=tan(Pi/2-bond_actual_node[ilv1].cotanleft[1]);}else{if ((bond_actual_node[ilv1]).numberright[1]!=-1){tllefttan2=tan(bond_actual_node[ilv1].xcotanright[1]/2);}}
-				if ((bond_actual_node[ilv1]).numberright[1]!=-1) {tlrighttan2=tan(Pi/2-bond_actual_node[ilv1].cotanright[1]);}else{if ((bond_actual_node[ilv1]).numberleft[1]!=-1){tlrighttan2=tan(bond_actual_node[ilv1].xcotanleft[1]/2);}}
+				if ((bond_actual_node[index_in_buffer]).numberleft[1]!=-1) {tllefttan2=tan(Pi/2-bond_actual_node[index_in_buffer].cotanleft[1]);}else{if ((bond_actual_node[index_in_buffer]).numberright[1]!=-1){tllefttan2=tan(bond_actual_node[index_in_buffer].xcotanright[1]/2);}}
+				if ((bond_actual_node[index_in_buffer]).numberright[1]!=-1) {tlrighttan2=tan(Pi/2-bond_actual_node[index_in_buffer].cotanright[1]);}else{if ((bond_actual_node[index_in_buffer]).numberleft[1]!=-1){tlrighttan2=tan(bond_actual_node[index_in_buffer].xcotanleft[1]/2);}}
 			}
 			if ((iDisplaytype1==2) || (iDisplaytype1==3) || (iDisplaytype1==4))
 			{
@@ -1227,29 +1249,29 @@ iBBX.right+ibonddist2*cos(cangle)+ibonddist4*(cos(cangle)-(cos(langle)*tlrightta
 		}
 		if ((*i_b_instance).Order>1.1)
 		{
-			stylegenestring((((*glob_b_multilist).bufferlist[ilv1].Display2==1)?8:0)|1);
+			stylegenestring((((*glob_b_multilist).bufferlist[index_in_buffer].Display2==1)?8:0)|1);
 			expressline(iBBX.left+ibonddist*cos(cangle),iBBX.top+ibonddist*sin(cangle),iBBX.right+ibonddist*cos(cangle),iBBX.bottom+ibonddist*sin(cangle));
 		}
+		goto svg_main_loop;
 	}
-	multilist<t_instance> * i_t_multilist=retrievemultilist<t_instance>();
-	multilist<s_instance> * i_s_multilist=retrievemultilist<s_instance>();
-	for (int ilv1=0;ilv1<(*i_t_multilist).filllevel;ilv1++)
+	for (index_in_buffer=0;index_in_buffer<(*i_t_multilist).filllevel;index_in_buffer++)
 	{
-		owner=text_actual_node[ilv1].owner;
+		svg_main_t:
+		owner=text_actual_node[index_in_buffer].owner;
 		colornr=0;
 		get_colorstring(colornr);
 		if (owner!=-1)
 		{
-			colornr=(*glob_n_multilist).bufferlist[text_actual_node[ilv1].owner].color;
+			colornr=(*glob_n_multilist).bufferlist[text_actual_node[index_in_buffer].owner].color;
 			get_colorstring(colornr);
 		}
-		colornr=((*i_t_multilist).bufferlist)[ilv1].color;
+		colornr=((*i_t_multilist).bufferlist)[index_in_buffer].color;
 		get_colorstring_passive(colornr);
 
-		fprintf(outfile,"<text fill=\"%s\" %s stroke=\"none\" transform=\"translate(%f,%f)\" font-size=\"%f\">",colorstring,((*i_t_multilist).bufferlist[ilv1].LabelAlignment==-1) ? "text-anchor=\"end\" text-align=\"end\"" : "",((*i_t_multilist).bufferlist)[ilv1].p.x-SVG_currentbasex,((*i_t_multilist).bufferlist)[ilv1].p.y-SVG_currentbasey,atomfontheight);
+		fprintf(outfile,"<text fill=\"%s\" %s stroke=\"none\" transform=\"translate(%f,%f)\" font-size=\"%f\">",colorstring,((*i_t_multilist).bufferlist[index_in_buffer].LabelAlignment==-1) ? "text-anchor=\"end\" text-align=\"end\"" : "",((*i_t_multilist).bufferlist)[index_in_buffer].p.x-SVG_currentbasex,((*i_t_multilist).bufferlist)[index_in_buffer].p.y-SVG_currentbasey,atomfontheight);
 		intl start,end;
-		start=(*(((*i_t_multilist).bufferlist)[ilv1].s)).start_in_it;
-		end=start+(*(((*i_t_multilist).bufferlist)[ilv1].s)).count_in_it;
+		start=(*(((*i_t_multilist).bufferlist)[index_in_buffer].s)).start_in_it;
+		end=start+(*(((*i_t_multilist).bufferlist)[index_in_buffer].s)).count_in_it;
 		char string_resorted=0;
 		char ifsmat=0;//0: nothing //1: on a subscript number; 2: on text; 3: on a superscript
 		for (int ilv2=start;ilv2<end;ilv2++)
@@ -1260,11 +1282,11 @@ iBBX.right+ibonddist2*cos(cangle)+ibonddist4*(cos(cangle)-(cos(langle)*tlrightta
 			finalstring=(((*i_s_multilist).bufferlist))[ilv2].PCTEXT.a;
 			if (owner!=-1)
 			{
-				if ((*((*i_t_multilist).bufferlist[ilv1].s)).count_in_it==1)
+				if ((*((*i_t_multilist).bufferlist[index_in_buffer].s)).count_in_it==1)
 				{
 					if (((*i_s_multilist).bufferlist[start].face & 0x60)==0x60)
 					{
-						if ((*i_t_multilist).bufferlist[ilv1].Justification==-1)
+						if ((*i_t_multilist).bufferlist[index_in_buffer].Justification==-1)
 						{
 							string_resorted=resortstring(finalstring);
 							if (string_resorted)
@@ -1446,8 +1468,9 @@ iBBX.right+ibonddist2*cos(cangle)+ibonddist4*(cos(cangle)-(cos(langle)*tlrightta
 			}
 		}
 		fprintf(outfile,"</text>\n");
+		goto svg_main_loop;
 	}
-//	for (int ilv1=0;ilv1<(*i_
+	svg_main_end:
 	fprintf(outfile,"</svg>");
 	fclose(outfile);
 }

@@ -280,7 +280,66 @@ void makeinf(const char * cdxname,const char * name)
 	}
 }
 
-void main_multisvg(void)
+void main_multisvg(int icount,char * * args)//tetrify
 {
-	//tetrify
+	makeinf_sortimentcount=0;
+	makeinf_sortiment.height=0;
+	makeinf_sortiment.width=0;
+	for (int ilv1=0;ilv1<icount;ilv1++)
+	{
+		int tlnr=atoi(args[ilv1]);
+		int tlnr2;
+		for (int ilv2=0;ilv2<makeinf_frame_count;ilv2++)
+		{
+			if (makeinf_frame[ilv2].number==tlnr)
+			{
+				tlnr2=ilv2;
+				goto ifertig;
+			}
+		}
+		ifertig:
+		;
+		makeinf_sortiment.sortiment[makeinf_sortimentcount].number=tlnr;
+		makeinf_sortiment.sortiment[makeinf_sortimentcount].posx=0;
+		makeinf_sortiment.sortiment[makeinf_sortimentcount].posy=makeinf_sortiment.height;
+		makeinf_sortiment.height+=makeinf_frame[tlnr2].height+10;
+		makeinf_sortiment.width=fmax(makeinf_sortiment.width,makeinf_frame[tlnr2].width);
+		makeinf_sortimentcount++;
+	}
+}
+
+void svg_main2(const char * filename,int count,char * * args)
+{
+	char ifilename[stringlength];
+	strcpy(ifilename,filename);
+	strcat(ifilename,"(");
+	for (int ilv1=0;ilv1<count;ilv1++)
+	{
+		sprintf(ifilename+strlen(ifilename),(ilv1)?"+%s":"%s",args[ilv1]);
+	}
+	strcat(ifilename,")");
+	main_multisvg(count,args);
+	svg_head(filename,makeinf_sortiment.width,makeinf_sortiment.height);
+	for (int ilv1=0;ilv1<count;ilv1++)
+	{
+		int tlnr=atoi(args[ilv1]);
+		int tlothernr;
+		for (int ilv2=0;ilv2<makeinf_frame_count;ilv2++)
+		{
+			if (makeinf_frame[ilv2].number==tlnr)
+			{
+				tlnr=ilv2;
+				goto ifertig;
+			}
+		}
+		ifertig:
+		SVG_currentbasex=makeinf_frame[tlnr].posx;
+		SVG_currentbasey=makeinf_frame[tlnr].posy;
+		SVG_currentshiftx=makeinf_sortiment.sortiment[ilv1].posx-SVG_currentbasex;
+		SVG_currentshifty=makeinf_sortiment.sortiment[ilv1].posy-SVG_currentbasey;
+		SVG_currentfringex=makeinf_frame[tlnr].endx;
+		SVG_currentfringey=makeinf_frame[tlnr].endy;
+		svg_controlprocedure(1);
+	}
+	svg_tail();
 }

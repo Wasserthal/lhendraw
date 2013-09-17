@@ -59,6 +59,8 @@ FILE * outfile;
 float SVG_currentbasex,SVG_currentbasey;
 float SVG_width,SVG_height;
 float SVG_ileft,SVG_itop;
+float SVG_currentfringex,SVG_currentfringey;
+float SVG_currentshiftx,SVG_currentshifty;
 color_instance * get_color(int number)
 {
 	if (number==0)
@@ -521,16 +523,16 @@ int stylefromrectangle(int input) {return 1|((input & 0x10)?8:0)|((input & 0x20)
 
 void expressline(float ileft,float itop,float iright,float ibottom)
 {
-	fprintf(outfile,"<path d=\"M %f %f L %f %f \" %s/>\n",ileft-SVG_currentbasex,itop-SVG_currentbasey,iright-SVG_currentbasex,ibottom-SVG_currentbasey,stylestring);
+	fprintf(outfile,"<path d=\"M %f %f L %f %f \" %s/>\n",ileft+SVG_currentshiftx,itop+SVG_currentshifty,iright+SVG_currentshiftx,ibottom+SVG_currentshifty,stylestring);
 }
 void expresscircle(float ileft,float itop,float iright,float ibottom)
 {
-	fprintf(outfile,"<ellipse cx=\"%f\" cy=\"%f\" rx=\"%f\" ry=\"%f\" %s/>\n",ileft-SVG_currentbasex,itop-SVG_currentbasey,iright-ileft,ibottom-itop,stylestring);
+	fprintf(outfile,"<ellipse cx=\"%f\" cy=\"%f\" rx=\"%f\" ry=\"%f\" %s/>\n",ileft+SVG_currentshiftx,itop+SVG_currentshifty,iright-ileft,ibottom-itop,stylestring);
 }
 void expresstetrangle(float ix1,float iy1,float ix2,float iy2,float ix3,float iy3,float ix4,float iy4,char * istylestring)
 {
 	fprintf(outfile,"<path d=\"M %f %f L %f %f L %f %f L %f %f z \" %s/>\n",
-	ix1-SVG_currentbasex,iy1-SVG_currentbasey,ix2-SVG_currentbasex,iy2-SVG_currentbasey,ix3-SVG_currentbasex,iy3-SVG_currentbasey,ix4-SVG_currentbasex,iy4-SVG_currentbasey,
+	ix1+SVG_currentshiftx,iy1+SVG_currentshifty,ix2+SVG_currentshiftx,iy2+SVG_currentshifty,ix3+SVG_currentshiftx,iy3+SVG_currentshifty,ix4+SVG_currentshiftx,iy4+SVG_currentshifty,
 istylestring);
 }
 #define dashdist 3
@@ -547,17 +549,17 @@ void expresshashangle(float langle,float cangle,float ix1,float iy1,float ix2,fl
 void expresshexangle(float ix1,float iy1,float ix2,float iy2,float ix3,float iy3,float ix4,float iy4,float ix5,float iy5,float ix6,float iy6)
 {
 	fprintf(outfile,"<path d=\"M %f %f L %f %f L %f %f L %f %f L %f %f L %f %f z \" %s/>\n",
-	ix1-SVG_currentbasex,iy1-SVG_currentbasey,ix2-SVG_currentbasex,iy2-SVG_currentbasey,ix3-SVG_currentbasex,iy3-SVG_currentbasey,ix4-SVG_currentbasex,iy4-SVG_currentbasey,ix5-SVG_currentbasex,iy5-SVG_currentbasey,ix6-SVG_currentbasex,iy6-SVG_currentbasey,
+	ix1+SVG_currentshiftx,iy1+SVG_currentshifty,ix2+SVG_currentshiftx,iy2+SVG_currentshifty,ix3+SVG_currentshiftx,iy3+SVG_currentshifty,ix4+SVG_currentshiftx,iy4+SVG_currentshifty,ix5+SVG_currentshiftx,iy5+SVG_currentshifty,ix6+SVG_currentshiftx,iy6+SVG_currentshifty,
 stylestring);
 }
 void expressarc(float centerx,float centery,float radiusx,float radiusy,float startangle,float endangle)
 {
 	float startx,starty;
 	float endx,endy;
-	startx=centerx+radiusx*cos(startangle)-SVG_currentbasex;
-	starty=centery+radiusy*sin(startangle)-SVG_currentbasey;
-	endx=centerx+radiusx*cos(endangle)-SVG_currentbasex;
-	endy=centery+radiusy*sin(endangle)-SVG_currentbasey;
+	startx=centerx+radiusx*cos(startangle)+SVG_currentshiftx;
+	starty=centery+radiusy*sin(startangle)+SVG_currentshifty;
+	endx=centerx+radiusx*cos(endangle)+SVG_currentshiftx;
+	endy=centery+radiusy*sin(endangle)+SVG_currentshifty;
 	fprintf(outfile,"<path d=\"M %f,%f A %f,%f %i %i %i %f %f\" %s />",startx,starty,radiusx,radiusy,(int)0,(int)(fabs(startangle-endangle)>=Pi),(int)(startangle-endangle)<0,endx,endy,stylestring);
 }
 
@@ -790,7 +792,7 @@ void svg_findaround()
 
 void expressbezier(float x1,float y1,float x2,float y2,float x3,float y3,float x4,float y4)
 {
-	fprintf(outfile,"<path d=\"M %f %f C %f %f %f %f %f %f \" %s/>\n",x1-SVG_currentbasex,y1-SVG_currentbasey,x2-SVG_currentbasex,y2-SVG_currentbasey,x3-SVG_currentbasex,y3-SVG_currentbasey,x4-SVG_currentbasex,y4-SVG_currentbasey,stylestring);
+	fprintf(outfile,"<path d=\"M %f %f C %f %f %f %f %f %f \" %s/>\n",x1+SVG_currentshiftx,y1+SVG_currentshifty,x2+SVG_currentshiftx,y2+SVG_currentshifty,x3+SVG_currentshiftx,y3+SVG_currentshifty,x4+SVG_currentshiftx,y4+SVG_currentshifty,stylestring);
 }
 
 void drawarrheads(cdx_Rectangle iBBX,float langle,float cangle,float otherlangle,float othercangle,int currentArrowHeadType,int currentArrowHeadTail,int currentArrowHeadHead,float tllinedist)
@@ -870,59 +872,94 @@ stylestring);
 	}
 }
 
-void svg_main(const char * filename)
+float cangle;
+float langle;
+float ibonddist;
+float ibonddist2;
+float ibonddist3;
+float ibonddist4;
+int colornr;
+int fontnr;
+char * finalstring;
+cdx_Rectangle iBBX;
+_small owner;
+float othercangle;
+float otherlangle;
+int index_in_buffer;
+int ilv1;
+int currentArrowHeadType;
+int currentArrowHeadTail;
+int currentArrowHeadHead;
+float tllinedist;
+float tllefttan;
+float tlrighttan;
+float tllefttan2;
+float tlrighttan2;
+int currentLineType;//0: normal 5: Bold 0x100: Double
+float textdeltax,textdeltay;
+char specialS;
+char specialE;
+int iDisplaytype1;
+int tllast;
+char string_resorted;
+char ifsmat;//0: nothing //1: on a subscript number; 2: on text; 3: on a superscript
+curve_instance * i_curve_instance;
+graphic_instance * i_graphic_instance;
+b_instance * i_b_instance;
+n_instance * startnode, * endnode;
+void svg_head(const char * filename,float width,float height)
 {
-	float cangle;
-	float langle;
-	float ibonddist;
-	float ibonddist2;
-	float ibonddist3;
-	float ibonddist4;
-	int colornr;
-	int fontnr;
-	char * finalstring;
-	cdx_Rectangle iBBX;
-	_small owner;
-	float othercangle;
-	float otherlangle;
 	outfile=fopen(filename,"w+");
-	int index_in_buffer;
-	svg_findaround();
 	getatoms();
+	initZlist();
 	fprintf(outfile,"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>");
 	fprintf(outfile,"<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">");
 //	fprintf(outfile,"<svg version=\"1.0\" width=\"%f\" height=\"%f\">\n",SVG_width-SVG_ileft,SVG_height-SVG_itop);
-	fprintf(outfile,"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"%f\" height=\"%f\">\n",SVG_width-SVG_ileft,SVG_height-SVG_itop);
-	SVG_currentbasex=SVG_ileft;
-	SVG_currentbasey=SVG_itop;
-	n_instance * startnode, * endnode;
+	fprintf(outfile,"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"%f\" height=\"%f\">\n",width,height);
+}
+void svg_tail()
+{
+	fprintf(outfile,"</svg>");
+	fclose(outfile);
+}
+void svg_controlprocedure(bool irestriction=0)
+{
+	void * dummy;
 	multilist<graphic_instance> * i_graphic_multilist=retrievemultilist<graphic_instance>();
-	initZlist();
-	int ilv1;
-	int currentArrowHeadType;
-	int currentArrowHeadTail;
-	int currentArrowHeadHead;
-	float tllinedist;
-	float tllefttan;
-	float tlrighttan;
-	float tllefttan2;
-	float tlrighttan2;
-	int currentLineType;//0: normal 5: Bold 0x100: Double
-	float textdeltax,textdeltay;
-	char specialS;
-	char specialE;
-	int iDisplaytype1;
-	int tllast;
-	char string_resorted;
-	char ifsmat;//0: nothing //1: on a subscript number; 2: on text; 3: on a superscript
-	curve_instance * i_curve_instance;
-	graphic_instance * i_graphic_instance;
-	b_instance * i_b_instance;
+	cdx_Rectangle *tlBoundingBox;
 	for (ilv1=0;ilv1<bufferlistsize*multilistZcount;ilv1++)
 	{
 		if (objectZorderlist[ilv1].listnr!=-1)
 		{
+			basicmultilist * tlcurrentmultilist=(basicmultilist*)multilistlist.instances[objectZorderlist[ilv1].listnr];
 			index_in_buffer=objectZorderlist[ilv1].nr;
+			if (irestriction)
+			{
+				void * tlcurrentinstance=((char*)((*tlcurrentmultilist).pointer))+((*tlcurrentmultilist).itemsize)*index_in_buffer;
+				int ipropertyoffset=(tlcurrentmultilist)->getproperties("BoundingBox",(CDXMLREAD_functype*)&dummy);
+				if (ipropertyoffset!=-1)
+				{
+					tlBoundingBox=(cdx_Rectangle*)(((char*)tlcurrentinstance)+ipropertyoffset);
+					canonicalizeboundingbox(tlBoundingBox);//Note: changes Data!TODO****
+					if ((*tlBoundingBox).left<SVG_currentbasex) {goto svg_main_loop;}
+					if ((*tlBoundingBox).top<SVG_currentbasey) {goto svg_main_loop;}
+					if ((*tlBoundingBox).left>SVG_currentfringex) {goto svg_main_loop;}
+					if ((*tlBoundingBox).top>SVG_currentfringey) {goto svg_main_loop;}
+					printf("%i,%i",(*tlBoundingBox).top,(*tlBoundingBox).left);
+				}
+				else
+				{
+					if (tlcurrentmultilist==glob_b_multilist)
+					{
+//						cdx_Point2D tlp2d=(*glob_n_multilist).bufferlist[(*((b_instance*)tlcurrentinstance)).B].p;
+						cdx_Point2D tlp2d=(*glob_n_multilist).bufferlist[bond_actual_node[index_in_buffer].start].p;
+						if (tlp2d.x<SVG_currentbasex) {goto svg_main_loop;}
+						if (tlp2d.y<SVG_currentbasey) {goto svg_main_loop;}
+						if (tlp2d.x>SVG_currentfringex) {goto svg_main_loop;}
+						if (tlp2d.y>SVG_currentfringey) {goto svg_main_loop;}
+					}
+				}
+			}
 			if (multilistlist.instances[objectZorderlist[ilv1].listnr]==glob_curve_multilist) goto svg_main_curve;
 			if (multilistlist.instances[objectZorderlist[ilv1].listnr]==glob_graphic_multilist) goto svg_main_graphic;
 			if (multilistlist.instances[objectZorderlist[ilv1].listnr]==glob_b_multilist) goto svg_main_b;
@@ -1138,7 +1175,7 @@ void svg_main(const char * filename)
 			case 1 : strcpy(colorstring2,colorstring);goto radical;break;
 		}
 		charge:
-		fprintf(outfile,"<circle cx=\"%f\" cy=\"%f\" r=\"6\" stroke=\"#%s\" fill=\"#%s\"/>",iBBX.left-SVG_currentbasex,iBBX.top-SVG_currentbasey,colorstring,colorstring2);
+		fprintf(outfile,"<circle cx=\"%f\" cy=\"%f\" r=\"6\" stroke=\"#%s\" fill=\"#%s\"/>",iBBX.left+SVG_currentshiftx,iBBX.top+SVG_currentshifty,colorstring,colorstring2);
 		expressline(iBBX.left-3,iBBX.top,iBBX.left+3,iBBX.top);
 		if ((*i_graphic_instance).SymbolType==4)
 		{
@@ -1146,7 +1183,7 @@ void svg_main(const char * filename)
 		}
 		goto GraphicType7done;
 		radical:
-		fprintf(outfile,"<circle cx=\"%f\" cy=\"%f\" r=\"4\" stroke=\"#%s\" fill=\"#%s\"/>",iBBX.left-SVG_currentbasex,iBBX.top-SVG_currentbasey,colorstring,colorstring2);
+		fprintf(outfile,"<circle cx=\"%f\" cy=\"%f\" r=\"4\" stroke=\"#%s\" fill=\"#%s\"/>",iBBX.left+SVG_currentshiftx,iBBX.top+SVG_currentshifty,colorstring,colorstring2);
 		GraphicType7done:
 		;
 	}
@@ -1273,7 +1310,7 @@ iBBX.right+ibonddist2*cos(cangle)+ibonddist4*(cos(cangle)-(cos(langle)*tlrightta
 	colornr=((*glob_t_multilist).bufferlist)[index_in_buffer].color;
 	get_colorstring_passive(colornr);
 
-	fprintf(outfile,"<text fill=\"%s\" %s stroke=\"none\" transform=\"translate(%f,%f)\" font-size=\"%f\">",colorstring,((*glob_t_multilist).bufferlist[index_in_buffer].LabelAlignment==-1) ? "text-anchor=\"end\" text-align=\"end\"" : "",((*glob_t_multilist).bufferlist)[index_in_buffer].p.x-SVG_currentbasex,((*glob_t_multilist).bufferlist)[index_in_buffer].p.y-SVG_currentbasey,atomfontheight);
+	fprintf(outfile,"<text fill=\"%s\" %s stroke=\"none\" transform=\"translate(%f,%f)\" font-size=\"%f\">",colorstring,((*glob_t_multilist).bufferlist[index_in_buffer].LabelAlignment==-1) ? "text-anchor=\"end\" text-align=\"end\"" : "",((*glob_t_multilist).bufferlist)[index_in_buffer].p.x+SVG_currentshiftx,((*glob_t_multilist).bufferlist)[index_in_buffer].p.y+SVG_currentshifty,atomfontheight);
 	intl start,end;
 	start=(*(((*glob_t_multilist).bufferlist)[index_in_buffer].s)).start_in_it;
 	end=start+(*(((*glob_t_multilist).bufferlist)[index_in_buffer].s)).count_in_it;
@@ -1475,6 +1512,15 @@ iBBX.right+ibonddist2*cos(cangle)+ibonddist4*(cos(cangle)-(cos(langle)*tlrightta
 	fprintf(outfile,"</text>\n");
 	goto svg_main_loop;
 	svg_main_end:
-	fprintf(outfile,"</svg>");
-	fclose(outfile);
+	;
+}
+void svg_main(const char * filename)
+{
+	svg_head(filename,SVG_width-SVG_ileft,SVG_height-SVG_itop);
+	SVG_currentshiftx=SVG_ileft;
+	SVG_currentshifty=SVG_itop;
+	SVG_currentfringex=((unsigned int)-1)>>1;
+	SVG_currentfringey=((unsigned int)-1)>>1;
+	svg_controlprocedure();
+	svg_tail();
 }

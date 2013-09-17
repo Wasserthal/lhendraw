@@ -40,6 +40,10 @@ struct stringstruct
 {
 	char a[stringlength+1];
 	stringstruct(const char * in) {strcpy(a,in);}
+	int getproperties(const char * name,CDXMLREAD_functype * delegateoutput)
+	{
+		fprintf(stderr,"Programming error! You asked for the properties of a stringstruct!");
+	};
 	stringstruct(){};
 };
 
@@ -76,6 +80,11 @@ class basicmultilist
 	intl index;
 	void * pointer;
 	basicmultilist(){pointer=NULL;itemsize=0;};
+	virtual int getproperties(const char * name,CDXMLREAD_functype * delegateoutput)
+	{
+		fprintf(stderr,"Programming error! You asked for the properties of a basic multilist!");
+		exit(1);
+	}
 	~basicmultilist(){};
 };
 template <class whatabout> class multilist : public basicmultilist
@@ -113,6 +122,10 @@ template <class whatabout> class multilist : public basicmultilist
 		(*input).count_in_it=0;
 		dependants[ourcount]=input;
 		return ourcount++;
+	}
+	virtual int getproperties(const char * name,CDXMLREAD_functype * delegateoutput)
+	{
+		(*((whatabout*)0)).whatabout::getproperties(name,delegateoutput);
 	}
 	~multilist()
 	{
@@ -641,6 +654,7 @@ void input_fsm(FILE* infile)
 }
 
 #ifndef PARSECDXML_IS_AUXPROG
+#include "makeinf.hxx"
 int main(int argc, char * * argv)
 {
 	setvbuf(stdout,NULL,_IONBF,0);
@@ -656,7 +670,16 @@ int main(int argc, char * * argv)
 	}
 	else
 	{
-		svg_main(argv[2]);
+		if (argc==3)
+		{
+			svg_main(argv[2]);
+		}
+		if (argc>3)
+		{
+			svg_findaround();
+			getframes();
+			svg_main2(argv[2],argc-3,argv+3);
+		}
 	}
 	exit(0);
 	return 0;

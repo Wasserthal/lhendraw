@@ -29,6 +29,7 @@ As long the objects are only appended on the end, we can do a list sort which wo
 	int last;//-1 means first
 	int Z;//Or better let that out? either link ratio or actual order will be relevant!
 }multi_objref;*/
+int minusoneint=-1;
 typedef struct multi_objref
 {
 	int listnr;//number of multilist, -1 means empty 
@@ -36,6 +37,14 @@ typedef struct multi_objref
 }multi_objref;
 #define multilistZcount 100//TODO: calculate properly
 multi_objref objectZorderlist[bufferlistsize*multilistZcount];
+multi_objref sortarr2[2][bufferlistsize*multilistZcount];
+typedef struct multi_Z_geometry_
+{
+	char * offset;
+	int elementsize;
+}multi_Z_geometry_;
+multi_Z_geometry_ multi_Z_geometry[multilistlistlength];
+
 /*
 how is the depth order list created for the first time?
 The objects are dumbly listed. Then we do a merge sort.
@@ -82,44 +91,23 @@ char insertinZlist(int tlthisZ, int listnr, int nr)
 multi_objref sortlist()
 {
 }
-multi_objref initZlist()
-{
-	char iZorderbroken=0;
-	for (int ilv1=0;ilv1<bufferlistsize*multilistZcount;ilv1++)
-	{
-		objectZorderlist[ilv1].nr=-1;objectZorderlist[ilv1].listnr=-1;
-/*		objectZorderlist[ilv1].last=ilv1-1;objectZorderlist[ilv1].next=ilv1+1;*/
-	}
-/*	objectZorderlist[0].last=-1;
-	objectZorderlist[bufferlistsize*multilistZcount-1].last=-1;*/
- 	for (int ilv1=0;ilv1<xml_set_register_count;ilv1++)
-	{
-		CDXMLREAD_functype thisfunc;
-		int propertypos;
-		basic_xml_element_set * thisset=((((basic_xml_element_set**)xml_set_register)[ilv1]));
-		propertypos=thisset->getproperties("Z",&thisfunc);
-		basicmultilist * thismultilist=((*thisset).hismultilist);
-		if (propertypos!=-1)
-		{
-			for (int ilv1=0;ilv1<(*thismultilist).filllevel;ilv1++)
-			{
-				int tlthisZ=*(int*)((((char*)((*thismultilist).pointer)))+ilv1*((*thismultilist).itemsize)+propertypos);
-				if (!insertinZlist(tlthisZ, (*thismultilist).index,ilv1))
-				{
-					if (somewhereinZlist((*thismultilist).index,ilv1))
-					{
-						iZorderbroken=1;
-					}
-					else
-					{
-						fprintf(stderr,"memory overflow");
-					}
-				}
-			}
-		}
-	}
-}
-/*
+#define janitor_getZ(MACROPARAM) \
+({\
+	unsigned int * backval;\
+	multi_objref * pointer;\
+	pointer=&(MACROPARAM);\
+	if ((*pointer).listnr!=-1)\
+	{\
+		multi_Z_geometry_ * pointer2;\
+		pointer2=multi_Z_geometry+(*pointer).listnr;\
+		backval=(unsigned int *)((int*)((*pointer2).offset+((*pointer2).elementsize)*(*pointer).nr));\
+	}\
+	else\
+	{\
+		backval=(unsigned int*)&minusoneint;\
+	}\
+	backval;\
+})
 void mergesortrecursion(int single,int max,char ibool)
 {
 	int usedup1,usedup2;int remainingright;
@@ -148,8 +136,7 @@ void mergesortrecursion(int single,int max,char ibool)
 		{
 			goto finishleft;
 		}
-		
-		if (atoms[sortarr2[ibool][ilv1+usedup1]].pos.a[2].C>atoms[sortarr2[ibool][ilv1+single+usedup2]].pos.a[2].C)
+		if (*janitor_getZ(sortarr2[ibool][ilv1+usedup1])<*janitor_getZ(sortarr2[ibool][ilv1+single+usedup2]))
 		{
 			sortarr2[ibool ^ 1][ilv1+done]=sortarr2[ibool][ilv1+usedup1];
 			usedup1++;
@@ -184,13 +171,13 @@ void mergesortrecursion(int single,int max,char ibool)
 void mergesort()
 {
 	int ilv1;
-	for (ilv1=0;ilv1<atom_count;ilv1++)
+	for (ilv1=0;ilv1<bufferlistsize*multilistZcount;ilv1++)
 	{
-		sortarr2[0][ilv1]=ilv1;
+		sortarr2[0][ilv1]=objectZorderlist[ilv1];
 	}
 	int t=1;int n=0;
 	int subt;
-	while (t<atom_count)
+	while (t<bufferlistsize*multilistZcount)
 	{
 		t*=2;
 		n++;
@@ -198,13 +185,69 @@ void mergesort()
 	subt=1;
 	for (ilv1=0;ilv1<n;ilv1++)
 	{
-		mergesortrecursion(subt,atom_count, (ilv1 & 1));
+		mergesortrecursion(subt,bufferlistsize*multilistZcount, (ilv1 & 1));
 		subt*=2;
 	}
-	for (int ilv2=0;ilv2<atom_count;ilv2++)
+	for (int ilv2=0;ilv2<bufferlistsize*multilistZcount;ilv2++)
 	{
-		sortarr[ilv2]=sortarr2[(ilv1 & 1)][ilv2];
+		objectZorderlist[ilv2]=sortarr2[(ilv1 & 1)][ilv2];
 	}
-	sortarr_count=atom_count;
 }
-*/
+
+void reenumerate()
+{
+	for (int ilv1=0;ilv1<bufferlistsize*multilistZcount;ilv1++)
+	{
+		int * pointer=(int*)janitor_getZ(objectZorderlist[ilv1]);
+		if (pointer!=&minusoneint)
+		{
+			*pointer=ilv1;
+		}
+	}
+}
+
+multi_objref initZlist()
+{
+	char iZorderbroken=0;
+	for (int ilv1=0;ilv1<bufferlistsize*multilistZcount;ilv1++)
+	{
+		objectZorderlist[ilv1].nr=-1;objectZorderlist[ilv1].listnr=-1;
+/*		objectZorderlist[ilv1].last=ilv1-1;objectZorderlist[ilv1].next=ilv1+1;*/
+	}
+/*	objectZorderlist[0].last=-1;
+	objectZorderlist[bufferlistsize*multilistZcount-1].last=-1;*/
+ 	for (int ilv1=0;ilv1<xml_set_register_count;ilv1++)
+	{
+		CDXMLREAD_functype thisfunc;
+		int propertypos;
+		basic_xml_element_set * thisset=((((basic_xml_element_set**)xml_set_register)[ilv1]));
+		propertypos=thisset->getproperties("Z",&thisfunc);
+		basicmultilist * thismultilist=((*thisset).hismultilist);
+		if (propertypos!=-1)
+		{
+			multi_Z_geometry[ilv1].offset=(char*)(((*thismultilist)).pointer)+propertypos;
+			multi_Z_geometry[ilv1].elementsize=(*thismultilist).itemsize;
+			for (int ilv1=0;ilv1<(*thismultilist).filllevel;ilv1++)
+			{
+				int tlthisZ=*(int*)((((char*)((*thismultilist).pointer)))+ilv1*((*thismultilist).itemsize)+propertypos);
+				if (!insertinZlist(tlthisZ, (*thismultilist).index,ilv1))
+				{
+					if (somewhereinZlist((*thismultilist).index,ilv1))
+					{
+						iZorderbroken=1;
+					}
+					else
+					{
+						fprintf(stderr,"memory overflow");
+					}
+				}
+			}
+		}
+	}
+	if (iZorderbroken)
+	{
+		mergesort();
+		reenumerate();
+	}
+}
+

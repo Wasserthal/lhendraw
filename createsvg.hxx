@@ -1010,13 +1010,13 @@ void svg_controlprocedure(bool irestriction=0)
 		currentArrowHeadType=(*i_curve_instance).ArrowheadType;
 		currentArrowHeadHead=(*i_curve_instance).ArrowheadHead;
 		currentArrowHeadTail=(*i_curve_instance).ArrowheadTail;
-		iBBX.left=(*i_curve_instance).CurvePoints.a[1].x;
-		iBBX.top=(*i_curve_instance).CurvePoints.a[1].y;
+		iBBX.left=(*i_curve_instance).CurvePoints.a[(*i_curve_instance).CurvePoints.count-2].x;
+		iBBX.top=(*i_curve_instance).CurvePoints.a[(*i_curve_instance).CurvePoints.count-2].y;
+		iBBX.right=(*i_curve_instance).CurvePoints.a[1].x;
+		iBBX.bottom=(*i_curve_instance).CurvePoints.a[1].y;
 
-		iBBX.right=(*i_curve_instance).CurvePoints.a[(*i_curve_instance).CurvePoints.count-2].x;
-		iBBX.bottom=(*i_curve_instance).CurvePoints.a[(*i_curve_instance).CurvePoints.count-2].y;
-		langle=getangle((*i_curve_instance).CurvePoints.a[(*i_curve_instance).CurvePoints.count-1].x-(*i_curve_instance).CurvePoints.a[(*i_curve_instance).CurvePoints.count-2].x,(*i_curve_instance).CurvePoints.a[(*i_curve_instance).CurvePoints.count-1].y-(*i_curve_instance).CurvePoints.a[(*i_curve_instance).CurvePoints.count-2].y);
-		otherlangle=getangle((*i_curve_instance).CurvePoints.a[0].x-(*i_curve_instance).CurvePoints.a[1].x,(*i_curve_instance).CurvePoints.a[0].y-(*i_curve_instance).CurvePoints.a[1].y);
+		langle=getangle((*i_curve_instance).CurvePoints.a[(*i_curve_instance).CurvePoints.count-2].x-(*i_curve_instance).CurvePoints.a[(*i_curve_instance).CurvePoints.count-1].x,(*i_curve_instance).CurvePoints.a[(*i_curve_instance).CurvePoints.count-2].y-(*i_curve_instance).CurvePoints.a[(*i_curve_instance).CurvePoints.count-1].y);
+		otherlangle=getangle((*i_curve_instance).CurvePoints.a[1].x-(*i_curve_instance).CurvePoints.a[0].x,(*i_curve_instance).CurvePoints.a[1].y-(*i_curve_instance).CurvePoints.a[0].y);
 		cangle=langle+Pi/2;
 		othercangle=otherlangle+Pi/2;
 		drawarrheads(iBBX,langle,cangle,otherlangle,othercangle,currentArrowHeadType,currentArrowHeadTail,currentArrowHeadHead,tllinedist);

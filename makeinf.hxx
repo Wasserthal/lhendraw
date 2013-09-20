@@ -312,12 +312,12 @@ void svg_main2(const char * filename,int count,char * * args)
 {
 	char ifilename[stringlength];
 	strcpy(ifilename,filename);
-	strcat(ifilename,"(");
+/*	strcat(ifilename,"(");
 	for (int ilv1=0;ilv1<count;ilv1++)
 	{
 		sprintf(ifilename+strlen(ifilename),(ilv1)?"+%s":"%s",args[ilv1]);
 	}
-	strcat(ifilename,")");
+	strcat(ifilename,")");*/
 	main_multisvg(count,args);
 	svg_head(filename,makeinf_sortiment.width,makeinf_sortiment.height);
 	for (int ilv1=0;ilv1<count;ilv1++)

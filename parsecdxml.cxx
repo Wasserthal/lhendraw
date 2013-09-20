@@ -655,6 +655,8 @@ void input_fsm(FILE* infile)
 
 #ifndef PARSECDXML_IS_AUXPROG
 #include "makeinf.hxx"
+char pseudoparams[255*10+1];
+char * pseudoparamsidx[255];
 int main(int argc, char * * argv)
 {
 	setvbuf(stdout,NULL,_IONBF,0);
@@ -672,7 +674,25 @@ int main(int argc, char * * argv)
 	{
 		if (argc==3)
 		{
-			svg_main(argv[2]);
+			svg_findaround();
+			getframes();
+			if (makeinf_frame_count>0)
+			{
+				pseudoparams[0]=0;
+				int tlpos=0;
+				for (int ilv1=0;ilv1<makeinf_frame_count;ilv1++)
+				{
+					int tlbackval;
+					pseudoparamsidx[ilv1]=(pseudoparams+tlpos);
+					sprintf((pseudoparams+tlpos),"%i%n",ilv1+1,&tlbackval);
+					tlpos+=tlbackval+1;
+				}
+				svg_main2(argv[2],makeinf_frame_count,pseudoparamsidx);
+			}
+			else
+			{
+				svg_main(argv[2]);
+			}
 		}
 		if (argc>3)
 		{

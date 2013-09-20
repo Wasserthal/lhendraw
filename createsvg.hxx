@@ -926,7 +926,7 @@ void svg_controlprocedure(bool irestriction=0)
 {
 	void * dummy;
 	multilist<graphic_instance> * i_graphic_multilist=retrievemultilist<graphic_instance>();
-	cdx_Rectangle *tlBoundingBox;
+	cdx_Rectangle tlBoundingBox;
 	for (ilv1=0;ilv1<bufferlistsize*multilistZcount;ilv1++)
 	{
 		if (objectZorderlist[ilv1].listnr!=-1)
@@ -936,22 +936,32 @@ void svg_controlprocedure(bool irestriction=0)
 			if (irestriction)
 			{
 				void * tlcurrentinstance=((char*)((*tlcurrentmultilist).pointer))+((*tlcurrentmultilist).itemsize)*index_in_buffer;
+				if (tlcurrentmultilist==glob_curve_multilist)
+				{
+					cdx_Bezierpoints * tlBez=&((*glob_curve_multilist).bufferlist[bond_actual_node[index_in_buffer].start].CurvePoints);
+					for (int ilv2=1;ilv2<(*tlBez).count-1;ilv2+=3)
+					{
+						cdx_Point2D tlp2d=(*tlBez).a[ilv2];
+						if (tlp2d.x<SVG_currentbasex) {goto svg_main_loop;}
+						if (tlp2d.y<SVG_currentbasey) {goto svg_main_loop;}
+						if (tlp2d.x>SVG_currentfringex) {goto svg_main_loop;}
+						if (tlp2d.y>SVG_currentfringey) {goto svg_main_loop;}
+					}
+				}
 				int ipropertyoffset=(tlcurrentmultilist)->getproperties("BoundingBox",(CDXMLREAD_functype*)&dummy);
 				if (ipropertyoffset!=-1)
 				{
-					tlBoundingBox=(cdx_Rectangle*)(((char*)tlcurrentinstance)+ipropertyoffset);
-					canonicalizeboundingbox(tlBoundingBox);//Note: changes Data!TODO****
-					if ((*tlBoundingBox).left<SVG_currentbasex) {goto svg_main_loop;}
-					if ((*tlBoundingBox).top<SVG_currentbasey) {goto svg_main_loop;}
-					if ((*tlBoundingBox).left>SVG_currentfringex) {goto svg_main_loop;}
-					if ((*tlBoundingBox).top>SVG_currentfringey) {goto svg_main_loop;}
-					printf("%i,%i",(*tlBoundingBox).top,(*tlBoundingBox).left);
+					tlBoundingBox=*((cdx_Rectangle*)(((char*)tlcurrentinstance)+ipropertyoffset));
+					canonicalizeboundingbox(&tlBoundingBox);
+					if (tlBoundingBox.left<SVG_currentbasex) {goto svg_main_loop;}
+					if (tlBoundingBox.top<SVG_currentbasey) {goto svg_main_loop;}
+					if (tlBoundingBox.left>SVG_currentfringex) {goto svg_main_loop;}
+					if (tlBoundingBox.top>SVG_currentfringey) {goto svg_main_loop;}
 				}
 				else
 				{
 					if (tlcurrentmultilist==glob_b_multilist)
 					{
-//						cdx_Point2D tlp2d=(*glob_n_multilist).bufferlist[(*((b_instance*)tlcurrentinstance)).B].p;
 						cdx_Point2D tlp2d=(*glob_n_multilist).bufferlist[bond_actual_node[index_in_buffer].start].p;
 						if (tlp2d.x<SVG_currentbasex) {goto svg_main_loop;}
 						if (tlp2d.y<SVG_currentbasey) {goto svg_main_loop;}
@@ -1516,9 +1526,10 @@ iBBX.right+ibonddist2*cos(cangle)+ibonddist4*(cos(cangle)-(cos(langle)*tlrightta
 }
 void svg_main(const char * filename)
 {
+	svg_findaround();
 	svg_head(filename,SVG_width-SVG_ileft,SVG_height-SVG_itop);
-	SVG_currentshiftx=SVG_ileft;
-	SVG_currentshifty=SVG_itop;
+	SVG_currentshiftx=-SVG_ileft;
+	SVG_currentshifty=-SVG_itop;
 	SVG_currentfringex=((unsigned int)-1)>>1;
 	SVG_currentfringey=((unsigned int)-1)>>1;
 	svg_controlprocedure();

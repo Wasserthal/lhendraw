@@ -1,0 +1,7 @@
+bond_actual_instance //entirely supersedes any b_instance. contains therefore any bond-relevant stuff.
+atom_actual_instance //entirely supersedes any n_instance. Contains atom text buffer.
+graphic +bezierbuffer//contains bézier curves, too!
+arrow_actual_instance+bezierbuffer //contains bézier curves, too!
+text_actual_instance+textspan_acutal_instance+textbuffer
+picture_actual_instance //for pixpictures only. contains the data. Other stuff dealt as graphic
+spectum_actual_instance //for spectral curves. contains the data. Other stuff dealt as graphic

@@ -2,3 +2,7 @@ filestructure_maker
 filestructure.hxx
 a.out
 parsexml
+*.cdxml
+*.patch
+*.svg
+makeinf

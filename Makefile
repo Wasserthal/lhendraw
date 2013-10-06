@@ -7,3 +7,5 @@ filestructure.hxx: filestructure_maker filestructure.draft
 	./filestructure_maker
 makeinf_test: makeinf.hxx makeinf_test.cxx cxxdata.h lendefs.h
 	g++ -g -O0 -std=c++0x -Wno-invalid-offsetof makeinf_test.cxx -o makeinftest -D DEBUG -Wno-format
+sdl: filestructure.hxx parsecdxml.cxx cxxdata.h enums.hxx lendefs.h janitor.hxx
+	gcc -std=c99 -m64 lhendraw.cxx -o sdl.out -I/usr/include/SDL -L/usr/lib64 -lSDL -lm

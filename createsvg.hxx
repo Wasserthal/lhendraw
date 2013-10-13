@@ -744,6 +744,8 @@ void calcdelta(float * x1,float * y1,float inputx,float inputy)
 }
 void printformatted(const char * iinput,int imode,int start,int end)
 {
+	int ilv4=start;
+	thatwasatemporaryskip:
 	if (imode==1)
 	{
 		fprintf(outfile,"<tspan dy=\"+3\" font-size=\"14\" style=\"fill:#%s\">",colorstring);
@@ -756,10 +758,16 @@ void printformatted(const char * iinput,int imode,int start,int end)
 	{
 		fprintf(outfile,"<tspan dy=\"-3\" font-size=\"14\" style=\"fill:#%s\">",colorstring);
 	}
-	for (int ilv4=start;ilv4<end;ilv4++)
+	for (;ilv4<end;ilv4++)
 	{
+		if (iinput[ilv4]==10)
+		{
+			ilv4++;
+			goto skipfornow;
+		}
 		fprintf(outfile,"%c",iinput[ilv4]);
 	}
+	skipfornow:
 	fprintf(outfile,"</tspan>",colorstring);
 	if (imode==1)
 	{
@@ -770,6 +778,7 @@ void printformatted(const char * iinput,int imode,int start,int end)
 		fprintf(outfile,"<tspan dy=\"3\">&#8288;</tspan>");
 	}
 	fprintf(outfile,"\n");
+	if (ilv4<end) {fprintf(outfile,"<tspan dy=\"20\" x=\"0\">&#8288;</tspan>");goto thatwasatemporaryskip;}//a line break;
 }
 
 void svg_findaround()
@@ -1514,9 +1523,10 @@ iBBX.right+ibonddist2*cos(cangle)+ibonddist4*(cos(cangle)-(cos(langle)*tlrightta
 		{
 			printf("Passive:%s",finalstring);
 			int tlformlabeltype=((*glob_s_multilist).bufferlist)[ilv2].face;
-			fprintf(outfile,"<tspan %s style=\"fill:#%s\">%s</tspan>%s\n",
+			/*fprintf(outfile,"<tspan %s style=\"fill:#%s\">%s</tspan>%s\n",
 			(tlformlabeltype & 0x20) ? "dy=\"+3\" font-size=\"14\"" : ((tlformlabeltype & 0x40) ? "dy=\"-3\" font-size=\"14%\"":""),
-			colorstring,finalstring,(tlformlabeltype & 0x20)?"<tspan dy=\"-3\"/>":((tlformlabeltype & 0x40)?"<tspan dy=\"3\"/>":""));
+			colorstring,finalstring,(tlformlabeltype & 0x20)?"<tspan dy=\"-3\"/>":((tlformlabeltype & 0x40)?"<tspan dy=\"3\"/>":""));*/
+			printformatted(finalstring,((tlformlabeltype & 0x20) ? 1 : 0) | ((tlformlabeltype & 0x40) ? 4 : 0),0,strlen(finalstring));
 		}
 	}
 	fprintf(outfile,"</text>\n");

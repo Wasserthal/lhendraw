@@ -8,11 +8,30 @@
 int main(int argc,char ** argv)
 {
 	makeinf_sortimentcount=0;
+	#ifndef STRIP_ENDING
 	makeinf(NULL,argv[1]);
+	#else
+	char cutstring[512];
+	strcpy(cutstring,argv[1]);
+	for (int ilv1=strlen(cutstring)-1;ilv1>0;ilv1--)
+	{
+		if (cutstring[ilv1]='.')
+		{
+			cutstring[ilv1]=0;
+			goto cutit;
+		}
+	}
+	cutit:
+	makeinf(NULL,cutstring);
+	#endif
+	#ifndef MACHINE_READABLE
 	printf("Frames:%i,Sortiments:%i\nWidth:%f,Height:%f\n",makeinf_frame_count,makeinf_sortimentcount,makeinf_width,makeinf_height);
 	printf("Listing Frames:");
 	for (int ilv1=0;ilv1<makeinf_frame_count;ilv1++)
 	{
 		printf("number:%i,X:%f,Y:%f,width:%f,height:%f\n",makeinf_frame[ilv1].number,makeinf_frame[ilv1].posx,makeinf_frame[ilv1].posy,makeinf_frame[ilv1].width,makeinf_frame[ilv1].height);
 	}
+	#else
+	printf("%i %i",(int)(makeinf_width*3),(int)(makeinf_height*3));
+	#endif
 }

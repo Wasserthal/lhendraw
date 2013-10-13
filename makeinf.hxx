@@ -184,7 +184,6 @@ void makeinf(const char * cdxname,const char * name)
 	INFfile=fopen(truefilename,"r");
 	if (INFfile!=NULL)
 	{
-		printf("Im RAAAAVING");
 		fread(&makeinf_frame_count,4,1,INFfile);
 		fread(&makeinf_sortimentcount,4,1,INFfile);
 		fread(&makeinf_width,sizeof(float),1,INFfile);
@@ -279,6 +278,7 @@ void makeinf(const char * cdxname,const char * name)
 		fwrite(&makeinf_sortimentcount,4,1,INFfile);
 	}
 }
+#ifndef CDXMAKEINF_READONLY
 
 void main_multisvg(int icount,char * * args)//tetrify
 {
@@ -343,3 +343,4 @@ void svg_main2(const char * filename,int count,char * * args)
 	}
 	svg_tail();
 }
+#endif

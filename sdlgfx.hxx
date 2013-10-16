@@ -23,7 +23,7 @@ _u32 * screen;
 _u32 * canvas;
 _u32 SDL_color;
 
-void get_colorstringv(int number)
+int get_colorstringv(int number)
 {
 	if (number==0)
 	{
@@ -238,6 +238,7 @@ void expresstriangle()
 }
 void expresstriangle(intl ifx1,intl ify1,intl ifx2,intl ify2,intl ifx3,intl ify3)
 {
+	float brakelist[10];
 	intl ix1;
 	intl iy1;
 	intl ix2;
@@ -251,6 +252,7 @@ void expresstriangle(intl ifx1,intl ify1,intl ifx2,intl ify2,intl ifx3,intl ify3
 	ix3=(ifx3-SDL_scrollx)*SDL_zoomx;
 	iy3=(ify3-SDL_scrolly)*SDL_zoomy;
 	intl iminx,imaxx,iminy,imaxy;
+	float m1,m2,m3;
 	if (iminx>ix1)iminx=ix1;
 	if (iminx>ix2)iminx=ix2;
 	if (iminx>ix3)iminx=ix3;
@@ -263,6 +265,30 @@ void expresstriangle(intl ifx1,intl ify1,intl ifx2,intl ify2,intl ifx3,intl ify3
 	if (imaxy<iy1)imaxy=iy1;
 	if (imaxy<iy2)imaxy=iy2;
 	if (imaxy<iy3)imaxy=iy3;
+	if (iminx<0)iminx=0;
+	if (imaxx>gfx_canvassizex)imaxx=gfx_canvassizex;
+	if (iminy<0)iminy=0;
+	if (imaxy>gfx_canvassizey)imaxy=gfx_canvassizey;
+	if (imaxx<iminx){return 0;}
+	if (imaxy<iminy){return 0;}
+	{
+		int tlvert;
+		tlvert=(iy2-iy1);
+		if (abs(tlvert)>=1)
+		m1=(ix2-ix1)/tlvert;
+	}
+	for (int ilv1=iminy;ilv1<=imaxy;ilv1++)
+	{
+		ibrakelist_count=0;
+		if ((iy1<ilv1) && (iy2>=ilv1)) || ((iy2<ilv1) && (iy1>=ilv1))
+		{
+			brakelist[ibrakelist_count++]=m1*(ilv1-iy1)+ix1;
+		}
+		for (int ilv1=iminx;ilv1<=imaxx;ilv1++)
+		{
+			
+		}
+	}
 }
 void sdl_output()
 {

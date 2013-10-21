@@ -340,6 +340,10 @@ void svg_main2(const char * filename,int count,char * * args)
 		SVG_currentfringex=makeinf_frame[tlnr].endx;
 		SVG_currentfringey=makeinf_frame[tlnr].endy;
 		svg_controlprocedure(1);
+		if (count>1)
+		{
+			fprintf(outfile,"<text fill=\"#000000\" stroke=\"none\" transform=\"translate(%f,%f)\" font-size=\"36\" font-weight=\"bold\"><tspan>%c)</tspan></text>",(float)makeinf_sortiment.sortiment[ilv1].posx,(float)makeinf_sortiment.sortiment[ilv1].posy+30,'a'+ilv1);
+		}
 	}
 	svg_tail();
 }

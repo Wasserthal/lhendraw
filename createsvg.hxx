@@ -750,21 +750,21 @@ void calcdelta(float * x1,float * y1,float inputx,float inputy)
 		(*y1)=8.0*((inputy>0) ? 1.0 :-1.0);
 	}
 }
-void printformatted(const char * iinput,int imode,int start,int end)
+void printformatted(const char * iinput,const char * parms,int imode,int start,int end)
 {
 	int ilv4=start;
 	thatwasatemporaryskip:
 	if (imode==1)
 	{
-		fprintf(outfile,"<tspan dy=\"+3\" font-size=\"14\" style=\"fill:#%s\">",colorstring);
+		fprintf(outfile,"<tspan dy=\"+3\" %s font-size=\"14\" style=\"fill:#%s\">",parms,colorstring);
 	}
 	if ((imode==2) || (imode==0))
 	{
-		fprintf(outfile,"<tspan style=\"fill:#%s\">",colorstring);
+		fprintf(outfile,"<tspan %s style=\"fill:#%s\">",parms,colorstring);
 	}
 	if (imode==4)
 	{
-		fprintf(outfile,"<tspan dy=\"-3\" font-size=\"14\" style=\"fill:#%s\">",colorstring);
+		fprintf(outfile,"<tspan dy=\"-3\" %s font-size=\"14\" style=\"fill:#%s\">",parms,colorstring);
 	}
 	for (;ilv4<end;ilv4++)
 	{
@@ -779,11 +779,11 @@ void printformatted(const char * iinput,int imode,int start,int end)
 	fprintf(outfile,"</tspan>",colorstring);
 	if (imode==1)
 	{
-		fprintf(outfile,"<tspan dy=\"-3\">&#8288;</tspan>");
+		fprintf(outfile,"<tspan %s dy=\"-3\">&#8288;</tspan>",parms);
 	}
 	if (imode==4)
 	{
-		fprintf(outfile,"<tspan dy=\"3\">&#8288;</tspan>");
+		fprintf(outfile,"<tspan %s dy=\"3\">&#8288;</tspan>",parms);
 	}
 	fprintf(outfile,"\n");
 	if (ilv4<end) {fprintf(outfile,"<tspan dy=\"20\" x=\"0\">&#8288;</tspan>");goto thatwasatemporaryskip;}//a line break;
@@ -926,6 +926,10 @@ graphic_instance * i_graphic_instance;
 arrow_instance * i_arrow_instance;
 b_instance * i_b_instance;
 n_instance * startnode, * endnode;
+char STRINGOUTPUT_emptyformat[]="";
+char STRINGOUTPUT_bold[]="font-weight=\"bold\" ";
+char STRINGOUTPUT_LENNARDBOLD[]="font-weight=\"bold\" font-size=\"24\" ";
+char iparmsstring[stringlength+1];
 void svg_head(const char * filename,float width,float height)
 {
 	outfile=fopen(filename,"w+");
@@ -1400,6 +1404,20 @@ iBBX.right+ibonddist2*cos(cangle)+ibonddist4*(cos(cangle)-(cos(langle)*tlrightta
 		fontnr=((*glob_s_multilist).bufferlist)[ilv2].font;
 		font_instance * i_font_instance=getfont(fontnr);
 		finalstring=(((*glob_s_multilist).bufferlist))[ilv2].PCTEXT.a;
+		char * iparms;
+		iparms=STRINGOUTPUT_emptyformat;
+		{
+			#ifdef LENNARD_HACK
+			if ((((*glob_s_multilist).bufferlist))[ilv2].size>20.0)
+			{
+				iparms=STRINGOUTPUT_LENNARDBOLD;
+			}
+			#endif
+			#ifdef CAMBRIDGESOFT_CONFORMING
+			sprintf(iparmsstring,"%s,font-size=\"%f\" ",((tlformlabeltype & 0x10) ? STRINGOUTPUT_bold : STRINGOUTPUT_emptyformat),(((*glob_s_multilist).bufferlist))[ilv2].size);
+			iparms=iparmsstring;
+			#endif
+		}
 		if (owner!=-1)
 		{
 			if ((*((*glob_t_multilist).bufferlist[index_in_buffer].s)).count_in_it==1)
@@ -1438,7 +1456,7 @@ iBBX.right+ibonddist2*cos(cangle)+ibonddist4*(cos(cangle)-(cos(langle)*tlrightta
 				{
 					if (ifsmat==2)
 					{
-						printformatted(finalstring,ifsmat,tlstart,tlend);
+						printformatted(finalstring,iparms,ifsmat,tlstart,tlend);
 						tlstart=ilv3;
 						tlend=ilv3+1;
 						ifsmat=1;
@@ -1457,7 +1475,7 @@ iBBX.right+ibonddist2*cos(cangle)+ibonddist4*(cos(cangle)-(cos(langle)*tlrightta
 						}
 						if (ifsmat==4)
 						{
-							printformatted(finalstring,ifsmat,tlstart,tlend);
+							printformatted(finalstring,iparms,ifsmat,tlstart,tlend);
 							tlstart=ilv3;
 							tlend=ilv3+1;
 							ifsmat=0;
@@ -1478,7 +1496,7 @@ iBBX.right+ibonddist2*cos(cangle)+ibonddist4*(cos(cangle)-(cos(langle)*tlrightta
 						}
 						if (ifsmat==1)
 						{
-							printformatted(finalstring,ifsmat,tlstart,tlend);
+							printformatted(finalstring,iparms,ifsmat,tlstart,tlend);
 							tlstart=ilv3;
 							tlend=ilv3+1;
 							ifsmat=2;
@@ -1491,7 +1509,7 @@ iBBX.right+ibonddist2*cos(cangle)+ibonddist4*(cos(cangle)-(cos(langle)*tlrightta
 						}
 						if (ifsmat==4)
 						{
-							printformatted(finalstring,ifsmat,tlstart,tlend);
+							printformatted(finalstring,iparms,ifsmat,tlstart,tlend);
 							tlstart=ilv3;
 							tlend=ilv3+1;
 							ifsmat=2;
@@ -1514,7 +1532,7 @@ iBBX.right+ibonddist2*cos(cangle)+ibonddist4*(cos(cangle)-(cos(langle)*tlrightta
 							}
 							if (ifsmat==1)
 							{
-								printformatted(finalstring,ifsmat,tlstart,tlend);
+								printformatted(finalstring,iparms,ifsmat,tlstart,tlend);
 								tlstart=ilv3;
 								tlend=ilv3+1;
 								ifsmat=4;
@@ -1522,7 +1540,7 @@ iBBX.right+ibonddist2*cos(cangle)+ibonddist4*(cos(cangle)-(cos(langle)*tlrightta
 							}
 							if (ifsmat==2)
 							{
-								printformatted(finalstring,ifsmat,tlstart,tlend);
+								printformatted(finalstring,iparms,ifsmat,tlstart,tlend);
 								tlstart=ilv3;
 								tlend=ilv3+1;
 								ifsmat=4;
@@ -1541,7 +1559,7 @@ iBBX.right+ibonddist2*cos(cangle)+ibonddist4*(cos(cangle)-(cos(langle)*tlrightta
 								}
 								if (ifsmat==1)
 								{
-									printformatted(finalstring,ifsmat,tlstart,tlend);
+									printformatted(finalstring,iparms,ifsmat,tlstart,tlend);
 									tlstart=ilv3;
 									tlend=ilv3+1;
 									ifsmat=0;
@@ -1555,7 +1573,7 @@ iBBX.right+ibonddist2*cos(cangle)+ibonddist4*(cos(cangle)-(cos(langle)*tlrightta
 								}
 								if (ifsmat==4)
 								{
-									printformatted(finalstring,ifsmat,tlstart,tlend);
+									printformatted(finalstring,iparms,ifsmat,tlstart,tlend);
 									tlstart=ilv3;
 									tlend=ilv3+1;
 									ifsmat=0;
@@ -1576,7 +1594,7 @@ iBBX.right+ibonddist2*cos(cangle)+ibonddist4*(cos(cangle)-(cos(langle)*tlrightta
 				trivial:
 				;
 			}
-			printformatted(finalstring,ifsmat,tlstart,tlend);
+			printformatted(finalstring,iparms,ifsmat,tlstart,tlend);
 		}
 		else
 		{
@@ -1585,7 +1603,7 @@ iBBX.right+ibonddist2*cos(cangle)+ibonddist4*(cos(cangle)-(cos(langle)*tlrightta
 			/*fprintf(outfile,"<tspan %s style=\"fill:#%s\">%s</tspan>%s\n",
 			(tlformlabeltype & 0x20) ? "dy=\"+3\" font-size=\"14\"" : ((tlformlabeltype & 0x40) ? "dy=\"-3\" font-size=\"14%\"":""),
 			colorstring,finalstring,(tlformlabeltype & 0x20)?"<tspan dy=\"-3\"/>":((tlformlabeltype & 0x40)?"<tspan dy=\"3\"/>":""));*/
-			printformatted(finalstring,((tlformlabeltype & 0x20) ? 1 : 0) | ((tlformlabeltype & 0x40) ? 4 : 0),0,strlen(finalstring));
+			printformatted(finalstring,iparms,((tlformlabeltype & 0x20) ? 1 : 0) | ((tlformlabeltype & 0x40) ? 4 : 0),0,strlen(finalstring));
 		}
 	}
 	fprintf(outfile,"</text>\n");

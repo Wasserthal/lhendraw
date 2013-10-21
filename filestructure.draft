@@ -6,7 +6,7 @@ fragment;annotation n b t graphic arrow curve ;;
 n;t ;0 Element 0 id 0 color 2 p 0 z 0 Z ;
 b;;0 id 0 color 0 B 0 E 0 z 0 Z 1 Order ! Display ! Display2 ! DoublePosition ;
 t;s ;0 Z 4 BoundingBox ! Justification ! LabelAlignment 0 color 2 p ;
-s;;0 color 0 font 0 face 0 PCTEXTcounter s PCTEXT ;
+s;;0 color 0 font 0 face 1 size 0 PCTEXTcounter s PCTEXT ;
 colortable;color ;;
 color;;1 r 1 g 1 b ;
 fonttable;font ;;

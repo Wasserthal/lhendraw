@@ -139,6 +139,19 @@ void getcaptions(float * width,float * height,float * left,float * top)
 	multilist<n_instance> * i_n_multilist=retrievemultilist<n_instance>();
 	multilist<graphic_instance> * i_graphic_multilist=retrievemultilist<graphic_instance>();
 	multilist<curve_instance> * i_curve_multilist=retrievemultilist<curve_instance>();
+	multilist<t_instance> * i_t_multilist=retrievemultilist<t_instance>();
+	for (int ilv1=0;ilv1<(*i_t_multilist).filllevel;ilv1++)
+	{
+		t_instance * i_t_instance=(t_instance*)&((*i_t_multilist).bufferlist[ilv1]);
+		if ((*i_t_instance).BoundingBox.top>maxy)
+		{
+			maxy=(*i_t_instance).BoundingBox.top;
+		}
+		if ((*i_t_instance).BoundingBox.bottom>maxy)
+		{
+			maxy=(*i_t_instance).BoundingBox.bottom;
+		}
+	}
 	for (int ilv1=0;ilv1<(*i_curve_multilist).filllevel;ilv1++)
 	{
 		curve_instance * i_curve_instance=(curve_instance*)&((*i_curve_multilist).bufferlist[ilv1]);

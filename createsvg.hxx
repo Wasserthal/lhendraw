@@ -661,6 +661,13 @@ char resortstring(char * input) //TODO: what about brackets?
 			}
 		}
 	}
+	if ((fsm==1) || (fsm==4))
+	{
+		for (int ilv2=start;ilv2<=end;ilv2++)//write remaining numbers
+		{
+			resortedstring[resortedstringpos++]=input[ilv2];
+		}
+	}
 	resortedstring[resortedstringpos]=0;
 	return 1;
 }

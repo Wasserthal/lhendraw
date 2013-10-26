@@ -52,6 +52,7 @@ multilist<graphic_instance> * glob_graphic_multilist;
 multilist<annotation_instance> * glob_annotation_multilist;
 multilist<font_instance> * glob_font_multilist;
 multilist<curve_instance> * glob_curve_multilist;
+multilist<arrow_instance> * glob_arrow_multilist;
 char colorstring[7]="AABBCC";
 char colorstring2[7]="AABBCC";
 char resortedstring[stringlength];
@@ -792,6 +793,7 @@ void svg_findaround()
 	glob_annotation_multilist=retrievemultilist<annotation_instance>();
 	glob_font_multilist=retrievemultilist<font_instance>();
 	glob_curve_multilist=retrievemultilist<curve_instance>();
+	glob_arrow_multilist=retrievemultilist<arrow_instance>();
 	getcaptions(&SVG_width,&SVG_height,&SVG_ileft,&SVG_itop);
 	SVG_ileft-=10;
 	SVG_itop-=10;
@@ -914,6 +916,7 @@ char string_resorted;
 char ifsmat;//0: nothing //1: on a subscript number; 2: on text; 3: on a superscript
 curve_instance * i_curve_instance;
 graphic_instance * i_graphic_instance;
+arrow_instance * i_arrow_instance;
 b_instance * i_b_instance;
 n_instance * startnode, * endnode;
 void svg_head(const char * filename,float width,float height)
@@ -934,17 +937,29 @@ void svg_tail()
 void svg_controlprocedure(bool irestriction=0)
 {
 	void * dummy;
-	multilist<graphic_instance> * i_graphic_multilist=retrievemultilist<graphic_instance>();
 	cdx_Rectangle tlBoundingBox;
+	int tlGraphicType;
+	int tlAngularSize;
+	int tlLineType;
 	for (ilv1=0;ilv1<bufferlistsize*multilistZcount;ilv1++)
 	{
 		if (objectZorderlist[ilv1].listnr!=-1)
 		{
 			basicmultilist * tlcurrentmultilist=(basicmultilist*)multilistlist.instances[objectZorderlist[ilv1].listnr];
 			index_in_buffer=objectZorderlist[ilv1].nr;
+			void * tlcurrentinstance=((char*)((*tlcurrentmultilist).pointer))+((*tlcurrentmultilist).itemsize)*index_in_buffer;
+			{//TODO**** delete instance in findaround after implementing delete routines
+				int ipropertyoffset=(tlcurrentmultilist)->getproperties("SupersededBy",(CDXMLREAD_functype*)&dummy);
+				if (ipropertyoffset!=-1)
+				{
+					if ((*(int*)(((char*)tlcurrentinstance)+ipropertyoffset))>0)
+					{
+						goto svg_main_loop;
+					}
+				}
+			}
 			if (irestriction)
 			{
-				void * tlcurrentinstance=((char*)((*tlcurrentmultilist).pointer))+((*tlcurrentmultilist).itemsize)*index_in_buffer;
 				if (tlcurrentmultilist==glob_curve_multilist)
 				{
 					cdx_Bezierpoints * tlBez=&((*glob_curve_multilist).bufferlist[bond_actual_node[index_in_buffer].start].CurvePoints);
@@ -983,6 +998,7 @@ void svg_controlprocedure(bool irestriction=0)
 			if (multilistlist.instances[objectZorderlist[ilv1].listnr]==glob_graphic_multilist) goto svg_main_graphic;
 			if (multilistlist.instances[objectZorderlist[ilv1].listnr]==glob_b_multilist) goto svg_main_b;
 			if (multilistlist.instances[objectZorderlist[ilv1].listnr]==glob_t_multilist) goto svg_main_t;
+			if (multilistlist.instances[objectZorderlist[ilv1].listnr]==glob_arrow_multilist) goto svg_main_arrow;
 		}
 		svg_main_loop:
 		;
@@ -1037,9 +1053,12 @@ void svg_controlprocedure(bool irestriction=0)
 2. The lines/arc are drawn. if it was something else, the next two points are skipped. 
 3. Otherwise, the arrow angles are calculated
 4. And the arrows are drawn.*/
-	i_graphic_instance=&((*i_graphic_multilist).bufferlist)[index_in_buffer];
+	i_graphic_instance=&((*glob_graphic_multilist).bufferlist)[index_in_buffer];
 	iBBX=(*i_graphic_instance).BoundingBox;
 	colornr=(*i_graphic_instance).color;
+	tlGraphicType=(*i_graphic_instance).GraphicType;
+	tlAngularSize=(*i_graphic_instance).AngularSize;
+	tlLineType=(*i_graphic_instance).LineType;
 	get_colorstring(colornr);
 	currentArrowHeadType=0;
 	currentArrowHeadTail=0;
@@ -1080,9 +1099,10 @@ void svg_controlprocedure(bool irestriction=0)
 		if ((*i_graphic_instance).ArrowType & 32) {currentArrowHeadType=2;if (currentArrowHeadHead&1){tllefttan2=1;}if (currentArrowHeadHead&2){tlrighttan2=1;}if (currentArrowHeadTail&1){tllefttan=1;}if (currentArrowHeadTail&2){tlrighttan=1;}}
 		currentLineType=0x100;
 	}
-	if ((*i_graphic_instance).GraphicType==1)
+	svg_graphic_arrow_shunt:
+	if (tlGraphicType==1)
 	{
-		stylegenestring(stylefromline((*i_graphic_instance).LineType));
+		stylegenestring(stylefromline(tlLineType));
 		cangle=getangle(iBBX.right-iBBX.left,iBBX.bottom-iBBX.top)+Pi/2;
 		langle=getangle(iBBX.right-iBBX.left,iBBX.bottom-iBBX.top);
 		if (currentLineType &0x100)
@@ -1098,14 +1118,14 @@ void svg_controlprocedure(bool irestriction=0)
 		otherlangle=langle+Pi;
 	}
 	else
-	if ((*i_graphic_instance).GraphicType==2)
+	if (tlGraphicType==2)
 	{
 		float deltax,deltay;
 		deltax=iBBX.left-iBBX.right;
 		deltay=iBBX.top-iBBX.bottom;
 		float tlradius=sqrt(deltax*deltax+deltay*deltay);
 		float tlangle=getangle(deltax,deltay);
-		if ((*i_graphic_instance).AngularSize>0)
+		if (tlAngularSize>0)
 		{
 			 langle=(tlangle+Pi/2.0);
 		}
@@ -1114,21 +1134,21 @@ void svg_controlprocedure(bool irestriction=0)
 			 langle=(tlangle-Pi/2.0);
 		}
 		cangle=langle+Pi/2.0;
-		stylegenestring(stylefromline((*i_graphic_instance).LineType));
+		stylegenestring(stylefromline(tlLineType));
 		if (currentLineType &0x100)
 		{
 //TODO****				expressarc(iBBX.right,iBBX.bottom
 		}
 		else
-		expressarc(iBBX.right,iBBX.bottom,tlradius,tlradius,tlangle,tlangle+(((*i_graphic_instance).AngularSize/180.0)*Pi));
-		otherlangle=langle+(((*i_graphic_instance).AngularSize/180.0)*Pi)+Pi;
+		expressarc(iBBX.right,iBBX.bottom,tlradius,tlradius,tlangle,tlangle+((tlAngularSize/180.0)*Pi));
+		otherlangle=langle+((tlAngularSize/180.0)*Pi)+Pi;
 		othercangle=otherlangle+Pi/2.0;
-		iBBX.right+=tlradius*cos(tlangle+(((*i_graphic_instance).AngularSize/180.0)*Pi));
-		iBBX.bottom+=tlradius*sin(tlangle+(((*i_graphic_instance).AngularSize/180.0)*Pi));
+		iBBX.right+=tlradius*cos(tlangle+((tlAngularSize/180.0)*Pi));
+		iBBX.bottom+=tlradius*sin(tlangle+((tlAngularSize/180.0)*Pi));
 		if (tlradius>arrowheadlength/2)
 		{
 			float dturn=asin(arrowheadlength/tlradius/2);
-			if ((*i_graphic_instance).AngularSize>0)
+			if (tlAngularSize>0)
 			{
 				langle+=dturn;
 				cangle+=dturn;
@@ -1146,6 +1166,7 @@ void svg_controlprocedure(bool irestriction=0)
 	}
 	else goto skiparrows;
 	drawarrheads(iBBX,langle,cangle,otherlangle,othercangle,currentArrowHeadType,currentArrowHeadTail,currentArrowHeadHead,tllinedist);
+	goto skipthisgraphic;
 	skiparrows:
 	if ((*i_graphic_instance).GraphicType==3)
 	{
@@ -1217,6 +1238,37 @@ void svg_controlprocedure(bool irestriction=0)
 	}
 	skipthisgraphic:
 	;//always run over here. One might need this.
+	goto svg_main_loop;
+	svg_main_arrow:
+	i_arrow_instance=&((*glob_arrow_multilist).bufferlist)[index_in_buffer];
+	colornr=(*i_arrow_instance).color;
+	get_colorstring(colornr);
+	currentArrowHeadType=(*i_arrow_instance).ArrowheadType;
+	currentArrowHeadTail=(*i_arrow_instance).ArrowheadTail;
+	currentArrowHeadHead=(*i_arrow_instance).ArrowheadHead;
+	tllinedist=0;
+	tllefttan=0;
+	tlrighttan=0;
+	tllefttan2=0;
+	tlrighttan2=0;
+	langle=0;cangle=0;
+	tlLineType=0;//0: normal 5: Bold 0x100: Double
+	tlAngularSize=(*i_arrow_instance).AngularSize;
+	if (tlAngularSize!=0)
+	{
+		tlGraphicType=2;
+		iBBX.right=(*i_arrow_instance).Center3D.x;
+		iBBX.bottom=(*i_arrow_instance).Center3D.y;
+	}
+	else
+	{
+		tlGraphicType=1;
+		iBBX.right=(*i_arrow_instance).Tail3D.x;
+		iBBX.bottom=(*i_arrow_instance).Tail3D.y;
+	}
+	iBBX.left=(*i_arrow_instance).Head3D.x;
+	iBBX.top=(*i_arrow_instance).Head3D.y;
+	goto svg_graphic_arrow_shunt;
 	goto svg_main_loop;
 	svg_main_b:
 	_small inr_E,inr_S;

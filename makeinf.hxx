@@ -81,6 +81,10 @@ void getframes()
 						iframenr=atoi((*tlannotation).Content.a+5);
 						isfound=1;
 					}
+					else
+					{
+						goto NameNotFrame;
+					}
 				}
 			}
 			if (isfound==1)
@@ -90,6 +94,8 @@ void getframes()
 				addframe(*iBBX,iframenr);
 			}
 		}
+		NameNotFrame:
+		;
 	}
 }
 void svg_prescan()

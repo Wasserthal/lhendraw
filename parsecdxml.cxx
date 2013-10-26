@@ -651,6 +651,10 @@ void input_fsm(FILE* infile)
 	{
 		goto iback;
 	}
+	if (strcmp((*currentinstance).getName(),"Total_Document")!=0)
+	{
+		fprintf(stderr,"Error: Premature End of File! You are still in a %s",(*currentinstance).getName());exit(1);
+	}
 }
 
 #ifndef PARSECDXML_IS_AUXPROG
@@ -664,6 +668,10 @@ int main(int argc, char * * argv)
 	multilist_count=0;*/ //contraproductive amongst the hack!
 	FILE * infile;
 	infile=fopen(argv[1],"r+");
+	if (infile==NULL)
+	{
+		fprintf(stderr,"CDXML Error! file %s not found!",argv[1]);exit(1);
+	}
 	input_fsm(infile);
 	fclose(infile);
 	if (argc<3)

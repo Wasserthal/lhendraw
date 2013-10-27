@@ -331,6 +331,7 @@ struct gummydummy_instance: basic_instance
 #include "enums.hxx"
 #include "filestructure.hxx"
 #include "createsvg.hxx"
+#include "hatch.hxx"
 
 basic_instance * currentinstance;
 

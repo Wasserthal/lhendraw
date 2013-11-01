@@ -25,9 +25,28 @@ intl properties_type_nrs[maxunits];
 char enums_registered[maxunits][stringlength+1];
 int enums_registered_count=0;
 char helpbuffer[65536];
-char resetmode_outline[][31]={{"%1$n"},{"%2$s=0;\n%1$n"},{"clear_%3$s(%2$s);\n%1$n"},{"%2$s.a=0;\n%1$n"},{"%2$s=1;\n%1$n"},{"%2$s=0;\n%1$n"},{"%2$s.count=0;\n%1$n"}};//very problematic: each operation must tell its length!
+char resetmode_outline[][31]={{"%1$n"},{"%2$s=0;\n%1$n"},{"clear_%3$s(%2$s);\n%1$n"},{"%2$s.a=0;\n%1$n"},{"%2$s=1;\n%1$n"},{"%2$s=0;\n%1$n"},{"%2$s.count=0;\n%1$n"},{"%2$s=0;\n%1$n"}};//very problematic: each operation must tell its length!
 //ATTENTION: the second matrix array size is critical: if it is too low, the strings are simply cut off!
 char * helpbufferpos;
+#define uniread \
+({\
+	__label__ tlback;\
+	unsigned char tlfirst=ihv1;\
+	int tlucs;\
+	int tlmask=0x3F;\
+	unsigned char tlscan=0x64;\
+	tlucs=tlfirst;\
+	tlback:\
+	fread(&ihv1,1,1,infile);\
+	tlmask=(tlmask<<5)|0x1F;\
+	tlscan=tlscan>>1;\
+	tlucs=(tlucs<<6)|(ihv1&0x3F);\
+	if (tlfirst & tlscan)\
+	{\
+		goto tlback;\
+	}\
+	tlucs&=tlmask;\
+})
 
 char register_enum(const char * input)
 {
@@ -119,6 +138,21 @@ void main(void)
 		}
 		properties_types[properties_count][thisnamelength]=0;properties_type_nrs[properties_count]=0;
 		goto start_symbolreading3;
+		default :
+		;
+		if (!(ihv1 & 128))
+		{
+			unknownType:
+			{printf("Something went wrong defining %s - unknown symbol%c! ",name,ihv1);exit(1);};
+		}
+		int tlbackvalue=uniread;
+		switch (tlbackvalue)
+		{
+			case 0x203c: strcpy(properties_types[properties_count],"_i32");properties_type_nrs[properties_count]=7;break;//an ENUM with two possibilities
+			break;
+			default:
+			goto unknownType;
+		}
 	}
 	fread(&ihv1,1,1,infile);//should be a blank
 	if (ihv1!=' ') {printf("Something went wrong defining %s - no space after type! ",name);exit(1);};
@@ -162,20 +196,19 @@ void main(void)
 	fprintf(outfile,"};\n");
 	for (int ilv1=0;ilv1<properties_count;ilv1++)
 	{
-		if ((properties_type_nrs[ilv1]==5) || (properties_type_nrs[ilv1]==4))
+		if ((properties_type_nrs[ilv1]==5) || (properties_type_nrs[ilv1]==4) || (properties_type_nrs[ilv1]==7))
 		{
-			printf("HHXHX");
 			if (register_enum(properties[ilv1]))
 			{
 				fprintf(outfile,"int __attribute__((sysv_abi))CDXMLREAD_ENUM_%s(char * input,void * output)\n{\n        \
-	*((_i32 *)output)=get_bienum(CDXML_%s,input,CDXML_%s_max);\n}\n",properties[ilv1],properties[ilv1],properties[ilv1]);
+	*((_i32 *)output)=get_bienum%s(CDXML_%s,input,CDXML_%s_max);\n}\n",properties[ilv1],(properties_type_nrs[ilv1]==7)?"_multi":"",properties[ilv1],properties[ilv1]);
 			}
 		}
 	}
 	fprintf(outfile,"superconstellation %s_instance::properties[]={\n",name);
 	for (int ilv1=0;ilv1<properties_count;ilv1++)
 	{
-		if ((properties_type_nrs[ilv1]==5) || (properties_type_nrs[ilv1]==4))
+		if ((properties_type_nrs[ilv1]==5) || (properties_type_nrs[ilv1]==4) || (properties_type_nrs[ilv1]==7))
 		{
 			fprintf(outfile,"{\"%s\",offsetof(%s_instance,%s),CDXMLREAD_ENUM_%s}%s\n",properties[ilv1],name,properties[ilv1],properties[ilv1],(ilv1==properties_count-1) ? "" : ",");
 		}

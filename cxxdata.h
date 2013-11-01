@@ -208,3 +208,32 @@ intl get_bienum(bienum * ibienum,char * input,intl count)
 	fprintf(stderr,"unknown mark %s in context",input);
 	return 0;
 };
+intl get_bienum_multi(bienum * ibienum,char * input,intl count)
+{
+	intl ilv1;
+	intl wert=0;
+	char again;
+	char * currentpos=input;
+	char * tlbackvalue;
+	iback:
+	again=0;
+	tlbackvalue=strchr(currentpos,' ');
+	if (tlbackvalue!=NULL)
+	{
+		*tlbackvalue=0;
+		again=1;
+	}
+	if (input[0]==0) return 0;
+	for (ilv1=0;ilv1<count;ilv1++)
+	{
+		if (strcmp(currentpos,ibienum[ilv1].name)==0)
+		{
+			wert|=ibienum[ilv1].number;
+			goto ifound;
+		}
+	}
+	fprintf(stderr,"unknown Element of mark %s in context",input);
+	ifound:
+	if (again){currentpos=tlbackvalue+1; goto iback;}
+	return wert;
+};

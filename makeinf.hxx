@@ -314,6 +314,34 @@ void main_multisvg(int icount,char * * args)//tetrify
 	}
 }
 
+void Lennard_hatch()
+{
+	int ilv1;
+	get_colorstring(0);
+	stylegenestring(1);
+	for (ilv1=0;ilv1<(*glob_graphic_multilist).filllevel;ilv1++)
+	{
+		graphic_instance * i_graphic_instance=(*glob_graphic_multilist).bufferlist+ilv1;
+		if (((*i_graphic_instance).GraphicType==4) || ((*i_graphic_instance).GraphicType==5))
+		{
+			if ((*i_graphic_instance).OvalType==3)
+			{
+				HATCH_atom_count=0;
+				for (int ilv2=0;ilv2<(*glob_n_multilist).filllevel;ilv2++)
+				{
+					n_instance * i_n_instance=(*glob_n_multilist).bufferlist+ilv2;
+					if (sqr((*i_n_instance).p.x-(*i_graphic_instance).BoundingBox.right)+
+sqr((*i_n_instance).p.y-(*i_graphic_instance).BoundingBox.bottom)<sqr((*i_graphic_instance).BoundingBox.left-(*i_graphic_instance).BoundingBox.right)+
+sqr((*i_graphic_instance).BoundingBox.top-(*i_graphic_instance).BoundingBox.bottom))
+					{
+						HATCH_add_atom(ilv2);
+					}
+				}
+			}
+		}
+	}
+}
+
 void svg_main2(const char * filename,int count,char * * args)
 {
 	char ifilename[stringlength];
@@ -345,6 +373,9 @@ void svg_main2(const char * filename,int count,char * * args)
 		SVG_currentshifty=makeinf_sortiment.sortiment[ilv1].posy-SVG_currentbasey;
 		SVG_currentfringex=makeinf_frame[tlnr].endx;
 		SVG_currentfringey=makeinf_frame[tlnr].endy;
+		#ifdef LENNARD_HACK
+		Lennard_hatch();
+		#endif
 		svg_controlprocedure(1);
 		if (count>1)
 		{

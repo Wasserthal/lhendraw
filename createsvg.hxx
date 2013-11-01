@@ -539,9 +539,13 @@ void expressline(float ileft,float itop,float iright,float ibottom)
 {
 	fprintf(outfile,"<path d=\"M %f %f L %f %f \" %s/>\n",ileft+SVG_currentshiftx,itop+SVG_currentshifty,iright+SVG_currentshiftx,ibottom+SVG_currentshifty,stylestring);
 }
-void expresscircle(float ileft,float itop,float iright,float ibottom)
+void expresscdxcircle(float ileft,float itop,float iright,float ibottom)
 {
 	fprintf(outfile,"<ellipse cx=\"%f\" cy=\"%f\" rx=\"%f\" ry=\"%f\" %s/>\n",ileft+SVG_currentshiftx,itop+SVG_currentshifty,iright-ileft,ibottom-itop,stylestring);
+}
+void expressellipse(float ix,float iy,float irx,float iry)
+{
+	fprintf(outfile,"<ellipse cx=\"%f\" cy=\"%f\" rx=\"%f\" ry=\"%f\" %s/>\n",ix+SVG_currentshiftx,iy+SVG_currentshifty,irx,iry,stylestring);
 }
 void expresstetrangle(float ix1,float iy1,float ix2,float iy2,float ix3,float iy3,float ix4,float iy4,char * istylestring)
 {
@@ -1227,7 +1231,7 @@ void svg_controlprocedure(bool irestriction=0)
 			(*i_graphic_instance).BoundingBox.right=iBBX.right;
 			(*i_graphic_instance).BoundingBox.bottom=iBBX.bottom;
 		}
-		expresscircle(iBBX.left,iBBX.top,iBBX.right,iBBX.bottom);
+		expresscdxcircle(iBBX.left,iBBX.top,iBBX.right,iBBX.bottom);
 	}
 	if ((*i_graphic_instance).GraphicType==7)
 	{

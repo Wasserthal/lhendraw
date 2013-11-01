@@ -6,6 +6,10 @@
 #define bufferlength 256
 #define bufferlistsize 4096
 #define multilistlistlength 512
+inline intl sqr(intl input)
+{
+	return input*input;
+}
 char spaciatic(char input)
 {
 	if (input==' ')

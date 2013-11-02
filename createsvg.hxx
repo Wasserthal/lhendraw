@@ -1628,6 +1628,7 @@ iBBX.right+ibonddist2*cos(cangle)+ibonddist4*(cos(cangle)-(cos(langle)*tlrightta
 	svg_main_end:
 	;
 }
+void Lennard_hatch();
 void svg_main(const char * filename)
 {
 	svg_findaround();
@@ -1637,5 +1638,8 @@ void svg_main(const char * filename)
 	SVG_currentfringex=((unsigned int)-1)>>1;
 	SVG_currentfringey=((unsigned int)-1)>>1;
 	svg_controlprocedure();
+	#ifdef LENNARD_HACK
+	Lennard_hatch();
+	#endif
 	svg_tail();
 }

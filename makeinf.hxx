@@ -359,6 +359,15 @@ void svg_main2(const char * filename,int count,char * * args)
 	strcat(ifilename,")");*/
 	main_multisvg(count,args);
 	svg_head(filename,makeinf_sortiment.width,makeinf_sortiment.height);
+	char tlKLUDGEdontenumerate=0;
+	for (int ilv1=0;ilv1<(*glob_annotation_multilist).filllevel;ilv1++)// a Kludge
+	{
+		annotation_instance * tlannotation=&((*glob_annotation_multilist).bufferlist[ilv1]);
+		if (strncmp((*tlannotation).Content.a,"unnumbered",10)==0)
+		{
+			tlKLUDGEdontenumerate=1;
+		}
+	}
 	for (int ilv1=0;ilv1<count;ilv1++)
 	{
 		int tlnr=atoi(args[ilv1]);
@@ -382,7 +391,7 @@ void svg_main2(const char * filename,int count,char * * args)
 		Lennard_hatch();
 		#endif
 		svg_controlprocedure(1);
-		if (count>1)
+		if ((count>1) && (!tlKLUDGEdontenumerate))
 		{
 			fprintf(outfile,"<text fill=\"#000000\" stroke=\"none\" transform=\"translate(%f,%f)\" font-size=\"36\" font-weight=\"bold\"><tspan>%c)</tspan></text>",(float)makeinf_sortiment.sortiment[ilv1].posx,(float)makeinf_sortiment.sortiment[ilv1].posy+30,'a'+ilv1);
 		}

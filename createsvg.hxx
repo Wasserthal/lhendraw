@@ -1479,7 +1479,6 @@ iBBX.right+ibonddist2*cos(cangle)+ibonddist4*(cos(cangle)-(cos(langle)*tlrightta
 		}
 		if ((((*glob_s_multilist).bufferlist)[ilv2].face & 0x60)==0x60)
 		{
-			printf("Active:%s",finalstring);
 			int tlmax=strlen(finalstring);
 			int tlstart,tlend;
 			tlstart=0;tlend=0;
@@ -1631,7 +1630,6 @@ iBBX.right+ibonddist2*cos(cangle)+ibonddist4*(cos(cangle)-(cos(langle)*tlrightta
 		}
 		else
 		{
-			printf("Passive:%s",finalstring);
 			int tlformlabeltype=((*glob_s_multilist).bufferlist)[ilv2].face;
 			currentsetfontsize=(((*glob_s_multilist).bufferlist))[ilv2].size;
 			#ifdef LENNARD_HACK

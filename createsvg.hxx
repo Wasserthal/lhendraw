@@ -1125,11 +1125,13 @@ void svg_controlprocedure(bool irestriction=0)
 	{
 		tllinedist=8;
 		currentArrowHeadHead=1;//only valid when called from graphic
-		if ((*i_graphic_instance).ArrowType & 16) {currentArrowHeadType=1;if (currentArrowHeadHead&1){tllefttan2=2;}if (currentArrowHeadHead&2){tlrighttan2=2;}if (currentArrowHeadTail&1){tllefttan=2;}if (currentArrowHeadTail&2){tlrighttan=2;}}
-		if ((*i_graphic_instance).ArrowType & 32) {currentArrowHeadType=2;if (currentArrowHeadHead&1){tllefttan2=1;}if (currentArrowHeadHead&2){tlrighttan2=1;}if (currentArrowHeadTail&1){tllefttan=1;}if (currentArrowHeadTail&2){tlrighttan=1;}}
+		if ((*i_graphic_instance).ArrowType & 16) {currentArrowHeadType=1;}
+		if ((*i_graphic_instance).ArrowType & 32) {currentArrowHeadType=2;}
 		currentLineType=0x100;
 	}
 	svg_graphic_arrow_shunt:
+	if (currentArrowHeadType==1) {if (currentArrowHeadHead&1){tllefttan2=2;}if (currentArrowHeadHead&2){tlrighttan2=2;}if (currentArrowHeadTail&1){tllefttan=2;}if (currentArrowHeadTail&2){tlrighttan=2;}}
+	if (currentArrowHeadType==2) {if (currentArrowHeadHead&1){tllefttan2=1;}if (currentArrowHeadHead&2){tlrighttan2=1;}if (currentArrowHeadTail&1){tllefttan=1;}if (currentArrowHeadTail&2){tlrighttan=1;}}
 	if (tlGraphicType==1)
 	{
 		stylegenestring(stylefromline(tlLineType));
@@ -1283,6 +1285,13 @@ void svg_controlprocedure(bool irestriction=0)
 	tlrighttan2=0;
 	langle=0;cangle=0;
 	tlLineType=0;//0: normal 5: Bold 0x100: Double
+	currentLineType=0;//TODO: remove one of the line types
+	if (currentArrowHeadType & 3)
+	{
+		tllinedist=8;
+		tlLineType=0x100;
+		currentLineType=0x100;
+	}
 	tlAngularSize=(*i_arrow_instance).AngularSize;
 	if (tlAngularSize!=0)
 	{

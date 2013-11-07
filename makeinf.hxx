@@ -114,21 +114,39 @@ void scanfortext(FILE * fileforthatpurpose,float x,float y,float x2,float y2)
 {
 	for (int ilv1=0;ilv1<(*glob_t_multilist).filllevel;ilv1++)
 	{
-		t_instance tl_t_instance=(*glob_t_multilist).bufferlist[ilv1];
-		if (text_actual_node[ilv1].owner==-1)
+		int tlbestnr; float tlbestval;
+		tlbestnr=-1;
+		tlbestval=2000000000;
+		for (int ilv2=0;ilv2<(*glob_t_multilist).filllevel;ilv2++)
 		{
-			printf("OHO");
-			if ((tl_t_instance.p.x>x) &&
-			(tl_t_instance.p.y>y) &&
-			(tl_t_instance.p.x<x2) &&
-			(tl_t_instance.p.y<y2))
+			t_instance * tl_t_instance=&((*glob_t_multilist).bufferlist[ilv2]);
+			if (text_actual_node[ilv2].owner==-1)
 			{
-				printf("IHI");
-				multilistreference<s_instance> * tl_s_multilistreference=dynamic_cast<multilistreference<s_instance>*>(tl_t_instance.s);
-				for (int ilv2=(*tl_s_multilistreference).start_in_it;ilv2<(*tl_s_multilistreference).start_in_it+(*tl_s_multilistreference).count_in_it;ilv2++)
+				if ((*tl_t_instance).IGOTYOU==0)
 				{
-					fprintf(fileforthatpurpose,"%s",(*glob_s_multilist).bufferlist[ilv2].PCTEXT.a);
+					if (((*tl_t_instance).p.x>x) &&
+					((*tl_t_instance).p.y>y) &&
+					((*tl_t_instance).p.x<x2) &&
+					((*tl_t_instance).p.y<y2))
+					{
+						float currentval=(*tl_t_instance).p.y*5+(*tl_t_instance).p.x;
+						if (currentval<tlbestval)
+						{
+							tlbestval=currentval;
+							tlbestnr=ilv2;
+						}
+					}
 				}
+			}
+		}
+		if (tlbestnr!=-1)
+		{
+			t_instance *tl_t_instance=&((*glob_t_multilist).bufferlist[tlbestnr]);
+			(*tl_t_instance).IGOTYOU=1;
+			multilistreference<s_instance> * tl_s_multilistreference=dynamic_cast<multilistreference<s_instance>*>((*tl_t_instance).s);
+			for (int ilv3=(*tl_s_multilistreference).start_in_it;ilv3<(*tl_s_multilistreference).start_in_it+(*tl_s_multilistreference).count_in_it;ilv3++)
+			{
+				fprintf(fileforthatpurpose,"%s",(*glob_s_multilist).bufferlist[ilv3].PCTEXT.a);
 			}
 		}
 	}

@@ -892,7 +892,7 @@ float tllefttan;
 float tlrighttan;
 float tllefttan2;
 float tlrighttan2;
-int currentLineType;//0: normal 5: Bold 0x100: Double
+int currentLineType;//0: normal 2: Bold 0x100: Double
 float textdeltax,textdeltay;
 char specialS;
 char specialE;
@@ -1061,7 +1061,7 @@ void svg_controlprocedure(bool irestriction=0)
 		tllefttan2=0;
 		tlrighttan2=0;
 		langle=0;cangle=0;
-		currentLineType=0;//0: normal 5: Bold 0x100: Double
+		currentLineType=0;//0: normal 2: Bold 0x100: Double
 		currentArrowHeadType=(*i_curve_instance).ArrowheadType;
 		currentArrowHeadHead=(*i_curve_instance).ArrowheadHead;
 		currentArrowHeadTail=(*i_curve_instance).ArrowheadTail;
@@ -1099,7 +1099,7 @@ void svg_controlprocedure(bool irestriction=0)
 	tllefttan2=0;
 	tlrighttan2=0;
 	langle=0;cangle=0;
-	currentLineType=0;//0: normal 5: Bold 0x100: Double
+	currentLineType=0;//0: normal 2: Bold 0x100: Double
 	if ((*i_graphic_instance).ArrowType & 1)
 	{
 		currentArrowHeadHead=2;
@@ -1284,13 +1284,13 @@ void svg_controlprocedure(bool irestriction=0)
 	tllefttan2=0;
 	tlrighttan2=0;
 	langle=0;cangle=0;
-	tlLineType=0;//0: normal 5: Bold 0x100: Double
-	currentLineType=0;//TODO: remove one of the line types
+	tlLineType=(*i_arrow_instance).LineType;//0: normal 2: Bold 0x100: Double
+	currentLineType=(*i_arrow_instance).LineType;//TODO: remove one of the line types
 	if (currentArrowHeadType & 3)
 	{
 		tllinedist=8;
-		tlLineType=0x100;
-		currentLineType=0x100;
+		tlLineType|=0x100;
+		currentLineType|=0x100;
 	}
 	tlAngularSize=(*i_arrow_instance).AngularSize;
 	if (tlAngularSize!=0)

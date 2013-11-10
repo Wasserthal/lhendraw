@@ -6,6 +6,12 @@
 #define bufferlength 256
 #define bufferlistsize 4096
 #define multilistlistlength 512
+#define _u32 unsigned int
+#define _i32 signed int
+#define _u16 unsigned short
+#define _i16 signed short
+#define _u8 unsigned char
+#define _i8 signed char
 inline intl sqr(intl input)
 {
 	return input*input;

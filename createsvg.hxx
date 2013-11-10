@@ -767,44 +767,6 @@ void calcdelta(float * x1,float * y1,float inputx,float inputy)
 		(*y1)=8.0*((inputy>0) ? 1.0 :-1.0);
 	}
 }
-void printformatted(const char * iinput,const char * parms,int imode,int start,int end)
-{
-	int ilv4=start;
-	thatwasatemporaryskip:
-	if (imode==1)
-	{
-		fprintf(outfile,"<tspan dy=\"+3\" %s font-size=\"14\" style=\"fill:#%s\">",parms,colorstring);
-	}
-	if ((imode==2) || (imode==0))
-	{
-		fprintf(outfile,"<tspan %s style=\"fill:#%s\">",parms,colorstring);
-	}
-	if (imode==4)
-	{
-		fprintf(outfile,"<tspan dy=\"-3\" %s font-size=\"14\" style=\"fill:#%s\">",parms,colorstring);
-	}
-	for (;ilv4<end;ilv4++)
-	{
-		if (iinput[ilv4]==10)
-		{
-			ilv4++;
-			goto skipfornow;
-		}
-		fprintf(outfile,"%c",iinput[ilv4]);
-	}
-	skipfornow:
-	fprintf(outfile,"</tspan>",colorstring);
-	if (imode==1)
-	{
-		fprintf(outfile,"<tspan %s dy=\"-3\">&#8288;</tspan>",parms);
-	}
-	if (imode==4)
-	{
-		fprintf(outfile,"<tspan %s dy=\"3\">&#8288;</tspan>",parms);
-	}
-	fprintf(outfile,"\n");
-	if (ilv4<end) {fprintf(outfile,"<tspan dy=\"20\" x=\"0\">&#8288;</tspan>");goto thatwasatemporaryskip;}//a line break;
-}
 
 void svg_findaround()
 {
@@ -945,8 +907,48 @@ b_instance * i_b_instance;
 n_instance * startnode, * endnode;
 char STRINGOUTPUT_emptyformat[]="";
 char STRINGOUTPUT_bold[]="font-weight=\"bold\" ";
-char STRINGOUTPUT_LENNARDBOLD[]="font-weight=\"bold\" font-size=\"24\" ";
+char STRINGOUTPUT_LENNARDBOLD[]="font-weight=\"bold\"";
 char iparmsstring[stringlength+1];
+float currentsetfontsize=18;
+void printformatted(const char * iinput,const char * parms,int imode,int start,int end)
+{
+	int ilv4=start;
+	thatwasatemporaryskip:
+	if (imode==1)
+	{
+		fprintf(outfile,"<tspan dy=\"+3\" %s font-size=\"%f\" style=\"fill:#%s\">",parms,currentsetfontsize*0.77777,colorstring);
+	}
+	if ((imode==2) || (imode==0))
+	{
+		fprintf(outfile,"<tspan %s font-size=\"%f\" style=\"fill:#%s\">",parms,currentsetfontsize,colorstring);
+	}
+	if (imode==4)
+	{
+		fprintf(outfile,"<tspan dy=\"-3\" %s font-size=\"%f\" style=\"fill:#%s\">",parms,currentsetfontsize*0.77777,colorstring);
+	}
+	for (;ilv4<end;ilv4++)
+	{
+		if (iinput[ilv4]==10)
+		{
+			ilv4++;
+			goto skipfornow;
+		}
+		fprintf(outfile,"%c",iinput[ilv4]);
+	}
+	skipfornow:
+	fprintf(outfile,"</tspan>",colorstring);
+	if (imode==1)
+	{
+		fprintf(outfile,"<tspan %s dy=\"-3\">&#8288;</tspan>",parms);
+	}
+	if (imode==4)
+	{
+		fprintf(outfile,"<tspan %s dy=\"3\">&#8288;</tspan>",parms);
+	}
+	fprintf(outfile,"\n");
+	if (ilv4<end) {fprintf(outfile,"<tspan dy=\"20\" x=\"0\">&#8288;</tspan>");goto thatwasatemporaryskip;}//a line break;
+}
+
 void svg_head(const char * filename,float width,float height)
 {
 	outfile=fopen(filename,"w+");
@@ -1424,14 +1426,28 @@ iBBX.right+ibonddist2*cos(cangle)+ibonddist4*(cos(cangle)-(cos(langle)*tlrightta
 		char * iparms;
 		iparms=STRINGOUTPUT_emptyformat;
 		{
+			int tlformlabeltype=((*glob_s_multilist).bufferlist)[ilv2].face;
+			currentsetfontsize=(((*glob_s_multilist).bufferlist))[ilv2].size;
 			#ifdef LENNARD_HACK
-			if ((((*glob_s_multilist).bufferlist))[ilv2].size>20.0)
+			if ((currentsetfontsize>20.0) || (tlformlabeltype & 0x10))
 			{
-				iparms=STRINGOUTPUT_LENNARDBOLD;
+				if (currentsetfontsize>99.0)
+				{
+					iparms=STRINGOUTPUT_emptyformat;
+				}
+				else
+				{
+					iparms=STRINGOUTPUT_bold;
+					currentsetfontsize=24;
+				}
+			}
+			else
+			{
+				currentsetfontsize=18;
 			}
 			#endif
 			#ifdef CAMBRIDGESOFT_CONFORMING
-			sprintf(iparmsstring,"%s,font-size=\"%f\" ",((tlformlabeltype & 0x10) ? STRINGOUTPUT_bold : STRINGOUTPUT_emptyformat),(((*glob_s_multilist).bufferlist))[ilv2].size);
+			sprintf(iparmsstring,"%s",((tlformlabeltype & 0x10) ? STRINGOUTPUT_bold : STRINGOUTPUT_emptyformat),currentsetfontsize);
 			iparms=iparmsstring;
 			#endif
 		}
@@ -1617,6 +1633,29 @@ iBBX.right+ibonddist2*cos(cangle)+ibonddist4*(cos(cangle)-(cos(langle)*tlrightta
 		{
 			printf("Passive:%s",finalstring);
 			int tlformlabeltype=((*glob_s_multilist).bufferlist)[ilv2].face;
+			currentsetfontsize=(((*glob_s_multilist).bufferlist))[ilv2].size;
+			#ifdef LENNARD_HACK
+			if ((currentsetfontsize>20.0) || (tlformlabeltype & 0x10))
+			{
+				if (currentsetfontsize>99.0)
+				{
+					iparms=STRINGOUTPUT_emptyformat;
+				}
+				else
+				{
+					iparms=STRINGOUTPUT_bold;
+					currentsetfontsize=24;
+				}
+			}
+			else
+			{
+				currentsetfontsize=18;
+			}
+			#endif
+			#ifdef CAMBRIDGESOFT_CONFORMING
+			sprintf(iparmsstring,"%s",((tlformlabeltype & 0x10) ? STRINGOUTPUT_bold : STRINGOUTPUT_emptyformat),currentsetfontsize);
+			iparms=iparmsstring;
+			#endif
 			/*fprintf(outfile,"<tspan %s style=\"fill:#%s\">%s</tspan>%s\n",
 			(tlformlabeltype & 0x20) ? "dy=\"+3\" font-size=\"14\"" : ((tlformlabeltype & 0x40) ? "dy=\"-3\" font-size=\"14%\"":""),
 			colorstring,finalstring,(tlformlabeltype & 0x20)?"<tspan dy=\"-3\"/>":((tlformlabeltype & 0x40)?"<tspan dy=\"3\"/>":""));*/

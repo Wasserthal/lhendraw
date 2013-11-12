@@ -1,5 +1,5 @@
 Total_Document;CDXML ;;
-CDXML;colortable page fonttable ;4 BoundingBox ;
+CDXML;colortable page fonttable LENHACK_ANNOTATION ;4 BoundingBox ;
 page;group fragment t graphic arrow curve ;;
 group;annotation group fragment t graphic arrow curve ;;
 fragment;annotation n b t graphic arrow curve ;;
@@ -16,3 +16,4 @@ line;annotation ;0 id 0 color 0 SupersededBy 4 BoundingBox 0 Z ! ArrowType ! Lin
 graphic;annotation ;0 id 0 color 0 SupersededBy 4 BoundingBox 0 Z ! GraphicType ! ArrowType ! SymbolType 1 AngularSize ‼ OvalType ! RectangleType ! LineType ;
 annotation;;s Keyword s Content ;
 curve;;0 id 0 color 0 Z ! ArrowheadType ! ArrowheadHead ! ArrowheadTail ~ CurvePoints ! FillType 0 CurveType ! Closed ;
+LENHACK_ANNOTATION;;0 IgnoreTextboxes ;

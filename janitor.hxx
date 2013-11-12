@@ -88,6 +88,22 @@ char insertinZlist(int tlthisZ, int listnr, int nr)
 	}
 	return 0;
 }
+char deletefromZlist(int listnr, int nr)
+{
+	for (int ilv1=0;ilv1<bufferlistsize*multilistZcount;ilv1++)
+	{
+		if (objectZorderlist[ilv1].listnr==listnr)
+		{
+			if (objectZorderlist[ilv1].nr==nr)
+			{
+				objectZorderlist[ilv1].nr=-1;
+				objectZorderlist[ilv1].listnr=-1;
+				return 1;
+			}
+		}
+	}
+	return -1;
+}
 multi_objref sortlist()
 {
 }

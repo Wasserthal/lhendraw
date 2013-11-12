@@ -5,6 +5,9 @@ float Pi=3.141592654;
 #define _small int
 #include "definitionlist.h"
 #include "janitor.hxx"
+#ifdef LENNARD_HACK
+char LENNARD_HACK_dokilltext;
+#endif
 float getangle(float dx,float dy)
 {
 	float frac;
@@ -62,6 +65,41 @@ float SVG_width,SVG_height;
 float SVG_ileft,SVG_itop;
 float SVG_currentfringex,SVG_currentfringey;
 float SVG_currentshiftx,SVG_currentshifty;
+
+struct atom_actual_node_
+{
+	_small bonds[10];
+	_small bondcount;
+	_small special;//offset in text list. TODO**** for other purposes (if applicable)
+	inline char operator += (_small input)
+	{
+		if (bondcount<10)
+		{
+			bonds[bondcount++]=input;
+			return 1;
+		}
+		else
+		{
+			return 0;
+		}
+	}
+};
+
+atom_actual_node_ atom_actual_node[bufferlistsize];
+struct bond_actual_node_
+{
+	_small start,end;
+	float cotanleft[2],cotanright[2];//fw,bw==end,start NOTE: when [1], right and left are also seen from the other side.
+	float xcotanleft[2],xcotanright[2];//fw,bw==end,start NOTE: when [1], right and left are also seen from the other side.
+	float numberleft[2],numberright[2];
+};
+
+bond_actual_node_ bond_actual_node[bufferlistsize];
+struct text_actual_node_
+{
+	_small owner;
+};
+text_actual_node_ text_actual_node[bufferlistsize];
 color_instance * get_color(int number)
 {
 	if (number==0)
@@ -142,6 +180,10 @@ void getcaptions(float * width,float * height,float * left,float * top)
 	multilist<t_instance> * i_t_multilist=retrievemultilist<t_instance>();
 	for (int ilv1=0;ilv1<(*i_t_multilist).filllevel;ilv1++)
 	{
+		#ifdef LENNARD_HACK
+		if ((text_actual_node[ilv1].owner!=-1) || (LENNARD_HACK_dokilltext==0))
+		{
+		#endif
 		t_instance * i_t_instance=(t_instance*)&((*i_t_multilist).bufferlist[ilv1]);
 		if ((*i_t_instance).BoundingBox.top>maxy)
 		{
@@ -151,6 +193,9 @@ void getcaptions(float * width,float * height,float * left,float * top)
 		{
 			maxy=(*i_t_instance).BoundingBox.bottom;
 		}
+		#ifdef LENNARD_HACK
+		}
+		#endif
 	}
 	for (int ilv1=0;ilv1<(*i_curve_multilist).filllevel;ilv1++)
 	{
@@ -243,40 +288,6 @@ void getcaptions(float * width,float * height,float * left,float * top)
 	}
 }
 
-struct atom_actual_node_
-{
-	_small bonds[10];
-	_small bondcount;
-	_small special;//offset in text list. TODO**** for other purposes (if applicable)
-	inline char operator += (_small input)
-	{
-		if (bondcount<10)
-		{
-			bonds[bondcount++]=input;
-			return 1;
-		}
-		else
-		{
-			return 0;
-		}
-	}
-};
-
-atom_actual_node_ atom_actual_node[bufferlistsize];
-struct bond_actual_node_
-{
-	_small start,end;
-	float cotanleft[2],cotanright[2];//fw,bw==end,start NOTE: when [1], right and left are also seen from the other side.
-	float xcotanleft[2],xcotanright[2];//fw,bw==end,start NOTE: when [1], right and left are also seen from the other side.
-	float numberleft[2],numberright[2];
-};
-
-bond_actual_node_ bond_actual_node[bufferlistsize];
-struct text_actual_node_
-{
-	_small owner;
-};
-text_actual_node_ text_actual_node[bufferlistsize];
 
 char getleftof(cdx_Point2D * istart,cdx_Point2D * iend,cdx_Point2D * ikink)
 {
@@ -334,7 +345,7 @@ void getatoms()//makes some preprocessing
 	{
 		text_actual_node[ilv1].owner=-1;
 	}
-	for (int ilv1=0;ilv1<(*glob_b_multilist).filllevel;ilv1++)
+	for (int ilv1=0;ilv1<(*glob_b_multilist).filllevel;ilv1++)//defines processable bonds
 	{
 		bond_actual_node[ilv1].cotanleft[0]=Pi/4;
 		bond_actual_node[ilv1].cotanleft[1]=Pi/4;
@@ -362,7 +373,7 @@ void getatoms()//makes some preprocessing
 			}
 		}
 	}
-	for (int ilv1=0;ilv1<(*glob_n_multilist).filllevel;ilv1++)
+	for (int ilv1=0;ilv1<(*glob_n_multilist).filllevel;ilv1++)//defines processable atoms
 	{
 		n_instance * tlatominstance=&((*glob_n_multilist).bufferlist[ilv1]);
 		for (int ilv2=0;ilv2<atom_actual_node[ilv1].bondcount;ilv2++)
@@ -384,7 +395,7 @@ void getatoms()//makes some preprocessing
 				}
 			}
 		}
-		for (int ilv2=0;ilv2<atom_actual_node[ilv1].bondcount;ilv2++)
+		for (int ilv2=0;ilv2<atom_actual_node[ilv1].bondcount;ilv2++)//checks how atoms behave towards bonds and text
 		{
 			bond_actual_node_ * i_bond_actual_node=&(bond_actual_node[atom_actual_node[ilv1].bonds[ilv2]]);
 			float tlleftest,tlrightest;
@@ -449,7 +460,7 @@ void getatoms()//makes some preprocessing
 			atom_actual_node[ilv1].special=ilv2;
 		}
 	}
-	for (int ilv1=0;ilv1<(*glob_b_multilist).filllevel;ilv1++)
+	for (int ilv1=0;ilv1<(*glob_b_multilist).filllevel;ilv1++)//refines undefined double bonds
 	{
 		b_instance * currentbondinstance=&((*glob_b_multilist).bufferlist[ilv1]);
 		int i_side_orvariable;
@@ -780,11 +791,54 @@ void svg_findaround()
 	glob_font_multilist=retrievemultilist<font_instance>();
 	glob_curve_multilist=retrievemultilist<curve_instance>();
 	glob_arrow_multilist=retrievemultilist<arrow_instance>();
+	LENNARD_HACK_dokilltext=0;
+	#ifdef LENNARD_HACK
+	{
+		multilist<LENHACK_ANNOTATION_instance> * tl_LENHACK_ANNOTATION_MULTILIST=retrievemultilist<LENHACK_ANNOTATION_instance>();
+		for (int ilv1=0;ilv1<(*tl_LENHACK_ANNOTATION_MULTILIST).filllevel;ilv1++)
+		{
+			if ((*tl_LENHACK_ANNOTATION_MULTILIST).bufferlist[ilv1].IgnoreTextboxes)
+			{
+				LENNARD_HACK_dokilltext=1;
+			}
+		}
+	}
+	#endif
+	/*Piece from getatoms information needed also when there are no graphics form bound calculation*/
+	for (int ilv1=0;ilv1<bufferlistsize;ilv1++)
+	{
+		atom_actual_node[ilv1].bondcount=0;
+		atom_actual_node[ilv1].special=-1;
+	}
+	for (int ilv1=0;ilv1<bufferlistsize;ilv1++)
+	{
+		text_actual_node[ilv1].owner=-1;
+	}
+	for (int ilv1=0;ilv1<(*glob_n_multilist).filllevel;ilv1++)//defines processable atoms
+	{
+		n_instance * tlatominstance=&((*glob_n_multilist).bufferlist[ilv1]);
+		for (int ilv2=(*((*glob_n_multilist).bufferlist)[ilv1].t).start_in_it;ilv2<(*((*glob_n_multilist).bufferlist)[ilv1].t).start_in_it+(*((*glob_n_multilist).bufferlist)[ilv1].t).count_in_it;ilv2++)//allows for multiple text items on one atom. Nonsense.
+		{
+			if ((*glob_t_multilist).bufferlist[ilv2].LabelAlignment==-1)
+			{
+				(*glob_t_multilist).bufferlist[ilv2].p.x=((*glob_n_multilist).bufferlist)[ilv1].p.x+7;
+			}
+			else
+			{
+				(*glob_t_multilist).bufferlist[ilv2].p.x=((*glob_n_multilist).bufferlist)[ilv1].p.x-7;
+			}
+			(*glob_t_multilist).bufferlist[ilv2].p.y=((*glob_n_multilist).bufferlist)[ilv1].p.y+atomfontheight/3;
+			text_actual_node[ilv2].owner=ilv1;
+			atom_actual_node[ilv1].special=ilv2;
+		}
+	}
+	/*This was a piece from getatoms information needed also when there are no graphics form bound calculation*/
 	getcaptions(&SVG_width,&SVG_height,&SVG_ileft,&SVG_itop);
 	SVG_ileft-=10;
 	SVG_itop-=10;
 	SVG_width+=20;
 	SVG_height+=20;
+
 }
 
 void expressbezier(float x1,float y1,float x2,float y2,float x3,float y3,float x4,float y4)
@@ -949,11 +1003,38 @@ void printformatted(const char * iinput,const char * parms,int imode,int start,i
 	if (ilv4<end) {fprintf(outfile,"<tspan dy=\"20\" x=\"0\">&#8288;</tspan>");goto thatwasatemporaryskip;}//a line break;
 }
 
+#ifdef LENNARD_HACK
+void LENNARD_HACK_killtext()
+{
+	int tl_t_number=-1;
+	for (int ilv1=0;ilv1<multilist_count;ilv1++)
+	{
+		if (multilistlist.instances[ilv1]==glob_t_multilist)
+		{
+			tl_t_number=ilv1;
+		}
+	}
+	for (int ilv1=0;ilv1<(*glob_t_multilist).filllevel;ilv1++)
+	{
+		if (text_actual_node[ilv1].owner==-1)
+		{
+			deletefromZlist(tl_t_number,ilv1);
+		}
+	}
+}
+#endif
+
 void svg_head(const char * filename,float width,float height)
 {
 	outfile=fopen(filename,"w+");
 	getatoms();
 	initZlist();
+	#ifdef LENNARD_HACK
+	if (LENNARD_HACK_dokilltext)
+	{
+		LENNARD_HACK_killtext();
+	}
+	#endif
 	fprintf(outfile,"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>");
 	fprintf(outfile,"<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">");
 //	fprintf(outfile,"<svg version=\"1.0\" width=\"%f\" height=\"%f\">\n",SVG_width-SVG_ileft,SVG_height-SVG_itop);

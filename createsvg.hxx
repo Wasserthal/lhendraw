@@ -967,7 +967,9 @@ float currentsetfontsize=18;
 void printformatted(const char * iinput,const char * parms,int imode,int start,int end)
 {
 	int ilv4=start;
+	char linebreak;
 	thatwasatemporaryskip:
+	linebreak=0;
 	if (imode==1)
 	{
 		fprintf(outfile,"<tspan dy=\"+3\" %s font-size=\"%f\" style=\"fill:#%s\">",parms,currentsetfontsize*0.77777,colorstring);
@@ -985,6 +987,7 @@ void printformatted(const char * iinput,const char * parms,int imode,int start,i
 		if (iinput[ilv4]==10)
 		{
 			ilv4++;
+			linebreak=1;
 			goto skipfornow;
 		}
 		fprintf(outfile,"%c",iinput[ilv4]);
@@ -1000,7 +1003,7 @@ void printformatted(const char * iinput,const char * parms,int imode,int start,i
 		fprintf(outfile,"<tspan %s dy=\"3\">&#8288;</tspan>",parms);
 	}
 	fprintf(outfile,"\n");
-	if (ilv4<end) {fprintf(outfile,"<tspan dy=\"20\" x=\"0\">&#8288;</tspan>");goto thatwasatemporaryskip;}//a line break;
+	if (linebreak) {fprintf(outfile,"<tspan dy=\"20\" x=\"0\">&#8288;</tspan>");if (ilv4<end) goto thatwasatemporaryskip;}//a line break;
 }
 
 #ifdef LENNARD_HACK

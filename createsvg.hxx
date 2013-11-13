@@ -896,20 +896,12 @@ tlArrowTopx+cos(tllangle)*tllinedist*2-cos(tlcangle)*tllinedist*2,tlArrowTopy+si
 			}
 			case 3 :
 			{
-				tllangle=tllangle+Pi;
+				tlcangle=tlcangle+Pi;
 			}
 			case 2 :
 			{
 				stylegenestring(3);
 				if (currentArrowHeadType==0)
-				{
-					expresstetrangle(tlArrowTopx,tlArrowTopy,
-tlArrowTopx+cos(tllangle)*arrowheadlength+cos(tlcangle)*arrowthickness,tlArrowTopy+sin(tllangle)*arrowheadlength+sin(tlcangle)*arrowthickness,
-tlArrowTopx+cos(tllangle)*arrowheadlength,tlArrowTopy+sin(tllangle)*arrowheadlength,
-tlArrowTopx,tlArrowTopy,
-stylestring);
-				}
-				if (currentArrowHeadType==55)
 				{
 					expresstetrangle(tlArrowTopx+tllinedist*cos(tlcangle),tlArrowTopy+tllinedist*sin(tlcangle),
 tlArrowTopx+cos(tllangle)*arrowheadlength+(arrowthickness+tllinedist)*cos(tlcangle),tlArrowTopy+sin(tllangle)*arrowheadlength+(arrowthickness+tllinedist)*sin(tlcangle),
@@ -1054,7 +1046,6 @@ void svg_controlprocedure(bool irestriction=0)
 	cdx_Rectangle tlBoundingBox;
 	int tlGraphicType;
 	int tlAngularSize;
-	int tlLineType;
 	for (ilv1=0;ilv1<bufferlistsize*multilistZcount;ilv1++)
 	{
 		if (objectZorderlist[ilv1].listnr!=-1)
@@ -1172,7 +1163,7 @@ void svg_controlprocedure(bool irestriction=0)
 	colornr=(*i_graphic_instance).color;
 	tlGraphicType=(*i_graphic_instance).GraphicType;
 	tlAngularSize=(*i_graphic_instance).AngularSize;
-	tlLineType=(*i_graphic_instance).LineType;
+	currentLineType=(*i_graphic_instance).LineType;
 	get_colorstring(colornr);
 	currentArrowHeadType=0;
 	currentArrowHeadTail=0;
@@ -1201,7 +1192,6 @@ void svg_controlprocedure(bool irestriction=0)
 	{
 		currentLineType=0x100;
 		tllinedist=4;
-		currentArrowHeadType=55;
 		currentArrowHeadHead=2;
 		currentArrowHeadTail=2;
 	}
@@ -1218,7 +1208,7 @@ void svg_controlprocedure(bool irestriction=0)
 	if (currentArrowHeadType==2) {if (currentArrowHeadHead&1){tllefttan2=1;}if (currentArrowHeadHead&2){tlrighttan2=1;}if (currentArrowHeadTail&1){tllefttan=1;}if (currentArrowHeadTail&2){tlrighttan=1;}}
 	if (tlGraphicType==1)
 	{
-		stylegenestring(stylefromline(tlLineType));
+		stylegenestring(stylefromline(currentLineType));
 		cangle=getangle(iBBX.right-iBBX.left,iBBX.bottom-iBBX.top)+Pi/2;
 		langle=getangle(iBBX.right-iBBX.left,iBBX.bottom-iBBX.top);
 		if (currentLineType &0x100)
@@ -1250,7 +1240,7 @@ void svg_controlprocedure(bool irestriction=0)
 			 langle=(tlangle-Pi/2.0);
 		}
 		cangle=langle+Pi/2.0;
-		stylegenestring(stylefromline(tlLineType));
+		stylegenestring(stylefromline(currentLineType));
 		if (currentLineType &0x100)
 		{
 //TODO****				expressarc(iBBX.right,iBBX.bottom
@@ -1368,12 +1358,15 @@ void svg_controlprocedure(bool irestriction=0)
 	tllefttan2=0;
 	tlrighttan2=0;
 	langle=0;cangle=0;
-	tlLineType=(*i_arrow_instance).LineType;//0: normal 2: Bold 0x100: Double
-	currentLineType=(*i_arrow_instance).LineType;//TODO: remove one of the line types
+	currentLineType=(*i_arrow_instance).LineType;//0: normal 2: Bold 0x100: Double
+	if (((*i_arrow_instance).ArrowShaftSpacing)>0)
+	{
+		tllinedist=4;
+		currentLineType|=0x100;
+	}
 	if (currentArrowHeadType & 3)
 	{
 		tllinedist=8;
-		tlLineType|=0x100;
 		currentLineType|=0x100;
 	}
 	tlAngularSize=(*i_arrow_instance).AngularSize;

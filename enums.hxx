@@ -36,7 +36,6 @@ bienum CDXML_ArrowheadType[] {
 {{"Solid"},0},//electron move,electronpair move, reaction, equillibrium, Resonance
 {{"Hollow"},1},//Children's traffic arrow. Neat to show atom movements.
 {{"Angle"},2},//Retrosynthetic
-{{"LhendrawInternalOffByOne"},55},//Tells me that that arrowhead is shifted, as in equillibrium.
 };
 int CDXML_ArrowheadType_max=sizeof(CDXML_ArrowheadType)/sizeof(CDXML_ArrowheadType[0]);
 bienum CDXML_BracketType[] {

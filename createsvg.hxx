@@ -591,6 +591,16 @@ void expressarc(float centerx,float centery,float radiusx,float radiusy,float st
 	endy=centery+radiusy*sin(endangle)+SVG_currentshifty;
 	fprintf(outfile,"<path d=\"M %f,%f A %f,%f %i %i %i %f %f\" %s />",startx,starty,radiusx,radiusy,(int)0,(int)(fabs(startangle-endangle)>=Pi),(int)(startangle-endangle)<0,endx,endy,stylestring);
 }
+void expressarc_enhanced(float centerx,float centery,float radiusx,float radiusy,float startangle,float endangle,float tiltangle)
+{
+	float startx,starty;
+	float endx,endy;
+	startx=centerx+(radiusx*cos(startangle)*cos(tiltangle)-radiusy*sin(startangle)*sin(tiltangle))+SVG_currentshiftx;
+	starty=centery+(radiusy*sin(startangle)*cos(tiltangle)+radiusx*cos(startangle)*sin(tiltangle))+SVG_currentshifty;
+	endx=centerx+(radiusx*cos(endangle)*cos(tiltangle)-radiusy*sin(endangle)*sin(tiltangle))+SVG_currentshiftx;
+	endy=centery+(radiusy*sin(endangle)*cos(tiltangle)+radiusx*cos(endangle)*sin(tiltangle))+SVG_currentshifty;
+	fprintf(outfile,"<path d=\"M %f,%f A %f,%f %i %i %i %f %f\" %s />",startx,starty,radiusx,radiusy,(int)(tiltangle*180.0/Pi),(int)(fabs(startangle-endangle)>=Pi),(int)(startangle-endangle)<0,endx,endy,stylestring);
+}
 
 char iswedgenr(_small input)
 {
@@ -933,12 +943,72 @@ int ilv1;
 int currentArrowHeadType;
 int currentArrowHeadTail;
 int currentArrowHeadHead;
+char currentEllipsemode;
 float tllinedist;
 float tllefttan;
 float tlrighttan;
 float tllefttan2;
 float tlrighttan2;
 int currentLineType;//0: normal 2: Bold 0x100: Double
+struct ellipsoid_
+{
+	float majx,majy;
+	float minx,miny;
+	float normalizedmajx,normalizedmajy;
+	float normalizedminx,normalizedminy;
+	float radiusx,radiusy;
+	float internal1,internal2;
+	float internalrad,internalangle;
+	float axangle;
+	void create(cdx_Point3D iCenter,cdx_Point3D iMajor,cdx_Point3D iMinor)
+	{
+		majx=iMajor.x-iCenter.x;
+		majy=iMajor.y-iCenter.y;
+		minx=iMinor.x-iCenter.x;
+		miny=iMinor.y-iCenter.y;
+		radiusx=sqrt(sqr(majx)+sqr(majy));
+		radiusy=sqrt(sqr(minx)+sqr(miny));
+/*		if (radiusx<radiusy)
+		{
+			float swap;
+			swap=majx;
+			majx=majy;
+			majy=swap;
+			swap=minx;
+			minx=miny;
+			miny=swap;
+			swap=radiusx;
+			radiusx=radiusy;
+			radiusy=swap;
+		}*/
+		if (radiusx>0.0000001)
+		{
+			normalizedmajx=majx/radiusx;
+			normalizedmajy=majy/radiusx;
+		}
+		if (radiusy>0.0000001)
+		{
+			normalizedminx=minx/radiusy;
+			normalizedminy=miny/radiusy;
+		}
+		axangle=getangle(majx,majy);
+	}
+	void reset()
+	{
+		normalizedmajx=1;
+		normalizedminx=0;
+		normalizedmajy=0;
+		normalizedminy=1;
+		axangle=0;
+	}
+	void fill(float x,float y)
+	{
+		internal1=(normalizedmajx*x+normalizedmajy*y)/radiusx;
+		internal2=(normalizedminx*x+normalizedminy*y)/radiusy;
+		internalrad=sqrt(sqr(internal1)+sqr(internal2));
+		internalangle=getangle(internal1,internal2);
+	}
+} ellipsoid;
 float textdeltax,textdeltay;
 char specialS;
 char specialE;
@@ -1165,6 +1235,7 @@ void svg_controlprocedure(bool irestriction=0)
 	tlAngularSize=(*i_graphic_instance).AngularSize;
 	currentLineType=(*i_graphic_instance).LineType;
 	get_colorstring(colornr);
+	ellipsoid.reset();
 	currentArrowHeadType=0;
 	currentArrowHeadTail=0;
 	currentArrowHeadHead=0;
@@ -1175,6 +1246,7 @@ void svg_controlprocedure(bool irestriction=0)
 	tlrighttan2=0;
 	langle=0;cangle=0;
 	currentLineType=0;//0: normal 2: Bold 0x100: Double
+	currentEllipsemode=0;
 	if ((*i_graphic_instance).ArrowType & 1)
 	{
 		currentArrowHeadHead=2;
@@ -1246,7 +1318,16 @@ void svg_controlprocedure(bool irestriction=0)
 //TODO****				expressarc(iBBX.right,iBBX.bottom
 		}
 		else
-		expressarc(iBBX.right,iBBX.bottom,tlradius,tlradius,tlangle,tlangle+((tlAngularSize/180.0)*Pi));
+		{
+			if (currentEllipsemode)
+			{
+				expressarc_enhanced(iBBX.right,iBBX.bottom,ellipsoid.radiusx,ellipsoid.radiusy,ellipsoid.internalangle,ellipsoid.internalangle+((tlAngularSize/180.0)*Pi),ellipsoid.axangle);
+			}
+			else
+			{
+				expressarc(iBBX.right,iBBX.bottom,tlradius,tlradius,tlangle,tlangle+((tlAngularSize/180.0)*Pi));
+			}
+		}
 		otherlangle=langle+((tlAngularSize/180.0)*Pi)+Pi;
 		othercangle=otherlangle+Pi/2.0;
 		iBBX.right+=tlradius*cos(tlangle+((tlAngularSize/180.0)*Pi));
@@ -1359,6 +1440,7 @@ void svg_controlprocedure(bool irestriction=0)
 	tlrighttan2=0;
 	langle=0;cangle=0;
 	currentLineType=(*i_arrow_instance).LineType;//0: normal 2: Bold 0x100: Double
+	currentEllipsemode=0;
 	if (((*i_arrow_instance).ArrowShaftSpacing)>0)
 	{
 		tllinedist=4;
@@ -1375,6 +1457,9 @@ void svg_controlprocedure(bool irestriction=0)
 		tlGraphicType=2;
 		iBBX.right=(*i_arrow_instance).Center3D.x;
 		iBBX.bottom=(*i_arrow_instance).Center3D.y;
+		ellipsoid.create((*i_arrow_instance).Center3D,(*i_arrow_instance).MajorAxisEnd3D,(*i_arrow_instance).MinorAxisEnd3D);
+		ellipsoid.fill((*i_arrow_instance).Head3D.x-(*i_arrow_instance).Center3D.x,(*i_arrow_instance).Head3D.y-(*i_arrow_instance).Center3D.y);
+		currentEllipsemode=1;
 	}
 	else
 	{

@@ -1683,9 +1683,9 @@ void svg_main(const char * filename)
 	SVG_currentshifty=-SVG_itop;
 	SVG_currentfringex=((unsigned int)-1)>>1;
 	SVG_currentfringey=((unsigned int)-1)>>1;
-	svg_controlprocedure();
 	#ifdef LENNARD_HACK
 	Lennard_hatch();
 	#endif
+	svg_controlprocedure();
 	svg_tail();
 }

@@ -172,7 +172,7 @@ void HATCH_shrink()
 		goto iback;
 	}
 }
-int HATCH_followborder(int starting,int next,_u32 maytouchrim)//maytouchrim: Bit0: not_rim_points allowed Bit1: not_rim points allowed when hadrim Bit2: rim_points allowed when not had rim Bit3: rim_points allowed when had rim. shl4: after having left rim
+int HATCH_followborder(char inverse,int starting,int next,_u32 maytouchrim,char force=0)//maytouchrim: Bit0: not_rim_points allowed Bit1: not_rim points allowed when hadrim Bit2: rim_points allowed when not had rim Bit3: rim_points allowed when had rim. shl4: after having left rim
 {
 	int tllast=0;
 	int icurrentpos;
@@ -190,7 +190,14 @@ int HATCH_followborder(int starting,int next,_u32 maytouchrim)//maytouchrim: Bit
 	currenthatchlist[currenthatchlist_count++]=icurrentpos;
 	iangle=getangle(HATCH_atom[icurrentpos].x-HATCH_atom[tllast].x,HATCH_atom[icurrentpos].y-HATCH_atom[tllast].y);
 	ileftmost=-1;
-	minangle=-4*Pi;
+	if (inverse==0)
+	{
+		minangle=-4*Pi;
+	}
+	else
+	{
+		minangle=4*Pi;
+	}
 	for (int ilv2=0;ilv2<HATCH_atom[icurrentpos].bond_count;ilv2++)
 	{
 		if (HATCH_atom[icurrentpos].bonds[ilv2]!=tllast)
@@ -204,10 +211,13 @@ int HATCH_followborder(int starting,int next,_u32 maytouchrim)//maytouchrim: Bit
 			}
 			else
 			{
-				leftmost_bond=ilv2;
-				ileftmost=HATCH_atom[icurrentpos].bonds[ilv2];
-				minangle=0;
-				goto mustbethis;
+				if (HATCH_atom[icurrentpos].bondpassed[ilv2]==0)
+				{
+					leftmost_bond=ilv2;
+					ileftmost=HATCH_atom[icurrentpos].bonds[ilv2];
+					minangle=0;
+					goto mustbethis;
+				}
 			}
 			if (HATCH_atom[icurrentpos].bondpassed[ilv2]==0)
 			{
@@ -221,7 +231,7 @@ int HATCH_followborder(int starting,int next,_u32 maytouchrim)//maytouchrim: Bit
 				float iangle2=getangle(HATCH_atom[HATCH_atom[icurrentpos].bonds[ilv2]].x-HATCH_atom[icurrentpos].x,HATCH_atom[HATCH_atom[icurrentpos].bonds[ilv2]].y-HATCH_atom[icurrentpos].y);
 				float iangle3=(fmod((iangle2-iangle+4*Pi),2*Pi));
 				if (iangle3>=Pi) iangle3-=2*Pi;
-				if (iangle3>minangle)
+				if ((iangle3>minangle) ^ (inverse))
 				{
 					leftmost_bond=ilv2;
 					ileftmost=HATCH_atom[icurrentpos].bonds[ilv2];
@@ -235,6 +245,18 @@ int HATCH_followborder(int starting,int next,_u32 maytouchrim)//maytouchrim: Bit
 	mustbethis:
 	if (ileftmost==-1)
 	{
+		if (force)
+		{
+			printf("forcing!!!!\n");
+			fprintf(outfile,"<path d=\" ");
+			fprintf(outfile,"M %f,%f ",HATCH_atom[starting].x+SVG_currentshiftx,HATCH_atom[starting].y+SVG_currentshifty);
+			for (int ilv1=0;ilv1<currenthatchlist_count;ilv1++)
+			{
+				fprintf(outfile,"L %f,%f ",HATCH_atom[currenthatchlist[ilv1]].x+SVG_currentshiftx,HATCH_atom[currenthatchlist[ilv1]].y+SVG_currentshifty);
+			}
+			fprintf(outfile,"z \" style=\"fill:#FF0000;color:none;\" opacity=\"0.8\"/>\n",inverse?"00FF00":"007F00");
+			return 0;
+		}
 		return -1;
 	}
 	if (HATCH_atom[icurrentpos].isrim==1)
@@ -285,10 +307,10 @@ int HATCH_followborder(int starting,int next,_u32 maytouchrim)//maytouchrim: Bit
 	{
 		fprintf(outfile,"L %f,%f ",HATCH_atom[currenthatchlist[ilv1]].x+SVG_currentshiftx,HATCH_atom[currenthatchlist[ilv1]].y+SVG_currentshifty);
 	}
-	fprintf(outfile,"z \" style=\"fill:#00FF00;color:none;\" opacity=\"0.8\"/>\n");
+	fprintf(outfile,"z \" style=\"fill:#%s;color:none;\" opacity=\"0.8\"/>\n",inverse?"00FF00":"007F00");
 	return 0;
 }
-void HATCH_follownextborder(char inverse,char startonrim,int maytouchrim)
+void HATCH_follownextborder(char inverse,char startonrim,int maytouchrim,char force=0)
 {
 	iback:
 	char changed=0;
@@ -304,7 +326,7 @@ void HATCH_follownextborder(char inverse,char startonrim,int maytouchrim)
 					int tlotherbond=HATCH_atom[ilv1].bondfriends[ilv2];
 					if (HATCH_atom[tlotheratom].bondpassed[tlotherbond]==0)
 					{
-						if (HATCH_followborder(tlotheratom,ilv1,maytouchrim)>=0)
+						if (HATCH_followborder(inverse,tlotheratom,ilv1,maytouchrim,force)>=0)
 						{
 							changed=1;
 						}
@@ -431,12 +453,13 @@ void HATCH_main(float centerx,float centery)
 	{
 		int tlfirst; int tlsecond;
 		HATCH_getborders(centerx,centery,&tlfirst,&tlsecond);
-		HATCH_followborder(tlfirst,tlsecond,0xFF);
+		HATCH_followborder(0,tlfirst,tlsecond,0xFF);
 		HATCH_follownextborder(0,0x5,0x3);
 
 		HATCH_follownextborder(0,0x5,0xD);
-/*		HATCH_followborder(tlsecond,tlfirst);
-		HATCH_follownextborder(1);*/
+		HATCH_followborder(1,tlsecond,tlfirst,0xFF);
+		HATCH_follownextborder(1,0x5,0xD);
+		HATCH_follownextborder(1,0xA,0xFF,true);
 		for (int ilv1=0;ilv1<HATCH_atom_count;ilv1++)
 		{
 			get_colorstring(4);

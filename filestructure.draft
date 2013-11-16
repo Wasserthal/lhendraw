@@ -17,3 +17,4 @@ graphic;annotation ;0 id 0 color 0 SupersededBy 4 BoundingBox 0 Z ! GraphicType 
 annotation;;s Keyword s Content ;
 curve;;0 id 0 color 0 Z ! ArrowheadType ! ArrowheadHead ! ArrowheadTail ~ CurvePoints ! FillType 0 CurveType ! Closed ;
 LENHACK_ANNOTATION;;0 IgnoreTextboxes ;
+moleculefill;;1 Z T Points 0 RGB ;

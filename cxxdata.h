@@ -46,6 +46,12 @@ typedef struct cdx_Bezierpoints
 	int count;
 };
 
+typedef struct cdx_Pointreferences
+{
+	int a[bezierpointmax]; //TODO**** turn this, and strings, into buffer indices
+	int count;
+};
+
 inline void clear_cdx_String(cdx_String & input)
 {
 	input.a[0]=0;
@@ -146,6 +152,22 @@ int __attribute__((sysv_abi))CDXMLREAD_cdx_Bezierpoints(char * input,void * outp
 	while(spaciatic(input[ilv1])) ilv1++;
 	if (input[ilv1]==0) return ilv1;
 	ilv1+=CDXMLREAD_float(input+ilv1,&((*list).a[(*list).count].y));
+	while(spaciatic(input[ilv1])) ilv1++;
+	if (input[ilv1]==0) ended=1;
+	(*list).count++;
+	if (!ended) goto iback;
+	return ilv1;
+}
+
+int __attribute__((sysv_abi))CDXMLREAD_cdx_Pointreferences(char * input,void * output)
+{
+	int ilv1;
+	cdx_Pointreferences * list=(cdx_Pointreferences*)output;
+	char ended=0;
+	(*list).count=0;
+	ilv1=0;
+	iback:
+	ilv1+=CDXMLREAD__i32(input+ilv1,&((*list).a[(*list).count]));
 	while(spaciatic(input[ilv1])) ilv1++;
 	if (input[ilv1]==0) ended=1;
 	(*list).count++;

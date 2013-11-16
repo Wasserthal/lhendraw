@@ -13,6 +13,8 @@ int HATCH_atom_count=0;
 float getangle(float dx,float dy);
 int currenthatchlist[250];
 int currenthatchlist_count;
+extern multilist<n_instance> * glob_n_multilist;
+extern multilist<moleculefill_instance> * glob_moleculefill_multilist;
 void HATCH_intorder_atom(HATCH_atom_ &iinput)
 {
 	float iangle=getangle(HATCH_atom[iinput.bonds[0]].x-iinput.x,HATCH_atom[iinput.bonds[0]].y-iinput.y);
@@ -301,14 +303,46 @@ int HATCH_followborder(char inverse,int starting,int next,_u32 maytouchrim,char 
 			HATCH_atom[currenthatchlist[currenthatchlist_count-1]].bondpassed[ilv2]=1;
 		}
 	}
-	fprintf(outfile,"<path d=\" ");
-	fprintf(outfile,"M %f,%f ",HATCH_atom[starting].x+SVG_currentshiftx,HATCH_atom[starting].y+SVG_currentshifty);
+	moleculefill_instance * imoleculefill=&((*glob_moleculefill_multilist).bufferlist[(*glob_moleculefill_multilist).filllevel++]);
+	(*imoleculefill).Points.count=0;
+	(*imoleculefill).Points.a[(*imoleculefill).Points.count++]=HATCH_atom[starting].relate;
 	for (int ilv1=0;ilv1<currenthatchlist_count;ilv1++)
 	{
-		fprintf(outfile,"L %f,%f ",HATCH_atom[currenthatchlist[ilv1]].x+SVG_currentshiftx,HATCH_atom[currenthatchlist[ilv1]].y+SVG_currentshifty);
+		(*imoleculefill).Points.a[(*imoleculefill).Points.count++]=HATCH_atom[currenthatchlist[ilv1]].relate;
 	}
-	fprintf(outfile,"z \" style=\"fill:#%s;color:none;\" opacity=\"0.8\"/>\n",inverse?"00FF00":"007F00");
+	(*imoleculefill).RGB=rand()%16777215;
 	return 0;
+}
+void displayhatches()
+{
+	for (int ilv1=0;ilv1<(*glob_moleculefill_multilist).filllevel;ilv1++)
+	{
+		moleculefill_instance * tlmoleculefill=&((*glob_moleculefill_multilist).bufferlist[ilv1]);
+		fprintf(outfile,"<path d=\" ");
+		for (int ilv2=0;ilv2<(*tlmoleculefill).Points.count;ilv2++)
+		{
+			int iid=(*tlmoleculefill).Points.a[ilv2];
+			int ilv3;
+			for (ilv3=0;ilv3<(*glob_n_multilist).filllevel;ilv3++)
+			{
+				if ((*glob_n_multilist).bufferlist[ilv3].id==iid)
+				{
+					goto ifertig;
+				}
+			}
+			goto dontputthispoint;
+			ifertig:
+			;
+			{
+				n_instance * i_n_instance=&((*glob_n_multilist).bufferlist[ilv3]);
+				
+				fprintf(outfile,"%c %f,%f ",(ilv2==0)?'M':'L',(*i_n_instance).p.x+SVG_currentshiftx,(*i_n_instance).p.y+SVG_currentshifty);
+			}
+			dontputthispoint:
+			;
+		}
+		fprintf(outfile,"z \" style=\"fill:#%06X;color:none;\" opacity=\"0.1\"/>\n",(*tlmoleculefill).RGB);
+	}
 }
 void HATCH_follownextborder(char inverse,char startonrim,int maytouchrim,char force=0)
 {
@@ -460,6 +494,7 @@ void HATCH_main(float centerx,float centery)
 		HATCH_followborder(1,tlsecond,tlfirst,0xFF);
 		HATCH_follownextborder(1,0x5,0xD);
 		HATCH_follownextborder(1,0xA,0xFF,true);
+		displayhatches();
 		for (int ilv1=0;ilv1<HATCH_atom_count;ilv1++)
 		{
 			get_colorstring(4);

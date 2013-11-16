@@ -56,6 +56,7 @@ multilist<annotation_instance> * glob_annotation_multilist;
 multilist<font_instance> * glob_font_multilist;
 multilist<curve_instance> * glob_curve_multilist;
 multilist<arrow_instance> * glob_arrow_multilist;
+multilist<moleculefill_instance> * glob_moleculefill_multilist;
 char colorstring[7]="AABBCC";
 char colorstring2[7]="AABBCC";
 char resortedstring[stringlength];
@@ -801,6 +802,7 @@ void svg_findaround()
 	glob_font_multilist=retrievemultilist<font_instance>();
 	glob_curve_multilist=retrievemultilist<curve_instance>();
 	glob_arrow_multilist=retrievemultilist<arrow_instance>();
+	glob_moleculefill_multilist=retrievemultilist<moleculefill_instance>();
 	LENNARD_HACK_dokilltext=0;
 	#ifdef LENNARD_HACK
 	{

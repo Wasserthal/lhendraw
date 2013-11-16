@@ -125,6 +125,7 @@ void main(void)
 		case '5' : strcpy(properties_types[properties_count],"cdx_Coordinate");properties_type_nrs[properties_count]=1;break;
 		case '#' : strcpy(properties_types[properties_count],"_i32");properties_type_nrs[properties_count]=4;break;
 		case '~' : strcpy(properties_types[properties_count],"cdx_Bezierpoints");properties_type_nrs[properties_count]=6;break;
+		case 'T' : strcpy(properties_types[properties_count],"cdx_Pointreferences");properties_type_nrs[properties_count]=6;break;
 		case '!' : strcpy(properties_types[properties_count],"_i32");properties_type_nrs[properties_count]=5;break;//an ENUM
 		case '\\' : 
 		;

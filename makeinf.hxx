@@ -347,18 +347,19 @@ void Lennard_hatch()
 				if (((*i_graphic_instance).BoundingBox.right>SVG_currentbasex) && ((*i_graphic_instance).BoundingBox.bottom>SVG_currentbasey) &&
 				((*i_graphic_instance).BoundingBox.right<SVG_currentfringex) && ((*i_graphic_instance).BoundingBox.bottom<SVG_currentfringey))
 				{
+					float tlradiussqr=sqr((*i_graphic_instance).BoundingBox.left-(*i_graphic_instance).BoundingBox.right)+sqr((*i_graphic_instance).BoundingBox.top-(*i_graphic_instance).BoundingBox.bottom);
+					float tlradius=sqrt(tlradiussqr);
 					HATCH_atom_count=0;
 					for (int ilv2=0;ilv2<(*glob_n_multilist).filllevel;ilv2++)
 					{
 						n_instance * i_n_instance=(*glob_n_multilist).bufferlist+ilv2;
 						if (sqr((*i_n_instance).p.x-(*i_graphic_instance).BoundingBox.right)+
-	sqr((*i_n_instance).p.y-(*i_graphic_instance).BoundingBox.bottom)<sqr((*i_graphic_instance).BoundingBox.left-(*i_graphic_instance).BoundingBox.right)+
-	sqr((*i_graphic_instance).BoundingBox.top-(*i_graphic_instance).BoundingBox.bottom)+600)
+	sqr((*i_n_instance).p.y-(*i_graphic_instance).BoundingBox.bottom)<tlradiussqr+600)
 						{
 							HATCH_add_atom(ilv2);
 						}
 					}
-					HATCH_main((*i_graphic_instance).BoundingBox.right,(*i_graphic_instance).BoundingBox.bottom);
+					HATCH_main((*i_graphic_instance).BoundingBox.right,(*i_graphic_instance).BoundingBox.bottom,tlradius,tlradius);
 				}
 			}
 		}
@@ -378,6 +379,7 @@ void svg_main2(const char * filename,int count,char * * args)
 	main_multisvg(count,args);
 	svg_head(filename,makeinf_sortiment.width,makeinf_sortiment.height);
 	initZlist();
+	#ifdef LENNARD_HACK
 	char tlKLUDGEdontenumerate=0;
 	for (int ilv1=0;ilv1<(*glob_annotation_multilist).filllevel;ilv1++)// a Kludge
 	{
@@ -387,6 +389,7 @@ void svg_main2(const char * filename,int count,char * * args)
 			tlKLUDGEdontenumerate=1;
 		}
 	}
+	#endif
 	for (int ilv1=0;ilv1<count;ilv1++)
 	{
 		int tlnr=atoi(args[ilv1]);
@@ -411,10 +414,12 @@ void svg_main2(const char * filename,int count,char * * args)
 		#endif
 		svg_controlprocedure(1,1);
 		svg_controlprocedure(1,0);
+		#ifdef LENNARD_HACK
 		if ((count>1) && (!tlKLUDGEdontenumerate))
 		{
 			fprintf(outfile,"<text fill=\"#000000\" stroke=\"none\" transform=\"translate(%f,%f)\" font-size=\"36\" font-weight=\"bold\"><tspan>%c)</tspan></text>",(float)makeinf_sortiment.sortiment[ilv1].posx,(float)makeinf_sortiment.sortiment[ilv1].posy+30,'a'+ilv1);
 		}
+		#endif
 	}
 	svg_tail();
 }

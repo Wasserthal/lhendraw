@@ -19,10 +19,12 @@ inline void clear_cdx_Point2D(cdx_Point2D & input)
 typedef struct cdx_Point3D
 {
 	float x,y,z;
+	char active;
 };
 inline void clear_cdx_Point3D(cdx_Point3D & input)
 {
 	input.x=0;input.y=0;input.z=0;
+	input.active=0;
 }
 
 typedef struct cdx_Rectangle
@@ -209,6 +211,7 @@ int __attribute__((sysv_abi))CDXMLREAD_cdx_Point3D(char * input,void * output)
 	ilv1=CDXMLREAD_float(input,&(wert.x));
 	ilv1+=CDXMLREAD_float(input+ilv1,&(wert.y));
 	ilv1+=CDXMLREAD_float(input+ilv1,&(wert.z));
+	wert.active=1;
 	*((cdx_Point3D*)output)=wert;
 	return ilv1;
 }

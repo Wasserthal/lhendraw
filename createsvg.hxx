@@ -315,6 +315,23 @@ _small getother(_small inatom, _small inbond)
 	}
 }
 
+
+int get_bond_between(int inatom1, int inatom2)
+{
+	int imax=(*glob_b_multilist).filllevel;
+	for (int ilv1=0;ilv1<imax;ilv1++)
+	{
+		if ((bond_actual_node[ilv1].start==inatom1) && (bond_actual_node[ilv1].end==inatom2))
+		{
+			return ilv1;
+		}
+		if ((bond_actual_node[ilv1].end==inatom1) && (bond_actual_node[ilv1].start==inatom2))
+		{
+			return ilv1;
+		}
+	}
+}
+
 void getforwardity()
 {
 	for (int ilv1=0;ilv1<(*glob_b_multilist).filllevel;ilv1++)
@@ -1095,7 +1112,6 @@ void svg_head(const char * filename,float width,float height)
 {
 	outfile=fopen(filename,"w+");
 	getatoms();
-	initZlist();
 	#ifdef LENNARD_HACK
 	if (LENNARD_HACK_dokilltext)
 	{
@@ -1112,7 +1128,7 @@ void svg_tail()
 	fprintf(outfile,"</svg>");
 	fclose(outfile);
 }
-void svg_controlprocedure(bool irestriction=0)
+void svg_controlprocedure(bool irestriction=0,bool hatches=0)
 {
 	void * dummy;
 	cdx_Rectangle tlBoundingBox;
@@ -1134,6 +1150,10 @@ void svg_controlprocedure(bool irestriction=0)
 						goto svg_main_loop;
 					}
 				}
+			}
+			if ((tlcurrentmultilist==glob_moleculefill_multilist) ^ (hatches==1))
+			{
+				goto svg_main_loop;
 			}
 			if (irestriction)
 			{
@@ -1176,6 +1196,7 @@ void svg_controlprocedure(bool irestriction=0)
 			if (multilistlist.instances[objectZorderlist[ilv1].listnr]==glob_b_multilist) goto svg_main_b;
 			if (multilistlist.instances[objectZorderlist[ilv1].listnr]==glob_t_multilist) goto svg_main_t;
 			if (multilistlist.instances[objectZorderlist[ilv1].listnr]==glob_arrow_multilist) goto svg_main_arrow;
+			if (multilistlist.instances[objectZorderlist[ilv1].listnr]==glob_moleculefill_multilist) goto svg_main_moleculefill;
 		}
 		svg_main_loop:
 		;
@@ -1835,6 +1856,35 @@ iBBX.right+ibonddist2*cos(cangle)+ibonddist4*(cos(cangle)-(cos(langle)*tlrightta
 	}
 	fprintf(outfile,"</text>\n");
 	goto svg_main_loop;
+	svg_main_moleculefill:
+	{
+		moleculefill_instance * tlmoleculefill=&((*glob_moleculefill_multilist).bufferlist[index_in_buffer]);
+		fprintf(outfile,"<path d=\" ");
+		for (int ilv2=0;ilv2<(*tlmoleculefill).Points.count;ilv2++)
+		{
+			int iid=(*tlmoleculefill).Points.a[ilv2];
+			int ilv3;
+			for (ilv3=0;ilv3<(*glob_n_multilist).filllevel;ilv3++)
+			{
+				if ((*glob_n_multilist).bufferlist[ilv3].id==iid)
+				{
+					goto ifertig;
+				}
+			}
+			goto dontputthispoint;
+			ifertig:
+			;
+			{
+				n_instance * i_n_instance=&((*glob_n_multilist).bufferlist[ilv3]);
+				
+				fprintf(outfile,"%c %f,%f ",(ilv2==0)?'M':'L',(*i_n_instance).p.x+SVG_currentshiftx,(*i_n_instance).p.y+SVG_currentshifty);
+			}
+			dontputthispoint:
+			;
+		}
+		fprintf(outfile,"z \" style=\"fill:#%06X;color:none;\" opacity=\"0.9\"/>\n",(*tlmoleculefill).RGB);
+	}
+	goto svg_main_loop;
 	svg_main_end:
 	;
 }
@@ -1850,6 +1900,8 @@ void svg_main(const char * filename)
 	#ifdef LENNARD_HACK
 	Lennard_hatch();
 	#endif
-	svg_controlprocedure();
+	initZlist();
+	svg_controlprocedure(0,1);
+	svg_controlprocedure(0,0);
 	svg_tail();
 }

@@ -377,6 +377,7 @@ void svg_main2(const char * filename,int count,char * * args)
 	strcat(ifilename,")");*/
 	main_multisvg(count,args);
 	svg_head(filename,makeinf_sortiment.width,makeinf_sortiment.height);
+	initZlist();
 	char tlKLUDGEdontenumerate=0;
 	for (int ilv1=0;ilv1<(*glob_annotation_multilist).filllevel;ilv1++)// a Kludge
 	{
@@ -408,7 +409,8 @@ void svg_main2(const char * filename,int count,char * * args)
 		#ifdef LENNARD_HACK
 		Lennard_hatch();
 		#endif
-		svg_controlprocedure(1);
+		svg_controlprocedure(1,1);
+		svg_controlprocedure(1,0);
 		if ((count>1) && (!tlKLUDGEdontenumerate))
 		{
 			fprintf(outfile,"<text fill=\"#000000\" stroke=\"none\" transform=\"translate(%f,%f)\" font-size=\"36\" font-weight=\"bold\"><tspan>%c)</tspan></text>",(float)makeinf_sortiment.sortiment[ilv1].posx,(float)makeinf_sortiment.sortiment[ilv1].posy+30,'a'+ilv1);

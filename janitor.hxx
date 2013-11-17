@@ -241,10 +241,12 @@ multi_objref_ initZlist()
 		basicmultilist * thismultilist=((*thisset).hismultilist);
 		if (propertypos!=-1)
 		{
+			printf("%llX vs %llX\n",thisset,&moleculefill_list);
 			multi_Z_geometry[ilv1].offset=(char*)(((*thismultilist)).pointer)+propertypos;
 			multi_Z_geometry[ilv1].elementsize=(*thismultilist).itemsize;
 			for (int ilv2=0;ilv2<(*thismultilist).filllevel;ilv2++)
 			{
+				printf(".");
 				multi_objref_ imulti_objref={ilv1,ilv2};
 				int tlthisZ=*janitor_getZ(imulti_objref);
 				if (!insertinZlist(tlthisZ, (*thismultilist).index,ilv2))

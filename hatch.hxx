@@ -8,13 +8,24 @@ struct HATCH_atom_
 	int relate;
 	char isrim;
 };
-HATCH_atom_ HATCH_atom[1000];
+HATCH_atom_ HATCH_atom[10000];
 int HATCH_atom_count=0;
 float getangle(float dx,float dy);
 int currenthatchlist[250];
 int currenthatchlist_count;
 extern multilist<n_instance> * glob_n_multilist;
 extern multilist<moleculefill_instance> * glob_moleculefill_multilist;
+char HATCH_IS_THIS_ID_RIM(int iid)
+{
+	for (int ilv1=0;ilv1<HATCH_atom_count;ilv1++)
+	{
+		if (HATCH_atom[ilv1].relate==iid)
+		{
+			return (HATCH_atom[ilv1].isrim);
+		}
+	}
+	return 1;
+}
 void HATCH_intorder_atom(HATCH_atom_ &iinput)
 {
 	float iangle=getangle(HATCH_atom[iinput.bonds[0]].x-iinput.x,HATCH_atom[iinput.bonds[0]].y-iinput.y);
@@ -313,6 +324,8 @@ int HATCH_followborder(char inverse,int starting,int next,_u32 maytouchrim,char 
 	(*imoleculefill).RGB=rand()%16777215;
 	return 0;
 }
+
+int get_bond_between(int inatom1, int inatom2);
 void Zdepthofhatches()
 {
 	for (int ilv1=0;ilv1<(*glob_moleculefill_multilist).filllevel;ilv1++)
@@ -320,7 +333,81 @@ void Zdepthofhatches()
 		float Average_z=0;
 		int z_counter=0;
 		moleculefill_instance * tlmoleculefill=&((*glob_moleculefill_multilist).bufferlist[ilv1]);
+		cdx_Rectangle iBoundingBox={2000000000,2000000000,-2000000000,-2000000000};
+		#ifndef LENNARD_HACK_BONDS
 		for (int ilv2=0;ilv2<(*tlmoleculefill).Points.count;ilv2++)
+		{
+			int iid=(*tlmoleculefill).Points.a[ilv2];
+			int ilv3;
+			#ifdef LENNARD_HACK
+			if (HATCH_IS_THIS_ID_RIM(iid))
+			{
+				goto dontputthispoint;
+			}
+			#endif
+			for (ilv3=0;ilv3<(*glob_n_multilist).filllevel;ilv3++)
+			{
+				if ((*glob_n_multilist).bufferlist[ilv3].id==iid)
+				{
+					goto ifertig;
+				}
+			}
+			goto dontputthispoint;
+			ifertig:
+			;
+			{
+				float iposx=(*glob_n_multilist).bufferlist[ilv3].p.x;
+				float iposy=(*glob_n_multilist).bufferlist[ilv3].p.y;
+				if (iposx<iBoundingBox.left){iBoundingBox.left=iposx;}
+				if (iposx>iBoundingBox.right){iBoundingBox.right=iposx;}
+				if (iposy<iBoundingBox.top){iBoundingBox.top=iposy;}
+				if (iposy>iBoundingBox.bottom){iBoundingBox.bottom=iposy;}
+				Average_z+=((*glob_n_multilist).bufferlist[ilv3].Z);
+				z_counter++;
+			}
+			dontputthispoint:
+			;
+		}
+		#else
+		for (int ilv2=0;ilv2<(*tlmoleculefill).Points.count;ilv2++)
+		{
+			int iid1=(*tlmoleculefill).Points.a[ilv2];
+			int iid2=(*tlmoleculefill).Points.a[(ilv2+1)%(*tlmoleculefill).Points.count];
+			int ilv3;
+			int tid1=-1;int tid2=-1;
+			for (ilv3=0;ilv3<(*glob_n_multilist).filllevel;ilv3++)
+			{
+				if ((*glob_n_multilist).bufferlist[ilv3].id==iid1)
+				{
+					tid1=ilv3;
+				}
+				if ((*glob_n_multilist).bufferlist[ilv3].id==iid2)
+				{
+					tid2=ilv3;
+				}
+				if ((tid1!=-1) && (tid2!=-1))
+				{
+					goto ifertig;
+				}
+			}
+			goto dontputthispoint;
+			ifertig:
+			;
+			{
+				float iposx=(*glob_n_multilist).bufferlist[tid1].p.x;
+				float iposy=(*glob_n_multilist).bufferlist[tid1].p.y;
+				if (iposx<iBoundingBox.left){iBoundingBox.left=iposx;}
+				if (iposx>iBoundingBox.right){iBoundingBox.right=iposx;}
+				if (iposy<iBoundingBox.top){iBoundingBox.top=iposy;}
+				if (iposy>iBoundingBox.bottom){iBoundingBox.bottom=iposy;}
+				int ibond=get_bond_between(tid1,tid2);
+				Average_z+=((*glob_b_multilist).bufferlist[ibond].Z);
+				z_counter++;
+			}
+			dontputthispoint:
+			;
+		}
+/*		for (int ilv2=0;ilv2<(*tlmoleculefill).Points.count;ilv2++)
 		{
 			int iid=(*tlmoleculefill).Points.a[ilv2];
 			int ilv3;
@@ -335,13 +422,25 @@ void Zdepthofhatches()
 			ifertig:
 			;
 			{
-				Average_z+=((*glob_n_multilist).bufferlist[ilv3].Z);
-				z_counter++;
+				float iposx=(*glob_n_multilist).bufferlist[ilv3].p.x;
+				float iposy=(*glob_n_multilist).bufferlist[ilv3].p.y;
+				if (iposx<iBoundingBox.left){iBoundingBox.left=iposx;}
+				if (iposx>iBoundingBox.right){iBoundingBox.right=iposx;}
+				if (iposy<iBoundingBox.top){iBoundingBox.top=iposy;}
+				if (iposy>iBoundingBox.bottom){iBoundingBox.bottom=iposy;}
+				for (int ilv4=0;ilv4<atom_actual_node[ilv3].bondcount;ilv4++)
+				{
+					Average_z+=((*glob_b_multilist).bufferlist[atom_actual_node[ilv3].bonds[ilv4]].Z);
+					z_counter++;
+				}
 			}
 			dontputthispoint:
 			;
-		}
-		(*tlmoleculefill).Z=Average_z/z_counter;
+		}*/
+		#endif
+		if (z_counter==0){(*tlmoleculefill).Z=0;}
+		(*tlmoleculefill).Z=(Average_z/z_counter);
+		(*tlmoleculefill).BoundingBox=iBoundingBox;
 	}
 }
 void displayhatches()
@@ -526,7 +625,7 @@ void HATCH_main(float centerx,float centery)
 		HATCH_follownextborder(1,0x5,0xD);
 		HATCH_follownextborder(1,0xA,0xFF,true);
 		Zdepthofhatches();
-		displayhatches();
+//		displayhatches();
 		for (int ilv1=0;ilv1<HATCH_atom_count;ilv1++)
 		{
 			get_colorstring(4);

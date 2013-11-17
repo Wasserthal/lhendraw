@@ -30,14 +30,14 @@ As long the objects are only appended on the end, we can do a list sort which wo
 	int Z;//Or better let that out? either link ratio or actual order will be relevant!
 }multi_objref;*/
 int minusoneint=-1;
-typedef struct multi_objref
+typedef struct multi_objref_
 {
 	int listnr;//number of multilist, -1 means empty 
 	int nr;//-1 means empty
-}multi_objref;
+}multi_objref_;
 #define multilistZcount 100//TODO: calculate properly
-multi_objref objectZorderlist[bufferlistsize*multilistZcount];
-multi_objref sortarr2[2][bufferlistsize*multilistZcount];
+multi_objref_ objectZorderlist[bufferlistsize*multilistZcount];
+multi_objref_ sortarr2[2][bufferlistsize*multilistZcount];
 typedef struct multi_Z_geometry_
 {
 	char * offset;
@@ -104,13 +104,13 @@ char deletefromZlist(int listnr, int nr)
 	}
 	return -1;
 }
-multi_objref sortlist()
+multi_objref_ sortlist()
 {
 }
 #define janitor_getZ(MACROPARAM) \
 ({\
 	unsigned int * backval;\
-	multi_objref * pointer;\
+	multi_objref_ * pointer;\
 	pointer=&(MACROPARAM);\
 	if ((*pointer).listnr!=-1)\
 	{\
@@ -222,7 +222,7 @@ void reenumerate()
 	}
 }
 
-multi_objref initZlist()
+multi_objref_ initZlist()
 {
 	char iZorderbroken=0;
 	for (int ilv1=0;ilv1<bufferlistsize*multilistZcount;ilv1++)
@@ -243,12 +243,13 @@ multi_objref initZlist()
 		{
 			multi_Z_geometry[ilv1].offset=(char*)(((*thismultilist)).pointer)+propertypos;
 			multi_Z_geometry[ilv1].elementsize=(*thismultilist).itemsize;
-			for (int ilv1=0;ilv1<(*thismultilist).filllevel;ilv1++)
+			for (int ilv2=0;ilv2<(*thismultilist).filllevel;ilv2++)
 			{
-				int tlthisZ=*(int*)((((char*)((*thismultilist).pointer)))+ilv1*((*thismultilist).itemsize)+propertypos);
-				if (!insertinZlist(tlthisZ, (*thismultilist).index,ilv1))
+				multi_objref_ imulti_objref={ilv1,ilv2};
+				int tlthisZ=*janitor_getZ(imulti_objref);
+				if (!insertinZlist(tlthisZ, (*thismultilist).index,ilv2))
 				{
-					if (somewhereinZlist((*thismultilist).index,ilv1))
+					if (somewhereinZlist((*thismultilist).index,ilv2))
 					{
 						iZorderbroken=1;
 					}

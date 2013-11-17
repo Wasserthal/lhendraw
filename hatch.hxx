@@ -313,6 +313,37 @@ int HATCH_followborder(char inverse,int starting,int next,_u32 maytouchrim,char 
 	(*imoleculefill).RGB=rand()%16777215;
 	return 0;
 }
+void Zdepthofhatches()
+{
+	for (int ilv1=0;ilv1<(*glob_moleculefill_multilist).filllevel;ilv1++)
+	{
+		float Average_z=0;
+		int z_counter=0;
+		moleculefill_instance * tlmoleculefill=&((*glob_moleculefill_multilist).bufferlist[ilv1]);
+		for (int ilv2=0;ilv2<(*tlmoleculefill).Points.count;ilv2++)
+		{
+			int iid=(*tlmoleculefill).Points.a[ilv2];
+			int ilv3;
+			for (ilv3=0;ilv3<(*glob_n_multilist).filllevel;ilv3++)
+			{
+				if ((*glob_n_multilist).bufferlist[ilv3].id==iid)
+				{
+					goto ifertig;
+				}
+			}
+			goto dontputthispoint;
+			ifertig:
+			;
+			{
+				Average_z+=((*glob_n_multilist).bufferlist[ilv3].Z);
+				z_counter++;
+			}
+			dontputthispoint:
+			;
+		}
+		(*tlmoleculefill).Z=Average_z/z_counter;
+	}
+}
 void displayhatches()
 {
 	for (int ilv1=0;ilv1<(*glob_moleculefill_multilist).filllevel;ilv1++)
@@ -341,7 +372,7 @@ void displayhatches()
 			dontputthispoint:
 			;
 		}
-		fprintf(outfile,"z \" style=\"fill:#%06X;color:none;\" opacity=\"0.1\"/>\n",(*tlmoleculefill).RGB);
+		fprintf(outfile,"z \" style=\"fill:#%06X;color:none;\" opacity=\"0.9\"/>\n",(*tlmoleculefill).RGB);
 	}
 }
 void HATCH_follownextborder(char inverse,char startonrim,int maytouchrim,char force=0)
@@ -494,6 +525,7 @@ void HATCH_main(float centerx,float centery)
 		HATCH_followborder(1,tlsecond,tlfirst,0xFF);
 		HATCH_follownextborder(1,0x5,0xD);
 		HATCH_follownextborder(1,0xA,0xFF,true);
+		Zdepthofhatches();
 		displayhatches();
 		for (int ilv1=0;ilv1<HATCH_atom_count;ilv1++)
 		{

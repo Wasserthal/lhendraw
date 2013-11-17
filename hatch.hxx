@@ -566,6 +566,7 @@ void Zdepthoftwodifferenthatches(int start, int end,float hatchcenterx,float hat
 				}
 				if (z_counter==0) {Average_x=0;Average_y=0;} else {Average_x/=(float)z_counter;Average_y/=(float)z_counter;}
 				float darkness=sqrt(sqr(Average_x-(ilv1?hatchcenterx:bckwcenterx))+sqr(Average_y-(ilv1?hatchcentery:bckwcentery)))/(radiusx*1.5);
+				darkness-=0.25;
 				if (darkness>1.0) {darkness=1;}
 				if (darkness<0) {darkness=0;}
 				(*tlmoleculefill).RGB=(65793)*(int)(255*(1.0-darkness));

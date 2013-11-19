@@ -16,6 +16,10 @@ inline intl sqr(intl input)
 {
 	return input*input;
 }
+inline double fsqr(double input)
+{
+	return input*input;
+}
 char spaciatic(char input)
 {
 	if (input==' ')

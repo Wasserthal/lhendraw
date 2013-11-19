@@ -1369,51 +1369,60 @@ void svg_controlprocedure(bool irestriction=0,bool hatches=0)
 			float tla,tlb,tlc,tld,tle;
 			double ellipticx[4];
 			double ellipticy[8];
-			double tlbest=1e20;
-			int tlbestone=-1;
-			ARROW_ELLIPTIC(ellipsoid.radiusx/arrowheadlength,ellipsoid.radiusy/arrowheadlength,cos(ellipsoid.internalangle),sin(ellipsoid.internalangle),tla,tlb,tlc,tld,tle);
-			if (fabs(tla)<=1e-10) {tlradius=ellipsoid.radiusx;goto stillacircle;}
-			QUARTIC_quartic(tla,tlb,tlc,tld,tle,&(ellipticx[0]),&(ellipticx[1]),&(ellipticx[2]),&(ellipticx[3]));
-			for (int ilv1=0;ilv1<4;ilv1++)
+			for (int ilv0=0;ilv0<2;ilv0++)
 			{
-				if (!(isnan(ellipticx[ilv1])))
+				double tlbest=1e20;
+				int tlbestone=-1;
+				float tlangle=ellipsoid.internalangle+((ilv0)?((tlAngularSize/180.0)*Pi):0);
+				ARROW_ELLIPTIC(ellipsoid.radiusx/arrowheadlength,ellipsoid.radiusy/arrowheadlength,cos(tlangle),sin(tlangle),tla,tlb,tlc,tld,tle);
+				if (fabs(tla)<=1e-10) {tlradius=ellipsoid.radiusx;goto stillacircle;}
+				QUARTIC_quartic(tla,tlb,tlc,tld,tle,&(ellipticx[0]),&(ellipticx[1]),&(ellipticx[2]),&(ellipticx[3]));
+				for (int ilv1=0;ilv1<4;ilv1++)
 				{
-					ellipticy[ilv1]=sqrt(1.0-fsqr(ellipticx[ilv1]))*ellipsoid.radiusy;
-					ellipticy[ilv1+4]=-sqrt(1.0-fsqr(ellipticx[ilv1]))*ellipsoid.radiusy;
-					if (abs(ellipticx[ilv1])>1) {ellipticy[ilv1]=ellipticx[ilv1]*ellipsoid.radiusy;ellipticy[ilv1]=-ellipticx[ilv1+4]*ellipsoid.radiusy;}
-					ellipticx[ilv1]*=ellipsoid.radiusx;
-				}
-			}
-			float tlsinus=sin(ellipsoid.internalangle+((tlAngularSize>0)?Pi/2:-Pi/2));
-			float tlcosinus=cos(ellipsoid.internalangle+((tlAngularSize>0)?Pi/2:-Pi/2));
-			for (int ilv1=0;ilv1<8;ilv1++)
-			{
-				if (!((isnan(ellipticx[ilv1%4]))||(isnan(ellipticy[ilv1]))))
-				{
-					float tlhorz=ellipticx[ilv1%4]-cos(ellipsoid.internalangle)*ellipsoid.radiusx;
-					float tlvert=ellipticy[ilv1]-sin(ellipsoid.internalangle)*ellipsoid.radiusy;
-					fprintf(outfile,"<ellipse cx=\"%f\" cy=\"%f\" rx=\"2\" ry=\"2\" style=\"fill:#FF0000\" />",ellipticx[ilv1%4]+iBBX.right+SVG_currentshiftx,ellipticy[ilv1]+iBBX.bottom+SVG_currentshifty);
-					float tltemp=fabs(sqrt(fsqr(tlhorz)+fsqr(tlvert))-arrowheadlength);
-					if ((tlhorz*tlcosinus+tlvert*tlsinus)<0)
+					if (!(isnan(ellipticx[ilv1])))
 					{
-						tltemp+=arrowheadlength*2;
-					}
-					if (tltemp<tlbest)
-					{
-						tlbestone=ilv1;
-						tlbest=tltemp;
+						ellipticy[ilv1]=sqrt(1.0-fsqr(ellipticx[ilv1]))*ellipsoid.radiusy;
+						ellipticy[ilv1+4]=-sqrt(1.0-fsqr(ellipticx[ilv1]))*ellipsoid.radiusy;
+						if (abs(ellipticx[ilv1])>1) {ellipticy[ilv1]=ellipticx[ilv1]*ellipsoid.radiusy;ellipticy[ilv1]=-ellipticx[ilv1+4]*ellipsoid.radiusy;}
+						ellipticx[ilv1]*=ellipsoid.radiusx;
 					}
 				}
-			}
-			if (tlbestone!=-1)
-			{
-				langle=getangle(ellipticx[tlbestone%4]-cos(ellipsoid.internalangle)*ellipsoid.radiusx,ellipticy[tlbestone]-sin(ellipsoid.internalangle)*ellipsoid.radiusy);
-				cangle=langle+Pi/2;
-				printf("Best: %i!%f\n",tlbestone,tlbest);
-			}
-			else
-			{
-				printf("deaf");
+				float tlsinus=sin(tlangle+(((tlAngularSize>0)^(ilv0))?Pi/2:-Pi/2));
+				float tlcosinus=cos(tlangle+(((tlAngularSize>0)^(ilv0))?Pi/2:-Pi/2));
+				for (int ilv1=0;ilv1<8;ilv1++)
+				{
+					if (!((isnan(ellipticx[ilv1%4]))||(isnan(ellipticy[ilv1]))))
+					{
+						float tlhorz=ellipticx[ilv1%4]-cos(tlangle)*ellipsoid.radiusx;
+						float tlvert=ellipticy[ilv1]-sin(tlangle)*ellipsoid.radiusy;
+						fprintf(outfile,"<ellipse cx=\"%f\" cy=\"%f\" rx=\"2\" ry=\"2\" style=\"fill:#FF0000\" />",ellipticx[ilv1%4]+iBBX.right+SVG_currentshiftx,ellipticy[ilv1]+iBBX.bottom+SVG_currentshifty);
+						float tltemp=fabs(sqrt(fsqr(tlhorz)+fsqr(tlvert))-arrowheadlength);
+						if ((tlhorz*tlcosinus+tlvert*tlsinus)<0)
+						{
+							tltemp+=arrowheadlength*2;
+						}
+						if (tltemp<tlbest)
+						{
+							tlbestone=ilv1;
+							tlbest=tltemp;
+						}
+					}
+				}
+				if (tlbestone!=-1)
+				{
+					(ilv0?otherlangle:langle)=getangle(ellipticx[tlbestone%4]-cos(tlangle)*ellipsoid.radiusx,ellipticy[tlbestone]-sin(tlangle)*ellipsoid.radiusy)+ellipsoid.axangle;
+					(ilv0?othercangle:cangle)=(ilv0?otherlangle:langle)+Pi/2;
+					printf("Best: %i!%f\n",tlbestone,tlbest);
+				}
+				else
+				{
+					goto stillacircle;
+				}
+				if (ilv0==1)
+				{
+					iBBX.right+=cos(tlangle)*ellipsoid.radiusx*cos(ellipsoid.axangle)-sin(tlangle)*ellipsoid.radiusy*sin(ellipsoid.axangle);
+					iBBX.bottom+=+sin(tlangle)*ellipsoid.radiusy*cos(ellipsoid.axangle)+cos(tlangle)*ellipsoid.radiusx*sin(ellipsoid.axangle);
+				}
 			}
 		}
 		else 
@@ -1435,9 +1444,9 @@ void svg_controlprocedure(bool irestriction=0,bool hatches=0)
 				otherlangle+=dturn;
 				othercangle+=dturn;
 			}
+			iBBX.right+=tlradius*cos(tlangle+((tlAngularSize/180.0)*Pi));
+			iBBX.bottom+=tlradius*sin(tlangle+((tlAngularSize/180.0)*Pi));
 		}
-		iBBX.right+=tlradius*cos(tlangle+((tlAngularSize/180.0)*Pi));
-		iBBX.bottom+=tlradius*sin(tlangle+((tlAngularSize/180.0)*Pi));
 	}
 	else goto skiparrows;
 	drawarrheads(iBBX,langle,cangle,otherlangle,othercangle,currentArrowHeadType,currentArrowHeadTail,currentArrowHeadHead,tllinedist);

@@ -5,6 +5,8 @@ float Pi=3.141592654;
 #define _small int
 #include "definitionlist.h"
 #include "janitor.hxx"
+#include "ellipeq.h"
+#include "quartic.hxx"
 #ifdef LENNARD_HACK
 char LENNARD_HACK_dokilltext;
 #endif
@@ -1322,10 +1324,19 @@ void svg_controlprocedure(bool irestriction=0,bool hatches=0)
 	if (tlGraphicType==2)
 	{
 		float deltax,deltay;
+		float tlangle;
 		deltax=iBBX.left-iBBX.right;
 		deltay=iBBX.top-iBBX.bottom;
+		if (currentEllipsemode)
+		{
+			ellipsoid.fill(deltax,deltay);
+			tlangle=ellipsoid.internalangle+ellipsoid.axangle;
+		}
+		else
+		{
+			tlangle=getangle(deltax,deltay);
+		}
 		float tlradius=sqrt(deltax*deltax+deltay*deltay);
-		float tlangle=getangle(deltax,deltay);
 		if (tlAngularSize>0)
 		{
 			 langle=(tlangle+Pi/2.0);
@@ -1355,8 +1366,52 @@ void svg_controlprocedure(bool irestriction=0,bool hatches=0)
 		othercangle=otherlangle+Pi/2.0;
 		iBBX.right+=tlradius*cos(tlangle+((tlAngularSize/180.0)*Pi));
 		iBBX.bottom+=tlradius*sin(tlangle+((tlAngularSize/180.0)*Pi));
+		if (currentEllipsemode)
+		{
+			float tla,tlb,tlc,tld,tle;
+			double ellipticx[4];
+			double ellipticy[8];
+			double tlbest=1e20;
+			int tlbestone=-1;
+			ARROW_ELLIPTIC(ellipsoid.radiusx/arrowheadlength,ellipsoid.radiusy/arrowheadlength,cos(ellipsoid.internalangle),sin(ellipsoid.internalangle),tla,tlb,tlc,tld,tle);
+			if (abs(tla)<=1e-10) {tlradius=ellipsoid.radiusx;goto stillacircle;}
+			QUARTIC_quartic(tla,tlb,tlc,tld,tle,&(ellipticx[1]),&(ellipticx[2]),&(ellipticx[3]),&(ellipticx[4]));
+			for (int ilv1=0;ilv1<4;ilv1++)
+			{
+				if (!(isnan(ellipticx[ilv1])))
+				{
+					ellipticy[ilv1]=sqrt(1-sqr(ellipticx[ilv1]))*ellipsoid.radiusy;
+					ellipticy[ilv1+4]=-sqrt(1-sqr(ellipticx[ilv1]))*ellipsoid.radiusy;
+					ellipticx[ilv1]*=ellipsoid.radiusx;
+				}
+			}
+			for (int ilv1=0;ilv1<8;ilv1++)
+			{
+				if (!(isnan(ellipticx[ilv1%4])))
+				{
+					float tltemp=sqrt(sqr(ellipticx[ilv1%4]-cos(ellipsoid.internalangle)*ellipsoid.radiusx)+sqr(ellipticy[ilv1]-sin(ellipsoid.internalangle)*ellipsoid.radiusy))-arrowheadlength;
+					if (abs(tltemp)<tlbest)
+					{
+						tlbestone=ilv1;
+						tlbest=tltemp;
+					}
+				}
+			}
+			if (tlbestone!=-1)
+			{
+				langle=getangle(ellipticx[tlbestone%4]-cos(ellipsoid.internalangle)*ellipsoid.radiusx,ellipticy[tlbestone]-sin(ellipsoid.internalangle)*ellipsoid.radiusy)+Pi;
+				cangle=langle+Pi/2;
+				printf("Best: %i!%f\n",tlbestone,tlbest);
+			}
+			else
+			{
+				printf("deaf");
+			}
+		}
+		else 
 		if (tlradius>arrowheadlength/2)
 		{
+			stillacircle:
 			float dturn=asin(arrowheadlength/tlradius/2);
 			if (tlAngularSize>0)
 			{

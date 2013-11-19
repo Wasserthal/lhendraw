@@ -19,7 +19,6 @@ double Q(double idiscriminant1,double idelta0,double idelta1)
 {
 	double wert1=(idelta1+sqrt(idiscriminant1))/2.0;
 	double idiscriminant3=wert1;
-//	printf("dis3:%f\n",idiscriminant3);
 	if (fabs(idelta0)<1e-50)
 	{
 		idiscriminant3=2*idelta1;
@@ -116,8 +115,5 @@ int QUARTIC_quartic(double a,double b,double c,double d,double e,double * backva
 		}
 	}
 	double ilittle_q=little_q(a,b,c,d);
-	printf("(%f,%f,%f,%f,%f)\n",a,b,c,d,e);
-//	printf("dis2:%f\n",-27*discriminant2(a,b,c,d,e));
-	printf("[%f,%f,%f,%f,%f,%f]\n",idelta0, idelta1, iQ, ilittle_p, iS, ilittle_q);
 	calculatecrossing(a,b,iS,ilittle_p,ilittle_q,backval1,backval2,backval3,backval4);
 }

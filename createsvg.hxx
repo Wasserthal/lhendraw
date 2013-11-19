@@ -1332,22 +1332,13 @@ void svg_controlprocedure(bool irestriction=0,bool hatches=0)
 		{
 //TODO****				expressarc(iBBX.right,iBBX.bottom
 		}
-		else
-		{
-			if (currentEllipsemode)
-			{
-			}
-			else
-			{
-			}
-		}
 		if (currentEllipsemode)
 		{
 			float tla,tlb,tlc,tld,tle;
 			double ellipticx[4];
 			double ellipticy[8];
 			ellipsoid.fill(deltax,deltay);
-			float tlangle=ellipsoid.internalangle+ellipsoid.axangle;
+			float tlangle;
 			expressarc_enhanced(iBBX.right,iBBX.bottom,ellipsoid.radiusx,ellipsoid.radiusy,ellipsoid.internalangle,ellipsoid.internalangle+((tlAngularSize/180.0)*Pi),ellipsoid.axangle);
 			for (int ilv0=0;ilv0<2;ilv0++)
 			{
@@ -1355,7 +1346,7 @@ void svg_controlprocedure(bool irestriction=0,bool hatches=0)
 				int tlbestone=-1;
 				tlangle=ellipsoid.internalangle+((ilv0)?((tlAngularSize/180.0)*Pi):0);
 				ARROW_ELLIPTIC(ellipsoid.radiusx/arrowheadlength,ellipsoid.radiusy/arrowheadlength,cos(tlangle),sin(tlangle),tla,tlb,tlc,tld,tle);
-				if (fabs(tla)<=1e-3) {tlradius=ellipsoid.radiusx;goto stillacircle;}
+				if (fabs(tla)<=1e-3) {goto stillacircle;}
 				QUARTIC_quartic(tla,tlb,tlc,tld,tle,&(ellipticx[0]),&(ellipticx[1]),&(ellipticx[2]),&(ellipticx[3]));
 				for (int ilv1=0;ilv1<4;ilv1++)
 				{
@@ -1375,9 +1366,7 @@ void svg_controlprocedure(bool irestriction=0,bool hatches=0)
 					{
 						float tlhorz=ellipticx[ilv1%4]-cos(tlangle)*ellipsoid.radiusx;
 						float tlvert=ellipticy[ilv1]-sin(tlangle)*ellipsoid.radiusy;
-						fprintf(outfile,"<ellipse cx=\"%f\" cy=\"%f\" rx=\"2\" ry=\"2\" style=\"fill:#FF0000\" />",ellipticx[ilv1%4]+iBBX.right+SVG_currentshiftx,ellipticy[ilv1]+iBBX.bottom+SVG_currentshifty);
 						float tltemp=fabs(sqrt(fsqr(tlhorz)+fsqr(tlvert))-arrowheadlength);
-						printf(",,%f,,",(tlhorz*tlcosinus+tlvert*tlsinus));
 						if ((tlhorz*tlcosinus+tlvert*tlsinus)<0)
 						{
 							tltemp+=arrowheadlength*2;
@@ -1393,7 +1382,6 @@ void svg_controlprocedure(bool irestriction=0,bool hatches=0)
 				{
 					(ilv0?otherlangle:langle)=getangle(ellipticx[tlbestone%4]-cos(tlangle)*ellipsoid.radiusx,ellipticy[tlbestone]-sin(tlangle)*ellipsoid.radiusy)+ellipsoid.axangle;
 					(ilv0?othercangle:cangle)=(ilv0?otherlangle:langle)+Pi/2;
-					printf("Best: %i!%f\n",tlbestone,tlbest);
 				}
 				else
 				{

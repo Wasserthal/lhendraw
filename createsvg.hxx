@@ -1324,28 +1324,9 @@ void svg_controlprocedure(bool irestriction=0,bool hatches=0)
 	if (tlGraphicType==2)
 	{
 		float deltax,deltay;
-		float tlangle;
+		float tlradius;
 		deltax=iBBX.left-iBBX.right;
 		deltay=iBBX.top-iBBX.bottom;
-		if (currentEllipsemode)
-		{
-			ellipsoid.fill(deltax,deltay);
-			tlangle=ellipsoid.internalangle+ellipsoid.axangle;
-		}
-		else
-		{
-			tlangle=getangle(deltax,deltay);
-		}
-		float tlradius=sqrt(deltax*deltax+deltay*deltay);
-		if (tlAngularSize>0)
-		{
-			 langle=(tlangle+Pi/2.0);
-		}
-		else
-		{
-			 langle=(tlangle-Pi/2.0);
-		}
-		cangle=langle+Pi/2.0;
 		stylegenestring(stylefromline(currentLineType));
 		if (currentLineType &0x100)
 		{
@@ -1355,27 +1336,26 @@ void svg_controlprocedure(bool irestriction=0,bool hatches=0)
 		{
 			if (currentEllipsemode)
 			{
-				expressarc_enhanced(iBBX.right,iBBX.bottom,ellipsoid.radiusx,ellipsoid.radiusy,ellipsoid.internalangle,ellipsoid.internalangle+((tlAngularSize/180.0)*Pi),ellipsoid.axangle);
 			}
 			else
 			{
-				expressarc(iBBX.right,iBBX.bottom,tlradius,tlradius,tlangle,tlangle+((tlAngularSize/180.0)*Pi));
 			}
 		}
-		otherlangle=langle+((tlAngularSize/180.0)*Pi)+Pi;
-		othercangle=otherlangle+Pi/2.0;
 		if (currentEllipsemode)
 		{
 			float tla,tlb,tlc,tld,tle;
 			double ellipticx[4];
 			double ellipticy[8];
+			ellipsoid.fill(deltax,deltay);
+			float tlangle=ellipsoid.internalangle+ellipsoid.axangle;
+			expressarc_enhanced(iBBX.right,iBBX.bottom,ellipsoid.radiusx,ellipsoid.radiusy,ellipsoid.internalangle,ellipsoid.internalangle+((tlAngularSize/180.0)*Pi),ellipsoid.axangle);
 			for (int ilv0=0;ilv0<2;ilv0++)
 			{
 				double tlbest=1e20;
 				int tlbestone=-1;
-				float tlangle=ellipsoid.internalangle+((ilv0)?((tlAngularSize/180.0)*Pi):0);
+				tlangle=ellipsoid.internalangle+((ilv0)?((tlAngularSize/180.0)*Pi):0);
 				ARROW_ELLIPTIC(ellipsoid.radiusx/arrowheadlength,ellipsoid.radiusy/arrowheadlength,cos(tlangle),sin(tlangle),tla,tlb,tlc,tld,tle);
-				if (fabs(tla)<=1e-10) {tlradius=ellipsoid.radiusx;goto stillacircle;}
+				if (fabs(tla)<=1e-3) {tlradius=ellipsoid.radiusx;goto stillacircle;}
 				QUARTIC_quartic(tla,tlb,tlc,tld,tle,&(ellipticx[0]),&(ellipticx[1]),&(ellipticx[2]),&(ellipticx[3]));
 				for (int ilv1=0;ilv1<4;ilv1++)
 				{
@@ -1387,8 +1367,8 @@ void svg_controlprocedure(bool irestriction=0,bool hatches=0)
 						ellipticx[ilv1]*=ellipsoid.radiusx;
 					}
 				}
-				float tlsinus=sin(tlangle+(((tlAngularSize>0)^(ilv0))?Pi/2:-Pi/2));
-				float tlcosinus=cos(tlangle+(((tlAngularSize>0)^(ilv0))?Pi/2:-Pi/2));
+				float tlsinus=sin(tlangle+(((tlAngularSize>0)^(ilv0))?(Pi/2):(-Pi/2)));
+				float tlcosinus=cos(tlangle+(((tlAngularSize>0)^(ilv0))?(Pi/2):(-Pi/2)));
 				for (int ilv1=0;ilv1<8;ilv1++)
 				{
 					if (!((isnan(ellipticx[ilv1%4]))||(isnan(ellipticy[ilv1]))))
@@ -1397,6 +1377,7 @@ void svg_controlprocedure(bool irestriction=0,bool hatches=0)
 						float tlvert=ellipticy[ilv1]-sin(tlangle)*ellipsoid.radiusy;
 						fprintf(outfile,"<ellipse cx=\"%f\" cy=\"%f\" rx=\"2\" ry=\"2\" style=\"fill:#FF0000\" />",ellipticx[ilv1%4]+iBBX.right+SVG_currentshiftx,ellipticy[ilv1]+iBBX.bottom+SVG_currentshifty);
 						float tltemp=fabs(sqrt(fsqr(tlhorz)+fsqr(tlvert))-arrowheadlength);
+						printf(",,%f,,",(tlhorz*tlcosinus+tlvert*tlsinus));
 						if ((tlhorz*tlcosinus+tlvert*tlsinus)<0)
 						{
 							tltemp+=arrowheadlength*2;
@@ -1429,6 +1410,21 @@ void svg_controlprocedure(bool irestriction=0,bool hatches=0)
 		if (tlradius>arrowheadlength/2)
 		{
 			stillacircle:
+			float tlangle;
+			tlangle=getangle(deltax,deltay);
+			if (tlAngularSize>0)
+			{
+				 langle=(tlangle+Pi/2.0);
+			}
+			else
+			{
+				 langle=(tlangle-Pi/2.0);
+			}
+			cangle=langle+Pi/2.0;
+			tlradius=sqrt(deltax*deltax+deltay*deltay);
+			expressarc(iBBX.right,iBBX.bottom,tlradius,tlradius,tlangle,tlangle+((tlAngularSize/180.0)*Pi));
+			otherlangle=langle+((tlAngularSize/180.0)*Pi)+Pi;
+			othercangle=otherlangle+Pi/2.0;
 			float dturn=asin(arrowheadlength/tlradius/2);
 			if (tlAngularSize>0)
 			{

@@ -1478,9 +1478,11 @@ void svg_controlprocedure(bool irestriction=0,bool hatches=0)
 		stylegenestring(1);
 		switch((*i_graphic_instance).SymbolType)
 		{
-			case 4 : strcpy(colorstring2,"FF0000");goto charge;break;
-			case 5 : strcpy(colorstring2,"0000FF");goto charge;break;
+			case 4 : strcpy(colorstring2,"FFFFFF");goto charge;break;
+			case 5 : strcpy(colorstring2,"FFFFFF");goto charge;break;
 			case 1 : strcpy(colorstring2,colorstring);goto radical;break;
+			case 6 : strcpy(colorstring2,colorstring);goto dagger;break;
+			case 7 : strcpy(colorstring2,colorstring);goto dagger2;break;
 		}
 		charge:
 		fprintf(outfile,"<circle cx=\"%f\" cy=\"%f\" r=\"6\" stroke=\"#%s\" fill=\"#%s\"/>",iBBX.left+SVG_currentshiftx,iBBX.top+SVG_currentshifty,colorstring,colorstring2);
@@ -1492,6 +1494,14 @@ void svg_controlprocedure(bool irestriction=0,bool hatches=0)
 		goto GraphicType7done;
 		radical:
 		fprintf(outfile,"<circle cx=\"%f\" cy=\"%f\" r=\"4\" stroke=\"#%s\" fill=\"#%s\"/>",iBBX.left+SVG_currentshiftx,iBBX.top+SVG_currentshifty,colorstring,colorstring2);
+		goto GraphicType7done;
+		dagger2:
+		expressline(iBBX.left-5,iBBX.top+10,iBBX.right+5,iBBX.top+10);
+		//PASSTHROUGH
+		dagger:
+		expressline(iBBX.left-5,iBBX.top,iBBX.right+5,iBBX.top);
+		expressline(iBBX.left,iBBX.top-5,iBBX.right,iBBX.top+15);
+		goto GraphicType7done;
 		GraphicType7done:
 		;
 	}
@@ -1500,9 +1510,44 @@ void svg_controlprocedure(bool irestriction=0,bool hatches=0)
 		stylegenestring(1);
 		cangle=getangle(iBBX.right-iBBX.left,iBBX.bottom-iBBX.top)+Pi/2;
 		langle=getangle(iBBX.right-iBBX.left,iBBX.bottom-iBBX.top);
-		expressline(iBBX.left-6.7*cos(cangle),iBBX.top-6.7*sin(cangle),iBBX.right-6.7*cos(cangle),iBBX.bottom-6.7*sin(cangle));
-		expressline(iBBX.left,iBBX.top,iBBX.left-6.7*cos(cangle),iBBX.top-6.7*sin(cangle));
-		expressline(iBBX.right,iBBX.bottom,iBBX.right-6.7*cos(cangle),iBBX.bottom-6.7*sin(cangle));
+		switch ((*i_graphic_instance).BracketType)
+		{
+			case 3:
+			{
+				expressline(iBBX.left,iBBX.top,iBBX.right,iBBX.bottom);
+				expressline(iBBX.left,iBBX.top,iBBX.left+13.4*cos(cangle),iBBX.top+13.4*sin(cangle));
+				expressline(iBBX.right,iBBX.bottom,iBBX.right+13.4*cos(cangle),iBBX.bottom+13.4*sin(cangle));
+				break;
+			}
+			case 4:
+			{
+				expressline(iBBX.left+13.4*cos(langle),iBBX.top+13.4*sin(langle),(iBBX.left+iBBX.right)/2-13.4*cos(langle),(iBBX.top+iBBX.bottom)/2-13.4*sin(langle));
+				expressline((iBBX.left+iBBX.right)/2+13.4*cos(langle),(iBBX.top+iBBX.bottom)/2+13.4*sin(langle),iBBX.right-13.4*cos(langle),iBBX.bottom-13.4*sin(langle));
+				expressbezier(iBBX.left+13.4*cos(langle),iBBX.top+13.4*sin(langle),
+				iBBX.left+6.7*cos(langle),iBBX.top+6.7*sin(langle),
+				iBBX.left+6.7*cos(cangle),iBBX.top+6.7*sin(cangle),
+				iBBX.left+13.4*cos(cangle),iBBX.top+13.4*sin(cangle));
+				expressbezier((iBBX.left+iBBX.right)/2+13.4*cos(langle),(iBBX.top+iBBX.bottom)/2+13.4*sin(langle),
+				(iBBX.left+iBBX.right)/2+6.7*cos(langle),(iBBX.top+iBBX.bottom)/2+6.7*sin(langle),
+				(iBBX.left+iBBX.right)/2-6.7*cos(cangle),(iBBX.top+iBBX.bottom)/2-6.7*sin(cangle),
+				(iBBX.left+iBBX.right)/2-13.4*cos(cangle),(iBBX.top+iBBX.bottom)/2-13.4*sin(cangle));
+				expressbezier(iBBX.right-13.4*cos(langle),iBBX.bottom-13.4*sin(langle),
+				iBBX.right-6.7*cos(langle),iBBX.bottom-6.7*sin(langle),
+				iBBX.right+6.7*cos(cangle),iBBX.bottom+6.7*sin(cangle),
+				iBBX.right+13.4*cos(cangle),iBBX.bottom+13.4*sin(cangle));
+				expressbezier((iBBX.left+iBBX.right)/2-13.4*cos(langle),(iBBX.top+iBBX.bottom)/2-13.4*sin(langle),
+				(iBBX.left+iBBX.right)/2-6.7*cos(langle),(iBBX.top+iBBX.bottom)/2-6.7*sin(langle),
+				(iBBX.left+iBBX.right)/2-6.7*cos(cangle),(iBBX.top+iBBX.bottom)/2-6.7*sin(cangle),
+				(iBBX.left+iBBX.right)/2-13.4*cos(cangle),(iBBX.top+iBBX.bottom)/2-13.4*sin(cangle));
+				break;
+			}
+			case 5:
+			{
+				float tldist=sqrt(fsqr(iBBX.right-iBBX.left)+fsqr(iBBX.top-iBBX.bottom));
+				fprintf(outfile,"<path d=\"M %f,%f A %f,%f %i %i %i %f %f\" %s />",iBBX.left+SVG_currentshiftx,iBBX.top+SVG_currentshifty,tldist*1.8,tldist*1.8,0,0,1,iBBX.right+SVG_currentshiftx,iBBX.bottom+SVG_currentshifty,stylestring);
+				break;
+			}
+		}
 	}
 	skipthisgraphic:
 	;//always run over here. One might need this.

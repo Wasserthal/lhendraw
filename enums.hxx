@@ -175,6 +175,14 @@ bienum CDXML_OrbitalType[] {
 	{{"dxyFilled"},0x208},
 };
 int CDXML_OrbitalType_max=sizeof(CDXML_OrbitalType)/sizeof(CDXML_OrbitalType[0]);
+bienum CDXML_ExternalConnectionType[] {
+	{{"Unspecified"},0},
+	{{"Diamond"},1},
+	{{"Star"},2},
+	{{"PolymerBead"},3},
+	{{"Wavy"},4},
+};
+int CDXML_ExternalConnectionType_max=sizeof(CDXML_ExternalConnectionType)/sizeof(CDXML_ExternalConnectionType[0]);
 bienum CDXML_RectangleType[] {
 	{{"Plain"},0x0},
 	{{"RoundEdge"},0x1},

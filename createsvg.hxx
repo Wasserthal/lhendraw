@@ -1650,6 +1650,22 @@ iBBX.right+ibonddist2*cos(cangle)+ibonddist4*(cos(cangle)-(cos(langle)*tlrightta
 		stylegenestring((((*glob_b_multilist).bufferlist[index_in_buffer].Display2==1)?8:0)|1);
 		expressline(iBBX.left+ibonddist*cos(cangle),iBBX.top+ibonddist*sin(cangle),iBBX.right+ibonddist*cos(cangle),iBBX.bottom+ibonddist*sin(cangle));
 	}
+	for (int ilv0=0;ilv0<4;ilv0++)
+	{
+		n_instance * tlnode=(ilv0/2)?startnode:endnode;
+		get_colorstring((*tlnode).color);
+		stylegenestring(1);
+		if ((*tlnode).ExternalConnectionType==4)
+		{
+			float tlposx=(*tlnode).p.x+SVG_currentshiftx;
+			float tlposy=(*tlnode).p.y+SVG_currentshifty;
+			float tlsin=sin(langle+((ilv0%2)?(Pi/2):(-Pi/2)))*4;
+			float tlcos=cos(langle+((ilv0%2)?(Pi/2):(-Pi/2)))*4;
+			fprintf(outfile,"<path d=\" M %f %f C %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f \" %s />",tlposx,tlposy,tlposx+tlsin,tlposy-tlcos,tlposx+tlsin+tlcos,tlposy-tlcos+tlsin,tlposx+tlcos,tlposy+tlsin,
+tlposx+tlcos-tlsin,tlposy+tlsin+tlcos,tlposx+2*tlcos-tlsin,tlposy+2*tlsin+tlcos,tlposx+2*tlcos,tlposy+2*tlsin
+,tlposx+2*tlcos+0.25*tlsin,tlposy+2*tlsin-0.25*tlcos,tlposx+2.25*tlcos+0.5*tlsin,tlposy+2.25*tlsin-0.5*tlcos,tlposx+2.5*tlcos+0.5*tlsin,tlposy+2.5*tlsin-0.5*tlcos,stylestring);
+		}
+	}
 	goto svg_main_loop;
 	svg_main_t:
 	owner=text_actual_node[index_in_buffer].owner;

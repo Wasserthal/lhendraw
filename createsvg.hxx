@@ -15,38 +15,42 @@ color_instance * get_color(int number)
 	return &(((*glob_color_multilist).bufferlist)[number-2]);//is this really the best method? After all, colors have no IDs.
 }
 
-int get_colorstringv(int number,char * icolorstring)
+#ifdef GFXOUT_SVG
+int get_colorstringv(int number)
 {
 	if (number==0)
 	{
-		strcpy(icolorstring,"000000");
+		strcpy(colorstring,"000000");
 		return 0;
 	}
 	if (number==1)
 	{
-		strcpy(icolorstring,"FFFFFF");
+		strcpy(colorstring,"FFFFFF");
 		return 0;
 	}
 	if (number-2>=(*glob_color_multilist).filllevel)
 	{
-		strcpy(icolorstring,"000000");
+		strcpy(colorstring,"000000");
 		return -1;
 	}
-	snprintf(icolorstring,7,"%02hhX%02hhX%02hhX",char(((*glob_color_multilist).bufferlist)[number-2].r*255),char(((*glob_color_multilist).bufferlist)[number-2].g*255),char(((*glob_color_multilist).bufferlist)[number-2].b*255)); //is this really the best method? After all, colors have no IDs.
+	snprintf(colorstring,7,"%02hhX%02hhX%02hhX",char(((*glob_color_multilist).bufferlist)[number-2].r*255),char(((*glob_color_multilist).bufferlist)[number-2].g*255),char(((*glob_color_multilist).bufferlist)[number-2].b*255)); //is this really the best method? After all, colors have no IDs.
 	return 0;
 }
+#endif
+
 int get_colorstring(int number)
 {
-	get_colorstringv(number,colorstring);
+	get_colorstringv(number);
 }
 
 inline int get_colorstring_passive(int number)
 {
 	if (number!=0)
 	{
-		get_colorstringv(number,colorstring);
+		get_colorstringv(number);
 	}
 }
+
 void canonicalizeboundingbox(cdx_Rectangle * iBBX)
 {
 	float swap;
@@ -461,10 +465,12 @@ void stylegenestring(int flags)
 int stylefromline(int input) {return 1|((input & 1)?8:0)|((input & 2)?4:0);}
 int stylefromrectangle(int input) {return 1|((input & 0x10)?8:0)|((input & 0x20)?4:0)|((input & 0x8)?2:0);}
 
+#ifdef GFXOUT_SVG
 void expressline(float ileft,float itop,float iright,float ibottom)
 {
 	fprintf(outfile,"<path d=\"M %f %f L %f %f \" %s/>\n",ileft+SVG_currentshiftx,itop+SVG_currentshifty,iright+SVG_currentshiftx,ibottom+SVG_currentshifty,stylestring);
 }
+#endif
 void expresscdxcircle(float ileft,float itop,float iright,float ibottom)
 {
 	fprintf(outfile,"<ellipse cx=\"%f\" cy=\"%f\" rx=\"%f\" ry=\"%f\" %s/>\n",ileft+SVG_currentshiftx,itop+SVG_currentshifty,iright-ileft,ibottom-itop,stylestring);

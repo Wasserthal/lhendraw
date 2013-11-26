@@ -1,3 +1,9 @@
+#include <SDL.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <math.h>
+#include <time.h>
 #define gfx_screensizex 640
 #define gfx_screensizey 480
 #define gfx_canvassizex 320
@@ -7,14 +13,14 @@
 #define gfx_canvasmaxx 480
 #define gfx_canvasmaxy 360
 #define gfx_depth 4
-float SDL_scrollx=0,SDL_scrolly=0;
-float SDL_zoomx,SDL_zoomy;
+#define _u8 unsigned char
+#define _u32 unsigned int
 //_u8 screen[gfx_screensizex*gfx_screensizey*gfx_depth];
 _u32 * screen;
 _u32 * canvas;
 _u32 SDL_color;
 
-int get_colorstringv(int number)
+void get_colorstringv(int number)
 {
 	if (number==0)
 	{
@@ -26,20 +32,18 @@ int get_colorstringv(int number)
 		SDL_color=0xFFFFFF;
 		return 0;
 	}
-	printf("cn %i,%i\n",(*glob_color_multilist).filllevel,number);
 	if (number-2>=(*glob_color_multilist).filllevel)
 	{	
 		SDL_color=0;
 		return -1;
 	}
-	SDL_color=((_u8)(((*glob_color_multilist).bufferlist)[number-2].r*255)<<16)+
-	((_u8)(((*glob_color_multilist).bufferlist)[number-2].g*255)<<8)+
-	((_u8)(((*glob_color_multilist).bufferlist)[number-2].b*255));
-	printf("co %llX",SDL_color);
+	SDL_color=(_u8(((*glob_color_multilist).bufferlist)[number-2].r*255)<<16)+
+	(_u8(((*glob_color_multilist).bufferlist)[number-2].g*255)<<8)+
+	_u8(((*glob_color_multilist).bufferlist)[number-2].b*255);
 	return 0;
 }
 
-void expressline(float ileft,float itop,float iright,float ibottom)
+void expressline(float ileft,float itop,float iright,float ibottom,_u32 icolor)
 {
 	int x=ileft;
 	int y=itop;
@@ -148,7 +152,7 @@ void expressline(float ileft,float itop,float iright,float ibottom)
 	{
 		if (x2==x)//it can be that still x width is zero.
 		{
-			canvas[gfx_screensizex*y2+x]=SDL_color;
+			canvas[gfx_screensizex*y2+x]=icolor;
 		}
 		if (x2<x)
 		{
@@ -163,7 +167,7 @@ void expressline(float ileft,float itop,float iright,float ibottom)
 		for (int ilv1=0;ilv1<x2-x;ilv1++)
 		{
 			int vertical=y+ilv1*slope;
-			canvas[gfx_screensizex*vertical+ilv1+x]=SDL_color;
+			canvas[gfx_screensizex*vertical+ilv1+x]=icolor;
 		}
 	}
 	else
@@ -181,13 +185,14 @@ void expressline(float ileft,float itop,float iright,float ibottom)
 		for (int ilv1=0;ilv1<y2-y;ilv1++)
 		{
 			int horizontal=x+ilv1*slope;
-			canvas[gfx_screensizex*(ilv1+y)+horizontal]=SDL_color;
+			canvas[gfx_screensizex*(ilv1+y)+horizontal]=icolor;
 		}
 	}
 	return;
 }
  SDL_Surface *video;
 
+ float Pi=3.1427;
 void screenclear(_u32 icolor)
 {
 	for (int ilv1=0;ilv1<640*480;ilv1++)
@@ -224,64 +229,7 @@ int gfxstop()
 	}
 	SDL_UpdateRect(video,0,0,640,480);
 }
-
-int expresstriangle(intl ifx1,intl ify1,intl ifx2,intl ify2,intl ifx3,intl ify3)
-{
-	float ibrakelist[10];
-	intl ibrakelist_count;
-	intl ix1;
-	intl iy1;
-	intl ix2;
-	intl iy2;
-	intl ix3;
-	intl iy3;
-	ix1=(ifx1-SDL_scrollx)*SDL_zoomx;
-	iy1=(ify1-SDL_scrolly)*SDL_zoomy;
-	ix2=(ifx2-SDL_scrollx)*SDL_zoomx;
-	iy2=(ify2-SDL_scrolly)*SDL_zoomy;
-	ix3=(ifx3-SDL_scrollx)*SDL_zoomx;
-	iy3=(ify3-SDL_scrolly)*SDL_zoomy;
-	intl iminx,imaxx,iminy,imaxy;
-	float m1,m2,m3;
-	if (iminx>ix1)iminx=ix1;
-	if (iminx>ix2)iminx=ix2;
-	if (iminx>ix3)iminx=ix3;
-	if (iminy>iy1)iminy=iy1;
-	if (iminy>iy2)iminy=iy2;
-	if (iminy>iy3)iminy=iy3;
-	if (imaxx<ix1)imaxx=ix1;
-	if (imaxx<ix2)imaxx=ix2;
-	if (imaxx<ix3)imaxx=ix3;
-	if (imaxy<iy1)imaxy=iy1;
-	if (imaxy<iy2)imaxy=iy2;
-	if (imaxy<iy3)imaxy=iy3;
-	if (iminx<0)iminx=0;
-	if (imaxx>gfx_canvassizex)imaxx=gfx_canvassizex;
-	if (iminy<0)iminy=0;
-	if (imaxy>gfx_canvassizey)imaxy=gfx_canvassizey;
-	if (imaxx<iminx){return 0;}
-	if (imaxy<iminy){return 0;}
-	{
-		int tlvert;
-		tlvert=(iy2-iy1);
-		if (abs(tlvert)>=1)
-		m1=(ix2-ix1)/tlvert;
-	}
-	for (int ilv1=iminy;ilv1<=imaxy;ilv1++)
-	{
-		ibrakelist_count=0;
-		if (((iy1<ilv1) && (iy2>=ilv1)) || ((iy2<ilv1) && (iy1>=ilv1)))
-		{
-			ibrakelist[ibrakelist_count++]=m1*(ilv1-iy1)+ix1;
-		}
-		for (int ilv1=iminx;ilv1<=imaxx;ilv1++)
-		{
-			
-		}
-	}
-}
-void svg_main(const char * filename);
-void sdl_output(char * filename)
+void sdl_output()
 {
 	if ( SDL_Init(SDL_INIT_AUDIO|SDL_INIT_VIDEO) < 0 ) {
 		fprintf(stderr, "SDL konnte nicht initialisiert werden: %s\n", SDL_GetError());
@@ -296,6 +244,7 @@ void sdl_output(char * filename)
 	impy=0;
 	x=0;
 	y=0;
+	back:
 	spin+=1;
 	impx+=((rand()%1000)-500)/1000.0;
 	impx*=1.001;
@@ -309,8 +258,10 @@ void sdl_output(char * filename)
 	if (y>320){y=320;impy=-fabs(impy)*0.5;}
 	if (y<0){y=0;impy=fabs(impy)*0.5;}
 	gfxstart();
-	SDL_color=0xFF00FF;
-	svg_main(filename);
+	expressline(x,y,x+100*cos(spin/36),y+100*sin(spin/36),0xFF00FF);
+	expressline(x,y,x+100*cos(Pi/2+spin/36),y+100*sin(Pi/2+spin/36),0xFF00FF);
+	expressline(x,y,x+100*cos(Pi+spin/36),y+100*sin(Pi+spin/36),0xFF00FF);
+	expressline(x,y,x+100*cos(-Pi/2+spin/36),y+100*sin(-Pi/2+spin/36),0xFF00FF);
 	gfxstop();
-	sleep(10);
+	goto back;
 }

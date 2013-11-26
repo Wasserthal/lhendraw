@@ -19,6 +19,7 @@
 #include <time.h>
 #include <SDL.h>
 #include <unistd.h>
+#include "graphics_variables.hxx"
 #include "sdlgfx.hxx"
 #include "createsvg.hxx"
 #include "hatch.hxx"
@@ -26,10 +27,17 @@
 #include "xmlparse.hxx"
 
 #include "makeinf.hxx"
-int main(void)
+int main(int argc,char * * argv)
 {
-	sdl_output();
+	if (argc!=2)
 	{
-		
+		printf("no file specified or to many ones!");
+		exit(1);
 	}
+	infile=fopen(argv[1],"r+");
+	input_fsm(infile);
+	fclose(infile);
+	svg_findaround();
+	getframes();
+	sdl_output("outsdl.svg");
 }

@@ -11,7 +11,7 @@
 #include "xmldata.hxx"
 
 #include "enums.hxx"
-#include "filestructure.hxx"
+#include "./generated/filestructure.hxx"
 #include "definitionlist.h"
 #include "janitor.hxx"
 #include "ellipeq.h"

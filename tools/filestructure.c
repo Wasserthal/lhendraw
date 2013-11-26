@@ -69,7 +69,7 @@ void main(void)
 	char ihv1;
 	int helpbufferreturnvalue;
 	infile=fopen("filestructure.draft","r");
-	outfile=fopen("filestructure.hxx","w");
+	outfile=fopen("./generated/filestructure.hxx","w");
 	helpbufferpos=&helpbuffer[0];
 	helpbuffer[0]=0;
 	lineback:

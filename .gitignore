@@ -1,4 +1,4 @@
-filestructure_maker
+/tools/filestructure_maker
 filestructure.hxx
 a.out
 parsexml
@@ -6,3 +6,4 @@ parsexml
 *.patch
 *.svg
 makeinf
+sdl.out

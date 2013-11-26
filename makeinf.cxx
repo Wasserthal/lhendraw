@@ -17,6 +17,7 @@
 #include "quartic.hxx"
 #include "definitionlist.h"
 #include "janitor.hxx"
+#include "graphics_variables.hxx"
 #include "createsvg.hxx"
 #include "hatch.hxx"
 

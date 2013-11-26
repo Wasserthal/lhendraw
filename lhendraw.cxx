@@ -16,16 +16,16 @@
 #include "janitor.hxx"
 #include "ellipeq.h"
 #include "quartic.hxx"
+#include <time.h>
+#include <SDL.h>
+#include <unistd.h>
+#include "sdlgfx.hxx"
 #include "createsvg.hxx"
 #include "hatch.hxx"
 
 #include "xmlparse.hxx"
 
 #include "makeinf.hxx"
-#include <time.h>
-#include <SDL.h>
-#include <unistd.h>
-#include "sdlgfx.hxx"
 int main(void)
 {
 	sdl_output();

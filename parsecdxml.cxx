@@ -17,6 +17,7 @@
 #include "janitor.hxx"
 #include "ellipeq.h"
 #include "quartic.hxx"
+#include "graphics_variables.hxx"
 #include "createsvg.hxx"
 #include "hatch.hxx"
 

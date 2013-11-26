@@ -222,10 +222,7 @@ int gfxstop()
 	}
 	SDL_UpdateRect(video,0,0,640,480);
 }
-void expresstriangle()
-{
-	
-}
+
 int expresstriangle(intl ifx1,intl ify1,intl ifx2,intl ify2,intl ifx3,intl ify3)
 {
 	float ibrakelist[10];

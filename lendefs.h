@@ -12,6 +12,10 @@
 #define _i16 signed short
 #define _u8 unsigned char
 #define _i8 signed char
+float Pi=3.141592654;
+#define _small int
+#define minfloat -1.0e20
+#define maxfloat 1.0e20
 inline intl sqr(intl input)
 {
 	return input*input;

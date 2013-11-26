@@ -1,12 +1,3 @@
-#include <math.h>
-float Pi=3.141592654;
-#define minfloat -1.0e20
-#define maxfloat 1.0e20
-#define _small int
-#include "definitionlist.h"
-#include "janitor.hxx"
-#include "ellipeq.h"
-#include "quartic.hxx"
 #ifdef LENNARD_HACK
 char LENNARD_HACK_dokilltext;
 #endif
@@ -822,8 +813,8 @@ void svg_findaround()
 	glob_curve_multilist=retrievemultilist<curve_instance>();
 	glob_arrow_multilist=retrievemultilist<arrow_instance>();
 	glob_moleculefill_multilist=retrievemultilist<moleculefill_instance>();
-	LENNARD_HACK_dokilltext=0;
 	#ifdef LENNARD_HACK
+	LENNARD_HACK_dokilltext=0;
 	{
 		multilist<LENHACK_ANNOTATION_instance> * tl_LENHACK_ANNOTATION_MULTILIST=retrievemultilist<LENHACK_ANNOTATION_instance>();
 		for (int ilv1=0;ilv1<(*tl_LENHACK_ANNOTATION_MULTILIST).filllevel;ilv1++)

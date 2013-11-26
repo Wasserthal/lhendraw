@@ -1,4 +1,3 @@
-#include <math.h>
 typedef struct framestatus_
 {
 	int number;

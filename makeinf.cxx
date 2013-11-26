@@ -1,7 +1,28 @@
-#include "stdio.h"
-#include "stdlib.h"
-#define PARSECDXML_IS_AUXPROG
-#include "parsecdxml.cxx"
+//Makes inf files which tell the sizes of the pictures in my doctoral thesis.
+
+#include <stddef.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <typeinfo>
+#include <string.h>
+#include <stdarg.h>
+#include <math.h>
+#include "lendefs.h"
+#include "xmldata.hxx"
+#include "cxxdata.h"
+#include "enums.hxx"
+#include "filestructure.hxx"
+
+#include "ellipeq.h"
+#include "quartic.hxx"
+#include "definitionlist.h"
+#include "janitor.hxx"
+#include "createsvg.hxx"
+#include "hatch.hxx"
+
+#include "xmlparse.hxx"
+
+
 #include "makeinf.hxx"
 int createsortiment(char sortiment_count,char * * sortimentstart)
 {

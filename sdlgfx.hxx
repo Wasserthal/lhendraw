@@ -1,9 +1,3 @@
-#include <SDL.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <math.h>
-#include <time.h>
 #define gfx_screensizex 640
 #define gfx_screensizey 480
 #define gfx_canvassizex 320
@@ -13,9 +7,6 @@
 #define gfx_canvasmaxx 480
 #define gfx_canvasmaxy 360
 #define gfx_depth 4
-#define _u8 unsigned char
-#define _u32 unsigned int
-#define intl long long
 float SDL_scrollx=0,SDL_scrolly=0;
 float SDL_zoomx,SDL_zoomy;
 //_u8 screen[gfx_screensizex*gfx_screensizey*gfx_depth];
@@ -40,9 +31,9 @@ int get_colorstringv(int number)
 		SDL_color=0;
 		return -1;
 	}
-	SDL_color=(_u8(((*glob_color_multilist).bufferlist)[number-2].r)<<16)+
-	(_u8(((*glob_color_multilist).bufferlist)[number-2].g)<<8)+
-	(_u8(((*glob_color_multilist).bufferlist)[number-2].b));
+	SDL_color=((_u8)(((*glob_color_multilist).bufferlist)[number-2].r)<<16)+
+	((_u8)(((*glob_color_multilist).bufferlist)[number-2].g)<<8)+
+	((_u8)(((*glob_color_multilist).bufferlist)[number-2].b));
 	return 0;
 }
 
@@ -195,7 +186,6 @@ void expressline(float ileft,float itop,float iright,float ibottom,_u32 icolor)
 }
  SDL_Surface *video;
 
- float Pi=3.1427;
 void screenclear(_u32 icolor)
 {
 	for (int ilv1=0;ilv1<640*480;ilv1++)
@@ -236,9 +226,10 @@ void expresstriangle()
 {
 	
 }
-void expresstriangle(intl ifx1,intl ify1,intl ifx2,intl ify2,intl ifx3,intl ify3)
+int expresstriangle(intl ifx1,intl ify1,intl ifx2,intl ify2,intl ifx3,intl ify3)
 {
-	float brakelist[10];
+	float ibrakelist[10];
+	intl ibrakelist_count;
 	intl ix1;
 	intl iy1;
 	intl ix2;
@@ -280,9 +271,9 @@ void expresstriangle(intl ifx1,intl ify1,intl ifx2,intl ify2,intl ifx3,intl ify3
 	for (int ilv1=iminy;ilv1<=imaxy;ilv1++)
 	{
 		ibrakelist_count=0;
-		if ((iy1<ilv1) && (iy2>=ilv1)) || ((iy2<ilv1) && (iy1>=ilv1))
+		if (((iy1<ilv1) && (iy2>=ilv1)) || ((iy2<ilv1) && (iy1>=ilv1)))
 		{
-			brakelist[ibrakelist_count++]=m1*(ilv1-iy1)+ix1;
+			ibrakelist[ibrakelist_count++]=m1*(ilv1-iy1)+ix1;
 		}
 		for (int ilv1=iminx;ilv1<=imaxx;ilv1++)
 		{

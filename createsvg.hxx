@@ -1017,12 +1017,6 @@ void svg_head(const char * filename,float width,float height)
 {
 	outfile=fopen(filename,"w+");
 	getatoms();
-	#ifdef LENNARD_HACK
-	if (LENNARD_HACK_dokilltext)
-	{
-		LENNARD_HACK_killtext();
-	}
-	#endif
 	fprintf(outfile,"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>");
 	fprintf(outfile,"<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">");
 //	fprintf(outfile,"<svg version=\"1.0\" width=\"%f\" height=\"%f\">\n",SVG_width-SVG_ileft,SVG_height-SVG_itop);
@@ -1923,6 +1917,12 @@ void svg_main(const char * filename)
 	Lennard_hatch();
 	#endif
 	initZlist();
+	#ifdef LENNARD_HACK
+	if (LENNARD_HACK_dokilltext)
+	{
+		LENNARD_HACK_killtext();
+	}
+	#endif
 	svg_controlprocedure(0,1);
 	svg_controlprocedure(0,0);
 	svg_tail();

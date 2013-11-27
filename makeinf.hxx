@@ -378,7 +378,6 @@ void svg_main2(const char * filename,int count,char * * args)
 	strcat(ifilename,")");*/
 	main_multisvg(count,args);
 	svg_head(filename,makeinf_sortiment.width,makeinf_sortiment.height);
-	initZlist();
 	#ifdef LENNARD_HACK
 	char tlKLUDGEdontenumerate=0;
 	for (int ilv1=0;ilv1<(*glob_annotation_multilist).filllevel;ilv1++)// a Kludge
@@ -411,6 +410,13 @@ void svg_main2(const char * filename,int count,char * * args)
 		SVG_currentfringey=makeinf_frame[tlnr].endy;
 		#ifdef LENNARD_HACK
 		Lennard_hatch();
+		#endif
+		initZlist();
+		#ifdef LENNARD_HACK
+		if (LENNARD_HACK_dokilltext)
+		{
+			LENNARD_HACK_killtext();
+		}
 		#endif
 		svg_controlprocedure(1,1);
 		svg_controlprocedure(1,0);

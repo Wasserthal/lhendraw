@@ -1647,8 +1647,18 @@ tlposx+tlcos-tlsin,tlposy+tlsin+tlcos,tlposx+2*tlcos-tlsin,tlposy+2*tlsin+tlcos,
 				}
 				else
 				{
-					iparms=STRINGOUTPUT_bold;
-					currentsetfontsize=24;
+					if (currentsetfontsize!=29)
+					{
+						iparms=STRINGOUTPUT_bold;
+						if (currentsetfontsize!=38)
+						{
+							currentsetfontsize=24;
+						}
+					}
+					else
+					{
+						currentsetfontsize=29;
+					}
 				}
 			}
 			else
@@ -1851,8 +1861,18 @@ tlposx+tlcos-tlsin,tlposy+tlsin+tlcos,tlposx+2*tlcos-tlsin,tlposy+2*tlsin+tlcos,
 				}
 				else
 				{
-					iparms=STRINGOUTPUT_bold;
-					currentsetfontsize=24;
+					if (currentsetfontsize!=29)
+					{
+						iparms=STRINGOUTPUT_bold;
+						if (currentsetfontsize!=38)
+						{
+							currentsetfontsize=24;
+						}
+					}
+					else
+					{
+						currentsetfontsize=29;
+					}
 				}
 			}
 			else

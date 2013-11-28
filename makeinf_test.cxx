@@ -39,6 +39,7 @@ int main(int argc,char ** argv)
 		printf("width:%f,height:%f\n",makeinf_sortiments[ilv1].width,makeinf_sortiments[ilv1].height);
 		for (int ilv2=0;ilv2<makeinf_sortiments[ilv1].sortiment_length;ilv2++)
 		{
+			printf("%i",makeinf_sortiments[ilv1].sortiment[ilv2].number);
 		}
 	}
 	#else

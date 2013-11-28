@@ -958,7 +958,7 @@ void printformatted(const char * iinput,const char * parms,int imode,int start,i
 	linebreak=0;
 	if (imode==1)
 	{
-		fprintf(outfile,"<tspan dy=\"+3\" %s font-size=\"%f\" style=\"fill:#%s\">",parms,currentsetfontsize*0.77777,colorstring);
+		fprintf(outfile,"<tspan dy=\"+%f\" %s font-size=\"%f\" style=\"fill:#%s\">",currentsetfontsize/6.0,parms,currentsetfontsize*0.77777,colorstring);
 	}
 	if ((imode==2) || (imode==0))
 	{
@@ -966,7 +966,7 @@ void printformatted(const char * iinput,const char * parms,int imode,int start,i
 	}
 	if (imode==4)
 	{
-		fprintf(outfile,"<tspan dy=\"-3\" %s font-size=\"%f\" style=\"fill:#%s\">",parms,currentsetfontsize*0.77777,colorstring);
+		fprintf(outfile,"<tspan dy=\"-%f\" %s font-size=\"%f\" style=\"fill:#%s\">",currentsetfontsize/6.0,parms,currentsetfontsize*0.77777,colorstring);
 	}
 	for (;ilv4<end;ilv4++)
 	{
@@ -982,14 +982,14 @@ void printformatted(const char * iinput,const char * parms,int imode,int start,i
 	fprintf(outfile,"</tspan>",colorstring);
 	if (imode==1)
 	{
-		fprintf(outfile,"<tspan %s dy=\"-3\">&#8288;</tspan>",parms);
+		fprintf(outfile,"<tspan %s dy=\"-%f\">&#8288;</tspan>",parms,currentsetfontsize/6.0);
 	}
 	if (imode==4)
 	{
-		fprintf(outfile,"<tspan %s dy=\"3\">&#8288;</tspan>",parms);
+		fprintf(outfile,"<tspan %s dy=\"%f\">&#8288;</tspan>",parms,currentsetfontsize/6.0);
 	}
 	fprintf(outfile,"\n");
-	if (linebreak) {fprintf(outfile,"<tspan dy=\"20\" x=\"0\">&#8288;</tspan>");if (ilv4<end) goto thatwasatemporaryskip;}//a line break;
+	if (linebreak) {fprintf(outfile,"<tspan dy=\"%f\" x=\"0\">&#8288;</tspan>",20.0/18.0*currentsetfontsize);if (ilv4<end) goto thatwasatemporaryskip;}//a line break;
 }
 
 #ifdef LENNARD_HACK

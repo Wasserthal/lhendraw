@@ -20,6 +20,9 @@ typedef struct makeinf_sortiment_
 } makeinf_sortiment_;
 makeinf_sortiment_ makeinf_sortiment;
 makeinf_sortiment_ loadedmakeinf_sortiment;
+#ifdef CDXMAKEINF_READONLY
+makeinf_sortiment_ makeinf_sortiments[10];
+#endif
 FILE * INFfile;
 FILE * infile;
 frameinfo_ makeinf_frame[255];
@@ -200,9 +203,53 @@ char truefilename[stringlength];
 		maxup(currentmaxx,makeinf_frame[ilv1].width);
 	}
 }*/
+
+void main_multisvg(int icount,char * * args)//tetrify
+{
+	makeinf_sortiment.height=0;
+	makeinf_sortiment.width=0;
+	if (args==NULL)
+	{
+		icount=makeinf_sortiment.sortiment_length;
+	}
+	makeinf_sortiment.sortiment_length=0;
+	for (int ilv1=0;ilv1<icount;ilv1++)
+	{
+		int tlnr;
+		if (args!=NULL)
+		{
+			tlnr=atoi(args[ilv1]);
+		}
+		else
+		{
+			tlnr=makeinf_sortiment.sortiment[ilv1].number;
+		}
+		int tlnr2;
+		for (int ilv2=0;ilv2<makeinf_frame_count;ilv2++)
+		{
+			if (makeinf_frame[ilv2].number==tlnr)
+			{
+				tlnr2=ilv2;
+				goto ifertig;
+			}
+		}
+		ifertig:
+		;
+		makeinf_sortiment.sortiment[makeinf_sortiment.sortiment_length].number=tlnr;
+		makeinf_sortiment.sortiment[makeinf_sortiment.sortiment_length].posx=0;
+		makeinf_sortiment.sortiment[makeinf_sortiment.sortiment_length].posy=makeinf_sortiment.height;
+		makeinf_sortiment.height+=makeinf_frame[tlnr2].height+10;
+		printf("OOOUUT:%f ",makeinf_frame[tlnr2].height);
+		makeinf_sortiment.width=fmax(makeinf_sortiment.width,makeinf_frame[tlnr2].width);
+		makeinf_sortiment.sortiment_length++;
+	}
+	makeinf_sortimentcount++;
+}
+
 void makeinf(const char * cdxname,const char * name)
 {
 	char tldowriteatend=makeinf_sortimentcount;
+	char tlappendplanar=0;
 	strcpy(truefilename,name);
 	strcat(truefilename,".inf");
 	INFfile=fopen(truefilename,"r");
@@ -225,6 +272,9 @@ void makeinf(const char * cdxname,const char * name)
 				fread(&(loadedmakeinf_sortiment.sortiment[ilv2]),sizeof(framestatus_),1,INFfile);
 				makeinf_fileend+=sizeof(framestatus_);
 			}
+			#ifdef CDXMAKEINF_READONLY
+			makeinf_sortiments[ilv1]=loadedmakeinf_sortiment;
+			#endif
 			if (comparemakeinf_sortiment(loadedmakeinf_sortiment,makeinf_sortiment))
 			{
 				tldowriteatend=0;
@@ -280,10 +330,16 @@ void makeinf(const char * cdxname,const char * name)
 			makeinf_fileend+=sizeof(frameinfo_);
 		}
 		fclose(INFfile);
+		if (makeinf_frame_count>0)
+		{
+			tlappendplanar=1;
+		}
 	}
 	#endif
+	repeatwritewithplanar:
 	if (tldowriteatend==1)
 	{
+		main_multisvg(0,NULL);
 		strcpy(truefilename,name);
 		strcat(truefilename,".inf");
 		INFfile=fopen(truefilename,"r+");
@@ -291,6 +347,7 @@ void makeinf(const char * cdxname,const char * name)
 		fwrite(&makeinf_sortiment.sortiment_length,4,1,INFfile);
 		fwrite(&makeinf_sortiment.width,sizeof(float),1,INFfile);
 		fwrite(&makeinf_sortiment.height,sizeof(float),1,INFfile);
+		printf("ITTTS: %f ",makeinf_sortiment.height);
 		makeinf_fileend+=12;
 		for (int ilv2=0;ilv2<makeinf_sortiment.sortiment_length;ilv2++)
 		{
@@ -298,39 +355,22 @@ void makeinf(const char * cdxname,const char * name)
 			makeinf_fileend+=sizeof(framestatus_);
 		}
 		fseek(INFfile,4L,SEEK_SET);
-		makeinf_sortimentcount++;
 		fwrite(&makeinf_sortimentcount,4,1,INFfile);
+	}
+	if (tlappendplanar==1)
+	{
+		tlappendplanar=0;
+		tldowriteatend=1;
+		printf("COUNT:%i ",makeinf_frame_count);
+		for (int ilv1=0;ilv1<makeinf_frame_count;ilv1++)
+		{
+			makeinf_sortiment.sortiment[ilv1].number=makeinf_frame[ilv1].number;
+		}
+		makeinf_sortiment.sortiment_length=makeinf_frame_count;
+		goto repeatwritewithplanar;
 	}
 }
 #ifndef CDXMAKEINF_READONLY
-
-void main_multisvg(int icount,char * * args)//tetrify
-{
-	makeinf_sortimentcount=0;
-	makeinf_sortiment.height=0;
-	makeinf_sortiment.width=0;
-	for (int ilv1=0;ilv1<icount;ilv1++)
-	{
-		int tlnr=atoi(args[ilv1]);
-		int tlnr2;
-		for (int ilv2=0;ilv2<makeinf_frame_count;ilv2++)
-		{
-			if (makeinf_frame[ilv2].number==tlnr)
-			{
-				tlnr2=ilv2;
-				goto ifertig;
-			}
-		}
-		ifertig:
-		;
-		makeinf_sortiment.sortiment[makeinf_sortimentcount].number=tlnr;
-		makeinf_sortiment.sortiment[makeinf_sortimentcount].posx=0;
-		makeinf_sortiment.sortiment[makeinf_sortimentcount].posy=makeinf_sortiment.height;
-		makeinf_sortiment.height+=makeinf_frame[tlnr2].height+10;
-		makeinf_sortiment.width=fmax(makeinf_sortiment.width,makeinf_frame[tlnr2].width);
-		makeinf_sortimentcount++;
-	}
-}
 
 void Lennard_hatch()
 {
@@ -376,6 +416,7 @@ void svg_main2(const char * filename,int count,char * * args)
 		sprintf(ifilename+strlen(ifilename),(ilv1)?"+%s":"%s",args[ilv1]);
 	}
 	strcat(ifilename,")");*/
+	makeinf_sortimentcount=0;
 	main_multisvg(count,args);
 	svg_head(filename,makeinf_sortiment.width,makeinf_sortiment.height);
 	#ifdef LENNARD_HACK

@@ -1,3 +1,6 @@
+//variables to configure graphic drawing.
+//Includes some help routines also.
+//TODO:Includes the document data which is converted from cdxml, which belongs into another unit.
 
 #ifdef LENNARD_HACK
 char LENNARD_HACK_dokilltext;

@@ -1,4 +1,5 @@
 //this is the xml parsing unit. requires xmldata.hxx
+//few routines are also needed for binary cdx.
 basic_instance * currentinstance;
 
 #ifdef DEBUG

@@ -1,3 +1,4 @@
+//Graphic routines. Callers of those should be in createsvg.hxx
 #define gfx_screensizex 640
 #define gfx_screensizey 480
 #define gfx_canvassizex 320
@@ -227,7 +228,8 @@ int gfxstop()
 
 int expresstriangle(intl ifx1,intl ify1,intl ifx2,intl ify2,intl ifx3,intl ify3)
 {
-	float ibrakelist[10];
+	int ibrakelist_bks[256];
+	int ibrakelist_pps[256];//1: end 2: start 0: unknown 0x4: other than 8 0x8: other than 0x4 0x10: deaf(horz)
 	intl ibrakelist_count;
 	intl ix1;
 	intl iy1;
@@ -272,7 +274,7 @@ int expresstriangle(intl ifx1,intl ify1,intl ifx2,intl ify2,intl ifx3,intl ify3)
 		ibrakelist_count=0;
 		if (((iy1<ilv1) && (iy2>=ilv1)) || ((iy2<ilv1) && (iy1>=ilv1)))
 		{
-			ibrakelist[ibrakelist_count++]=m1*(ilv1-iy1)+ix1;
+			ibrakelist_bks[ibrakelist_count++]=m1*(ilv1-iy1)+ix1;
 		}
 		for (int ilv1=iminx;ilv1<=imaxx;ilv1++)
 		{
@@ -281,7 +283,7 @@ int expresstriangle(intl ifx1,intl ify1,intl ifx2,intl ify2,intl ifx3,intl ify3)
 	}
 }
 void svg_main(const char * filename);
-void sdl_output(char * filename)
+void sdl_output(const char * filename)
 {
 	if ( SDL_Init(SDL_INIT_AUDIO|SDL_INIT_VIDEO) < 0 ) {
 		fprintf(stderr, "SDL konnte nicht initialisiert werden: %s\n", SDL_GetError());

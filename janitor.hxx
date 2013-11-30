@@ -1,4 +1,5 @@
 /*
+Controls the internal data structure.
 gap design
 each gap contains a pointer to the next and last one, each item contains a pointer to the next and last one
 Why do I need another sort list?

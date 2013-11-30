@@ -1,4 +1,13 @@
+/*THIS IS THE MAIN PROGRAM
 
+L      H   H EEEEE N    N DDD   RRR     A    W           W
+L      H   H E     NN   N D  D  R  R   A A   W     W     W
+L      HHHHH EEEEE N N  N D   D R  R  A   A  W     W     W
+L      H   H E     N  N N D   D RRR   AAAAA   W   W W   W
+L      H   H E     N   NN D  D  R  R A     A   W W   W W
+LLLLLL H   H EEEEE N    N DDD   R  R A     A    W     W
+
+*/
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdio.h>

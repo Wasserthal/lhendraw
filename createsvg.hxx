@@ -1,3 +1,5 @@
+//Turns document data into graphics
+//Intended to be included several times for different graphics outputs
 color_instance * get_color(int number)
 {
 	if (number==0)

@@ -1,3 +1,4 @@
+//defines the main datastructures needed to read in xml files, but they are also used for cdx files.
 
 #define REGISTER_content the_template.possible_contents.add
 void CDXMLREAD_basic(char * input,void * output);

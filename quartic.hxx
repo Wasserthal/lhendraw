@@ -1,3 +1,4 @@
+//Quartic equations- primarily intended to calculate tip tilt of elliptic arrows.
 
 double discriminant2(double a,double b,double c, double d, double e)
 {

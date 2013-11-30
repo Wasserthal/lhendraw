@@ -1,3 +1,4 @@
+//main unit for creation if inf files. Contains also a rearrangement routine. Both needed for my thesis.
 typedef struct framestatus_
 {
 	int number;

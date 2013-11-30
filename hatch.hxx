@@ -1,3 +1,4 @@
+//Creates Ring-filling objects
 struct HATCH_atom_
 {
 	float x,y;

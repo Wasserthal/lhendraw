@@ -1,3 +1,4 @@
+//Contains the enums needed for cdxml encoding
 bienum CDXML_ArrowType[] {
 {{"NoHead"},0},
 {{"HalfHead"},1},

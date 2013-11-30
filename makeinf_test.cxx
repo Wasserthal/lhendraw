@@ -1,3 +1,4 @@
+//Tells the Contents of a inf file. Needed for my thesis.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

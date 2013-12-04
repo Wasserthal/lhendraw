@@ -786,6 +786,7 @@ void expressbezier(float x1,float y1,float x2,float y2,float x3,float y3,float x
 	fprintf(outfile,"<path d=\"M %f %f C %f %f %f %f %f %f \" %s/>\n",x1+SVG_currentshiftx,y1+SVG_currentshifty,x2+SVG_currentshiftx,y2+SVG_currentshifty,x3+SVG_currentshiftx,y3+SVG_currentshifty,x4+SVG_currentshiftx,y4+SVG_currentshifty,stylestring);
 }
 
+int currentLineType;//0: normal 2: Bold 0x100: Double
 void drawarrheads(cdx_Rectangle iBBX,float langle,float cangle,float otherlangle,float othercangle,int currentArrowHeadType,int currentArrowHeadTail,int currentArrowHeadHead,float tllinedist)
 {
 	for (int tlarrowside=-1;tlarrowside<2;tlarrowside+=2)
@@ -808,9 +809,9 @@ void drawarrheads(cdx_Rectangle iBBX,float langle,float cangle,float otherlangle
 			}
 			case 1 : 
 			{
-				stylegenestring(3);
 				if (currentArrowHeadType==0)
 				{
+					stylegenestring(2);
 					expresstetrangle(tlArrowTopx,tlArrowTopy,
 tlArrowTopx+cos(tllangle)*arrowheadlength+cos(tlcangle)*arrowthickness,tlArrowTopy+sin(tllangle)*arrowheadlength+sin(tlcangle)*arrowthickness,
 tlArrowTopx+cos(tllangle)*arrowheadlength-cos(tlcangle)*arrowthickness,tlArrowTopy+sin(tllangle)*arrowheadlength-sin(tlcangle)*arrowthickness,
@@ -839,7 +840,7 @@ tlArrowTopx+cos(tllangle)*tllinedist*2-cos(tlcangle)*tllinedist*2,tlArrowTopy+si
 			}
 			case 2 :
 			{
-				stylegenestring(3);
+				stylegenestring(2);
 				if (currentArrowHeadType==0)
 				{
 					expresstetrangle(tlArrowTopx+tllinedist*cos(tlcangle),tlArrowTopy+tllinedist*sin(tlcangle),
@@ -877,7 +878,6 @@ float tllefttan;
 float tlrighttan;
 float tllefttan2;
 float tlrighttan2;
-int currentLineType;//0: normal 2: Bold 0x100: Double
 struct ellipsoid_
 {
 	float majx,majy;

@@ -9,11 +9,12 @@
 #define gfx_canvasmaxy 360
 #define gfx_depth 4
 float SDL_scrollx=0,SDL_scrolly=0;
-float SDL_zoomx,SDL_zoomy;
+float SDL_zoomx=1,SDL_zoomy=1;
 //_u8 screen[gfx_screensizex*gfx_screensizey*gfx_depth];
 _u32 * screen;
 _u32 * canvas;
 _u32 SDL_color;
+int SDL_linestyle;
 
 int get_colorstringv(int number)
 {
@@ -40,12 +41,17 @@ int get_colorstringv(int number)
 	return 0;
 }
 
+inline void stylegenestring(int flags) //1: stroke 2: fill 4: bold 8: dashed
+{
+	SDL_linestyle=flags;
+}
+
 void expressline(float ileft,float itop,float iright,float ibottom)
 {
-	int x=ileft;
-	int y=itop;
-	int x2=iright;
-	int y2=ibottom;
+	int x=(ileft-SDL_scrollx)*SDL_zoomx;
+	int y=(itop-SDL_scrolly)*SDL_zoomy;
+	int x2=(iright-SDL_scrollx)*SDL_zoomx;
+	int y2=(ibottom-SDL_scrolly)*SDL_zoomy;
 	int x3;
 	int y3;
 	if (x<0)
@@ -165,6 +171,19 @@ void expressline(float ileft,float itop,float iright,float ibottom)
 		{
 			int vertical=y+ilv1*slope;
 			canvas[gfx_screensizex*vertical+ilv1+x]=SDL_color;
+			if (SDL_linestyle & 4)
+			{
+				_u32 * place=canvas+(gfx_screensizex*(vertical-1)+ilv1+x);
+				if (vertical>0)
+				{
+					*place=SDL_color;
+				}
+				place+=(gfx_screensizex<<1);
+				if (vertical<(gfx_canvassizey-1))
+				{
+					*place=SDL_color;
+				}
+			}
 		}
 	}
 	else
@@ -183,6 +202,19 @@ void expressline(float ileft,float itop,float iright,float ibottom)
 		{
 			int horizontal=x+ilv1*slope;
 			canvas[gfx_screensizex*(ilv1+y)+horizontal]=SDL_color;
+			if (SDL_linestyle & 4)
+			{
+				_u32 * place=canvas+(gfx_screensizex*(ilv1+y)+horizontal-1);
+				if ((horizontal>0))
+				{
+					*place=SDL_color;
+				}
+				place+=2;
+				if (horizontal<(gfx_canvassizex-1))
+				{
+					*place=SDL_color;
+				}
+			}
 		}
 	}
 	return;
@@ -244,6 +276,10 @@ int expresstriangle(intl ifx1,intl ify1,intl ifx2,intl ify2,intl ifx3,intl ify3)
 	ix3=(ifx3-SDL_scrollx)*SDL_zoomx;
 	iy3=(ify3-SDL_scrolly)*SDL_zoomy;
 	intl iminx,imaxx,iminy,imaxy;
+	iminx=10000;
+	iminy=10000;
+	imaxx=-10000;
+	imaxy=-10000;
 	float m1,m2,m3;
 	if (iminx>ix1)iminx=ix1;
 	if (iminx>ix2)iminx=ix2;
@@ -261,27 +297,225 @@ int expresstriangle(intl ifx1,intl ify1,intl ifx2,intl ify2,intl ifx3,intl ify3)
 	if (imaxx>gfx_canvassizex)imaxx=gfx_canvassizex;
 	if (iminy<0)iminy=0;
 	if (imaxy>gfx_canvassizey)imaxy=gfx_canvassizey;
+	printf("SDL:%llX,%llX,%llX,%llX\n",iminx,iminy,imaxx,imaxy);
 	if (imaxx<iminx){return 0;}
 	if (imaxy<iminy){return 0;}
 	{
 		int tlvert;
 		tlvert=(iy2-iy1);
 		if (abs(tlvert)>=1)
-		m1=(ix2-ix1)/tlvert;
+		m1=(float(ix2)-ix1)/tlvert;
+	}
+	{
+		int tlvert;
+		tlvert=(iy3-iy2);
+		if (abs(tlvert)>=1)
+		m2=(float(ix3)-ix2)/tlvert;
+	}
+	{
+		int tlvert;
+		tlvert=(iy1-iy3);
+		if (abs(tlvert)>=1)
+		m3=(float(ix1)-ix3)/tlvert;
 	}
 	for (int ilv1=iminy;ilv1<=imaxy;ilv1++)
 	{
 		ibrakelist_count=0;
 		if (((iy1<ilv1) && (iy2>=ilv1)) || ((iy2<ilv1) && (iy1>=ilv1)))
 		{
+			ibrakelist_pps[ibrakelist_count]=(iy2>iy1)?4:8;
 			ibrakelist_bks[ibrakelist_count++]=m1*(ilv1-iy1)+ix1;
 		}
-		for (int ilv1=iminx;ilv1<=imaxx;ilv1++)
+		if (((iy2<ilv1) && (iy3>=ilv1)) || ((iy3<ilv1) && (iy2>=ilv1)))
 		{
-			
+			ibrakelist_pps[ibrakelist_count]=(iy3>iy2)?4:8;
+			ibrakelist_bks[ibrakelist_count++]=m2*(ilv1-iy2)+ix2;
+		}
+		if (((iy3<ilv1) && (iy1>=ilv1)) || ((iy1<ilv1) && (iy3>=ilv1)))
+		{
+			ibrakelist_pps[ibrakelist_count]=(iy1>iy3)?4:8;
+			ibrakelist_bks[ibrakelist_count++]=m3*(ilv1-iy3)+ix3;
+		}
+		char tlchanged;
+		tlsortback:
+		tlchanged=0;
+		for (int ilv2=0;ilv2<ibrakelist_count;ilv2++)
+		{
+			for (int ilv3=ilv2+1;ilv3<ibrakelist_count;ilv3++)
+			{
+				if (ibrakelist_bks[ilv2]>ibrakelist_bks[ilv3])
+				{
+					float temp=ibrakelist_bks[ilv2];
+					ibrakelist_bks[ilv2]=ibrakelist_bks[ilv3];
+					ibrakelist_bks[ilv3]=temp;
+					tlchanged=1;
+				}
+			}
+		}
+		if (tlchanged) goto tlsortback;
+		char sideness=(ibrakelist_bks[0]==4)?1:2;
+		char tlonness;
+		tlonness=0;
+		int tlbrakesthrough=0;
+		for (int ilv2=iminx;ilv2<=imaxx;ilv2++)
+		{
+			while (ibrakelist_bks[tlbrakesthrough]<ilv2)
+			{
+				tlbrakesthrough++;
+				if (tlbrakesthrough==ibrakelist_count)
+				{
+					goto ilinefertig;
+				}
+				tlonness=((ibrakelist_pps[tlbrakesthrough-1]&4) && (sideness&1)) || ((ibrakelist_pps[tlbrakesthrough-1]&8) && (sideness&2));
+			}
+			if (tlonness)
+			{
+				canvas[gfx_screensizex*(ilv1)+ilv2]=SDL_color;
+			}
+			ilinefertig:
+			;
 		}
 	}
 }
+
+int expresstetrangle(intl ifx1,intl ify1,intl ifx2,intl ify2,intl ifx3,intl ify3,intl ifx4,intl ify4)
+{
+	int ibrakelist_bks[256];
+	int ibrakelist_pps[256];//1: end 2: start 0: unknown 0x4: other than 8 0x8: other than 0x4 0x10: deaf(horz)
+	intl ibrakelist_count;
+	intl ix1;
+	intl iy1;
+	intl ix2;
+	intl iy2;
+	intl ix3;
+	intl iy3;
+	intl ix4;
+	intl iy4;
+	ix1=(ifx1-SDL_scrollx)*SDL_zoomx;
+	iy1=(ify1-SDL_scrolly)*SDL_zoomy;
+	ix2=(ifx2-SDL_scrollx)*SDL_zoomx;
+	iy2=(ify2-SDL_scrolly)*SDL_zoomy;
+	ix3=(ifx3-SDL_scrollx)*SDL_zoomx;
+	iy3=(ify3-SDL_scrolly)*SDL_zoomy;
+	ix4=(ifx4-SDL_scrollx)*SDL_zoomx;
+	iy4=(ify4-SDL_scrolly)*SDL_zoomy;
+	intl iminx,imaxx,iminy,imaxy;
+	iminx=10000;
+	iminy=10000;
+	imaxx=-10000;
+	imaxy=-10000;
+	float m1,m2,m3,m4;
+	if (iminx>ix1)iminx=ix1;
+	if (iminx>ix2)iminx=ix2;
+	if (iminx>ix3)iminx=ix3;
+	if (iminx>ix4)iminx=ix4;
+	if (iminy>iy1)iminy=iy1;
+	if (iminy>iy2)iminy=iy2;
+	if (iminy>iy3)iminy=iy3;
+	if (iminy>iy4)iminy=iy4;
+	if (imaxx<ix1)imaxx=ix1;
+	if (imaxx<ix2)imaxx=ix2;
+	if (imaxx<ix3)imaxx=ix3;
+	if (imaxx<ix4)imaxx=ix4;
+	if (imaxy<iy1)imaxy=iy1;
+	if (imaxy<iy2)imaxy=iy2;
+	if (imaxy<iy3)imaxy=iy3;
+	if (imaxy<iy4)imaxy=iy4;
+	if (iminx<0)iminx=0;
+	if (imaxx>gfx_canvassizex)imaxx=gfx_canvassizex;
+	if (iminy<0)iminy=0;
+	if (imaxy>gfx_canvassizey)imaxy=gfx_canvassizey;
+	if (imaxx<iminx){return 0;}
+	if (imaxy<iminy){return 0;}
+	{
+		int tlvert;
+		tlvert=(iy2-iy1);
+		if (abs(tlvert)>=1)
+		m1=(float(ix2)-ix1)/tlvert;
+	}
+	{
+		int tlvert;
+		tlvert=(iy3-iy2);
+		if (abs(tlvert)>=1)
+		m2=(float(ix3)-ix2)/tlvert;
+	}
+	{
+		int tlvert;
+		tlvert=(iy4-iy3);
+		if (abs(tlvert)>=1)
+		m3=(float(ix4)-ix3)/tlvert;
+	}
+	{
+		int tlvert;
+		tlvert=(iy1-iy4);
+		if (abs(tlvert)>=1)
+		m4=(float(ix1)-ix4)/tlvert;
+	}
+	for (int ilv1=iminy;ilv1<=imaxy;ilv1++)
+	{
+		ibrakelist_count=0;
+		if (((iy1<ilv1) && (iy2>=ilv1)) || ((iy2<ilv1) && (iy1>=ilv1)))
+		{
+			ibrakelist_pps[ibrakelist_count]=(iy2>iy1)?4:8;
+			ibrakelist_bks[ibrakelist_count++]=m1*(ilv1-iy1)+ix1;
+		}
+		if (((iy2<ilv1) && (iy3>=ilv1)) || ((iy3<ilv1) && (iy2>=ilv1)))
+		{
+			ibrakelist_pps[ibrakelist_count]=(iy3>iy2)?4:8;
+			ibrakelist_bks[ibrakelist_count++]=m2*(ilv1-iy2)+ix2;
+		}
+		if (((iy3<ilv1) && (iy4>=ilv1)) || ((iy4<ilv1) && (iy3>=ilv1)))
+		{
+			ibrakelist_pps[ibrakelist_count]=(iy4>iy3)?4:8;
+			ibrakelist_bks[ibrakelist_count++]=m3*(ilv1-iy3)+ix3;
+		}
+		if (((iy4<ilv1) && (iy1>=ilv1)) || ((iy1<ilv1) && (iy4>=ilv1)))
+		{
+			ibrakelist_pps[ibrakelist_count]=(iy1>iy4)?4:8;
+			ibrakelist_bks[ibrakelist_count++]=m4*(ilv1-iy4)+ix4;
+		}
+		char tlchanged;
+		tlsortback:
+		tlchanged=0;
+		for (int ilv2=0;ilv2<ibrakelist_count;ilv2++)
+		{
+			for (int ilv3=ilv2+1;ilv3<ibrakelist_count;ilv3++)
+			{
+				if (ibrakelist_bks[ilv2]>ibrakelist_bks[ilv3])
+				{
+					float temp=ibrakelist_bks[ilv2];
+					ibrakelist_bks[ilv2]=ibrakelist_bks[ilv3];
+					ibrakelist_bks[ilv3]=temp;
+					tlchanged=1;
+				}
+			}
+		}
+		if (tlchanged) goto tlsortback;
+		char sideness=(ibrakelist_pps[0]==4)?1:2;
+		char tlonness;
+		tlonness=0;
+		int tlbrakesthrough=0;
+		for (int ilv2=iminx;ilv2<=imaxx;ilv2++)
+		{
+			while (ibrakelist_bks[tlbrakesthrough]<ilv2)
+			{
+				tlbrakesthrough++;
+				if (tlbrakesthrough==ibrakelist_count)
+				{
+					goto ilinefertig;
+				}
+				tlonness=((ibrakelist_pps[tlbrakesthrough-1]&4) && (sideness&1)) || ((ibrakelist_pps[tlbrakesthrough-1]&8) && (sideness&2));
+			}
+			if (tlonness)
+			{
+				canvas[gfx_screensizex*(ilv1)+ilv2]=SDL_color;
+			}
+		}
+		ilinefertig:
+		;
+	}
+}
+
 void svg_main(const char * filename);
 void sdl_output(const char * filename)
 {
@@ -312,6 +546,7 @@ void sdl_output(const char * filename)
 	if (y<0){y=0;impy=fabs(impy)*0.5;}
 	gfxstart();
 	SDL_color=0xFF00FF;
+	expresstriangle(10,10,10,80,80,10);
 	svg_main(filename);
 	gfxstop();
 	sleep(10);

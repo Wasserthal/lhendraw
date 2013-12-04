@@ -419,6 +419,7 @@ void getatoms()//makes some preprocessing
 char stylestring[1024];
 char emptystring[1]="";
 char semicolonstring[2]=";";
+#ifdef GFXOUT_SVG
 void stylegenestring(int flags)
 {
 	int stylestringlength=0;
@@ -464,6 +465,7 @@ void stylegenestring(int flags)
 	}
 	stylestring[stylestringlength]=0;
 }
+#endif
 int stylefromline(int input) {return 1|((input & 1)?8:0)|((input & 2)?4:0);}
 int stylefromrectangle(int input) {return 1|((input & 0x10)?8:0)|((input & 0x20)?4:0)|((input & 0x8)?2:0);}
 
@@ -481,12 +483,14 @@ void expressellipse(float ix,float iy,float irx,float iry)
 {
 	fprintf(outfile,"<ellipse cx=\"%f\" cy=\"%f\" rx=\"%f\" ry=\"%f\" %s/>\n",ix+SVG_currentshiftx,iy+SVG_currentshifty,irx,iry,stylestring);
 }
-void expresstetrangle(float ix1,float iy1,float ix2,float iy2,float ix3,float iy3,float ix4,float iy4,char * istylestring)
+#ifdef GFXOUT_SVG
+void expresstetrangle(float ix1,float iy1,float ix2,float iy2,float ix3,float iy3,float ix4,float iy4)
 {
 	fprintf(outfile,"<path d=\"M %f %f L %f %f L %f %f L %f %f z \" %s/>\n",
 	ix1+SVG_currentshiftx,iy1+SVG_currentshifty,ix2+SVG_currentshiftx,iy2+SVG_currentshifty,ix3+SVG_currentshiftx,iy3+SVG_currentshifty,ix4+SVG_currentshiftx,iy4+SVG_currentshifty,
-istylestring);
+stylestring);
 }
+#endif
 #define dashdist 3
 void expresshashangle(float langle,float cangle,float ix1,float iy1,float ix2,float iy2,float bonddist3,float bonddist4)
 {
@@ -808,8 +812,7 @@ void drawarrheads(cdx_Rectangle iBBX,float langle,float cangle,float otherlangle
 					expresstetrangle(tlArrowTopx,tlArrowTopy,
 tlArrowTopx+cos(tllangle)*arrowheadlength+cos(tlcangle)*arrowthickness,tlArrowTopy+sin(tllangle)*arrowheadlength+sin(tlcangle)*arrowthickness,
 tlArrowTopx+cos(tllangle)*arrowheadlength-cos(tlcangle)*arrowthickness,tlArrowTopy+sin(tllangle)*arrowheadlength-sin(tlcangle)*arrowthickness,
-tlArrowTopx,tlArrowTopy,
-stylestring);
+tlArrowTopx,tlArrowTopy);
 				}
 				if ((currentArrowHeadType==2) || (currentArrowHeadType==1))
 				{
@@ -840,8 +843,7 @@ tlArrowTopx+cos(tllangle)*tllinedist*2-cos(tlcangle)*tllinedist*2,tlArrowTopy+si
 					expresstetrangle(tlArrowTopx+tllinedist*cos(tlcangle),tlArrowTopy+tllinedist*sin(tlcangle),
 tlArrowTopx+cos(tllangle)*arrowheadlength+(arrowthickness+tllinedist)*cos(tlcangle),tlArrowTopy+sin(tllangle)*arrowheadlength+(arrowthickness+tllinedist)*sin(tlcangle),
 tlArrowTopx+cos(tllangle)*arrowheadlength+tllinedist*cos(tlcangle),tlArrowTopy+sin(tllangle)*arrowheadlength+tllinedist*sin(tlcangle),
-tlArrowTopx+tllinedist*cos(tlcangle),tlArrowTopy+tllinedist*sin(tlcangle),
-stylestring);
+tlArrowTopx+tllinedist*cos(tlcangle),tlArrowTopy+tllinedist*sin(tlcangle));
 				}
 				break;
 			}
@@ -1354,7 +1356,7 @@ void svg_controlprocedure(bool irestriction=0,bool hatches=0)
 			goto skipthisgraphic;
 		}
 		stylegenestring(stylefromrectangle((*i_graphic_instance).RectangleType));
-		expresstetrangle(iBBX.left,iBBX.top,iBBX.right,iBBX.top,iBBX.right,iBBX.bottom,iBBX.left,iBBX.bottom,stylestring);
+		expresstetrangle(iBBX.left,iBBX.top,iBBX.right,iBBX.top,iBBX.right,iBBX.bottom,iBBX.left,iBBX.bottom);
 	}
 	if ((*i_graphic_instance).GraphicType==4)
 	{

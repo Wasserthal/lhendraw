@@ -516,6 +516,117 @@ int expresstetrangle(intl ifx1,intl ify1,intl ifx2,intl ify2,intl ifx3,intl ify3
 	}
 }
 
+typedef struct inficorn
+{
+	float x,y;
+	float m;
+	int ix,iy;
+	float type;//1: line 3: cubic bezier 0x100: bezier part, order depending on the last preceding
+	int bks;//not necessarily in the same order as the other part of the structures!
+	int pps;//not necessarily in the same order as the other part of the structures!
+};
+
+int expressinfinityangle(inficorn * iworkarray,int count)
+{
+	intl iminx,imaxx,iminy,imaxy;
+	intl ibrakelist_count;
+	iminx=10000;
+	iminy=10000;
+	imaxx=-10000;
+	imaxy=-10000;
+	for (int ilv1=0;ilv1<count;ilv1++)
+	{
+		iworkarray[ilv1].ix=(iworkarray[ilv1].x-SDL_scrollx)*SDL_zoomx;
+		iworkarray[ilv1].iy=(iworkarray[ilv1].y-SDL_scrolly)*SDL_zoomy;
+		if (iminx>iworkarray[ilv1].ix)iminx=iworkarray[ilv1].ix;
+		if (iminy>iworkarray[ilv1].iy)iminy=iworkarray[ilv1].iy;
+		if (imaxx<iworkarray[ilv1].ix)imaxx=iworkarray[ilv1].ix;
+		if (imaxy<iworkarray[ilv1].iy)imaxy=iworkarray[ilv1].iy;
+	}
+	if (iminx<0)iminx=0;
+	if (imaxx>gfx_canvassizex)imaxx=gfx_canvassizex;
+	if (iminy<0)iminy=0;
+	if (imaxy>gfx_canvassizey)imaxy=gfx_canvassizey;
+	if (imaxx<iminx){return 0;}
+	if (imaxy<iminy){return 0;}
+	for (int ilv1=0;ilv1<count;ilv1++)
+	{
+		int tlvert;
+		tlvert=(iworkarray[(ilv1+1)%count].iy-iworkarray[ilv1].iy);
+		if (abs(tlvert)>=1)
+		iworkarray[ilv1].m=(float(iworkarray[(ilv1+1)%count].ix)-iworkarray[ilv1].ix)/tlvert;
+	}
+	for (int ilv1=iminy;ilv1<=imaxy;ilv1++)
+	{
+		ibrakelist_count=0;
+		for (int ilv2=0;ilv2<count;ilv2++)
+		{
+			if (((iworkarray[ilv2].iy<ilv1) && (iworkarray[(ilv2+1)%count].iy>=ilv1)) || ((iworkarray[(ilv2+1)%count].iy<ilv1) && (iworkarray[ilv2].iy>=ilv1)))
+			{
+				iworkarray[ibrakelist_count].pps=(iworkarray[(ilv2+1)%count].iy>iworkarray[ilv2].iy)?4:8;
+				iworkarray[ibrakelist_count++].bks=iworkarray[ilv2].m*(ilv1-iworkarray[ilv2].iy)+iworkarray[ilv2].ix;
+			}
+		}
+		char tlchanged;
+		tlsortback:
+		tlchanged=0;
+		for (int ilv2=0;ilv2<ibrakelist_count;ilv2++)
+		{
+			for (int ilv3=ilv2+1;ilv3<ibrakelist_count;ilv3++)
+			{
+				if (iworkarray[ilv2].bks>iworkarray[ilv3].bks)
+				{
+					float temp=iworkarray[ilv2].bks;
+					iworkarray[ilv2].bks=iworkarray[ilv3].bks;
+					iworkarray[ilv3].bks=temp;
+					tlchanged=1;
+				}
+			}
+		}
+		if (tlchanged) goto tlsortback;
+		char sideness=(iworkarray[0].pps==4)?1:2;
+		char tlonness;
+		tlonness=0;
+		int tlbrakesthrough=0;
+		for (int ilv2=iminx;ilv2<=imaxx;ilv2++)
+		{
+			while (iworkarray[tlbrakesthrough].bks<ilv2)
+			{
+				tlbrakesthrough++;
+				if (tlbrakesthrough==ibrakelist_count)
+				{
+					goto ilinefertig;
+				}
+				tlonness=((iworkarray[tlbrakesthrough-1].pps&4) && (sideness&1)) || ((iworkarray[tlbrakesthrough-1].pps&8) && (sideness&2));
+			}
+			if (tlonness)
+			{
+				canvas[gfx_screensizex*(ilv1)+ilv2]=SDL_color;
+			}
+		}
+		ilinefertig:
+		;
+	}
+}
+
+void expresshexangle(float ix1,float iy1,float ix2,float iy2,float ix3,float iy3,float ix4,float iy4,float ix5,float iy5,float ix6,float iy6)
+{
+	inficorn tlinficorn[6];
+	tlinficorn[0].x=ix1;
+	tlinficorn[1].x=ix2;
+	tlinficorn[2].x=ix3;
+	tlinficorn[3].x=ix4;
+	tlinficorn[4].x=ix5;
+	tlinficorn[5].x=ix6;
+	tlinficorn[0].y=iy1;
+	tlinficorn[1].y=iy2;
+	tlinficorn[2].y=iy3;
+	tlinficorn[3].y=iy4;
+	tlinficorn[4].y=iy5;
+	tlinficorn[5].y=iy6;
+	expressinfinityangle(tlinficorn,6);
+}
+
 void svg_main(const char * filename);
 void sdl_output(const char * filename)
 {

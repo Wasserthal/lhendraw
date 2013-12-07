@@ -502,12 +502,14 @@ void expresshashangle(float langle,float cangle,float ix1,float iy1,float ix2,fl
 		expressline(ix1*(1-share)+ix2*share+cos(cangle)*share2,iy1*(1-share)+iy2*share+sin(langle)*share2,ix1*(1-share)+ix2*share-cos(cangle)*share2,iy1*(1-share)+iy2*share-sin(cangle)*share2);
 	}
 }
+#ifdef GFXOUT_SVG
 void expresshexangle(float ix1,float iy1,float ix2,float iy2,float ix3,float iy3,float ix4,float iy4,float ix5,float iy5,float ix6,float iy6)
 {
 	fprintf(outfile,"<path d=\"M %f %f L %f %f L %f %f L %f %f L %f %f L %f %f z \" %s/>\n",
 	ix1+SVG_currentshiftx,iy1+SVG_currentshifty,ix2+SVG_currentshiftx,iy2+SVG_currentshifty,ix3+SVG_currentshiftx,iy3+SVG_currentshifty,ix4+SVG_currentshiftx,iy4+SVG_currentshifty,ix5+SVG_currentshiftx,iy5+SVG_currentshifty,ix6+SVG_currentshiftx,iy6+SVG_currentshifty,
 stylestring);
 }
+#endif
 void expressarc(float centerx,float centery,float radiusx,float radiusy,float startangle,float endangle)
 {
 	float startx,starty;

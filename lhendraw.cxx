@@ -30,6 +30,7 @@ LLLLLL H   H EEEEE N    N DDD   R  R A     A    W     W
 #include <unistd.h>
 #include "graphics_variables.hxx"
 #include "sdlgfx.hxx"
+#include "sdlctrl.hxx"
 #include "createsvg.hxx"
 #include "hatch.hxx"
 
@@ -48,5 +49,11 @@ int main(int argc,char * * argv)
 	fclose(infile);
 	svg_findaround();
 	getframes();
+	sdl_init();
+	mainloop:
+	sdl_control();
 	sdl_output("outsdl.svg");
+	usleep(30000);
+	goto mainloop;
+	sdl_outit();
 }

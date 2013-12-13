@@ -627,38 +627,22 @@ void expresshexangle(float ix1,float iy1,float ix2,float iy2,float ix3,float iy3
 	expressinfinityangle(tlinficorn,6);
 }
 
-void svg_main(const char * filename);
-void sdl_output(const char * filename)
+void sdl_init()
 {
-	if ( SDL_Init(SDL_INIT_AUDIO|SDL_INIT_VIDEO) < 0 ) {
+	if ( SDL_Init(SDL_INIT_VIDEO) < 0 ) {
 		fprintf(stderr, "SDL konnte nicht initialisiert werden: %s\n", SDL_GetError());
 		exit(1);
 	}
-	srand(4);
 	gfx();
+}
+void sdl_outit()
+{
+}
+void svg_main(const char * filename);
+void sdl_output(const char * filename)
+{
 	gfxstart();
-	float x,y,spin;
-	float impx,impy;
-	impx=0;
-	impy=0;
-	x=0;
-	y=0;
-	spin+=1;
-	impx+=((rand()%1000)-500)/1000.0;
-	impx*=1.001;
-	impy+=((rand()%1000)-500)/1000.0;
-	impy*=1.001;
 	screenclear(0xFFFFFF);
-	x+=impx;
-	y+=impy;
-	if (x>320){x=320;impx=-fabs(impx)*0.5;}
-	if (x<0){x=0;impx=fabs(impx)*0.5;}
-	if (y>320){y=320;impy=-fabs(impy)*0.5;}
-	if (y<0){y=0;impy=fabs(impy)*0.5;}
-	gfxstart();
-	SDL_color=0xFF00FF;
-	expresstriangle(10,10,10,80,80,10);
 	svg_main(filename);
 	gfxstop();
-	sleep(10);
 }

@@ -87,6 +87,26 @@ int __attribute__((sysv_abi))CDXMLREAD__i32(char * input,void * output)
 	*((_i32*)output)=wert;
 	return ilv1;
 }
+int __attribute__((sysv_abi))CDXMLREAD__i8(char * input,void * output)
+{
+	int ilv1;
+	_i8 wert=0;
+	ilv1=0;
+	while (spaciatic(input[ilv1]))
+	{
+		ilv1++;
+	}
+	iback:
+	wert+=input[ilv1]-48;
+	ilv1++;
+	if ((input[ilv1]!=0) && (!spaciatic(input[ilv1])))
+	{
+		wert*=10;
+		goto iback;
+	}
+	*((_i8*)output)=wert;
+	return ilv1;
+}
 int __attribute__((sysv_abi))CDXMLREAD_cdx_enum(char * input,void * output)
 {
 	CDXMLREAD__i32(input,&((*((cdx_enum*)output)).a));
@@ -139,6 +159,70 @@ int __attribute__((sysv_abi))CDXMLREAD_float(char * input,void * output)
 		goto iback;
 	}
 	*((float*)output)=negative ? -wert:wert;
+	return ilv1;
+}
+
+int __attribute__((sysv_abi))CDXMLREAD__x8(char * input,void * output)
+{
+	int ilv1;
+	unsigned char ihv1;
+	_x8 wert=0;
+	char commamode=0;
+	_x8 factor=1;
+	char negative;
+	negative=0;
+	ilv1=0;
+	while (spaciatic(input[ilv1]))
+	{
+		ilv1++;
+	}
+	if (input[ilv1]=='-')
+	{
+		ilv1++;
+		negative=1;
+	}
+	goto ientry;
+	iback:
+	ihv1=(input[ilv1]);
+	if (ihv1>='a')
+	{
+		ihv1+=10-'a';
+	}
+	if (ihv1>='A')
+	{
+		ihv1+=10-'A';
+	}
+	if (ihv1>='0')
+	{
+		ihv1-=48;
+	}
+	if (commamode==0)
+	{
+		wert+=ihv1*16;
+	}
+	else
+	{
+		wert+=ihv1*factor;
+		factor=factor/16;
+	}
+	idone:
+	ilv1++;
+	if ((input[ilv1]!=0) && (!spaciatic(input[ilv1])))
+	{
+		ientry:
+		if (input[ilv1]=='.')
+		{
+			commamode=1;
+			factor=1;
+			goto idone;
+		}
+		if (!commamode)
+		{
+			wert*=16;
+		}
+		goto iback;
+	}
+	*((_x8*)output)=negative ? -wert:wert;
 	return ilv1;
 }
 

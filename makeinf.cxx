@@ -12,6 +12,7 @@
 #include "cxxdata.h"
 #include "enums.hxx"
 #include "./generated/filestructure.hxx"
+#include "./generated/internalstructure.hxx"
 
 #include "ellipeq.h"
 #include "quartic.hxx"

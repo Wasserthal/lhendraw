@@ -21,6 +21,7 @@ LLLLLL H   H EEEEE N    N DDD   R  R A     A    W     W
 
 #include "enums.hxx"
 #include "./generated/filestructure.hxx"
+#include "./generated/internalstructure.hxx"
 #include "definitionlist.h"
 #include "janitor.hxx"
 #include "ellipeq.h"

@@ -28,6 +28,8 @@ char helpbuffer[65536];
 char resetmode_outline[][31]={{"%1$n"},{"%2$s=0;\n%1$n"},{"clear_%3$s(%2$s);\n%1$n"},{"%2$s.a=0;\n%1$n"},{"%2$s=1;\n%1$n"},{"%2$s=0;\n%1$n"},{"%2$s.count=0;\n%1$n"},{"%2$s=0;\n%1$n"}};//very problematic: each operation must tell its length!
 //ATTENTION: the second matrix array size is critical: if it is too low, the strings are simply cut off!
 char * helpbufferpos;
+char datablockstring[255];
+int internalmode=0;
 #define uniread \
 ({\
 	__label__ tlback;\
@@ -63,13 +65,29 @@ char register_enum(const char * input)
 	return 1;
 }
 
-void main(void)
+void main(int argc,char * * argv)
 {
 	FILE * infile,*outfile;
 	char ihv1;
 	int helpbufferreturnvalue;
-	infile=fopen("filestructure.draft","r");
-	outfile=fopen("./generated/filestructure.hxx","w");
+	if (strcmp(argv[1],"-m")==0)
+	{
+		internalmode=1;//multilistreference;
+	}
+	if (strcmp(argv[1],"-l")==0)
+	{
+		internalmode=2;//index to propertylist
+	}
+	infile=fopen(argv[2],"r");
+	outfile=fopen(argv[3],"w");
+	if (argc==5)
+	{
+		sprintf(datablockstring,"%s_",argv[4]);
+	}
+	else
+	{
+		datablockstring[0]=0;
+	}
 	helpbufferpos=&helpbuffer[0];
 	helpbuffer[0]=0;
 	lineback:
@@ -117,6 +135,8 @@ void main(void)
 	switch(ihv1)
 	{
 		case 's' : strcpy(properties_types[properties_count],"cdx_String");properties_type_nrs[properties_count]=2;break;
+		case 'c' : strcpy(properties_types[properties_count],"_i8");properties_type_nrs[properties_count]=1;break;
+		case 'C' : strcpy(properties_types[properties_count],"_x8");properties_type_nrs[properties_count]=1;break;
 		case '0' : strcpy(properties_types[properties_count],"_i32");properties_type_nrs[properties_count]=1;break;
 		case '1' : strcpy(properties_types[properties_count],"float");properties_type_nrs[properties_count]=1;break;
 		case '2' : strcpy(properties_types[properties_count],"cdx_Point2D");properties_type_nrs[properties_count]=2;break;
@@ -180,19 +200,25 @@ void main(void)
 	printf("..%s..\n",properties[properties_count-1]);
 	goto propertiesback;
 	propertiesdone:
-	fprintf(outfile,"struct %s_instance:basic_instance\n{\n        char * getName(){static char name[]=\"%s\";return (char*)&name;}\n",name,name);
-	for (int ilv1=0;ilv1<contents_count;ilv1++)
+	fprintf(outfile,"struct %s%s_instance:basic_instance\n{\n        char * getName(){static char name[]=\"%s\";return (char*)&name;}\n",datablockstring,name,name);
+	if (internalmode&1)
 	{
-		fprintf(outfile,"        basicmultilistreference * %s;\n",contents[ilv1],contents[ilv1]);
+		for (int ilv1=0;ilv1<contents_count;ilv1++)
+		{
+			fprintf(outfile,"        basicmultilistreference * %s;\n",contents[ilv1],contents[ilv1]);
+		}
 	}
 	for (int ilv1=0;ilv1<properties_count;ilv1++)
 	{
 		fprintf(outfile,"        %s %s;\n",properties_types[ilv1],properties[ilv1]);
 	}
-	fprintf(outfile,"        AUTOSTRUCT_GET_ROUTINE(contents,%i)\n        AUTOSTRUCT_PROPERTY_ROUTINE(%i)\n        %s_instance();\n        ~%s_instance(){}\n};\nsuperconstellation %s_instance::contents[]={\n",contents_count,properties_count,name,name,name);
-	for (int ilv1=0;ilv1<contents_count;ilv1++)
+	fprintf(outfile,"        AUTOSTRUCT_GET_ROUTINE(contents,%i)\n        AUTOSTRUCT_PROPERTY_ROUTINE(%i)\n        %s%s_instance();\n        ~%s%s_instance(){}\n};\nsuperconstellation %s%s_instance::contents[]={\n",contents_count,properties_count,datablockstring,name,datablockstring,name,datablockstring,name);
+	if (internalmode&1)
 	{
-		fprintf(outfile,"{\"%s\",offsetof(%s_instance,%s)}%s\n",contents[ilv1],name,contents[ilv1],(ilv1==contents_count-1) ? "" : ",");
+		for (int ilv1=0;ilv1<contents_count;ilv1++)
+		{
+			fprintf(outfile,"{\"%s\",offsetof(%s%s_instance,%s)}%s\n",contents[ilv1],datablockstring,name,contents[ilv1],(ilv1==contents_count-1) ? "" : ",");
+		}
 	}
 	fprintf(outfile,"};\n");
 	for (int ilv1=0;ilv1<properties_count;ilv1++)
@@ -201,32 +227,35 @@ void main(void)
 		{
 			if (register_enum(properties[ilv1]))
 			{
-				fprintf(outfile,"int __attribute__((sysv_abi))CDXMLREAD_ENUM_%s(char * input,void * output)\n{\n        \
-	*((_i32 *)output)=get_bienum%s(CDXML_%s,input,CDXML_%s_max);\n}\n",properties[ilv1],(properties_type_nrs[ilv1]==7)?"_multi":"",properties[ilv1],properties[ilv1]);
+				fprintf(outfile,"#ifndef FUNCTIONDEFINED_AUTOMATICALLY_CDXMLREAD_ENUM_%s\n#define FUNCTIONDEFINED_AUTOMATICALLY_CDXMLREAD_ENUM_%s\nint __attribute__((sysv_abi))CDXMLREAD_ENUM_%s(char * input,void * output)\n{\n        \
+	*((_i32 *)output)=get_bienum%s(CDXML_%s,input,CDXML_%s_max);\n}\n#endif\n",properties[ilv1],properties[ilv1],properties[ilv1],(properties_type_nrs[ilv1]==7)?"_multi":"",properties[ilv1],properties[ilv1]);
 			}
 		}
 	}
-	fprintf(outfile,"superconstellation %s_instance::properties[]={\n",name);
+	fprintf(outfile,"superconstellation %s%s_instance::properties[]={\n",datablockstring,name);
 	for (int ilv1=0;ilv1<properties_count;ilv1++)
 	{
 		if ((properties_type_nrs[ilv1]==5) || (properties_type_nrs[ilv1]==4) || (properties_type_nrs[ilv1]==7))
 		{
-			fprintf(outfile,"{\"%s\",offsetof(%s_instance,%s),CDXMLREAD_ENUM_%s}%s\n",properties[ilv1],name,properties[ilv1],properties[ilv1],(ilv1==properties_count-1) ? "" : ",");
+			fprintf(outfile,"{\"%s\",offsetof(%s%s_instance,%s),CDXMLREAD_ENUM_%s}%s\n",properties[ilv1],datablockstring,name,properties[ilv1],properties[ilv1],(ilv1==properties_count-1) ? "" : ",");
 		}
 		else
 		{
-			fprintf(outfile,"{\"%s\",offsetof(%s_instance,%s),CDXMLREAD_%s}%s\n",properties[ilv1],name,properties[ilv1],properties_types[ilv1],(ilv1==properties_count-1) ? "" : ",");
+			fprintf(outfile,"{\"%s\",offsetof(%s%s_instance,%s),CDXMLREAD_%s}%s\n",properties[ilv1],datablockstring,name,properties[ilv1],properties_types[ilv1],(ilv1==properties_count-1) ? "" : ",");
 		}
 	}
 	fprintf(outfile,"};\n");
-	sprintf(helpbufferpos,"%s_instance::%s_instance()\n{\n%n",name,name,&helpbufferreturnvalue);
+	sprintf(helpbufferpos,"%s%s_instance::%s%s_instance()\n{\n%n",datablockstring,name,datablockstring,name,&helpbufferreturnvalue);
 	helpbufferpos+=helpbufferreturnvalue;
 	(*helpbufferpos)=0;
-	for (int ilv1=0;ilv1<contents_count;ilv1++)
+	if (internalmode&1)
 	{
-		sprintf(helpbufferpos,"        %s=new(multilistreference<%s_instance>);\n%n",contents[ilv1],contents[ilv1],&helpbufferreturnvalue);
-		helpbufferpos+=helpbufferreturnvalue;
-		(*helpbufferpos)=0;
+		for (int ilv1=0;ilv1<contents_count;ilv1++)
+		{
+			sprintf(helpbufferpos,"        %s=new(multilistreference<%s%s_instance>);\n%n",contents[ilv1],datablockstring,contents[ilv1],&helpbufferreturnvalue);
+			helpbufferpos+=helpbufferreturnvalue;
+			(*helpbufferpos)=0;
+		}
 	}
 	for (int ilv1=0;ilv1<properties_count;ilv1++)
 	{
@@ -240,7 +269,7 @@ void main(void)
 	sprintf(helpbufferpos,"}\n%n",&helpbufferreturnvalue);
 	helpbufferpos+=helpbufferreturnvalue;
 	(*helpbufferpos)=0;
-	sprintf(helpbufferpos,"xml_element_set<%s_instance> %s_list=xml_element_set<%s_instance>();\n%n",name,name,name,&helpbufferreturnvalue);
+	sprintf(helpbufferpos,"xml_element_set<%s%s_instance> %s%s_list=xml_element_set<%s%s_instance>();\n%n",datablockstring,name,datablockstring,name,datablockstring,name,&helpbufferreturnvalue);
 	helpbufferpos+=helpbufferreturnvalue;
 	(*helpbufferpos)=0;
 	if (fread(&ihv1,1,1,infile)==0){goto done;};

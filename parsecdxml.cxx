@@ -13,6 +13,7 @@
 
 #include "enums.hxx"
 #include "./generated/filestructure.hxx"
+#include "./generated/internalstructure.hxx"
 #include "definitionlist.h"
 #include "janitor.hxx"
 #include "ellipeq.h"

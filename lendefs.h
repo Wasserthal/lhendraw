@@ -12,6 +12,7 @@
 #define _i16 signed short
 #define _u8 unsigned char
 #define _i8 signed char
+#define _x8 signed char
 float Pi=3.141592654;
 #define _small int
 #define minfloat -1.0e20

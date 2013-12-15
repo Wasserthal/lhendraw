@@ -1,5 +1,5 @@
 /tools/filestructure_maker
-filestructure.hxx
+/generated/
 a.out
 parsexml
 *.cdxml

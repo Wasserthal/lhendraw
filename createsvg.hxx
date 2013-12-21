@@ -1525,6 +1525,14 @@ void svg_controlprocedure(bool irestriction=0,bool hatches=0)
 			case 1 : ibonddist=bonddist;break;
 			case 2 : ibonddist=-bonddist;break;
 		}
+		if ((*i_b_instance).Order>2.1)
+		{
+			ibonddist=bonddist;ibonddist2=0;
+			if ((*i_b_instance).Order>3.1)
+			{
+				ibonddist=(bonddist/2)*3;ibonddist2=(bonddist/2);
+			}
+		}
 	}
 	langle=getangle((*endnode).p.x-(*startnode).p.x,(*endnode).p.y-(*startnode).p.y);
 	cangle=langle+Pi/2;
@@ -1595,6 +1603,14 @@ iBBX.right+ibonddist2*cos(cangle)+ibonddist4*(cos(cangle)-(cos(langle)*tlrightta
 	{
 		stylegenestring((((*glob_b_multilist).bufferlist[index_in_buffer].Display2==1)?8:0)|1);
 		expressline(iBBX.left+ibonddist*cos(cangle),iBBX.top+ibonddist*sin(cangle),iBBX.right+ibonddist*cos(cangle),iBBX.bottom+ibonddist*sin(cangle));
+		if ((*i_b_instance).Order>2.1)
+		{
+			expressline(iBBX.left-ibonddist*cos(cangle),iBBX.top-ibonddist*sin(cangle),iBBX.right-ibonddist*cos(cangle),iBBX.bottom-ibonddist*sin(cangle));
+			if ((*i_b_instance).Order>3.1)
+			{
+				expressline(iBBX.left-ibonddist2*cos(cangle),iBBX.top-ibonddist2*sin(cangle),iBBX.right-ibonddist2*cos(cangle),iBBX.bottom-ibonddist2*sin(cangle));
+			}
+		}
 	}
 	for (int ilv0=0;ilv0<4;ilv0++)
 	{

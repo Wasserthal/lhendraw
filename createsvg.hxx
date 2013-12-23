@@ -888,6 +888,7 @@ struct ellipsoid_
 	float internal1,internal2;
 	float internalrad,internalangle;
 	float axangle;
+	char shearsharepositive;
 	void create(cdx_Point3D iCenter,cdx_Point3D iMajor,cdx_Point3D iMinor)
 	{
 		majx=iMajor.x-iCenter.x;
@@ -920,6 +921,24 @@ struct ellipsoid_
 			normalizedminy=miny/radiusy;
 		}
 		axangle=getangle(majx,majy);
+		float shearshare=(normalizedmajx*minx+normalizedmajy*miny);
+		radiusy=radiusy*sqrt(1-fsqr(shearshare/radiusy));
+		float oldvol=fabs(radiusx*radiusy);
+		shearsharepositive=(shearshare>0);
+		shearshare=fabs(shearshare/radiusy);
+		if (fabs(shearshare)>=1e-6)
+		{
+			float tiltangle;
+			float tilttangens;
+			tiltangle=acos(NORMALIZEELLIPSE(1,radiusy/radiusx,shearshare))/2;
+			tilttangens=tan(tiltangle);
+			float flatness=(radiusy/radiusx);
+			float criticaliks=sqrt(fabs(1/((1/(flatness*(shearshare-(1/tilttangens))))-1)));
+			float criticalyps=sqrt(1-fsqr(criticaliks));
+			radiusx=radiusx*sqrt(fsqr(criticalyps*shearshare*flatness+criticaliks)+fsqr(criticalyps*flatness));
+			radiusy=oldvol/radiusx;
+			axangle+=shearsharepositive?tiltangle:-tiltangle;
+		}
 	}
 	void reset()
 	{

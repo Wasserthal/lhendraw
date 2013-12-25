@@ -40,7 +40,16 @@ int get_colorstringv(int number)
 	printf("co %llX",SDL_color);
 	return 0;
 }
-
+inline void putpixel(int iposx,int iposy)
+{
+	if ((iposx>=0) && (iposx<gfx_canvassizex))
+	{
+		if ((iposy>=0) && (iposy<gfx_canvassizey))
+		{
+			canvas[gfx_screensizex*(iposy)+iposx]=SDL_color;
+		}
+	}
+}
 inline void stylegenestring(int flags) //1: stroke 2: fill 4: bold 8: dashed
 {
 	SDL_linestyle=flags;
@@ -606,6 +615,36 @@ int expressinfinityangle(inficorn * iworkarray,int count)
 		}
 		ilinefertig:
 		;
+	}
+}
+
+void expressspinellipse(float ix,float iy,float radiusx,float radiusy, float axangle)
+{
+	ix=(ix-SDL_scrollx)*SDL_zoomx;
+	iy=(iy-SDL_scrolly)*SDL_zoomy;
+	int isteps=radiusx*Pi*2;
+	if (radiusy>radiusx)
+	{
+		isteps=radiusy*Pi*2;
+	}
+	float tlsaxx=cos(axangle);float tlsaxy=sin(axangle);
+	for (int ilv1=0;ilv1<isteps;ilv1++)
+	{
+		float tlangle=(ilv1/float(isteps))*2*Pi;
+		putpixel(ix+tlsaxx*radiusx*cos(tlangle)-tlsaxy*radiusy*sin(tlangle),iy+tlsaxy*radiusx*cos(tlangle)+tlsaxx*radiusy*sin(tlangle));
+	}
+}
+void expressellipse(float ix,float iy,float radiusx,float radiusy)
+{
+	int isteps=radiusx*Pi*2;
+	if (radiusy>radiusx)
+	{
+		isteps=radiusy*Pi*2;
+	}
+	for (int ilv1=0;ilv1<isteps;ilv1++)
+	{
+		float tlangle=(ilv1/float(isteps))*2*Pi;
+		putpixel(ix+radiusx*cos(tlangle),iy+radiusy*sin(tlangle));
 	}
 }
 

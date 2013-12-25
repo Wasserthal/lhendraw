@@ -475,13 +475,19 @@ void expressline(float ileft,float itop,float iright,float ibottom)
 	fprintf(outfile,"<path d=\"M %f %f L %f %f \" %s/>\n",ileft+SVG_currentshiftx,itop+SVG_currentshifty,iright+SVG_currentshiftx,ibottom+SVG_currentshifty,stylestring);
 }
 #endif
-void expresscdxcircle(float ileft,float itop,float iright,float ibottom)
+#ifdef GFXOUT_SVG
+void expressspinellipse(float ix,float iy,float irx,float iry,float iangle)
 {
-	fprintf(outfile,"<ellipse cx=\"%f\" cy=\"%f\" rx=\"%f\" ry=\"%f\" %s/>\n",ileft+SVG_currentshiftx,itop+SVG_currentshifty,iright-ileft,ibottom-itop,stylestring);
+	fprintf(outfile,"<ellipse cx=\"%f\" cy=\"%f\" rx=\"%f\" ry=\"%f\" transform=\"rotate(%f,%f,%f)\" %s/>\n",ix+SVG_currentshiftx,iy+SVG_currentshifty,irx,iry,(iangle*180)/Pi,ix+SVG_currentshiftx,iy+SVG_currentshifty,stylestring);
 }
 void expressellipse(float ix,float iy,float irx,float iry)
 {
 	fprintf(outfile,"<ellipse cx=\"%f\" cy=\"%f\" rx=\"%f\" ry=\"%f\" %s/>\n",ix+SVG_currentshiftx,iy+SVG_currentshifty,irx,iry,stylestring);
+}
+#endif
+void expresscdxcircle(float ileft,float itop,float radius)
+{
+	expressellipse(ileft+SVG_currentshiftx,itop+SVG_currentshifty,fabs(radius),fabs(radius));
 }
 #ifdef GFXOUT_SVG
 void expresstetrangle(float ix1,float iy1,float ix2,float iy2,float ix3,float iy3,float ix4,float iy4)
@@ -1381,17 +1387,20 @@ void svg_controlprocedure(bool irestriction=0,bool hatches=0)
 	}
 	if ((*i_graphic_instance).GraphicType==4)
 	{
-		stylegenestring(1);
-		if ((*i_graphic_instance).OvalType==1)
+		stylegenestring(1|(((*i_graphic_instance).OvalType & 4)?2:0));
+		if ((*i_graphic_instance).OvalType & 1)
 		{
 			float tldistance=sqrt((iBBX.right-iBBX.left)*(iBBX.right-iBBX.left)+(iBBX.bottom-iBBX.top)*(iBBX.bottom-iBBX.top));
 			iBBX.left-=tldistance;
 			iBBX.right=iBBX.left+tldistance;
 			iBBX.bottom=iBBX.top+tldistance;
-			(*i_graphic_instance).BoundingBox.right=iBBX.right;
-			(*i_graphic_instance).BoundingBox.bottom=iBBX.bottom;
+			expresscdxcircle(iBBX.left,iBBX.top,tldistance);
 		}
-		expresscdxcircle(iBBX.left,iBBX.top,iBBX.right,iBBX.bottom);
+		else
+		{
+			ellipsoid.create((*i_graphic_instance).Center3D,(*i_graphic_instance).MajorAxisEnd3D,(*i_graphic_instance).MinorAxisEnd3D);
+			expressspinellipse((*i_graphic_instance).Center3D.x,(*i_graphic_instance).Center3D.y,ellipsoid.radiusx,ellipsoid.radiusy,ellipsoid.axangle);
+		}
 	}
 	if ((*i_graphic_instance).GraphicType==7)
 	{

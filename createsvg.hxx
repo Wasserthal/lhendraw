@@ -420,7 +420,7 @@ char stylestring[1024];
 char emptystring[1]="";
 char semicolonstring[2]=";";
 #ifdef GFXOUT_SVG
-void stylegenestring(int flags)
+void stylegenestring(int flags,unsigned int fillcolor=0)
 {
 	int stylestringlength=0;
 	stylestring[0]=0;//redundant
@@ -436,15 +436,24 @@ void stylegenestring(int flags)
 			stylestringlength+=formatreturnvalue;
 			waspar=semicolonstring;
 		}
-		if (flags & 2)
+		if ((fillcolor & 0xFF000000)==0)
 		{
-			sprintf(stylestring+stylestringlength,"%sfill:#%s%n",waspar,colorstring,&formatreturnvalue);
-			stylestringlength+=formatreturnvalue;
-			waspar=semicolonstring;
+			if (flags & 2)
+			{
+				sprintf(stylestring+stylestringlength,"%sfill:#%s%n",waspar,colorstring,&formatreturnvalue);
+				stylestringlength+=formatreturnvalue;
+				waspar=semicolonstring;
+			}
+			else
+			{
+				sprintf(stylestring+stylestringlength,"%sfill:none%n",waspar,&formatreturnvalue);
+				stylestringlength+=formatreturnvalue;
+				waspar=semicolonstring;
+			}
 		}
 		else
 		{
-			sprintf(stylestring+stylestringlength,"%sfill:none%n",waspar,&formatreturnvalue);
+			sprintf(stylestring+stylestringlength,"%sfill:#%06X%n",waspar,fillcolor & 0xFFFFFF,&formatreturnvalue);
 			stylestringlength+=formatreturnvalue;
 			waspar=semicolonstring;
 		}
@@ -487,7 +496,7 @@ void expressellipse(float ix,float iy,float irx,float iry)
 #endif
 void expresscdxcircle(float ileft,float itop,float radius)
 {
-	expressellipse(ileft+SVG_currentshiftx,itop+SVG_currentshifty,fabs(radius),fabs(radius));
+	expressellipse(ileft,itop,fabs(radius),fabs(radius));
 }
 #ifdef GFXOUT_SVG
 void expresstetrangle(float ix1,float iy1,float ix2,float iy2,float ix3,float iy3,float ix4,float iy4)
@@ -516,6 +525,7 @@ void expresshexangle(float ix1,float iy1,float ix2,float iy2,float ix3,float iy3
 stylestring);
 }
 #endif
+#ifdef GFXOUT_SVG
 void expressarc(float centerx,float centery,float radiusx,float radiusy,float startangle,float endangle)
 {
 	float startx,starty;
@@ -536,6 +546,7 @@ void expressarc_enhanced(float centerx,float centery,float radiusx,float radiusy
 	endy=centery+(radiusy*sin(endangle)*cos(tiltangle)+radiusx*cos(endangle)*sin(tiltangle))+SVG_currentshifty;
 	fprintf(outfile,"<path d=\"M %f,%f A %f,%f %i %i %i %f %f\" %s />",startx,starty,radiusx,radiusy,(int)(tiltangle*180.0/Pi),(int)(fabs(startangle-endangle)>=Pi),(int)(startangle-endangle)<0,endx,endy,stylestring);
 }
+#endif
 
 char iswedgenr(_small input)
 {
@@ -1414,7 +1425,8 @@ void svg_controlprocedure(bool irestriction=0,bool hatches=0)
 			case 7 : strcpy(colorstring2,colorstring);goto dagger2;break;
 		}
 		charge:
-		fprintf(outfile,"<circle cx=\"%f\" cy=\"%f\" r=\"6\" stroke=\"#%s\" fill=\"#%s\"/>",iBBX.left+SVG_currentshiftx,iBBX.top+SVG_currentshifty,colorstring,colorstring2);
+		stylegenestring(1,0xFFFFFFFF);
+		expressellipse(iBBX.left,iBBX.top,6,6);
 		expressline(iBBX.left-3,iBBX.top,iBBX.left+3,iBBX.top);
 		if ((*i_graphic_instance).SymbolType==4)
 		{
@@ -1422,7 +1434,8 @@ void svg_controlprocedure(bool irestriction=0,bool hatches=0)
 		}
 		goto GraphicType7done;
 		radical:
-		fprintf(outfile,"<circle cx=\"%f\" cy=\"%f\" r=\"4\" stroke=\"#%s\" fill=\"#%s\"/>",iBBX.left+SVG_currentshiftx,iBBX.top+SVG_currentshifty,colorstring,colorstring2);
+		stylegenestring(3);
+		expressellipse(iBBX.left,iBBX.top,4,4);
 		goto GraphicType7done;
 		dagger2:
 		expressline(iBBX.left-5,iBBX.top+10,iBBX.right+5,iBBX.top+10);

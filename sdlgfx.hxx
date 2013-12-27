@@ -28,7 +28,6 @@ int get_colorstringv(int number)
 		SDL_color=0xFFFFFF;
 		return 0;
 	}
-	printf("cn %i,%i\n",(*glob_color_multilist).filllevel,number);
 	if (number-2>=(*glob_color_multilist).filllevel)
 	{	
 		SDL_color=0;
@@ -37,7 +36,6 @@ int get_colorstringv(int number)
 	SDL_color=((_u8)(((*glob_color_multilist).bufferlist)[number-2].r*255)<<16)+
 	((_u8)(((*glob_color_multilist).bufferlist)[number-2].g*255)<<8)+
 	((_u8)(((*glob_color_multilist).bufferlist)[number-2].b*255));
-	printf("co %llX",SDL_color);
 	return 0;
 }
 inline void putpixel(int iposx,int iposy)
@@ -50,7 +48,7 @@ inline void putpixel(int iposx,int iposy)
 		}
 	}
 }
-inline void stylegenestring(int flags) //1: stroke 2: fill 4: bold 8: dashed
+inline void stylegenestring(int flags,unsigned int fillcolor=0) //1: stroke 2: fill 4: bold 8: dashed
 {
 	SDL_linestyle=flags;
 }
@@ -634,8 +632,38 @@ void expressspinellipse(float ix,float iy,float radiusx,float radiusy, float axa
 		putpixel(ix+tlsaxx*radiusx*cos(tlangle)-tlsaxy*radiusy*sin(tlangle),iy+tlsaxy*radiusx*cos(tlangle)+tlsaxx*radiusy*sin(tlangle));
 	}
 }
-void expressellipse(float ix,float iy,float radiusx,float radiusy)
+void expressarc_enhanced(float centerx,float centery,float radiusx,float radiusy,float startangle,float endangle,float tiltangle)
 {
+	centerx=(centerx-SDL_scrollx)*SDL_zoomx;
+	centery=(centery-SDL_scrolly)*SDL_zoomy;
+	int isteps=radiusx*Pi*2;
+	if (startangle>endangle)
+	{
+/*		float swapangle;
+		swapangle=startangle;
+		startangle=endangle;
+		endangle=swapangle;*/
+		endangle+=2*Pi;
+	}
+	if (radiusy>radiusx)
+	{
+		isteps=radiusy*Pi*2;
+	}
+	float tlsaxx=cos(tiltangle);float tlsaxy=sin(tiltangle);
+	for (int ilv1=(isteps*startangle)/(Pi*2);ilv1<(isteps*endangle)/(Pi*2);ilv1++)
+	{
+		float tlangle=(ilv1/float(isteps))*2*Pi;
+		putpixel(centerx+tlsaxx*radiusx*cos(tlangle)-tlsaxy*radiusy*sin(tlangle),centery+tlsaxy*radiusx*cos(tlangle)+tlsaxx*radiusy*sin(tlangle));
+	}
+}
+inline void expressarc(float centerx,float centery,float radiusx,float radiusy,float startangle,float endangle)
+{
+	expressarc_enhanced(centerx,centery,radiusx,radiusy,startangle,endangle,0);
+}
+void expressellipse(float centerx,float centery,float radiusx,float radiusy)
+{
+	centerx=(centerx-SDL_scrollx)*SDL_zoomx;
+	centery=(centery-SDL_scrolly)*SDL_zoomy;
 	int isteps=radiusx*Pi*2;
 	if (radiusy>radiusx)
 	{
@@ -644,7 +672,7 @@ void expressellipse(float ix,float iy,float radiusx,float radiusy)
 	for (int ilv1=0;ilv1<isteps;ilv1++)
 	{
 		float tlangle=(ilv1/float(isteps))*2*Pi;
-		putpixel(ix+radiusx*cos(tlangle),iy+radiusy*sin(tlangle));
+		putpixel(centerx+radiusx*cos(tlangle),centery+radiusy*sin(tlangle));
 	}
 }
 

@@ -798,10 +798,12 @@ void svg_findaround()
 
 }
 
+#ifdef GFXOUT_SVG
 void expressbezier(float x1,float y1,float x2,float y2,float x3,float y3,float x4,float y4)
 {
 	fprintf(outfile,"<path d=\"M %f %f C %f %f %f %f %f %f \" %s/>\n",x1+SVG_currentshiftx,y1+SVG_currentshifty,x2+SVG_currentshiftx,y2+SVG_currentshifty,x3+SVG_currentshiftx,y3+SVG_currentshifty,x4+SVG_currentshiftx,y4+SVG_currentshifty,stylestring);
 }
+#endif
 
 int currentLineType;//0: normal 2: Bold 0x100: Double
 void drawarrheads(cdx_Rectangle iBBX,float langle,float cangle,float otherlangle,float othercangle,int currentArrowHeadType,int currentArrowHeadTail,int currentArrowHeadHead,float tllinedist)

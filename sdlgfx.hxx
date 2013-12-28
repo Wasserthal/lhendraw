@@ -53,6 +53,56 @@ inline void stylegenestring(int flags,unsigned int fillcolor=0) //1: stroke 2: f
 	SDL_linestyle=flags;
 }
 
+void expressbeziertrack(cdx_Bezierpoints * ipoints)
+{
+	float ishare;
+	float iminusshare;
+	int ix,iy;
+	for (int ilv1=0;ilv1<(*ipoints).count;ilv1++)
+	{
+		float stepsbecausex=2*(abs((*ipoints).a[ilv1+3].x-(*ipoints).a[ilv1].x)+abs((*ipoints).a[ilv1+2].x-(*ipoints).a[ilv1+1].x));
+		float stepsbecausey=2*(abs((*ipoints).a[ilv1+3].y-(*ipoints).a[ilv1].y)+abs((*ipoints).a[ilv1+2].y-(*ipoints).a[ilv1+1].y));
+		if (stepsbecausey>stepsbecausex) {stepsbecausex=stepsbecausey;}
+		for (int ilv2=0;ilv2<stepsbecausex;ilv2++)
+		{
+			ishare=(stepsbecausex/float(ilv2));
+			iminusshare=1-ishare;
+			ix=(((*ipoints).a[ilv1].x*ishare+(*ipoints).a[ilv1+1].x*iminusshare)*ishare+((*ipoints).a[ilv1+1].x*ishare+(*ipoints).a[ilv1+2].x*iminusshare)*iminusshare)*ishare+
+			(((*ipoints).a[ilv1+1].x*ishare+(*ipoints).a[ilv1+2].x*iminusshare)*ishare+((*ipoints).a[ilv1+2].x*ishare+(*ipoints).a[ilv1+3].x*iminusshare)*iminusshare)*iminusshare;
+			iy=(((*ipoints).a[ilv1].y*ishare+(*ipoints).a[ilv1+1].y*iminusshare)*ishare+((*ipoints).a[ilv1+1].y*ishare+(*ipoints).a[ilv1+2].y*iminusshare)*iminusshare)*ishare+
+			(((*ipoints).a[ilv1+1].y*ishare+(*ipoints).a[ilv1+2].y*iminusshare)*ishare+((*ipoints).a[ilv1+2].y*ishare+(*ipoints).a[ilv1+3].y*iminusshare)*iminusshare)*iminusshare;
+		}
+	}
+}
+
+void expressbezier(float x1,float y1,float x2,float y2,float x3,float y3,float x4,float y4)
+{
+	float ishare;
+	float iminusshare;
+	float stepsbecausex=2*(abs(x4-x1)+abs(x3-x2));
+	float stepsbecausey=2*(abs(y4-x1)+abs(y3-y2));
+	float ix,iy;
+	x1=((x1-SDL_scrollx)*SDL_zoomx);
+	x2=((x2-SDL_scrollx)*SDL_zoomx);
+	x3=((x3-SDL_scrollx)*SDL_zoomx);
+	x4=((x4-SDL_scrollx)*SDL_zoomx);
+	y1=((y1-SDL_scrolly)*SDL_zoomy);
+	y2=((y2-SDL_scrolly)*SDL_zoomy);
+	y3=((y3-SDL_scrolly)*SDL_zoomy);
+	y4=((y4-SDL_scrolly)*SDL_zoomy);
+	if (stepsbecausey>stepsbecausex) {stepsbecausex=stepsbecausey;}
+	for (int ilv2=0;ilv2<stepsbecausex;ilv2++)
+	{
+		ishare=(float(ilv2)/stepsbecausex);
+		iminusshare=1-ishare;
+		ix=((x1*ishare+x2*iminusshare)*ishare+(x2*ishare+x3*iminusshare)*iminusshare)*ishare+
+		((x2*ishare+x3*iminusshare)*ishare+(x3*ishare+x4*iminusshare)*iminusshare)*iminusshare;
+		iy=((y1*ishare+y2*iminusshare)*ishare+(y2*ishare+y3*iminusshare)*iminusshare)*ishare+
+		((y2*ishare+y3*iminusshare)*ishare+(y3*ishare+y4*iminusshare)*iminusshare)*iminusshare;
+		putpixel(ix,iy);
+	}
+}
+
 void expressline(float ileft,float itop,float iright,float ibottom)
 {
 	int x=(ileft-SDL_scrollx)*SDL_zoomx;

@@ -710,6 +710,17 @@ inline void expressarc(float centerx,float centery,float radiusx,float radiusy,f
 {
 	expressarc_enhanced(centerx,centery,radiusx,radiusy,startangle,endangle,0);
 }
+void expressbow(float ileft,float itop,float iright,float ibottom,float irelradius)
+{
+	float dx=iright-ileft;
+	float dy=ibottom-itop;
+	float angle=getangle(dx,dy);
+	angle=fmod(angle+(Pi/2),2*Pi);
+	float tangle=asin(0.5/irelradius);
+	float tangent=0.5/tan(tangle);
+	float tldist=sqrt(fsqr(iright-ileft)+fsqr(ibottom-itop));
+	expressarc((iright+ileft)/2+tangent*cos(angle)*tldist,(ibottom+itop)/2+tangent*sin(angle)*tldist,irelradius*tldist,irelradius*tldist,fmod(angle-tangle+Pi,Pi*2),fmod(angle+tangle+Pi,Pi*2));
+}
 void expressellipse(float centerx,float centery,float radiusx,float radiusy)
 {
 	centerx=(centerx-SDL_scrollx)*SDL_zoomx;

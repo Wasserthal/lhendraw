@@ -546,6 +546,11 @@ void expressarc_enhanced(float centerx,float centery,float radiusx,float radiusy
 	endy=centery+(radiusy*sin(endangle)*cos(tiltangle)+radiusx*cos(endangle)*sin(tiltangle))+SVG_currentshifty;
 	fprintf(outfile,"<path d=\"M %f,%f A %f,%f %i %i %i %f %f\" %s />",startx,starty,radiusx,radiusy,(int)(tiltangle*180.0/Pi),(int)(fabs(startangle-endangle)>=Pi),(int)(startangle-endangle)<0,endx,endy,stylestring);
 }
+void expressbow(float ileft,float itop,float iright,float ibottom,float irelradius)
+{
+	float tldist=sqrt(fsqr(iright-ileft)+fsqr(itop-ibottom));
+	fprintf(outfile,"<path d=\"M %f,%f A %f,%f %i %i %i %f %f\" %s />",ileft+SVG_currentshiftx,itop+SVG_currentshifty,tldist*irelradius,tldist*irelradius,0,0,1,iright+SVG_currentshiftx,ibottom+SVG_currentshifty,stylestring);
+}
 #endif
 
 char iswedgenr(_small input)
@@ -1487,8 +1492,7 @@ void svg_controlprocedure(bool irestriction=0,bool hatches=0)
 			}
 			case 5:
 			{
-				float tldist=sqrt(fsqr(iBBX.right-iBBX.left)+fsqr(iBBX.top-iBBX.bottom));
-				fprintf(outfile,"<path d=\"M %f,%f A %f,%f %i %i %i %f %f\" %s />",iBBX.left+SVG_currentshiftx,iBBX.top+SVG_currentshifty,tldist*1.8,tldist*1.8,0,0,1,iBBX.right+SVG_currentshiftx,iBBX.bottom+SVG_currentshifty,stylestring);
+				expressbow(iBBX.left,iBBX.top,iBBX.right,iBBX.bottom,1.8);
 				break;
 			}
 		}

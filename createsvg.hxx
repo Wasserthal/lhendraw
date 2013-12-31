@@ -808,6 +808,25 @@ void expressbezier(float x1,float y1,float x2,float y2,float x3,float y3,float x
 {
 	fprintf(outfile,"<path d=\"M %f %f C %f %f %f %f %f %f \" %s/>\n",x1+SVG_currentshiftx,y1+SVG_currentshifty,x2+SVG_currentshiftx,y2+SVG_currentshifty,x3+SVG_currentshiftx,y3+SVG_currentshifty,x4+SVG_currentshiftx,y4+SVG_currentshifty,stylestring);
 }
+
+void expressxbezier(int icount,...)
+{
+	va_list i_valist;
+	va_start(i_valist,icount);
+	float iks;float yps;
+	iks=va_arg(i_valist,double)+SVG_currentshiftx;
+	yps=va_arg(i_valist,double)+SVG_currentshifty;
+	fprintf(outfile,"<path d=\" M %f %f C ",iks,yps);
+	for (int ilv1=0;ilv1<icount-1;ilv1++)
+	{
+		iks=va_arg(i_valist,double)+SVG_currentshiftx;
+		yps=va_arg(i_valist,double)+SVG_currentshifty;
+		fprintf(outfile,"%f %f ",iks,yps);
+	}
+	va_end(i_valist);
+//	%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f 
+	fprintf(outfile,"\" %s />",stylestring);
+}
 #endif
 
 int currentLineType;//0: normal 2: Bold 0x100: Double
@@ -1664,15 +1683,16 @@ iBBX.right+ibonddist2*cos(cangle)+ibonddist4*(cos(cangle)-(cos(langle)*tlrightta
 		n_instance * tlnode=(ilv0/2)?startnode:endnode;
 		get_colorstring((*tlnode).color);
 		stylegenestring(1);
+		if (0==(ilv1 & 1)) continue;
 		if ((*tlnode).ExternalConnectionType==4)
 		{
-			float tlposx=(*tlnode).p.x+SVG_currentshiftx;
-			float tlposy=(*tlnode).p.y+SVG_currentshifty;
+			float tlposx=(*tlnode).p.x;
+			float tlposy=(*tlnode).p.y;
 			float tlsin=sin(langle+((ilv0%2)?(Pi/2):(-Pi/2)))*4;
 			float tlcos=cos(langle+((ilv0%2)?(Pi/2):(-Pi/2)))*4;
-			fprintf(outfile,"<path d=\" M %f %f C %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f \" %s />",tlposx,tlposy,tlposx+tlsin,tlposy-tlcos,tlposx+tlsin+tlcos,tlposy-tlcos+tlsin,tlposx+tlcos,tlposy+tlsin,
+			expressxbezier(10,tlposx,tlposy,tlposx+tlsin,tlposy-tlcos,tlposx+tlsin+tlcos,tlposy-tlcos+tlsin,tlposx+tlcos,tlposy+tlsin,
 tlposx+tlcos-tlsin,tlposy+tlsin+tlcos,tlposx+2*tlcos-tlsin,tlposy+2*tlsin+tlcos,tlposx+2*tlcos,tlposy+2*tlsin
-,tlposx+2*tlcos+0.25*tlsin,tlposy+2*tlsin-0.25*tlcos,tlposx+2.25*tlcos+0.5*tlsin,tlposy+2.25*tlsin-0.5*tlcos,tlposx+2.5*tlcos+0.5*tlsin,tlposy+2.5*tlsin-0.5*tlcos,stylestring);
+,tlposx+2*tlcos+0.25*tlsin,tlposy+2*tlsin-0.25*tlcos,tlposx+2.25*tlcos+0.5*tlsin,tlposy+2.25*tlsin-0.5*tlcos,tlposx+2.5*tlcos+0.5*tlsin,tlposy+2.5*tlsin-0.5*tlcos);
 		}
 	}
 	goto svg_main_loop;

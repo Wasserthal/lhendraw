@@ -58,21 +58,38 @@ void expressbeziertrack(cdx_Bezierpoints * ipoints)
 	float ishare;
 	float iminusshare;
 	int ix,iy;
-	for (int ilv1=0;ilv1<(*ipoints).count;ilv1++)
+	for (int ilv1=0;ilv1<(*ipoints).count;ilv1+=3)
 	{
 		float stepsbecausex=2*(abs((*ipoints).a[ilv1+3].x-(*ipoints).a[ilv1].x)+abs((*ipoints).a[ilv1+2].x-(*ipoints).a[ilv1+1].x));
 		float stepsbecausey=2*(abs((*ipoints).a[ilv1+3].y-(*ipoints).a[ilv1].y)+abs((*ipoints).a[ilv1+2].y-(*ipoints).a[ilv1+1].y));
 		if (stepsbecausey>stepsbecausex) {stepsbecausex=stepsbecausey;}
 		for (int ilv2=0;ilv2<stepsbecausex;ilv2++)
 		{
-			ishare=(stepsbecausex/float(ilv2));
+			ishare=(float(ilv2)/stepsbecausex);
 			iminusshare=1-ishare;
 			ix=(((*ipoints).a[ilv1].x*ishare+(*ipoints).a[ilv1+1].x*iminusshare)*ishare+((*ipoints).a[ilv1+1].x*ishare+(*ipoints).a[ilv1+2].x*iminusshare)*iminusshare)*ishare+
 			(((*ipoints).a[ilv1+1].x*ishare+(*ipoints).a[ilv1+2].x*iminusshare)*ishare+((*ipoints).a[ilv1+2].x*ishare+(*ipoints).a[ilv1+3].x*iminusshare)*iminusshare)*iminusshare;
 			iy=(((*ipoints).a[ilv1].y*ishare+(*ipoints).a[ilv1+1].y*iminusshare)*ishare+((*ipoints).a[ilv1+1].y*ishare+(*ipoints).a[ilv1+2].y*iminusshare)*iminusshare)*ishare+
 			(((*ipoints).a[ilv1+1].y*ishare+(*ipoints).a[ilv1+2].y*iminusshare)*ishare+((*ipoints).a[ilv1+2].y*ishare+(*ipoints).a[ilv1+3].y*iminusshare)*iminusshare)*iminusshare;
+			putpixel(ix,iy);
 		}
 	}
+}
+void expressxbezier(int icount,...)
+{
+	cdx_Bezierpoints tlpoints;
+	tlpoints.count=icount;
+	va_list i_valist;
+	va_start(i_valist,icount);
+	float iks;float yps;
+	
+	for (int ilv1=0;ilv1<icount;ilv1++)
+	{
+		tlpoints.a[ilv1].x=(va_arg(i_valist,double)-SDL_scrollx)*SDL_zoomx;
+		tlpoints.a[ilv1].y=(va_arg(i_valist,double)-SDL_scrolly)*SDL_zoomy;
+	}
+	va_end(i_valist);
+	expressbeziertrack(&tlpoints);
 }
 
 void expressbezier(float x1,float y1,float x2,float y2,float x3,float y3,float x4,float y4)

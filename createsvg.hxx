@@ -1016,6 +1016,7 @@ char STRINGOUTPUT_bold[]="font-weight=\"bold\" ";
 char STRINGOUTPUT_LENNARDBOLD[]="font-weight=\"bold\"";
 char iparmsstring[stringlength+1];
 float currentsetfontsize=18;
+#ifdef GFXOUT_SVG
 void printformatted(const char * iinput,const char * parms,int imode,int start,int end)
 {
 	int ilv4=start;
@@ -1057,6 +1058,11 @@ void printformatted(const char * iinput,const char * parms,int imode,int start,i
 	fprintf(outfile,"\n");
 	if (linebreak) {fprintf(outfile,"<tspan dy=\"%f\" x=\"0\">&#8288;</tspan>",20.0/18.0*currentsetfontsize);if (ilv4<end) goto thatwasatemporaryskip;}//a line break;
 }
+void express_txinit(char ialignment,float iposx,float iposy,float iatomfontheight)
+{
+	fprintf(outfile,"<text fill=\"%s\" %s stroke=\"none\" transform=\"translate(%f,%f)\" font-size=\"%f\">",(ialignment) ? "text-anchor=\"end\" text-align=\"end\"" : "",iposx+SVG_currentshiftx,iposy+SVG_currentshifty,iatomfontheight);
+}
+#endif
 
 #ifdef LENNARD_HACK
 void LENNARD_HACK_killtext()
@@ -1708,7 +1714,7 @@ tlposx+tlcos-tlsin,tlposy+tlsin+tlcos,tlposx+2*tlcos-tlsin,tlposy+2*tlsin+tlcos,
 	colornr=((*glob_t_multilist).bufferlist)[index_in_buffer].color;
 	get_colorstring_passive(colornr);
 
-	fprintf(outfile,"<text fill=\"%s\" %s stroke=\"none\" transform=\"translate(%f,%f)\" font-size=\"%f\">",colorstring,((*glob_t_multilist).bufferlist[index_in_buffer].LabelAlignment==-1) ? "text-anchor=\"end\" text-align=\"end\"" : "",((*glob_t_multilist).bufferlist)[index_in_buffer].p.x+SVG_currentshiftx,((*glob_t_multilist).bufferlist)[index_in_buffer].p.y+SVG_currentshifty,atomfontheight);
+	express_txinit(((*glob_t_multilist).bufferlist[index_in_buffer].LabelAlignment==-1),((*glob_t_multilist).bufferlist)[index_in_buffer].p.x,((*glob_t_multilist).bufferlist)[index_in_buffer].p.y,atomfontheight);
 	intl start,end;
 	start=(*(((*glob_t_multilist).bufferlist)[index_in_buffer].s)).start_in_it;
 	end=start+(*(((*glob_t_multilist).bufferlist)[index_in_buffer].s)).count_in_it;

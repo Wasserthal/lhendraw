@@ -10,6 +10,7 @@
 #define gfx_depth 4
 float SDL_scrollx=0,SDL_scrolly=0;
 float SDL_zoomx=1,SDL_zoomy=1;
+int SDL_txcursorx=0;int SDL_txcursory=0;
 //_u8 screen[gfx_screensizex*gfx_screensizey*gfx_depth];
 _u32 * screen;
 _u32 * canvas;
@@ -37,6 +38,10 @@ int get_colorstringv(int number)
 	((_u8)(((*glob_color_multilist).bufferlist)[number-2].g*255)<<8)+
 	((_u8)(((*glob_color_multilist).bufferlist)[number-2].b*255));
 	return 0;
+}
+void express_txinit(char ialignment,float iposx,float iposy,float iatomfontheight)
+{
+	SDL_txcursorx=(iposx-SDL_scrollx)*SDL_zoomx;SDL_txcursory=(iposy-SDL_scrolly)*SDL_zoomy;
 }
 inline void putpixel(int iposx,int iposy)
 {
@@ -770,6 +775,68 @@ void expresshexangle(float ix1,float iy1,float ix2,float iy2,float ix3,float iy3
 	tlinficorn[4].y=iy5;
 	tlinficorn[5].y=iy6;
 	expressinfinityangle(tlinficorn,6);
+}
+void text_print_bitmap(int * posx,int * posy,fontpixinf_ * ifontpixinf)
+{
+	int ilv1,ilv2;
+	int scanx,scany;
+	int maxx,maxy;
+	int icanvasskip=gfx_screensizex;
+	unsigned int * icanvas=canvas;
+	int skip=(*ifontpixinf).sizex;
+	char * mempos=(*ifontpixinf).memstart;
+	scanx=(*posx)+(*ifontpixinf).pivotx;
+	scany=(*posy)+(*ifontpixinf).pivoty;
+	maxx=(*ifontpixinf).sizex+scanx;
+	maxy=(*ifontpixinf).sizey+scany;
+	if (scanx<0) {mempos-=scanx;scanx=0;}
+	if (scany<0) {mempos-=scany*skip;scany=0;}
+	if (maxx>=gfx_canvassizex) maxx=gfx_canvassizex-1;
+	if (maxy>=gfx_canvassizey) maxy=gfx_canvassizey-1;
+	skip-=maxx-scanx;
+	(*posx)+=(*ifontpixinf).deltax;
+	(*posy)+=(*ifontpixinf).deltay;
+	if ((scanx>=maxx) || (scany>=maxy))
+	{
+		return;
+	}
+	icanvas+=icanvasskip*scany+scanx;
+	icanvasskip-=maxx-scanx;
+	for (ilv1=scany;ilv1<maxy;ilv1++)
+	{
+		for (ilv2=scanx;ilv2<maxx;ilv2++)
+		{
+			if (*(mempos) & 0x80)
+			{
+				*(icanvas)=SDL_color;
+			//	putpixel(ilv2,ilv1);
+			}
+			icanvas++;
+			mempos++;
+		}
+		mempos+=skip;
+		icanvas+=icanvasskip;
+	}
+}
+void printformatted(const char * iinput,const char * parms,int imode,int start,int end)
+{
+	int ilv4=start;
+	char linebreak;
+	thatwasatemporaryskip:
+	linebreak=0;
+	for (;ilv4<end;ilv4++)
+	{
+		if (iinput[ilv4]==10)
+		{
+			ilv4++;
+			linebreak=1;
+			goto skipfornow;
+		}
+		text_print_bitmap(&SDL_txcursorx,&SDL_txcursory,&fontpixinf[indexfromunicode(((unsigned char)iinput[ilv4]))]);
+//		print_bitmap(&SDL_txcursorx,&SDL_txcursory,&fontpixinf[indexfromunicode(((unsigned char)iinput[ilv4]))]);
+	}
+	skipfornow:
+	if (linebreak) {if (ilv4<end) goto thatwasatemporaryskip;}//a line break;
 }
 
 void sdl_init()

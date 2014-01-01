@@ -30,6 +30,7 @@ LLLLLL H   H EEEEE N    N DDD   R  R A     A    W     W
 #include <SDL.h>
 #include <unistd.h>
 #include "graphics_variables.hxx"
+#include "text_freetype.h"
 #include "sdlgfx.hxx"
 #include "sdlctrl.hxx"
 #include "createsvg.hxx"
@@ -50,6 +51,7 @@ int main(int argc,char * * argv)
 	fclose(infile);
 	svg_findaround();
 	getframes();
+	text_init();
 	sdl_init();
 	mainloop:
 	sdl_control();

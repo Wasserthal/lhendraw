@@ -390,6 +390,7 @@ void getatoms()//makes some preprocessing
 			}
 			(*glob_t_multilist).bufferlist[ilv2].p.y=((*glob_n_multilist).bufferlist)[ilv1].p.y+atomfontheight/3;
 			text_actual_node[ilv2].owner=ilv1;
+			(*glob_t_multilist).bufferlist[ilv2].Z=((*glob_n_multilist).bufferlist)[ilv1].Z;
 			atom_actual_node[ilv1].special=ilv2;
 		}
 	}

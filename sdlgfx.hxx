@@ -43,6 +43,9 @@ void express_txinit(char ialignment,float iposx,float iposy,float iatomfontheigh
 {
 	SDL_txcursorx=(iposx-SDL_scrollx)*SDL_zoomx;SDL_txcursory=(iposy-SDL_scrolly)*SDL_zoomy;
 }
+inline void express_text_tail()
+{
+}
 inline void putpixel(int iposx,int iposy)
 {
 	if ((iposx>=0) && (iposx<gfx_canvassizex))
@@ -850,11 +853,18 @@ void sdl_init()
 void sdl_outit()
 {
 }
+void svg_findaround();
+void getatoms();
+void svg_controlprocedure(bool irestriction,bool hatches);
 void svg_main(const char * filename);
-void sdl_output(const char * filename)
+void sdl_output()
 {
 	gfxstart();
 	screenclear(0xFFFFFF);
-	svg_main(filename);
+	svg_findaround();
+	getatoms();
+	initZlist();
+	svg_controlprocedure(0,1);
+	svg_controlprocedure(0,0);
 	gfxstop();
 }

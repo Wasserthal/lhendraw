@@ -55,7 +55,7 @@ int main(int argc,char * * argv)
 	sdl_init();
 	mainloop:
 	sdl_control();
-	sdl_output("outsdl.svg");
+	sdl_output();
 	usleep(30000);
 	goto mainloop;
 	sdl_outit();

@@ -78,25 +78,6 @@ int indexfromunicode(int input)//Weighed approximation
 	return 0;
 }
 void putpixel(int iposx,int iposy);
-void print_bitmap(int * posx,int * posy,fontpixinf_ * ifontpixinf)
-{
-	int i,j,p,q;
-	int x_max=(*ifontpixinf).sizex;
-	int y_max=(*ifontpixinf).sizey;
-	FILE * fbfile;
-	for ( j = (*posy)+(*ifontpixinf).pivoty, q = 0; q < y_max; j++, q++ )
-	{
-		for ( i = (*posx)+(*ifontpixinf).pivotx, p = 0; p < x_max; i++, p++ )
-		{
-			if ((*ifontpixinf).memstart[q * (*ifontpixinf).sizex + p]&0x80)
-			{
-				putpixel(i,j);
-			}
-		}
-	}
-	(*posx)+=(*ifontpixinf).deltax;
-	(*posy)+=(*ifontpixinf).deltay;
-}
 	
 int text_init(void)
 {
@@ -118,10 +99,6 @@ int text_init(void)
 			if (FT_Load_Char(face, ilv1, FT_LOAD_RENDER)==0)
 			{
 				fontpixinf_add(slot,ilv1);
-				if ((ilv1>='A') && (ilv1<='Z'))
-				{
-					printf("|%c@%i|",ilv1,FT_Get_Char_Index(face,ilv1));
-				}
 			}
 		}
 	}

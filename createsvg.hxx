@@ -1060,7 +1060,11 @@ void printformatted(const char * iinput,const char * parms,int imode,int start,i
 }
 void express_txinit(char ialignment,float iposx,float iposy,float iatomfontheight)
 {
-	fprintf(outfile,"<text fill=\"%s\" %s stroke=\"none\" transform=\"translate(%f,%f)\" font-size=\"%f\">",(ialignment) ? "text-anchor=\"end\" text-align=\"end\"" : "",iposx+SVG_currentshiftx,iposy+SVG_currentshifty,iatomfontheight);
+	fprintf(outfile,"<text fill=\"%s\" %s stroke=\"none\" transform=\"translate(%f,%f)\" font-size=\"%f\">",colorstring,(ialignment) ? "text-anchor=\"end\" text-align=\"end\"" : "",iposx+SVG_currentshiftx,iposy+SVG_currentshifty,iatomfontheight);
+}
+void express_text_tail()
+{
+	fprintf(outfile,"</text>\n");
 }
 #endif
 
@@ -1983,7 +1987,7 @@ tlposx+tlcos-tlsin,tlposy+tlsin+tlcos,tlposx+2*tlcos-tlsin,tlposy+2*tlsin+tlcos,
 			printformatted(finalstring,iparms,((tlformlabeltype & 0x20) ? 1 : 0) | ((tlformlabeltype & 0x40) ? 4 : 0),0,strlen(finalstring));
 		}
 	}
-	fprintf(outfile,"</text>\n");
+	express_text_tail();
 	goto svg_main_loop;
 	svg_main_moleculefill:
 	{

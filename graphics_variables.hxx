@@ -4,6 +4,7 @@
 
 #ifdef LENNARD_HACK
 char LENNARD_HACK_dokilltext;
+char LENNARD_HACK_colormode;
 #endif
 float getangle(float dx,float dy)
 {

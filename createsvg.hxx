@@ -42,6 +42,18 @@ int get_colorstringv(int number)
 
 int get_colorstring(int number)
 {
+	#ifdef LENNARD_HACK
+	if (LENNARD_HACK_colormode==1)
+	{
+		strcpy(colorstring,"FFFFFF");
+		return 0;
+	}
+	if (LENNARD_HACK_colormode==2)
+	{
+		strcpy(colorstring,"000000");
+		return 0;
+	}
+	#endif
 	get_colorstringv(number);
 }
 
@@ -755,6 +767,7 @@ void svg_findaround()
 	glob_moleculefill_multilist=retrievemultilist<moleculefill_instance>();
 	#ifdef LENNARD_HACK
 	LENNARD_HACK_dokilltext=0;
+	LENNARD_HACK_colormode=0;
 	{
 		multilist<LENHACK_ANNOTATION_instance> * tl_LENHACK_ANNOTATION_MULTILIST=retrievemultilist<LENHACK_ANNOTATION_instance>();
 		for (int ilv1=0;ilv1<(*tl_LENHACK_ANNOTATION_MULTILIST).filllevel;ilv1++)
@@ -1105,19 +1118,29 @@ void svg_tail()
 }
 void svg_controlprocedure(bool irestriction=0,bool hatches=0)
 {
+	int ilv3,ilv4;
 	void * dummy;
 	cdx_Rectangle tlBoundingBox;
 	int tlGraphicType;
 	int tlAngularSize;
+	int ipropertyoffset;
+	void * tlcurrentinstance;
+	basicmultilist * tlcurrentmultilist;
+	#ifdef LENNARD_HACK
+	char LENNARD_HACK_REPEATHOOK=0;
+	color_instance* tlcolorr;
+	float LENNARD_HACK_svgcurrentshiftx;
+	float LENNARD_HACK_svgcurrentshifty;
+	#endif
 	for (ilv1=0;ilv1<bufferlistsize*multilistZcount;ilv1++)
 	{
 		if (objectZorderlist[ilv1].listnr!=-1)
 		{
-			basicmultilist * tlcurrentmultilist=(basicmultilist*)multilistlist.instances[objectZorderlist[ilv1].listnr];
+			tlcurrentmultilist=(basicmultilist*)multilistlist.instances[objectZorderlist[ilv1].listnr];
 			index_in_buffer=objectZorderlist[ilv1].nr;
-			void * tlcurrentinstance=((char*)((*tlcurrentmultilist).pointer))+((*tlcurrentmultilist).itemsize)*index_in_buffer;
+			tlcurrentinstance=((char*)((*tlcurrentmultilist).pointer))+((*tlcurrentmultilist).itemsize)*index_in_buffer;
 			{//TODO**** delete instance in findaround after implementing delete routines
-				int ipropertyoffset=(tlcurrentmultilist)->getproperties("SupersededBy",(CDXMLREAD_functype*)&dummy);
+				ipropertyoffset=(tlcurrentmultilist)->getproperties("SupersededBy",(CDXMLREAD_functype*)&dummy);
 				if (ipropertyoffset!=-1)
 				{
 					if ((*(int*)(((char*)tlcurrentinstance)+ipropertyoffset))>0)
@@ -1144,7 +1167,7 @@ void svg_controlprocedure(bool irestriction=0,bool hatches=0)
 						if (tlp2d.y>SVG_currentfringey) {goto svg_main_loop;}
 					}
 				}
-				int ipropertyoffset=(tlcurrentmultilist)->getproperties("BoundingBox",(CDXMLREAD_functype*)&dummy);
+				ipropertyoffset=(tlcurrentmultilist)->getproperties("BoundingBox",(CDXMLREAD_functype*)&dummy);
 				if (ipropertyoffset!=-1)
 				{
 					tlBoundingBox=*((cdx_Rectangle*)(((char*)tlcurrentinstance)+ipropertyoffset));
@@ -1166,6 +1189,54 @@ void svg_controlprocedure(bool irestriction=0,bool hatches=0)
 					}
 				}
 			}
+			#ifdef LENNARD_HACK
+			ipropertyoffset=(tlcurrentmultilist)->getproperties("color",(CDXMLREAD_functype*)&dummy);
+			if (ipropertyoffset!=-1)
+			{
+				tlcolorr=get_color((*(int*)(((char*)tlcurrentinstance)+ipropertyoffset)));
+				if (tlcolorr!=NULL)
+				{
+					if ((fabs((*tlcolorr).r-0.1961)<0.001) && (fabs((*tlcolorr).g)<0.001) && (fabs((*tlcolorr).b-0.1961)<0.001))
+					{
+						LENNARD_HACK_colormode=1;
+						for (ilv3=-3;ilv3<4;ilv3++)
+						{
+							for (ilv4=-3;ilv4<4;ilv4++)
+							{
+								if ((abs(ilv3)+abs(ilv4)<3) || ((ilv3==3) && (ilv4==3)))
+								{
+									LENNARD_HACK_colormode=1;
+									LENNARD_HACK_svgcurrentshiftx=SVG_currentshiftx;
+									LENNARD_HACK_svgcurrentshifty=SVG_currentshifty;
+									if ((ilv3==3) && (ilv4==3))
+									{
+										LENNARD_HACK_colormode=2;
+									}
+									else
+									{
+										SVG_currentshiftx+=ilv4;
+										SVG_currentshifty+=ilv3;
+									}
+									LENNARD_HACK_REPEATHOOK=1;
+									if (multilistlist.instances[objectZorderlist[ilv1].listnr]==glob_curve_multilist) goto svg_main_curve;
+									if (multilistlist.instances[objectZorderlist[ilv1].listnr]==glob_graphic_multilist) goto svg_main_graphic;
+									if (multilistlist.instances[objectZorderlist[ilv1].listnr]==glob_b_multilist) goto svg_main_b;
+									if (multilistlist.instances[objectZorderlist[ilv1].listnr]==glob_t_multilist) goto svg_main_t;
+									if (multilistlist.instances[objectZorderlist[ilv1].listnr]==glob_arrow_multilist) goto svg_main_arrow;
+									if (multilistlist.instances[objectZorderlist[ilv1].listnr]==glob_moleculefill_multilist) goto svg_main_moleculefill;
+									LENNARD_HACK_REPEAT:
+									LENNARD_HACK_REPEATHOOK=0;
+									SVG_currentshiftx=LENNARD_HACK_svgcurrentshiftx;
+									SVG_currentshifty=LENNARD_HACK_svgcurrentshifty;
+								}
+							}
+						}
+						LENNARD_HACK_colormode=0;
+						goto svg_main_loop;
+					}
+				}
+			}
+			#endif
 			if (multilistlist.instances[objectZorderlist[ilv1].listnr]==glob_curve_multilist) goto svg_main_curve;
 			if (multilistlist.instances[objectZorderlist[ilv1].listnr]==glob_graphic_multilist) goto svg_main_graphic;
 			if (multilistlist.instances[objectZorderlist[ilv1].listnr]==glob_b_multilist) goto svg_main_b;
@@ -1175,6 +1246,9 @@ void svg_controlprocedure(bool irestriction=0,bool hatches=0)
 		}
 		svg_main_loop:
 		;
+		#ifdef LENNARD_HACK
+		if (LENNARD_HACK_REPEATHOOK) goto LENNARD_HACK_REPEAT;
+		#endif
 	}
 	goto svg_main_end;
 	svg_main_curve:

@@ -10,6 +10,6 @@ filestructure_maker: ./tools/filestructure.c
 makeinf_test: makeinf.hxx makeinf_test.cxx cxxdata.h lendefs.h
 	g++ -g -O0 -std=c++0x -Wno-invalid-offsetof makeinf_test.cxx -o makeinftest -D DEBUG -Wno-format
 sdl: ./generated/filestructure.hxx ./generated/internalstructure.hxx parsecdxml.cxx lendefs.h xmldata.hxx xmlparse.hxx cxxdata.h enums.hxx definitionlist.h lendefs.h janitor.hxx createsvg.hxx makeinf.hxx sdlgfx.hxx lhendraw.cxx
-	g++ -g -O0 -std=c++0x -m64 lhendraw.cxx -o sdl.out -I/usr/include/SDL -I/usr/include/freetype2 -L/usr/lib64 -lSDL -lm -lfreetype -Wno-invalid-offsetof -D GFXOUT_SDL
+	g++ -g -O0 -std=c++0x -m64 lhendraw.cxx -o sdl.out -I/usr/include/SDL -I/usr/include/freetype2 -L/usr/lib64 -lSDL -lm -lfreetype -Wno-invalid-offsetof -D GFXOUT_SDL -lrt
 lennard_infget: makeinf.hxx makeinf_test.cxx cxxdata.h lendefs.h
 	g++ -g -O0 -std=c++0x -Wno-invalid-offsetof makeinf_test.cxx -o lennard_infget -D DEBUG -D MACHINE_READABLE -Wno-format

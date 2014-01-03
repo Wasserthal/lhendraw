@@ -1,6 +1,7 @@
 char control_mousestate=0;
 int control_posx=0;
 int control_posy=0;
+char LHENDRAW_leave;
 
 void issueclick(int iposx,int iposy)
 {
@@ -24,6 +25,7 @@ void issuerelease()
 void sdl_control()
 {
 	SDL_Event tlEvent;
+	LHENDRAW_leave=0;
 	while ( SDL_PollEvent(&tlEvent) ) 
 	{
 		switch (tlEvent.type) 
@@ -42,8 +44,7 @@ void sdl_control()
 				issuerelease();
 				break;
 			case SDL_QUIT:
-				sdl_outit();
-				exit(0);
+				LHENDRAW_leave=1;
 				break;
 		}
 	}

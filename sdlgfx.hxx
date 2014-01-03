@@ -859,12 +859,36 @@ void svg_controlprocedure(bool irestriction,bool hatches);
 void svg_main(const char * filename);
 void sdl_output()
 {
+	clock_gettime(clockid,&ts);
+	counter1-=ts.tv_nsec+1000000000*ts.tv_sec;
 	gfxstart();
+	clock_gettime(clockid,&ts);
+	counter1+=ts.tv_nsec+1000000000*ts.tv_sec;
 	screenclear(0xFFFFFF);
+	clock_gettime(clockid,&ts);
+	counter2-=ts.tv_nsec+1000000000*ts.tv_sec;
 	svg_findaround();
+	clock_gettime(clockid,&ts);
+	counter2+=ts.tv_nsec+1000000000*ts.tv_sec;
+	clock_gettime(clockid,&ts);
+	counter3-=ts.tv_nsec+1000000000*ts.tv_sec;
 	getatoms();
+	clock_gettime(clockid,&ts);
+	counter3+=ts.tv_nsec+1000000000*ts.tv_sec;
+	clock_gettime(clockid,&ts);
+	counter4-=ts.tv_nsec+1000000000*ts.tv_sec;
 	initZlist();
+	clock_gettime(clockid,&ts);
+	counter4+=ts.tv_nsec+1000000000*ts.tv_sec;
+	clock_gettime(clockid,&ts);
+	counter5-=ts.tv_nsec+1000000000*ts.tv_sec;
 	svg_controlprocedure(0,1);
 	svg_controlprocedure(0,0);
+	clock_gettime(clockid,&ts);
+	counter5+=ts.tv_nsec+1000000000*ts.tv_sec;
+	clock_gettime(clockid,&ts);
+	counter1-=ts.tv_nsec+1000000000*ts.tv_sec;
 	gfxstop();
+	clock_gettime(clockid,&ts);
+	counter1+=ts.tv_nsec+1000000000*ts.tv_sec;
 }

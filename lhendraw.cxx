@@ -8,6 +8,7 @@ L      H   H E     N   NN D  D  R  R A     A   W W   W W
 LLLLLL H   H EEEEE N    N DDD   R  R A     A    W     W
 
 */
+#define _XOPEN_SOURCE 600
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -31,6 +32,16 @@ LLLLLL H   H EEEEE N    N DDD   R  R A     A    W     W
 #include <unistd.h>
 #include "graphics_variables.hxx"
 #include "text_freetype.h"
+
+#include <time.h>
+struct timespec ts;
+long long counter1=0;
+long long counter2=0;
+long long counter3=0;
+long long counter4=0;
+long long counter5=0;
+int clockid=0;
+
 #include "sdlgfx.hxx"
 #include "sdlctrl.hxx"
 #include "createsvg.hxx"
@@ -41,12 +52,13 @@ LLLLLL H   H EEEEE N    N DDD   R  R A     A    W     W
 #include "makeinf.hxx"
 int main(int argc,char * * argv)
 {
+	clock_getcpuclockid(getpid(),&clockid);
 	if (argc!=2)
 	{
 		printf("no file specified or to many ones!");
 		exit(1);
 	}
-	infile=fopen(argv[1],"r+");
+	infile=fopen(argv[1],"r");
 	input_fsm(infile);
 	fclose(infile);
 	svg_findaround();
@@ -56,7 +68,8 @@ int main(int argc,char * * argv)
 	mainloop:
 	sdl_control();
 	sdl_output();
-	usleep(30000);
-	goto mainloop;
+	usleep(1000);
+	if (!LHENDRAW_leave) goto mainloop;
 	sdl_outit();
+	printf("Time consumption:\nInit:%llX\nfindaround:%llX\ngetatoms:%llX\ninitZlist:%llX\ndrawing:%llX\n",counter1,counter2,counter3,counter4,counter5);
 }

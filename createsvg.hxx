@@ -739,8 +739,8 @@ void calcdelta(float * x1,float * y1,float inputx,float inputy)
 	if (fabs(inputx)>fabs(inputy))
 	{
 		iquotient=fabs(inputy/inputx);
-		(*x1)=5.0*((inputx>0) ? 1.0 :-1.0);
-		(*y1)=5.0*iquotient*((inputy>0) ? 1.0 :-1.0);
+		(*x1)=9.0*((inputx>0) ? 1.0 :-1.0);
+		(*y1)=9.0*iquotient*((inputy>0) ? 1.0 :-1.0);
 	}
 	else
 	{
@@ -748,8 +748,8 @@ void calcdelta(float * x1,float * y1,float inputx,float inputy)
 		{
 			iquotient=fabs(inputx/inputy);
 		}
-		(*x1)=8.0*iquotient*((inputx>0) ? 1.0 :-1.0);
-		(*y1)=8.0*((inputy>0) ? 1.0 :-1.0);
+		(*x1)=9.0*iquotient*((inputx>0) ? 1.0 :-1.0);
+		(*y1)=9.0*((inputy>0) ? 1.0 :-1.0);
 	}
 }
 

@@ -736,6 +736,10 @@ void converttogreek(char * input)
 void calcdelta(float * x1,float * y1,float inputx,float inputy)
 {
 	float iquotient;
+	float tlangle=getangle(inputx,inputy);
+	(*x1)=9.0*cos(tlangle);
+	(*y1)=9.0*sin(tlangle);
+	return;
 	if (fabs(inputx)>fabs(inputy))
 	{
 		iquotient=fabs(inputy/inputx);

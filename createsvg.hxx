@@ -995,6 +995,10 @@ struct ellipsoid_
 			radiusx=radiusx*sqrt(fsqr(criticalyps*shearshare*flatness+criticaliks)+fsqr(criticalyps*flatness));
 			radiusy=oldvol/radiusx;
 			axangle+=shearsharepositive?tiltangle:-tiltangle;
+			normalizedmajx=radiusx*cos(axangle);
+			normalizedmajy=radiusx*sin(axangle);
+			normalizedminx=radiusy*cos(axangle+Pi/2);
+			normalizedminy=radiusy*sin(axangle+Pi/2);
 		}
 	}
 	void reset()
@@ -1123,7 +1127,7 @@ void svg_controlprocedure(bool irestriction=0,bool hatches=0)
 	void * dummy;
 	cdx_Rectangle tlBoundingBox;
 	int tlGraphicType;
-	int tlAngularSize;
+	float tlAngularSize;
 	int ipropertyoffset;
 	void * tlcurrentinstance;
 	basicmultilist * tlcurrentmultilist;
@@ -1636,7 +1640,12 @@ void svg_controlprocedure(bool irestriction=0,bool hatches=0)
 		iBBX.right=(*i_arrow_instance).Center3D.x;
 		iBBX.bottom=(*i_arrow_instance).Center3D.y;
 		ellipsoid.create((*i_arrow_instance).Center3D,(*i_arrow_instance).MajorAxisEnd3D,(*i_arrow_instance).MinorAxisEnd3D);
+		ellipsoid.fill((*i_arrow_instance).Tail3D.x-(*i_arrow_instance).Center3D.x,(*i_arrow_instance).Tail3D.y-(*i_arrow_instance).Center3D.y);
+		tlAngularSize=ellipsoid.internalangle;
 		ellipsoid.fill((*i_arrow_instance).Head3D.x-(*i_arrow_instance).Center3D.x,(*i_arrow_instance).Head3D.y-(*i_arrow_instance).Center3D.y);
+		tlAngularSize-=ellipsoid.internalangle;
+		tlAngularSize*=180.0/Pi;
+		printf("ell:%f\n",tlAngularSize);
 		currentEllipsemode=1;
 	}
 	else

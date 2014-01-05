@@ -946,8 +946,10 @@ struct ellipsoid_
 	float internalrad,internalangle;
 	float axangle;
 	char shearsharepositive;
+	char ellipsereversed;
 	void create(cdx_Point3D iCenter,cdx_Point3D iMajor,cdx_Point3D iMinor)
 	{
+		ellipsereversed=0;
 		majx=iMajor.x-iCenter.x;
 		majy=iMajor.y-iCenter.y;
 		minx=iMinor.x-iCenter.x;
@@ -978,6 +980,10 @@ struct ellipsoid_
 			normalizedminy=miny/radiusy;
 		}
 		axangle=getangle(majx,majy);
+		if ((normalizedmajx*normalizedminx+normalizedmajy*normalizedminy)<0)
+		{
+			ellipsereversed=1;
+		}
 		float shearshare=(normalizedmajx*minx+normalizedmajy*miny);
 		radiusy=radiusy*sqrt(1-fsqr(shearshare/radiusy));
 		float oldvol=fabs(radiusx*radiusy);
@@ -1636,16 +1642,21 @@ void svg_controlprocedure(bool irestriction=0,bool hatches=0)
 	tlAngularSize=(*i_arrow_instance).AngularSize;
 	if (tlAngularSize!=0)
 	{
+		char tlcounter=(tlAngularSize<0);
 		tlGraphicType=2;
 		iBBX.right=(*i_arrow_instance).Center3D.x;
 		iBBX.bottom=(*i_arrow_instance).Center3D.y;
 		ellipsoid.create((*i_arrow_instance).Center3D,(*i_arrow_instance).MajorAxisEnd3D,(*i_arrow_instance).MinorAxisEnd3D);
+		tlcounter^=ellipsoid.ellipsereversed;
 		ellipsoid.fill((*i_arrow_instance).Tail3D.x-(*i_arrow_instance).Center3D.x,(*i_arrow_instance).Tail3D.y-(*i_arrow_instance).Center3D.y);
 		tlAngularSize=ellipsoid.internalangle;
 		ellipsoid.fill((*i_arrow_instance).Head3D.x-(*i_arrow_instance).Center3D.x,(*i_arrow_instance).Head3D.y-(*i_arrow_instance).Center3D.y);
 		tlAngularSize-=ellipsoid.internalangle;
-		tlAngularSize*=180.0/Pi;
-		printf("ell:%f\n",tlAngularSize);
+		tlAngularSize=fmod(tlAngularSize+(4*Pi),2*Pi)*180.0/Pi;
+		if (tlcounter)
+		{
+			tlAngularSize=-360.0+tlAngularSize;
+		}
 		currentEllipsemode=1;
 	}
 	else

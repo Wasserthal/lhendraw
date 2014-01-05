@@ -1383,8 +1383,11 @@ void svg_controlprocedure(bool irestriction=0,bool hatches=0)
 	{
 		float deltax,deltay;
 		float tlradius;
+		float tlangle;
 		deltax=iBBX.left-iBBX.right;
 		deltay=iBBX.top-iBBX.bottom;
+		tlangle=getangle(deltax,deltay);
+		tlradius=sqrt(deltax*deltax+deltay*deltay);
 		stylegenestring(stylefromline(currentLineType));
 		if (currentLineType &0x100)
 		{
@@ -1403,6 +1406,7 @@ void svg_controlprocedure(bool irestriction=0,bool hatches=0)
 				double tlbest=1e20;
 				int tlbestone=-1;
 				tlangle=ellipsoid.internalangle+((ilv0)?((tlAngularSize/180.0)*Pi):0);
+				if (tlradius<=arrowheadlength){goto stillacircle;}//Where we use tangential arrow tips
 				ARROW_ELLIPTIC(ellipsoid.radiusx/arrowheadlength,ellipsoid.radiusy/arrowheadlength,cos(tlangle),sin(tlangle),tla,tlb,tlc,tld,tle);
 				if (fabs(tla)<=1e-3) {goto stillacircle;}
 				QUARTIC_quartic(tla,tlb,tlc,tld,tle,&(ellipticx[0]),&(ellipticx[1]),&(ellipticx[2]),&(ellipticx[3]));
@@ -1453,11 +1457,9 @@ void svg_controlprocedure(bool irestriction=0,bool hatches=0)
 			}
 		}
 		else 
-		if (tlradius>arrowheadlength/2)
 		{
+			expressarc(iBBX.right,iBBX.bottom,tlradius,tlradius,tlangle,tlangle+((tlAngularSize/180.0)*Pi));
 			stillacircle:
-			float tlangle;
-			tlangle=getangle(deltax,deltay);
 			if (tlAngularSize>0)
 			{
 				 langle=(tlangle+Pi/2.0);
@@ -1467,24 +1469,32 @@ void svg_controlprocedure(bool irestriction=0,bool hatches=0)
 				 langle=(tlangle-Pi/2.0);
 			}
 			cangle=langle+Pi/2.0;
-			tlradius=sqrt(deltax*deltax+deltay*deltay);
-			expressarc(iBBX.right,iBBX.bottom,tlradius,tlradius,tlangle,tlangle+((tlAngularSize/180.0)*Pi));
 			otherlangle=langle+((tlAngularSize/180.0)*Pi)+Pi;
 			othercangle=otherlangle+Pi/2.0;
-			float dturn=asin(arrowheadlength/tlradius/2);
-			if (tlAngularSize>0)
+			float dturn;
+			if (tlradius>arrowheadlength)
 			{
-				langle+=dturn;
-				cangle+=dturn;
-				otherlangle-=dturn;
-				othercangle-=dturn;
+				dturn=asin(arrowheadlength/tlradius/2);
+				extreme_angle_used:
+				if (tlAngularSize>0)
+				{
+					langle+=dturn;
+					cangle+=dturn;
+					otherlangle-=dturn;
+					othercangle-=dturn;
+				}
+				else
+				{
+					langle-=dturn;
+					cangle-=dturn;
+					otherlangle+=dturn;
+					othercangle+=dturn;
+				}
 			}
 			else
 			{
-				langle-=dturn;
-				cangle-=dturn;
-				otherlangle+=dturn;
-				othercangle+=dturn;
+				dturn=0.5236;
+				goto extreme_angle_used;
 			}
 			iBBX.right+=tlradius*cos(tlangle+((tlAngularSize/180.0)*Pi));
 			iBBX.bottom+=tlradius*sin(tlangle+((tlAngularSize/180.0)*Pi));

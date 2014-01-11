@@ -261,7 +261,6 @@ int HATCH_followborder(char inverse,int starting,int next,_u32 maytouchrim,char 
 	{
 		if (force)
 		{
-			printf("forcing!!!!\n");
 			fprintf(outfile,"<path d=\" ");
 			fprintf(outfile,"M %f,%f ",HATCH_atom[starting].x+SVG_currentshiftx,HATCH_atom[starting].y+SVG_currentshifty);
 			for (int ilv1=0;ilv1<currenthatchlist_count;ilv1++)
@@ -374,14 +373,6 @@ void Zdepthofhatches(int start)
 			}
 			dontputthispoint:
 			;
-		}
-		if ((debug_counter1==1) && (debug_counter2==4))
-		{
-			for (int ilv2=0;ilv2<(*tlmoleculefill).Points.count;ilv2++)
-			{
-				printf("\e[%sm%i\e[0m\n",HATCH_IS_THIS_ID_RIM((*tlmoleculefill).Points.a[ilv2])?"0":"31",(*tlmoleculefill).Points.a[ilv2]);
-			}
-			printf("_________;%i\n",(int)(Average_z/z_counter));
 		}
 		#else
 		for (int ilv2=0;ilv2<(*tlmoleculefill).Points.count;ilv2++)

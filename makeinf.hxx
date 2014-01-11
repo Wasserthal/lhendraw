@@ -239,7 +239,6 @@ void main_multisvg(int icount,char * * args)//tetrify
 		makeinf_sortiment.sortiment[makeinf_sortiment.sortiment_length].posx=0;
 		makeinf_sortiment.sortiment[makeinf_sortiment.sortiment_length].posy=makeinf_sortiment.height;
 		makeinf_sortiment.height+=makeinf_frame[tlnr2].height+10;
-		printf("OOOUUT:%f ",makeinf_frame[tlnr2].height);
 		makeinf_sortiment.width=fmax(makeinf_sortiment.width,makeinf_frame[tlnr2].width);
 		makeinf_sortiment.sortiment_length++;
 	}
@@ -293,7 +292,6 @@ void makeinf(const char * cdxname,const char * name)
 		getatoms();
 		makeinf_width=SVG_width-SVG_ileft;
 		makeinf_height=SVG_height-SVG_itop;
-		printf("w%fŋ",makeinf_width);
 		strcpy(truefilename,name);
 		strcat(truefilename,".inf");
 		INFfile=fopen(truefilename,"w");
@@ -347,7 +345,6 @@ void makeinf(const char * cdxname,const char * name)
 		fwrite(&makeinf_sortiment.sortiment_length,4,1,INFfile);
 		fwrite(&makeinf_sortiment.width,sizeof(float),1,INFfile);
 		fwrite(&makeinf_sortiment.height,sizeof(float),1,INFfile);
-		printf("ITTTS: %f ",makeinf_sortiment.height);
 		makeinf_fileend+=12;
 		for (int ilv2=0;ilv2<makeinf_sortiment.sortiment_length;ilv2++)
 		{
@@ -361,7 +358,6 @@ void makeinf(const char * cdxname,const char * name)
 	{
 		tlappendplanar=0;
 		tldowriteatend=1;
-		printf("COUNT:%i ",makeinf_frame_count);
 		for (int ilv1=0;ilv1<makeinf_frame_count;ilv1++)
 		{
 			makeinf_sortiment.sortiment[ilv1].number=makeinf_frame[ilv1].number;

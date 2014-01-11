@@ -38,11 +38,9 @@ int createsortiment(char sortiment_count,char * * sortimentstart)
 	for (int ilv1=0;ilv1<sortiment_count;ilv1++)
 	{
 		makeinf_sortiment.sortiment_length++;
-		printf("ok, one of it...");
 		makeinf_sortiment.sortiment[ilv1].number=atoi(sortimentstart[ilv1]);
 		//TODO: calculate scaling...
 	}
-	printf(">>>%i<<<",makeinf_sortiment.sortiment_length);
 	return 1;
 }
 int main(int argc,char * * argv)

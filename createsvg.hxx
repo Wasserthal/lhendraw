@@ -1661,7 +1661,7 @@ void svg_controlprocedure(bool irestriction=0,bool hatches=0)
 		iBBX.right=(*i_arrow_instance).Center3D.x;
 		iBBX.bottom=(*i_arrow_instance).Center3D.y;
 		ellipsoid.create((*i_arrow_instance).Center3D,(*i_arrow_instance).MajorAxisEnd3D,(*i_arrow_instance).MinorAxisEnd3D);
-		tlcounter^=ellipsoid.ellipsereversed;
+//		tlcounter^=ellipsoid.ellipsereversed;
 		ellipsoid.fill((*i_arrow_instance).Tail3D.x-(*i_arrow_instance).Center3D.x,(*i_arrow_instance).Tail3D.y-(*i_arrow_instance).Center3D.y);
 		tlAngularSize=ellipsoid.internalangle;
 		ellipsoid.fill((*i_arrow_instance).Head3D.x-(*i_arrow_instance).Center3D.x,(*i_arrow_instance).Head3D.y-(*i_arrow_instance).Center3D.y);
@@ -1802,7 +1802,6 @@ iBBX.right+ibonddist2*cos(cangle)+ibonddist4*(cos(cangle)-(cos(langle)*tlrightta
 		n_instance * tlnode=(ilv0/2)?startnode:endnode;
 		get_colorstring((*tlnode).color);
 		stylegenestring(1);
-		if (0==(ilv1 & 1)) continue;
 		if ((*tlnode).ExternalConnectionType==4)
 		{
 			float tlposx=(*tlnode).p.x;

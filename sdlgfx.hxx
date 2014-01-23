@@ -19,24 +19,7 @@ int SDL_linestyle;
 
 int get_colorstringv(int number)
 {
-	if (number==0)
-	{
-		SDL_color=0;
-		return 0;
-	}
-	if (number==1)
-	{
-		SDL_color=0xFFFFFF;
-		return 0;
-	}
-	if (number-2>=(*glob_color_multilist).filllevel)
-	{	
-		SDL_color=0;
-		return -1;
-	}
-	SDL_color=((_u8)(((*glob_color_multilist).bufferlist)[number-2].r*255)<<16)+
-	((_u8)(((*glob_color_multilist).bufferlist)[number-2].g*255)<<8)+
-	((_u8)(((*glob_color_multilist).bufferlist)[number-2].b*255));
+	SDL_color=number;
 	return 0;
 }
 void express_txinit(char ialignment,float iposx,float iposy,float iatomfontheight)

@@ -76,7 +76,7 @@ void main(int argc,char * * argv)
 	}
 	if (strcmp(argv[1],"-l")==0)
 	{
-		internalmode=2;//index to propertylist
+		internalmode=2;//index to contentlist
 	}
 	infile=fopen(argv[2],"r");
 	outfile=fopen(argv[3],"w");
@@ -203,6 +203,10 @@ void main(int argc,char * * argv)
 	fprintf(outfile,"struct %s%s_instance:basic_instance\n{\n        char * getName(){static char name[]=\"%s\";return (char*)&name;}\n",datablockstring,name,name);
 	if (internalmode&1)
 	{
+		fprintf(outfile,"	const static int INTERNALPropertycount=%i;\n	_u32 INTERNALPropertyexistflags;\n	virtual _u32 * getINTERNALPropertyexistflags(){return &INTERNALPropertyexistflags;}\n",properties_count);
+	}
+	if (internalmode&1)
+	{
 		for (int ilv1=0;ilv1<contents_count;ilv1++)
 		{
 			fprintf(outfile,"        basicmultilistreference * %s;\n",contents[ilv1],contents[ilv1]);
@@ -248,6 +252,12 @@ void main(int argc,char * * argv)
 	sprintf(helpbufferpos,"%s%s_instance::%s%s_instance()\n{\n%n",datablockstring,name,datablockstring,name,&helpbufferreturnvalue);
 	helpbufferpos+=helpbufferreturnvalue;
 	(*helpbufferpos)=0;
+	if (internalmode&1)
+	{
+		sprintf(helpbufferpos,"	INTERNALPropertyexistflags=0;\n%n",&helpbufferreturnvalue);
+		helpbufferpos+=helpbufferreturnvalue;
+		(*helpbufferpos)=0;
+	}
 	if (internalmode&1)
 	{
 		for (int ilv1=0;ilv1<contents_count;ilv1++)

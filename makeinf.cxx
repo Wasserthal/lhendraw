@@ -7,6 +7,7 @@
 #include <string.h>
 #include <stdarg.h>
 #include <math.h>
+#define CAMBRIDGEPREFIX(contents) contents
 #include "lendefs.h"
 #include "xmldata.hxx"
 #include "cxxdata.h"

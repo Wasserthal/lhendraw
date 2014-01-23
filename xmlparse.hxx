@@ -65,14 +65,16 @@ void concludeparamvaluestring()
 
 void scoopparam()
 {
+	int iitemnumber;
 	CDXMLREAD_functype thisfunc;
 	if (strcmp(parameterstring,"PCTEXTcounter")==0)
 	{
 		fprintf(stderr,"Hacking attempt detected (PCSTRING)!");exit(1);
 	}
-	int suboffset=(currentinstance->getproperties(parameterstring,&thisfunc));
+	int suboffset=(currentinstance->getproperties(parameterstring,&thisfunc,&iitemnumber));
 	if (suboffset!=-1)
 	{
+		AUTOSTRUCT_EXISTS_SET((*currentinstance),iitemnumber);
 		thisfunc(paramvaluestring,((char*)currentinstance)+suboffset);
 	}
 	else
@@ -102,7 +104,7 @@ void input_fsm(FILE* infile)
 	tagnamestring_length=0;
 	parameterstring_length=0;
 	paramvaluestring_length=0;
-	currentinstance=new(Total_Document_instance);
+	currentinstance=new(CAMBRIDGEPREFIX(Total_Document_instance));
 	iback:
 	fread(&ichar,1,1,infile);
 	#ifdef DEBUG

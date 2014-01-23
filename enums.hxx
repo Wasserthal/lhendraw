@@ -23,11 +23,11 @@ bienum CDXML_ArrowheadTail[] {
 {{"HalfRight"},3},
 };
 int CDXML_ArrowheadTail_max=sizeof(CDXML_ArrowheadTail)/sizeof(CDXML_ArrowheadTail[0]);
-bienum CDXML_FillType[] {//Unverified
+/*bienum CDXML_FillType[] {//Unverified
 	{{"none"},0},
 	{{"Solid"},1},
-};
-int CDXML_FillType_max=sizeof(CDXML_FillType)/sizeof(CDXML_FillType[0]);
+};*/
+//int CDXML_FillType_max=sizeof(CDXML_FillType)/sizeof(CDXML_FillType[0]);
 bienum CDXML_Closed[] {//Unverified
 	{{"no"},0},
 	{{"yes"},1},
@@ -201,3 +201,12 @@ bienum CDXML_LineType[] {
 	{{"Wavy"},0x4},
 };
 int CDXML_LineType_max=sizeof(CDXML_LineType)/sizeof(CDXML_LineType[0]);
+bienum CDXML_FillType[] {
+	{{"None"},0x0},
+	{{"Filled"},0x1},
+	{{"Shaded"},0x2},
+	{{"Horz"},0x4},//LHENDRAW EXTENSION
+	{{"Vert"},0x8},//LHENDRAW EXTENSION
+	{{"Respective_To_Internal_Cosy"},0x16},//LHENDRAW EXTENSION
+};
+int CDXML_FillType_max=sizeof(CDXML_FillType)/sizeof(CDXML_FillType[0]);

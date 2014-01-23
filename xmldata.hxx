@@ -4,6 +4,13 @@
 void CDXMLREAD_basic(char * input,void * output);
 typedef int __attribute__((sysv_abi))(*CDXMLREAD_functype)(char * input,void * output);
 //This is vomittingly expensive. Why cant I make the contents[] "virtual static" ? :G
+
+struct superconstellation
+{
+	char name[30];
+	int ref;
+	CDXMLREAD_functype delegate;
+};
 #define AUTOSTRUCT_GET_ROUTINE(AUTOSTRUCT_MACRONAME,COUNT_MACROPARAM) static superconstellation AUTOSTRUCT_MACRONAME[]; \
         virtual	int get ## AUTOSTRUCT_MACRONAME(char * name) \
 	{ \
@@ -17,23 +24,37 @@ typedef int __attribute__((sysv_abi))(*CDXMLREAD_functype)(char * input,void * o
 		return -1; \
 	}
 #define AUTOSTRUCT_PROPERTY_ROUTINE(COUNT_MACROPARAM) static superconstellation properties[]; \
-	virtual int getproperties(const char * name, CDXMLREAD_functype * delegateoutput) \
+	virtual int getproperties(const char * name, CDXMLREAD_functype * delegateoutput,int * posoutput=NULL) \
 	{ \
 		for (int ilv1=0;ilv1<COUNT_MACROPARAM;ilv1++) \
 		{ \
 			if (strcmp(name,properties[ilv1].name)==0) \
 			{ \
+				if (posoutput!=NULL){*posoutput=ilv1;}\
 				*(delegateoutput)=properties[ilv1].delegate; \
 				return properties[ilv1].ref; \
 			} \
 		} \
 		return -1; \
 	}
+int AUTOSTRUCT_Numberofproperty(const char * name,superconstellation * iinput,int imax)
+{
+	for (int ilv1=0;ilv1<imax;ilv1++)
+	{
+		if (strcmp(name,iinput[ilv1].name)==0)
+		{
+			return ilv1;
+		}
+	}
+	return -1;
+}
+#define AUTOSTRUCT_EXISTS(AUTOSTRUCT_CLASS,AUTOSTRUCT_VARIABLE,AUTOSTRUCT_ELEMENT) ((AUTOSTRUCT_VARIABLE.INTERNALPropertyexistflags>>AUTOSTRUCT_Numberofproperty(#AUTOSTRUCT_ELEMENT,(AUTOSTRUCT_VARIABLE.contents),AUTOSTRUCT_VARIABLE.INTERNALPropertycount))&1)
+#define AUTOSTRUCT_EXISTS_SET(AUTOSTRUCT_VARIABLE,AUTOSTRUCT_ELEMENT_NR) ((*(AUTOSTRUCT_VARIABLE.getINTERNALPropertyexistflags()))|=(1<<AUTOSTRUCT_ELEMENT_NR))
 struct stringstruct
 {
 	char a[stringlength+1];
 	stringstruct(const char * in) {strcpy(a,in);}
-	int getproperties(const char * name,CDXMLREAD_functype * delegateoutput)
+	int getproperties(const char * name,CDXMLREAD_functype * delegateoutput,int * posoutput=NULL)
 	{
 		fprintf(stderr,"Programming error! You asked for the properties of a stringstruct!");
 	};
@@ -93,6 +114,17 @@ template <class whatabout> class multilist : public basicmultilist
 		itemsize=sizeof(whatabout);
 		pointer=bufferlist;
 		return;
+	}
+	void * ADD(whatabout * iwhatabout)//without dependants, use item buffer instead
+	{
+		bufferlist[filllevel]=*iwhatabout;
+		bufferlist[filllevel]._vptr=(*iwhatabout)._vptr;
+		printf("FILLING: filllevel %i name:%s\n",filllevel,bufferlist[filllevel].getName());
+		filllevel++;
+	}
+	void * REMOVE(intl index)//without dependants, use item buffer instead
+	{
+	//	bufferlist[index].exist=0;TODO: put the exist variable somewhere
 	}
 	void * insert(whatabout input,intl position,intl mynumber)
 	{
@@ -222,13 +254,6 @@ struct xml_template_element
 	basic_xml_element_set * content;
 };
 
-struct superconstellation
-{
-	char name[30];
-	int ref;
-	CDXMLREAD_functype delegate;
-};
-
 struct basic_instance
 {
 	public:
@@ -236,11 +261,12 @@ struct basic_instance
 	{
 		return -1;
 	};
-	virtual int getproperties(const char * name,CDXMLREAD_functype * delegateoutput)
+	virtual int getproperties(const char * name,CDXMLREAD_functype * delegateoutput,int * posoutput=NULL)
 	{
 		return -1;
 	};
 	virtual char * getName(){return 0;}
+	virtual _u32 * getINTERNALPropertyexistflags(){return NULL;}
 	basic_instance * master;
 	basic_instance(){master=NULL;};
 	~basic_instance(){};
@@ -316,6 +342,6 @@ struct gummydummy_instance: basic_instance
 {
 	char * getName(){static char name[]="gummydummy"; return(char*)&name;}
 	int getcontents(char * name){return -1;}
-	int getproperties(const char * name,CDXMLREAD_functype * delegateoutput){return -1;}
+	int getproperties(const char * name,CDXMLREAD_functype * delegateoutput,int * posoutput){return -1;}
 };
 #define chararray char *

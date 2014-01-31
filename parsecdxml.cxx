@@ -1,6 +1,7 @@
 //This is the main unit of the headless version, most C++ code is contained in xmldata.hxx and xmlparse.hxx, and inserts the other units in the middle
 //Be aware that filestructure.hxx is dynamically generated from filestructure.draft by filestructure_maker (filestructuremaker.c)
 #define CAMBRIDGEPREFIX(content) content
+#define CAMBRIDGEPREFIX2(content,content2) content ## _ ## content2
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -9,12 +10,13 @@
 #include <stdarg.h>
 #include <math.h>
 #include "lendefs.h"
-#include "cxxdata.h"
 #include "xmldata.hxx"
+#include "cxxdata.h"
 
 #include "enums.hxx"
 #include "./generated/filestructure.hxx"
 #include "./generated/internalstructure.hxx"
+#include "parsecdxml_variables.hxx"
 #include "definitionlist.h"
 #include "janitor.hxx"
 #include "ellipeq.h"

@@ -759,17 +759,6 @@ void calcdelta(float * x1,float * y1,float inputx,float inputy)
 
 void svg_findaround()
 {
-	glob_color_multilist=retrievemultilist<color_instance>();
-	glob_b_multilist=retrievemultilist<b_instance>();
-	glob_n_multilist=retrievemultilist<n_instance>();
-	glob_t_multilist=retrievemultilist<t_instance>();
-	glob_s_multilist=retrievemultilist<s_instance>();
-	glob_graphic_multilist=retrievemultilist<graphic_instance>();
-	glob_annotation_multilist=retrievemultilist<annotation_instance>();
-	glob_font_multilist=retrievemultilist<font_instance>();
-	glob_curve_multilist=retrievemultilist<curve_instance>();
-	glob_arrow_multilist=retrievemultilist<arrow_instance>();
-	glob_moleculefill_multilist=retrievemultilist<moleculefill_instance>();
 	#ifdef LENNARD_HACK
 	LENNARD_HACK_dokilltext=0;
 	LENNARD_HACK_colormode=0;

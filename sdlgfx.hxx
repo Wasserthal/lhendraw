@@ -362,7 +362,6 @@ int expresstriangle(intl ifx1,intl ify1,intl ifx2,intl ify2,intl ifx3,intl ify3)
 	if (imaxx>gfx_canvassizex)imaxx=gfx_canvassizex;
 	if (iminy<0)iminy=0;
 	if (imaxy>gfx_canvassizey)imaxy=gfx_canvassizey;
-	printf("SDL:%llX,%llX,%llX,%llX\n",iminx,iminy,imaxx,imaxy);
 	if (imaxx<iminx){return 0;}
 	if (imaxy<iminy){return 0;}
 	{

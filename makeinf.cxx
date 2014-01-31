@@ -8,12 +8,14 @@
 #include <stdarg.h>
 #include <math.h>
 #define CAMBRIDGEPREFIX(contents) contents
+#define CAMBRIDGEPREFIX2(content,content2) content ## _ ## content2
 #include "lendefs.h"
 #include "xmldata.hxx"
 #include "cxxdata.h"
 #include "enums.hxx"
 #include "./generated/filestructure.hxx"
 #include "./generated/internalstructure.hxx"
+#include "parsecdxml_variables.hxx"
 
 #include "ellipeq.h"
 #include "quartic.hxx"

@@ -3,7 +3,15 @@
 #include <stdlib.h>
 #include <string.h>
 #include "lendefs.h"
+#include <math.h>
+//4 SUCKERS FOLLOWING
+typedef struct basicmultilist{char worthless;};
+typedef struct basic_instance{char * getName(){return NULL;}};
+basic_instance * currentinstance;
+basicmultilist * findmultilist(const char * thetypesname){};
 #include "cxxdata.h"
+//ONE MORE SUCKER
+int getbufferfromstructure(basicmultilist * input,char * * bufferptr,intl * ibufferlength,intl * * bufferfill){}
 #define CDXMAKEINF_READONLY
 #include "makeinf.hxx"
 int main(int argc,char ** argv)

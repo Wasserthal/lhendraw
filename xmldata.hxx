@@ -48,12 +48,13 @@ int AUTOSTRUCT_Numberofproperty(const char * name,superconstellation * iinput,in
 	}
 	return -1;
 }
-#define AUTOSTRUCT_EXISTS(AUTOSTRUCT_CLASS,AUTOSTRUCT_VARIABLE,AUTOSTRUCT_ELEMENT) ((AUTOSTRUCT_VARIABLE.INTERNALPropertyexistflags>>AUTOSTRUCT_Numberofproperty(#AUTOSTRUCT_ELEMENT,(AUTOSTRUCT_VARIABLE.contents),AUTOSTRUCT_VARIABLE.INTERNALPropertycount))&1)
+#define AUTOSTRUCT_EXISTS(AUTOSTRUCT_CLASS,AUTOSTRUCT_VARIABLE,AUTOSTRUCT_ELEMENT) ((AUTOSTRUCT_VARIABLE.INTERNALPropertyexistflags>>AUTOSTRUCT_Numberofproperty(#AUTOSTRUCT_ELEMENT,(AUTOSTRUCT_VARIABLE.properties),AUTOSTRUCT_VARIABLE.INTERNALPropertycount))&1)
 #define AUTOSTRUCT_EXISTS_SET(AUTOSTRUCT_VARIABLE,AUTOSTRUCT_ELEMENT_NR) ((*(AUTOSTRUCT_VARIABLE.getINTERNALPropertyexistflags()))|=(1<<AUTOSTRUCT_ELEMENT_NR))
 struct stringstruct
 {
 	char a[stringlength+1];
 	stringstruct(const char * in) {strcpy(a,in);}
+	static const char * INTERNALgetname(){return "stringstruct";}
 	int getproperties(const char * name,CDXMLREAD_functype * delegateoutput,int * posoutput=NULL)
 	{
 		fprintf(stderr,"Programming error! You asked for the properties of a stringstruct!");
@@ -119,12 +120,11 @@ template <class whatabout> class multilist : public basicmultilist
 	{
 		bufferlist[filllevel]=*iwhatabout;
 		bufferlist[filllevel]._vptr=(*iwhatabout)._vptr;
-		printf("FILLING: filllevel %i name:%s\n",filllevel,bufferlist[filllevel].getName());
 		filllevel++;
 	}
 	void * REMOVE(intl index)//without dependants, use item buffer instead
 	{
-	//	bufferlist[index].exist=0;TODO: put the exist variable somewhere
+		bufferlist[index].exist=0;
 	}
 	void * insert(whatabout input,intl position,intl mynumber)
 	{
@@ -165,7 +165,7 @@ template <class whatabout> multilist<whatabout> * retrievemultilist()
 {
 	for (int ilv1=0;ilv1<multilist_count;ilv1++)
 	{
-		if (strcmp(typeid(whatabout).name(),multilistlist.names[ilv1])==0)
+		if (strcmp(whatabout::INTERNALgetname(),multilistlist.names[ilv1])==0)
 		{
 			return (multilist<whatabout> *) multilistlist.instances[ilv1];
 		}
@@ -233,7 +233,7 @@ template <class whatabout> class multilistreference : public basicmultilistrefer
 		}
 		else
 		{
-			instances=(basicmultilist*)registermultilist<whatabout>(typeid(whatabout).name());
+			instances=(basicmultilist*)registermultilist<whatabout>(whatabout::INTERNALgetname());
 			/*multilistreference(backvalue);*/
 			mynumber=(*((multilist<whatabout>*)instances)).getme(this);
 		}
@@ -265,10 +265,11 @@ struct basic_instance
 	{
 		return -1;
 	};
-	virtual char * getName(){return 0;}
+	virtual const char * getName(){return 0;}
 	virtual _u32 * getINTERNALPropertyexistflags(){return NULL;}
 	basic_instance * master;
-	basic_instance(){master=NULL;};
+	char exist;
+	basic_instance(){master=NULL;exist=1;};
 	~basic_instance(){};
 };
 
@@ -301,10 +302,10 @@ template <class whatabout> class xml_element_set:basic_xml_element_set
 	multilistreference<whatabout> instances;
 	xml_element_set() 
 	{
-		strcpy(name,typeid(whatabout).name());
+		strcpy(name,whatabout::INTERNALgetname());
 		name[strlen(name)-strlen("_instance")]=0;
 		xml_set_register[xml_set_register_count++]=this;
-		hismultilist=findmultilist(typeid(whatabout).name());
+		hismultilist=findmultilist(whatabout::INTERNALgetname());
 	};
 	xml_element_set(const char * first,...)
 	{
@@ -319,7 +320,7 @@ template <class whatabout> class xml_element_set:basic_xml_element_set
 			goto back;
 		}
 		va_end(inlist);
-		strcpy(name,typeid(whatabout).name());
+		strcpy(name,whatabout::INTERNALgetname());
 		name[strlen(name)-strlen("_instance")]=0;
 		xml_set_register[xml_set_register_count++]=this;
 	}
@@ -340,7 +341,7 @@ template <class whatabout> class xml_element_set:basic_xml_element_set
 //4. Initialization of static list members in order to obtain self-reflecting code.
 struct gummydummy_instance: basic_instance
 {
-	char * getName(){static char name[]="gummydummy"; return(char*)&name;}
+	const char * getName(){static char name[]="gummydummy"; return(char*)&name;}
 	int getcontents(char * name){return -1;}
 	int getproperties(const char * name,CDXMLREAD_functype * delegateoutput,int * posoutput){return -1;}
 };

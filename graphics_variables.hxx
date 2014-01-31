@@ -44,17 +44,6 @@ float arrowheadlength=15;
 float arrowthickness=5;
 float atomfontheight=18.0;
 
-multilist<color_instance> * glob_color_multilist;
-multilist<n_instance> * glob_n_multilist;
-multilist<b_instance> * glob_b_multilist;
-multilist<t_instance> * glob_t_multilist;
-multilist<s_instance> * glob_s_multilist;
-multilist<graphic_instance> * glob_graphic_multilist;
-multilist<annotation_instance> * glob_annotation_multilist;
-multilist<font_instance> * glob_font_multilist;
-multilist<curve_instance> * glob_curve_multilist;
-multilist<arrow_instance> * glob_arrow_multilist;
-multilist<moleculefill_instance> * glob_moleculefill_multilist;
 char colorstring[7]="AABBCC";
 char colorstring2[7]="AABBCC";
 char resortedstring[stringlength];

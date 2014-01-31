@@ -67,7 +67,7 @@ char register_enum(const char * input)
 
 void main(int argc,char * * argv)
 {
-	FILE * infile,*outfile;
+	FILE * infile,*outfile,*initfile;
 	char ihv1;
 	int helpbufferreturnvalue;
 	if (strcmp(argv[1],"-m")==0)
@@ -80,9 +80,10 @@ void main(int argc,char * * argv)
 	}
 	infile=fopen(argv[2],"r");
 	outfile=fopen(argv[3],"w");
-	if (argc==5)
+	initfile=fopen(argv[4],"a");
+	if (argc==6)
 	{
-		sprintf(datablockstring,"%s_",argv[4]);
+		sprintf(datablockstring,"%s_",argv[5]);
 	}
 	else
 	{
@@ -135,6 +136,7 @@ void main(int argc,char * * argv)
 	switch(ihv1)
 	{
 		case 's' : strcpy(properties_types[properties_count],"cdx_String");properties_type_nrs[properties_count]=2;break;
+		case 'S' : strcpy(properties_types[properties_count],"cdx_Buffered_String");properties_type_nrs[properties_count]=2;break;
 		case 'c' : strcpy(properties_types[properties_count],"_i8");properties_type_nrs[properties_count]=1;break;
 		case 'C' : strcpy(properties_types[properties_count],"_x8");properties_type_nrs[properties_count]=1;break;
 		case '0' : strcpy(properties_types[properties_count],"_i32");properties_type_nrs[properties_count]=1;break;
@@ -200,7 +202,7 @@ void main(int argc,char * * argv)
 	printf("..%s..\n",properties[properties_count-1]);
 	goto propertiesback;
 	propertiesdone:
-	fprintf(outfile,"struct %s%s_instance:basic_instance\n{\n        char * getName(){static char name[]=\"%s\";return (char*)&name;}\n",datablockstring,name,name);
+	fprintf(outfile,"struct %s%s_instance:basic_instance\n{\n        static inline const char * INTERNALgetname(){return \"%s%s\";}\n        const char * getName(){return INTERNALgetname()+%i;}\n",datablockstring,name,datablockstring,name,strlen(datablockstring));
 	if (internalmode&1)
 	{
 		fprintf(outfile,"	const static int INTERNALPropertycount=%i;\n	_u32 INTERNALPropertyexistflags;\n	virtual _u32 * getINTERNALPropertyexistflags(){return &INTERNALPropertyexistflags;}\n",properties_count);
@@ -281,6 +283,9 @@ void main(int argc,char * * argv)
 	(*helpbufferpos)=0;
 	sprintf(helpbufferpos,"xml_element_set<%s%s_instance> %s%s_list=xml_element_set<%s%s_instance>();\n%n",datablockstring,name,datablockstring,name,datablockstring,name,&helpbufferreturnvalue);
 	helpbufferpos+=helpbufferreturnvalue;
+	sprintf(helpbufferpos,"multilist<%s%s_instance> * glob_%s%s_multilist;\n%n",datablockstring,name,datablockstring,name,&helpbufferreturnvalue);
+	helpbufferpos+=helpbufferreturnvalue;
+	fprintf(initfile,"glob_%s%s_multilist=retrievemultilist<%s%s_instance>();\n",datablockstring,name,datablockstring,name);
 	(*helpbufferpos)=0;
 	if (fread(&ihv1,1,1,infile)==0){goto done;};
 	if (ihv1!='\n') {if(!feof(infile)){printf("no breakline");exit(1);}else goto done;}
@@ -292,4 +297,5 @@ void main(int argc,char * * argv)
 	fprintf(outfile,"%s",helpbuffer);
 	fclose(infile);
 	fclose(outfile);
+	fclose(initfile);
 }

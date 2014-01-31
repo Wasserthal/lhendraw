@@ -17,9 +17,10 @@ LLLLLL H   H EEEEE N    N DDD   R  R A     A    W     W
 #include <stdarg.h>
 #include <math.h>
 #define CAMBRIDGEPREFIX(content) CAMBRIDGE_ ## content
+#define CAMBRIDGEPREFIX2(content,content2) content ## _CAMBRIDGE_ ## content2
 #include "lendefs.h"
-#include "cxxdata.h"
 #include "xmldata.hxx"
+#include "cxxdata.h"
 
 #include "enums.hxx"
 #include "./generated/structure.hxx"
@@ -32,6 +33,7 @@ LLLLLL H   H EEEEE N    N DDD   R  R A     A    W     W
 #include <SDL.h>
 #include <unistd.h>
 #include "draw_variables.hxx"
+#include "./generated/initialization_lhendraw.hxx"
 #include "text_freetype.h"
 
 #include <time.h>
@@ -44,6 +46,7 @@ long long counter5=0;
 int clockid=0;
 
 #include "sdlgfx.hxx"
+#include "parsecdxml_variables.hxx"
 #include "conv_cambridge_internal.hxx"
 #include "sdlctrl.hxx"
 #include "draw.hxx"
@@ -63,6 +66,7 @@ int main(int argc,char * * argv)
 	infile=fopen(argv[1],"r");
 	input_fsm(infile);
 	fclose(infile);
+	automatic_init();
 	CAMBRIDGECONV_maintointernal();
 	svg_findaround();
 	text_init();

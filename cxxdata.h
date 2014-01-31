@@ -3,6 +3,8 @@
 #endif
 #define bezierpointmax 128
 /* This unit contains the readers for all datatypes that are no xml tags */
+extern int getbufferfromstructure(basicmultilist * input,char * * bufferptr,intl * ibufferlength,intl * * bufferfill);
+extern basic_instance * currentinstance;
 typedef struct cdx_enum
 {
 	int a;
@@ -42,6 +44,18 @@ If it is filled from PCDATA, its name is PCDATA*/
 	char a[stringlength+1];
 };
 
+typedef struct cdx_Buffered_String /*can be filled both by Property value and inter-Object-Text.
+If it is filled from PCDATA, its name is PCDATA*/
+{
+	char * a;
+};
+
+inline void clear_cdx_Buffered_String(cdx_Buffered_String & input) /*can be filled both by Property value and inter-Object-Text.
+If it is filled from PCDATA, its name is PCDATA*/
+{
+	input.a=NULL;
+};
+
 typedef struct cdx_Bezierpoints
 {
 	cdx_Point2D a[bezierpointmax]; //TODO**** turn this, and strings, into buffer indices
@@ -63,9 +77,32 @@ int __attribute__((sysv_abi))CDXMLREAD_cdx_String(char * input,void * output)
 {
 	strncpy(&((*((cdx_String*)output)).a[0]),input,stringlength);
 	((*((cdx_String*)output)).a[stringlength])=0;
+	//HACK: strings can be in one piece only.
 	return 0;
 }
 
+int __attribute__((sysv_abi))CDXMLREAD_cdx_Buffered_String(char * input,void * output)
+{
+	if ((*((cdx_Buffered_String*)output)).a!=NULL)
+	{
+		goto found;
+	}
+	else
+	{
+		char * buffer;
+		intl * count;
+		intl max;
+		if (getbufferfromstructure(findmultilist((*currentinstance).getName()),&buffer,&max,&count))
+		{
+			(*((cdx_Buffered_String*)output)).a=buffer+(*count);
+			strncpy(&((*((cdx_Buffered_String*)output)).a[0]),input,max-(*count));
+			(*count)+=strlen(input);
+		}
+	}
+	found:
+	//TODO Urgent!!!
+	return 0;
+}
 
 int __attribute__((sysv_abi))CDXMLREAD__i32(char * input,void * output)
 {

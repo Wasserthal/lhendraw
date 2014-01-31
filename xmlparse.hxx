@@ -315,7 +315,7 @@ void input_fsm(FILE* infile)
 			paramvaluestring[paramvaluestring_length++]=ichar;
 		break;
 		default:
-		fprintf(stderr,"Error: Internal error!Invalid fsmint!!!!:%i",fsmint);exit(1);
+		fprintf(stderr,"Error: Internal error!Invalid fsmint!!!!:%llX",fsmint);exit(1);
 	}
 	if (!feof(infile))
 	{

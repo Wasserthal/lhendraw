@@ -20,7 +20,9 @@ LLLLLL H   H EEEEE N    N DDD   R  R A     A    W     W
 #define CAMBRIDGEPREFIX2(content,content2) content ## _CAMBRIDGE_ ## content2
 #include "lendefs.h"
 #include "xmldata.hxx"
+#include "telescopic_list.hxx"
 #include "cxxdata.h"
+#include "internal_enum.hxx"
 
 #include "enums.hxx"
 #include "./generated/structure.hxx"
@@ -34,6 +36,7 @@ LLLLLL H   H EEEEE N    N DDD   R  R A     A    W     W
 #include <unistd.h>
 #include "draw_variables.hxx"
 #include "./generated/initialization_lhendraw.hxx"
+#include "./generated/reflection.hxx"
 #include "text_freetype.h"
 
 #include <time.h>

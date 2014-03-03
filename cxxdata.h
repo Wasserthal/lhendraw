@@ -3,7 +3,7 @@
 #endif
 #define bezierpointmax 128
 /* This unit contains the readers for all datatypes that are no xml tags */
-extern int getbufferfromstructure(basicmultilist * input,char * * bufferptr,intl * ibufferlength,intl * * bufferfill);
+extern int getbufferfromstructure(basicmultilist * input,TELESCOPE_buffer * * bufferptr);
 extern basic_instance * currentinstance;
 typedef struct cdx_enum
 {
@@ -89,14 +89,12 @@ int __attribute__((sysv_abi))CDXMLREAD_cdx_Buffered_String(char * input,void * o
 	}
 	else
 	{
-		char * buffer;
-		intl * count;
-		intl max;
-		if (getbufferfromstructure(findmultilist((*currentinstance).getName()),&buffer,&max,&count))
+		TELESCOPE_buffer * buffer;
+		if (getbufferfromstructure(findmultilist((*currentinstance).getName()),&buffer))
 		{
-			(*((cdx_Buffered_String*)output)).a=buffer+(*count);
-			strncpy(&((*((cdx_Buffered_String*)output)).a[0]),input,max-(*count));
-			(*count)+=strlen(input);
+			(*((cdx_Buffered_String*)output)).a=(*buffer).buffer+((*buffer).count);
+			strncpy(&((*((cdx_Buffered_String*)output)).a[0]),input,(*buffer).max-((*buffer).count));
+			((*buffer).count)+=strlen(input);
 		}
 	}
 	found:
@@ -340,6 +338,12 @@ typedef struct bienum
 {
 	char name[40];
 	intl number;
+};
+typedef struct trienum
+{
+	char name[40];
+	intl number;
+	intl size;
 };
 intl get_bienum(bienum * ibienum,char * input,intl count)
 {

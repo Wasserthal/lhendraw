@@ -6,6 +6,8 @@
 #define bufferlength 256
 #define bufferlistsize 4096
 #define multilistlistlength 512
+#define _u64 unsigned long long
+#define _i64 signed long long
 #define _u32 unsigned int
 #define _i32 signed int
 #define _u16 unsigned short

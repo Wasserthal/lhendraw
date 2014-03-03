@@ -580,7 +580,7 @@ int expresstetrangle(intl ifx1,intl ify1,intl ifx2,intl ify2,intl ifx3,intl ify3
 	}
 }
 
-typedef struct inficorn
+struct inficorn
 {
 	float x,y;
 	float m;

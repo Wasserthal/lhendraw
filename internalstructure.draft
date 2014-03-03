@@ -5,3 +5,5 @@ arrow;0 annotation ;0 color 3 Head3D 3 Tail3D 3 Center3D ! LineType 1 AngularSiz
 graphic;0 owner 0 annotation ;0 id 0 color 4 BoundingBox 0 Z ! GraphicType ! SymbolType ‼ OvalType ! RectangleType ! LineType ! BracketType 3 Center3D 3 MajorAxisEnd3D 3 MinorAxisEnd3D ;
 curve;;0 color 0 Z ! LineType ! ArrowheadType ! ArrowheadHead ! ArrowheadTail c ArrowShaftSpacing ~ CurvePoints 0 Closed ! FillType ;
 moleculefill;;0 id 0 color 0 Z ;
+!s;0 color 0 size ;c PCTEXT ;
+!Bezierpoint;;3 pos ;

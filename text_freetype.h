@@ -87,7 +87,7 @@ int text_init(void)
 //	FT_Matrix matrix;
 
 	FT_Init_FreeType( &library );
-	FT_New_Face(library, "/usr/share/fonts/truetype/liberation/LiberationMono-Regular.ttf", 0, &face);
+	FT_New_Face(library, "LiberationMono-Regular.ttf", 0, &face);
 	FT_Set_Char_Size(face, 12*64*72, 0,1,0);
 	slot= (*face).glyph;
 	fontpixinf_count=0;

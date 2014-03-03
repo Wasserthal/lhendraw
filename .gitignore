@@ -1,4 +1,5 @@
 /tools/filestructure_maker
+/tools/reflection_enums
 /generated/
 a.out
 parsexml

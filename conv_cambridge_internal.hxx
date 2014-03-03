@@ -27,12 +27,23 @@ void CAMBRIDGECONV_atoms()
 		}
 		if (AUTOSTRUCT_EXISTS(CAMBRIDGE_n_instance,(*tl_CAMBRIDGE_n_instance),color))
 		{
-			tl_n_instance.color=(*tl_CAMBRIDGE_n_instance).color;
+			int tlcolor=(*tl_CAMBRIDGE_n_instance).color-2;
+			if (tlcolor==-2) {tl_n_instance.color=0x000000; goto color_fertig; }
+			if (tlcolor==-1) {tl_n_instance.color=0xFFFFFF; goto color_fertig; }
+			if (tlcolor<(*glob_CAMBRIDGE_color_multilist).filllevel)
+			{
+				tl_n_instance.color=((_u8)(((*glob_CAMBRIDGE_color_multilist).bufferlist)[tlcolor].r*255)*65536)|((_u8)(((*glob_CAMBRIDGE_color_multilist).bufferlist)[tlcolor].g*255)*256)|((_u8)(((*glob_CAMBRIDGE_color_multilist).bufferlist)[tlcolor].b*255));
+			}
+			else
+			{
+				tl_n_instance.color=0x000000;
+			}
 		}
 		else
 		{
 			tl_n_instance.color=0x000000;
 		}
+		color_fertig:
 		//TODO: ExternalConnectionType, and respecting this enumerated property in draw
 		tl_n_instance.id=(*tl_CAMBRIDGE_n_instance).id;
 		tl_n_instance.Z=(*tl_CAMBRIDGE_n_instance).Z;
@@ -52,12 +63,23 @@ void CAMBRIDGECONV_bonds()
 		tl_b_instance=b_instance();
 		if (AUTOSTRUCT_EXISTS(CAMBRIDGE_b_instance,(*tl_CAMBRIDGE_b_instance),color))
 		{
-			tl_b_instance.color=(*tl_CAMBRIDGE_b_instance).color;
+			int tlcolor=(*tl_CAMBRIDGE_b_instance).color-2;
+			if (tlcolor==-2) {tl_b_instance.color=0x000000; goto color_fertig; }
+			if (tlcolor==-1) {tl_b_instance.color=0xFFFFFF; goto color_fertig; }
+			if (tlcolor<(*glob_CAMBRIDGE_color_multilist).filllevel)
+			{
+				tl_b_instance.color=((_u8)(((*glob_CAMBRIDGE_color_multilist).bufferlist)[tlcolor].r*255)*65536)|((_u8)(((*glob_CAMBRIDGE_color_multilist).bufferlist)[tlcolor].g*255)*256)|((_u8)(((*glob_CAMBRIDGE_color_multilist).bufferlist)[tlcolor].b*255));
+			}
+			else
+			{
+				tl_b_instance.color=0x000000;
+			}
 		}
 		else
 		{
 			tl_b_instance.color=0x000000;
 		}
+		color_fertig:
 		if (AUTOSTRUCT_EXISTS(CAMBRIDGE_b_instance,(*tl_CAMBRIDGE_b_instance),Order))
 		{
 			tl_b_instance.Order=(*tl_CAMBRIDGE_b_instance).Order;

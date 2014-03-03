@@ -1,8 +1,15 @@
 //defines the main datastructures needed to read in xml files, but they are also used for cdx files.
 
+struct TELESCOPE_buffer
+{
+	char * buffer;
+	intl max;
+	intl count;
+};
 #define REGISTER_content the_template.possible_contents.add
 void CDXMLREAD_basic(char * input,void * output);
 typedef int __attribute__((sysv_abi))(*CDXMLREAD_functype)(char * input,void * output);
+typedef int __attribute__((sysv_abi))(*CDXMLREAD_TOBUFFER_functype)(TELESCOPE_buffer ibuffer,char * input,void * output);
 //This is vomittingly expensive. Why cant I make the contents[] "virtual static" ? :G
 
 struct superconstellation
@@ -271,6 +278,11 @@ struct basic_instance
 	char exist;
 	basic_instance(){master=NULL;exist=1;};
 	~basic_instance(){};
+};
+
+struct basic_instance_propertybuffer:basic_instance
+{
+	intl pos_in_buffer;//set to the place where it WOULD be if empty
 };
 
 class basic_xml_element_set

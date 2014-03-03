@@ -29,7 +29,8 @@ char resetmode_outline[][31]={{"%1$n"},{"%2$s=0;\n%1$n"},{"clear_%3$s(%2$s);\n%1
 //ATTENTION: the second matrix array size is critical: if it is too low, the strings are simply cut off!
 char * helpbufferpos;
 char datablockstring[255];
-int internalmode=0;
+int internalmode=0;//switches between multilist-contents and buffer-contents. only set once in a runtime of filestructure_maker.
+char linemode;//tells if the line is a buffer entry
 #define uniread \
 ({\
 	__label__ tlback;\
@@ -65,11 +66,13 @@ char register_enum(const char * input)
 	return 1;
 }
 
-void main(int argc,char * * argv)
+int main(int argc,char * * argv)
 {
-	FILE * infile,*outfile,*initfile;
+	FILE * infile,*outfile,*initfile,*propertyfile,*directoryfile;
 	char ihv1;
 	int helpbufferreturnvalue;
+	int propertynumber_global;//TODO: when multiple files are processed, take it from the former one
+	propertynumber_global=0;
 	if (strcmp(argv[1],"-m")==0)
 	{
 		internalmode=1;//multilistreference;
@@ -81,13 +84,18 @@ void main(int argc,char * * argv)
 	infile=fopen(argv[2],"r");
 	outfile=fopen(argv[3],"w");
 	initfile=fopen(argv[4],"a");
-	if (argc==6)
+	if (internalmode&2)
 	{
-		sprintf(datablockstring,"%s_",argv[5]);
+		propertyfile=fopen(argv[6],"a");
+		directoryfile=fopen(argv[7],"a");
 	}
-	else
+	datablockstring[0]=0;
+	if (argc>=6)
 	{
-		datablockstring[0]=0;
+		if (argv[5][0]!=0)
+		{
+			sprintf(datablockstring,"%s_",argv[5]);
+		}
 	}
 	helpbufferpos=&helpbuffer[0];
 	helpbuffer[0]=0;
@@ -95,11 +103,20 @@ void main(int argc,char * * argv)
 	namelength=0;
 	properties_count=0;
 	contents_count=0;
+	linemode=0;
 	symbolback1:
 	fread(&(name[namelength]),1,1,infile);
 	if (feof(infile))
 	{
 		goto done;
+	}
+	if (namelength==0)
+	{
+		if (name[0]=='!')
+		{
+			linemode=1;
+			goto symbolback1;
+		}
 	}
 	if (name[namelength]!=';')
 	{
@@ -202,7 +219,7 @@ void main(int argc,char * * argv)
 	printf("..%s..\n",properties[properties_count-1]);
 	goto propertiesback;
 	propertiesdone:
-	fprintf(outfile,"struct %s%s_instance:basic_instance\n{\n        static inline const char * INTERNALgetname(){return \"%s%s\";}\n        const char * getName(){return INTERNALgetname()+%i;}\n",datablockstring,name,datablockstring,name,strlen(datablockstring));
+	fprintf(outfile,"#define STRUCTUREDEFINED_%s%s\nstruct %s%s_instance:%s\n{\n        static inline const char * INTERNALgetname(){return \"%s%s\";}\n        const char * getName(){return INTERNALgetname()+%i;}\n",datablockstring,name,datablockstring,name,(linemode)?"TELESCOPE_element":((internalmode&1)?"basic_instance":"basic_instance_propertybuffer"),datablockstring,name,strlen(datablockstring));
 	if (internalmode&1)
 	{
 		fprintf(outfile,"	const static int INTERNALPropertycount=%i;\n	_u32 INTERNALPropertyexistflags;\n	virtual _u32 * getINTERNALPropertyexistflags(){return &INTERNALPropertyexistflags;}\n",properties_count);
@@ -239,15 +256,29 @@ void main(int argc,char * * argv)
 		}
 	}
 	fprintf(outfile,"superconstellation %s%s_instance::properties[]={\n",datablockstring,name);
+	if (linemode)
+	{
+		fprintf(directoryfile,"{%i,%i,\"%s\"},\n",propertynumber_global,propertynumber_global+properties_count,name);//TODO: make this consistent to the structure type numbers
+		propertynumber_global+=properties_count;
+	}
 	for (int ilv1=0;ilv1<properties_count;ilv1++)
 	{
-		if ((properties_type_nrs[ilv1]==5) || (properties_type_nrs[ilv1]==4) || (properties_type_nrs[ilv1]==7))
+		FILE * thisfile;
+		if ((internalmode&2)&&(linemode))
 		{
-			fprintf(outfile,"{\"%s\",offsetof(%s%s_instance,%s),CDXMLREAD_ENUM_%s}%s\n",properties[ilv1],datablockstring,name,properties[ilv1],properties[ilv1],(ilv1==properties_count-1) ? "" : ",");
+			thisfile=propertyfile;
 		}
 		else
 		{
-			fprintf(outfile,"{\"%s\",offsetof(%s%s_instance,%s),CDXMLREAD_%s}%s\n",properties[ilv1],datablockstring,name,properties[ilv1],properties_types[ilv1],(ilv1==properties_count-1) ? "" : ",");
+			thisfile=outfile;
+		}
+		if ((properties_type_nrs[ilv1]==5) || (properties_type_nrs[ilv1]==4) || (properties_type_nrs[ilv1]==7))
+		{
+			fprintf(thisfile,"{\"%s\",offsetof(%s%s_instance,%s),CDXMLREAD_ENUM_%s}%s\n",properties[ilv1],datablockstring,name,properties[ilv1],properties[ilv1],(ilv1==properties_count-1) ? "" : ",");
+		}
+		else
+		{
+			fprintf(thisfile,"{\"%s\",offsetof(%s%s_instance,%s),CDXMLREAD_%s}%s\n",properties[ilv1],datablockstring,name,properties[ilv1],properties_types[ilv1],(ilv1==properties_count-1) ? "" : ",");
 		}
 	}
 	fprintf(outfile,"};\n");
@@ -265,6 +296,15 @@ void main(int argc,char * * argv)
 		for (int ilv1=0;ilv1<contents_count;ilv1++)
 		{
 			sprintf(helpbufferpos,"        %s=new(multilistreference<%s%s_instance>);\n%n",contents[ilv1],datablockstring,contents[ilv1],&helpbufferreturnvalue);
+			helpbufferpos+=helpbufferreturnvalue;
+			(*helpbufferpos)=0;
+		}
+	}
+	if ((internalmode&2) && (!(linemode)))
+	{
+		if (properties_count>0)
+		{
+			sprintf(helpbufferpos,"	TELESCOPE_buffer * ibuffer;\n	getbufferfromstructure(retrievemultilist<%s_instance>(),&ibuffer);\n	pos_in_buffer=(*ibuffer).count;\n%n",name,&helpbufferreturnvalue);
 			helpbufferpos+=helpbufferreturnvalue;
 			(*helpbufferpos)=0;
 		}
@@ -298,4 +338,10 @@ void main(int argc,char * * argv)
 	fclose(infile);
 	fclose(outfile);
 	fclose(initfile);
+	if (internalmode&2)
+	{
+		fclose(propertyfile);
+		fclose(directoryfile);
+	}
+	return 0;
 }

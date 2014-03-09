@@ -764,10 +764,10 @@ void HATCH_main(float centerx,float centery,float radiusx,float radiusy)
 				get_colorstring(4+(ilv1<HATCH_atom[ilv1].bonds[ilv2]));
 				stylegenestring(1);
 				HATCH_atom_ iHATCH_atom=HATCH_atom[HATCH_atom[ilv1].bonds[ilv2]];
-				if (HATCH_atom[ilv1].bondpassed[ilv2]==0)
+/*				if (HATCH_atom[ilv1].bondpassed[ilv2]==0)
 				{
 					expressline(HATCH_atom[ilv1].x+(ilv1<HATCH_atom[ilv1].bonds[ilv2]),HATCH_atom[ilv1].y,iHATCH_atom.x,iHATCH_atom.y);
-				}
+				}*/
 			}
 		}
 	}

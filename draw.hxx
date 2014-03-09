@@ -554,6 +554,8 @@ char resortstring(char * input) //TODO: what about brackets?
 	for (int ilv1=ilength-1;ilv1>=0;ilv1--)
 	{
 		if (input[ilv1]==' ') {return 0;}
+		if (input[ilv1]=='/') {return 0;}
+		if (input[ilv1]=='\\') {return 0;}
 		if ((input[ilv1]=='+') || (input[ilv1]=='-'))
 		{
 			if (fsm!=0)

@@ -380,22 +380,25 @@ void Lennard_hatch()
 		{
 			if ((*i_graphic_instance).OvalType==3)
 			{
-				if (((*i_graphic_instance).BoundingBox.right>SVG_currentbasex) && ((*i_graphic_instance).BoundingBox.bottom>SVG_currentbasey) &&
-				((*i_graphic_instance).BoundingBox.right<SVG_currentfringex) && ((*i_graphic_instance).BoundingBox.bottom<SVG_currentfringey))
+				if ((*((*i_graphic_instance).annotation)).count_in_it==0)
 				{
-					float tlradiussqr=sqr((*i_graphic_instance).BoundingBox.left-(*i_graphic_instance).BoundingBox.right)+sqr((*i_graphic_instance).BoundingBox.top-(*i_graphic_instance).BoundingBox.bottom);
-					float tlradius=sqrt(tlradiussqr);
-					HATCH_atom_count=0;
-					for (int ilv2=0;ilv2<(*glob_n_multilist).filllevel;ilv2++)
+					if (((*i_graphic_instance).BoundingBox.right>SVG_currentbasex) && ((*i_graphic_instance).BoundingBox.bottom>SVG_currentbasey) &&
+					((*i_graphic_instance).BoundingBox.right<SVG_currentfringex) && ((*i_graphic_instance).BoundingBox.bottom<SVG_currentfringey))
 					{
-						n_instance * i_n_instance=(*glob_n_multilist).bufferlist+ilv2;
-						if (sqr((*i_n_instance).p.x-(*i_graphic_instance).BoundingBox.right)+
-	sqr((*i_n_instance).p.y-(*i_graphic_instance).BoundingBox.bottom)<tlradiussqr+600)
+						float tlradiussqr=sqr((*i_graphic_instance).BoundingBox.left-(*i_graphic_instance).BoundingBox.right)+sqr((*i_graphic_instance).BoundingBox.top-(*i_graphic_instance).BoundingBox.bottom);
+						float tlradius=sqrt(tlradiussqr);
+						HATCH_atom_count=0;
+						for (int ilv2=0;ilv2<(*glob_n_multilist).filllevel;ilv2++)
 						{
-							HATCH_add_atom(ilv2);
+							n_instance * i_n_instance=(*glob_n_multilist).bufferlist+ilv2;
+							if (sqr((*i_n_instance).p.x-(*i_graphic_instance).BoundingBox.right)+
+		sqr((*i_n_instance).p.y-(*i_graphic_instance).BoundingBox.bottom)<tlradiussqr+600)
+							{
+								HATCH_add_atom(ilv2);
+							}
 						}
+						HATCH_main((*i_graphic_instance).BoundingBox.right,(*i_graphic_instance).BoundingBox.bottom,tlradius,tlradius);
 					}
-					HATCH_main((*i_graphic_instance).BoundingBox.right,(*i_graphic_instance).BoundingBox.bottom,tlradius,tlradius);
 				}
 			}
 		}

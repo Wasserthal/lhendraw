@@ -1,5 +1,6 @@
 //Turns document data into graphics
 //Intended to be included several times for different graphics outputs
+char * current_hack_annotation;
 color_instance * get_color(int number)
 {
 	if (number==0)
@@ -479,6 +480,12 @@ void stylegenestring(int flags,unsigned int fillcolor=0)
 		if (flags & 8)
 		{
 			sprintf(stylestring+stylestringlength,"%sstroke-dasharray:2,2%n",waspar,&formatreturnvalue);
+			stylestringlength+=formatreturnvalue;
+			waspar=semicolonstring;
+		}
+		if (flags & 0x10)
+		{
+			sprintf(stylestring+stylestringlength,"%sfill:url(#%s)%n",waspar,current_hack_annotation,&formatreturnvalue);
 			stylestringlength+=formatreturnvalue;
 			waspar=semicolonstring;
 		}
@@ -1116,6 +1123,20 @@ void svg_head(const char * filename,float width,float height)
 	fprintf(outfile,"<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">");
 //	fprintf(outfile,"<svg version=\"1.0\" width=\"%f\" height=\"%f\">\n",SVG_width-SVG_ileft,SVG_height-SVG_itop);
 	fprintf(outfile,"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"%f\" height=\"%f\">\n",width,height);
+	fprintf(outfile,"<defs>");
+	fprintf(outfile,"        <radialGradient id=\"PlusOrbital\"");
+	fprintf(outfile,"           fx=\"35%\" fy=\"35%\" r=\"65%\"");
+	fprintf(outfile,"           spreadMethod=\"pad\">");
+	fprintf(outfile,"          <stop offset=\"0%\"   stop-color=\"#FF3333\" stop-opacity=\"0.6\"/>");
+	fprintf(outfile,"          <stop offset=\"100%\" stop-color=\"#770000\" stop-opacity=\"0.6\" />");
+	fprintf(outfile,"        </radialGradient>");
+	fprintf(outfile,"        <radialGradient id=\"MinusOrbital\"");
+	fprintf(outfile,"           fx=\"35%\" fy=\"35%\" r=\"65%\"");
+	fprintf(outfile,"           spreadMethod=\"pad\">");
+	fprintf(outfile,"          <stop offset=\"0%\"   stop-color=\"#333333\" stop-opacity=\"0.6\"/>");
+	fprintf(outfile,"          <stop offset=\"100%\" stop-color=\"#000077\" stop-opacity=\"0.6\" />");
+	fprintf(outfile,"        </radialGradient>");
+	fprintf(outfile,"    </defs>");
 }
 void svg_tail()
 {
@@ -1539,9 +1560,30 @@ void svg_controlprocedure(bool irestriction=0,bool hatches=0)
 		{
 			float tldistance=sqrt((iBBX.right-iBBX.left)*(iBBX.right-iBBX.left)+(iBBX.bottom-iBBX.top)*(iBBX.bottom-iBBX.top));
 			iBBX.left-=tldistance;
-			iBBX.right=iBBX.left+tldistance;
-			iBBX.bottom=iBBX.top+tldistance;
-			expresscdxcircle(iBBX.left,iBBX.top,tldistance);
+			expresscdxcircle(iBBX.right,iBBX.bottom,tldistance);
+		}
+		else
+		{
+			ellipsoid.create((*i_graphic_instance).Center3D,(*i_graphic_instance).MajorAxisEnd3D,(*i_graphic_instance).MinorAxisEnd3D);
+			expressspinellipse((*i_graphic_instance).Center3D.x,(*i_graphic_instance).Center3D.y,ellipsoid.radiusx,ellipsoid.radiusy,ellipsoid.axangle);
+		}
+	}
+	if ((*i_graphic_instance).GraphicType==5)
+	{
+		if ((*((*i_graphic_instance).annotation)).count_in_it>0)
+		{
+			current_hack_annotation=((*glob_annotation_multilist).bufferlist[(*((*i_graphic_instance).annotation)).start_in_it].Content.a);
+		}
+		else
+		{
+			goto skipthisgraphic;
+		}
+		stylegenestring(0x10);
+		if ((*i_graphic_instance).OvalType & 1)
+		{
+			float tldistance=sqrt((iBBX.right-iBBX.left)*(iBBX.right-iBBX.left)+(iBBX.bottom-iBBX.top)*(iBBX.bottom-iBBX.top));
+			iBBX.left-=tldistance;
+			expresscdxcircle(iBBX.right,iBBX.bottom,tldistance);
 		}
 		else
 		{

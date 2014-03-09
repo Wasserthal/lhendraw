@@ -1,6 +1,9 @@
 //Turns document data into graphics
 //Intended to be included several times for different graphics outputs
 
+#ifdef LENNARD_HACK
+char * current_hack_annotation;
+#endif
 #ifdef GFXOUT_SVG
 int get_colorstringv(int number)
 {
@@ -443,6 +446,12 @@ void stylegenestring(int flags,unsigned int fillcolor=0)
 		if (flags & 8)
 		{
 			sprintf(stylestring+stylestringlength,"%sstroke-dasharray:2,2%n",waspar,&formatreturnvalue);
+			stylestringlength+=formatreturnvalue;
+			waspar=semicolonstring;
+		}
+		if (flags & 0x10)
+		{
+			sprintf(stylestring+stylestringlength,"%sfill:url(#%s)%n",waspar,current_hack_annotation,&formatreturnvalue);
 			stylestringlength+=formatreturnvalue;
 			waspar=semicolonstring;
 		}
@@ -1478,9 +1487,32 @@ void svg_controlprocedure(bool irestriction=0,bool hatches=0)
 		{
 			float tldistance=sqrt((iBBX.right-iBBX.left)*(iBBX.right-iBBX.left)+(iBBX.bottom-iBBX.top)*(iBBX.bottom-iBBX.top));
 			iBBX.left-=tldistance;
-			iBBX.right=iBBX.left+tldistance;
-			iBBX.bottom=iBBX.top+tldistance;
-			expresscdxcircle(iBBX.left,iBBX.top,tldistance);
+			expresscdxcircle(iBBX.right,iBBX.bottom,tldistance);
+		}
+		else
+		{
+			ellipsoid.create((*i_graphic_instance).Center3D,(*i_graphic_instance).MajorAxisEnd3D,(*i_graphic_instance).MinorAxisEnd3D);
+			expressspinellipse((*i_graphic_instance).Center3D.x,(*i_graphic_instance).Center3D.y,ellipsoid.radiusx,ellipsoid.radiusy,ellipsoid.axangle);
+		}
+	}
+	if ((*i_graphic_instance).GraphicType==5)
+	{
+		#ifdef LENNARD_HACK
+		if ((*((*i_graphic_instance).annotation)).count_in_it>0)
+		{
+			current_hack_annotation=((*glob_annotation_multilist).bufferlist[(*((*i_graphic_instance).annotation)).start_in_it].Content.a);
+		}
+		else
+		{
+			goto skipthisgraphic;
+		}
+		#endif
+		stylegenestring(0x10);
+		if ((*i_graphic_instance).OvalType & 1)
+		{
+			float tldistance=sqrt((iBBX.right-iBBX.left)*(iBBX.right-iBBX.left)+(iBBX.bottom-iBBX.top)*(iBBX.bottom-iBBX.top));
+			iBBX.left-=tldistance;
+			expresscdxcircle(iBBX.right,iBBX.bottom,tldistance);
 		}
 		else
 		{

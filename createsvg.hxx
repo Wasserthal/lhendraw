@@ -382,13 +382,13 @@ void getatoms()//makes some preprocessing
 		{
 			if ((*glob_t_multilist).bufferlist[ilv2].LabelAlignment==-1)
 			{
-				(*glob_t_multilist).bufferlist[ilv2].p.x=((*glob_n_multilist).bufferlist)[ilv1].p.x+7;
+				(*glob_t_multilist).bufferlist[ilv2].p.x=((*glob_n_multilist).bufferlist)[ilv1].p.x+9;
 			}
 			else
 			{
-				(*glob_t_multilist).bufferlist[ilv2].p.x=((*glob_n_multilist).bufferlist)[ilv1].p.x-7;
+				(*glob_t_multilist).bufferlist[ilv2].p.x=((*glob_n_multilist).bufferlist)[ilv1].p.x-9;
 			}
-			(*glob_t_multilist).bufferlist[ilv2].p.y=((*glob_n_multilist).bufferlist)[ilv1].p.y+atomfontheight/3;
+			(*glob_t_multilist).bufferlist[ilv2].p.y=((*glob_n_multilist).bufferlist)[ilv1].p.y+atomfontheight/2;
 			text_actual_node[ilv2].owner=ilv1;
 			(*glob_t_multilist).bufferlist[ilv2].Z=((*glob_n_multilist).bufferlist)[ilv1].Z;
 			atom_actual_node[ilv1].special=ilv2;
@@ -739,14 +739,14 @@ void calcdelta(float * x1,float * y1,float inputx,float inputy)
 {
 	float iquotient;
 	float tlangle=getangle(inputx,inputy);
-	(*x1)=9.0*cos(tlangle);
-	(*y1)=9.0*sin(tlangle);
+	(*x1)=12.0*cos(tlangle);
+	(*y1)=12.0*sin(tlangle);
 	return;
 	if (fabs(inputx)>fabs(inputy))
 	{
 		iquotient=fabs(inputy/inputx);
-		(*x1)=9.0*((inputx>0) ? 1.0 :-1.0);
-		(*y1)=9.0*iquotient*((inputy>0) ? 1.0 :-1.0);
+		(*x1)=12.0*((inputx>0) ? 1.0 :-1.0);
+		(*y1)=12.0*iquotient*((inputy>0) ? 1.0 :-1.0);
 	}
 	else
 	{
@@ -754,8 +754,8 @@ void calcdelta(float * x1,float * y1,float inputx,float inputy)
 		{
 			iquotient=fabs(inputx/inputy);
 		}
-		(*x1)=9.0*iquotient*((inputx>0) ? 1.0 :-1.0);
-		(*y1)=9.0*((inputy>0) ? 1.0 :-1.0);
+		(*x1)=12.0*iquotient*((inputx>0) ? 1.0 :-1.0);
+		(*y1)=12.0*((inputy>0) ? 1.0 :-1.0);
 	}
 }
 
@@ -792,13 +792,13 @@ void svg_findaround()
 		{
 			if ((*glob_t_multilist).bufferlist[ilv2].LabelAlignment==-1)
 			{
-				(*glob_t_multilist).bufferlist[ilv2].p.x=((*glob_n_multilist).bufferlist)[ilv1].p.x+7;
+				(*glob_t_multilist).bufferlist[ilv2].p.x=((*glob_n_multilist).bufferlist)[ilv1].p.x+9;
 			}
 			else
 			{
-				(*glob_t_multilist).bufferlist[ilv2].p.x=((*glob_n_multilist).bufferlist)[ilv1].p.x-7;
+				(*glob_t_multilist).bufferlist[ilv2].p.x=((*glob_n_multilist).bufferlist)[ilv1].p.x-9;
 			}
-			(*glob_t_multilist).bufferlist[ilv2].p.y=((*glob_n_multilist).bufferlist)[ilv1].p.y+atomfontheight/3;
+			(*glob_t_multilist).bufferlist[ilv2].p.y=((*glob_n_multilist).bufferlist)[ilv1].p.y+atomfontheight/2;
 			text_actual_node[ilv2].owner=ilv1;
 			atom_actual_node[ilv1].special=ilv2;
 		}
@@ -1034,7 +1034,7 @@ char STRINGOUTPUT_emptyformat[]="";
 char STRINGOUTPUT_bold[]="font-weight=\"bold\" ";
 char STRINGOUTPUT_LENNARDBOLD[]="font-weight=\"bold\"";
 char iparmsstring[stringlength+1];
-float currentsetfontsize=18;
+float currentsetfontsize=24;
 #ifdef GFXOUT_SVG
 void printformatted(const char * iinput,const char * parms,int imode,int start,int end)
 {
@@ -1845,7 +1845,7 @@ tlposx+tlcos-tlsin,tlposy+tlsin+tlcos,tlposx+2*tlcos-tlsin,tlposy+2*tlsin+tlcos,
 			int tlformlabeltype=((*glob_s_multilist).bufferlist)[ilv2].face;
 			currentsetfontsize=(((*glob_s_multilist).bufferlist))[ilv2].size;
 			#ifdef LENNARD_HACK
-			if ((currentsetfontsize>20.0) || (tlformlabeltype & 0x10))
+/*			if ((currentsetfontsize>20.0) || (tlformlabeltype & 0x10))
 			{
 				if (currentsetfontsize>99.0)
 				{
@@ -1869,7 +1869,18 @@ tlposx+tlcos-tlsin,tlposy+tlsin+tlcos,tlposx+2*tlcos-tlsin,tlposy+2*tlsin+tlcos,
 			}
 			else
 			{
-				currentsetfontsize=18;
+				currentsetfontsize=24;
+			}*/
+			if (currentsetfontsize<=99.0)
+			{
+				currentsetfontsize=24;
+				if (tlformlabeltype & 0x10)
+				{
+					if (SVG_currentfringex-SVG_currentbasex>1280)
+					{
+						currentsetfontsize=38;
+					}
+				}
 			}
 			#endif
 			#ifdef CAMBRIDGESOFT_CONFORMING
@@ -2059,7 +2070,7 @@ tlposx+tlcos-tlsin,tlposy+tlsin+tlcos,tlposx+2*tlcos-tlsin,tlposy+2*tlsin+tlcos,
 			int tlformlabeltype=((*glob_s_multilist).bufferlist)[ilv2].face;
 			currentsetfontsize=(((*glob_s_multilist).bufferlist))[ilv2].size;
 			#ifdef LENNARD_HACK
-			if ((currentsetfontsize>20.0) || (tlformlabeltype & 0x10))
+/*			if ((currentsetfontsize>20.0) || (tlformlabeltype & 0x10))
 			{
 				if (currentsetfontsize>99.0)
 				{
@@ -2083,7 +2094,18 @@ tlposx+tlcos-tlsin,tlposy+tlsin+tlcos,tlposx+2*tlcos-tlsin,tlposy+2*tlsin+tlcos,
 			}
 			else
 			{
-				currentsetfontsize=18;
+				currentsetfontsize=24;
+			}*/
+			if (currentsetfontsize<=99.0)
+			{
+				currentsetfontsize=24;
+				if (tlformlabeltype & 0x10)
+				{
+					if (SVG_currentfringex-SVG_currentbasex>1280)
+					{
+						currentsetfontsize=38;
+					}
+				}
 			}
 			#endif
 			#ifdef CAMBRIDGESOFT_CONFORMING

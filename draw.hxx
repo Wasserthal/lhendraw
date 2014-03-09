@@ -1787,7 +1787,7 @@ tlposx+tlcos-tlsin,tlposy+tlsin+tlcos,tlposx+2*tlcos-tlsin,tlposy+2*tlsin+tlcos,
 		int tlformlabeltype=(*((s_instance*)TELESCOPE_getproperty())).face;
 		currentsetfontsize=(*((s_instance*)TELESCOPE_getproperty())).size;
 		#ifdef LENNARD_HACK
-		if ((currentsetfontsize>20.0) || (tlformlabeltype & 0x10))
+		/*if ((currentsetfontsize>20.0) || (tlformlabeltype & 0x10))
 		{
 			if (currentsetfontsize>99.0)
 			{
@@ -1812,6 +1812,17 @@ tlposx+tlcos-tlsin,tlposy+tlsin+tlcos,tlposx+2*tlcos-tlsin,tlposy+2*tlsin+tlcos,
 		else
 		{
 			currentsetfontsize=18;
+		}*/
+		if (currentsetfontsize<=99.0)
+		{
+			currentsetfontsize=24;
+			if (tlformlabeltype & 0x10)
+			{
+				if (SVG_currentfringex-SVG_currentbasex>1280)
+				{
+					currentsetfontsize=38;
+				}
+			}
 		}
 		#endif
 		#ifdef CAMBRIDGESOFT_CONFORMING
@@ -1996,7 +2007,7 @@ tlposx+tlcos-tlsin,tlposy+tlsin+tlcos,tlposx+2*tlcos-tlsin,tlposy+2*tlsin+tlcos,
 		int tlformlabeltype=(*((s_instance*)TELESCOPE_getproperty())).face;
 		currentsetfontsize=(*((s_instance*)TELESCOPE_getproperty())).size;
 		#ifdef LENNARD_HACK
-		if ((currentsetfontsize>20.0) || (tlformlabeltype & 0x10))
+		/*if ((currentsetfontsize>20.0) || (tlformlabeltype & 0x10))
 		{
 			if (currentsetfontsize>99.0)
 			{
@@ -2021,6 +2032,17 @@ tlposx+tlcos-tlsin,tlposy+tlsin+tlcos,tlposx+2*tlcos-tlsin,tlposy+2*tlsin+tlcos,
 		else
 		{
 			currentsetfontsize=18;
+		}*/
+		if (currentsetfontsize<=99.0)
+		{
+			currentsetfontsize=24;
+			if (tlformlabeltype & 0x10)
+			{
+				if (SVG_currentfringex-SVG_currentbasex>1280)
+				{
+					currentsetfontsize=38;
+				}
+			}
 		}
 		#endif
 		#ifdef CAMBRIDGESOFT_CONFORMING

@@ -1129,7 +1129,7 @@ void svg_controlprocedure(bool irestriction=0,bool hatches=0)
 			{
 				if (tlcurrentmultilist==glob_curve_multilist)
 				{
-					cdx_Bezierpoints * tlBez=&((*glob_curve_multilist).bufferlist[bond_actual_node[index_in_buffer].start].CurvePoints);
+					cdx_Bezierpoints * tlBez=&((*glob_curve_multilist).bufferlist[index_in_buffer].CurvePoints);
 					for (int ilv2=1;ilv2<(*tlBez).count-1;ilv2+=3)
 					{
 						cdx_Point2D tlp2d=(*tlBez).a[ilv2];
@@ -1787,7 +1787,7 @@ tlposx+tlcos-tlsin,tlposy+tlsin+tlcos,tlposx+2*tlcos-tlsin,tlposy+2*tlsin+tlcos,
 		int tlformlabeltype=(*((s_instance*)TELESCOPE_getproperty())).face;
 		currentsetfontsize=(*((s_instance*)TELESCOPE_getproperty())).size;
 		#ifdef LENNARD_HACK
-		/*if ((currentsetfontsize>20.0) || (tlformlabeltype & 0x10))
+		/*if ((currentsetfontsize>20.0) || (tlformlabeltype & 0x1))
 		{
 			if (currentsetfontsize>99.0)
 			{
@@ -1816,17 +1816,18 @@ tlposx+tlcos-tlsin,tlposy+tlsin+tlcos,tlposx+2*tlcos-tlsin,tlposy+2*tlsin+tlcos,
 		if (currentsetfontsize<=99.0)
 		{
 			currentsetfontsize=24;
-			if (tlformlabeltype & 0x10)
+			if (tlformlabeltype & 0x1)
 			{
-				if (SVG_currentfringex-SVG_currentbasex>1280)
+				if (((SVG_width>1280) && (irestriction==0)) || ((SVG_currentfringex-SVG_currentbasex>1280) && (irestriction==0)))
 				{
 					currentsetfontsize=38;
 				}
+				iparms=STRINGOUTPUT_bold;
 			}
 		}
 		#endif
 		#ifdef CAMBRIDGESOFT_CONFORMING
-		sprintf(iparmsstring,"%s",((tlformlabeltype & 0x10) ? STRINGOUTPUT_bold : STRINGOUTPUT_emptyformat),currentsetfontsize);
+		sprintf(iparmsstring,"%s",((tlformlabeltype & 0x1) ? STRINGOUTPUT_bold : STRINGOUTPUT_emptyformat),currentsetfontsize);
 		iparms=iparmsstring;
 		#endif
 	}
@@ -2007,7 +2008,7 @@ tlposx+tlcos-tlsin,tlposy+tlsin+tlcos,tlposx+2*tlcos-tlsin,tlposy+2*tlsin+tlcos,
 		int tlformlabeltype=(*((s_instance*)TELESCOPE_getproperty())).face;
 		currentsetfontsize=(*((s_instance*)TELESCOPE_getproperty())).size;
 		#ifdef LENNARD_HACK
-		/*if ((currentsetfontsize>20.0) || (tlformlabeltype & 0x10))
+		/*if ((currentsetfontsize>20.0) || (tlformlabeltype & 0x1))
 		{
 			if (currentsetfontsize>99.0)
 			{
@@ -2036,17 +2037,18 @@ tlposx+tlcos-tlsin,tlposy+tlsin+tlcos,tlposx+2*tlcos-tlsin,tlposy+2*tlsin+tlcos,
 		if (currentsetfontsize<=99.0)
 		{
 			currentsetfontsize=24;
-			if (tlformlabeltype & 0x10)
+			if (tlformlabeltype & 0x1)
 			{
-				if (SVG_currentfringex-SVG_currentbasex>1280)
+				if (((SVG_width>1280) && (irestriction==0)) || ((SVG_currentfringex-SVG_currentbasex>1280) && (irestriction==0)))
 				{
 					currentsetfontsize=38;
 				}
+				iparms=STRINGOUTPUT_bold;
 			}
 		}
 		#endif
 		#ifdef CAMBRIDGESOFT_CONFORMING
-		sprintf(iparmsstring,"%s",((tlformlabeltype & 0x10) ? STRINGOUTPUT_bold : STRINGOUTPUT_emptyformat),currentsetfontsize);
+		sprintf(iparmsstring,"%s",((tlformlabeltype & 0x1) ? STRINGOUTPUT_bold : STRINGOUTPUT_emptyformat),currentsetfontsize);
 		iparms=iparmsstring;
 		#endif
 		/*fprintf(outfile,"<tspan %s style=\"fill:#%s\">%s</tspan>%s\n",

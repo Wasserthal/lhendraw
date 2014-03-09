@@ -1051,15 +1051,15 @@ void printformatted(const char * iinput,const char * parms,int imode,int start,i
 	linebreak=0;
 	if (imode==1)
 	{
-		fprintf(outfile,"<tspan dy=\"+%f\" %s font-size=\"%f\" style=\"fill:#%s\">",currentsetfontsize/6.0,parms,currentsetfontsize*0.77777,colorstring);
+		fprintf(outfile,"<tspan font-family=\"Sans\" dy=\"+%f\" %s font-size=\"%f\" style=\"fill:#%s\">",currentsetfontsize/6.0,parms,currentsetfontsize*0.77777,colorstring);
 	}
 	if ((imode==2) || (imode==0))
 	{
-		fprintf(outfile,"<tspan %s font-size=\"%f\" style=\"fill:#%s\">",parms,currentsetfontsize,colorstring);
+		fprintf(outfile,"<tspan font-family=\"Sans\" %s font-size=\"%f\" style=\"fill:#%s\">",parms,currentsetfontsize,colorstring);
 	}
 	if (imode==4)
 	{
-		fprintf(outfile,"<tspan dy=\"-%f\" %s font-size=\"%f\" style=\"fill:#%s\">",currentsetfontsize/6.0,parms,currentsetfontsize*0.77777,colorstring);
+		fprintf(outfile,"<tspan font-family=\"Sans\" dy=\"-%f\" %s font-size=\"%f\" style=\"fill:#%s\">",currentsetfontsize/6.0,parms,currentsetfontsize*0.77777,colorstring);
 	}
 	for (;ilv4<end;ilv4++)
 	{
@@ -1075,14 +1075,14 @@ void printformatted(const char * iinput,const char * parms,int imode,int start,i
 	fprintf(outfile,"</tspan>",colorstring);
 	if (imode==1)
 	{
-		fprintf(outfile,"<tspan %s dy=\"-%f\">&#8288;</tspan>",parms,currentsetfontsize/6.0);
+		fprintf(outfile,"<tspan font-family=\"Sans\" %s dy=\"-%f\">&#8288;</tspan>",parms,currentsetfontsize/6.0);
 	}
 	if (imode==4)
 	{
-		fprintf(outfile,"<tspan %s dy=\"%f\">&#8288;</tspan>",parms,currentsetfontsize/6.0);
+		fprintf(outfile,"<tspan font-family=\"Sans\" %s dy=\"%f\">&#8288;</tspan>",parms,currentsetfontsize/6.0);
 	}
 	fprintf(outfile,"\n");
-	if (linebreak) {fprintf(outfile,"<tspan dy=\"%f\" x=\"0\">&#8288;</tspan>",20.0/18.0*currentsetfontsize);if (ilv4<end) goto thatwasatemporaryskip;}//a line break;
+	if (linebreak) {fprintf(outfile,"<tspan font-family=\"Sans\" dy=\"%f\" x=\"0\">&#8288;</tspan>",20.0/18.0*currentsetfontsize);if (ilv4<end) goto thatwasatemporaryskip;}//a line break;
 }
 void express_txinit(char ialignment,float iposx,float iposy,float iatomfontheight)
 {

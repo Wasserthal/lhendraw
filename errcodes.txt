@@ -1,0 +1,22 @@
+Error codes:
+1: successful
+0: nothing found
+-1: memory insufficient, (trap,i.e. no change done).
+-2: internal indirection fault. (datastructure used for wrong purpose)
+-3: internal id not found
+-4: could not open file
+-5: could not read from open file
+-6: could not write to open file
+-7: premature end of file
+-8: important element missing in input data structure
+-9: internal value out of range
+-10: datastructure too big
+-11: memory insufficient to load file
+-12: external indirection fault
+-13: external id not found
+-14: could not open referenced file
+-15: could not read from referenced file
+-16: could not write to referenced file
+-17: premature end of referenced file
+-18: important element missing in external data structure
+-19: external value out of range

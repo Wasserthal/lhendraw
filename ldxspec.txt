@@ -1,0 +1,7 @@
+ldxml differs from cdxml in the following points:
+If a field is undefined, it is the same as if it would have zero as its value.
+The format is unicode-type. All text-field symbols above 0x79 are plain unicode characters.
+groups are not containing their contents, but only a list of the id's of their contents.
+bezier points, however, are contained.
+colors are coded as ARGB integers directly: Byte0: blue, Byte1: green Byte2: red, Byte3: Alpha, 0x00 Opaque, 0xFF:Translucent
+However, this translucence means, that the superior color is used.

@@ -27,3 +27,5 @@ sdl: ./generated/cambridgestructure.hxx ./generated/structure.hxx parsecdxml.cxx
 	g++ -g -O0 -std=c++0x -m64 lhendraw.cxx -o lhendraw -I/usr/include/SDL -I/usr/include/freetype2 -L/usr/lib64 -L/usr/lib/x86_64-linux-gnu -lSDL -lm -lfreetype -Wno-invalid-offsetof -D GFXOUT_SDL -lrt
 lennard_infget: makeinf.hxx makeinf_test.cxx cxxdata.h lendefs.h
 	g++ -g -O0 -std=c++0x -Wno-invalid-offsetof makeinf_test.cxx -o lennard_infget -D DEBUG -D MACHINE_READABLE -Wno-format
+install:
+	cp lhendraw -t /usr/bin

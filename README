@@ -1,0 +1,9 @@
+lhendraw LGPLv3/MPL
+written by Lennard K. Wasserthal
+cdx/cdxml compatible chemical drawing program
+for more information, read INSTALL
+
+unimportant info, except for the professional user:
+Known bugs:
+- scaled, turned and scaled again circular arrows give graphical glitches.
+- slow, many internal routines have not been optimized yet.

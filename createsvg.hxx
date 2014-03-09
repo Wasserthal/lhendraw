@@ -1271,6 +1271,16 @@ void svg_controlprocedure(bool irestriction=0,bool hatches=0)
 	}
 	if ((*i_curve_instance).Closed)
 	{
+		if ((*i_curve_instance).FillType==1)
+		{
+			fprintf(outfile,"<path d=\" ");
+			for (int ilv2=1;ilv2<(*i_curve_instance).CurvePoints.count-2;ilv2+=2)
+			{
+				fprintf(outfile,"%c %f,%f ",(ilv2==1)?'M':'L',(*i_curve_instance).CurvePoints.a[ilv2].x+SVG_currentshiftx,(*i_curve_instance).CurvePoints.a[ilv2].y+SVG_currentshifty);
+			}
+			fprintf(outfile,"z \" style=\"fill:#%s;color:none;\" />\n",colorstring);
+			goto svg_main_loop;
+		}
 		expressbezier((*i_curve_instance).CurvePoints.a[tllast].x,(*i_curve_instance).CurvePoints.a[tllast].y,(*i_curve_instance).CurvePoints.a[tllast+1].x,(*i_curve_instance).CurvePoints.a[tllast+1].y,(*i_curve_instance).CurvePoints.a[0].x,(*i_curve_instance).CurvePoints.a[0].y,(*i_curve_instance).CurvePoints.a[1].x,(*i_curve_instance).CurvePoints.a[1].y);
 	}
 	else

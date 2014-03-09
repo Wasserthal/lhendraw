@@ -114,8 +114,81 @@ void CAMBRIDGECONV_bonds()
 	}
 }
 
+void CAMBRIDGECONV_texts()
+{
+	multilist<CAMBRIDGE_t_instance> * tl_CAMBRIDGE_t_multilist=retrievemultilist<CAMBRIDGE_t_instance>();
+	multilist<CAMBRIDGE_s_instance> * tl_CAMBRIDGE_s_multilist=retrievemultilist<CAMBRIDGE_s_instance>();
+	multilist<t_instance> * tl_t_multilist=retrievemultilist<t_instance>();
+	(*tl_t_multilist).filllevel=0;
+	for (int ilv1=0;ilv1<(*tl_CAMBRIDGE_t_multilist).filllevel;ilv1++)
+	{
+		CAMBRIDGE_t_instance * tl_CAMBRIDGE_t_instance=(*tl_CAMBRIDGE_t_multilist).bufferlist+ilv1;
+		t_instance tl_t_instance;
+		s_instance tl_s_instance;
+		tl_t_instance=t_instance();
+		if (AUTOSTRUCT_EXISTS(CAMBRIDGE_t_instance,(*tl_CAMBRIDGE_t_instance),color))
+		{
+			int tlcolor=(*tl_CAMBRIDGE_t_instance).color-2;
+			if (tlcolor==-2) {tl_t_instance.color=0x000000; goto color_fertig; }
+			if (tlcolor==-1) {tl_t_instance.color=0xFFFFFF; goto color_fertig; }
+			if (tlcolor<(*glob_CAMBRIDGE_color_multilist).filllevel)
+			{
+				tl_t_instance.color=((_u8)(((*glob_CAMBRIDGE_color_multilist).bufferlist)[tlcolor].r*255)*65536)|((_u8)(((*glob_CAMBRIDGE_color_multilist).bufferlist)[tlcolor].g*255)*256)|((_u8)(((*glob_CAMBRIDGE_color_multilist).bufferlist)[tlcolor].b*255));
+			}
+			else
+			{
+				tl_t_instance.color=0x000000;
+			}
+		}
+		else
+		{
+			tl_t_instance.color=0x000000;
+		}
+		color_fertig:
+		if (AUTOSTRUCT_EXISTS(CAMBRIDGE_t_instance,(*tl_CAMBRIDGE_t_instance),p))
+		{
+			tl_t_instance.xyz.x=(*tl_CAMBRIDGE_t_instance).p.x;
+			tl_t_instance.xyz.y=(*tl_CAMBRIDGE_t_instance).p.y;
+			tl_t_instance.xyz.z=0;
+		}
+		tl_t_instance.id=(*tl_CAMBRIDGE_t_instance).id;
+		tl_t_instance.Z=(*tl_CAMBRIDGE_t_instance).Z;
+		(*tl_t_multilist).ADD(&tl_t_instance);
+		TELESCOPE_aggressobject(tl_t_multilist,ilv1);
+		for (int ilv2=(*((*tl_CAMBRIDGE_t_instance).s)).start_in_it;ilv2<(*((*tl_CAMBRIDGE_t_instance).s)).start_in_it+(*((*tl_CAMBRIDGE_t_instance).s)).count_in_it;ilv2++)
+		{
+			CAMBRIDGE_s_instance * tl_CAMBRIDGE_s_instance=(*tl_CAMBRIDGE_s_multilist).bufferlist+ilv2;
+			tl_s_instance.font=(*tl_CAMBRIDGE_s_instance).font;
+			tl_s_instance.face=(*tl_CAMBRIDGE_s_instance).face;
+			if (AUTOSTRUCT_EXISTS(CAMBRIDGE_s_instance,(*tl_CAMBRIDGE_s_instance),color))
+			{
+				int tlcolor=(*tl_CAMBRIDGE_s_instance).color-2;
+				if (tlcolor==-2) {tl_s_instance.color=0x000000; goto color_fertig; }
+				if (tlcolor==-1) {tl_s_instance.color=0xFFFFFF; goto color_fertig; }
+				if (tlcolor<(*glob_CAMBRIDGE_color_multilist).filllevel)
+				{
+					tl_s_instance.color=((_u8)(((*glob_CAMBRIDGE_color_multilist).bufferlist)[tlcolor].r*255)*65536)|((_u8)(((*glob_CAMBRIDGE_color_multilist).bufferlist)[tlcolor].g*255)*256)|((_u8)(((*glob_CAMBRIDGE_color_multilist).bufferlist)[tlcolor].b*255));
+				}
+				else
+				{
+					tl_s_instance.color=0x000000;
+				}
+			}
+			else
+			{
+				tl_s_instance.color=0x000000;
+			}
+			tl_s_instance.length=sizeof(s_instance)+strlen((*tl_CAMBRIDGE_s_instance).PCTEXT.a)+1;//TODO: remove trailing 0, but not before it is no longer needed by draw!
+			tl_s_instance.type=TELESCOPE_ELEMENTTYPE_s;
+			TELESCOPE_add(TELESCOPE_ELEMENTTYPE_s,(*tl_CAMBRIDGE_s_instance).PCTEXT.a,tl_s_instance.length-sizeof(s_instance));
+			*((s_instance*)TELESCOPE_getproperty())=tl_s_instance;
+		}
+	}
+}
+
 void CAMBRIDGECONV_maintointernal()
 {
 	CAMBRIDGECONV_atoms();
 	CAMBRIDGECONV_bonds();
+	CAMBRIDGECONV_texts();
 }

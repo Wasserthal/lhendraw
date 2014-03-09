@@ -273,6 +273,7 @@ struct basic_instance
 		return -1;
 	};
 	virtual const char * getName(){return 0;}
+	virtual const char * getFullName(){return 0;}
 	virtual _u32 * getINTERNALPropertyexistflags(){return NULL;}
 	basic_instance * master;
 	char exist;

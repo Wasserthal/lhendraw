@@ -15,7 +15,7 @@ int main(void)
 	outfile=fopen("./generated/reflection.hxx","w+");
 	iback:
 	;
-	int backval=fscanf(infile,"%[^\n]",buffer,&iindex);
+	int backval=fscanf(infile,"%[^\n]",buffer);
 	if (backval==1)
 	{
 		if (strncmp(buffer,"//",2)!=0)
@@ -31,14 +31,14 @@ int main(void)
 			if (strncmp(buffer,"//--",4)==0)
 			{
 				if (glob_started) {fprintf(outfile,"};\n");}
-				int backval=sscanf(buffer,"//--%[^\n \x0D]",&group);
+				int backval=sscanf(buffer,"//--%[^\n \x0D]",group);
 				sprintf(searchstring,"#define %s_%%[^\n ] %%i",group);
 				fprintf(outfile,"trienum %s_List[]{\n",group);
 				glob_started=1;
 			}
 		}
 		fread(&ihv1,1,1,infile);
-		if (&ihv1==13){fread(&ihv1,1,1,infile);}
+		if (ihv1==13){fread(&ihv1,1,1,infile);}
 		goto iback;
 	}
 	if (glob_started) {fprintf(outfile,"};\n");}

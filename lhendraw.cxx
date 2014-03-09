@@ -61,6 +61,8 @@ int clockid=0;
 int main(int argc,char * * argv)
 {
 	clock_getcpuclockid(getpid(),&clockid);
+	initmemory();
+	automatic_init();
 	if (argc!=2)
 	{
 		printf("no file specified or to many ones!");
@@ -69,7 +71,6 @@ int main(int argc,char * * argv)
 	infile=fopen(argv[1],"r");
 	input_fsm(infile);
 	fclose(infile);
-	automatic_init();
 	CAMBRIDGECONV_maintointernal();
 	svg_findaround();
 	text_init();

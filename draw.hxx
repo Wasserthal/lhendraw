@@ -329,18 +329,34 @@ void getatoms()//makes some preprocessing
 			}
 		}
 		//TODO SUBJECT to new memory structure
-/*			if ((*glob_t_multilist).bufferlist[ilv2].LabelAlignment==-1)
+
+		int ilv2;
+		TELESCOPE_aggressobject(glob_n_multilist,ilv1);
+		while (TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_ID_Reference))
+		{
+			ID_Reference_instance * iID_Reference_instance=(ID_Reference_instance*)TELESCOPE_getproperty();
+			if ((*iID_Reference_instance).Purpose==TELESCOPE_IDPURPOSE_TextField)
 			{
-				(*glob_t_multilist).bufferlist[ilv2].p.x=((*glob_n_multilist).bufferlist)[ilv1].p.x+7;//MUST BE DONE REAL-Time
+				ilv2=(*iID_Reference_instance).Id;
+				goto textreference_fertig;
 			}
-			else
-			{
-				(*glob_t_multilist).bufferlist[ilv2].p.x=((*glob_n_multilist).bufferlist)[ilv1].p.x-7;
-			}
-			(*glob_t_multilist).bufferlist[ilv2].p.y=((*glob_n_multilist).bufferlist)[ilv1].p.y+atomfontheight/3;
-			text_actual_node[ilv2].owner=ilv1;//GET THIS INTO conversion routines
-			(*glob_t_multilist).bufferlist[ilv2].Z=((*glob_n_multilist).bufferlist)[ilv1].Z;//DO THIS
-			atom_actual_node[ilv1].special=ilv2;*///GET THIS INTO conversion routines
+		}
+		goto textreference_failed;
+		textreference_fertig:
+		if ((*glob_t_multilist).bufferlist[ilv2].LabelAlignment==-1)
+		{
+			(*glob_t_multilist).bufferlist[ilv2].xyz.x=((*glob_n_multilist).bufferlist)[ilv1].xyz.x;//MUST BE DONE REAL-Time
+		}
+		else
+		{
+			(*glob_t_multilist).bufferlist[ilv2].xyz.x=((*glob_n_multilist).bufferlist)[ilv1].xyz.x;
+		}
+		(*glob_t_multilist).bufferlist[ilv2].xyz.y=((*glob_n_multilist).bufferlist)[ilv1].xyz.y;
+		text_actual_node[ilv2].owner=ilv1;//GET THIS INTO conversion routines
+		(*glob_t_multilist).bufferlist[ilv2].Z=((*glob_n_multilist).bufferlist)[ilv1].Z;//DO THIS
+		atom_actual_node[ilv1].special=ilv2;//GET THIS INTO conversion routines
+		textreference_failed:
+		;
 	}
 	for (int ilv1=0;ilv1<(*glob_b_multilist).filllevel;ilv1++)//refines undefined double bonds
 	{
@@ -719,24 +735,38 @@ void svg_findaround()
 	{
 		text_actual_node[ilv1].owner=-1;
 	}
-/*	for (int ilv1=0;ilv1<(*glob_n_multilist).filllevel;ilv1++)//defines processable atoms//TODO SUBJECT replace it like its copy
+	for (int ilv1=0;ilv1<(*glob_n_multilist).filllevel;ilv1++)//defines processable atoms//TODO SUBJECT replace it like its copy
 	{
 		n_instance * tlatominstance=&((*glob_n_multilist).bufferlist[ilv1]);
-		for (int ilv2=(*((*glob_n_multilist).bufferlist)[ilv1].t).start_in_it;ilv2<(*((*glob_n_multilist).bufferlist)[ilv1].t).start_in_it+(*((*glob_n_multilist).bufferlist)[ilv1].t).count_in_it;ilv2++)//allows for multiple text items on one atom. Nonsense.
+		
+		int ilv2;
+		TELESCOPE_aggressobject(glob_n_multilist,ilv1);
+		while (TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_ID_Reference))
 		{
-			if ((*glob_t_multilist).bufferlist[ilv2].LabelAlignment==-1)
+			ID_Reference_instance * iID_Reference_instance=(ID_Reference_instance*)TELESCOPE_getproperty();
+			if ((*iID_Reference_instance).Purpose==TELESCOPE_IDPURPOSE_TextField)
 			{
-				(*glob_t_multilist).bufferlist[ilv2].p.x=((*glob_n_multilist).bufferlist)[ilv1].p.x+7;
+				ilv2=(*iID_Reference_instance).Id;
+				goto textreference_fertig;
 			}
-			else
-			{
-				(*glob_t_multilist).bufferlist[ilv2].p.x=((*glob_n_multilist).bufferlist)[ilv1].p.x-7;
-			}
-			(*glob_t_multilist).bufferlist[ilv2].p.y=((*glob_n_multilist).bufferlist)[ilv1].p.y+atomfontheight/3;
-			text_actual_node[ilv2].owner=ilv1;
-			atom_actual_node[ilv1].special=ilv2;
-		}WE HAD THIS! WHY WAS IT NECESSARY TO DO IT also here, in findaround? ONE MORE TIME?
-	}*/
+		}
+		goto textreference_failed;
+		textreference_fertig:
+		if ((*glob_t_multilist).bufferlist[ilv2].LabelAlignment==-1)
+		{
+			(*glob_t_multilist).bufferlist[ilv2].xyz.x=((*glob_n_multilist).bufferlist)[ilv1].xyz.x;
+		}
+		else
+		{
+			(*glob_t_multilist).bufferlist[ilv2].xyz.x=((*glob_n_multilist).bufferlist)[ilv1].xyz.x;
+		}
+		(*glob_t_multilist).bufferlist[ilv2].xyz.y=((*glob_n_multilist).bufferlist)[ilv1].xyz.y;
+		text_actual_node[ilv2].owner=ilv1;
+		atom_actual_node[ilv1].special=ilv2;
+		//WE HAD THIS! WHY WAS IT NECESSARY TO DO IT also here, in findaround? ONE MORE TIME?
+		textreference_failed:
+		;
+	}
 	/*This was a piece from getatoms information needed also when there are no graphics form bound calculation*/
 	getcaptions(&SVG_width,&SVG_height,&SVG_ileft,&SVG_itop);
 	SVG_ileft-=10;
@@ -1723,7 +1753,7 @@ tlposx+tlcos-tlsin,tlposy+tlsin+tlcos,tlposx+2*tlcos-tlsin,tlposy+2*tlsin+tlcos,
 	}
 	goto svg_main_loop;
 	svg_main_t:
-/*	owner=text_actual_node[index_in_buffer].owner;
+	owner=text_actual_node[index_in_buffer].owner;
 	colornr=0;
 	get_colorstring(colornr);
 	if (owner!=-1)
@@ -1736,127 +1766,161 @@ tlposx+tlcos-tlsin,tlposy+tlsin+tlcos,tlposx+2*tlcos-tlsin,tlposy+2*tlsin+tlcos,
 
 	express_txinit(((*glob_t_multilist).bufferlist[index_in_buffer].LabelAlignment==-1),((*glob_t_multilist).bufferlist)[index_in_buffer].xyz.x,((*glob_t_multilist).bufferlist)[index_in_buffer].xyz.y,atomfontheight);
 	intl start,end;
-	start=(*(((*glob_t_multilist).bufferlist)[index_in_buffer].s)).start_in_it;
-	end=start+(*(((*glob_t_multilist).bufferlist)[index_in_buffer].s)).count_in_it;
+	TELESCOPE_aggressobject(glob_t_multilist,index_in_buffer);
+	int tlbackval;
+	tlbackval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_s);
 	string_resorted=0;
 	ifsmat=0;//0: nothing //1: on a subscript number; 2: on text; 3: on a superscript
-	for (int ilv2=start;ilv2<end;ilv2++)
+	svg_text_back:
+	if (!tlbackval)
 	{
-		colornr=((*glob_s_multilist).bufferlist)[ilv2].color;
-		fontnr=((*glob_s_multilist).bufferlist)[ilv2].font;
-		font_instance * i_font_instance=getfont(fontnr);
-		finalstring=(((*glob_s_multilist).bufferlist))[ilv2].PCTEXT.a;
-		char * iparms;
-		iparms=STRINGOUTPUT_emptyformat;
+		goto svg_text_finished;
+	}
+	colornr=(*((s_instance*)TELESCOPE_getproperty())).color;
+	fontnr=(*((s_instance*)TELESCOPE_getproperty())).font;
+	finalstring=((char*)TELESCOPE_getproperty_contents());
+	char * iparms;
+	iparms=STRINGOUTPUT_emptyformat;
+	{
+		int tlformlabeltype=(*((s_instance*)TELESCOPE_getproperty())).face;
+		currentsetfontsize=(*((s_instance*)TELESCOPE_getproperty())).size;
+		#ifdef LENNARD_HACK
+		if ((currentsetfontsize>20.0) || (tlformlabeltype & 0x10))
 		{
-			int tlformlabeltype=((*glob_s_multilist).bufferlist)[ilv2].face;
-			currentsetfontsize=(((*glob_s_multilist).bufferlist))[ilv2].size;
-			#ifdef LENNARD_HACK
-			if ((currentsetfontsize>20.0) || (tlformlabeltype & 0x10))
+			if (currentsetfontsize>99.0)
 			{
-				if (currentsetfontsize>99.0)
+				iparms=STRINGOUTPUT_emptyformat;
+			}
+			else
+			{
+				if (currentsetfontsize!=29)
 				{
-					iparms=STRINGOUTPUT_emptyformat;
+					iparms=STRINGOUTPUT_bold;
+					if (currentsetfontsize!=38)
+					{
+						currentsetfontsize=24;
+					}
 				}
 				else
 				{
-					if (currentsetfontsize!=29)
+					currentsetfontsize=29;
+				}
+			}
+		}
+		else
+		{
+			currentsetfontsize=18;
+		}
+		#endif
+		#ifdef CAMBRIDGESOFT_CONFORMING
+		sprintf(iparmsstring,"%s",((tlformlabeltype & 0x10) ? STRINGOUTPUT_bold : STRINGOUTPUT_emptyformat),currentsetfontsize);
+		iparms=iparmsstring;
+		#endif
+	}
+	if (owner!=-1)
+	{
+/*		if ((*((*glob_t_multilist).bufferlist[index_in_buffer].s)).count_in_it==1)//TODO: check if it consists of exactly one element
+		{*/
+			if (((*glob_s_multilist).bufferlist[start].face & 0x60)==0x60)
+			{
+				if ((*glob_t_multilist).bufferlist[index_in_buffer].Justification==-1)
+				{
+					string_resorted=resortstring(finalstring);
+					if (string_resorted)
 					{
-						iparms=STRINGOUTPUT_bold;
-						if (currentsetfontsize!=38)
-						{
-							currentsetfontsize=24;
-						}
+						finalstring=resortedstring;
 					}
-					else
+				}
+			}
+/*		}*/
+	}
+	if (colornr!=0)
+	{
+		get_colorstring(colornr);
+	}
+	if (((*((s_instance*)TELESCOPE_getproperty())).face & 0x60)==0x60)
+	{
+		int tlmax=strlen(finalstring);
+		int tlstart,tlend;
+		tlstart=0;tlend=0;
+		for (int ilv3=0;ilv3<tlmax;ilv3++)
+		{
+			if ((finalstring[ilv3]>='0') && (finalstring[ilv3]<='9'))
+			{
+				if (ifsmat==2)
+				{
+					printformatted(finalstring,iparms,ifsmat,tlstart,tlend);
+					tlstart=ilv3;
+					tlend=ilv3+1;
+					ifsmat=1;
+				}
+				else
+				{
+					if (ifsmat==0)
 					{
-						currentsetfontsize=29;
+						tlend=ilv3+1;
+						goto trivial;
+					}
+					if (ifsmat==1)
+					{
+						tlend=ilv3+1;
+						goto trivial;
+					}
+					if (ifsmat==4)
+					{
+						printformatted(finalstring,iparms,ifsmat,tlstart,tlend);
+						tlstart=ilv3;
+						tlend=ilv3+1;
+						ifsmat=0;
+						goto trivial;
 					}
 				}
 			}
 			else
 			{
-				currentsetfontsize=18;
-			}
-			#endif
-			#ifdef CAMBRIDGESOFT_CONFORMING
-			sprintf(iparmsstring,"%s",((tlformlabeltype & 0x10) ? STRINGOUTPUT_bold : STRINGOUTPUT_emptyformat),currentsetfontsize);
-			iparms=iparmsstring;
-			#endif
-		}
-		if (owner!=-1)
-		{
-			if ((*((*glob_t_multilist).bufferlist[index_in_buffer].s)).count_in_it==1)
-			{
-				if (((*glob_s_multilist).bufferlist[start].face & 0x60)==0x60)
+				if (sentenumeric(finalstring[ilv3]))
 				{
-					if ((*glob_t_multilist).bufferlist[index_in_buffer].Justification==-1)
+					treatasbookstave:
+					if (ifsmat==0)
 					{
-						string_resorted=resortstring(finalstring);
-						if (string_resorted)
-						{
-							finalstring=resortedstring;
-						}
+						tlend=ilv3+1;
+						ifsmat=2;
+						goto trivial;
 					}
-				}
-			}
-		}
-		if (strcmp((*i_font_instance).name.a,"Symbol")==0)
-		{
-			converttogreek(finalstring);
-			finalstring=geek_greek_string;
-		}
-		if (colornr!=0)
-		{
-			get_colorstring(colornr);
-		}
-		if ((((*glob_s_multilist).bufferlist)[ilv2].face & 0x60)==0x60)
-		{
-			int tlmax=strlen(finalstring);
-			int tlstart,tlend;
-			tlstart=0;tlend=0;
-			for (int ilv3=0;ilv3<tlmax;ilv3++)
-			{
-				if ((finalstring[ilv3]>='0') && (finalstring[ilv3]<='9'))
-				{
-					if (ifsmat==2)
+					if (ifsmat==1)
 					{
 						printformatted(finalstring,iparms,ifsmat,tlstart,tlend);
 						tlstart=ilv3;
 						tlend=ilv3+1;
-						ifsmat=1;
+						ifsmat=2;
+						goto trivial;
 					}
-					else
+					if (ifsmat==2)
 					{
-						if (ifsmat==0)
-						{
-							tlend=ilv3+1;
-							goto trivial;
-						}
-						if (ifsmat==1)
-						{
-							tlend=ilv3+1;
-							goto trivial;
-						}
-						if (ifsmat==4)
-						{
-							printformatted(finalstring,iparms,ifsmat,tlstart,tlend);
-							tlstart=ilv3;
-							tlend=ilv3+1;
-							ifsmat=0;
-							goto trivial;
-						}
+						tlend=ilv3+1;
+						goto trivial;
+					}
+					if (ifsmat==4)
+					{
+						printformatted(finalstring,iparms,ifsmat,tlstart,tlend);
+						tlstart=ilv3;
+						tlend=ilv3+1;
+						ifsmat=2;
+						goto trivial;
 					}
 				}
 				else
 				{
-					if (sentenumeric(finalstring[ilv3]))
+					if ((finalstring[ilv3]=='+') || (finalstring[ilv3]=='-'))
 					{
-						treatasbookstave:
 						if (ifsmat==0)
 						{
 							tlend=ilv3+1;
-							ifsmat=2;
+							goto trivial;
+						}
+						if (ifsmat==4)
+						{
+							tlend=ilv3+1;
 							goto trivial;
 						}
 						if (ifsmat==1)
@@ -1864,33 +1928,24 @@ tlposx+tlcos-tlsin,tlposy+tlsin+tlcos,tlposx+2*tlcos-tlsin,tlposy+2*tlsin+tlcos,
 							printformatted(finalstring,iparms,ifsmat,tlstart,tlend);
 							tlstart=ilv3;
 							tlend=ilv3+1;
-							ifsmat=2;
+							ifsmat=4;
 							goto trivial;
 						}
 						if (ifsmat==2)
 						{
-							tlend=ilv3+1;
-							goto trivial;
-						}
-						if (ifsmat==4)
-						{
 							printformatted(finalstring,iparms,ifsmat,tlstart,tlend);
 							tlstart=ilv3;
 							tlend=ilv3+1;
-							ifsmat=2;
+							ifsmat=4;
 							goto trivial;
 						}
 					}
 					else
 					{
-						if ((finalstring[ilv3]=='+') || (finalstring[ilv3]=='-'))
+						if (spaciatic(finalstring[ilv3]))
 						{
+							treatasspace:
 							if (ifsmat==0)
-							{
-								tlend=ilv3+1;
-								goto trivial;
-							}
-							if (ifsmat==4)
 							{
 								tlend=ilv3+1;
 								goto trivial;
@@ -1900,111 +1955,86 @@ tlposx+tlcos-tlsin,tlposy+tlsin+tlcos,tlposx+2*tlcos-tlsin,tlposy+2*tlsin+tlcos,
 								printformatted(finalstring,iparms,ifsmat,tlstart,tlend);
 								tlstart=ilv3;
 								tlend=ilv3+1;
-								ifsmat=4;
+								ifsmat=0;
 								goto trivial;
 							}
 							if (ifsmat==2)
 							{
+								tlend=ilv3+1;
+								ifsmat=0;
+								goto trivial;
+							}
+							if (ifsmat==4)
+							{
 								printformatted(finalstring,iparms,ifsmat,tlstart,tlend);
 								tlstart=ilv3;
 								tlend=ilv3+1;
-								ifsmat=4;
+								ifsmat=0;
 								goto trivial;
 							}
 						}
 						else
 						{
-							if (spaciatic(finalstring[ilv3]))
+							if (finalstring[ilv3] & 0x80)
 							{
-								treatasspace:
-								if (ifsmat==0)
-								{
-									tlend=ilv3+1;
-									goto trivial;
-								}
-								if (ifsmat==1)
-								{
-									printformatted(finalstring,iparms,ifsmat,tlstart,tlend);
-									tlstart=ilv3;
-									tlend=ilv3+1;
-									ifsmat=0;
-									goto trivial;
-								}
-								if (ifsmat==2)
-								{
-									tlend=ilv3+1;
-									ifsmat=0;
-									goto trivial;
-								}
-								if (ifsmat==4)
-								{
-									printformatted(finalstring,iparms,ifsmat,tlstart,tlend);
-									tlstart=ilv3;
-									tlend=ilv3+1;
-									ifsmat=0;
-									goto trivial;
-								}
+								goto treatasbookstave;
 							}
-							else
-							{
-								if (finalstring[ilv3] & 0x80)
-								{
-									goto treatasbookstave;
-								}
-								goto treatasspace;
-							}
+							goto treatasspace;
 						}
 					}
 				}
-				trivial:
-				;
 			}
-			printformatted(finalstring,iparms,ifsmat,tlstart,tlend);
+			trivial:
+			;
 		}
-		else
+		printformatted(finalstring,iparms,ifsmat,tlstart,tlend);
+	}
+	else
+	{
+		int tlformlabeltype=(*((s_instance*)TELESCOPE_getproperty())).face;
+		currentsetfontsize=(*((s_instance*)TELESCOPE_getproperty())).size;
+		#ifdef LENNARD_HACK
+		if ((currentsetfontsize>20.0) || (tlformlabeltype & 0x10))
 		{
-			int tlformlabeltype=((*glob_s_multilist).bufferlist)[ilv2].face;
-			currentsetfontsize=(((*glob_s_multilist).bufferlist))[ilv2].size;
-			#ifdef LENNARD_HACK
-			if ((currentsetfontsize>20.0) || (tlformlabeltype & 0x10))
+			if (currentsetfontsize>99.0)
 			{
-				if (currentsetfontsize>99.0)
-				{
-					iparms=STRINGOUTPUT_emptyformat;
-				}
-				else
-				{
-					if (currentsetfontsize!=29)
-					{
-						iparms=STRINGOUTPUT_bold;
-						if (currentsetfontsize!=38)
-						{
-							currentsetfontsize=24;
-						}
-					}
-					else
-					{
-						currentsetfontsize=29;
-					}
-				}
+				iparms=STRINGOUTPUT_emptyformat;
 			}
 			else
 			{
-				currentsetfontsize=18;
+				if (currentsetfontsize!=29)
+				{
+					iparms=STRINGOUTPUT_bold;
+					if (currentsetfontsize!=38)
+					{
+						currentsetfontsize=24;
+					}
+				}
+				else
+				{
+					currentsetfontsize=29;
+				}
 			}
-			#endif
-			#ifdef CAMBRIDGESOFT_CONFORMING
-			sprintf(iparmsstring,"%s",((tlformlabeltype & 0x10) ? STRINGOUTPUT_bold : STRINGOUTPUT_emptyformat),currentsetfontsize);
-			iparms=iparmsstring;
-			#endif*/
-			/*fprintf(outfile,"<tspan %s style=\"fill:#%s\">%s</tspan>%s\n",
-			(tlformlabeltype & 0x20) ? "dy=\"+3\" font-size=\"14\"" : ((tlformlabeltype & 0x40) ? "dy=\"-3\" font-size=\"14%\"":""),
-			colorstring,finalstring,(tlformlabeltype & 0x20)?"<tspan dy=\"-3\"/>":((tlformlabeltype & 0x40)?"<tspan dy=\"3\"/>":""));*/
-/*			printformatted(finalstring,iparms,((tlformlabeltype & 0x20) ? 1 : 0) | ((tlformlabeltype & 0x40) ? 4 : 0),0,strlen(finalstring));
 		}
+		else
+		{
+			currentsetfontsize=18;
+		}
+		#endif
+		#ifdef CAMBRIDGESOFT_CONFORMING
+		sprintf(iparmsstring,"%s",((tlformlabeltype & 0x10) ? STRINGOUTPUT_bold : STRINGOUTPUT_emptyformat),currentsetfontsize);
+		iparms=iparmsstring;
+		#endif
+		/*fprintf(outfile,"<tspan %s style=\"fill:#%s\">%s</tspan>%s\n",
+		(tlformlabeltype & 0x20) ? "dy=\"+3\" font-size=\"14\"" : ((tlformlabeltype & 0x40) ? "dy=\"-3\" font-size=\"14%\"":""),
+		colorstring,finalstring,(tlformlabeltype & 0x20)?"<tspan dy=\"-3\"/>":((tlformlabeltype & 0x40)?"<tspan dy=\"3\"/>":""));*/
+		printformatted(finalstring,iparms,((tlformlabeltype & 0x20) ? 1 : 0) | ((tlformlabeltype & 0x40) ? 4 : 0),0,strlen(finalstring));
 	}
+	tlbackval=TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_s);
+	goto svg_text_back;
+	svg_text_finished:
 	express_text_tail();
-	*/
+	
 	//TODO SUBJECT: TEXT ist completely broken now without a buffer to read it from.
 	goto svg_main_loop;
 	svg_main_moleculefill:

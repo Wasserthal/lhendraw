@@ -47,7 +47,7 @@ If it is filled from PCDATA, its name is PCDATA*/
 typedef struct cdx_Buffered_String /*can be filled both by Property value and inter-Object-Text.
 If it is filled from PCDATA, its name is PCDATA*/
 {
-	char * a;
+	char * a;//TODO: add count, remove NULL-termination. or rather: collapse this entire structure type to a propertylist trail.
 };
 
 inline void clear_cdx_Buffered_String(cdx_Buffered_String & input) /*can be filled both by Property value and inter-Object-Text.
@@ -90,15 +90,52 @@ int __attribute__((sysv_abi))CDXMLREAD_cdx_Buffered_String(char * input,void * o
 	else
 	{
 		TELESCOPE_buffer * buffer;
-		if (getbufferfromstructure(findmultilist((*currentinstance).getName()),&buffer))
+		if (getbufferfromstructure(findmultilist((*currentinstance).getFullName()),&buffer))
 		{
 			(*((cdx_Buffered_String*)output)).a=(*buffer).buffer+((*buffer).count);
 			strncpy(&((*((cdx_Buffered_String*)output)).a[0]),input,(*buffer).max-((*buffer).count));
 			((*buffer).count)+=strlen(input);
+			if ((*buffer).count<(*buffer).max)
+			{
+				*((*buffer).buffer+((*buffer).count))=0;
+				(*buffer).count++;
+			}
+			else
+			{
+				((*buffer).count)-=strlen(input);
+				return -1;
+			}
 		}
+		else
+		{
+			return -2;
+		}
+		return 0;
 	}
 	found:
-	//TODO Urgent!!!
+	TELESCOPE_buffer * buffer;
+	if (getbufferfromstructure(findmultilist((*currentinstance).getFullName()),&buffer))
+	{
+		if ((*((cdx_Buffered_String*)output)).a+strlen((*((cdx_Buffered_String*)output)).a)==(*buffer).buffer+(*buffer).count-1)
+		{
+			if ((*buffer).count+strlen(input)<(*buffer).max)
+			{
+				(*buffer).count--;
+				strcpy((*buffer).buffer+(*buffer).count,input);
+				(*buffer).count+=strlen(input);
+				(*buffer).count++;
+			}
+			else
+			{
+				return -1;
+			}
+			return 1;
+		}
+	}
+	else
+	{
+		return -2;
+	}
 	return 0;
 }
 

@@ -219,7 +219,7 @@ int main(int argc,char * * argv)
 	printf("..%s..\n",properties[properties_count-1]);
 	goto propertiesback;
 	propertiesdone:
-	fprintf(outfile,"#define STRUCTUREDEFINED_%s%s\nstruct %s%s_instance:%s\n{\n        static inline const char * INTERNALgetname(){return \"%s%s\";}\n        const char * getName(){return INTERNALgetname()+%i;}\n",datablockstring,name,datablockstring,name,(linemode)?"TELESCOPE_element":((internalmode&1)?"basic_instance":"basic_instance_propertybuffer"),datablockstring,name,strlen(datablockstring));
+	fprintf(outfile,"#define STRUCTUREDEFINED_%s%s_instance\nstruct %s%s_instance:%s\n{\n        static inline const char * INTERNALgetname(){return \"%s%s\";}\n        const char * getName(){return INTERNALgetname()+%i;}\n        const char * getFullName(){return INTERNALgetname();}\n",datablockstring,name,datablockstring,name,(linemode)?"TELESCOPE_element":((internalmode&1)?"basic_instance":"basic_instance_propertybuffer"),datablockstring,name,strlen(datablockstring));
 	if (internalmode&1)
 	{
 		fprintf(outfile,"	const static int INTERNALPropertycount=%i;\n	_u32 INTERNALPropertyexistflags;\n	virtual _u32 * getINTERNALPropertyexistflags(){return &INTERNALPropertyexistflags;}\n",properties_count);
@@ -228,7 +228,7 @@ int main(int argc,char * * argv)
 	{
 		for (int ilv1=0;ilv1<contents_count;ilv1++)
 		{
-			fprintf(outfile,"        basicmultilistreference * %s;\n",contents[ilv1],contents[ilv1]);
+			fprintf(outfile,"        basicmultilistreference * %s;\n",contents[ilv1]);
 		}
 	}
 	for (int ilv1=0;ilv1<properties_count;ilv1++)
@@ -302,9 +302,9 @@ int main(int argc,char * * argv)
 	}
 	if ((internalmode&2) && (!(linemode)))
 	{
-		if (properties_count>0)
+		if (contents_count>0)
 		{
-			sprintf(helpbufferpos,"	TELESCOPE_buffer * ibuffer;\n	getbufferfromstructure(retrievemultilist<%s_instance>(),&ibuffer);\n	pos_in_buffer=(*ibuffer).count;\n%n",name,&helpbufferreturnvalue);
+			sprintf(helpbufferpos,"	TELESCOPE_buffer * ibuffer;\n	getbufferfromstructure(retrievemultilist<%s%s_instance>(),&ibuffer);\n	pos_in_buffer=(*ibuffer).count;\n%n",datablockstring,name,&helpbufferreturnvalue);
 			helpbufferpos+=helpbufferreturnvalue;
 			(*helpbufferpos)=0;
 		}

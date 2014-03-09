@@ -31,6 +31,9 @@ void entertag()
 
 void grow_pctext(char ichar)
 {
+	char bchar[2];
+	bchar[0]=ichar;
+	bchar[1]=0;
 	CDXMLREAD_functype thisfunc;
 	int txtoffset=currentinstance->getproperties("PCTEXT",&thisfunc);
 	if (txtoffset==-1)
@@ -38,13 +41,11 @@ void grow_pctext(char ichar)
 		return;
 	}
 	char * txtpos=((char*)currentinstance)+txtoffset;
-	int ctroffset=currentinstance->getproperties("PCTEXTcounter",&thisfunc);
-	int * ctrpos=(int*)(((char*)currentinstance)+ctroffset);
-	if (ctroffset==-1)
+	if (ichar==0)
 	{
-		return;	
+		fprintf(stderr,"\nNO:%s\n",*((char**)txtpos));
 	}
-	txtpos[(*ctrpos)++]=ichar;	
+	thisfunc(bchar,txtpos);
 }
 
 inline void concludepctext()

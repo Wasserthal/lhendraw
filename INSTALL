@@ -16,8 +16,18 @@ sudo make install
 if compiling worked, there should be a executable file called lhendraw.
 
 build system - for advanced users
-Build system consists of .c or .cxx files, which pearl-necklace-type includes all components of the program with #include and contains some main function with entry point/main loop
-in the generated folder, there are some files which are automatically generated with the tools in /tools/
+
+Steps of building:
+
+1. in the /generated/ folder, there are some files which are automatically generated with the tools in /tools/,
+* from files that end in .draft = for reflective data structures ; by tools/filestructure
+* from .hxx files which contain macro lists only and are additionally directly included = to create defined numberings ; tools/reflection_enums
+* from files that end in .pullout.hxx = for menu's and their actions ; these units are directly included into the tool-program., as well as other menus.
+* from all .hxx files which contain the string typedef struct, these definitions will be read and converted to lists which are indexed in a master list. The strings in them are used to create the datastructure tree the user can edit directly.
+It is the aim to have all global variables reflected.
+
+2. Build system consists of .c or .cxx files, which pearl-necklace-type includes all components of the program with #include and contains some main function with entry point/main loop
+
 
 when compiling fails:
 look in the corresponding .c or .cxx file (usually lhendraw.cxx) if you could add/remove some include on the top.

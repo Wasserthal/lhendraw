@@ -235,6 +235,7 @@ int main(int argc,char * * argv)
 	{
 		fprintf(outfile,"        %s %s;\n",properties_types[ilv1],properties[ilv1]);
 	}
+	
 	fprintf(outfile,"        AUTOSTRUCT_GET_ROUTINE(contents,%i)\n        AUTOSTRUCT_PROPERTY_ROUTINE(%i)\n        %s%s_instance();\n        ~%s%s_instance(){}\n};\nsuperconstellation %s%s_instance::contents[]={\n",contents_count,properties_count,datablockstring,name,datablockstring,name,datablockstring,name);
 	if (internalmode&1)
 	{

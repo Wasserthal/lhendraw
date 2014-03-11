@@ -276,6 +276,7 @@ struct basic_instance
 	virtual const char * getFullName(){return 0;}
 	virtual _u32 * getINTERNALPropertyexistflags(){return NULL;}
 	basic_instance * master;
+	virtual int hit(float ix,float iy){};
 	char exist;
 	basic_instance(){master=NULL;exist=1;};
 	~basic_instance(){};

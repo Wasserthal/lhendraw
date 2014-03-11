@@ -51,6 +51,7 @@ int clockid=0;
 #include "sdlgfx.hxx"
 #include "parsecdxml_variables.hxx"
 #include "conv_cambridge_internal.hxx"
+#include "edit.hxx"
 #include "sdlctrl.hxx"
 #include "draw.hxx"
 //#include "hatch.hxx" //TODO SUBJECT HATCH needs the moleculefill buffer

@@ -302,7 +302,7 @@ int gfx()
 		exit(1);
 	}
 }
-int gfxstart()
+int gfx_gfxstart()
 {
 	if ( SDL_MUSTLOCK(video) ) 
 	{
@@ -314,7 +314,7 @@ int gfxstart()
 	screen=(unsigned int*)(*video).pixels;//You know, that is a pointer to a n byte structure, n=colordepth
 	canvas=screen+gfx_canvasminx+gfx_screensizex*gfx_canvasminy;
 }
-int gfxstop()
+int gfx_gfxstop()
 {
 	if ( SDL_MUSTLOCK(video) ) 
 	{
@@ -839,11 +839,10 @@ void svg_findaround();
 void getatoms();
 void svg_controlprocedure(bool irestriction,bool hatches);
 void svg_main(const char * filename);
-void sdl_output()
+void gfx_output()
 {
 	clock_gettime(clockid,&ts);
 	counter1-=ts.tv_nsec+1000000000*ts.tv_sec;
-	gfxstart();
 	clock_gettime(clockid,&ts);
 	counter1+=ts.tv_nsec+1000000000*ts.tv_sec;
 	screenclear(0xFFFFFF);
@@ -870,7 +869,6 @@ void sdl_output()
 	counter5+=ts.tv_nsec+1000000000*ts.tv_sec;
 	clock_gettime(clockid,&ts);
 	counter1-=ts.tv_nsec+1000000000*ts.tv_sec;
-	gfxstop();
 	clock_gettime(clockid,&ts);
 	counter1+=ts.tv_nsec+1000000000*ts.tv_sec;
 }

@@ -35,8 +35,18 @@ LLLLLL H   H EEEEE N    N DDD   R  R A     A    W     W
 #include <SDL.h>
 #include <unistd.h>
 #include "draw_variables.hxx"
+void automatic_init() {
 #include "./generated/initialization_lhendraw.hxx"
+}
+superconstellation AUTOSTRUCTURE_ctype_propertylist[]{
+#include "./generated/propertylist_lhendraw.hxx"
+};
+superconstellation_directory AUTOSTRUCTURE_ctype_directory[]{
+#include "./generated/propertydirectory_lhendraw.hxx"
+};
 #include "./generated/reflection.hxx"
+#include "./generated/pullout_stringfile.hxx"
+#include "./generated/pullout_structfile.hxx"
 #include "text_freetype.h"
 
 #include <time.h>
@@ -53,17 +63,20 @@ int clockid=0;
 #include "conv_cambridge_internal.hxx"
 #include "edit.hxx"
 #include "sdlctrl.hxx"
+#include "menugfx.hxx"
 #include "draw.hxx"
 //#include "hatch.hxx" //TODO SUBJECT HATCH needs the moleculefill buffer
 
 #include "xmlparse.hxx"
 
 #include "lhendraw_files.hxx"
+#include "resources_init.hxx"
 int main(int argc,char * * argv)
 {
 	clock_getcpuclockid(getpid(),&clockid);
 	initmemory();
 	automatic_init();
+	resources_init();
 	if (argc!=2)
 	{
 		printf("no file specified or to many ones!");
@@ -76,9 +89,13 @@ int main(int argc,char * * argv)
 	svg_findaround();
 	text_init();
 	sdl_init();
+	SDL_ShowCursor(0);
 	mainloop:
+	gfx_gfxstart();
 	sdl_control();
-	sdl_output();
+	gfx_output();
+	sdl_toolboxdraw();
+	gfx_gfxstop();
 	usleep(1000);
 	if (!LHENDRAW_leave) goto mainloop;
 	sdl_outit();

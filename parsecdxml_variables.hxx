@@ -2,6 +2,8 @@ TELESCOPE_buffer filestructure_text_buffer;
 TELESCOPE_buffer filestructure_curve_buffer;
 TELESCOPE_buffer internalstructure_text_buffer;
 TELESCOPE_buffer internalstructure_n_buffer;
+#define selection_maxbuttons 16
+_u32 resources_bitmap_buttons[selection_maxbuttons][32][32];
 struct TELESCOPE_tempvar_
 {
 	int pos;//object inside buffer

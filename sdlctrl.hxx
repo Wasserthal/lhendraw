@@ -1,11 +1,13 @@
 char control_mousestate=0;//0: inactive; 1: from tool; 2: on menu 3: from tool, resuming
 int control_toolaction=0;//1: move 2: move selection 3: tool specific
-int tool=0;//1: Hand 2: 2coordinate Selection 3: Lasso, no matter which 4: 
+int control_tool=0;//1: Hand 2: 2coordinate Selection 3: Lasso, no matter which 4: Shift tool 5: Magnifying glass 6: Element draw 7: chemdraw draw 8: eraser 9: 
 int control_posx=0;
 int control_posy=0;
 float control_coorsx=0;
 float control_coorsy=0;
+int control_mousex,control_mousey;
 char LHENDRAW_leave;
+char control_reticle=1;
 typedef struct clickabilitymatrix_
 {
 	int mode;//0: groups //1 whole objects 2: manipulators(default) 3: fragments, such as bezierpoints
@@ -60,6 +62,38 @@ void issuerelease()
 {
 	control_mousestate=0;
 }
+void issuemenuclick(int posx,int posy,int button)
+{
+	AUTOSTRUCT_PULLOUTLISTING_ * ipulloutlisting;
+	for (int ilv1=0;ilv1<sizeof(AUTOSTRUCT_PULLOUTLISTING_toolbox)/sizeof(AUTOSTRUCT_PULLOUTLISTING_);ilv1++)
+	{
+		if ((AUTOSTRUCT_PULLOUTLISTING_toolbox[ilv1].x==posx) && (AUTOSTRUCT_PULLOUTLISTING_toolbox[ilv1].y==posy))
+		{
+			ipulloutlisting=&(AUTOSTRUCT_PULLOUTLISTING_toolbox[ilv1]);
+		}
+	}
+	switch(button)
+	{
+		case SDL_BUTTON_LEFT:
+		{
+			switch ((*ipulloutlisting).lmbmode)
+			{
+				case 1: control_tool=(*ipulloutlisting).toolnr;break;
+				case 2: (*ipulloutlisting).getflag(4,0);break;
+			}
+			break;
+		}
+		case SDL_BUTTON_RIGHT:
+		{
+			switch ((*ipulloutlisting).rmbmode)
+			{
+				case 1: control_tool=(*ipulloutlisting).toolnr;break;
+				case 2: (*ipulloutlisting).getflag(4,0);break;
+			}
+			break;
+		}
+	}
+}
 void sdl_control()
 {
 	SDL_Event tlEvent;
@@ -71,6 +105,8 @@ void sdl_control()
 		{
 			case SDL_MOUSEMOTION:
 			{
+				control_mousex=tlEvent.motion.x;
+				control_mousey=tlEvent.motion.y;
 				if (control_mousestate==1)
 				{
 					issuedrag(tlEvent.motion.x-gfx_canvasminx, tlEvent.motion.y-gfx_canvasminy);
@@ -79,6 +115,14 @@ void sdl_control()
 			}
 			case SDL_MOUSEBUTTONDOWN:
 			{
+				if (control_mousestate==0)
+				{
+					if ((tlEvent.button.x<gfx_canvasminx) || (tlEvent.button.y<gfx_canvasminy) || (tlEvent.button.x>=gfx_canvasmaxx) || (tlEvent.button.y>=gfx_canvasmaxy))
+					{
+						issuemenuclick(tlEvent.button.x/32,tlEvent.button.y/32,tlEvent.button.button);
+						break;
+					}
+				}
 				switch (tlEvent.button.button)
 				{
 					case SDL_BUTTON_LEFT:

@@ -11,21 +11,19 @@ all: ./generated/filestructure.hxx ./generated/internalstructure.hxx parsecdxml.
 	./tools/filestructure_maker -l internalstructure.draft ./generated/internalstructure.hxx ./generated/initialization_parsexml.hxx INTERNAL ./generated/propertylist_lhendraw.hxx ./generated/propertydirectory_lhendraw.hxx
 	echo '}' >> ./generated/initialization_parsexml.hxx
 ./generated/structure.hxx ./generated/cambridgestructure.hxx ./generated/initialization_lhendraw.hxx: ./tools/filestructure_maker internalstructure.draft filestructure.draft
-	echo 'void automatic_init() {'> ./generated/initialization_lhendraw.hxx
-	echo 'superconstellation AUTOSTRUCTURE_ctype_propertylist[]{' > ./generated/propertylist_lhendraw.hxx
-	echo 'superconstellation_directory AUTOSTRUCTURE_ctype_directory[]{' > ./generated/propertydirectory_lhendraw.hxx
+	rm ./generated/initialization_lhendraw.hxx || rm ./generated/propertylist_lhendraw.hxx || rm ./generated/propertydirectory_lhendraw || true
 	./tools/filestructure_maker -l internalstructure.draft ./generated/structure.hxx ./generated/initialization_lhendraw.hxx '' ./generated/propertylist_lhendraw.hxx ./generated/propertydirectory_lhendraw.hxx
 	./tools/filestructure_maker -m filestructure.draft ./generated/cambridgestructure.hxx ./generated/initialization_lhendraw.hxx CAMBRIDGE
-	echo '}' >> ./generated/propertylist_lhendraw.hxx
-	echo '}' >> ./generated/propertydirectory_lhendraw.hxx
-	echo '}' >> ./generated/initialization_lhendraw.hxx
 ./generated/reflection_enums.hxx: ./tools/reflection_enums ./internal_enum.hxx
 	./tools/reflection_enums
 makeinf_test: makeinf.hxx makeinf_test.cxx cxxdata.h lendefs.h
 	g++ -g -O0 -std=c++0x -Wno-invalid-offsetof makeinf_test.cxx -o makeinftest -D DEBUG -Wno-format
-sdl: ./generated/cambridgestructure.hxx ./generated/structure.hxx parsecdxml.cxx lendefs.h xmldata.hxx xmlparse.hxx cxxdata.h conv_cambridge_internal.hxx enums.hxx definitionlist.h lendefs.h janitor.hxx draw.hxx sdlgfx.hxx lhendraw.cxx conv_cambridge_internal.hxx draw_variables.hxx lhendraw_files.hxx ./generated/initialization_lhendraw.hxx ./generated/reflection_enums.hxx
+sdl: ./generated/cambridgestructure.hxx ./generated/structure.hxx parsecdxml.cxx lendefs.h xmldata.hxx xmlparse.hxx cxxdata.h conv_cambridge_internal.hxx enums.hxx definitionlist.h lendefs.h janitor.hxx draw.hxx sdlgfx.hxx lhendraw.cxx conv_cambridge_internal.hxx draw_variables.hxx lhendraw_files.hxx ./generated/initialization_lhendraw.hxx ./generated/reflection_enums.hxx ./pullout_stringfile.hxx
 	g++ -g -O0 -std=c++0x -m64 lhendraw.cxx -o lhendraw -I/usr/include/SDL -I/usr/include/freetype2 -L/usr/lib64 -L/usr/lib/x86_64-linux-gnu -lSDL -lm -lfreetype -Wno-invalid-offsetof -D GFXOUT_SDL -lrt
 lennard_infget: makeinf.hxx makeinf_test.cxx cxxdata.h lendefs.h
 	g++ -g -O0 -std=c++0x -Wno-invalid-offsetof makeinf_test.cxx -o lennard_infget -D DEBUG -D MACHINE_READABLE -Wno-format
+pullout_stringfile.hxx: tools/pullout.c toolbox.pullout.hxx
+	gcc tools/pullout.c -o tools/pullout
+	./tools/pullout
 install:
 	cp lhendraw -t /usr/bin

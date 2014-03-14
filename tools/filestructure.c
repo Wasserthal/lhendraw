@@ -275,11 +275,11 @@ int main(int argc,char * * argv)
 		}
 		if ((properties_type_nrs[ilv1]==5) || (properties_type_nrs[ilv1]==4) || (properties_type_nrs[ilv1]==7))
 		{
-			fprintf(thisfile,"{\"%s\",offsetof(%s%s_instance,%s),CDXMLREAD_ENUM_%s}%s\n",properties[ilv1],datablockstring,name,properties[ilv1],properties[ilv1],(ilv1==properties_count-1) ? "" : ",");
+			fprintf(thisfile,"{\"%s\",offsetof(%s%s_instance,%s),CDXMLREAD_ENUM_%s}%s\n",properties[ilv1],datablockstring,name,properties[ilv1],properties[ilv1],",");
 		}
 		else
 		{
-			fprintf(thisfile,"{\"%s\",offsetof(%s%s_instance,%s),CDXMLREAD_%s}%s\n",properties[ilv1],datablockstring,name,properties[ilv1],properties_types[ilv1],(ilv1==properties_count-1) ? "" : ",");
+			fprintf(thisfile,"{\"%s\",offsetof(%s%s_instance,%s),CDXMLREAD_%s}%s\n",properties[ilv1],datablockstring,name,properties[ilv1],properties_types[ilv1],",");
 		}
 	}
 	fprintf(outfile,"};\n");

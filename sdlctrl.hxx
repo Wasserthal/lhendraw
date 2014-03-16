@@ -26,20 +26,29 @@ typedef struct MODIFIER_KEYS_
 }MODIFIER_KEYS_;
 MODIFIER_KEYS_ MODIFIER_KEYS={0,0,0,0};
 
-void issueclick(int iposx,int iposy)
+int issueclick(int iposx,int iposy)
 {
 	int ibackval;
 	control_posx=iposx;
 	control_posy=iposy;
-	control_coorsx=control_posx*SDL_zoomx+SDL_scrollx;
-	control_coorsy=control_posy*SDL_zoomy+SDL_scrolly;
+	control_coorsx=control_posx/SDL_zoomx+SDL_scrollx;
+	control_coorsy=control_posy/SDL_zoomy+SDL_scrolly;
 	clearselection(clickselection);
+	switch (control_tool)
+	{
+		case 2:
+		{
+			selection_frame.startx=control_coorsx;
+			selection_frame.starty=control_coorsy;
+			break;
+		}
+	}
 	if (clickabilitymatrix.mode==1)
 	{
 		if (clickabilitymatrix.types1 & 1)
 		{
-			clickfor<n_instance>(control_coorsx,control_coorsy);
-			clickfor<b_instance>(control_coorsx,control_coorsy);
+			clickfor(control_coorsx,control_coorsy,STRUCTURE_OBJECTTYPE_n);
+			clickfor(control_coorsx,control_coorsy,STRUCTURE_OBJECTTYPE_b);
 			for (int ilv1=0;ilv1<(*glob_n_multilist).filllevel;ilv1++)
 			{
 				
@@ -48,18 +57,117 @@ void issueclick(int iposx,int iposy)
 		}
 	}
 	control_mousestate=1;
+	return 0;
+}
+char storeundo(_u32 flags)
+{
+	return 1;
 }
 void issuedrag(int iposx,int iposy)
 {
-	int tldeltax=iposx-control_posx;
-	int tldeltay=iposy-control_posy;
-	SDL_scrollx-=tldeltax/SDL_zoomx;
-	SDL_scrolly-=tldeltay/SDL_zoomy;
+	int ideltax=iposx-control_posx;
+	int ideltay=iposy-control_posy;
+	control_coorsx=iposx/SDL_zoomx+SDL_scrollx;
+	control_coorsy=iposy/SDL_zoomy+SDL_scrolly;
+	_u32 icompare;
+	int isize;
+	int ioffset;
+	char * ibufferpos;
+	switch (control_tool)
+	{
+		case 1:
+		{
+			SDL_scrollx-=ideltax/SDL_zoomx;
+			SDL_scrolly-=ideltay/SDL_zoomy;
+			break;
+		}
+		case 2:
+		{
+			selection_frame.endx=control_coorsx;
+			selection_frame.endy=control_coorsy;
+			break;
+		}
+		case 4:
+		{
+			if (storeundo(~0))//TODO Urgent: NEIN, eben NICHT! Immer nur am Anfang!
+			{
+				for (int ilv1=0;ilv1<sizeof(STRUCTURE_OBJECTTYPE_List)/sizeof(trienum);ilv1++)
+				{
+					icompare=1<<ilv1;
+					int isize= STRUCTURE_OBJECTTYPE_List[ilv1].size;
+					basicmultilist * tlmultilist=findmultilist(STRUCTURE_OBJECTTYPE_List[ilv1].name);
+					if (tlmultilist==NULL) goto i_control4_fertig;
+					CDXMLREAD_functype tldummy;
+					ioffset=(*tlmultilist).getproperties("xyz",&tldummy);
+					if (ioffset<0) goto i_control4_fertig;
+					ibufferpos=(char*)((*tlmultilist).pointer);
+					cdx_Point2D * tlpoint2d;
+					for (int ilv2=0;ilv2<(*tlmultilist).filllevel;ilv2++)
+					{
+						if ((currentselection[ilv2]) & icompare)
+						{
+							if ((*((basic_instance*)(ibufferpos+isize*ilv2))).exist)
+							{
+								tlpoint2d = ((cdx_Point2D*)(ibufferpos+isize*ilv2+ioffset));
+								(*tlpoint2d).x+=ideltax/SDL_zoomx;
+								(*tlpoint2d).y+=ideltay/SDL_zoomy;
+							}
+						}
+					}
+					i_control4_fertig:;
+				}
+			}
+			break;
+		}
+	}
 	control_posx=iposx;
 	control_posy=iposy;
 }
 void issuerelease()
 {
+	_u32 icompare;
+	int isize;
+	int ioffset;
+	char * ibufferpos;
+	switch (control_tool)
+	{
+		case 2:
+		{
+			clearselection(currentselection);
+			float ix,iy;
+			for (int ilv1=0;ilv1<sizeof(STRUCTURE_OBJECTTYPE_List)/sizeof(trienum);ilv1++)
+			{
+				icompare=1<<ilv1;
+				int isize= STRUCTURE_OBJECTTYPE_List[ilv1].size;
+				basicmultilist * tlmultilist=findmultilist(STRUCTURE_OBJECTTYPE_List[ilv1].name);
+				if (tlmultilist==NULL) goto i_control2_fertig;
+				CDXMLREAD_functype tldummy;
+				ioffset=(*tlmultilist).getproperties("xyz",&tldummy);
+				if (ioffset<0) goto i_control2_fertig;
+				ibufferpos=(char*)((*tlmultilist).pointer);
+				cdx_Point2D * tlpoint2d;
+				if (tlmultilist!=NULL)
+				{
+					for (int ilv2=0;ilv2<(*tlmultilist).filllevel;ilv2++)
+					{
+						if ((*((basic_instance*)(ibufferpos+isize*ilv2))).exist)
+						{
+							tlpoint2d = ((cdx_Point2D*)(ibufferpos+isize*ilv2+ioffset));
+							if (((*tlpoint2d).x>=selection_frame.startx) && ((*tlpoint2d).x<=selection_frame.endx))
+							{
+								if (((*tlpoint2d).y>=selection_frame.starty) && ((*tlpoint2d).y<=selection_frame.endy))
+								{
+									currentselection[ilv2]|=icompare;
+								}
+							}
+						}
+					}
+				}
+				i_control2_fertig:;
+			}
+			break;
+		}
+	}
 	control_mousestate=0;
 }
 void issuemenuclick(int posx,int posy,int button)

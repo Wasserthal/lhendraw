@@ -1,3 +1,14 @@
+//This file is included but also auto-processed
+//It serves as list for defined internal constants that relate to automatically generated elements.
+//--STRUCTURE_OBJECTTYPE
+//List of the id numbers of all instances, for flaglists, undo buffer lists, and undo command definitions
+#define STRUCTURE_OBJECTTYPE_None 0
+#define STRUCTURE_OBJECTTYPE_n 1
+#define STRUCTURE_OBJECTTYPE_b 2
+#define STRUCTURE_OBJECTTYPE_t 3
+#define STRUCTURE_OBJECTTYPE_arrow 4
+#define STRUCTURE_OBJECTTYPE_graphic 5
+#define STRUCTURE_OBJECTTYPE_curve 6
 //--TELESCOPE_ELEMENTTYPE
 //Numbers may not have interruption, but dummies are allowed.
 #define TELESCOPE_ELEMENTTYPE_None 0

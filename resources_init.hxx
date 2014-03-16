@@ -1,3 +1,5 @@
+//reads in all files essential for the program
+//gfx/buttons.bmp relies on the external variable selection_maxbuttons
 void resources_init()
 {
 	FILE * bitmapfile;

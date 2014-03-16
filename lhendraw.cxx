@@ -61,6 +61,7 @@ int clockid=0;
 #include "sdlgfx.hxx"
 #include "parsecdxml_variables.hxx"
 #include "conv_cambridge_internal.hxx"
+#include "selection.hxx"
 #include "edit.hxx"
 #include "sdlctrl.hxx"
 #include "menugfx.hxx"
@@ -95,6 +96,7 @@ int main(int argc,char * * argv)
 	sdl_control();
 	gfx_output();
 	sdl_toolboxdraw();
+	sdl_selectiondraw();
 	gfx_gfxstop();
 	usleep(1000);
 	if (!LHENDRAW_leave) goto mainloop;

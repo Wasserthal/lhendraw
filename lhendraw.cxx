@@ -78,7 +78,7 @@ int main(int argc,char * * argv)
 	clock_getcpuclockid(getpid(),&clockid);
 	initmemory();
 	automatic_init();
-	resources_init();
+	resources_init(argv[0]);
 	if (argc!=2)
 	{
 		printf("no file specified or to many ones!");
@@ -89,7 +89,6 @@ int main(int argc,char * * argv)
 	fclose(infile);
 	CAMBRIDGECONV_maintointernal();
 	svg_findaround();
-	text_init();
 	sdl_init();
 	SDL_ShowCursor(0);
 	mainloop:

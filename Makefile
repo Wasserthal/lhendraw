@@ -1,4 +1,5 @@
-all: ./generated/filestructure.hxx ./generated/internalstructure.hxx parsecdxml.cxx lendefs.h xmldata.hxx xmlparse.hxx cxxdata.h enums.hxx definitionlist.h lendefs.h janitor.hxx createsvg.hxx makeinf.hxx makeinf.cxx graphics_variables.hxx ./generated/initialization_parsexml.hxx
+all: sdl
+commandline: ./generated/filestructure.hxx ./generated/internalstructure.hxx parsecdxml.cxx lendefs.h xmldata.hxx xmlparse.hxx cxxdata.h enums.hxx definitionlist.h lendefs.h janitor.hxx createsvg.hxx makeinf.hxx makeinf.cxx graphics_variables.hxx ./generated/initialization_parsexml.hxx
 	g++ -O0 -g -std=c++0x -Wno-invalid-offsetof parsecdxml.cxx -o parsexml -D DEBUG -D LENNARD_HACK -Wno-format -D GFXOUT_SVG
 	g++ -g -O0 -std=c++0x -Wno-invalid-offsetof makeinf.cxx -o makeinf -D DEBUG -D LENNARD_HACK -Wno-format -D GFXOUT_SVG
 ./tools/filestructure_maker: ./tools/filestructure.c
@@ -26,4 +27,8 @@ pullout_stringfile.hxx: tools/pullout.c toolbox.pullout.hxx
 	gcc tools/pullout.c -o tools/pullout
 	./tools/pullout
 install:
-	cp lhendraw -t /usr/bin
+	mkdir -p /usr/share/lhendraw
+	cp lhendraw -t /usr/share/lhendraw
+	cp -R gfx -t /usr/share/lhendraw/
+	cp *.ttf -t /usr/share/lhendraw
+	ln -s -f /usr/share/lhendraw/lhendraw /usr/bin/lhendraw

@@ -79,7 +79,7 @@ int indexfromunicode(int input)//Weighed approximation
 }
 void putpixel(int iposx,int iposy);
 	
-int text_init(void)
+int text_init(char * filename)
 {
 	FT_Library library;
 	FT_Face face;
@@ -87,7 +87,7 @@ int text_init(void)
 //	FT_Matrix matrix;
 
 	FT_Init_FreeType( &library );
-	FT_New_Face(library, "LiberationMono-Regular.ttf", 0, &face);
+	FT_New_Face(library, filename, 0, &face);
 	FT_Set_Char_Size(face, 12*64*72, 0,1,0);
 	slot= (*face).glyph;
 	fontpixinf_count=0;

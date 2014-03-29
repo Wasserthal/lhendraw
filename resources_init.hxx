@@ -1,11 +1,35 @@
 //reads in all files essential for the program
 //gfx/buttons.bmp relies on the external variable selection_maxbuttons
-void resources_init()
+FILE * criticalfilename(char * iargv0,char * idirectorystring,const char * iname)
 {
+	FILE * thefile;
+	strcpy(idirectorystring,"/usr/share/lhendraw");
+	strcat(idirectorystring,iname);
+	thefile=fopen(idirectorystring,"r");
+	if (thefile==NULL)
+	{
+		strcpy(idirectorystring,iargv0);
+		for (int ilv1=strlen(idirectorystring);ilv1>0;ilv1--)
+		{
+			if (idirectorystring[ilv1]=='/')
+			{
+				idirectorystring[ilv1]=0;
+				strcat(idirectorystring,iname);
+				goto ifilenamefertig;
+			}
+		}
+		ifilenamefertig:;
+		thefile=fopen(idirectorystring,"r");
+	}
+	return thefile;
+}
+void resources_init(char * iargv0)
+{
+	char idirectorystring[1000];
 	FILE * bitmapfile;
 	char ihv1;
 	int ioffset;
-	bitmapfile=fopen("gfx/buttons.bmp","r");
+	bitmapfile=criticalfilename(iargv0,idirectorystring,"/gfx/buttons.bmp");
 	for (int ilv1=0;ilv1<10;ilv1++)
 	{
 		fread(&ihv1,1,1,bitmapfile);
@@ -21,4 +45,10 @@ void resources_init()
 		}
 	}
 	fclose(bitmapfile);
+	bitmapfile=criticalfilename(iargv0,idirectorystring,"/LiberationMono-Regular.ttf");
+	if (bitmapfile)
+	{
+		fclose(bitmapfile);
+		text_init(idirectorystring);
+	}
 }

@@ -185,6 +185,27 @@ void CAMBRIDGECONV_texts()
 		}
 	}
 }
+#define WORKIFIX_REGISTERED_TRADEMARK_workthrough_variables\
+	_u32 icompare;\
+	int isize;\
+	char * ibufferpos;\
+	int ioffset;
+#define WORKIFIX_REGISTERED_TRADEMARK_workthrough(MACROPARAM_PROPERTY)\
+				for (int ilv1=0;ilv1<sizeof(STRUCTURE_OBJECTTYPE_List)/sizeof(trienum);ilv1++)\
+				{\
+					icompare=1<<ilv1;\
+					int isize= STRUCTURE_OBJECTTYPE_List[ilv1].size;\
+					basicmultilist * tlmultilist=findmultilist(STRUCTURE_OBJECTTYPE_List[ilv1].name);\
+					if (tlmultilist==NULL) goto i_macrointernal_fertig;\
+					CDXMLREAD_functype tldummy;\
+					ioffset=(*tlmultilist).getproperties(# MACROPARAM_PROPERTY,&tldummy);\
+					if (ioffset<0) goto i_macrointernal_fertig;\
+					ibufferpos=(char*)((*tlmultilist).pointer);\
+					cdx_Point2D * tlpoint2d;\
+					for (int ilv2=0;ilv2<(*tlmultilist).filllevel;ilv2++)\
+					{\
+						if ((*((basic_instance*)(ibufferpos+isize*ilv2))).exist)\
+						{
 
 void CAMBRIDGECONV_maintointernal()
 {

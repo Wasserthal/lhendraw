@@ -11,7 +11,7 @@ all: ./generated/filestructure.hxx ./generated/internalstructure.hxx parsecdxml.
 	./tools/filestructure_maker -l internalstructure.draft ./generated/internalstructure.hxx ./generated/initialization_parsexml.hxx INTERNAL ./generated/propertylist_lhendraw.hxx ./generated/propertydirectory_lhendraw.hxx
 	echo '}' >> ./generated/initialization_parsexml.hxx
 ./generated/structure.hxx ./generated/cambridgestructure.hxx ./generated/initialization_lhendraw.hxx: ./tools/filestructure_maker internalstructure.draft filestructure.draft
-	rm ./generated/initialization_lhendraw.hxx || rm ./generated/propertylist_lhendraw.hxx || rm ./generated/propertydirectory_lhendraw || true
+	rm ./generated/initialization_lhendraw.hxx ; rm ./generated/propertylist_lhendraw.hxx ; rm ./generated/propertydirectory_lhendraw.hxx ; true
 	./tools/filestructure_maker -l internalstructure.draft ./generated/structure.hxx ./generated/initialization_lhendraw.hxx '' ./generated/propertylist_lhendraw.hxx ./generated/propertydirectory_lhendraw.hxx
 	./tools/filestructure_maker -m filestructure.draft ./generated/cambridgestructure.hxx ./generated/initialization_lhendraw.hxx CAMBRIDGE
 ./generated/reflection_enums.hxx: ./tools/reflection_enums ./internal_enum.hxx

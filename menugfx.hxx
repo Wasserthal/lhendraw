@@ -56,7 +56,7 @@ int sdl_toolboxdraw()
 		switch (AUTOSTRUCT_PULLOUTLISTING_toolbox[ilv1].lmbmode)
 		{
 			case 1: if (control_tool==AUTOSTRUCT_PULLOUTLISTING_toolbox[ilv1].toolnr) state=3;break;
-			case 2: if (AUTOSTRUCT_PULLOUTLISTING_toolbox[ilv1].getflag(0,2)) state=3;break;
+			case 2: state=AUTOSTRUCT_PULLOUTLISTING_toolbox[ilv1].getflag(2,0); break;
 		}
 		sdl_toolboxitemdraw(AUTOSTRUCT_PULLOUTLISTING_toolbox[ilv1].x*32,AUTOSTRUCT_PULLOUTLISTING_toolbox[ilv1].y*32,AUTOSTRUCT_PULLOUTLISTING_toolbox[ilv1].picno,state);
 	}
@@ -76,5 +76,47 @@ int sdl_toolboxdraw()
 				screen[gfx_screensizex*(ilv1)+control_mousex]^=0xFFFFFF;
 			}
 		}
+	}
+}
+int sdl_selectiondraw()
+{
+	_u32 icompare;
+	int isize;
+	char * ibufferpos;
+	for (int ilv1=0;ilv1<sizeof(STRUCTURE_OBJECTTYPE_List)/sizeof(trienum);ilv1++)
+	{
+		icompare=1<<ilv1;
+		int isize= STRUCTURE_OBJECTTYPE_List[ilv1].size;
+		basicmultilist * tlmultilist=findmultilist(STRUCTURE_OBJECTTYPE_List[ilv1].name);
+		if (tlmultilist==NULL) goto i_fertig;
+		CDXMLREAD_functype tldummy;
+		ibufferpos=(char*)((*tlmultilist).pointer);
+		float tlpx,tlpy;
+		SDL_color=0x00FF00;
+		for (int ilv2=0;ilv2<(*tlmultilist).filllevel;ilv2++)
+		{
+			if ((currentselection[ilv2]) & icompare)
+			{
+				if ((*((basic_instance*)(ibufferpos+isize*ilv2))).exist)
+				{
+					int ilv3=0;
+					iback:
+					if (retrievepoints_basic(((basic_instance*)(ibufferpos+isize*ilv2)),&tlpx,&tlpy,ilv3,ilv1)>0)
+					{
+						putpixel((tlpx-SDL_scrollx)*SDL_zoomx+1,(tlpy-SDL_scrolly)*SDL_zoomy+1);
+						putpixel((tlpx-SDL_scrollx)*SDL_zoomx+2,(tlpy-SDL_scrolly)*SDL_zoomy);
+						putpixel((tlpx-SDL_scrollx)*SDL_zoomx-2,(tlpy-SDL_scrolly)*SDL_zoomy);
+						putpixel((tlpx-SDL_scrollx)*SDL_zoomx-1,(tlpy-SDL_scrolly)*SDL_zoomy+1);
+						putpixel((tlpx-SDL_scrollx)*SDL_zoomx+1,(tlpy-SDL_scrolly)*SDL_zoomy-1);
+						putpixel((tlpx-SDL_scrollx)*SDL_zoomx,(tlpy-SDL_scrolly)*SDL_zoomy+2);
+						putpixel((tlpx-SDL_scrollx)*SDL_zoomx,(tlpy-SDL_scrolly)*SDL_zoomy-2);
+						putpixel((tlpx-SDL_scrollx)*SDL_zoomx-1,(tlpy-SDL_scrolly)*SDL_zoomy-1);
+						ilv3++;
+						goto iback;
+					}
+				}
+			}
+		}
+		i_fertig:;
 	}
 }

@@ -1,8 +1,20 @@
+char *glob_n_undo_buffer;
+char *glob_n_undo_contentbuffer;
+char *glob_b_undo_buffer;
+char *glob_b_undo_contentbuffer;
+char *glob_graphic_undo_buffer;
+char *glob_graphic_undo_contentbuffer;
+char *glob_text_undo_buffer;
+char *glob_text_undo_contentbuffer;
 TELESCOPE_buffer filestructure_text_buffer;
 TELESCOPE_buffer filestructure_curve_buffer;
 TELESCOPE_buffer internalstructure_text_buffer;
+TELESCOPE_buffer internalstructure_b_buffer;
 TELESCOPE_buffer internalstructure_n_buffer;
-#define selection_maxbuttons 16
+TELESCOPE_buffer internalstructure_text_undobuffer;
+TELESCOPE_buffer internalstructure_b_undobuffer;
+TELESCOPE_buffer internalstructure_n_undobuffer;
+#define selection_maxbuttons 17
 _u32 resources_bitmap_buttons[selection_maxbuttons][32][32];
 struct TELESCOPE_tempvar_
 {
@@ -212,6 +224,13 @@ int TELESCOPE_add(int tag,char * iinput,int ilength)//Like insertintoproperties,
 	}
 	return 1;
 }
+int TELESCOPE_clear()
+{
+	if (TELESCOPE_verify_objectpresent())
+	{
+		(*((TELESCOPE*)(((*(TELESCOPE_tempvar.buffer)).buffer)+TELESCOPE_tempvar.pos))).owner=-1;
+	}
+}
 void * TELESCOPE_getproperty()
 {
 	return (void*)((*TELESCOPE_tempvar.buffer).buffer+TELESCOPE_tempvar.pos+TELESCOPE_tempvar.subpos);
@@ -234,4 +253,13 @@ int initmemory()
 	internalstructure_n_buffer.buffer=(char*)malloc(1000000);
 	internalstructure_n_buffer.max=1000000;
 	internalstructure_n_buffer.count=0;
+	internalstructure_b_buffer.buffer=(char*)malloc(1000000);
+	internalstructure_b_buffer.max=1000000;
+	internalstructure_b_buffer.count=0;
+	glob_n_undo_buffer=(char*)malloc(sizeof(multilist<n_instance>)+sizeof(n_instance)*bufferlistsize);
+	glob_b_undo_buffer=(char*)malloc(sizeof(multilist<b_instance>)+sizeof(b_instance)*bufferlistsize);
+	glob_graphic_undo_buffer=(char*)malloc(sizeof(multilist<n_instance>)+sizeof(n_instance)*bufferlistsize);
+	glob_text_undo_contentbuffer=(char*)malloc(1000000);
+	glob_b_undo_contentbuffer=(char*)malloc(1000000);
+	glob_n_undo_contentbuffer=(char*)malloc(1000000);
 }

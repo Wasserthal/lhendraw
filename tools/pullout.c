@@ -82,7 +82,10 @@ void domenu(menuitem * input,int count,char * name)
 		fprintf(structfile,"{%i,%i,%i,\nAUTOSTRUCT_STRINGLIST_PULLOUT+%i\n,%i,%i,%i,\n",input[ilv1].x,input[ilv1].y,input[ilv1].picno,
 		stringlist_count,input[ilv1].lmbmode,input[ilv1].rmbmode,input[ilv1].toolnr);
 		addstring(input[ilv1].description);
-		fprintf(structfile,"NULL,NULL,NULL,NULL,0x%06X},",input[ilv1].bgcolor);
+		fprintf(structfile,"NULL,NULL,\nAUTOSTRUCT_STRINGLIST_PULLOUT+%i,\n",stringlist_count);
+		addstring(input[ilv1].LMBfunction);
+		fprintf(structfile,"\nAUTOSTRUCT_STRINGLIST_PULLOUT+%i\n,0x%06X},",stringlist_count,input[ilv1].bgcolor);
+		addstring(input[ilv1].RMBfunction);
 	}
 	fprintf(structfile,"};\n");
 	return;

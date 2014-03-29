@@ -100,6 +100,7 @@ class basicmultilist
 	intl ourcount;
 	int itemsize;
 	intl index;
+	_u32 maxid;
 	void * pointer;
 	basicmultilist(){pointer=NULL;itemsize=0;};
 	virtual int getproperties(const char * name,CDXMLREAD_functype * delegateoutput)
@@ -118,6 +119,7 @@ template <class whatabout> class multilist : public basicmultilist
 	{
 		filllevel=0;
 		ourcount=0;
+		maxid=0;
 		bufferlist=(whatabout*)malloc(sizeof(whatabout)*bufferlistsize);
 		itemsize=sizeof(whatabout);
 		pointer=bufferlist;

@@ -1,0 +1,7 @@
+UNDO documentation:
+the storeundo command stores the memory areas selected in the bitmask given.
+the restoreundo command restores the memory areas selected in the bitmask given, but does not pop the contents in the undo buffer.
+the useundo command restores the memory areas selected in the bitmask given, and also discards the undo buffer.
+the storeundo function should be invoked on any mouse click that STARTS a tool action. (no matter if that click is to the canvas or to the tool buttons)
+the useundo command is invoked by the user only.
+the restoreundo command is invoked in tools which create mouse-trackingly iteratively document's states that are relying on an intact previous state.

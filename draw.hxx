@@ -1120,6 +1120,7 @@ void svg_controlprocedure(bool irestriction=0,bool hatches=0)
 			tlcurrentmultilist=(basicmultilist*)multilistlist.instances[objectZorderlist[ilv1].listnr];
 			index_in_buffer=objectZorderlist[ilv1].nr;
 			tlcurrentinstance=((char*)((*tlcurrentmultilist).pointer))+((*tlcurrentmultilist).itemsize)*index_in_buffer;
+			if ((*(basic_instance*)tlcurrentinstance).exist==0){goto svg_main_loop;}
 			{//TODO**** delete instance in findaround after implementing delete routines
 				ipropertyoffset=(tlcurrentmultilist)->getproperties("SupersededBy",(CDXMLREAD_functype*)&dummy);
 				if (ipropertyoffset!=-1)

@@ -8,7 +8,8 @@ L      H   H E     N   NN D  D  R  R A     A   W W   W W
 LLLLLL H   H EEEEE N    N DDD   R  R A     A    W     W
 
 */
-#define _XOPEN_SOURCE 600
+#include <new>
+#define _XOPEN_SOURCE 700
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -92,8 +93,8 @@ int main(int argc,char * * argv)
 	sdl_init();
 	SDL_ShowCursor(0);
 	mainloop:
-	gfx_gfxstart();
 	sdl_control();
+	gfx_gfxstart();
 	gfx_output();
 	sdl_toolboxdraw();
 	sdl_selectiondraw();

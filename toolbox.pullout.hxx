@@ -72,4 +72,12 @@ menuitem pullout_toolbox[]={
 "click-draw to delete anything you pass\n"
 "RMB to use larger radius\n",
 },
+{2,2,
+13,//Picture
+"Save",
+1,0,
+0,
+"click-draw to delete anything you pass\n"
+"RMB to use larger radius\n",
+},
 };

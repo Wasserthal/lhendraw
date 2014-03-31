@@ -1,7 +1,7 @@
 //This unit transforms user input into commands to the program
 char control_mousestate=0;//0: inactive; 1: from tool; 2: on menu 3: from tool, resuming
 int control_toolaction=0;//1: move 2: move selection 3: tool specific
-int control_tool=0;//1: Hand 2: 2coordinate Selection 3: Lasso, no matter which 4: Shift tool 5: Magnifying glass 6: Element draw 7: chemdraw draw 8: eraser 9: 
+int control_tool=0;//1: Hand 2: 2coordinate Selection 3: Lasso, no matter which 4: Shift tool 5: Magnifying glass 6: Element draw 7: chemdraw draw 8: eraser 9: Arrows 10: graphic
 int control_posx=0;
 int control_posy=0;
 long long control_id=-1;
@@ -287,6 +287,7 @@ void issuedrag(int iposx,int iposy)
 					(*tlbond).E=(*tlatom2).id;
 				}
 			}
+			break;
 		}
 		case 4:
 		{
@@ -404,6 +405,37 @@ void issuemenuclick(int posx,int posy,int button)
 		}
 	}
 }
+void checkupinconsistencies()
+{
+	for (int ilv1=0;ilv1<(*glob_b_multilist).filllevel;ilv1++)
+	{
+		b_instance * tl_b_instance=&((*glob_b_multilist).bufferlist[ilv1]);
+		if ((*tl_b_instance).exist)
+		{
+			for (char ilv2=0;ilv2<2;ilv2++)
+			{
+				if (!edit_locatebyid(STRUCTURE_OBJECTTYPE_n,ilv2?((*tl_b_instance).B):((*tl_b_instance).E),NULL))
+				{
+					(*tl_b_instance).exist=0;
+					goto destroyed;
+				}
+			}
+		}
+		destroyed:;
+	}
+	getatoms();
+	for (int ilv1=0;ilv1<(*glob_n_multilist).filllevel;ilv1++)
+	{
+		n_instance * tl_n_instance=&((*glob_n_multilist).bufferlist[ilv1]);
+		if ((*tl_n_instance).exist)
+		{
+			if (atom_actual_node[ilv1].bondcount==0)
+			{
+				(*tl_n_instance).exist=0;
+			}
+		}
+	}
+}
 void issuedelete()
 {
 	_u32 icompare;
@@ -421,8 +453,6 @@ void issuedelete()
 				basicmultilist * tlmultilist=findmultilist(STRUCTURE_OBJECTTYPE_List[ilv1].name);
 				if (tlmultilist==NULL) goto i_delete_fertig;
 				CDXMLREAD_functype tldummy;
-				ioffset=(*tlmultilist).getproperties("xyz",&tldummy);
-				if (ioffset<0) goto i_delete_fertig;
 				ibufferpos=(char*)((*tlmultilist).pointer);
 				cdx_Point2D * tlpoint2d;
 				for (int ilv2=0;ilv2<(*tlmultilist).filllevel;ilv2++)
@@ -441,6 +471,7 @@ void issuedelete()
 			}
 		}
 	}
+	checkupinconsistencies();
 }
 void sdl_control()
 {

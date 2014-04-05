@@ -29,11 +29,11 @@ control_toolinfo_ control_toolinfo[]=
 	{0,0,0},//1: Hand
 	{0,1,0},//2: 2Coordinate selection
 	{0,0,0},//3: Lasso
-	{~0,1,1},//4: Shift tool
+	{(_u32)~0,1,1},//4: Shift tool
 	{0,0,-1},//5: Magnifying glass
 	{1<<STRUCTURE_OBJECTTYPE_n,0,-3},//Element put
-	{~0,0,0},//Chemdraw draw
-	{~0,3,-1},//eraser
+	{(_u32)~0,0,0},//Chemdraw draw
+	{(_u32)~0,3,-1},//eraser
 };
 typedef struct clickabilitymatrix_
 {
@@ -291,7 +291,7 @@ void issuedrag(int iposx,int iposy)
 		}
 		case 4:
 		{
-			for (int ilv1=0;ilv1<sizeof(STRUCTURE_OBJECTTYPE_List)/sizeof(trienum);ilv1++)
+			for (int ilv1=0;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
 			{
 				icompare=1<<ilv1;
 				int isize= STRUCTURE_OBJECTTYPE_List[ilv1].size;
@@ -334,7 +334,7 @@ void issuerelease()
 		{
 			clearselection(currentselection);
 			float ix,iy;
-			for (int ilv1=0;ilv1<sizeof(STRUCTURE_OBJECTTYPE_List)/sizeof(trienum);ilv1++)
+			for (int ilv1=0;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
 			{
 				icompare=1<<ilv1;
 				int isize= STRUCTURE_OBJECTTYPE_List[ilv1].size;
@@ -446,7 +446,7 @@ void issuedelete()
 	{
 		if (storeundo(~0))
 		{
-			for (int ilv1=0;ilv1<sizeof(STRUCTURE_OBJECTTYPE_List)/sizeof(trienum);ilv1++)
+			for (int ilv1=0;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
 			{
 				icompare=1<<ilv1;
 				int isize= STRUCTURE_OBJECTTYPE_List[ilv1].size;
@@ -473,6 +473,62 @@ void issuedelete()
 	}
 	checkupinconsistencies();
 }
+#ifdef GFXOUT_SDL
+int interpretkey(SDL_Event & tlEvent)
+{
+	char keystring[4]={0,0,0,0};
+
+	switch (tlEvent.key.keysym.sym)
+	{
+		case SDLK_F1: keystring[0]='F';keystring[1]='1';break;
+		case SDLK_F2: keystring[0]='F';keystring[1]='2';break;
+		case SDLK_F3: keystring[0]='F';keystring[1]='3';break;
+		case SDLK_F4: keystring[0]='F';keystring[1]='4';break;
+		case SDLK_F5: keystring[0]='F';keystring[1]='5';break;
+		case SDLK_F6: keystring[0]='F';keystring[1]='6';break;
+		case SDLK_F7: keystring[0]='F';keystring[1]='7';break;
+		case SDLK_F8: keystring[0]='F';keystring[1]='8';break;
+		case SDLK_F9: keystring[0]='F';keystring[1]='9';break;
+		case SDLK_F10: keystring[0]='F';keystring[1]='1';keystring[2]='0';break;
+		case SDLK_F11: keystring[0]='F';keystring[1]='1';keystring[2]='1';break;
+		case SDLK_F12: keystring[0]='F';keystring[1]='1';keystring[2]='2';break;
+		case SDLK_F13: keystring[0]='F';keystring[1]='1';keystring[2]='3';break;
+		case SDLK_F14: keystring[0]='F';keystring[1]='1';keystring[2]='4';break;
+		case SDLK_F15: keystring[0]='F';keystring[1]='1';keystring[2]='5';break;
+		case SDLK_MENU: strncpy(keystring,"MENU",4);break;
+		case SDLK_BACKSPACE: strncpy(keystring,"BACKSPACE",4);break;
+		case SDLK_TAB: strncpy(keystring,"TAB",4);break;
+		case SDLK_RETURN: strncpy(keystring,"RET",4);break;
+		default:;
+		_u16 ihv1=(tlEvent.key.keysym.unicode);
+		if (ihv1<0x7F)
+		{
+			keystring[0]=ihv1;
+		}
+		else
+		{
+			if (ihv1<0x7FF)
+			{
+				keystring[1]=(ihv1 & 0x3F) | 0x80;
+				keystring[0]=(ihv1>>6) + 0xC0;
+			}
+			else
+			{
+				keystring[2]=(ihv1 & 0x3F) | 0x80;
+				keystring[1]=((ihv1>>6) & 0x3F) | 0x80;
+				keystring[0]=(ihv1>>12) + 0xC0;
+			}
+		}
+	}
+	for (int ilv1=0;ilv1<hotkeylist_count;ilv1++)
+	{
+		if (strcmp(keystring,hotkeylist[ilv1].key)==0)
+		{
+			printf("%s:%s\n",hotkeylist[ilv1].variable,hotkeylist[ilv1].value);
+		}
+	}
+}
+#endif
 void sdl_control()
 {
 	SDL_Event tlEvent;
@@ -649,6 +705,8 @@ void sdl_control()
 						issuedelete();
 						break;
 					}
+					default:
+					interpretkey(tlEvent);
 				}
 				break;
 			}

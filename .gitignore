@@ -1,11 +1,14 @@
 /tools/filestructure_maker
 /tools/reflection_enums
 /tools/pullout
+/tools/reflection
 /generated/
 a.out
 parsexml
+lhendraw
 *.cdxml
 *.patch
 *.svg
 makeinf
 sdl.out
+TODO*.txt

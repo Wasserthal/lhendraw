@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Objects>
+<Object type="Atom">
+<Hotkeys>
+<Hotkey key="a" command="LABELTEXT" value="A"/>
+<Hotkey key="A" command="LABELTEXT" value="As"/>
+<Hotkey key="b" command="LABELTEXT" value="B"/>
+<Hotkey key="B" command="LABELTEXT" value="Br"/>
+<Hotkey key="c" command="LABELTEXT" value="C"/>
+<Hotkey key="C" command="LABELTEXT" value="Cl"/>
+<Hotkey key="d" command="LABELTEXT" value="D"/>
+<Hotkey key="D" command="LABELTEXT" value="D"/>
+<Hotkey key="e" command="LABELTEXT" value="E"/>
+<Hotkey key="E" command="LABELTEXT" value="Et"/>
+<Hotkey key="f" command="LABELTEXT" value="F"/>
+<Hotkey key="F" command="LABELTEXT" value="Fe"/>
+<Hotkey key="g" command="LABELTEXT" value="Ge"/>
+<Hotkey key="G" command="LABELTEXT" value="Ga"/>
+<Hotkey key="h" command="LABELTEXT" value="H"/>
+<Hotkey key="H" command="LABELTEXT" value="Hf"/>
+<Hotkey key="i" command="LABELTEXT" value="I"/>
+<Hotkey key="I" command="LABELTEXT" value="Ir"/>
+<Hotkey key="j" command="LABELTEXT" value="Se"/>
+<Hotkey key="J" command="LABELTEXT" value="Te"/>
+<Hotkey key="k" command="LABELTEXT" value="K"/>
+<Hotkey key="K" command="LABELTEXT" value="Ca"/>
+<Hotkey key="l" command="LABELTEXT" value="Li"/>
+<Hotkey key="L" command="LABELTEXT" value="Al"/>
+<Hotkey key="m" command="LABELTEXT" value="Mg"/>
+<Hotkey key="M" command="LABELTEXT" value="Mn"/>
+<Hotkey key="n" command="LABELTEXT" value="N"/>
+<Hotkey key="N" command="LABELTEXT" value="Na"/>
+<Hotkey key="o" command="LABELTEXT" value="O"/>
+<Hotkey key="O" command="LABELTEXT" value="OTf"/>
+<Hotkey key="p" command="LABELTEXT" value="P"/>
+<Hotkey key="P" command="LABELTEXT" value="Pd"/>
+<Hotkey key="q" command="LABELTEXT" value="Hg"/>
+<Hotkey key="Q" command="LABELTEXT" value="Ad"/>
+<Hotkey key="r" command="LABELTEXT" value="R"/>
+<Hotkey key="r" command="LABELTEXT" value="Rb"/>
+<Hotkey key="s" command="LABELTEXT" value="S"/>
+<Hotkey key="S" command="LABELTEXT" value="Si"/>
+<Hotkey key="t" command="LABELTEXT" value="TMS"/>
+<Hotkey key="T" command="LABELTEXT" value="Ti"/>
+<Hotkey key="u" command="LABELTEXT" value="Cu"/>
+<Hotkey key="U" command="LABELTEXT" value="U"/>
+<Hotkey key="v" command="LABELTEXT" value="V"/>
+<Hotkey key="V" command="LABELTEXT" value="CHCH2"/>
+<Hotkey key="w" command="LABELTEXT" value="W"/>
+<Hotkey key="W" command="LABELTEXT" value="Bi"/>
+<Hotkey key="x" command="LABELTEXT" value="X"/>
+<Hotkey key="X" command="LABELTEXT" value="Xe"/>
+<Hotkey key="y" command="LABELTEXT" value="Y"/>
+<Hotkey key="Y" command="LABELTEXT" value="Yb"/>
+<Hotkey key="z" command="LABELTEXT" value="Zn"/>
+<Hotkey key="Z" command="LABELTEXT" value="Zr"/>
+<Hotkey key="1" command="LABELTEXT" value="TMS"/>
+<Hotkey key="2" command="LABELTEXT" value="Tf"/>
+<Hotkey key="3" command="LABELTEXT" value="Boc"/>
+<Hotkey key="4" command="LABELTEXT" value="Ph"/>
+<Hotkey key="5" command="LABELTEXT" value="Ac"/>
+<Hotkey key="6" command="LABELTEXT" value="CH2OH"/>
+<Hotkey key="7" command="LABELTEXT" value="Ag"/>
+<Hotkey key="8" command="SPROUT" value="3"/>
+<Hotkey key="9" command="SPROUT" value="2"/>
+<Hotkey key="0" command="SPROUT" value="1"/>
+<Hotkey key="." command="ATTACHMENTPOINT" value="True"/>
+<Hotkey key="&apos;" command="ATOMNUMBER" value="True"/>
+<Hotkey key="-" command="CHARGE" value="-"/>
+<Hotkey key="+" command="CHARGE" value="+"/>
+<Hotkey key="?" command="DIALOG" value="PROPERTIES" description="Lhendraw command"/>
+<Hotkey key="/" command="DIALOG" value="PROPERTIES" description="Lhendraw command"/>
+<Hotkey key="=" command="DIALOG" value="APPLYNICKNAME" description="Lhendraw command"/>
+</Hotkeys>
+</Object>
+<Object type="Bond">
+<Hotkeys>
+<Hotkey key="f" command="BRINGTOFRONT" variable="Z" value="True"/>
+<Hotkey key="F" command="BRINGTOFRONT" variable="Z" value="False"/>
+<Hotkey key="l" command="SETITEMVARIABLE" variable="Doubleposition" value="Left"/>
+<Hotkey key="r" command="SETITEMVARIABLE" variable="Doubleposition" value="Right"/>
+<Hotkey key="c" command="SETITEMVARIABLE" variable="Doubleposition" value="Center"/>
+<Hotkey key="1" command="SETITEMVARIABLE" variable="Order" value="1"/>
+<Hotkey key="2" command="SETITEMVARIABLE" variable="Order" value="2"/>
+<Hotkey key="3" command="SETITEMVARIABLE" variable="Order" value="3"/>
+<Hotkey key="4" command="SETITEMVARIABLE" variable="Order" value="4"/>
+<Hotkey key="5" command="FUSERING" value="5"/>
+<Hotkey key="6" command="FUSERING" value="6"/>
+<Hotkey key="7" command="FUSERING" value="7"/>
+<Hotkey key="8" command="FUSERING" value="8"/>
+<Hotkey key="9" command="FUSERING" value="9"/>
+<Hotkey key="0" command="FUSERING" value="10"/>
+<Hotkey key="d" command="SETITEMVARIABLE" variable="Display" value="Dashed"/>
+<Hotkey key="H" command="SETITEMVARIABLE" variable="Display" value="Hashed"/>
+<Hotkey key="h" command="SETITEMVARIABLE" variable="Display" value="WedgedHashBegin"/>
+<Hotkey key="b" command="SETITEMVARIABLE" variable="Display" value="Bold"/>
+<Hotkey key="w" command="SETITEMVARIABLE" variable="Display" value="WedgeBegin"/>
+<Hotkey key="v" command="SETITEMVARIABLE" variable="Display" value="HollowWedgeBegin"/>
+<Hotkey key="y" command="SETITEMVARIABLE" variable="Display" value="Wavy"/>
+<Hotkey key="B" command="SETITEMVARIABLE" variable="Display2" value="Bold" description="Lhendraw command"/>
+<Hotkey key="?" command="DIALOG" value="PROPERTIES" description="Lhendraw command"/>
+<Hotkey key="/" command="DIALOG" value="PROPERTIES" description="Lhendraw command"/>
+</Hotkeys>
+</Object>
+<Object type="Generic">
+<Hotkeys>
+<Hotkey modifiers="CTRL" key="z" command="useundo"/>
+<Hotkey modifiers="CTRL" key="r" command="redo"/>
+<Hotkey modifiers="CTRL" key="v" command="Paste"/>
+<Hotkey modifiers="CTRL" key="x" command="Cut"/>
+<Hotkey modifiers="CTRL" key="c" command="Copy"/>
+<Hotkey modifiers="CTRL" key="e" command="TOOLMODE" value="9"/>
+</Hotkeys>
+</Object>
+</Objects>

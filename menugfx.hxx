@@ -83,7 +83,7 @@ int sdl_selectiondraw()
 	_u32 icompare;
 	int isize;
 	char * ibufferpos;
-	for (int ilv1=0;ilv1<sizeof(STRUCTURE_OBJECTTYPE_List)/sizeof(trienum);ilv1++)
+	for (int ilv1=0;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
 	{
 		icompare=1<<ilv1;
 		int isize= STRUCTURE_OBJECTTYPE_List[ilv1].size;

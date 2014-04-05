@@ -9,7 +9,7 @@ typedef struct basicmultilist{char worthless;};
 typedef struct basic_instance{char * getName(){return NULL;}};
 basic_instance * currentinstance;
 basicmultilist * findmultilist(const char * thetypesname){};
-#include "cxxdata.h"
+#include "cdxdata.hxx"
 //ONE MORE SUCKER
 int getbufferfromstructure(basicmultilist * input,char * * bufferptr,intl * ibufferlength,intl * * bufferfill){}
 #define CDXMAKEINF_READONLY

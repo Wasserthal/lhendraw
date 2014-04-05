@@ -9,10 +9,12 @@ int main(void)
 {
 	FILE * infile;
 	FILE * outfile;
+	FILE * outfile2;
 	int ihv1;
 	int iindex;
 	infile=fopen("./internal_enum.hxx","r");
 	outfile=fopen("./generated/reflection.hxx","w+");
+	outfile2=fopen("./generated/reflection_headers.hxx","w+");
 	iback:
 	;
 	int backval=fscanf(infile,"%[^\n]",buffer);
@@ -30,10 +32,11 @@ int main(void)
 		{
 			if (strncmp(buffer,"//--",4)==0)
 			{
-				if (glob_started) {fprintf(outfile,"};\n");}
+				if (glob_started) {fprintf(outfile,"};\n");fprintf(outfile,"int %s_ListSize=sizeof(%s_List)/sizeof(trienum);\n",group,group);}
 				int backval=sscanf(buffer,"//--%[^\n \x0D]",group);
 				sprintf(searchstring,"#define %s_%%[^\n ] %%i",group);
 				fprintf(outfile,"trienum %s_List[]{\n",group);
+				fprintf(outfile2,"extern trienum %s_List[];\nextern int %s_ListSize;\n",group,group);
 				glob_started=1;
 			}
 		}
@@ -44,5 +47,6 @@ int main(void)
 	if (glob_started) {fprintf(outfile,"};\n");}
 	fclose(infile);
 	fclose(outfile);
+	fclose(outfile2);
 	return 0;
 }

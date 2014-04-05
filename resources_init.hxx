@@ -23,13 +23,10 @@ FILE * criticalfilename(char * iargv0,char * idirectorystring,const char * iname
 	}
 	return thefile;
 }
-void resources_init(char * iargv0)
+void bitmap_init(FILE * bitmapfile)
 {
-	char idirectorystring[1000];
-	FILE * bitmapfile;
 	char ihv1;
 	int ioffset;
-	bitmapfile=criticalfilename(iargv0,idirectorystring,"/gfx/buttons.bmp");
 	for (int ilv1=0;ilv1<10;ilv1++)
 	{
 		fread(&ihv1,1,1,bitmapfile);
@@ -44,11 +41,27 @@ void resources_init(char * iargv0)
 			resources_bitmap_buttons[0][ilv1][ilv2]=(resources_bitmap_buttons[0][ilv1][ilv2]>>8) | (resources_bitmap_buttons[0][ilv1][ilv2]<<24);
 		}
 	}
-	fclose(bitmapfile);
-	bitmapfile=criticalfilename(iargv0,idirectorystring,"/LiberationMono-Regular.ttf");
-	if (bitmapfile)
+}
+void config_init(FILE * configfile)
+{
+	CONFIGBRIDGE_Total_Document_instance firstcurrentinstance;
+	currentinstance=&firstcurrentinstance;
+	input_fsm(configfile);
+}
+void resources_init(char * iargv0)
+{
+	char idirectorystring[1000];
+	FILE * resource_file;
+	resource_file=criticalfilename(iargv0,idirectorystring,"/gfx/buttons.bmp");
+	bitmap_init(resource_file);
+	fclose(resource_file);
+	resource_file=criticalfilename(iargv0,idirectorystring,"/hotkeys.xml");
+	config_init(resource_file);
+	fclose(resource_file);
+	resource_file=criticalfilename(iargv0,idirectorystring,"/LiberationMono-Regular.ttf");
+	if (resource_file)
 	{
-		fclose(bitmapfile);
+		fclose(resource_file);
 		text_init(idirectorystring);
 	}
 }

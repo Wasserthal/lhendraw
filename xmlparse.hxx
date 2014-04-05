@@ -105,7 +105,6 @@ void input_fsm(FILE* infile)
 	tagnamestring_length=0;
 	parameterstring_length=0;
 	paramvaluestring_length=0;
-	currentinstance=new(CAMBRIDGEPREFIX(Total_Document_instance));
 	iback:
 	fread(&ichar,1,1,infile);
 	#ifdef DEBUG

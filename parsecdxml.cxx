@@ -11,11 +11,12 @@
 #include <math.h>
 #include "lendefs.h"
 #include "xmldata.hxx"
-#include "cxxdata.h"
+#include "cdxdata.hxx"
 
 #include "enums.hxx"
 #include "./generated/filestructure.hxx"
 #include "./generated/internalstructure.hxx"
+#include "./generated/configfilestructure.hxx"
 #include "./generated/initialization_lhendraw.hxx"
 #include "telescopic_list.hxx"
 #include "internal_enum.hxx"
@@ -46,6 +47,7 @@ int main(int argc, char * * argv)
 	{
 		fprintf(stderr,"CDXML Error! file %s not found!",argv[1]);exit(1);
 	}
+	currentinstance=new(CAMBRIDGEPREFIX(Total_Document_instance));
 	input_fsm(infile);
 	fclose(infile);
 	if (argc<3)

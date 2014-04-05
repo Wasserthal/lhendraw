@@ -22,11 +22,13 @@ LLLLLL H   H EEEEE N    N DDD   R  R A     A    W     W
 #include "lendefs.h"
 #include "xmldata.hxx"
 #include "telescopic_list.hxx"
-#include "cxxdata.h"
+#include "cdxdata.hxx"
+#include "./generated/reflection_headers.hxx"
 #include "internal_enum.hxx"
 
 #include "enums.hxx"
 #include "./generated/structure.hxx"
+#include "./generated/configfilestructure.hxx"
 #include "./generated/cambridgestructure.hxx"
 #include "definitionlist.h"
 #include "janitor.hxx"
@@ -45,7 +47,6 @@ superconstellation AUTOSTRUCTURE_ctype_propertylist[]{
 superconstellation_directory AUTOSTRUCTURE_ctype_directory[]{
 #include "./generated/propertydirectory_lhendraw.hxx"
 };
-#include "./generated/reflection.hxx"
 #include "./generated/pullout_stringfile.hxx"
 #include "./generated/pullout_structfile.hxx"
 #include "text_freetype.h"
@@ -62,6 +63,7 @@ int clockid=0;
 #include "sdlgfx.hxx"
 #include "parsecdxml_variables.hxx"
 #include "conv_cambridge_internal.hxx"
+#include "conv_config_internalconfig.hxx"
 #include "selection.hxx"
 #include "edit.hxx"
 #include "sdlctrl.hxx"
@@ -73,23 +75,27 @@ int clockid=0;
 
 #include "lhendraw_files.hxx"
 #include "resources_init.hxx"
+#include "./generated/reflection.hxx"
 int main(int argc,char * * argv)
 {
 	clock_getcpuclockid(getpid(),&clockid);
 	initmemory();
 	automatic_init();
 	resources_init(argv[0]);
+	conv_config_internalconfig();
 	if (argc!=2)
 	{
 		printf("no file specified or to many ones!");
 		exit(1);
 	}
 	infile=fopen(argv[1],"r");
+	currentinstance=new(CAMBRIDGEPREFIX(Total_Document_instance));
 	input_fsm(infile);
 	fclose(infile);
 	CAMBRIDGECONV_maintointernal();
 	svg_findaround();
 	sdl_init();
+	SDL_EnableUNICODE(1);
 	SDL_ShowCursor(0);
 	mainloop:
 	sdl_control();

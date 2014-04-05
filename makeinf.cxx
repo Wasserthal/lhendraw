@@ -11,7 +11,7 @@
 #define CAMBRIDGEPREFIX2(content,content2) content ## _ ## content2
 #include "lendefs.h"
 #include "xmldata.hxx"
-#include "cxxdata.h"
+#include "cdxdata.hxx"
 #include "enums.hxx"
 #include "./generated/filestructure.hxx"
 #include "./generated/internalstructure.hxx"

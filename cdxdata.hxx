@@ -5,12 +5,12 @@
 /* This unit contains the readers for all datatypes that are no xml tags */
 extern int getbufferfromstructure(basicmultilist * input,TELESCOPE_buffer * * bufferptr);
 extern basic_instance * currentinstance;
-typedef struct cdx_enum
+struct cdx_enum
 {
 	int a;
 };
 
-typedef struct cdx_Point2D
+struct cdx_Point2D
 {
 	float x,y;
 };
@@ -18,7 +18,7 @@ inline void clear_cdx_Point2D(cdx_Point2D & input)
 {
 	input.x=0;input.y=0;
 }
-typedef struct cdx_Point3D
+struct cdx_Point3D
 {
 	float x,y,z;
 	char active;
@@ -29,7 +29,7 @@ inline void clear_cdx_Point3D(cdx_Point3D & input)
 	input.active=0;
 }
 
-typedef struct cdx_Rectangle
+struct cdx_Rectangle
 {
 	float left,top,right,bottom;
 };
@@ -38,13 +38,13 @@ inline void clear_cdx_Rectangle(cdx_Rectangle & input)
 	input.left=0;input.top=0;input.right=0;input.bottom=0;
 }
 
-typedef struct cdx_String /*can be filled both by Property value and inter-Object-Text.
+struct cdx_String /*can be filled both by Property value and inter-Object-Text.
 If it is filled from PCDATA, its name is PCDATA*/
 {
 	char a[stringlength+1];
 };
 
-typedef struct cdx_Buffered_String /*can be filled both by Property value and inter-Object-Text.
+struct cdx_Buffered_String /*can be filled both by Property value and inter-Object-Text.
 If it is filled from PCDATA, its name is PCDATA*/
 {
 	char * a;//TODO: add count, remove NULL-termination. or rather: collapse this entire structure type to a propertylist trail.
@@ -56,13 +56,13 @@ If it is filled from PCDATA, its name is PCDATA*/
 	input.a=NULL;
 };
 
-typedef struct cdx_Bezierpoints
+struct cdx_Bezierpoints
 {
 	cdx_Point2D a[bezierpointmax]; //TODO**** turn this, and strings, into buffer indices
 	int count;
 };
 
-typedef struct cdx_Pointreferences
+struct cdx_Pointreferences
 {
 	int a[bezierpointmax]; //TODO**** turn this, and strings, into buffer indices
 	int count;
@@ -371,16 +371,22 @@ int __attribute__((sysv_abi))CDXMLREAD_cdx_Point3D(char * input,void * output)
 	*((cdx_Point3D*)output)=wert;
 	return ilv1;
 }
-typedef struct bienum
+struct bienum
 {
 	char name[40];
 	intl number;
 };
-typedef struct trienum
+struct trienum
 {
 	char name[40];
 	intl number;
 	intl size;
+};
+struct fuenum
+{
+	int owner;//which unit it came from
+	char name[20];
+	catalogized_command_functype function;
 };
 intl get_bienum(bienum * ibienum,char * input,intl count)
 {

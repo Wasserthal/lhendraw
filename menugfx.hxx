@@ -1,3 +1,4 @@
+//any graphics output which is not data of the document
 int sdl_toolboxitemdraw(int posx,int posy,int gfxno,char state)
 {
 	_u32 * ibutton=resources_bitmap_buttons[0][0];
@@ -83,6 +84,16 @@ int sdl_selectiondraw()
 	_u32 icompare;
 	int isize;
 	char * ibufferpos;
+	if (control_mousestate==1)
+	{
+		if (control_tool==2)
+		{
+			expressline(selection_frame.startx,selection_frame.starty,selection_frame.endx,selection_frame.starty);
+			expressline(selection_frame.startx,selection_frame.starty,selection_frame.startx,selection_frame.endy);
+			expressline(selection_frame.startx,selection_frame.endy,selection_frame.endx,selection_frame.endy);
+			expressline(selection_frame.endx,selection_frame.starty,selection_frame.endx,selection_frame.endy);
+		}
+	}
 	for (int ilv1=0;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
 	{
 		icompare=1<<ilv1;
@@ -95,7 +106,7 @@ int sdl_selectiondraw()
 		SDL_color=0x00FF00;
 		for (int ilv2=0;ilv2<(*tlmultilist).filllevel;ilv2++)
 		{
-			if ((currentselection[ilv2]) & icompare)
+			if ((selection_currentselection[ilv2]) & icompare)
 			{
 				if ((*((basic_instance*)(ibufferpos+isize*ilv2))).exist)
 				{

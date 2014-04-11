@@ -158,47 +158,6 @@ void getcaptions(float * width,float * height,float * left,float * top)
 }
 
 
-char getleftof(cdx_Point3D * istart,cdx_Point3D * iend,cdx_Point3D * ikink)
-{
-	float diff1x,diff1y,diff2x,diff2y;
-	float iresult;
-	diff1x=(*iend).x-(*istart).x;
-	diff1y=(*iend).y-(*istart).y;
-	diff2x=(*ikink).x-(*iend).x;
-	diff2y=(*ikink).y-(*iend).y;
-	iresult=(diff1x*diff2y-diff1y*diff2x);
-	if (iresult==0) return 0;
-	return (diff1x*diff2y-diff1y*diff2x>0) ? 1 : 2;//then, it is right of=> return1, otherwise, it is left of=>return2;
-}
-
-_small getother(_small inatom, _small inbond)
-{
-	if (bond_actual_node[inbond].end==inatom)
-	{
-		return (bond_actual_node[inbond].start);
-	}
-	if (bond_actual_node[inbond].start==inatom)
-	{
-		return (bond_actual_node[inbond].end);
-	}
-}
-
-
-int get_bond_between(int inatom1, int inatom2)
-{
-	int imax=(*glob_b_multilist).filllevel;
-	for (int ilv1=0;ilv1<imax;ilv1++)
-	{
-		if ((bond_actual_node[ilv1].start==inatom1) && (bond_actual_node[ilv1].end==inatom2))
-		{
-			return ilv1;
-		}
-		if ((bond_actual_node[ilv1].end==inatom1) && (bond_actual_node[ilv1].start==inatom2))
-		{
-			return ilv1;
-		}
-	}
-}
 
 void getforwardity()
 {

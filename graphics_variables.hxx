@@ -61,7 +61,7 @@ struct atom_actual_node_
 	_small special;//offset in text list. TODO**** for other purposes (if applicable)
 	inline char operator += (_small input)
 	{
-		if (bondcount<10)
+		if (bondcount<constants_maxbonds)
 		{
 			bonds[bondcount++]=input;
 			return 1;

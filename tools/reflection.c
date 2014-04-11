@@ -25,14 +25,14 @@ int getline()
 				goto idone;
 			}
 		}
-		if ((ihv1==0x10) && (wasvalid==0))
+		if ((ihv1==10) && (wasvalid==0))
 		{
 			ilv1=0;
 			goto loopdone;
 		}
 		wasvalid=1;
 		buffer[ilv1]=ihv1;
-		if ((ihv1==0x13) || (ihv1==0x10))
+		if ((ihv1==13) || (ihv1==10))
 		{
 			idone:
 			buffer[ilv1]=0;
@@ -55,7 +55,7 @@ int main(int argc,char ** argv)
 		infile=fopen(argv[ilv1],"r");
 		while (getline())
 		{
-			backval=sscanf(buffer,"int %[A-Za-z0-9_]",namestring);
+			backval=sscanf(buffer,"catalogized_command_funcdef(%[A-Za-z0-9_])",namestring);
 			if (backval>0)
 			{
 				fprintf(outfile,"{%i,\"%s\",(catalogized_command_functype)%s},\n",ilv1,namestring,namestring);

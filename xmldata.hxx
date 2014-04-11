@@ -12,6 +12,7 @@ typedef int __attribute__((sysv_abi))(*CDXMLREAD_functype)(char * input,void * o
 typedef int __attribute__((sysv_abi))(*CDXMLREAD_TOBUFFER_functype)(TELESCOPE_buffer ibuffer,char * input,void * output);
 //This is vomittingly expensive. Why cant I make the contents[] "virtual static" ? :G
 typedef int __attribute__((sysv_abi))(*catalogized_command_functype)(char * parameter,char * variable);
+#define catalogized_command_funcdef(MACROPARAM) int __attribute__((sysv_abi))MACROPARAM(char * parameter,char * variable)
 
 struct superconstellation
 {

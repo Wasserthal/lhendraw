@@ -15,6 +15,11 @@ TELESCOPE_buffer internalstructure_text_undobuffer;
 TELESCOPE_buffer internalstructure_b_undobuffer;
 TELESCOPE_buffer internalstructure_n_undobuffer;
 #define selection_maxbuttons 17
+#define constants_bondlength 30
+#define constants_angular_distance 2.094395102
+#define constants_clickradius 170
+float glob_clickradius=170;
+#define constants_maxbonds 10
 _u32 resources_bitmap_buttons[selection_maxbuttons][32][32];
 struct TELESCOPE_tempvar_
 {

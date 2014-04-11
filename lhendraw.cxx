@@ -65,6 +65,7 @@ int clockid=0;
 #include "conv_cambridge_internal.hxx"
 #include "conv_config_internalconfig.hxx"
 #include "selection.hxx"
+#include "undo.hxx"
 #include "edit.hxx"
 #include "sdlctrl.hxx"
 #include "menugfx.hxx"

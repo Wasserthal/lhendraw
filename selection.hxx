@@ -18,3 +18,27 @@ typedef struct selection_frame_
 	float right,bottom;
 }selection_frame_;
 selection_frame_ selection_frame;
+void selection_recheck(selection_ iselection,_u32 * matrix)
+{
+	(*matrix)=0;
+	_u32 icompare=0;
+	int isize=0;
+	for (int ilv1=1;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
+	{
+		icompare=1<<ilv1;
+		basicmultilist * tlmultilist=findmultilist(STRUCTURE_OBJECTTYPE_List[ilv1].name);
+		isize=STRUCTURE_OBJECTTYPE_List[ilv1].size;
+		for (int ilv2=0;ilv2<(*tlmultilist).filllevel;ilv2++)
+		{
+			if (iselection[ilv2] & icompare)
+			{
+				if ((*(basic_instance*)(((char*)(*tlmultilist).pointer)+ilv2*isize)).exist)
+				{
+					(*matrix)|=icompare;
+					goto ifertig;
+				}
+			}
+		}
+		ifertig:;
+	}
+}

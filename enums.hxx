@@ -209,6 +209,9 @@ bienum CDXML_type[]={
 	{{"Generic"},0},
 	{{"Atom"},1},
 	{{"Bond"},2},
+	{{"None"},0x10000},
+	{{"Some"},0x20000},
+	{{"Continuous"},0x40000},
 };
 int CDXML_type_max=sizeof(CDXML_type)/sizeof(CDXML_type[0]);
 bienum CDXML_modifier[]={

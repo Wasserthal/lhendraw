@@ -20,7 +20,7 @@ commandline: ./generated/filestructure.hxx ./generated/internalstructure.hxx par
 	./tools/filestructure_maker -m configfile.draft ./generated/configfilestructure.hxx ./generated/initialization_lhendraw.hxx CONFIGBRIDGE
 ./generated/reflection_enums.hxx: ./tools/reflection_enums ./internal_enum.hxx ./tools/reflection edit.hxx
 	./tools/reflection_enums
-	./tools/reflection edit.hxx
+	./tools/reflection edit.hxx sdlctrl.hxx
 makeinf_test: makeinf.hxx makeinf_test.cxx cdxdata.hxx lendefs.h
 	g++ -g -O0 -std=c++0x -Wno-invalid-offsetof makeinf_test.cxx -o makeinftest -D DEBUG -Wno-format
 sdl: ./generated/cambridgestructure.hxx ./generated/structure.hxx parsecdxml.cxx lendefs.h xmldata.hxx xmlparse.hxx cdxdata.hxx conv_cambridge_internal.hxx enums.hxx definitionlist.h lendefs.h janitor.hxx draw.hxx sdlgfx.hxx lhendraw.cxx conv_cambridge_internal.hxx draw_variables.hxx lhendraw_files.hxx ./generated/initialization_lhendraw.hxx ./generated/reflection_enums.hxx ./pullout_stringfile.hxx ./generated/reflection_headers.hxx edit.hxx sdlctrl.hxx selection.hxx conv_config_internalconfig.hxx resources_init.hxx

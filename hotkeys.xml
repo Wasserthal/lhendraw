@@ -114,4 +114,14 @@
 <Hotkey modifiers="CTRL" key="e" command="TOOLMODE" value="9"/>
 </Hotkeys>
 </Object>
+<Object type="Generic Some">
+<Hotkeys>
+<Hotkey key="DEL" command="ISSUEDELETE" variable="" value=""/>
+</Hotkeys>
+</Object>
+<Object type="Generic None Continuous">
+<Hotkeys>
+<Hotkey key="DEL" command="ISSUEDELETE" variable="" value=""/>
+</Hotkeys>
+</Object>
 </Objects>

@@ -45,10 +45,10 @@ typedef struct clickabilitymatrix_
 	int level0;//zero: selects outermost groups. positive: enters groups to n'th stage. negative: groups over this object by n, 0 would be the object.
 	int types1;//0x1: structures 0x2: graphics 0x4: curves 0x8: beziers 0x10: texts 0x20: pictures 0x40: tlc plates 0x80: NMR spectra
 	_u32 types2;//list of object groups to process click. See internal_enum.hxx
-	int types3[32];//indexed like types2.//0x1: centers 0x2: auxpoints, e.g. endpoints 0x4: virtual scaling handles 0x8: shape-specific graphic manipulators, like mid-arrow manipulators or corner roundness controllers 0x10: lines 0x20: area
+	_u32 types3[8];//indexed as: 0x0: other 0x1: centers 0x2: auxpoints, e.g. endpoints 0x3: virtual scaling handles 0x4: shape-specific graphic manipulators, like mid-arrow manipulators or corner roundness controllers 0x5: lines 0x6: area
 }clickabilitymatrix_;
 clickabilitymatrix_ clickabilitymatrix={2,0,0,0xFFFFFFFF,
-{0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,}};
+{0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF}};
 typedef struct MODIFIER_KEYS_
 {
 	char CTRL;
@@ -60,6 +60,16 @@ MODIFIER_KEYS_ MODIFIER_KEYS={0,0,0,0};
 
 void checkupinconsistencies()
 {
+/*	for (int ilv1=0;ilv1<(*glob_n_multilist).filllevel;ilv1++)
+	{
+		for (int ilv2=ilv1+1;ilv2<(*glob_n_multilist).filllevel;ilv2++)
+		{
+			if ((*glob_n_multilist).bufferlist[ilv1].id==(*glob_n_multilist).bufferlist[ilv2].id)
+			{
+				printf("%i==%i;%i\n",ilv1,ilv2,(*glob_n_multilist).bufferlist[ilv1].id);
+			}
+		}
+	}*/
 	for (int ilv1=0;ilv1<(*glob_b_multilist).filllevel;ilv1++)
 	{
 		b_instance * tl_b_instance=&((*glob_b_multilist).bufferlist[ilv1]);
@@ -296,6 +306,7 @@ catalogized_command_funcdef(ISSUEDELETE)
 					isuccessful=1;
 				}
 			}
+			control_hotatom=-1;
 		}
 	}
 	checkupinconsistencies();
@@ -312,6 +323,7 @@ int issueclick(int iposx,int iposy)
 	control_coorsy=control_posy/SDL_zoomy+SDL_scrolly;
 	storeundo(~0);
 	control_dragged=0;
+	control_id=-1;
 	clickforthem();
 	switch (control_tool)
 	{
@@ -365,6 +377,7 @@ int issueclick(int iposx,int iposy)
 }
 void issuedrag(int iposx,int iposy)
 {
+	int atomnr2=-1;
 	int tlwhichtool=control_tool;
 	int ideltax=iposx-control_posx;
 	int ideltay=iposy-control_posy;
@@ -408,6 +421,8 @@ void issuedrag(int iposx,int iposy)
 		case 7:
 		{
 			restoreundo(~0,1);
+			int atomnr=-1;
+			int atomnr2=-1;
 			n_instance * tlatom,*tlatom2;
 			b_instance * tlbond;
 			tlatom=NULL;
@@ -415,11 +430,11 @@ void issuedrag(int iposx,int iposy)
 			tlbond=NULL;
 			if (control_id!=-1)
 			{
-				tlatom=(n_instance*)edit_locatebyid(STRUCTURE_OBJECTTYPE_n,control_id,NULL);
+				tlatom=(n_instance*)edit_locatebyid(STRUCTURE_OBJECTTYPE_n,control_id,&atomnr);
 			}
 			if (!tlatom)
 			{
-				tlatom=summonatom();
+				tlatom=summonatom(&atomnr);
 				if (tlatom)
 				{
 					(*tlatom).xyz.x=control_startx;
@@ -433,7 +448,7 @@ void issuedrag(int iposx,int iposy)
 				clickforthem();
 				if (selection_clickselection_found & (1<<STRUCTURE_OBJECTTYPE_n))
 				{
-					tlatom2=snapatom(control_coorsx,control_coorsy);
+					tlatom2=snapatom(control_coorsx,control_coorsy,&atomnr2);
 				}
 				else
 				{
@@ -461,11 +476,11 @@ void issuedrag(int iposx,int iposy)
 			}
 			if (tlatom2==NULL)
 			{
-				tlatom2=snapatom_short(control_coorsx,control_coorsy,NULL,10);
+				tlatom2=snapatom_short(control_coorsx,control_coorsy,&atomnr2,10);
 			}
 			if (!tlatom2)
 			{
-				tlatom2=summonatom();
+				tlatom2=summonatom(&atomnr2);
 				if (tlatom2)
 				{
 					(*tlatom2).xyz.x=control_coorsx;
@@ -477,7 +492,7 @@ void issuedrag(int iposx,int iposy)
 			{
 				if (tlatom!=tlatom2)
 				{
-					tlbond=summonbond((*tlatom).id,(*tlatom2).id);
+					tlbond=summonbond((*tlatom).id,(*tlatom2).id,atomnr,atomnr2);
 					if (tlbond)
 					{
 						(*tlbond).color=0xFF;
@@ -663,6 +678,7 @@ void issuemenuclick(int posx,int posy,int button)
 			{
 				case 1: control_tool=(*ipulloutlisting).toolnr;break;
 				case 2: (*ipulloutlisting).getflag(4,0);break;
+				case 3: (*ipulloutlisting).LMB_function("","");break;
 			}
 			break;
 		}
@@ -672,6 +688,7 @@ void issuemenuclick(int posx,int posy,int button)
 			{
 				case 1: control_tool=(*ipulloutlisting).toolnr;break;
 				case 2: (*ipulloutlisting).getflag(4,0);break;
+				case 3: (*ipulloutlisting).RMB_function("","");break;
 			}
 			break;
 		}
@@ -696,6 +713,7 @@ void sdl_control()
 				control_mousey=control_Event.motion.y;
 				if (control_mousestate!=1)
 				{
+					selection_clearselection(selection_clickselection);
 					_u32 tlfound=clickfor((control_Event.motion.x-gfx_canvasminx)/SDL_zoomx+SDL_scrollx,(control_Event.motion.y-gfx_canvasminy)/SDL_zoomy+SDL_scrolly,STRUCTURE_OBJECTTYPE_n,constants_clickradius)>0;
 					if (tlfound)
 					{

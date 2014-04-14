@@ -47,8 +47,6 @@ superconstellation AUTOSTRUCTURE_ctype_propertylist[]{
 superconstellation_directory AUTOSTRUCTURE_ctype_directory[]{
 #include "./generated/propertydirectory_lhendraw.hxx"
 };
-#include "./generated/pullout_stringfile.hxx"
-#include "./generated/pullout_structfile.hxx"
 #include "text_freetype.h"
 
 #include <time.h>
@@ -67,6 +65,8 @@ int clockid=0;
 #include "selection.hxx"
 #include "undo.hxx"
 #include "edit.hxx"
+#include "./generated/pullout_stringfile.hxx"
+#include "./generated/pullout_structfile.hxx"
 #include "sdlctrl.hxx"
 #include "menugfx.hxx"
 #include "draw.hxx"
@@ -84,16 +84,18 @@ int main(int argc,char * * argv)
 	automatic_init();
 	resources_init(argv[0]);
 	conv_config_internalconfig();
-	if (argc!=2)
+	if (argc==2)
 	{
-		printf("no file specified or to many ones!");
-		exit(1);
+		infile=fopen(argv[1],"r");
+		currentinstance=new(CAMBRIDGEPREFIX(Total_Document_instance));
+		input_fsm(infile);
+		fclose(infile);
+		CAMBRIDGECONV_maintointernal();
 	}
-	infile=fopen(argv[1],"r");
-	currentinstance=new(CAMBRIDGEPREFIX(Total_Document_instance));
-	input_fsm(infile);
-	fclose(infile);
-	CAMBRIDGECONV_maintointernal();
+	else
+	{
+		FILE_NEW(NULL,NULL);
+	}
 	svg_findaround();
 	sdl_init();
 	SDL_EnableUNICODE(1);

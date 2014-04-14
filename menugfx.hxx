@@ -8,7 +8,7 @@ int sdl_toolboxitemdraw(int posx,int posy,int gfxno,char state)
 	{
 		for (int ilv3=0;ilv3<32-idelta;ilv3++)
 		{
-			_u32 tlgfx=resources_bitmap_buttons[gfxno][ilv2][ilv3];
+			_u32 tlgfx=resources_bitmap_buttons[selection_maxbuttons-gfxno][ilv2][ilv3];
 			_u8 tlgfr=(tlgfx>>16) & 0xFF;
 			_u8 tlgfg=(tlgfx>>8) & 0xFF;
 			_u8 tlgfb=tlgfx & 0xFF;
@@ -18,7 +18,7 @@ int sdl_toolboxitemdraw(int posx,int posy,int gfxno,char state)
 				tlgfg=((1+(((tlgfx>>24) & 0xFF)))*tlgfg+0x100*(0xFF-((tlgfx>>24) & 0xFF)))>>8;
 				tlgfb=((1+(((tlgfx>>24) & 0xFF)))*tlgfb+0)>>8;
 			}
-			screen[gfx_screensizex*(posy+ilv2+idelta)+posx+ilv3+idelta]=((tlgfx & 0xFF000000)==0x00000000) ? resources_bitmap_buttons[0][ilv2][ilv3]:((tlgfr<<16)+(tlgfg<<8)+(tlgfb));
+			screen[gfx_screensizex*(posy+ilv2+idelta)+posx+ilv3+idelta]=((tlgfx & 0xFF000000)==0x00000000) ? resources_bitmap_buttons[selection_maxbuttons-17][ilv2][ilv3]:((tlgfr<<16)+(tlgfg<<8)+(tlgfb));
 		}
 	}
 	if (idelta>0)
@@ -27,8 +27,8 @@ int sdl_toolboxitemdraw(int posx,int posy,int gfxno,char state)
 		{
 			for (int ilv2=0;ilv2<32;ilv2++)
 			{
-				screen[gfx_screensizex*(posy+ilv1)+posx+ilv2]=resources_bitmap_buttons[1][ilv1][ilv2];
-				screen[gfx_screensizex*(posy+ilv2)+posx+ilv1]=resources_bitmap_buttons[1][ilv2][ilv1];
+				screen[gfx_screensizex*(posy+ilv1)+posx+ilv2]=resources_bitmap_buttons[selection_maxbuttons-16][ilv1][ilv2];
+				screen[gfx_screensizex*(posy+ilv2)+posx+ilv1]=resources_bitmap_buttons[selection_maxbuttons-16][ilv2][ilv1];
 			}
 		}
 	}
@@ -79,6 +79,7 @@ int sdl_toolboxdraw()
 		}
 	}
 }
+extern int control_hotatom;
 int sdl_selectiondraw()
 {
 	_u32 icompare;
@@ -130,4 +131,24 @@ int sdl_selectiondraw()
 		}
 		i_fertig:;
 	}
+		float tlpx,tlpy;
+		SDL_color=0x3F3F00;
+					if (control_hotatom!=-1)
+					{
+					int ilv3=0;
+					iback2:
+						if (retrievepoints_basic(((basic_instance*)(((char*)(*glob_n_multilist).pointer)+sizeof(n_instance)*control_hotatom)),&tlpx,&tlpy,ilv3,STRUCTURE_OBJECTTYPE_n)>0)
+						{
+							putpixel((tlpx-SDL_scrollx)*SDL_zoomx+1,(tlpy-SDL_scrolly)*SDL_zoomy+1);
+							putpixel((tlpx-SDL_scrollx)*SDL_zoomx+2,(tlpy-SDL_scrolly)*SDL_zoomy);
+							putpixel((tlpx-SDL_scrollx)*SDL_zoomx-2,(tlpy-SDL_scrolly)*SDL_zoomy);
+							putpixel((tlpx-SDL_scrollx)*SDL_zoomx-1,(tlpy-SDL_scrolly)*SDL_zoomy+1);
+							putpixel((tlpx-SDL_scrollx)*SDL_zoomx+1,(tlpy-SDL_scrolly)*SDL_zoomy-1);
+							putpixel((tlpx-SDL_scrollx)*SDL_zoomx,(tlpy-SDL_scrolly)*SDL_zoomy+2);
+							putpixel((tlpx-SDL_scrollx)*SDL_zoomx,(tlpy-SDL_scrolly)*SDL_zoomy-2);
+							putpixel((tlpx-SDL_scrollx)*SDL_zoomx-1,(tlpy-SDL_scrolly)*SDL_zoomy-1);
+							ilv3++;
+							goto iback2;
+						}
+					}
 }

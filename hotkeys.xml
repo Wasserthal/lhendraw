@@ -106,6 +106,8 @@
 <Hotkeys>
 <Hotkey key="F2" command="BRINGTOFRONT" variable="Z" value="True"/>
 <Hotkey key="F3" command="BRINGTOFRONT" variable="Z" value="False"/>
+<Hotkey key="F4" command="BLOT" variable="Z" value="False"/>
+<Hotkey key="F5" command="CHUP" variable="Z" value="False"/>
 <Hotkey modifiers="CTRL" key="z" command="useundo"/>
 <Hotkey modifiers="CTRL" key="r" command="redo"/>
 <Hotkey modifiers="CTRL" key="v" command="Paste"/>

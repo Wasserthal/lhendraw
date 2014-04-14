@@ -259,12 +259,9 @@ basic_instance * getclicked(int ino)
 			{
 				return tlinstance;
 			}
-			else
-			{
-				return NULL;
-			}
 		}
 	}
+	return NULL;
 }
 
 basic_instance * edit_locatebyid(_u32 ino,int iid,int * number=NULL)
@@ -321,7 +318,7 @@ n_instance * summonatom(int * inr=NULL)
 	}
 	return NULL;
 }
-b_instance * summonbond(int i_id_begin,int i_id_end)
+b_instance * summonbond(int i_id_begin,int i_id_end,int i_nr_begin,int i_nr_end)
 {
 	if ((*glob_b_multilist).filllevel<bufferlistsize)
 	{
@@ -330,8 +327,8 @@ b_instance * summonbond(int i_id_begin,int i_id_end)
 		selection_currentselection[(*glob_b_multilist).filllevel]&=(~(1<<STRUCTURE_OBJECTTYPE_b));
 		(*tlinstance).B=i_id_begin;
 		(*tlinstance).E=i_id_end;
-		atom_actual_node[i_id_begin]+=((*glob_b_multilist).filllevel);
-		atom_actual_node[i_id_end]+=((*glob_b_multilist).filllevel);
+		atom_actual_node[i_nr_begin]+=((*glob_b_multilist).filllevel);
+		atom_actual_node[i_nr_end]+=((*glob_b_multilist).filllevel);
 		((*glob_b_multilist).filllevel)++;
 		return tlinstance;
 	}
@@ -384,8 +381,9 @@ float edit_get_atom_best_free_side(int atomnr)
 }
 int edit_errichten(int startatom)
 {
-	int atomnr=-1;
+	int atomnr2=-1;
 	n_instance * tlatom=&((*glob_n_multilist).bufferlist[startatom]);
+	if (tlatom==0) {return -1;}
 	n_instance * tlatom2;
 	b_instance * tlbond;
 	if (atom_actual_node[startatom].bondcount==constants_maxbonds) return -1;
@@ -393,12 +391,12 @@ int edit_errichten(int startatom)
 	tlangle=edit_get_atom_best_free_side(startatom);
 	float posx=(*tlatom).xyz.x+constants_bondlength*cos(tlangle);
 	float posy=(*tlatom).xyz.y+constants_bondlength*sin(tlangle);
-	if (tlatom2=snapatom_short(posx,posy,&atomnr,10))
+	if (tlatom2=snapatom_short(posx,posy,&atomnr2,10))
 	{
 	}
 	else
 	{
-		tlatom2=summonatom(&atomnr);
+		tlatom2=summonatom(&atomnr2);
 		if (tlatom2)
 		{
 			(*tlatom2).xyz.x=posx;
@@ -409,7 +407,7 @@ int edit_errichten(int startatom)
 	}
 	if ((tlatom) && (tlatom2))
 	{
-		tlbond=summonbond((*tlatom).id,(*tlatom2).id);
+		tlbond=summonbond((*tlatom).id,(*tlatom2).id,startatom,atomnr2);
 		if (tlbond)
 		{
 			(*tlbond).color=0;
@@ -417,7 +415,7 @@ int edit_errichten(int startatom)
 			(*tlbond).Order=1;
 		}
 	}
-	return atomnr;
+	return atomnr2;
 }
 catalogized_command_funcdef(SPROUT)
 {
@@ -449,4 +447,50 @@ catalogized_command_funcdef(SPROUT)
 		return 1;
 	}
 	return 0;
+}
+catalogized_command_funcdef(FILE_NEW)
+{
+	for (int ilv1=1;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
+	{
+		basicmultilist * tlmultilist=findmultilist(STRUCTURE_OBJECTTYPE_List[ilv1].name);
+		if (tlmultilist)
+		{
+			(*tlmultilist).filllevel=0;
+		}
+	}
+}
+extern float control_coorsx;
+extern float control_coorsy;
+void checkupinconsistencies();
+catalogized_command_funcdef(CHUP)
+{
+	checkupinconsistencies();
+}
+catalogized_command_funcdef(BLOT)
+{
+	int issueshiftstart();
+	selection_clearselection(selection_clickselection);
+	clickfor(control_coorsx,control_coorsy,STRUCTURE_OBJECTTYPE_n,1000);
+	n_instance * iinstance=(n_instance*)getclicked(STRUCTURE_OBJECTTYPE_n);
+	printf("|%i,%lli,%lli\n",(*glob_n_multilist).maxid,(*glob_n_multilist).filllevel,(*glob_b_multilist).filllevel);
+	if (iinstance)
+	{
+		printf("%f,%f,%i\n",(*iinstance).xyz.x,(*iinstance).xyz.y,(*iinstance).id);
+	}
+}
+catalogized_command_funcdef(SAVEAS)
+{
+	printf("TODO***stub\n");
+}
+catalogized_command_funcdef(LOADAS)
+{
+	printf("TODO***stub\n");
+}
+catalogized_command_funcdef(UNDO)
+{
+	restoreundo(~0,0);
+}
+catalogized_command_funcdef(REDO)
+{
+	printf("TODO***stub\n");
 }

@@ -39,12 +39,25 @@ char pulloutlisting_string[]="\n"
 "	char * variablename;\n"
 "	char * LMBfunction;\n"
 "	char * RMBfunction;\n"
+"	catalogized_command_functype LMB_function;\n"
+"	catalogized_command_functype RMB_function;\n"
 "	int bgcolor;\n"
 "	AUTOSTRUCT_GETSET_FUNCTYPE getflag;\n"
 "}AUTOSTRUCT_PULLOUTLISTING_;\n";
 #include "../toolbox.pullout.hxx"
 int stringlist_count=0;
-
+char nullstring[]="NULL";
+const char * stringifnull(const char * instring)
+{
+	if (instring!=NULL)
+	{
+		if (instring[0]!=0)
+		{
+			return instring;
+		}
+	}
+	return nullstring;
+}
 void addstring(char * input)
 {
 	int ilv1=0;
@@ -84,7 +97,7 @@ void domenu(menuitem * input,int count,char * name)
 		addstring(input[ilv1].description);
 		fprintf(structfile,"NULL,NULL,\nAUTOSTRUCT_STRINGLIST_PULLOUT+%i,\n",stringlist_count);
 		addstring(input[ilv1].LMBfunction);
-		fprintf(structfile,"\nAUTOSTRUCT_STRINGLIST_PULLOUT+%i\n,0x%06X},",stringlist_count,input[ilv1].bgcolor);
+		fprintf(structfile,"\nAUTOSTRUCT_STRINGLIST_PULLOUT+%i\n,%s,%s,0x%08X},",stringlist_count,stringifnull(input[ilv1].LMBfunction),stringifnull(input[ilv1].RMBfunction),input[ilv1].bgcolor);
 		addstring(input[ilv1].RMBfunction);
 	}
 	fprintf(structfile,"};\n");

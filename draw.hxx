@@ -206,15 +206,18 @@ void getatoms()//makes some preprocessing
 		bond_actual_node[ilv1].numberright[1]=-1;
 		for (int ilv2=0;ilv2<(*glob_n_multilist).filllevel;ilv2++)
 		{
-			if (((*glob_n_multilist).bufferlist)[ilv2].id==((*glob_b_multilist).bufferlist)[ilv1].E)
+			if (((*glob_n_multilist).bufferlist)[ilv2].exist)
 			{
-				bond_actual_node[ilv1].end=ilv2;
-				atom_actual_node[ilv2]+=ilv1;
-			}
-			if (((*glob_n_multilist).bufferlist)[ilv2].id==((*glob_b_multilist).bufferlist)[ilv1].B)
-			{
-				bond_actual_node[ilv1].start=ilv2;
-				atom_actual_node[ilv2]+=ilv1;
+				if (((*glob_n_multilist).bufferlist)[ilv2].id==((*glob_b_multilist).bufferlist)[ilv1].E)
+				{
+					bond_actual_node[ilv1].end=ilv2;
+					atom_actual_node[ilv2]+=ilv1;
+				}
+				if (((*glob_n_multilist).bufferlist)[ilv2].id==((*glob_b_multilist).bufferlist)[ilv1].B)
+				{
+					bond_actual_node[ilv1].start=ilv2;
+					atom_actual_node[ilv2]+=ilv1;
+				}
 			}
 		}
 	}

@@ -10,7 +10,7 @@ void CAMBRIDGECONV_atoms()
 		
 		n_instance tl_n_instance;
 		tl_n_instance=n_instance();
-		tl_n_instance.Element=6;
+		tl_n_instance.Element=9;
 		if (AUTOSTRUCT_EXISTS(CAMBRIDGE_n_instance,(*tl_CAMBRIDGE_n_instance),Element))
 		{
 			tl_n_instance.Element=(*tl_CAMBRIDGE_n_instance).Element;

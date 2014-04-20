@@ -1,5 +1,4 @@
 //reads in all files essential for the program
-//gfx/buttons.bmp relies on the external variable selection_maxbuttons
 FILE * criticalfilename(char * iargv0,char * idirectorystring,const char * iname)
 {
 	FILE * thefile;

@@ -77,6 +77,21 @@ int clockid=0;
 #include "lhendraw_files.hxx"
 #include "resources_init.hxx"
 #include "./generated/reflection.hxx"
+structenum REFLECTION_List[]{
+#include "./generated/pullout_reflectfile.hxx"
+};
+int REFLECTION_ListSize=sizeof(REFLECTION_List)/sizeof(structenum);
+structenum * searchreflectedstruct(const char * input)
+{
+	for (int ilv1=0;ilv1<REFLECTION_ListSize;ilv1++)
+	{
+		if (strcmp(REFLECTION_List[ilv1].name,input)==0)
+		{
+			return &(REFLECTION_List[ilv1]);
+		}
+	}
+	return NULL;
+}
 int main(int argc,char * * argv)
 {
 	clock_getcpuclockid(getpid(),&clockid);
@@ -104,7 +119,8 @@ int main(int argc,char * * argv)
 	sdl_control();
 	gfx_gfxstart();
 	gfx_output();
-	sdl_toolboxdraw();
+	sdl_canvasframedraw();
+	sdl_commonmenudraw();
 	sdl_selectiondraw();
 	gfx_gfxstop();
 	usleep(1000);

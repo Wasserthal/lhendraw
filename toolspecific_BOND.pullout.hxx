@@ -1,10 +1,44 @@
 menuitem pullout_toolspecific_BOND[]={
 {0,0,
-6,//Picture
-"",
-1,0,
+24,//Picture
+"double",
+4,4,
 1,
-"Click-drag to move\n",
-"RMB goes to origin\n",
+"Double bonds",
+},
+{1,0,
+25,//Picture
+"",
+0,0,
+1,
+"bold bonds\n",
+},
+{2,0,
+26,//Picture
+"",
+0,0,
+1,
+"double\n"
+},
+{3,0,
+27,//Picture
+"",
+0,0,
+1,
+"double\n"
+},
+{4,0,
+28,//Picture
+"",
+0,0,
+1,
+"double\n"
+},
+{5,0,
+29,//Picture
+"",
+0,0,
+1,
+"double\n"
 },
 };

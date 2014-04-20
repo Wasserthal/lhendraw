@@ -10,9 +10,9 @@ typedef struct menuitem
 {
 	int x,y;
 	int picno;
-	char description[80];
-	int lmbmode;//0: nothing 1: select a tool 2: toggle variable 3: execute a function
-	int rmbmode;//0: nothing 1: select a tool 2: toggle variable 3: execute a function
+	char name[80];
+	int lmbmode;//0: nothing 1: select a tool 2: toggle variable 3: execute a function 4: set/clear a multi-boolean variable
+	int rmbmode;//0: nothing 1: select a tool 2: toggle variable 3: execute a function 4: set/clear a multi-boolean variable
 	int toolnr;
 	char explanation[1024];
 	char variablename[80];
@@ -31,7 +31,7 @@ char pulloutlisting_string[]="\n"
 "{\n"
 "	int x,y;\n"
 "	int picno;\n"
-"	char * description;\n"
+"	char * name;\n"
 "	int lmbmode;\n"
 "	int rmbmode;\n"
 "	int toolnr;\n"
@@ -42,11 +42,15 @@ char pulloutlisting_string[]="\n"
 "	catalogized_command_functype LMB_function;\n"
 "	catalogized_command_functype RMB_function;\n"
 "	int bgcolor;\n"
+"	void * variable;\n//Either char, at 2 or _u32 at 4 \n"
 "	AUTOSTRUCT_GETSET_FUNCTYPE getflag;\n"
-"}AUTOSTRUCT_PULLOUTLISTING_;\n";
+"}AUTOSTRUCT_PULLOUTLISTING_;\n"
+"_u32 nope;\n";
 #include "../toolbox.pullout.hxx"
+#include "../toolspecific_BOND.pullout.hxx"
 int stringlist_count=0;
 char nullstring[]="NULL";
+char nopestring[]="nope";
 const char * stringifnull(const char * instring)
 {
 	if (instring!=NULL)
@@ -58,6 +62,17 @@ const char * stringifnull(const char * instring)
 	}
 	return nullstring;
 }
+const char * stringifnope(const char * instring)
+{
+	if (instring!=NULL)
+	{
+		if (instring[0]!=0)
+		{
+			return instring;
+		}
+	}
+	return nopestring;
+}
 void addstring(char * input)
 {
 	int ilv1=0;
@@ -66,41 +81,40 @@ void addstring(char * input)
 	if (input[ilv1]=='\n')
 	{
 		fprintf(stringfile,"\\n\"\n\"");
-		stringlist_count+=1;
 		goto idone;
 	}
 	if ((input[ilv1]<0x20) && (input[ilv1]>=0)) goto ibyte;
 	if ((input[ilv1]=='"') || (input[ilv1]==0x7F) || (input[ilv1]=='\\')) goto ibyte;
 	fprintf(stringfile,"%c",input[ilv1]);
-	stringlist_count++;
 	goto idone;
 	ibyte:
 	fprintf(stringfile,"\\x%02X",input[ilv1]);
-	stringlist_count+=5;
 	idone:
+	ilv1++;
 	if (input[ilv1]==0)
 	{
+		stringlist_count+=ilv1;
 		fprintf(stringfile,"\"\n");
 		return;
 	}
-	ilv1++;goto iback;
+	goto iback;
 }
 void domenu(menuitem * input,int count,char * name)
 {
 	int ilv1;
-	fprintf(reflectfile,"{1,%s},",name);
 	fprintf(structfile,"AUTOSTRUCT_PULLOUTLISTING_ AUTOSTRUCT_PULLOUTLISTING_%s[]={\n",name);
 	for (ilv1=0;ilv1<count;ilv1++)
 	{
 		fprintf(structfile,"{%i,%i,%i,\nAUTOSTRUCT_STRINGLIST_PULLOUT+%i\n,%i,%i,%i,\n",input[ilv1].x,input[ilv1].y,input[ilv1].picno,
 		stringlist_count,input[ilv1].lmbmode,input[ilv1].rmbmode,input[ilv1].toolnr);
-		addstring(input[ilv1].description);
+		addstring(input[ilv1].name);
 		fprintf(structfile,"NULL,NULL,\nAUTOSTRUCT_STRINGLIST_PULLOUT+%i,\n",stringlist_count);
 		addstring(input[ilv1].LMBfunction);
-		fprintf(structfile,"\nAUTOSTRUCT_STRINGLIST_PULLOUT+%i\n,%s,%s,0x%08X},",stringlist_count,stringifnull(input[ilv1].LMBfunction),stringifnull(input[ilv1].RMBfunction),input[ilv1].bgcolor);
+		fprintf(structfile,"\nAUTOSTRUCT_STRINGLIST_PULLOUT+%i\n,%s,%s,0x%08X,&(%s)},",stringlist_count,stringifnull(input[ilv1].LMBfunction),stringifnull(input[ilv1].RMBfunction),input[ilv1].bgcolor,stringifnope(input[ilv1].variablename));
 		addstring(input[ilv1].RMBfunction);
 	}
-	fprintf(structfile,"};\n");
+	fprintf(reflectfile,"{\"%s\",%i,&AUTOSTRUCT_PULLOUTLISTING_%s,sizeof(AUTOSTRUCT_PULLOUTLISTING_%s)},",name,count,name,name);
+	fprintf(structfile,"};\nint AUTOSTRUCT_PULLOUTLISTING_%s_Size=sizeof(AUTOSTRUCT_PULLOUTLISTING_%s)/sizeof(AUTOSTRUCT_PULLOUTLISTING_);",name,name);
 	return;
 }
 
@@ -113,6 +127,7 @@ void main(int argc,char ** argv)
 	fprintf(structfile,"%s",pulloutlisting_string);
 	fprintf(stringfile,"char AUTOSTRUCT_STRINGLIST_PULLOUT[]=\n");
 	domenu(pullout_toolbox,sizeof(pullout_toolbox)/sizeof(menuitem),"toolbox");
+	domenu(pullout_toolspecific_BOND,sizeof(pullout_toolspecific_BOND)/sizeof(menuitem),"toolspecific_BOND");
 	fprintf(stringfile,";\n");
 	
 	

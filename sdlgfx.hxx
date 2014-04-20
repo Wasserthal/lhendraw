@@ -1,12 +1,12 @@
 //Graphic routines. Callers of those should be in createsvg.hxx
-#define gfx_screensizex 640
-#define gfx_screensizey 480
-#define gfx_canvassizex 320
-#define gfx_canvassizey 240
+#define gfx_screensizex 1024
+#define gfx_screensizey 768
+#define gfx_canvassizex 704
+#define gfx_canvassizey 528
 #define gfx_canvasminx 160
 #define gfx_canvasminy 120
-#define gfx_canvasmaxx 480
-#define gfx_canvasmaxy 360
+#define gfx_canvasmaxx 864
+#define gfx_canvasmaxy 648
 #define gfx_depth 4
 float SDL_scrollx=0,SDL_scrolly=0;
 float SDL_zoomx=1,SDL_zoomy=1;
@@ -288,17 +288,17 @@ void expressline(float ileft,float itop,float iright,float ibottom)
 
 void screenclear(_u32 icolor)
 {
-	for (int ilv1=0;ilv1<640*480;ilv1++)
+	for (int ilv1=0;ilv1<gfx_screensizex*gfx_screensizey;ilv1++)
 	{
 		screen[ilv1]=icolor;
 	}
 }
 int gfx()
 {
-	video = SDL_SetVideoMode(640, 480, 32, SDL_SWSURFACE);
+	video = SDL_SetVideoMode(gfx_screensizex, gfx_screensizey, 32, SDL_SWSURFACE);
 	if ( video == NULL ) 
 	{
-		fprintf(stderr, "Ich konnte kein Fenster mit der Auflösung 640*480 öffnen: %s\n", SDL_GetError());
+		fprintf(stderr, "Ich konnte kein Fenster mit der Auflösung 1024*768 öffnen: %s\n", SDL_GetError());
 		exit(1);
 	}
 }
@@ -320,7 +320,7 @@ int gfx_gfxstop()
 	{
 		SDL_UnlockSurface(video);
 	}
-	SDL_UpdateRect(video,0,0,640,480);
+	SDL_UpdateRect(video,0,0,gfx_screensizex,gfx_screensizey);
 }
 
 int expresstriangle(intl ifx1,intl ify1,intl ifx2,intl ify2,intl ifx3,intl ify3)

@@ -114,6 +114,7 @@
 <Hotkey modifiers="CTRL" key="x" command="Cut"/>
 <Hotkey modifiers="CTRL" key="c" command="Copy"/>
 <Hotkey modifiers="CTRL" key="e" command="TOOLMODE" value="9"/>
+<Hotkey modifiers="CTRL" key="s" command="SAVEAS" value=""/>
 </Hotkeys>
 </Object>
 <Object type="Generic Some">

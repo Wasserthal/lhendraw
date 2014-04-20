@@ -1,9 +1,17 @@
 //any graphics output which is not data of the document
-int sdl_toolboxitemdraw(int posx,int posy,int gfxno,char state)
+struct menuref_
+{
+	char type;//0: buttons 1: popup and the like
+	structenum what;//The structenum
+	int alignx,aligny;//The position
+};
+menuref_ menu_list[20];
+int menu_list_count=0;
+int sdl_toolboxitemdraw(int posx,int posy,int gfxno,_u32 state)
 {
 	_u32 * ibutton=resources_bitmap_buttons[0][0];
 	_u32 * ihgd=resources_bitmap_buttons[1][0];
-	int idelta=(state & 2)?4:0;
+	int idelta=(state & 0xD)>>1;
 	for (int ilv2=0;ilv2<32-idelta;ilv2++)
 	{
 		for (int ilv3=0;ilv3<32-idelta;ilv3++)
@@ -14,9 +22,9 @@ int sdl_toolboxitemdraw(int posx,int posy,int gfxno,char state)
 			_u8 tlgfb=tlgfx & 0xFF;
 			if ((state & 1)==1)
 			{
-				tlgfr=((1+(((tlgfx>>24) & 0xFF)))*tlgfr+0)>>8;
-				tlgfg=((1+(((tlgfx>>24) & 0xFF)))*tlgfg+0x100*(0xFF-((tlgfx>>24) & 0xFF)))>>8;
-				tlgfb=((1+(((tlgfx>>24) & 0xFF)))*tlgfb+0)>>8;
+				tlgfr=((1+(((tlgfx>>24) & 0xFF)))*tlgfr+((state & 0xFF000000)>>24)*(0xFF-((tlgfx>>24) & 0xFF)))>>8;
+				tlgfg=((1+(((tlgfx>>24) & 0xFF)))*tlgfg+((state & 0xFF0000)>>16)*(0xFF-((tlgfx>>24) & 0xFF)))>>8;
+				tlgfb=((1+(((tlgfx>>24) & 0xFF)))*tlgfb+((state & 0xFF00)>>8)*(0xFF-((tlgfx>>24) & 0xFF)))>>8;
 			}
 			screen[gfx_screensizex*(posy+ilv2+idelta)+posx+ilv3+idelta]=((tlgfx & 0xFF000000)==0x00000000) ? resources_bitmap_buttons[selection_maxbuttons-17][ilv2][ilv3]:((tlgfr<<16)+(tlgfg<<8)+(tlgfb));
 		}
@@ -33,7 +41,38 @@ int sdl_toolboxitemdraw(int posx,int posy,int gfxno,char state)
 		}
 	}
 }
-int sdl_toolboxdraw()
+int quersum(_u32 input,int max=32)
+{
+	char wert=0;
+	_u32 iinput=input;
+	for (int ilv1=0;ilv1<max;ilv1++)
+	{
+		wert+=((iinput & 1)==1);
+		iinput=iinput>>1;
+	}
+	return wert;
+}
+int sdl_buttonmenudraw(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int count,int xpos=0,int ypos=0)
+{
+	for (int ilv1=0;ilv1<count;ilv1++)
+	{
+		_u32 state=ilisting[ilv1].bgcolor;
+		state=(*ilisting).bgcolor<<8;
+		switch (ilisting[ilv1].lmbmode)
+		{
+			case 1: if (control_tool==ilisting[ilv1].toolnr) state|=9;break;
+			case 2: state|=ilisting[ilv1].getflag(2,0); break;
+			case 4: 
+			{
+				int tlval=quersum(*(_u32*)(ilisting[ilv1].variable),STRUCTURE_OBJECTTYPE_ListSize);
+				state=(((ilisting[ilv1].bgcolor & 0xFF)*tlval*256/STRUCTURE_OBJECTTYPE_ListSize)&0xFF00)+(((ilisting[ilv1].bgcolor & 0xFF00)*tlval*256/STRUCTURE_OBJECTTYPE_ListSize)&0xFF0000)+(((ilisting[ilv1].bgcolor & 0xFF0000)*tlval*256/STRUCTURE_OBJECTTYPE_ListSize)&0xFF000000);
+				state|=1;state|=((((tlval*8)-1)/STRUCTURE_OBJECTTYPE_ListSize)&7)<<1; break;
+			}
+		}
+		sdl_toolboxitemdraw(ilisting[ilv1].x*32+xpos,ilisting[ilv1].y*32+ypos,ilisting[ilv1].picno,state);
+	}
+}
+int sdl_canvasframedraw()
 {
 	for (int ilv1=gfx_canvasminx;ilv1<gfx_canvasmaxx;ilv1++)
 	{
@@ -51,31 +90,41 @@ int sdl_toolboxdraw()
 	{
 		screen[(gfx_screensizex*ilv1)+gfx_canvasmaxx]=0;
 	}
-	for (int ilv1=0;ilv1<sizeof(AUTOSTRUCT_PULLOUTLISTING_toolbox)/sizeof(AUTOSTRUCT_PULLOUTLISTING_);ilv1++)
+}
+structenum * searchreflectedstruct(const char * input);
+int addmenu(const char * name,int type,int alignx=0,int aligny=0)
+{
+	structenum * tlstructenum;
+	tlstructenum=searchreflectedstruct(name);
+	if (tlstructenum)
 	{
-		char state=0;
-		switch (AUTOSTRUCT_PULLOUTLISTING_toolbox[ilv1].lmbmode)
-		{
-			case 1: if (control_tool==AUTOSTRUCT_PULLOUTLISTING_toolbox[ilv1].toolnr) state=3;break;
-			case 2: state=AUTOSTRUCT_PULLOUTLISTING_toolbox[ilv1].getflag(2,0); break;
-		}
-		sdl_toolboxitemdraw(AUTOSTRUCT_PULLOUTLISTING_toolbox[ilv1].x*32,AUTOSTRUCT_PULLOUTLISTING_toolbox[ilv1].y*32,AUTOSTRUCT_PULLOUTLISTING_toolbox[ilv1].picno,state);
+		menu_list[menu_list_count].type=type;
+		menu_list[menu_list_count].what=*tlstructenum;
+		menu_list[menu_list_count].alignx=alignx;
+		menu_list[menu_list_count].aligny=aligny;
+		menu_list_count++;
 	}
-	if (control_reticle)
+}
+extern int control_tool;
+int sdl_commonmenudraw()
+{
+	char tlstring[60];
+	menu_list_count=0;
+	addmenu("toolbox",0);
+	for (int ilv1=0;ilv1<AUTOSTRUCT_PULLOUTLISTING_toolbox_Size;ilv1++)
 	{
-		if ((control_mousey<gfx_screensizey) && (control_mousey>=0))
+		if (AUTOSTRUCT_PULLOUTLISTING_toolbox[ilv1].toolnr==control_tool)
 		{
-			for (int ilv1=0;ilv1<gfx_screensizex;ilv1++)
-			{
-				screen[gfx_screensizex*(control_mousey)+ilv1]^=0xFFFFFF;
-			}
+			snprintf(tlstring,60,"toolspecific_%s",AUTOSTRUCT_PULLOUTLISTING_toolbox[ilv1].name);
+			tlstring[59]=0;
+			addmenu(tlstring,0,gfx_screensizex-160,128);
 		}
-		if ((control_mousex<gfx_screensizex) && (control_mousex>=0))
+	}
+	for (int ilv1=0;ilv1<menu_list_count;ilv1++)
+	{
+		if (menu_list[ilv1].type==0)
 		{
-			for (int ilv1=0;ilv1<gfx_screensizey;ilv1++)
-			{
-				screen[gfx_screensizex*(ilv1)+control_mousex]^=0xFFFFFF;
-			}
+			sdl_buttonmenudraw((AUTOSTRUCT_PULLOUTLISTING_*)menu_list[ilv1].what.pointer,menu_list[ilv1].what.count,menu_list[ilv1].alignx,menu_list[ilv1].aligny);
 		}
 	}
 }
@@ -151,4 +200,21 @@ int sdl_selectiondraw()
 							goto iback2;
 						}
 					}
+	if (control_reticle)
+	{
+		if ((control_mousey<gfx_screensizey) && (control_mousey>=0))
+		{
+			for (int ilv1=0;ilv1<gfx_screensizex;ilv1++)
+			{
+				screen[gfx_screensizex*(control_mousey)+ilv1]^=0xFFFFFF;
+			}
+		}
+		if ((control_mousex<gfx_screensizex) && (control_mousex>=0))
+		{
+			for (int ilv1=0;ilv1<gfx_screensizey;ilv1++)
+			{
+				screen[gfx_screensizex*(ilv1)+control_mousex]^=0xFFFFFF;
+			}
+		}
+	}
 }

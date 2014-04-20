@@ -388,6 +388,14 @@ struct fuenum
 	char name[20];
 	catalogized_command_functype function;
 };
+struct structenum
+{
+	char name[20];
+	int count;
+	void * pointer;
+	int type;//0: MENU pullout
+	int size;//the size of the type
+};
 intl get_bienum(bienum * ibienum,char * input,intl count)
 {
 	intl ilv1;

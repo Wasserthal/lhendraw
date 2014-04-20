@@ -192,31 +192,34 @@ void getatoms()//makes some preprocessing
 	}
 	for (int ilv1=0;ilv1<(*glob_b_multilist).filllevel;ilv1++)//defines processable bonds
 	{
-		bond_actual_node[ilv1].cotanleft[0]=Pi/4;
-		bond_actual_node[ilv1].cotanleft[1]=Pi/4;
-		bond_actual_node[ilv1].cotanright[0]=Pi/4;
-		bond_actual_node[ilv1].cotanright[1]=Pi/4;
-		bond_actual_node[ilv1].xcotanleft[0]=Pi/2;
-		bond_actual_node[ilv1].xcotanleft[1]=Pi/2;
-		bond_actual_node[ilv1].xcotanright[0]=Pi/2;
-		bond_actual_node[ilv1].xcotanright[1]=Pi/2;
-		bond_actual_node[ilv1].numberleft[0]=-1;
-		bond_actual_node[ilv1].numberleft[1]=-1;
-		bond_actual_node[ilv1].numberright[0]=-1;
-		bond_actual_node[ilv1].numberright[1]=-1;
-		for (int ilv2=0;ilv2<(*glob_n_multilist).filllevel;ilv2++)
+		if ((*glob_b_multilist).bufferlist[ilv1].exist)
 		{
-			if (((*glob_n_multilist).bufferlist)[ilv2].exist)
+			bond_actual_node[ilv1].cotanleft[0]=Pi/4;
+			bond_actual_node[ilv1].cotanleft[1]=Pi/4;
+			bond_actual_node[ilv1].cotanright[0]=Pi/4;
+			bond_actual_node[ilv1].cotanright[1]=Pi/4;
+			bond_actual_node[ilv1].xcotanleft[0]=Pi/2;
+			bond_actual_node[ilv1].xcotanleft[1]=Pi/2;
+			bond_actual_node[ilv1].xcotanright[0]=Pi/2;
+			bond_actual_node[ilv1].xcotanright[1]=Pi/2;
+			bond_actual_node[ilv1].numberleft[0]=-1;
+			bond_actual_node[ilv1].numberleft[1]=-1;
+			bond_actual_node[ilv1].numberright[0]=-1;
+			bond_actual_node[ilv1].numberright[1]=-1;
+			for (int ilv2=0;ilv2<(*glob_n_multilist).filllevel;ilv2++)
 			{
-				if (((*glob_n_multilist).bufferlist)[ilv2].id==((*glob_b_multilist).bufferlist)[ilv1].E)
+				if (((*glob_n_multilist).bufferlist)[ilv2].exist)
 				{
-					bond_actual_node[ilv1].end=ilv2;
-					atom_actual_node[ilv2]+=ilv1;
-				}
-				if (((*glob_n_multilist).bufferlist)[ilv2].id==((*glob_b_multilist).bufferlist)[ilv1].B)
-				{
-					bond_actual_node[ilv1].start=ilv2;
-					atom_actual_node[ilv2]+=ilv1;
+					if (((*glob_n_multilist).bufferlist)[ilv2].id==((*glob_b_multilist).bufferlist)[ilv1].E)
+					{
+						bond_actual_node[ilv1].end=ilv2;
+						atom_actual_node[ilv2]+=ilv1;
+					}
+					if (((*glob_n_multilist).bufferlist)[ilv2].id==((*glob_b_multilist).bufferlist)[ilv1].B)
+					{
+						bond_actual_node[ilv1].start=ilv2;
+						atom_actual_node[ilv2]+=ilv1;
+					}
 				}
 			}
 		}

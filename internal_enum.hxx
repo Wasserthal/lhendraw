@@ -9,6 +9,9 @@
 #define STRUCTURE_OBJECTTYPE_arrow 4
 #define STRUCTURE_OBJECTTYPE_graphic 5
 #define STRUCTURE_OBJECTTYPE_curve 6
+#define STRUCTURE_OBJECTTYPE_matrix 7
+#define STRUCTURE_OBJECTTYPE_spectrum 8
+#define STRUCTURE_OBJECTTYPE_tlcplate 9
 //--TELESCOPE_ELEMENTTYPE
 //Numbers may not have interruption, but dummies are allowed.
 #define TELESCOPE_ELEMENTTYPE_None 0

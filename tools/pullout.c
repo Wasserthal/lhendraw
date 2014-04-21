@@ -11,7 +11,7 @@ typedef struct menuitem
 	int x,y;
 	int picno;
 	char name[80];
-	int lmbmode;//0: nothing 1: select a tool 2: toggle variable 3: execute a function 4: set/clear a multi-boolean variable
+	int lmbmode;//0: nothing 1: select a tool 2: toggle variable 3: execute a function 4: set/clear a multi-boolean variable 5: set single boolean of multi-boolean variable
 	int rmbmode;//0: nothing 1: select a tool 2: toggle variable 3: execute a function 4: set/clear a multi-boolean variable
 	int toolnr;
 	char explanation[1024];
@@ -48,6 +48,12 @@ char pulloutlisting_string[]="\n"
 "_u32 nope;\n";
 #include "../toolbox.pullout.hxx"
 #include "../toolspecific_BOND.pullout.hxx"
+#include "../submenu_toolbox_M1.pullout.hxx"
+#include "../submenu_toolbox_M2.pullout.hxx"
+#include "../submenu_toolbox_M3.pullout.hxx"
+#include "../submenu_toolbox_M4.pullout.hxx"
+#include "../submenu_toolbox_M5.pullout.hxx"
+#include "../submenu_toolbox_M6.pullout.hxx"
 int stringlist_count=0;
 char nullstring[]="NULL";
 char nopestring[]="nope";
@@ -128,6 +134,12 @@ void main(int argc,char ** argv)
 	fprintf(stringfile,"char AUTOSTRUCT_STRINGLIST_PULLOUT[]=\n");
 	domenu(pullout_toolbox,sizeof(pullout_toolbox)/sizeof(menuitem),"toolbox");
 	domenu(pullout_toolspecific_BOND,sizeof(pullout_toolspecific_BOND)/sizeof(menuitem),"toolspecific_BOND");
+	domenu(pullout_submenu_toolbox_M1,sizeof(pullout_submenu_toolbox_M1)/sizeof(menuitem),"submenu_toolbox_M1");
+	domenu(pullout_submenu_toolbox_M2,sizeof(pullout_submenu_toolbox_M2)/sizeof(menuitem),"submenu_toolbox_M2");
+	domenu(pullout_submenu_toolbox_M3,sizeof(pullout_submenu_toolbox_M3)/sizeof(menuitem),"submenu_toolbox_M3");
+	domenu(pullout_submenu_toolbox_M4,sizeof(pullout_submenu_toolbox_M4)/sizeof(menuitem),"submenu_toolbox_M4");
+	domenu(pullout_submenu_toolbox_M5,sizeof(pullout_submenu_toolbox_M5)/sizeof(menuitem),"submenu_toolbox_M5");
+	domenu(pullout_submenu_toolbox_M6,sizeof(pullout_submenu_toolbox_M6)/sizeof(menuitem),"submenu_toolbox_M6");
 	fprintf(stringfile,";\n");
 	
 	

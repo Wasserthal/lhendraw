@@ -390,7 +390,7 @@ struct fuenum
 };
 struct structenum
 {
-	char name[20];
+	char name[25];
 	int count;
 	void * pointer;
 	int type;//0: MENU pullout

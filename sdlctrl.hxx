@@ -1,9 +1,18 @@
 //This unit transforms user input into commands to the program
+struct menuref_
+{
+	char type;//0: buttons 1: popup and the like
+	structenum what;//The structenum
+	int alignx,aligny;//The position
+};
+menuref_ menu_list[20];
+int menu_list_count=0;
+char * menu_matrixsubmenuvariable;
 SDL_Event control_Event;
 char control_mousestate=0;//0: inactive; 0x1: from tool, mouseclick; 0x2: from special tool, keyboard 0x4: on menu, dragging 0x8: on menu, popup
 int control_toolaction=0;//1: move 2: move selection 3: tool specific
-int control_tool=0;//1: Hand 2: 2coordinate Selection 3: Lasso, no matter which 4: Shift tool 5: Magnifying glass 6: Element draw 7: chemdraw draw 8: eraser 9: Arrows 10: graphic
-#define control_toolcount 11
+int control_tool=0;//1: Hand 2: 2coordinate Selection 3: Lasso, no matter which 4: Shift tool 5: Magnifying glass 6: Element draw 7: chemdraw draw 8: eraser 9: Arrows 10: graphic 11: bezier 12: image 13: spectrum 14: tlc plate/gel plate
+#define control_toolcount 15
 int control_keycombotool=0;//as above, but only valid if (mousestate & 2)
 SDLKey control_toolstartkeysym;
 int control_lastinterpret=-1;
@@ -664,14 +673,16 @@ void issuerelease()
 	}
 	control_mousestate=0;
 }
-void issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int posy,int button)
+int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int posy,int button)
 {
+	int ihitnr=0;
 	AUTOSTRUCT_PULLOUTLISTING_ * ipulloutlisting=NULL;
 	for (int ilv1=0;ilv1<icount;ilv1++)
 	{
-		if ((AUTOSTRUCT_PULLOUTLISTING_toolbox[ilv1].x==posx) && (AUTOSTRUCT_PULLOUTLISTING_toolbox[ilv1].y==posy))
+		if ((ilisting[ilv1].x==posx) && (ilisting[ilv1].y==posy))
 		{
-			ipulloutlisting=&(AUTOSTRUCT_PULLOUTLISTING_toolbox[ilv1]);
+			ipulloutlisting=&(ilisting[ilv1]);
+			ihitnr=ilv1;
 		}
 	}
 	if (ipulloutlisting)
@@ -691,6 +702,12 @@ void issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,in
 						if ((*tltl) & 1) *tltl=0; else *tltl=~0;
 						break;
 					}
+					case 5: 
+					{
+						_u32 * tltl=(_u32 *)((*ipulloutlisting).variable);
+						(*tltl)^=(1<<ihitnr);
+						break;
+					}
 				}
 				break;
 			}
@@ -703,19 +720,38 @@ void issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,in
 					case 3: (*ipulloutlisting).RMB_function("","");break;
 					case 4:
 					{
-						control_mousestate=8;popupmenu_active=&popupmenu_multibitbutton;
-						popupmenu_multibitbutton.count=0;
-						for (int ilv1=0;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
-						{
-							AUTOSTRUCT_PULLOUTLISTING_ * tlpointer=(AUTOSTRUCT_PULLOUTLISTING_*)popupmenu_multibitbutton.pointer;
-							(*tlpointer).name=STRUCTURE_OBJECTTYPE_List[ilv1].name;
-							popupmenu_multibitbutton.count++;
-						}
+						control_mousestate=8;
+						menu_matrixsubmenuvariable=(*ipulloutlisting).name;
 						break;
 					}
 				}
 				break;
 			}
+		}
+		return 1;
+	}
+	return 0;
+}
+void issuemenuclicks(int iposx,int iposy,int ibutton)
+{
+	int tlsuccess=0;
+	for (int ilv1=0;ilv1<menu_list_count;ilv1++)
+	{
+		if (((iposy-menu_list[ilv1].aligny)>=0) && ((iposy-menu_list[ilv1].aligny)>=0))
+		{
+			switch (menu_list[ilv1].type)
+			{
+				case 0:tlsuccess|=issuemenuclick((AUTOSTRUCT_PULLOUTLISTING_*)menu_list[ilv1].what.pointer,menu_list[ilv1].what.count,(iposx-menu_list[ilv1].alignx)/32,(iposy-menu_list[ilv1].aligny)/32,ibutton);break;
+				case 1:tlsuccess|=issuemenuclick((AUTOSTRUCT_PULLOUTLISTING_*)menu_list[ilv1].what.pointer,menu_list[ilv1].what.count,(iposx-menu_list[ilv1].alignx)/192,(iposy-menu_list[ilv1].aligny)/16,ibutton);break;
+			}
+		}
+	}
+	if (tlsuccess==0)
+	{
+		//TODO what about control_mousestate=16 (ordinary popup)
+		if (control_mousestate & 8)
+		{
+			control_mousestate=control_mousestate & (~8);
 		}
 	}
 }
@@ -776,12 +812,11 @@ void sdl_control()
 			}
 			case SDL_MOUSEBUTTONDOWN:
 			{
-				if (control_mousestate==0)
+				if ((control_mousestate & (~8))==0)
 				{
-					if ((control_Event.button.x<gfx_canvasminx) || (control_Event.button.y<gfx_canvasminy) || (control_Event.button.x>=gfx_canvasmaxx) || (control_Event.button.y>=gfx_canvasmaxy))
+					if ((control_mousestate & (24)) || (control_Event.button.x<gfx_canvasminx) || (control_Event.button.y<gfx_canvasminy) || (control_Event.button.x>=gfx_canvasmaxx) || (control_Event.button.y>=gfx_canvasmaxy))
 					{
-						issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_toolbox,sizeof(AUTOSTRUCT_PULLOUTLISTING_toolbox)/sizeof(AUTOSTRUCT_PULLOUTLISTING_),control_Event.button.x/32,control_Event.button.y/32,control_Event.button.button);
-						issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_toolspecific_BOND,sizeof(AUTOSTRUCT_PULLOUTLISTING_toolspecific_BOND)/sizeof(AUTOSTRUCT_PULLOUTLISTING_),(control_Event.button.x+gfx_screensizex-160)/32,(control_Event.button.y-64)/32,control_Event.button.button);
+						issuemenuclicks(control_Event.button.x,control_Event.button.y,control_Event.button.button);
 						break;
 					}
 				}

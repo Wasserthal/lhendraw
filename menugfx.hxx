@@ -1,12 +1,66 @@
 //any graphics output which is not data of the document
-struct menuref_
+void text_output_bitmap(int * posx,int * posy,fontpixinf_ * ifontpixinf)
 {
-	char type;//0: buttons 1: popup and the like
-	structenum what;//The structenum
-	int alignx,aligny;//The position
-};
-menuref_ menu_list[20];
-int menu_list_count=0;
+	int ilv1,ilv2;
+	int scanx,scany;
+	int maxx,maxy;
+	int iscreenskip=gfx_screensizex;
+	unsigned int * iscreen=screen;
+	int skip=(*ifontpixinf).sizex;
+	char * mempos=(*ifontpixinf).memstart;
+	scanx=(*posx)+(*ifontpixinf).pivotx;
+	scany=(*posy)+(*ifontpixinf).pivoty;
+	maxx=(*ifontpixinf).sizex+scanx;
+	maxy=(*ifontpixinf).sizey+scany;
+	if (scanx<0) {mempos-=scanx;scanx=0;}
+	if (scany<0) {mempos-=scany*skip;scany=0;}
+	if (maxx>=gfx_screensizex) maxx=gfx_screensizex-1;
+	if (maxy>=gfx_screensizey) maxy=gfx_screensizey-1;
+	skip-=(*ifontpixinf).sizex;
+	(*posx)+=(*ifontpixinf).deltax;
+	(*posy)+=(*ifontpixinf).deltay;
+	if ((scanx>=maxx) || (scany>=maxy))
+	{
+		return;
+	}
+	iscreen+=iscreenskip*scany+scanx;
+	iscreenskip-=(*ifontpixinf).sizex;
+	for (ilv1=scany;ilv1<maxy;ilv1++)
+	{
+		for (ilv2=scanx;ilv2<maxx;ilv2++)
+		{
+			if (*(mempos) & 0x80)
+			{
+				*(iscreen)=SDL_color;
+			}
+			iscreen++;
+			mempos++;
+		}
+		mempos+=skip;
+		iscreen+=iscreenskip;
+	}
+}
+void printmenutext(int posx,int posy,const char * iinput,const char * parms,int imode,int start,int end)
+{
+	int ilv4=start;
+	char linebreak;
+	int iposx=posx;
+	int iposy=posy;
+	thatwasatemporaryskip:
+	linebreak=0;
+	for (;ilv4<end;ilv4++)
+	{
+		if (iinput[ilv4]==10)
+		{
+			ilv4++;
+			linebreak=1;
+			goto skipfornow;
+		}
+		text_output_bitmap(&iposx,&iposy,&fontpixinf[indexfromunicode(((unsigned char)iinput[ilv4]))]);
+	}
+	skipfornow:
+	if (linebreak) {if (ilv4<end) goto thatwasatemporaryskip;}//a line break;
+}
 int sdl_toolboxitemdraw(int posx,int posy,int gfxno,_u32 state)
 {
 	_u32 * ibutton=resources_bitmap_buttons[0][0];
@@ -52,6 +106,49 @@ int quersum(_u32 input,int max=32)
 	}
 	return wert;
 }
+int sdl_textmenudraw(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int count,int xpos=0,int ypos=0)
+{
+	for (int ilv1=0;ilv1<count;ilv1++)
+	{
+		switch (ilisting[ilv1].lmbmode)
+		{
+			case 5:
+			{
+				_u32 * iscreen=screen+(ypos+ilisting[ilv1].y*16)*gfx_screensizex+xpos+ilisting[ilv1].x*192;
+				if ((*((_u32*)ilisting[ilv1].variable)) & (1<<ilv1))
+				{
+					SDL_color=0xFFFFFF;
+					for (int ilv2=0;ilv2<16;ilv2++)
+					{
+						for (int ilv3=0;ilv3<192;ilv3++)
+						{
+							*(iscreen)=0;
+							iscreen++;
+						}
+						iscreen+=gfx_screensizex-192;
+					}
+				}
+				else
+				{
+					SDL_color=0x000000;
+					for (int ilv2=0;ilv2<16;ilv2++)
+					{
+						for (int ilv3=0;ilv3<192;ilv3++)
+						{
+							*(iscreen)=0xFFFFFF;
+							iscreen++;
+						}
+						iscreen+=gfx_screensizex-192;
+					}
+				}
+			}
+			break;
+			default:
+			SDL_color=0x000000;
+		}
+		printmenutext(ilisting[ilv1].x*192+xpos,ilisting[ilv1].y*16+ypos+12,ilisting[ilv1].name,NULL,0,0,strlen(ilisting[ilv1].name));
+	}
+}
 int sdl_buttonmenudraw(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int count,int xpos=0,int ypos=0)
 {
 	for (int ilv1=0;ilv1<count;ilv1++)
@@ -65,8 +162,8 @@ int sdl_buttonmenudraw(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int count,int xpos=
 			case 4: 
 			{
 				int tlval=quersum(*(_u32*)(ilisting[ilv1].variable),STRUCTURE_OBJECTTYPE_ListSize);
-				state=(((ilisting[ilv1].bgcolor & 0xFF)*tlval*256/STRUCTURE_OBJECTTYPE_ListSize)&0xFF00)+(((ilisting[ilv1].bgcolor & 0xFF00)*tlval*256/STRUCTURE_OBJECTTYPE_ListSize)&0xFF0000)+(((ilisting[ilv1].bgcolor & 0xFF0000)*tlval*256/STRUCTURE_OBJECTTYPE_ListSize)&0xFF000000);
-				state|=1;state|=((((tlval*8)-1)/STRUCTURE_OBJECTTYPE_ListSize)&7)<<1; break;
+				state=(((ilisting[ilv1].bgcolor & 0xFF)*tlval*256/STRUCTURE_OBJECTTYPE_ListSize)&0xFF00)+(((0xFF00)*(6-abs(tlval-4))*256/STRUCTURE_OBJECTTYPE_ListSize)&0xFF0000)+(((0xFF0000)*(8-tlval)*256/STRUCTURE_OBJECTTYPE_ListSize)&0xFF000000);
+				state|=1*(tlval>0);state|=((((tlval*8)-1)/STRUCTURE_OBJECTTYPE_ListSize)&7)<<1; break;
 			}
 		}
 		sdl_toolboxitemdraw(ilisting[ilv1].x*32+xpos,ilisting[ilv1].y*32+ypos,ilisting[ilv1].picno,state);
@@ -106,7 +203,7 @@ int addmenu(const char * name,int type,int alignx=0,int aligny=0)
 	}
 }
 extern int control_tool;
-int sdl_commonmenudraw()
+int sdl_commonmenucommon()
 {
 	char tlstring[60];
 	menu_list_count=0;
@@ -120,11 +217,24 @@ int sdl_commonmenudraw()
 			addmenu(tlstring,0,gfx_screensizex-160,128);
 		}
 	}
+	if (control_mousestate & 8)
+	{
+		sprintf(tlstring,"submenu_%s",menu_matrixsubmenuvariable);
+		addmenu(tlstring,1,256,96);
+	}
+}
+int sdl_commonmenudraw()
+{
+	sdl_commonmenucommon();
 	for (int ilv1=0;ilv1<menu_list_count;ilv1++)
 	{
 		if (menu_list[ilv1].type==0)
 		{
 			sdl_buttonmenudraw((AUTOSTRUCT_PULLOUTLISTING_*)menu_list[ilv1].what.pointer,menu_list[ilv1].what.count,menu_list[ilv1].alignx,menu_list[ilv1].aligny);
+		}
+		if (menu_list[ilv1].type==1)
+		{
+			sdl_textmenudraw((AUTOSTRUCT_PULLOUTLISTING_*)menu_list[ilv1].what.pointer,menu_list[ilv1].what.count,menu_list[ilv1].alignx,menu_list[ilv1].aligny);
 		}
 	}
 }

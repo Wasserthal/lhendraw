@@ -14,6 +14,15 @@ void CAMBRIDGECONV_atoms()
 		if (AUTOSTRUCT_EXISTS(CAMBRIDGE_n_instance,(*tl_CAMBRIDGE_n_instance),Element))
 		{
 			tl_n_instance.Element=(*tl_CAMBRIDGE_n_instance).Element;
+			tl_n_instance.Element+=1;
+			if ((tl_n_instance).Element>3)
+			{
+				(tl_n_instance).Element+=2;
+			}
+			if ((tl_n_instance).Element>9)
+			{
+				(tl_n_instance).Element++;
+			}
 		}
 		if (AUTOSTRUCT_EXISTS(CAMBRIDGE_n_instance,(*tl_CAMBRIDGE_n_instance),p))
 		{

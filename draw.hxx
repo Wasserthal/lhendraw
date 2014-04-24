@@ -1,5 +1,6 @@
 //Turns document data into graphics
 //Intended to be included several times for different graphics outputs
+#include "elements.hxx"
 
 #ifdef LENNARD_HACK
 char * current_hack_annotation;
@@ -969,6 +970,7 @@ curve_instance * i_curve_instance;
 graphic_instance * i_graphic_instance;
 arrow_instance * i_arrow_instance;
 b_instance * i_b_instance;
+n_instance * i_n_instance;
 n_instance * startnode, * endnode;
 char STRINGOUTPUT_emptyformat[]="";
 char STRINGOUTPUT_bold[]="font-weight=\"bold\" ";
@@ -1184,6 +1186,7 @@ void svg_controlprocedure(bool irestriction=0,bool hatches=0)
 				}
 			}
 			#endif
+			if (multilistlist.instances[objectZorderlist[ilv1].listnr]==glob_n_multilist) goto svg_main_n;
 			if (multilistlist.instances[objectZorderlist[ilv1].listnr]==glob_curve_multilist) goto svg_main_curve;
 			if (multilistlist.instances[objectZorderlist[ilv1].listnr]==glob_graphic_multilist) goto svg_main_graphic;
 			if (multilistlist.instances[objectZorderlist[ilv1].listnr]==glob_b_multilist) goto svg_main_b;
@@ -1198,6 +1201,27 @@ void svg_controlprocedure(bool irestriction=0,bool hatches=0)
 		#endif
 	}
 	goto svg_main_end;
+	svg_main_n:
+	{
+		i_n_instance=(n_instance*)&((*glob_n_multilist).bufferlist[index_in_buffer]);
+		int tlElement=((*i_n_instance).Element);
+		stylegenestring(3);
+		if (tlElement==9)
+		{
+			expresscdxcircle((*i_n_instance).xyz.x,(*i_n_instance).xyz.y,2);
+		}
+		else
+		{
+			char istring[1000];
+			sprintf(istring,"%s%s%i",element[tlElement].name,((*i_n_instance).protons==0)?"":"H",(*i_n_instance).protons);
+
+			colornr=(*i_n_instance).color;
+			get_colorstring(colornr);
+			express_txinit(0/*TODO: reverse*/,(*i_n_instance).xyz.x,(*i_n_instance).xyz.y,atomfontheight);
+			printformatted(istring,0,0,0,strlen(istring));
+		}
+	}
+	goto svg_main_loop;
 	svg_main_curve:
 	tllinedist=0;//TODO****
 	i_curve_instance=(curve_instance*)&((*glob_curve_multilist).bufferlist[index_in_buffer]);

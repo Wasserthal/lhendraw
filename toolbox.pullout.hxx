@@ -193,4 +193,14 @@ menuitem pullout_toolbox[]={
 "","",
 0x0000FF,
 },
+{14,2,
+23,//Picture
+"color_chooser",
+0x103,0x103,
+1,
+"color\n",
+"drawproperties.color",
+"","",
+0x000000,
+},
 };

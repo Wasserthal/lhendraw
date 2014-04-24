@@ -11,7 +11,7 @@ typedef struct menuitem
 	int x,y;
 	int picno;
 	char name[80];
-	int lmbmode;//0: nothing 1: select a tool 2: toggle variable 3: execute a function 4: set/clear a multi-boolean variable 5: set single boolean of multi-boolean variable
+	int lmbmode;//0: nothing 1: select a tool 2: toggle variable 3: execute a function 4: set/clear a multi-boolean variable 5: set single boolean of multi-boolean variable 0x1XX click-drag button
 	int rmbmode;//0: nothing 1: select a tool 2: toggle variable 3: execute a function 4: set/clear a multi-boolean variable
 	int toolnr;
 	char explanation[1024];
@@ -26,7 +26,6 @@ typedef struct reflective_head
 	char name[20];
 }reflectfile_head;
 char pulloutlisting_string[]="\n"
-"typedef int __attribute__((sysv_abi))(*AUTOSTRUCT_GETSET_FUNCTYPE)(char state,int input);//1: set 2: get 4: toggle\n"
 "typedef struct AUTOSTRUCT_PULLOUTLISTING_\n"
 "{\n"
 "	int x,y;\n"

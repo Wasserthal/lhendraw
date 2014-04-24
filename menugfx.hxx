@@ -158,7 +158,8 @@ int sdl_buttonmenudraw(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int count,int xpos=
 		switch (ilisting[ilv1].lmbmode)
 		{
 			case 1: if (control_tool==ilisting[ilv1].toolnr) state|=9;break;
-			case 2: state|=ilisting[ilv1].getflag(2,0); break;
+			case 2: state|=(*((char*)(ilisting[ilv1].variable)) & 1); break;
+			case 0x103: state=(((*(int*)(ilisting[ilv1]).variable))<<8)|0xFF;break;
 			case 4: 
 			{
 				int tlval=quersum(*(_u32*)(ilisting[ilv1].variable),STRUCTURE_OBJECTTYPE_ListSize);

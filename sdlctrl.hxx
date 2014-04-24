@@ -9,10 +9,15 @@ menuref_ menu_list[20];
 int menu_list_count=0;
 char * menu_matrixsubmenuvariable;
 SDL_Event control_Event;
-char control_mousestate=0;//0: inactive; 0x1: from tool, mouseclick; 0x2: from special tool, keyboard 0x4: on menu, dragging 0x8: on menu, popup
+int control_firstmenux,control_firstmenuy;
+int control_lastmenux,control_lastmenuy;
+char control_mousestate=0;//0: inactive; 0x1: from tool, mouseclick; 0x2: from special tool, keyboard 0x4: on menu, dragging 0x8: on button_function dependent menu, popup 0x10 popup-menu, multiple levels 0x20 dragging menuitem
 int control_toolaction=0;//1: move 2: move selection 3: tool specific
 int control_tool=0;//1: Hand 2: 2coordinate Selection 3: Lasso, no matter which 4: Shift tool 5: Magnifying glass 6: Element draw 7: chemdraw draw 8: eraser 9: Arrows 10: graphic 11: bezier 12: image 13: spectrum 14: tlc plate/gel plate
+int control_menumode=0;//1: shliderhorz, 2: slidervert 3: colorchooser
+AUTOSTRUCT_PULLOUTLISTING_ * control_menuitem=NULL;
 #define control_toolcount 15
+clickabilitymatrix_ clickabilitymatrixes[control_toolcount];
 int control_keycombotool=0;//as above, but only valid if (mousestate & 2)
 SDLKey control_toolstartkeysym;
 int control_lastinterpret=-1;
@@ -673,7 +678,7 @@ void issuerelease()
 	}
 	control_mousestate=0;
 }
-int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int posy,int button)
+int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int posy,int button,int pixeloriginposx,int pixeloriginposy)
 {
 	int ihitnr=0;
 	AUTOSTRUCT_PULLOUTLISTING_ * ipulloutlisting=NULL;
@@ -693,8 +698,8 @@ int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int
 			{
 				switch ((*ipulloutlisting).lmbmode)
 				{
-					case 1: control_tool=(*ipulloutlisting).toolnr;break;
-					case 2: (*ipulloutlisting).getflag(4,0);break;
+					case 1: clickabilitymatrix_tooldependent[control_tool]=selection_clickabilitymatrix;control_tool=(*ipulloutlisting).toolnr;selection_clickabilitymatrix=clickabilitymatrix_tooldependent[control_tool];break;
+					case 2: *((char*)(*ipulloutlisting).variable)^=1;break;
 					case 3: (*ipulloutlisting).LMB_function("","");break;
 					case 4:
 					{
@@ -708,6 +713,19 @@ int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int
 						(*tltl)^=(1<<ihitnr);
 						break;
 					}
+					default:
+					{
+						if ((((*ipulloutlisting).lmbmode) & (~0xFF))==0x100)
+						{
+							control_mousestate|=0x20;
+							control_firstmenux=pixeloriginposx;
+							control_firstmenuy=pixeloriginposy;
+							control_lastmenux=pixeloriginposx;
+							control_lastmenuy=pixeloriginposy;
+							control_usingmousebutton=button;
+							control_menuitem=ipulloutlisting;
+						}
+					}
 				}
 				break;
 			}
@@ -716,7 +734,7 @@ int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int
 				switch ((*ipulloutlisting).rmbmode)
 				{
 					case 1: control_tool=(*ipulloutlisting).toolnr;break;
-					case 2: (*ipulloutlisting).getflag(4,0);break;
+					case 2: *((char*)(*ipulloutlisting).variable)&=~1;break;
 					case 3: (*ipulloutlisting).RMB_function("","");break;
 					case 4:
 					{
@@ -741,8 +759,8 @@ void issuemenuclicks(int iposx,int iposy,int ibutton)
 		{
 			switch (menu_list[ilv1].type)
 			{
-				case 0:tlsuccess|=issuemenuclick((AUTOSTRUCT_PULLOUTLISTING_*)menu_list[ilv1].what.pointer,menu_list[ilv1].what.count,(iposx-menu_list[ilv1].alignx)/32,(iposy-menu_list[ilv1].aligny)/32,ibutton);break;
-				case 1:tlsuccess|=issuemenuclick((AUTOSTRUCT_PULLOUTLISTING_*)menu_list[ilv1].what.pointer,menu_list[ilv1].what.count,(iposx-menu_list[ilv1].alignx)/192,(iposy-menu_list[ilv1].aligny)/16,ibutton);break;
+				case 0:tlsuccess|=issuemenuclick((AUTOSTRUCT_PULLOUTLISTING_*)menu_list[ilv1].what.pointer,menu_list[ilv1].what.count,(iposx-menu_list[ilv1].alignx)/32,(iposy-menu_list[ilv1].aligny)/32,ibutton,iposx,iposy);break;
+				case 1:tlsuccess|=issuemenuclick((AUTOSTRUCT_PULLOUTLISTING_*)menu_list[ilv1].what.pointer,menu_list[ilv1].what.count,(iposx-menu_list[ilv1].alignx)/192,(iposy-menu_list[ilv1].aligny)/16,ibutton,iposx,iposy);break;
 			}
 		}
 	}
@@ -756,6 +774,22 @@ void issuemenuclicks(int iposx,int iposy,int ibutton)
 	}
 }
 long long counter_SDL;
+void issuemenudrag(int posx,int posy)
+{
+	int diffx,diffy;
+	diffx=posx-control_lastmenux;
+	diffy=posy-control_lastmenuy;
+	switch ((*control_menuitem).lmbmode)
+	{
+		case 0x103:
+		{
+			(*(int*)(*control_menuitem).variable)=((*(int*)(*control_menuitem).variable) & 0xFFFF0000)+(0xFF & (((*(int*)(*control_menuitem).variable) & 0xFF)+diffy))+(0xFF00 & (((*(int*)(*control_menuitem).variable) & 0xFF00)+((diffx & 0xFF)<<8)));
+			break;
+		}
+	}
+	control_lastmenux=posx;
+	control_lastmenuy=posy;
+}
 void sdl_control()
 {
 	LHENDRAW_leave=0;
@@ -772,6 +806,10 @@ void sdl_control()
 			{
 				control_mousex=control_Event.motion.x;
 				control_mousey=control_Event.motion.y;
+				if (control_mousestate & 0x20)
+				{
+					issuemenudrag(control_Event.motion.x,control_Event.motion.y);
+				}
 				if (control_mousestate!=1)
 				{
 					selection_clearselection(selection_clickselection);
@@ -900,6 +938,16 @@ void sdl_control()
 								issuerelease();
 							}
 						}
+						if (control_mousestate & 0x20)
+						{
+							if (control_usingmousebutton==control_lastmousebutton)//Only when same button up as down
+							{
+								issuemenudrag(control_Event.motion.x,control_Event.motion.y);
+								control_mousestate&=~0x20;
+								printf(">>%i<<",control_mousestate);
+							}
+						}
+						break;
 					}
 				}
 				break;

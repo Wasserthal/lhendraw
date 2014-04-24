@@ -1,4 +1,14 @@
 //This unit does most processing of the internal data
+struct drawproperties_
+{
+	char bond_double;
+	char bond_triple;
+	char bond_quadro;
+	char bond_wedgeup;
+	char bond_wedgedown;
+	char bond_bold;
+	int color;
+} drawproperties;
 int control_hotatom=-1;
 int janitor_getmaxid(_u32 ino)
 {

@@ -22,6 +22,9 @@ TELESCOPE_buffer internalstructure_arrow_undobuffer;
 #define constants_bondlength 30
 #define constants_angular_distance 2.094395102
 #define constants_clickradius 170
+#define constants_Element_loneradical 0
+#define constants_Element_lonepair 1
+#define constants_Element_implicitcarbon 9
 float glob_clickradius=170;
 #define constants_maxbonds 10
 _u32 resources_bitmap_buttons[selection_maxbuttons][32][32];
@@ -196,20 +199,10 @@ int TELESCOPE_searchthroughobject(int tag)
 	{
 		TELESCOPE_tempvar.inside_TELESCOPE=1;
 		ilength=(*((TELESCOPE*)((*TELESCOPE_tempvar.buffer).buffer+TELESCOPE_tempvar.pos))).length-sizeof(TELESCOPE);
-/*		if (TELESCOPE_tempvar.pos==0)
-		{
-			printf("%s ",((basic_instance*)((*TELESCOPE_tempvar.multilist).pointer))->getName());
-			printf("l%i,%i,%llX\n",ilength,(TELESCOPE_tempvar).objectpos,TELESCOPE_tempvar.multilist);
-			printf(">%i<",*((int*)(internalstructure_text_buffer).buffer));
-		}*/
 		TELESCOPE_tempvar.subpos=sizeof(TELESCOPE);
 		while (TELESCOPE_tempvar.subpos<ilength)
 		{
 			TELESCOPE_element * iTELESCOPE_element=(TELESCOPE_element*)((*(TELESCOPE_tempvar.buffer)).buffer+TELESCOPE_tempvar.pos+TELESCOPE_tempvar.subpos);
-/*			if (tag==TELESCOPE_ELEMENTTYPE_s)
-			{
-				printf("%s,\n",(char*)((*(TELESCOPE_tempvar.buffer)).buffer+TELESCOPE_tempvar.pos+TELESCOPE_tempvar.subpos+sizeof(TELESCOPE_element)));
-			}*/
 			if (tag==(*iTELESCOPE_element).type) {TELESCOPE_tempvar.inside_TELESCOPE_element=1;TELESCOPE_tempvar.subpos2=TELESCOPE_tempvar.subpos2=0;return 1;};
 			TELESCOPE_tempvar.subpos+=(*iTELESCOPE_element).length;
 			TELESCOPE_tempvar.subpos2=TELESCOPE_tempvar.subpos;
@@ -228,10 +221,6 @@ int TELESCOPE_searchthroughobject_next(int tag)
 	{
 		if (TELESCOPE_tempvar.inside_TELESCOPE_element)
 		{
-/*			if (tag==TELESCOPE_ELEMENTTYPE_s)
-			{
-				printf("%s,\n",(char*)((*(TELESCOPE_tempvar.buffer)).buffer+TELESCOPE_tempvar.pos+TELESCOPE_tempvar.subpos+sizeof(TELESCOPE_element)));
-			}*/
 			ilength=(*((TELESCOPE*)((*TELESCOPE_tempvar.buffer).buffer+TELESCOPE_tempvar.pos))).length-sizeof(TELESCOPE);
 			TELESCOPE_element * iTELESCOPE_element=(TELESCOPE_element*)((*(TELESCOPE_tempvar.buffer)).buffer+TELESCOPE_tempvar.pos+TELESCOPE_tempvar.subpos);
 			TELESCOPE_tempvar.subpos+=(*iTELESCOPE_element).length;
@@ -285,7 +274,7 @@ int TELESCOPE_add(int tag,char * iinput,int ilength)//Like insertintoproperties,
 	TELESCOPE_tempvar.inside_TELESCOPE=TELESCOPE_verify_objectpresent();//TODO: such calls in aggressobject and nowhere else
 	if (TELESCOPE_tempvar.inside_TELESCOPE)
 	{
-		TELESCOPE_tempvar.subpos=(*((TELESCOPE_head*)((*TELESCOPE_tempvar.buffer).buffer+TELESCOPE_tempvar.pos))).length;
+		TELESCOPE_tempvar.subpos=(*((TELESCOPE_element*)((*TELESCOPE_tempvar.buffer).buffer+TELESCOPE_tempvar.pos))).length;
 		TELESCOPE_tempvar.subpos2=TELESCOPE_tempvar.subpos;
 		TELESCOPE_tempvar.inside_TELESCOPE_element=0;
 	}

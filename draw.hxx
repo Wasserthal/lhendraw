@@ -1206,7 +1206,7 @@ void svg_controlprocedure(bool irestriction=0,bool hatches=0)
 		i_n_instance=(n_instance*)&((*glob_n_multilist).bufferlist[index_in_buffer]);
 		int tlElement=((*i_n_instance).Element);
 		stylegenestring(3);
-		if (tlElement==9)
+		if (tlElement==constants_Element_implicitcarbon)
 		{
 			expresscdxcircle((*i_n_instance).xyz.x,(*i_n_instance).xyz.y,2);
 		}

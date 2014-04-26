@@ -315,6 +315,7 @@ n_instance * summonatom(int * inr=NULL)
 		if (janitor_getmaxid(STRUCTURE_OBJECTTYPE_n)==-1) return NULL;
 		tl_nr=(*glob_n_multilist).filllevel;
 		tlinstance=new(&((*glob_n_multilist).bufferlist[tl_nr])) n_instance;
+		(*tlinstance).Element=constants_Element_implicitcarbon;
 		selection_currentselection[tl_nr]&=(~(1<<STRUCTURE_OBJECTTYPE_n));
 		atom_actual_node[tl_nr].bondcount=0;
 		((*glob_n_multilist).filllevel)++;

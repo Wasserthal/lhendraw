@@ -80,36 +80,43 @@ void checkupinconsistencies()
 			}
 		}
 	}*/
-	for (int ilv1=0;ilv1<(*glob_b_multilist).filllevel;ilv1++)
+	for (int ilv1=0;ilv1<(*glob_b_multilist).filllevel;ilv1++)//removes defective bonds
 	{
 		b_instance * tl_b_instance=&((*glob_b_multilist).bufferlist[ilv1]);
 		if ((*tl_b_instance).exist)
 		{
-			for (char ilv2=0;ilv2<2;ilv2++)
+			if ((*tl_b_instance).B==(*tl_b_instance).E)//destroys bonds with beginning==end
+			{
+				(*tl_b_instance).exist=0;
+				goto i_b_destroyed;
+			}
+			for (char ilv2=0;ilv2<2;ilv2++)//destroys bonds with one side missing
 			{
 				if (!edit_locatebyid(STRUCTURE_OBJECTTYPE_n,ilv2?((*tl_b_instance).B):((*tl_b_instance).E),NULL))
 				{
-					printf("Because%i\n",ilv1);
 					(*tl_b_instance).exist=0;
-					goto destroyed;
+					goto i_b_destroyed;
 				}
 			}
 		}
-		destroyed:;
+		i_b_destroyed:;
 	}
 	getatoms();
-	for (int ilv1=0;ilv1<(*glob_n_multilist).filllevel;ilv1++)
+	for (int ilv1=0;ilv1<(*glob_n_multilist).filllevel;ilv1++)//deletes atoms that have neither a bond nor a label.
 	{
 		n_instance * tl_n_instance=&((*glob_n_multilist).bufferlist[ilv1]);
 		if ((*tl_n_instance).exist)
 		{
 			if (atom_actual_node[ilv1].bondcount==0)
 			{
-				(*tl_n_instance).exist=0;
+				if ((*tl_n_instance).Element==constants_Element_implicitcarbon)
+				{
+					(*tl_n_instance).exist=0;
+				}
 			}
 		}
 	}
-	for (int ilv2=0;ilv2<(*glob_b_multilist).filllevel;ilv2++)
+	for (int ilv2=0;ilv2<(*glob_b_multilist).filllevel;ilv2++)//Adds bonds to each other. TODO: merge pasted form bonds to single bonds.
 	{
 		if ((*glob_b_multilist).bufferlist[ilv2].exist)
 		{
@@ -981,7 +988,6 @@ void sdl_control()
 							{
 								issuemenudrag(control_Event.motion.x,control_Event.motion.y);
 								control_mousestate&=~0x20;
-								printf(">>%i<<",control_mousestate);
 							}
 						}
 						break;

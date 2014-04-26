@@ -1,3 +1,6 @@
+//All lengths are counted from the beginning of the element.
+//the data of a TELESCOPE_element starts after the actual strucure.
+//That data part is of total generic type.
 struct superconstellation_directory
 {
 	int start,end;
@@ -5,11 +8,6 @@ struct superconstellation_directory
 };
 extern superconstellation AUTOSTRUCTURE_propertylist[];
 extern superconstellation_directory AUTOSTRUCTURE_propertydirectory[];
-struct TELESCOPE_head
-{
-	int length;//Can be max 2147483647 bytes long. Thats enough
-	int type;
-};
 struct TELESCOPE_element
 {
 	int length;

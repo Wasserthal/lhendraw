@@ -1213,8 +1213,11 @@ void svg_controlprocedure(bool irestriction=0,bool hatches=0)
 		else
 		{
 			char istring[1000];
-			sprintf(istring,"%s%s%i",element[tlElement].name,((*i_n_instance).protons==0)?"":"H",(*i_n_instance).protons);
-
+			sprintf(istring,"%s%s",element[tlElement].name,((*i_n_instance).protons==0)?"":"H");
+			if ((*i_n_instance).protons>1)
+			{
+				sprintf(istring+strlen(istring),"%i",(*i_n_instance).protons);
+			}
 			colornr=(*i_n_instance).color;
 			get_colorstring(colornr);
 			express_txinit(0/*TODO: reverse*/,(*i_n_instance).xyz.x,(*i_n_instance).xyz.y,atomfontheight);

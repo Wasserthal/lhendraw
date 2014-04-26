@@ -92,6 +92,28 @@ menuitem pullout_toolbox[]={
 "","",
 0x00FF00,
 },
+{0,4,
+5,//Picture
+"ARROWS",
+1,0,
+9,
+"click-draw draw arrow\n"
+"\n",
+"",
+"","",
+0x00FF00,
+},
+{1,4,
+18,//Picture
+"ATTRIBUTES",
+1,0,
+10,
+"click on atom to place charge/electrons\n"
+"drag to define position\n",
+"",
+"","",
+0x00FF00,
+},
 {2,2,
 3,//Picture
 "Save",
@@ -199,7 +221,7 @@ menuitem pullout_toolbox[]={
 0x103,0x103,
 1,
 "color\n",
-"drawproperties.color",
+"control_drawproperties.color",
 "","",
 0x000000,
 },

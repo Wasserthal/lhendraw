@@ -24,6 +24,7 @@ void CAMBRIDGECONV_atoms()
 				(tl_n_instance).Element++;
 			}
 		}
+		(tl_n_instance).protons=(*tl_CAMBRIDGE_n_instance).NumHydrogens;
 		if (AUTOSTRUCT_EXISTS(CAMBRIDGE_n_instance,(*tl_CAMBRIDGE_n_instance),p))
 		{
 			tl_n_instance.xyz.x=(*tl_CAMBRIDGE_n_instance).p.x;
@@ -131,7 +132,20 @@ void CAMBRIDGECONV_texts()
 	(*tl_t_multilist).filllevel=0;
 	for (int ilv1=0;ilv1<(*tl_CAMBRIDGE_t_multilist).filllevel;ilv1++)
 	{
+		{
 		CAMBRIDGE_t_instance * tl_CAMBRIDGE_t_instance=(*tl_CAMBRIDGE_t_multilist).bufferlist+ilv1;
+		if ((*tl_CAMBRIDGE_t_instance).master!=NULL)
+		{
+			if (strcmp(((*tl_CAMBRIDGE_t_instance).master)->getName(),"n")==0)
+			{
+				CAMBRIDGE_n_instance * tl_CAMBRIDGE_n_instance=(CAMBRIDGE_n_instance*)((*tl_CAMBRIDGE_t_instance).master);
+				if (AUTOSTRUCT_EXISTS(CAMBRIDGE_n_instance,(*tl_CAMBRIDGE_n_instance),Element))
+				{
+					continue;
+					goto iskipthis;
+				}
+			}
+		}
 		t_instance tl_t_instance;
 		s_instance tl_s_instance;
 		tl_t_instance=t_instance();
@@ -163,7 +177,7 @@ void CAMBRIDGECONV_texts()
 		tl_t_instance.id=(*tl_CAMBRIDGE_t_instance).id;
 		tl_t_instance.Z=(*tl_CAMBRIDGE_t_instance).Z;
 		(*tl_t_multilist).ADD(&tl_t_instance);
-		TELESCOPE_aggressobject(tl_t_multilist,ilv1);
+		TELESCOPE_aggressobject(tl_t_multilist,(*tl_t_multilist).filllevel-1);
 		for (int ilv2=(*((*tl_CAMBRIDGE_t_instance).s)).start_in_it;ilv2<(*((*tl_CAMBRIDGE_t_instance).s)).start_in_it+(*((*tl_CAMBRIDGE_t_instance).s)).count_in_it;ilv2++)
 		{
 			CAMBRIDGE_s_instance * tl_CAMBRIDGE_s_instance=(*tl_CAMBRIDGE_s_multilist).bufferlist+ilv2;
@@ -192,6 +206,8 @@ void CAMBRIDGECONV_texts()
 			TELESCOPE_add(TELESCOPE_ELEMENTTYPE_s,(*tl_CAMBRIDGE_s_instance).PCTEXT.a,tl_s_instance.length-sizeof(s_instance));
 			*((s_instance*)TELESCOPE_getproperty())=tl_s_instance;
 		}
+		}
+		iskipthis:;
 	}
 }
 #define WORKIFIX_REGISTERED_TRADEMARK_workthrough_variables\

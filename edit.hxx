@@ -8,7 +8,8 @@ struct drawproperties_
 	char bond_wedgedown;
 	char bond_bold;
 	int color;
-} drawproperties;
+};
+drawproperties_ control_drawproperties;
 int control_hotatom=-1;
 int janitor_getmaxid(_u32 ino)
 {
@@ -325,6 +326,24 @@ n_instance * summonatom(int * inr=NULL)
 		}
 		return tlinstance;
 		
+	}
+	return NULL;
+}
+arrow_instance * summonarrow(int * inr=NULL)
+{
+	if ((*glob_arrow_multilist).filllevel<bufferlistsize)
+	{
+		int tl_nr=-1;
+		arrow_instance * tlinstance;
+		tl_nr=(*glob_arrow_multilist).filllevel;
+		tlinstance=new(&((*glob_arrow_multilist).bufferlist[tl_nr])) arrow_instance;
+		selection_currentselection[tl_nr]&=(~(1<<STRUCTURE_OBJECTTYPE_arrow));
+		((*glob_arrow_multilist).filllevel)++;
+		if (inr!=NULL)
+		{
+			*inr=tl_nr;
+		}
+		return tlinstance;
 	}
 	return NULL;
 }

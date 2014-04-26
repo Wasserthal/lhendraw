@@ -214,6 +214,28 @@ bienum CDXML_type[]={
 	{{"Continuous"},0x40000},
 };
 int CDXML_type_max=sizeof(CDXML_type)/sizeof(CDXML_type[0]);
+bienum CDXML_attribute[]={
+	{{"Charge"},0x421},//TODO: correct numbers!
+	{{"Radical"},0x422},
+};
+int CDXML_attribute_max=sizeof(CDXML_attribute)/sizeof(CDXML_attribute[0]);
+bienum CDXML_NodeType[]={
+	{{"Unspecified"},0},
+	{{"Element"},1},
+	{{"ElementList"},2},
+	{{"ElementListNickname"},3},
+	{{"Nickname"},4},
+	{{"Fragment"},5},
+	{{"Formula"},6},
+	{{"GenericNickname"},7},
+	{{"AnonymousAlternativeGroup"},8},
+	{{"NamedAlternativeGroup"},9},
+	{{"MultiAttachment"},10},
+	{{"VariableAttachment"},11},
+	{{"ExternalConnectionPoint"},12},
+	{{"LinkNode"},13},
+};
+int CDXML_NodeType_max=sizeof(CDXML_NodeType)/sizeof(CDXML_NodeType[0]);
 bienum CDXML_modifier[]={
 	{{"SHIFT"},0x1},
 	{{"CTRL"},0x2},

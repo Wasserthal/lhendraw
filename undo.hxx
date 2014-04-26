@@ -44,6 +44,20 @@ char storeundo(_u32 flags)
 	}
 	internalstructure_text_undobuffer.max=internalstructure_text_buffer.max;
 	internalstructure_text_undobuffer.count=internalstructure_text_buffer.count;*/
+	for (int ilv1=0;ilv1<sizeof(multilist<arrow_instance>);ilv1++)
+	{
+		glob_arrow_undo_buffer[ilv1]=((char*)(glob_arrow_multilist))[ilv1];
+	}
+	for (int ilv1=0,ilv0=sizeof(multilist<arrow_instance>);ilv1<sizeof(arrow_instance)*bufferlistsize;ilv1++,ilv0++)
+	{
+		glob_arrow_undo_buffer[ilv0]=((char*)((*glob_arrow_multilist).bufferlist))[ilv1];
+	}
+	for (int ilv1=0;ilv1<1000000;ilv1++)
+	{
+		glob_arrow_undo_contentbuffer[ilv1]=internalstructure_arrow_buffer.buffer[ilv1];
+	}
+	internalstructure_arrow_undobuffer.max=internalstructure_arrow_buffer.max;
+	internalstructure_arrow_undobuffer.count=internalstructure_arrow_buffer.count;
 	return 1;
 }
 char restoreundo(_u32 flags,_u32 orderflags/*bit0: restore count only*/)//doesn't discard the old undo state, loads ONLY
@@ -83,4 +97,21 @@ char restoreundo(_u32 flags,_u32 orderflags/*bit0: restore count only*/)//doesn'
 	}
 	internalstructure_b_buffer.max=internalstructure_b_undobuffer.max;
 	internalstructure_b_buffer.count=internalstructure_b_undobuffer.count;
+	for (int ilv1=0;ilv1<sizeof(multilist<arrow_instance>);ilv1++)
+	{
+		((char*)(glob_arrow_multilist))[ilv1]=glob_arrow_undo_buffer[ilv1];
+	}
+	if ((orderflags & 0)==0)
+	{
+		for (int ilv1=0,ilv0=sizeof(multilist<arrow_instance>);ilv1<sizeof(arrow_instance)*bufferlistsize;ilv1++,ilv0++)
+		{
+			((char*)((*glob_arrow_multilist).bufferlist))[ilv1]=glob_arrow_undo_buffer[ilv0];
+		}
+		for (int ilv1=0;ilv1<1000000;ilv1++)
+		{
+			internalstructure_arrow_buffer.buffer[ilv1]=glob_arrow_undo_contentbuffer[ilv1];
+		}
+	}
+	internalstructure_arrow_buffer.max=internalstructure_arrow_undobuffer.max;
+	internalstructure_arrow_buffer.count=internalstructure_arrow_undobuffer.count;
 }

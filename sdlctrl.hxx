@@ -13,10 +13,10 @@ int control_firstmenux,control_firstmenuy;
 int control_lastmenux,control_lastmenuy;
 char control_mousestate=0;//0: inactive; 0x1: from tool, mouseclick; 0x2: from special tool, keyboard 0x4: on menu, dragging 0x8: on button_function dependent menu, popup 0x10 popup-menu, multiple levels 0x20 dragging menuitem
 int control_toolaction=0;//1: move 2: move selection 3: tool specific
-int control_tool=0;//1: Hand 2: 2coordinate Selection 3: Lasso, no matter which 4: Shift tool 5: Magnifying glass 6: Element draw 7: chemdraw draw 8: eraser 9: Arrows 10: graphic 11: bezier 12: image 13: spectrum 14: tlc plate/gel plate
+int control_tool=0;//1: Hand 2: 2coordinate Selection 3: Lasso, no matter which 4: Shift tool 5: Magnifying glass 6: Element draw 7: chemdraw draw 8: eraser 9: Arrows 10: attributes 11: graphic 12: bezier 13: image 14: spectrum 15: tlc plate/gel plate
 int control_menumode=0;//1: shliderhorz, 2: slidervert 3: colorchooser
 AUTOSTRUCT_PULLOUTLISTING_ * control_menuitem=NULL;
-#define control_toolcount 15
+#define control_toolcount 16
 clickabilitymatrix_ clickabilitymatrixes[control_toolcount];
 int control_keycombotool=0;//as above, but only valid if (mousestate & 2)
 SDLKey control_toolstartkeysym;
@@ -57,6 +57,7 @@ control_toolinfo_ control_toolinfo[]=
 	{1<<STRUCTURE_OBJECTTYPE_n,0,-3},//Element put
 	{(_u32)~0,0,0},//Chemdraw draw
 	{(_u32)~0,7,-1},//eraser
+	{(_u32)~0,0,0},//Arrow
 };
 typedef struct MODIFIER_KEYS_
 {
@@ -380,6 +381,13 @@ int issueclick(int iposx,int iposy)
 			}
 			break;
 		}
+		case 9:
+		{
+			control_startx=control_coorsx;
+			control_starty=control_coorsy;
+			control_id=-1;
+			break;
+		}
 	}
 	control_mousestate=1;
 	control_usingmousebutton=control_lastmousebutton;
@@ -565,6 +573,35 @@ void issuedrag(int iposx,int iposy)
 				}
 			}
 			checkupinconsistencies();
+			break;
+		}
+		case 9:
+		{
+			restoreundo(~0,1);
+			arrow_instance * tl_arrow=summonarrow();
+		        (*tl_arrow).color=control_drawproperties.color;
+			(*tl_arrow).Head3D.x=control_coorsx;
+			(*tl_arrow).Head3D.y=control_coorsy;
+			(*tl_arrow).Head3D.z=0;
+			(*tl_arrow).Tail3D.x=control_startx;
+			(*tl_arrow).Tail3D.y=control_starty;
+			(*tl_arrow).Tail3D.z=0;
+			(*tl_arrow).Center3D.x=(control_startx+control_coorsx)/2;
+			(*tl_arrow).Center3D.y=(control_starty+control_coorsy)/2;
+			(*tl_arrow).Center3D.z=0;
+			(*tl_arrow).LineType=0;
+			(*tl_arrow).AngularSize=0;
+			(*tl_arrow).MajorAxisEnd3D.x=control_coorsx;
+			(*tl_arrow).MajorAxisEnd3D.y=control_coorsy;
+			(*tl_arrow).MajorAxisEnd3D.z=0;
+			(*tl_arrow).MinorAxisEnd3D.x=(*tl_arrow).Center3D.x-(control_coorsy-(*tl_arrow).Center3D.y);
+			(*tl_arrow).MinorAxisEnd3D.y=(*tl_arrow).Center3D.y+(control_coorsx-(*tl_arrow).Center3D.x);
+			(*tl_arrow).MinorAxisEnd3D.z=0;
+			(*tl_arrow).ArrowheadType=0;
+			(*tl_arrow).ArrowheadHead=1;
+			(*tl_arrow).ArrowheadTail=0;
+			(*tl_arrow).ArrowShaftSpacing=0;
+			(*tl_arrow).Z=0;
 			break;
 		}
 		case 0x10000:

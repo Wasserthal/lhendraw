@@ -260,7 +260,7 @@ void clickforthem()
 	{
 		for (int ilv1=1;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
 		{
-			if (selection_clickabilitymatrix.types2 & (1<<ilv1))
+			if (selection_clickabilitymatrix.types3[1] & (1<<ilv1))
 			{
 				selection_clickselection_found|=(clickfor(control_coorsx,control_coorsy,ilv1,iclickradius)>0)<<ilv1;
 			}

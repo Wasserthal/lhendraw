@@ -98,6 +98,10 @@ int main(int argc,char * * argv)
 	initmemory();
 	automatic_init();
 	resources_init(argv[0]);
+	for (int ilv1=0;ilv1<control_toolcount;ilv1++)
+	{
+		clickabilitymatrix_tooldependent[ilv1]=selection_clickabilitymatrix;
+	}
 	conv_config_internalconfig();
 	if (argc==2)
 	{

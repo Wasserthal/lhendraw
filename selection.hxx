@@ -8,10 +8,10 @@ typedef struct clickabilitymatrix_
 	int mode;//0: groups //1 whole objects 2: manipulators(default) 3: fragments, such as bezierpoints
 	int level0;//zero: selects outermost groups. positive: enters groups to n'th stage. negative: groups over this object by n, 0 would be the object.
 	int types1;//0x1: structures 0x2: graphics 0x4: curves 0x8: beziers 0x10: texts 0x20: pictures 0x40: tlc plates 0x80: NMR spectra
-	_u32 types2;//list of object groups to process click. See internal_enum.hxx
-	_u32 types3[8];//indexed as: 0x0: other 0x1: centers 0x2: auxpoints, e.g. endpoints 0x3: shape-specific graphic manipulators, like mid-arrow manipulators or corner roundness selectionlers 0x4: lines 0x5: area 0x6: virtual scaling handles 
+	//list of object groups to process click following. For bit fields, see internal_enum.hxx
+	_u32 types2[8];//indexed as: 0x0: other 0x1: centers 0x2: auxpoints, e.g. endpoints 0x3: shape-specific graphic manipulators, like mid-arrow manipulators or corner roundness selectionlers 0x4: lines 0x5: area 0x6: virtual scaling handles 
 }clickabilitymatrix_;
-clickabilitymatrix_ selection_clickabilitymatrix={2,0,0,0xFFFFFFFF,
+clickabilitymatrix_ selection_clickabilitymatrix={2,0,0,
 {0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF}};
 void selection_clearselection(selection_ iselection)
 {

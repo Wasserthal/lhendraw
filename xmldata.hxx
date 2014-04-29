@@ -11,9 +11,13 @@ void CDXMLREAD_basic(char * input,void * output);
 typedef int __attribute__((sysv_abi))(*CDXMLREAD_functype)(char * input,void * output);
 typedef int __attribute__((sysv_abi))(*CDXMLREAD_TOBUFFER_functype)(TELESCOPE_buffer ibuffer,char * input,void * output);
 //This is vomittingly expensive. Why cant I make the contents[] "virtual static" ? :G
-typedef int __attribute__((sysv_abi))(*catalogized_command_functype)(const char * parameter,const char * variable);
+typedef int __attribute__((sysv_abi))(*catalogized_command_functype)(const char * parameter,const char * value);
+struct basicmultilist;struct basic_instance;
+typedef int __attribute__((sysv_abi))(*catalogized_command_iterated_functype)(const char * parameter,const char * value,basicmultilist * imultilist,basic_instance * iinstance,int iindex);
+//This has some speciality. It is being iterated only over the object which it is intended for. But if it is for generic, it gets iterated over all of them
 typedef int __attribute__((sysv_abi))(*AUTOSTRUCT_GETSET_FUNCTYPE)(char state,int input);//1: set 2: get 4: toggle\n
-#define catalogized_command_funcdef(MACROPARAM) int __attribute__((sysv_abi))MACROPARAM(const char * parameter,const char * variable)
+#define catalogized_command_funcdef(MACROPARAM) int __attribute__((sysv_abi))MACROPARAM(const char * parameter,const char * value)
+#define catalogized_command_iterated_funcdef(MACROPARAM) int __attribute__((sysv_abi))MACROPARAM(const char * parameter,const char * value,basicmultilist * imultilist,basic_instance * iinstance,int iindex)
 
 struct superconstellation
 {
@@ -106,6 +110,10 @@ class basicmultilist
 	_u32 maxid;
 	void * pointer;
 	basicmultilist(){pointer=NULL;itemsize=0;};
+	inline basic_instance & operator[](int ino)
+	{
+		return *((basic_instance*)(((char*)pointer)+(ino*itemsize)));
+	}
 	virtual int getproperties(const char * name,CDXMLREAD_functype * delegateoutput)
 	{
 		fprintf(stderr,"Programming error! You asked for the properties of a basic multilist!");

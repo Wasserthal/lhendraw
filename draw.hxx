@@ -1,6 +1,5 @@
 //Turns document data into graphics
 //Intended to be included several times for different graphics outputs
-#include "elements.hxx"
 
 #ifdef LENNARD_HACK
 char * current_hack_annotation;

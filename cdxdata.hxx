@@ -387,6 +387,7 @@ struct fuenum
 	int owner;//which unit it came from
 	char name[20];
 	catalogized_command_functype function;
+	int type;//0: single 1: iterated
 };
 struct structenum
 {

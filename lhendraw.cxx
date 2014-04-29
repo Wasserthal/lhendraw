@@ -20,6 +20,7 @@ LLLLLL H   H EEEEE N    N DDD   R  R A     A    W     W
 #define CAMBRIDGEPREFIX(content) CAMBRIDGE_ ## content
 #define CAMBRIDGEPREFIX2(content,content2) content ## _CAMBRIDGE_ ## content2
 #include "lendefs.h"
+#include "elements.hxx"
 #include "xmldata.hxx"
 #include "telescopic_list.hxx"
 #include "cdxdata.hxx"

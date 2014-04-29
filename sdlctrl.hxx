@@ -157,6 +157,8 @@ int interpretkey(int listnr=-1)
 	_u32 tltype;
 	char keystring[4]={0,0,0,0};
 	char erledigt=0;
+	char ihot=0;
+	_u32 hotties=0;
 	getatoms();
 	if (listnr!=-1) {ilv1=listnr;goto interpreted;}
 	storeundo(~0);
@@ -203,12 +205,30 @@ int interpretkey(int listnr=-1)
 			}
 		}
 	}
+	ihot=0;
+	hotties=selection_currentselection_found;
+	if (hotties==0)
+	{
+		for (int ilv2=1;ilv2<STRUCTURE_OBJECTTYPE_ListSize;ilv2++)
+		{
+			if (control_hot[ilv2]!=-1)
+			{
+				basicmultilist * tl_multilist=findmultilist(STRUCTURE_OBJECTTYPE_List[ilv2].name);
+				int isize=STRUCTURE_OBJECTTYPE_List[ilv2].size;
+				if (control_hot[ilv2]>=(*tl_multilist).filllevel) goto idontusethishot;
+				if ((*(basic_instance*)(((char*)((*tl_multilist).pointer))+control_hot[ilv2]*isize)).exist==0) goto idontusethishot;
+				hotties|=1<<ilv2;
+				ihot=1;
+				idontusethishot:;
+			}
+		}
+	}
 	for (ilv1=0;ilv1<hotkeylist_count;ilv1++)
 	{
 		tltype=hotkeylist[ilv1].type;
 		if (((1<<(tltype & 0xFFFF)) & selection_currentselection_found) || ((tltype & 0xFFFF)==0))
 		{
-			if (((selection_currentselection_found==0) || ((tltype & 0x10000)==0)) && ((selection_currentselection_found) || ((tltype & 0x20000)==0)))
+			if (((hotties==0) || ((tltype & 0x10000)==0)) && ((hotties) || ((tltype & 0x20000)==0)))
 			{
 				if (strcmp(keystring,hotkeylist[ilv1].key)==0)
 				{
@@ -220,9 +240,36 @@ int interpretkey(int listnr=-1)
 					}
 					interpreted:
 					erledigt=0;
-					if (hotkeylist[ilv1].command!=NULL)
+					if (hotkeylist[ilv1].functype==0)
 					{
-						if (hotkeylist[ilv1].command(hotkeylist[ilv1].variable,hotkeylist[ilv1].value)){erledigt=1;};
+						if (hotkeylist[ilv1].command!=NULL)
+						{
+							if (hotkeylist[ilv1].command(hotkeylist[ilv1].variable,hotkeylist[ilv1].value)){erledigt=1;};
+						}
+					}
+					else
+					{
+						if (hotkeylist[ilv1].command!=NULL)
+						{
+							//TODO: hier die Wiederholungsschleife und was sonst noch dazugehört
+							//Ach ups, zu selection_currentselection_found gehört noch der hot-teil, aber nur, wenn keine selection an ist.
+							if (ihot==0)
+							{
+								basicmultilist * tl_multilist=findmultilist(STRUCTURE_OBJECTTYPE_List[tltype & 0xFFFF].name);
+								int tl_size=(*tl_multilist).itemsize;
+								int ifilllevel=(*tl_multilist).filllevel;//separately, so it doesn't grow with it
+								for (int ilv2=0;ilv2<ifilllevel;ilv2++)
+								{
+									if (selection_currentselection[ilv2] & (1<<(tltype & 0xFFFF)))
+									{
+										if ((*tl_multilist)[ilv2].exist)
+										{
+											if (((catalogized_command_iterated_functype)(hotkeylist[ilv1].command))(hotkeylist[ilv1].variable,hotkeylist[ilv1].value,tl_multilist,&((*tl_multilist)[ilv2]),ilv2)){erledigt=1;};
+										}
+									}
+								}
+							}
+						}
 					}
 					if (tltype & 0x40000)
 					{
@@ -310,21 +357,21 @@ catalogized_command_funcdef(ISSUEDELETE)
 	}
 	else
 	{
-		if (control_hotatom!=-1)
+		if (control_hot[STRUCTURE_OBJECTTYPE_n]!=-1)
 		{
-			if (control_hotatom<(*glob_n_multilist).filllevel)
+			if (control_hot[STRUCTURE_OBJECTTYPE_n]<(*glob_n_multilist).filllevel)
 			{
 				ibufferpos=(char*)(*glob_n_multilist).pointer;
 				isize=STRUCTURE_OBJECTTYPE_List[STRUCTURE_OBJECTTYPE_n].size;
-				if ((*glob_n_multilist).bufferlist[control_hotatom].exist)
+				if ((*glob_n_multilist).bufferlist[control_hot[STRUCTURE_OBJECTTYPE_n]].exist)
 				{
-					TELESCOPE_aggressobject(glob_n_multilist,control_hotatom);
+					TELESCOPE_aggressobject(glob_n_multilist,control_hot[STRUCTURE_OBJECTTYPE_n]);
 					TELESCOPE_clear();
-					(*((basic_instance*)(ibufferpos+isize*control_hotatom))).exist=0;
+					(*((basic_instance*)(ibufferpos+isize*control_hot[STRUCTURE_OBJECTTYPE_n]))).exist=0;
 					isuccessful=1;
 				}
 			}
-			control_hotatom=-1;
+			control_hot[STRUCTURE_OBJECTTYPE_n]=-1;
 		}
 	}
 	checkupinconsistencies();
@@ -633,11 +680,12 @@ void issuerelease()
 			selection_clearselection(selection_currentselection);
 			selection_currentselection_found=0;
 			float tlswap;
-			if ((selection_frame.startx>selection_frame.endx) && (selection_frame.starty>selection_frame.endy))
+			if ((selection_frame.startx==selection_frame.endx) && (selection_frame.starty==selection_frame.endy))
 			{
-				if (control_hotatom!=-1)
+				if (control_hot[STRUCTURE_OBJECTTYPE_n]!=-1)
 				{
-					selection_currentselection[control_hotatom]|=1<<STRUCTURE_OBJECTTYPE_n;
+					selection_currentselection[control_hot[STRUCTURE_OBJECTTYPE_n]]|=1<<STRUCTURE_OBJECTTYPE_n;
+					break;
 				}
 			}
 			if (selection_frame.startx>selection_frame.endx)
@@ -854,39 +902,45 @@ void sdl_control()
 				{
 					issuemenudrag(control_Event.motion.x,control_Event.motion.y);
 				}
-				if (control_mousestate!=1)
+
+				if (SDL_PollEvent(&control_Event))
+				{
+					if (control_Event.type==SDL_MOUSEMOTION)
+					{
+						goto irepeatlabel;
+					}
+					else
+					{
+						irepeat=1;
+					}
+				}
+				if ((control_mousestate & (~2))==0)
 				{
 					selection_clearselection(selection_clickselection);
-					_u32 tlfound=clickfor((control_Event.motion.x-gfx_canvasminx)/SDL_zoomx+SDL_scrollx,(control_Event.motion.y-gfx_canvasminy)/SDL_zoomy+SDL_scrolly,STRUCTURE_OBJECTTYPE_n,constants_clickradius)>0;
-					if (tlfound)
+					for (int ilv0=0;ilv0<STRUCTURE_OBJECTTYPE_ListSize;ilv0++)
 					{
-						for (int ilv1=0;ilv1<(*glob_n_multilist).filllevel;ilv1++)
+						_u32 tlfound=clickfor((control_Event.motion.x-gfx_canvasminx)/SDL_zoomx+SDL_scrollx,(control_Event.motion.y-gfx_canvasminy)/SDL_zoomy+SDL_scrolly,ilv0,constants_clickradius)>0;
+						basicmultilist * tl_multilist=findmultilist(STRUCTURE_OBJECTTYPE_List[ilv0].name);
+						if (tlfound)
 						{
-							if (selection_clickselection[ilv1] & (1<<STRUCTURE_OBJECTTYPE_n))
+							for (int ilv2=0;ilv2<(*tl_multilist).filllevel;ilv2++)
 							{
-								if ((*glob_n_multilist).bufferlist[ilv1].exist)
+								if (selection_clickselection[ilv2] & (1<<ilv0))
 								{
-									control_hotatom=ilv1;
+									if ((*tl_multilist)[ilv2].exist)
+									{
+										control_hot[ilv0]=ilv2;
+									}
 								}
 							}
 						}
 					}
+					idontrepeat=1;
 				}
 				if (control_mousestate & 3)
 				{
 					float tlx=control_Event.motion.x-gfx_canvasminx;
 					float tly=control_Event.motion.y-gfx_canvasminy;
-					if (SDL_PollEvent(&control_Event))
-					{
-						if (control_Event.type==SDL_MOUSEMOTION)
-						{
-							goto irepeatlabel;
-						}
-						else
-						{
-							irepeat=1;
-						}
-					}
 					idontrepeat=1;
 					issuedrag(tlx,tly);
 				}

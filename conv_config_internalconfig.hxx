@@ -6,6 +6,7 @@ struct hotkeylist_
 	catalogized_command_functype command;
 	char variable[20];
 	char value[20];
+	int functype;//type type of the function. See tools/reflection.hxx
 };
 hotkeylist_ hotkeylist[1000];
 int hotkeylist_count=0;
@@ -25,6 +26,7 @@ void conv_config_internalconfig()
 			if (strcmp(REFLECTION_FUNCTION_List[ilv2].name,(*glob_CONFIGBRIDGE_Hotkey_multilist).bufferlist[ilv1].command.a)==0)
 			{
 				hotkeylist[ilv1].command=(catalogized_command_functype)REFLECTION_FUNCTION_List[ilv2].function;
+				hotkeylist[ilv1].functype=REFLECTION_FUNCTION_List[ilv2].type;
 			}
 		}
 		strncpy(hotkeylist[ilv1].variable,(*glob_CONFIGBRIDGE_Hotkey_multilist).bufferlist[ilv1].variable.a,20);

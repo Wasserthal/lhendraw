@@ -58,7 +58,12 @@ int main(int argc,char ** argv)
 			backval=sscanf(buffer,"catalogized_command_funcdef(%[A-Za-z0-9_])",namestring);
 			if (backval>0)
 			{
-				fprintf(outfile,"{%i,\"%s\",(catalogized_command_functype)%s},\n",ilv1,namestring,namestring);
+				fprintf(outfile,"{%i,\"%s\",(catalogized_command_functype)%s,0},\n",ilv1,namestring,namestring);
+			}
+			backval=sscanf(buffer,"catalogized_command_iterated_funcdef(%[A-Za-z0-9_])",namestring);
+			if (backval>0)
+			{
+				fprintf(outfile,"{%i,\"%s\",(catalogized_command_functype)%s,1},\n",ilv1,namestring,namestring);
 			}
 		}
 		fclose(infile);

@@ -10,7 +10,7 @@ struct drawproperties_
 	int color;
 };
 drawproperties_ control_drawproperties;
-int control_hotatom=-1;
+int control_hot[32]={-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,};
 int janitor_getmaxid(_u32 ino)
 {
 	_u32 iid=0;
@@ -84,15 +84,16 @@ int get_bond_between(int inatom1, int inatom2)
 		}
 	}
 }
-n_instance * gethotatom(int * nr=NULL)
+basic_instance * gethot(int ino,int * nr=NULL)
 {
-	if ((control_hotatom>=0) && (control_hotatom<(*glob_n_multilist).filllevel))
+	basicmultilist * tl_multilist=findmultilist(STRUCTURE_OBJECTTYPE_List[ino].name);
+	if ((control_hot[ino]>=0) && (control_hot[ino]<(*tl_multilist).filllevel))
 	{
-		if ((*glob_n_multilist).bufferlist[control_hotatom].exist)
+		if ((*(basic_instance*)(((char*)((*tl_multilist).pointer))+(control_hot[ino]*STRUCTURE_OBJECTTYPE_List[ino].size))).exist)
 		{
 			if (nr!=NULL)
 			{
-				(*nr)=control_hotatom;
+				(*nr)=control_hot[ino];
 			}
 		}
 	}
@@ -447,7 +448,7 @@ int edit_errichten(int startatom)
 	}
 	return atomnr2;
 }
-catalogized_command_funcdef(SPROUT)
+catalogized_command_funcdef(SPROUT2)
 {
 	int counter=0;
 	if (selection_currentselection_found & (1<<STRUCTURE_OBJECTTYPE_n))
@@ -466,15 +467,31 @@ catalogized_command_funcdef(SPROUT)
 		return counter;
 	}
 	int tlatom;
-	gethotatom(&tlatom);
+	gethot(STRUCTURE_OBJECTTYPE_n,&tlatom);
 	if (tlatom!=-1)
 	{
-		int sproutcount=atoi(variable);
+		int sproutcount=atoi(value);
 		for (int ilv1=0;ilv1<sproutcount;ilv1++)
 		{
 			edit_errichten(ilv1);
 		}
 		return 1;
+	}
+	return 0;
+}
+catalogized_command_iterated_funcdef(SPROUT)
+{
+	if (edit_errichten(iindex)>=0) return 1; else return 0;
+}
+catalogized_command_iterated_funcdef(LABELTEXT)
+{
+	for (int ilv1=0;ilv1<sizeof(element)/sizeof(element_);ilv1++)
+	{
+		if (strcmp(value,element[ilv1].name)==0)
+		{
+			(*(n_instance*)iinstance).Element=ilv1;
+			return 1;
+		}
 	}
 	return 0;
 }

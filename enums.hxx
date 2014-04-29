@@ -206,9 +206,16 @@ bienum CDXML_FillType[]={
 };
 int CDXML_FillType_max=sizeof(CDXML_FillType)/sizeof(CDXML_FillType[0]);
 bienum CDXML_type[]={
-	{{"Generic"},0},
+	{{"Generic"},0},// but I believe correct numbers are irrelevant here.
 	{{"Atom"},1},
 	{{"Bond"},2},
+	{{"Text"},3},
+	{{"Arrow"},4},
+	{{"Graphic"},5},
+	{{"Curve"},6},
+	{{"Matrix"},7},
+	{{"Spectrum"},8},
+	{{"TLCplate"},9},
 	{{"None"},0x10000},
 	{{"Some"},0x20000},
 	{{"Continuous"},0x40000},

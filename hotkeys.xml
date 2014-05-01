@@ -115,6 +115,8 @@
 <Hotkey modifiers="CTRL" key="c" command="Copy"/>
 <Hotkey modifiers="CTRL" key="e" command="TOOLMODE" value="9"/>
 <Hotkey modifiers="CTRL" key="s" command="SAVEAS" value=""/>
+<Hotkey modifiers="CTRL" key="a" command="SELECTALL" value="1"/>
+<Hotkey modifiers="CTRL" key="A" command="SELECTALL" value="0"/>
 </Hotkeys>
 </Object>
 <Object type="Generic Some">

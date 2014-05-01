@@ -1,7 +1,7 @@
 struct hotkeylist_
 {
 	int type;//the type of the object it belongs to.
-	int modifiers;
+	_u32 modifiers;
 	char key[4];
 	catalogized_command_functype command;
 	char variable[20];
@@ -18,7 +18,7 @@ void conv_config_internalconfig()
 	{
 		CONFIGBRIDGE_Object_instance * tl_CONFIGBRIDGE_Object_instance=(CONFIGBRIDGE_Object_instance*)((*(CONFIGBRIDGE_Hotkeys_instance*)((*glob_CONFIGBRIDGE_Hotkey_multilist).bufferlist[ilv1].master)).master);
 		hotkeylist[ilv1].type=(*tl_CONFIGBRIDGE_Object_instance).type;
-		hotkeylist[ilv1].modifiers=(*glob_CONFIGBRIDGE_Hotkey_multilist).bufferlist[ilv1].modifier;
+		hotkeylist[ilv1].modifiers=(*glob_CONFIGBRIDGE_Hotkey_multilist).bufferlist[ilv1].modifiers;
 		strncpy(hotkeylist[ilv1].key,(*glob_CONFIGBRIDGE_Hotkey_multilist).bufferlist[ilv1].key.a,4);
 		hotkeylist[ilv1].command=NULL;
 		for (int ilv2=0;ilv2<REFLECTION_FUNCTION_ListSize;ilv2++)

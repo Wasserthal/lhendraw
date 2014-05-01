@@ -153,11 +153,13 @@ int issueshiftstart()
 #ifdef GFXOUT_SDL
 int interpretkey(int listnr=-1)
 {
-	int ilv1;
+	_u32 modifierpattern;
+	int ilv1,ilv2;
 	_u32 tltype;
 	char keystring[4]={0,0,0,0};
 	char erledigt=0;
 	char ihot=0;
+	char careaboutshift=1;
 	_u32 hotties=0;
 	getatoms();
 	if (listnr!=-1) {ilv1=listnr;goto interpreted;}
@@ -184,8 +186,27 @@ int interpretkey(int listnr=-1)
 		case SDLK_TAB: strncpy(keystring,"TAB",4);break;
 		case SDLK_RETURN: strncpy(keystring,"RET",4);break;
 		case SDLK_DELETE: strncpy(keystring,"DEL",4);break;
+		case SDLK_0: keystring[0]='0';break;
+		case SDLK_1: keystring[0]='1';break;
+		case SDLK_2: keystring[0]='2';break;
+		case SDLK_3: keystring[0]='3';break;
+		case SDLK_4: keystring[0]='4';break;
+		case SDLK_5: keystring[0]='5';break;
+		case SDLK_6: keystring[0]='6';break;
+		case SDLK_7: keystring[0]='7';break;
+		case SDLK_8: keystring[0]='8';break;
+		case SDLK_9: keystring[0]='9';break;
 		default:;
+		careaboutshift=0;
 		_u16 ihv1=(control_Event.key.keysym.unicode);
+		if ((ihv1>=1) && (ihv1<=26))
+		{
+			ihv1+=0x60;
+			if (MODIFIER_KEYS.SHIFT)
+			{
+				ihv1-=0x20;
+			}
+		}
 		if (ihv1<0x7F)
 		{
 			keystring[0]=ihv1;
@@ -206,76 +227,85 @@ int interpretkey(int listnr=-1)
 		}
 	}
 	ihot=0;
+	selection_recheck(selection_currentselection,&selection_currentselection_found);
 	hotties=selection_currentselection_found;
 	if (hotties==0)
 	{
-		for (int ilv2=1;ilv2<STRUCTURE_OBJECTTYPE_ListSize;ilv2++)
+		for (ilv2=1;ilv2<STRUCTURE_OBJECTTYPE_ListSize;ilv2++)
 		{
 			if (control_hot[ilv2]!=-1)
 			{
 				basicmultilist * tl_multilist=findmultilist(STRUCTURE_OBJECTTYPE_List[ilv2].name);
 				int isize=STRUCTURE_OBJECTTYPE_List[ilv2].size;
-				if (control_hot[ilv2]>=(*tl_multilist).filllevel) goto idontusethishot;
-				if ((*(basic_instance*)(((char*)((*tl_multilist).pointer))+control_hot[ilv2]*isize)).exist==0) goto idontusethishot;
+				if (control_hot[ilv2]>=(*tl_multilist).filllevel) {control_hot[ilv2]=-1;goto idontusethishot;}
+				if ((*(basic_instance*)(((char*)((*tl_multilist).pointer))+control_hot[ilv2]*isize)).exist==0) {control_hot[ilv2]=-1;goto idontusethishot;}
 				hotties|=1<<ilv2;
 				ihot=1;
 				idontusethishot:;
 			}
 		}
 	}
+	modifierpattern=MODIFIER_KEYS.SHIFT*careaboutshift+MODIFIER_KEYS.CTRL*2+MODIFIER_KEYS.ALT*4+MODIFIER_KEYS.SUPER*8;
 	for (ilv1=0;ilv1<hotkeylist_count;ilv1++)
 	{
 		tltype=hotkeylist[ilv1].type;
-		if (((1<<(tltype & 0xFFFF)) & selection_currentselection_found) || ((tltype & 0xFFFF)==0))
+		if (((1<<(tltype & 0xFFFF)) & hotties) || ((tltype & 0xFFFF)==0))
 		{
 			if (((hotties==0) || ((tltype & 0x10000)==0)) && ((hotties) || ((tltype & 0x20000)==0)))
 			{
 				if (strcmp(keystring,hotkeylist[ilv1].key)==0)
 				{
-					if (tltype & 0x40000)
+					if ((hotkeylist[ilv1].modifiers & ((~((_u32)(1-careaboutshift)))))==modifierpattern)
 					{
-						issueshiftstart();
-						control_keycombotool=0x10000;
-						control_lastinterpret=ilv1;
-					}
-					interpreted:
-					erledigt=0;
-					if (hotkeylist[ilv1].functype==0)
-					{
-						if (hotkeylist[ilv1].command!=NULL)
+						if (tltype & 0x40000)
 						{
-							if (hotkeylist[ilv1].command(hotkeylist[ilv1].variable,hotkeylist[ilv1].value)){erledigt=1;};
+							issueshiftstart();
+							control_keycombotool=0x10000;
+							control_lastinterpret=ilv1;
 						}
-					}
-					else
-					{
-						if (hotkeylist[ilv1].command!=NULL)
+						interpreted:
+						erledigt=0;
+						if (hotkeylist[ilv1].functype==0)
 						{
-							//TODO: hier die Wiederholungsschleife und was sonst noch dazugehört
-							//Ach ups, zu selection_currentselection_found gehört noch der hot-teil, aber nur, wenn keine selection an ist.
-							if (ihot==0)
+							if (hotkeylist[ilv1].command!=NULL)
+							{
+								if (hotkeylist[ilv1].command(hotkeylist[ilv1].variable,hotkeylist[ilv1].value)){erledigt=1;};
+							}
+						}
+						else
+						{
+							if (hotkeylist[ilv1].command!=NULL)
 							{
 								basicmultilist * tl_multilist=findmultilist(STRUCTURE_OBJECTTYPE_List[tltype & 0xFFFF].name);
 								int tl_size=(*tl_multilist).itemsize;
-								int ifilllevel=(*tl_multilist).filllevel;//separately, so it doesn't grow with it
-								for (int ilv2=0;ilv2<ifilllevel;ilv2++)
+								int ifilllevel=(*tl_multilist).filllevel;//separately, so it doesn't grow while executing the loop
+								if (ihot==0)
 								{
-									if (selection_currentselection[ilv2] & (1<<(tltype & 0xFFFF)))
+									for (ilv2=0;ilv2<ifilllevel;ilv2++)
 									{
-										if ((*tl_multilist)[ilv2].exist)
+										if (selection_currentselection[ilv2] & (1<<(tltype & 0xFFFF)))
 										{
-											if (((catalogized_command_iterated_functype)(hotkeylist[ilv1].command))(hotkeylist[ilv1].variable,hotkeylist[ilv1].value,tl_multilist,&((*tl_multilist)[ilv2]),ilv2)){erledigt=1;};
+											hotshunt:
+											if ((*tl_multilist)[ilv2].exist)
+											{
+												if (((catalogized_command_iterated_functype)(hotkeylist[ilv1].command))(hotkeylist[ilv1].variable,hotkeylist[ilv1].value,tl_multilist,&((*tl_multilist)[ilv2]),ilv2)){erledigt=1;};
+											}
 										}
 									}
 								}
+								else
+								{
+									ilv2=control_hot[tltype & 0xFFFF];
+									goto hotshunt;
+								}
 							}
 						}
+						if (tltype & 0x40000)
+						{
+							control_mousestate=2;
+						}
+						if (erledigt) goto commanderledigt;
 					}
-					if (tltype & 0x40000)
-					{
-						control_mousestate=2;
-					}
-					if (erledigt) goto commanderledigt;
 				}
 			}
 		}
@@ -634,6 +664,19 @@ void issuedrag(int iposx,int iposy)
 			restoreundo(~0,1);
 			arrow_instance * tl_arrow=summonarrow();
 		        (*tl_arrow).color=control_drawproperties.color;
+			{
+				float tl_length=sqrt(sqr(control_coorsx-control_startx)+sqr(control_coorsy-control_starty));
+				float tlangle;
+				float tl_snapdistance;
+				tlangle=getangle(control_coorsx-control_startx,control_coorsy-control_starty);
+				tl_snapdistance=fmod((tlangle+2*Pi+Pi/16),(Pi/2))-Pi/16;
+				if (fabs(tl_snapdistance)<Pi/16)
+				{
+					tlangle-=tl_snapdistance;
+					control_coorsx=control_startx+tl_length*cos(tlangle);
+					control_coorsy=control_starty+tl_length*sin(tlangle);
+				}
+			}
 			(*tl_arrow).Head3D.x=control_coorsx;
 			(*tl_arrow).Head3D.y=control_coorsy;
 			(*tl_arrow).Head3D.z=0;

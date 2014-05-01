@@ -2,4 +2,4 @@ Total_Document;Objects ;;
 Objects;Object ;;
 Object;Hotkeys ;‼ type ;
 Hotkeys;Hotkey ;;
-Hotkey;;‼ modifier s key s command s variable s value ;
+Hotkey;;‼ modifiers s key s command s variable s value ;

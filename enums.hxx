@@ -243,10 +243,10 @@ bienum CDXML_NodeType[]={
 	{{"LinkNode"},13},
 };
 int CDXML_NodeType_max=sizeof(CDXML_NodeType)/sizeof(CDXML_NodeType[0]);
-bienum CDXML_modifier[]={
+bienum CDXML_modifiers[]={
 	{{"SHIFT"},0x1},
 	{{"CTRL"},0x2},
 	{{"ALT"},0x4},
 	{{"HYPER"},0x8},
 };
-int CDXML_modifier_max=sizeof(CDXML_modifier)/sizeof(CDXML_modifier[0]);
+int CDXML_modifiers_max=sizeof(CDXML_modifiers)/sizeof(CDXML_modifiers[0]);

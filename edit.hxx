@@ -541,3 +541,28 @@ catalogized_command_funcdef(REDO)
 {
 	printf("TODO***stub\n");
 }
+catalogized_command_funcdef(SELECTALL)
+{
+	selection_currentselection_found=0;
+	_u32 icompare=0;
+	int isize=0;
+	for (int ilv1=1;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
+	{
+		icompare=1<<ilv1;
+		basicmultilist * tlmultilist=findmultilist(STRUCTURE_OBJECTTYPE_List[ilv1].name);
+		isize=STRUCTURE_OBJECTTYPE_List[ilv1].size;
+		for (int ilv2=0;ilv2<(*tlmultilist).filllevel;ilv2++)
+		{
+			if (value[0]=='1')
+			{
+				char tl_exbool=(*(basic_instance*)(((char*)(*tlmultilist).pointer)+ilv2*isize)).exist;
+				selection_currentselection[ilv2]=icompare*tl_exbool+(selection_currentselection[ilv2]&(~icompare));
+				selection_currentselection_found|=icompare*tl_exbool;
+			}
+			else
+			{
+				selection_currentselection[ilv2]=0;
+			}
+		}
+	}
+}

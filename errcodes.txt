@@ -20,3 +20,4 @@ Error codes:
 -17: premature end of referenced file
 -18: important element missing in external data structure
 -19: external value out of range
+-20: syntax error in file

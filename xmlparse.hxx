@@ -29,11 +29,8 @@ void entertag()
 	currentinstance=nextinstance;
 };
 
-void grow_pctext(char ichar)
+void grow_pctext()
 {
-	char bchar[2];
-	bchar[0]=ichar;
-	bchar[1]=0;
 	CDXMLREAD_functype thisfunc;
 	int txtoffset=currentinstance->getproperties("PCTEXT",&thisfunc);
 	if (txtoffset==-1)
@@ -41,16 +38,14 @@ void grow_pctext(char ichar)
 		return;
 	}
 	char * txtpos=((char*)currentinstance)+txtoffset;
-	if (ichar==0)
-	{
-		fprintf(stderr,"\nNO:%s\n",*((char**)txtpos));
-	}
-	thisfunc(bchar,txtpos);
+	thisfunc(parameterstring,txtpos);
 }
 
 inline void concludepctext()
 {
-	grow_pctext(0);
+	parameterstring[parameterstring_length]=0;
+	parameterstring_length=0;
+	grow_pctext();
 }
 
 void concludeparameterstring()
@@ -99,7 +94,7 @@ void exittag()
 
 void input_fsm(FILE* infile)
 {
-	intl fsmint=0; //0: in_nothing. 1: bracket-opening 2: Tagreading 3: parameterstringreading 4: bracket-closing 5: Qmark-ignoring 7: waiting_for_tag_end 8: Addstring - Hyphenation 9: After equals symbol 10 paramvaluestringreading.
+	intl fsmint=0; //0: in_nothing. 1: bracket-opening 2: Tagreading 3: parameterstringreading 4: bracket-closing,i.e. start PCTEXT reading 5: Qmark-ignoring 7: waiting_for_tag_end 8: Addstring - Hyphenation 9: After equals symbol 10 PCTEXTstringreading.
 	char ichar='A';
 	bool bexittag=0;
 	tagnamestring_length=0;
@@ -264,7 +259,9 @@ void input_fsm(FILE* infile)
 			}
 			else
 			{
-				grow_pctext(ichar);
+				parameterstring[0]=ichar;
+				parameterstring_length=1;
+				fsmint=10;
 			}			
 		break;
 		case 5:
@@ -312,7 +309,19 @@ void input_fsm(FILE* infile)
 				fsmint=3;
 				break;
 			}
-			paramvaluestring[paramvaluestring_length++]=ichar;
+			paramvaluestring[paramvaluestring_length++]=ichar;//TODO: length restriction
+		break;
+		case 10:
+			if (ichar=='<')
+			{
+				concludepctext();
+				fsmint=1;
+			}
+			else
+			{
+				parameterstring[parameterstring_length++]=ichar;//TODO: length restriction
+//TODO:				upon length restriction, don't forget that ampersand escapes may not be interrupted.
+			}
 		break;
 		default:
 		fprintf(stderr,"Error: Internal error!Invalid fsmint!!!!:%llX",fsmint);exit(1);

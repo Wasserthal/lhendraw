@@ -81,7 +81,60 @@ int __attribute__((sysv_abi))CDXMLREAD_cdx_String(char * input,void * output)
 	return 0;
 }
 
-int __attribute__((sysv_abi))CDXMLREAD_cdx_Buffered_String(char * input,void * output)
+int copytobuffer(TELESCOPE_buffer * ibuffer,char * input)//TODO: what if string is longer than 2147483647 bytes?
+{
+	int ilv2;
+	int maxlength=(*ibuffer).max-2;
+	int icount=(*ibuffer).count;
+	for (int ilv1=0;input[ilv1]!=0;ilv1++)
+	{
+		if (input[ilv1]!='&')
+		{
+			if (icount>=maxlength)
+			{
+				return -1;
+			}
+			(*ibuffer).buffer[icount++]=input[ilv1];
+		}
+		else
+		{
+			for (ilv2=ilv1;;ilv2++)
+			{
+				if (input[ilv2]==0) return -20;
+				if (input[ilv2]==';') {input[ilv2++]=0;goto ifound;}
+			}
+			ifound:
+			for (int ilv3=0;ilv3<sizeof(list_xml)/sizeof(list_bookstavecode);ilv3++)
+			{
+				if (strcmp(list_xml[ilv3].name,input+ilv1+1)==0)
+				{
+					for (int ilv4=0;ilv4<7;ilv4++)
+					{
+						if (list_xml[ilv3].unicode[ilv4]==0)
+						{
+							goto ifertig;
+						}
+						else
+						{
+							if (icount>=maxlength)
+							{
+								return -1;
+							}
+							(*ibuffer).buffer[icount++]=list_xml[ilv3].unicode[ilv4];
+						}
+					}
+					goto ifertig;
+				}
+			}
+			ifertig:
+			ilv1=ilv2;
+		}
+	}
+	(*ibuffer).buffer[icount++]=0;
+	(*ibuffer).count=icount;
+	return 0;
+}
+int __attribute__((sysv_abi))CDXMLREAD_cdx_Buffered_String(char * input,void * output)//Hier hilft nur noch eins: statt input auf Datei zugreifen.
 {
 	if ((*((cdx_Buffered_String*)output)).a!=NULL)
 	{
@@ -93,18 +146,12 @@ int __attribute__((sysv_abi))CDXMLREAD_cdx_Buffered_String(char * input,void * o
 		if (getbufferfromstructure(findmultilist((*currentinstance).getFullName()),&buffer))
 		{
 			(*((cdx_Buffered_String*)output)).a=(*buffer).buffer+((*buffer).count);
-			strncpy(&((*((cdx_Buffered_String*)output)).a[0]),input,(*buffer).max-((*buffer).count));
-			((*buffer).count)+=strlen(input);
-			if ((*buffer).count<(*buffer).max)
+			int tl_backval=copytobuffer(buffer,input);
+			if (tl_backval<0)
 			{
-				*((*buffer).buffer+((*buffer).count))=0;
-				(*buffer).count++;
+				(*((cdx_Buffered_String*)output)).a=NULL;
 			}
-			else
-			{
-				((*buffer).count)-=strlen(input);
-				return -1;
-			}
+			return tl_backval;
 		}
 		else
 		{
@@ -118,7 +165,7 @@ int __attribute__((sysv_abi))CDXMLREAD_cdx_Buffered_String(char * input,void * o
 	{
 		if ((*((cdx_Buffered_String*)output)).a+strlen((*((cdx_Buffered_String*)output)).a)==(*buffer).buffer+(*buffer).count-1)
 		{
-			if ((*buffer).count+strlen(input)<(*buffer).max)
+			if ((*buffer).count+strlen(input)<(*buffer).max)//TODO: adapt to unicode! (Urgent)
 			{
 				(*buffer).count--;
 				strcpy((*buffer).buffer+(*buffer).count,input);

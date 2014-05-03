@@ -57,6 +57,19 @@ namelist_ list_greeklist[]={
 {"y","ψ"},
 {"z","ζ"},
 };
+struct list_bookstavecode
+{
+	char name[12];
+	char unicode[8];
+};
+list_bookstavecode list_xml[]
+{
+	{{"lt"},{"<"}},
+	{{"gt"},{">"}},
+	{{"amp"},{"&"}},
+	{{"apos"},{"'"}},
+	{{"quot"},{"\""}},
+};
 _small list_greeklist_size=sizeof(list_greeklist)/sizeof(list_greeklist[0]);
 char * get_list_greeklist(const char * input)
 {

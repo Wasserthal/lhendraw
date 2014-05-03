@@ -124,6 +124,7 @@ void CAMBRIDGECONV_bonds()
 	}
 }
 
+//TODO: Symbol to GREEK conversion belongs here!
 void CAMBRIDGECONV_texts()
 {
 	multilist<CAMBRIDGE_t_instance> * tl_CAMBRIDGE_t_multilist=retrievemultilist<CAMBRIDGE_t_instance>();

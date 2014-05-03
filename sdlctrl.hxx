@@ -13,10 +13,10 @@ int control_firstmenux,control_firstmenuy;
 int control_lastmenux,control_lastmenuy;
 char control_mousestate=0;//0: inactive; 0x1: from tool, mouseclick; 0x2: from special tool, keyboard 0x4: on menu, dragging 0x8: on button_function dependent menu, popup 0x10 popup-menu, multiple levels 0x20 dragging menuitem
 int control_toolaction=0;//1: move 2: move selection 3: tool specific
-int control_tool=0;//1: Hand 2: 2coordinate Selection 3: Lasso, no matter which 4: Shift tool 5: Magnifying glass 6: Element draw 7: chemdraw draw 8: eraser 9: Arrows 10: attributes 11: graphic 12: bezier 13: image 14: spectrum 15: tlc plate/gel plate
+int control_tool=0;//1: Hand 2: 2coordinate Selection 3: Lasso, no matter which 4: Shift tool 5: Magnifying glass 6: Element draw 7: chemdraw draw 8: eraser 9: Arrows 10: attributes 11: graphic 12: bezier 13: image 14: spectrum 15: tlc plate/gel plate 16: text tool
 int control_menumode=0;//1: shliderhorz, 2: slidervert 3: colorchooser
 AUTOSTRUCT_PULLOUTLISTING_ * control_menuitem=NULL;
-#define control_toolcount 16
+#define control_toolcount 17
 clickabilitymatrix_ clickabilitymatrixes[control_toolcount];
 int control_keycombotool=0;//as above, but only valid if (mousestate & 2)
 SDLKey control_toolstartkeysym;
@@ -441,10 +441,18 @@ int issueclick(int iposx,int iposy)
 				if (selection_clickselection_found & (1<<STRUCTURE_OBJECTTYPE_b))
 				{
 					tlbond=(b_instance*)getclicked(STRUCTURE_OBJECTTYPE_b);
-					(*tlbond).Order+=1;//TODO: *16
-					if ((*tlbond).Order>4)//TODO
+					if ((control_drawproperties.bond_multiplicity==1) && (control_drawproperties.bond_Display1==0))
 					{
-						(*tlbond).Order=1;
+						(*tlbond).Order+=1;//TODO: *16
+						if ((*tlbond).Order>4)//TODO
+						{
+							(*tlbond).Order=1;
+						}
+					}
+					else
+					{
+						(*tlbond).Order=control_drawproperties.bond_multiplicity;
+						(*tlbond).Display=control_drawproperties.bond_Display1;
 					}
 					control_mousestate=0;
 					return 0;
@@ -597,9 +605,8 @@ void issuedrag(int iposx,int iposy)
 					tlbond=summonbond((*tlatom).id,(*tlatom2).id,atomnr,atomnr2);
 					if (tlbond)
 					{
-						(*tlbond).color=0xFF;
 						(*tlbond).Z=0;
-						(*tlbond).Order=1;
+						(*tlbond).Order=control_drawproperties.bond_multiplicity;//TODO: *4
 					}
 				}
 			}
@@ -663,7 +670,6 @@ void issuedrag(int iposx,int iposy)
 		{
 			restoreundo(~0,1);
 			arrow_instance * tl_arrow=summonarrow();
-		        (*tl_arrow).color=control_drawproperties.color;
 			{
 				float tl_length=sqrt(sqr(control_coorsx-control_startx)+sqr(control_coorsy-control_starty));
 				float tlangle;
@@ -725,9 +731,13 @@ void issuerelease()
 			float tlswap;
 			if ((selection_frame.startx==selection_frame.endx) && (selection_frame.starty==selection_frame.endy))
 			{
-				if (control_hot[STRUCTURE_OBJECTTYPE_n]!=-1)
+				selection_clearselection(selection_clickselection);
+				selection_clickselection_found=0;
+				clickforthem();
+				if (selection_currentselection_found)
 				{
-					selection_currentselection[control_hot[STRUCTURE_OBJECTTYPE_n]]|=1<<STRUCTURE_OBJECTTYPE_n;
+					selection_copyselection(selection_currentselection,selection_clickselection);
+					selection_currentselection_found=selection_clickselection_found;
 					break;
 				}
 			}
@@ -848,6 +858,18 @@ int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int
 						(*tltl)^=(1<<ihitnr);
 						break;
 					}
+					case 6:
+					{
+						if (*((_i32*)((*ipulloutlisting).variable))!=(*ipulloutlisting).toolnr)
+						{
+							*((_i32*)((*ipulloutlisting).variable))=(*ipulloutlisting).toolnr;
+						}
+						else
+						{
+							*((_i32*)((*ipulloutlisting).variable))=0;
+						}
+						break;
+					}
 					default:
 					{
 						if ((((*ipulloutlisting).lmbmode) & (~0xFF))==0x100)
@@ -877,6 +899,7 @@ int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int
 						menu_matrixsubmenuvariable=(*ipulloutlisting).name;
 						break;
 					}
+					case 6: *((_i32*)((*ipulloutlisting).variable))=0;break;
 				}
 				break;
 			}

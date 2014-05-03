@@ -1,15 +1,12 @@
 //This unit does most processing of the internal data
 struct drawproperties_
 {
-	char bond_double;
-	char bond_triple;
-	char bond_quadro;
-	char bond_wedgeup;
-	char bond_wedgedown;
-	char bond_bold;
+	_i32 bond_multiplicity;
+	_i32 bond_Display1;
+	_i32 attribute_tool;
 	int color;
 };
-drawproperties_ control_drawproperties;
+drawproperties_ control_drawproperties={1,0,1,0};
 int control_hot[32]={-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,};
 int janitor_getmaxid(_u32 ino)
 {
@@ -317,6 +314,7 @@ n_instance * summonatom(int * inr=NULL)
 		tl_nr=(*glob_n_multilist).filllevel;
 		tlinstance=new(&((*glob_n_multilist).bufferlist[tl_nr])) n_instance;
 		(*tlinstance).Element=constants_Element_implicitcarbon;
+		(*tlinstance).color=control_drawproperties.color;
 		selection_currentselection[tl_nr]&=(~(1<<STRUCTURE_OBJECTTYPE_n));
 		atom_actual_node[tl_nr].bondcount=0;
 		((*glob_n_multilist).filllevel)++;
@@ -340,6 +338,7 @@ arrow_instance * summonarrow(int * inr=NULL)
 		tl_nr=(*glob_arrow_multilist).filllevel;
 		tlinstance=new(&((*glob_arrow_multilist).bufferlist[tl_nr])) arrow_instance;
 		selection_currentselection[tl_nr]&=(~(1<<STRUCTURE_OBJECTTYPE_arrow));
+		(*tlinstance).color=control_drawproperties.color;
 		((*glob_arrow_multilist).filllevel)++;
 		if (inr!=NULL)
 		{
@@ -358,6 +357,8 @@ b_instance * summonbond(int i_id_begin,int i_id_end,int i_nr_begin,int i_nr_end)
 		selection_currentselection[(*glob_b_multilist).filllevel]&=(~(1<<STRUCTURE_OBJECTTYPE_b));
 		(*tlinstance).B=i_id_begin;
 		(*tlinstance).E=i_id_end;
+		(*tlinstance).Display=control_drawproperties.bond_Display1;
+		(*tlinstance).color=control_drawproperties.color;
 		atom_actual_node[i_nr_begin]+=((*glob_b_multilist).filllevel);
 		atom_actual_node[i_nr_end]+=((*glob_b_multilist).filllevel);
 		((*glob_b_multilist).filllevel)++;
@@ -441,9 +442,7 @@ int edit_errichten(int startatom)
 		tlbond=summonbond((*tlatom).id,(*tlatom2).id,startatom,atomnr2);
 		if (tlbond)
 		{
-			(*tlbond).color=0;
 			(*tlbond).Z=(*tlatom).Z;
-			(*tlbond).Order=1;
 		}
 	}
 	return atomnr2;
@@ -565,4 +564,9 @@ catalogized_command_funcdef(SELECTALL)
 			}
 		}
 	}
+}
+catalogized_command_funcdef(RESETDRAWTOOL)
+{
+	control_drawproperties.bond_multiplicity=1;
+	control_drawproperties.bond_Display1=0;
 }

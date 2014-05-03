@@ -104,12 +104,23 @@ menuitem pullout_toolbox[]={
 0x00FF00,
 },
 {1,4,
-18,//Picture
+36,//Picture
 "ATTRIBUTES",
 1,0,
 10,
 "click on atom to place charge/electrons\n"
 "drag to define position\n",
+"",
+"","",
+0x00FF00,
+},
+{0,5,
+41,//Picture
+"TEXT",
+1,0,
+11,
+"click on text to edit text, placing a cursor\n"
+"click on non-text to create text\n",
 "",
 "","",
 0x00FF00,
@@ -216,7 +227,7 @@ menuitem pullout_toolbox[]={
 0x0000FF,
 },
 {14,2,
-23,//Picture
+35,//Picture
 "color_chooser",
 0x103,0x103,
 1,

@@ -11,7 +11,7 @@ typedef struct menuitem
 	int x,y;
 	int picno;
 	char name[80];
-	int lmbmode;//0: nothing 1: select a tool 2: toggle variable 3: execute a function 4: set/clear a multi-boolean variable 5: set single boolean of multi-boolean variable 0x1XX click-drag button
+	int lmbmode;//0: nothing 1: select a tool 2: toggle variable 3: execute a function 4: set/clear a multi-boolean variable 5: set single boolean of multi-boolean variable 6: set variable to value 0x1XX click-drag button
 	int rmbmode;//0: nothing 1: select a tool 2: toggle variable 3: execute a function 4: set/clear a multi-boolean variable
 	int toolnr;
 	char explanation[1024];
@@ -47,6 +47,7 @@ char pulloutlisting_string[]="\n"
 "_u32 nope;\n";
 #include "../toolbox.pullout.hxx"
 #include "../toolspecific_BOND.pullout.hxx"
+#include "../toolspecific_ATTRIBUTES.pullout.hxx"
 #include "../submenu_toolbox_M1.pullout.hxx"
 #include "../submenu_toolbox_M2.pullout.hxx"
 #include "../submenu_toolbox_M3.pullout.hxx"
@@ -133,6 +134,7 @@ void main(int argc,char ** argv)
 	fprintf(stringfile,"char AUTOSTRUCT_STRINGLIST_PULLOUT[]=\n");
 	domenu(pullout_toolbox,sizeof(pullout_toolbox)/sizeof(menuitem),"toolbox");
 	domenu(pullout_toolspecific_BOND,sizeof(pullout_toolspecific_BOND)/sizeof(menuitem),"toolspecific_BOND");
+	domenu(pullout_toolspecific_ATTRIBUTES,sizeof(pullout_toolspecific_ATTRIBUTES)/sizeof(menuitem),"toolspecific_ATTRIBUTES");
 	domenu(pullout_submenu_toolbox_M1,sizeof(pullout_submenu_toolbox_M1)/sizeof(menuitem),"submenu_toolbox_M1");
 	domenu(pullout_submenu_toolbox_M2,sizeof(pullout_submenu_toolbox_M2)/sizeof(menuitem),"submenu_toolbox_M2");
 	domenu(pullout_submenu_toolbox_M3,sizeof(pullout_submenu_toolbox_M3)/sizeof(menuitem),"submenu_toolbox_M3");

@@ -159,13 +159,14 @@ int sdl_buttonmenudraw(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int count,int xpos=
 		{
 			case 1: if (control_tool==ilisting[ilv1].toolnr) state|=9;break;
 			case 2: state|=(*((char*)(ilisting[ilv1].variable)) & 1); break;
-			case 0x103: state=(((*(int*)(ilisting[ilv1]).variable))<<8)|0xFF;break;
+			case 0x103: state=(((*(int*)(ilisting[ilv1]).variable))<<8)|0x1;break;
 			case 4: 
 			{
 				int tlval=quersum(*(_u32*)(ilisting[ilv1].variable),STRUCTURE_OBJECTTYPE_ListSize);
 				state=(((ilisting[ilv1].bgcolor & 0xFF)*tlval*256/STRUCTURE_OBJECTTYPE_ListSize)&0xFF00)+(((0xFF00)*(6-abs(tlval-4))*256/STRUCTURE_OBJECTTYPE_ListSize)&0xFF0000)+(((0xFF0000)*(8-tlval)*256/STRUCTURE_OBJECTTYPE_ListSize)&0xFF000000);
 				state|=1*(tlval>0);state|=((((tlval*8)-1)/STRUCTURE_OBJECTTYPE_ListSize)&7)<<1; break;
 			}
+			case 6: state|=((*((_i32*)(ilisting[ilv1].variable)))==ilisting[ilv1].toolnr)?1:0;break;
 		}
 		sdl_toolboxitemdraw(ilisting[ilv1].x*32+xpos,ilisting[ilv1].y*32+ypos,ilisting[ilv1].picno,state);
 	}

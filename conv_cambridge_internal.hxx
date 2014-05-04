@@ -1,3 +1,14 @@
+CAMBRIDGE_font_instance * getfont(_small iid)
+{
+	for (int ilv1=0;ilv1<(*glob_CAMBRIDGE_font_multilist).filllevel;ilv1++)
+	{
+		if (((*glob_CAMBRIDGE_font_multilist).bufferlist[ilv1]).id==iid)
+		{
+			return &((*glob_CAMBRIDGE_font_multilist).bufferlist[ilv1]);
+		}
+	}
+	return NULL;
+}
 void CAMBRIDGECONV_atoms()
 {
 	multilist<CAMBRIDGE_n_instance> * tl_CAMBRIDGE_n_multilist=retrievemultilist<CAMBRIDGE_n_instance>();
@@ -124,7 +135,6 @@ void CAMBRIDGECONV_bonds()
 	}
 }
 
-//TODO: Symbol to GREEK conversion belongs here!
 void CAMBRIDGECONV_texts()
 {
 	multilist<CAMBRIDGE_t_instance> * tl_CAMBRIDGE_t_multilist=retrievemultilist<CAMBRIDGE_t_instance>();
@@ -202,9 +212,35 @@ void CAMBRIDGECONV_texts()
 			{
 				tl_s_instance.color=0x000000;
 			}
-			tl_s_instance.length=sizeof(s_instance)+strlen((*tl_CAMBRIDGE_s_instance).PCTEXT.a)+1;//TODO: remove trailing 0, but not before it is no longer needed by draw!
 			tl_s_instance.type=TELESCOPE_ELEMENTTYPE_s;
-			TELESCOPE_add(TELESCOPE_ELEMENTTYPE_s,(*tl_CAMBRIDGE_s_instance).PCTEXT.a,tl_s_instance.length-sizeof(s_instance));
+			if (strcmp((*getfont((*tl_CAMBRIDGE_s_instance).font)).name.a,"Symbol")==0)
+			{
+				char tl_char1[2];
+				char * tl_text;
+				tl_char1[1]=0;
+				char tl_length=strlen((*tl_CAMBRIDGE_s_instance).PCTEXT.a);
+				tl_s_instance.length=sizeof(tl_s_instance)+1;//trailing zero.
+				for (int ilv1=0;ilv1<tl_length;ilv1++)
+				{
+					tl_char1[0]=(*tl_CAMBRIDGE_s_instance).PCTEXT.a[ilv1];
+					tl_text=tl_char1;
+					tl_text=get_list_greeklist((*tl_CAMBRIDGE_s_instance).PCTEXT.a+ilv1);
+					if (ilv1==0)
+					{
+						TELESCOPE_add(TELESCOPE_ELEMENTTYPE_s,tl_text,strlen(tl_text)+((ilv1+1==tl_length)?1:0));
+					}
+					else
+					{
+						TELESCOPE_insertintoproperties(TELESCOPE_ELEMENTTYPE_s,tl_text,strlen(tl_text)+((ilv1+1==tl_length)?1:0));
+					}
+					tl_s_instance.length+=strlen(tl_text)+((ilv1+1==tl_length)?1:0);
+				}
+			}
+			else
+			{
+				tl_s_instance.length=sizeof(s_instance)+strlen((*tl_CAMBRIDGE_s_instance).PCTEXT.a)+1;//trailing 0
+				TELESCOPE_add(TELESCOPE_ELEMENTTYPE_s,(*tl_CAMBRIDGE_s_instance).PCTEXT.a,tl_s_instance.length-sizeof(s_instance));
+			}
 			*((s_instance*)TELESCOPE_getproperty())=tl_s_instance;
 		}
 		}

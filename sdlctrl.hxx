@@ -441,7 +441,7 @@ int issueclick(int iposx,int iposy)
 				if (selection_clickselection_found & (1<<STRUCTURE_OBJECTTYPE_b))
 				{
 					tlbond=(b_instance*)getclicked(STRUCTURE_OBJECTTYPE_b);
-					if ((control_drawproperties.bond_multiplicity==1) && (control_drawproperties.bond_Display1==0))
+					if ((control_drawproperties.bond_multiplicity==1) && (control_drawproperties.bond_Display1==0) && ((*tlbond).Display==0))
 					{
 						(*tlbond).Order+=1;//TODO: *16
 						if ((*tlbond).Order>4)//TODO

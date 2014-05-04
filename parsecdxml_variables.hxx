@@ -248,18 +248,16 @@ void TELESCOPE_rushtoend()
 }
 #define TELESCOPE_item ((TELESCOPE_element*)((*(TELESCOPE_tempvar.buffer)).buffer+TELESCOPE_tempvar.pos+TELESCOPE_tempvar.subpos))
 #define TELESCOPE_item_1(PARAM) ((PARAM ## _instance*)((*(TELESCOPE_tempvar.buffer)).buffer+TELESCOPE_tempvar.pos+TELESCOPE_tempvar.subpos))
-//The following routine doesn't work AT ALL!
-int TELESCOPE_insertintoproperties(basicmultilist * imultilist,int objectpos,int tag,char * iinput,int ilength)//TODO: memory overflow handling
+int TELESCOPE_insertintoproperties(int tag,char * iinput,int ilength)//TODO: memory overflow handling
 {
-	TELESCOPE_aggressobject(imultilist,objectpos);//TODO: make dependent of external call
 	if (TELESCOPE_searchthroughobject(tag))
 	{
-		while (TELESCOPE_searchthroughobject_next)
+		while (TELESCOPE_searchthroughobject_next(tag))
 		{
 		}
 		TELESCOPE_rushtoend();
 	}
-	if (TELESCOPE_stretch_buffer(imultilist,ilength,tag)==-1) {return -1;}
+	if (TELESCOPE_stretch_buffer(TELESCOPE_tempvar.multilist,ilength,tag)==-1) {return -1;}
 	char * ilv1b=(*TELESCOPE_tempvar.buffer).buffer+TELESCOPE_tempvar.pos+TELESCOPE_tempvar.subpos2/*TODO: what if an object HAD to be inserted?*/;
 	//TODO: what if an object HAD to be inserted???
 	for (int ilv1=0;ilv1<ilength;ilv1++,ilv1b++)//TODO: faster...

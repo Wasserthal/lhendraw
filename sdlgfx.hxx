@@ -807,9 +807,11 @@ void printformatted(const char * iinput,const char * parms,int imode,int start,i
 {
 	int ilv4=start;
 	char linebreak;
+	int i_offsy=0;
 	thatwasatemporaryskip:
 	linebreak=0;
-	for (;ilv4<end;ilv4++)
+	_i32 backcount=0;
+	for (;ilv4<end;ilv4+=backcount)
 	{
 		if (iinput[ilv4]==10)
 		{
@@ -817,7 +819,11 @@ void printformatted(const char * iinput,const char * parms,int imode,int start,i
 			linebreak=1;
 			goto skipfornow;
 		}
-		text_print_bitmap(&SDL_txcursorx,&SDL_txcursory,&fontpixinf[indexfromunicode(((unsigned char)iinput[ilv4]))]);
+		if (imode & 1) {i_offsy=4;}
+		if (imode & 4) {i_offsy=-4;}
+		SDL_txcursory+=i_offsy;
+		text_print_bitmap(&SDL_txcursorx,&SDL_txcursory,&fontpixinf[indexfromunicode(utf8resolve((unsigned char*)iinput + ilv4,&backcount))]);
+		SDL_txcursory-=i_offsy;
 //		print_bitmap(&SDL_txcursorx,&SDL_txcursory,&fontpixinf[indexfromunicode(((unsigned char)iinput[ilv4]))]);
 	}
 	skipfornow:

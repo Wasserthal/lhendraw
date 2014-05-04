@@ -165,18 +165,7 @@ int __attribute__((sysv_abi))CDXMLREAD_cdx_Buffered_String(char * input,void * o
 	{
 		if ((*((cdx_Buffered_String*)output)).a+strlen((*((cdx_Buffered_String*)output)).a)==(*buffer).buffer+(*buffer).count-1)
 		{
-			if ((*buffer).count+strlen(input)<(*buffer).max)//TODO: adapt to unicode! (Urgent)
-			{
-				(*buffer).count--;
-				strcpy((*buffer).buffer+(*buffer).count,input);
-				(*buffer).count+=strlen(input);
-				(*buffer).count++;
-			}
-			else
-			{
-				return -1;
-			}
-			return 1;
+			return copytobuffer(buffer,input);
 		}
 	}
 	else

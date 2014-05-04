@@ -34,6 +34,52 @@ void fontpixinf_add(FT_GlyphSlot islot,int iunicode)
 	}
 	fontpixinf_count++;
 }
+_i32 utf8resolve(_u8 * input,_i32 * backcount)
+{
+	intl icounter;
+	_u8 ihv1;
+	_i32 currentunicode;
+	icounter=0;
+	_i32 followers;
+	if (input[0]<128)	//utf-8 to UCS16
+	{
+		(*backcount)=1;
+		return input[0];
+	}
+	else
+	{
+		if ((input[icounter]&0xC0)!=0xC0)
+		{
+			(*backcount)=1;
+			return -20;
+		}
+		else
+		{
+			ihv1=input[icounter];
+			ihv1=ihv1<<2;
+			followers=1;
+			while ((ihv1 & 0x80)!=0)
+			{
+				followers++;
+				ihv1=ihv1<<1;
+			}
+			currentunicode=ihv1>>followers+1;
+			icounter++;
+			for (_i32 ilv2=0;ilv2<followers;ilv2++)
+			{
+				if ((input[icounter] & 0xC0)!=0x80)
+				{
+					(*backcount)=icounter;
+					return -20;
+				}
+				currentunicode=(currentunicode<<6)+(input[icounter] & 0x3F);
+			}
+			icounter++;
+		}
+	}
+	(*backcount)=icounter;
+	return currentunicode;
+}
 int indexfromunicode(int input)//Weighed approximation
 {
 	int scanner_start=0;

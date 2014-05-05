@@ -117,6 +117,7 @@
 <Hotkey modifiers="CTRL" key="s" command="SAVEAS" value=""/>
 <Hotkey modifiers="CTRL" key="a" command="SELECTALL" value="1"/>
 <Hotkey modifiers="CTRL" key="A" command="SELECTALL" value="0"/>
+<Hotkey modifiers="CTRL" key="h" command="TEST_SMASH" variable="2" value="1"/>
 </Hotkeys>
 </Object>
 <Object type="Generic Some">

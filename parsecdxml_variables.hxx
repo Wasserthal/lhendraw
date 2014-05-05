@@ -142,7 +142,7 @@ int TELESCOPE_stretch_buffer(basicmultilist * imultilist,int ideltaplus,int ityp
 	{
 		return -1;
 	}
-	for (int ilv1=(*ibuffer).count+ideltaplus2;ilv1>TELESCOPE_tempvar.pos+ideltaplus2+TELESCOPE_tempvar.subpos2;ilv1--)//TODO: FASTER! buffercopy_reverse((*ibuffer).buffer+(*ibuffer).count,ipos,(*ibuffer).buffer+(*ibuffer).count+ideltaplus2,ipos+ideltaplus2);
+	for (int ilv1=(*ibuffer).count+ideltaplus2-1;ilv1>TELESCOPE_tempvar.pos+ideltaplus2+TELESCOPE_tempvar.subpos2;ilv1--)//TODO: FASTER! buffercopy_reverse((*ibuffer).buffer+(*ibuffer).count,ipos,(*ibuffer).buffer+(*ibuffer).count+ideltaplus2,ipos+ideltaplus2);
 	{
 		(*ibuffer).buffer[ilv1]=(*ibuffer).buffer[ilv1-ideltaplus2];
 	}
@@ -272,7 +272,7 @@ int TELESCOPE_add(int tag,char * iinput,int ilength)//Like insertintoproperties,
 	TELESCOPE_tempvar.inside_TELESCOPE=TELESCOPE_verify_objectpresent();//TODO: such calls in aggressobject and nowhere else
 	if (TELESCOPE_tempvar.inside_TELESCOPE)
 	{
-		TELESCOPE_tempvar.subpos=(*((TELESCOPE_element*)((*TELESCOPE_tempvar.buffer).buffer+TELESCOPE_tempvar.pos))).length;
+		TELESCOPE_tempvar.subpos=(*((TELESCOPE*)((*TELESCOPE_tempvar.buffer).buffer+TELESCOPE_tempvar.pos))).length;
 		TELESCOPE_tempvar.subpos2=TELESCOPE_tempvar.subpos;
 		TELESCOPE_tempvar.inside_TELESCOPE_element=0;
 	}
@@ -283,6 +283,39 @@ int TELESCOPE_add(int tag,char * iinput,int ilength)//Like insertintoproperties,
 		(*ilv1b)=(*(iinput+ilv1));
 	}
 	return 1;
+}
+int TELESCOPE_split(int ipos,char * iadditive_input,int ilength)
+{
+	int ilv1;
+	TELESCOPE_element * tl_Element=((TELESCOPE_element*)((*TELESCOPE_tempvar.buffer).buffer+TELESCOPE_tempvar.pos+TELESCOPE_tempvar.subpos));
+	int itype=(*tl_Element).type;
+	TELESCOPE_element * tl_SecondElement=(TELESCOPE_element*)(((char*)tl_Element)+TELESCOPE_ELEMENTTYPE_List[itype].size+ipos+ilength);
+	TELESCOPE_rushtoend();
+	int ideltaplus2=ilength+TELESCOPE_ELEMENTTYPE_List[itype].size;
+	int isecondlength=(*tl_Element).length-ipos-TELESCOPE_ELEMENTTYPE_List[itype].size;
+	if ((*(TELESCOPE_tempvar.buffer)).count+ideltaplus2>=(*(TELESCOPE_tempvar.buffer)).max) return -1;
+	for (ilv1=(*(TELESCOPE_tempvar.buffer)).count+ideltaplus2-1;ilv1>=TELESCOPE_tempvar.subpos+TELESCOPE_tempvar.pos+TELESCOPE_ELEMENTTYPE_List[itype].size+(*tl_Element).length-isecondlength;ilv1--)//stretches buffer and copies end
+	{
+		(*(TELESCOPE_tempvar.buffer)).buffer[ilv1]=(*(TELESCOPE_tempvar.buffer)).buffer[ilv1-ideltaplus2];
+	}
+	for (;ilv1>=TELESCOPE_tempvar.subpos+TELESCOPE_tempvar.pos+ipos+ilength+TELESCOPE_ELEMENTTYPE_List[itype].size;ilv1--)//copies the structure
+	{
+		(*(TELESCOPE_tempvar.buffer)).buffer[ilv1]=(*(TELESCOPE_tempvar.buffer)).buffer[ilv1-ideltaplus2-ipos];
+	}
+	(*tl_SecondElement).length=isecondlength+TELESCOPE_ELEMENTTYPE_List[itype].size;
+	char * ilv1b=(*TELESCOPE_tempvar.buffer).buffer+TELESCOPE_tempvar.pos+TELESCOPE_tempvar.subpos2;
+	for (int ilv1=0;ilv1<ilength;ilv1++)//Copies additive input
+	{
+		(*ilv1b)=iadditive_input[ilv1];
+	}
+	for (int ilv1=TELESCOPE_tempvar.objectpos+1;ilv1<(*TELESCOPE_tempvar.multilist).filllevel;ilv1++)
+	{
+		(*((basic_instance_propertybuffer*)(((char*)((*TELESCOPE_tempvar.multilist).pointer))+(TELESCOPE_tempvar.objectsize*ilv1)))).pos_in_buffer+=ideltaplus2;
+	}
+	(*(TELESCOPE_tempvar.buffer)).count+=ideltaplus2;
+	(*tl_Element).length=ipos+ilength+TELESCOPE_ELEMENTTYPE_List[itype].size;
+	(*(TELESCOPE*)((*TELESCOPE_tempvar.buffer).buffer+TELESCOPE_tempvar.pos)).length+=ideltaplus2;
+	return 0;
 }
 int TELESCOPE_clear()
 {

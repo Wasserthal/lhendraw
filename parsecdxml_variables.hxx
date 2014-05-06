@@ -228,7 +228,7 @@ int TELESCOPE_searchthroughobject_next(int tag)
 			while (TELESCOPE_tempvar.subpos<ilength)
 			{
 				TELESCOPE_element * iTELESCOPE_element=(TELESCOPE_element*)((*(TELESCOPE_tempvar.buffer)).buffer+TELESCOPE_tempvar.pos+TELESCOPE_tempvar.subpos);
-				if (tag==(*iTELESCOPE_element).type) {TELESCOPE_tempvar.inside_TELESCOPE_element=1;TELESCOPE_tempvar.subpos2==TELESCOPE_tempvar.subpos;return 1;};
+				if (tag==(*iTELESCOPE_element).type) {TELESCOPE_tempvar.inside_TELESCOPE_element=1;TELESCOPE_tempvar.subpos2=TELESCOPE_tempvar.subpos;return 1;};
 				TELESCOPE_tempvar.subpos+=(*iTELESCOPE_element).length;
 				TELESCOPE_tempvar.subpos2=TELESCOPE_tempvar.subpos;
 			}
@@ -298,13 +298,13 @@ int TELESCOPE_split(int ipos,char * iadditive_input,int ilength)
 	{
 		(*(TELESCOPE_tempvar.buffer)).buffer[ilv1]=(*(TELESCOPE_tempvar.buffer)).buffer[ilv1-ideltaplus2];
 	}
-	for (;ilv1>=TELESCOPE_tempvar.subpos+TELESCOPE_tempvar.pos+ipos+ilength+TELESCOPE_ELEMENTTYPE_List[itype].size;ilv1--)//copies the structure
+	for (;ilv1>=TELESCOPE_tempvar.pos+TELESCOPE_tempvar.subpos+ipos+ilength+TELESCOPE_ELEMENTTYPE_List[itype].size;ilv1--)//copies the structure
 	{
 		(*(TELESCOPE_tempvar.buffer)).buffer[ilv1]=(*(TELESCOPE_tempvar.buffer)).buffer[ilv1-ideltaplus2-ipos];
 	}
 	(*tl_SecondElement).length=isecondlength+TELESCOPE_ELEMENTTYPE_List[itype].size;
-	char * ilv1b=(*TELESCOPE_tempvar.buffer).buffer+TELESCOPE_tempvar.pos+TELESCOPE_tempvar.subpos2;
-	for (int ilv1=0;ilv1<ilength;ilv1++)//Copies additive input
+	char * ilv1b=(*TELESCOPE_tempvar.buffer).buffer+TELESCOPE_tempvar.pos+TELESCOPE_tempvar.subpos+TELESCOPE_ELEMENTTYPE_List[itype].size+ipos;
+	for (int ilv1=0;ilv1<ilength;ilv1++,ilv1b++)//Copies additive input
 	{
 		(*ilv1b)=iadditive_input[ilv1];
 	}
@@ -314,7 +314,22 @@ int TELESCOPE_split(int ipos,char * iadditive_input,int ilength)
 	}
 	(*(TELESCOPE_tempvar.buffer)).count+=ideltaplus2;
 	(*tl_Element).length=ipos+ilength+TELESCOPE_ELEMENTTYPE_List[itype].size;
+	if ((*tl_Element).length==0)
+	{
+		fprintf(stderr,"\\1");
+	}
+	if ((*tl_SecondElement).length==0)
+	{
+		fprintf(stderr,"\\2");
+	}
+	TELESCOPE_tempvar.subpos+=(*tl_Element).length;
+	TELESCOPE_tempvar.subpos2=TELESCOPE_tempvar.subpos+(*tl_SecondElement).length;
+	if ((*((TELESCOPE_element*)(((char*)tl_Element)+(*tl_Element).length))).length==0)
+	{
+		fprintf(stderr,"\\3");
+	}
 	(*(TELESCOPE*)((*TELESCOPE_tempvar.buffer).buffer+TELESCOPE_tempvar.pos)).length+=ideltaplus2;
+	printf("+%i;%i---%s---\n",ideltaplus2,TELESCOPE_ELEMENTTYPE_List[itype].size,((char*)tl_Element)+TELESCOPE_ELEMENTTYPE_List[itype].size);
 	return 0;
 }
 int TELESCOPE_clear()

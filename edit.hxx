@@ -573,7 +573,6 @@ catalogized_command_funcdef(RESETDRAWTOOL)
 catalogized_command_funcdef(TEST_SMASH)
 {
 	char zero=0;
-	printf("Taffadada\n");
 	srand(counter1);
 	TELESCOPE_aggressobject(glob_t_multilist,rand()%(*glob_t_multilist).filllevel);
 	TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_s);

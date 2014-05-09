@@ -332,6 +332,31 @@ int TELESCOPE_split(int ipos,char * iadditive_input,int ilength)
 	printf("+%i;%i---%s---\n",ideltaplus2,TELESCOPE_ELEMENTTYPE_List[itype].size,((char*)tl_Element)+TELESCOPE_ELEMENTTYPE_List[itype].size);
 	return 0;
 }
+int telescope_merge(int ipos,int ilength)
+{
+	char * ilv1;
+	TELESCOPE_element * tl_Element=((TELESCOPE_element*)((*TELESCOPE_tempvar.buffer).buffer+TELESCOPE_tempvar.pos+TELESCOPE_tempvar.subpos));
+	int itype=(*tl_Element).type;
+	TELESCOPE_element * tl_SecondElement=(TELESCOPE_element*)(((char*)tl_Element)+(*tl_Element).length);
+	int ideltaminus2=ilength+TELESCOPE_ELEMENTTYPE_List[itype].size;
+	int isecondlength=(*tl_SecondElement).length;
+	for (ilv1=((char*)tl_Element)-ilength;ilv1<(*TELESCOPE_tempvar.buffer).buffer-ideltaminus2;ilv1++)//compresses buffer and concatenates end
+	{
+		*ilv1=*(ilv1+ideltaminus2);
+	}
+	(*tl_SecondElement).length=isecondlength+TELESCOPE_ELEMENTTYPE_List[itype].size;
+	char * ilv1b=(*TELESCOPE_tempvar.buffer).buffer+TELESCOPE_tempvar.pos+TELESCOPE_tempvar.subpos+TELESCOPE_ELEMENTTYPE_List[itype].size+ipos;
+	for (int ilv1=TELESCOPE_tempvar.objectpos+1;ilv1<(*TELESCOPE_tempvar.multilist).filllevel;ilv1++)
+	{
+		(*((basic_instance_propertybuffer*)(((char*)((*TELESCOPE_tempvar.multilist).pointer))+(TELESCOPE_tempvar.objectsize*ilv1)))).pos_in_buffer-=ideltaminus2;
+	}
+	(*(TELESCOPE_tempvar.buffer)).count-=ideltaminus2;
+	(*tl_Element).length+=isecondlength-ilength;
+	TELESCOPE_tempvar.subpos2=TELESCOPE_tempvar.subpos+(*tl_Element).length;
+	(*(TELESCOPE*)((*TELESCOPE_tempvar.buffer).buffer+TELESCOPE_tempvar.pos)).length-=ideltaminus2;
+	return 0;
+}
+
 int TELESCOPE_clear()
 {
 	if (TELESCOPE_verify_objectpresent())

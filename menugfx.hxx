@@ -283,7 +283,7 @@ int sdl_selectiondraw()
 	char * ibufferpos;
 	if (control_mousestate==1)
 	{
-		if (control_tool==2)
+		if ((control_tool==2) || (control_tool==5))
 		{
 			expressline(selection_frame.startx,selection_frame.starty,selection_frame.endx,selection_frame.starty);
 			expressline(selection_frame.startx,selection_frame.starty,selection_frame.startx,selection_frame.endy);

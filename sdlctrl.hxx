@@ -67,6 +67,23 @@ typedef struct MODIFIER_KEYS_
 	char SUPER;
 }MODIFIER_KEYS_;
 MODIFIER_KEYS_ MODIFIER_KEYS={0,0,0,0};
+int CONTROL_ZOOMIN(float ifactor,char i_direction)
+{
+	if (i_direction==1)
+	{
+		SDL_zoomx/=ifactor;
+		SDL_zoomy/=ifactor;
+		SDL_scrollx+=(control_Event.button.x-gfx_canvasminx)*((1/ifactor)-1)/SDL_zoomx;
+		SDL_scrolly+=(control_Event.button.y-gfx_canvasminy)*((1/ifactor)-1)/SDL_zoomy;
+	}
+	else
+	{
+		SDL_zoomx*=ifactor;
+		SDL_zoomy*=ifactor;
+		SDL_scrollx+=(control_Event.button.x-gfx_canvasminx)*(ifactor-1)/SDL_zoomx;
+		SDL_scrolly+=(control_Event.button.y-gfx_canvasminy)*(ifactor-1)/SDL_zoomy;
+	}
+}
 
 void checkupinconsistencies()
 {
@@ -431,6 +448,14 @@ int issueclick(int iposx,int iposy)
 			selection_frame.endy=control_coorsy;
 			break;
 		}
+		case 5:
+		{
+			selection_frame.startx=control_coorsx;
+			selection_frame.starty=control_coorsy;
+			selection_frame.endx=control_coorsx;
+			selection_frame.endy=control_coorsy;
+			break;
+		}
 		case 6:
 		{
 			if (control_lastmousebutton==1)
@@ -546,6 +571,12 @@ void issuedrag(int iposx,int iposy)
 			break;
 		}
 		case 2:
+		{
+			selection_frame.endx=control_coorsx;
+			selection_frame.endy=control_coorsy;
+			break;
+		}
+		case 5:
 		{
 			selection_frame.endx=control_coorsx;
 			selection_frame.endy=control_coorsy;
@@ -740,6 +771,24 @@ void issuedrag(int iposx,int iposy)
 	//warning: there ARE in-function returns.
 	return;
 }
+int rectifyselectionframe()
+{
+	float tlswap;
+	if ((selection_frame.startx==selection_frame.endx) && (selection_frame.starty==selection_frame.endy)) return 0;
+	if (selection_frame.startx>selection_frame.endx)
+	{
+		tlswap=selection_frame.startx;
+		selection_frame.startx=selection_frame.endx;
+		selection_frame.endx=tlswap;
+	}
+	if (selection_frame.starty>selection_frame.endy)
+	{
+		tlswap=selection_frame.starty;
+		selection_frame.starty=selection_frame.endy;
+		selection_frame.endy=tlswap;
+	}
+	return 1;
+}
 void issuerelease()
 {
 	_u32 icompare;
@@ -753,8 +802,7 @@ void issuerelease()
 
 			selection_clearselection(selection_currentselection);
 			selection_currentselection_found=0;
-			float tlswap;
-			if ((selection_frame.startx==selection_frame.endx) && (selection_frame.starty==selection_frame.endy))
+			if (!rectifyselectionframe())
 			{
 				selection_clearselection(selection_clickselection);
 				selection_clickselection_found=0;
@@ -766,19 +814,6 @@ void issuerelease()
 					break;
 				}
 			}
-			if (selection_frame.startx>selection_frame.endx)
-			{
-				tlswap=selection_frame.startx;
-				selection_frame.startx=selection_frame.endx;
-				selection_frame.endx=tlswap;
-			}
-			if (selection_frame.starty>selection_frame.endy)
-			{
-				tlswap=selection_frame.starty;
-				selection_frame.starty=selection_frame.endy;
-				selection_frame.endy=tlswap;
-			}
-			float ix,iy;
 			for (int ilv1=0;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
 			{
 				icompare=1<<ilv1;
@@ -813,6 +848,35 @@ void issuerelease()
 					}
 				}
 				i_control2_fertig:;
+			}
+			break;
+		}
+		case 5:
+		{
+			if (rectifyselectionframe())
+			{
+				if (control_lastmousebutton==1)
+				{
+					SDL_scrollx=selection_frame.startx;
+					SDL_scrolly=selection_frame.starty;
+					SDL_zoomx=gfx_canvassizex/(selection_frame.endx-selection_frame.startx);
+					SDL_zoomy=gfx_canvassizey/(selection_frame.endy-selection_frame.starty);
+					if (SDL_zoomx>SDL_zoomy){SDL_zoomx=SDL_zoomy;} else {SDL_zoomy=SDL_zoomx;}
+				}
+				else
+				{
+					float tl_actualposx=(selection_frame.startx-SDL_scrollx)*SDL_zoomx;
+					float tl_actualposy=(selection_frame.starty-SDL_scrolly)*SDL_zoomy;
+					SDL_zoomx=(selection_frame.endx-selection_frame.startx)/(gfx_canvassizex)*SDL_zoomx*SDL_zoomx;
+					SDL_zoomy=(selection_frame.endy-selection_frame.starty)/(gfx_canvassizey)*SDL_zoomy*SDL_zoomy;
+					if (SDL_zoomx>SDL_zoomy){SDL_zoomx=SDL_zoomy;} else {SDL_zoomy=SDL_zoomx;}
+					SDL_scrollx-=tl_actualposx/SDL_zoomx;
+					SDL_scrolly-=tl_actualposy/SDL_zoomy;
+				}
+			}
+			else
+			{
+				CONTROL_ZOOMIN(1.414213562,(control_lastmousebutton==2)*2-1);
 			}
 			break;
 		}
@@ -990,7 +1054,7 @@ void issuemenuclicks(int iposx,int iposy,int ibutton)
 			{
 				case 0:tlsuccess|=issuemenuclick((AUTOSTRUCT_PULLOUTLISTING_*)menu_list[ilv1].what.pointer,menu_list[ilv1].what.count,(iposx-menu_list[ilv1].alignx)/32,(iposy-menu_list[ilv1].aligny)/32,ibutton,iposx,iposy);break;
 				case 1:tlsuccess|=issuemenuclick((AUTOSTRUCT_PULLOUTLISTING_*)menu_list[ilv1].what.pointer,menu_list[ilv1].what.count,(iposx-menu_list[ilv1].alignx)/192,(iposy-menu_list[ilv1].aligny)/16,ibutton,iposx,iposy);break;
-				case 2: tlsuccess|=issuepseclick((iposx-menu_list[ilv1].alignx)/32,(iposy-menu_list[ilv1].aligny)/48,ibutton);printf("PSE\n");break;
+				case 2: tlsuccess|=issuepseclick((iposx-menu_list[ilv1].alignx)/32,(iposy-menu_list[ilv1].aligny)/48,ibutton);break;
 			}
 		}
 		if (tlsuccess)
@@ -1124,25 +1188,12 @@ void sdl_control()
 					{
 						if (MODIFIER_KEYS.CTRL)
 						{
-							float ifactor=1.414213562;
+							float tl_factor=1.414213562;
 							if (MODIFIER_KEYS.ALT)
 							{
-								ifactor=1.090507733;
+								tl_factor=1.090507733;
 							}
-							if (idirection==1)
-							{
-								SDL_zoomx/=ifactor;
-								SDL_zoomy/=ifactor;
-								SDL_scrollx+=(control_Event.button.x-gfx_canvasminx)*((1/ifactor)-1)/SDL_zoomx;
-								SDL_scrolly+=(control_Event.button.y-gfx_canvasminy)*((1/ifactor)-1)/SDL_zoomy;
-							}
-							else
-							{
-								SDL_zoomx*=ifactor;
-								SDL_zoomy*=ifactor;
-								SDL_scrollx+=(control_Event.button.x-gfx_canvasminx)*(ifactor-1)/SDL_zoomx;
-								SDL_scrolly+=(control_Event.button.y-gfx_canvasminy)*(ifactor-1)/SDL_zoomy;
-							}
+							CONTROL_ZOOMIN(tl_factor,idirection);
 							break;
 						}
 						if (MODIFIER_KEYS.SHIFT)

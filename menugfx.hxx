@@ -155,10 +155,13 @@ int sdl_buttonmenudraw(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int count,int xpos=
 	{
 		_u32 state=ilisting[ilv1].bgcolor;
 		state=(*ilisting).bgcolor<<8;
-		switch (ilisting[ilv1].lmbmode)
+		int tlvar=ilisting[ilv1].lmbmode;
+		iagain:
+		switch (tlvar)
 		{
 			case 1: if (control_tool==ilisting[ilv1].toolnr) state|=9;break;
 			case 2: state|=(*((char*)(ilisting[ilv1].variable)) & 1); break;
+			case 3: tlvar=ilisting[ilv1].rmbmode;if (tlvar!=3) goto iagain; break;
 			case 0x103: state=(((*(int*)(ilisting[ilv1]).variable))<<8)|0x1;break;
 			case 4: 
 			{

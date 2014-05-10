@@ -538,6 +538,11 @@ catalogized_command_funcdef(LOADAS)
 	printf("TODO***stub\n");
 	return 1;
 }
+catalogized_command_funcdef(SAVE)
+{
+	printf("TODO***stub\n");
+	return 1;
+}
 catalogized_command_funcdef(UNDO)
 {
 	restoreundo(~0,0);
@@ -594,4 +599,16 @@ catalogized_command_funcdef(OPEN_PSE)
 {
 	control_mousestate=0x10;
 	return 0;
+}
+catalogized_command_funcdef(HOME)
+{
+	SDL_zoomx=1;SDL_zoomy=1;SDL_scrollx=0;SDL_scrolly=0;
+	return 1;
+}
+catalogized_command_funcdef(ONETOONE)
+{
+	SDL_scrollx+=(gfx_canvassizex/2)*((1/SDL_zoomx)-1);
+	SDL_scrolly+=(gfx_canvassizey/2)*((1/SDL_zoomy)-1);
+	SDL_zoomx=1;SDL_zoomy=1;
+	return 1;
 }

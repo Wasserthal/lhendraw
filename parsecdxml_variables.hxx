@@ -18,7 +18,7 @@ TELESCOPE_buffer internalstructure_text_undobuffer;
 TELESCOPE_buffer internalstructure_b_undobuffer;
 TELESCOPE_buffer internalstructure_n_undobuffer;
 TELESCOPE_buffer internalstructure_arrow_undobuffer;
-#define selection_maxbuttons 43
+#define selection_maxbuttons 46
 #define constants_bondlength 30
 #define constants_angular_distance 2.094395102
 #define constants_clickradius 170

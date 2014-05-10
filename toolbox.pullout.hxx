@@ -1,7 +1,7 @@
 menuitem pullout_toolbox[]={
 {0,0,
 11,//Picture
-"Move Plane",
+"HAND",
 1,0,
 1,
 "Click-drag to move\n"
@@ -61,11 +61,11 @@ menuitem pullout_toolbox[]={
 {1,2,
 13,//Picture
 "Put atoms",
-1,3,
+3,1,
 6,
 "LMB puts atoms, RMB selects element\n",
 "",
-"","OPEN_PSE",
+"OPEN_PSE","",
 0x00FF00,
 },
 {0,3,
@@ -235,5 +235,35 @@ menuitem pullout_toolbox[]={
 "control_drawproperties.color",
 "","",
 0x000000,
+},
+{5,1,
+42,//Picture
+"Home",
+3,0,
+4,
+"Goes to 0,0, zoom 1:1",
+"",
+"HOME","",
+0xFFFF00,
+},
+{6,1,
+43,//Picture
+"One to one",
+3,0,
+4,
+"Zooms back to 1:1, using the center of the screen as pivot",
+"",
+"ONETOONE","",
+0xFFFF00,
+},
+{4,2,
+44,//Picture
+"Save Immediately",
+3,0,
+4,
+"Saves without asking you for a filename. Use with caution.",
+"",
+"SAVE","",
+0x00FF00,
 },
 };

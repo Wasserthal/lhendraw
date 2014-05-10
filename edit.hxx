@@ -5,8 +5,9 @@ struct drawproperties_
 	_i32 bond_Display1;
 	_i32 attribute_tool;
 	int color;
+	_i32 Element;
 };
-drawproperties_ control_drawproperties={1,0,1,0};
+drawproperties_ control_drawproperties={1,0,1,0,constants_Element_implicitcarbon};
 int control_hot[32]={-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,};
 int janitor_getmaxid(_u32 ino)
 {
@@ -504,6 +505,7 @@ catalogized_command_funcdef(FILE_NEW)
 			(*tlmultilist).filllevel=0;
 		}
 	}
+	return 1;
 }
 extern float control_coorsx;
 extern float control_coorsy;
@@ -511,6 +513,7 @@ void checkupinconsistencies();
 catalogized_command_funcdef(CHUP)
 {
 	checkupinconsistencies();
+	return 1;
 }
 catalogized_command_funcdef(BLOT)
 {
@@ -523,22 +526,27 @@ catalogized_command_funcdef(BLOT)
 	{
 		printf("%f,%f,%i\n",(*iinstance).xyz.x,(*iinstance).xyz.y,(*iinstance).id);
 	}
+	return 1;
 }
 catalogized_command_funcdef(SAVEAS)
 {
 	printf("TODO***stub\n");
+	return 1;
 }
 catalogized_command_funcdef(LOADAS)
 {
 	printf("TODO***stub\n");
+	return 1;
 }
 catalogized_command_funcdef(UNDO)
 {
 	restoreundo(~0,0);
+	return 1;
 }
 catalogized_command_funcdef(REDO)
 {
 	printf("TODO***stub\n");
+	return 1;
 }
 catalogized_command_funcdef(SELECTALL)
 {
@@ -564,11 +572,13 @@ catalogized_command_funcdef(SELECTALL)
 			}
 		}
 	}
+	return 1;
 }
 catalogized_command_funcdef(RESETDRAWTOOL)
 {
 	control_drawproperties.bond_multiplicity=1;
 	control_drawproperties.bond_Display1=0;
+	return 1;
 }
 catalogized_command_funcdef(TEST_SMASH)
 {
@@ -577,4 +587,11 @@ catalogized_command_funcdef(TEST_SMASH)
 	TELESCOPE_aggressobject(glob_t_multilist,rand()%(*glob_t_multilist).filllevel);
 	TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_s);
 	TELESCOPE_split(atoi(value),&zero,1);
+	return 1;
+}
+extern int control_mousestate;
+catalogized_command_funcdef(OPEN_PSE)
+{
+	control_mousestate=0x10;
+	return 0;
 }

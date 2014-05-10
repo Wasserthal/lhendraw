@@ -1,4 +1,5 @@
 //defines the main datastructures needed to read in xml files, but they are also used for cdx files.
+//defines also all structures for automatically generated source
 
 struct TELESCOPE_buffer
 {

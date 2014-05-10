@@ -1,7 +1,7 @@
 //This unit transforms user input into commands to the program
 struct menuref_
 {
-	char type;//0: buttons 1: popup and the like
+	char type;//0: buttons 1: popup and the like 2: PSE
 	structenum what;//The structenum
 	int alignx,aligny;//The position
 };
@@ -11,7 +11,7 @@ char * menu_matrixsubmenuvariable;
 SDL_Event control_Event;
 int control_firstmenux,control_firstmenuy;
 int control_lastmenux,control_lastmenuy;
-char control_mousestate=0;//0: inactive; 0x1: from tool, mouseclick; 0x2: from special tool, keyboard 0x4: on menu, dragging 0x8: on button_function dependent menu, popup 0x10 popup-menu, multiple levels 0x20 dragging menuitem
+int control_mousestate=0;//0: inactive; 0x1: from tool, mouseclick; 0x2: from special tool, keyboard 0x4: on menu, dragging 0x8: on button_function dependent menu, popup 0x10 popup-menu or PSE, multiple levels 0x20 dragging menuitem
 int control_toolaction=0;//1: move 2: move selection 3: tool specific
 int control_tool=0;//1: Hand 2: 2coordinate Selection 3: Lasso, no matter which 4: Shift tool 5: Magnifying glass 6: Element draw 7: chemdraw draw 8: eraser 9: Arrows 10: attributes 11: graphic 12: bezier 13: image 14: spectrum 15: tlc plate/gel plate 16: text tool
 int control_menumode=0;//1: shliderhorz, 2: slidervert 3: colorchooser
@@ -277,13 +277,14 @@ int interpretkey(int listnr=-1)
 							if (hotkeylist[ilv1].command!=NULL)
 							{
 								basicmultilist * tl_multilist=findmultilist(STRUCTURE_OBJECTTYPE_List[tltype & 0xFFFF].name);
+								int icompare=(1<<(tltype & 0xFFFF));
 								int tl_size=(*tl_multilist).itemsize;
 								int ifilllevel=(*tl_multilist).filllevel;//separately, so it doesn't grow while executing the loop
 								if (ihot==0)
 								{
 									for (ilv2=0;ilv2<ifilllevel;ilv2++)
 									{
-										if (selection_currentselection[ilv2] & (1<<(tltype & 0xFFFF)))
+										if (selection_currentselection[ilv2] & icompare)
 										{
 											hotshunt:
 											if ((*tl_multilist)[ilv2].exist)
@@ -430,6 +431,27 @@ int issueclick(int iposx,int iposy)
 			selection_frame.endy=control_coorsy;
 			break;
 		}
+		case 6:
+		{
+			if (control_lastmousebutton==1)
+			{
+				tlatom=summonatom(NULL);
+				if (tlatom)
+				{
+					(*tlatom).xyz.x=control_coorsx;
+					(*tlatom).xyz.y=control_coorsy;
+					(*tlatom).xyz.z=0;
+					(*tlatom).Z=edit_getnewZ();
+					(*tlatom).Element=control_drawproperties.Element;
+				}
+			}
+			else
+			{
+				OPEN_PSE("","");
+				return 0;
+			}
+			break;
+		}
 		case 7:
 		{
 			control_startx=control_coorsx;
@@ -483,6 +505,7 @@ int issueclick(int iposx,int iposy)
 	}
 	control_mousestate=1;
 	control_usingmousebutton=control_lastmousebutton;
+	//warning: there ARE in-function returns.
 	return 0;
 }
 void issuedrag(int iposx,int iposy)
@@ -714,6 +737,8 @@ void issuedrag(int iposx,int iposy)
 	}
 	control_posx=iposx;
 	control_posy=iposy;
+	//warning: there ARE in-function returns.
+	return;
 }
 void issuerelease()
 {
@@ -822,6 +847,7 @@ void issuerelease()
 		}
 	}
 	control_mousestate=0;
+	return;
 }
 int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int posy,int button,int pixeloriginposx,int pixeloriginposy)
 {
@@ -908,20 +934,71 @@ int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int
 	}
 	return 0;
 }
+int sdl_commonmenucommon();
+int issuepseclick(int x,int y,int ibutton)
+{
+	for (int ilv1=0;ilv1<sizeof(element)/sizeof(element_);ilv1++)
+	{
+		if ((x==element[ilv1].PSEX) && (y==element[ilv1].PSEY))
+		{
+			control_drawproperties.Element=ilv1;
+			control_mousestate&=(~0x10);
+			int icompare=(1<<STRUCTURE_OBJECTTYPE_n);
+			if (ibutton==SDL_BUTTON_LEFT)
+			{
+				selection_recheck(selection_currentselection,&selection_currentselection_found);
+				if (selection_currentselection_found & icompare)
+				{
+					storeundo(icompare);
+					for (int ilv2=0;ilv2<(*glob_n_multilist).filllevel;ilv2++)
+					{
+						if (selection_currentselection[ilv2] & icompare)
+						{
+							if (((*glob_n_multilist).bufferlist+ilv2)->exist)
+							{
+								LABELTEXT("",element[ilv1].name,glob_n_multilist,(*glob_n_multilist).bufferlist+ilv2,ilv2);
+								//It is by reason that uninterpreted text labels are not overwritten!
+							}
+						}
+					}
+					return 1;
+				}
+				if (control_tool!=7)
+				{
+					control_tool=6;
+				}
+			}
+			return 1;
+		}
+	}
+	control_mousestate&=(~0x10);
+	if (ibutton==SDL_BUTTON_LEFT)
+	{
+		control_drawproperties.Element=constants_Element_implicitcarbon;
+	}
+	return 0;
+}
 void issuemenuclicks(int iposx,int iposy,int ibutton)
 {
+	sdl_commonmenucommon();
 	int tlsuccess=0;
-	for (int ilv1=0;ilv1<menu_list_count;ilv1++)
+	for (int ilv1=menu_list_count;ilv1>=0;ilv1--)
 	{
-		if (((iposy-menu_list[ilv1].aligny)>=0) && ((iposy-menu_list[ilv1].aligny)>=0))
+		if (((iposx-menu_list[ilv1].alignx)>=0) && ((iposy-menu_list[ilv1].aligny)>=0))
 		{
 			switch (menu_list[ilv1].type)
 			{
 				case 0:tlsuccess|=issuemenuclick((AUTOSTRUCT_PULLOUTLISTING_*)menu_list[ilv1].what.pointer,menu_list[ilv1].what.count,(iposx-menu_list[ilv1].alignx)/32,(iposy-menu_list[ilv1].aligny)/32,ibutton,iposx,iposy);break;
 				case 1:tlsuccess|=issuemenuclick((AUTOSTRUCT_PULLOUTLISTING_*)menu_list[ilv1].what.pointer,menu_list[ilv1].what.count,(iposx-menu_list[ilv1].alignx)/192,(iposy-menu_list[ilv1].aligny)/16,ibutton,iposx,iposy);break;
+				case 2: tlsuccess|=issuepseclick((iposx-menu_list[ilv1].alignx)/32,(iposy-menu_list[ilv1].aligny)/48,ibutton);printf("PSE\n");break;
 			}
 		}
+		if (tlsuccess)
+		{
+			goto ifertig;
+		}
 	}
+	ifertig:
 	if (tlsuccess==0)
 	{
 		//TODO what about control_mousestate=16 (ordinary popup)
@@ -1014,7 +1091,7 @@ void sdl_control()
 			}
 			case SDL_MOUSEBUTTONDOWN:
 			{
-				if ((control_mousestate & (~8))==0)
+				if ((control_mousestate & (~0x18))==0)
 				{
 					if ((control_mousestate & (24)) || (control_Event.button.x<gfx_canvasminx) || (control_Event.button.y<gfx_canvasminy) || (control_Event.button.x>=gfx_canvasmaxx) || (control_Event.button.y>=gfx_canvasmaxy))
 					{

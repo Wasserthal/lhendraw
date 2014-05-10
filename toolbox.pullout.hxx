@@ -61,11 +61,11 @@ menuitem pullout_toolbox[]={
 {1,2,
 13,//Picture
 "Put atoms",
-1,0,
+1,3,
 6,
 "LMB puts atoms, RMB selects element\n",
 "",
-"","",
+"","OPEN_PSE",
 0x00FF00,
 },
 {0,3,

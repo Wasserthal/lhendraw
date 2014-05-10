@@ -224,6 +224,37 @@ int sdl_commonmenucommon()
 		sprintf(tlstring,"submenu_%s",menu_matrixsubmenuvariable);
 		addmenu(tlstring,1,256,96);
 	}
+	if (control_mousestate & 0x10)
+	{
+		//TODO: insert ordinary popups here and tell between PSE
+		menu_list[menu_list_count].type=2;
+		menu_list[menu_list_count].alignx=160;
+		menu_list[menu_list_count].aligny=160;
+		menu_list_count++;
+	}
+}
+int sdl_psedraw(int istartx,int istarty)
+{
+	for (int ilv1=0;ilv1<sizeof(element)/sizeof(element_);ilv1++)
+	{
+		int borderx=istartx+element[ilv1].PSEX*32;
+		int bordery=istarty+element[ilv1].PSEY*48;
+		for (int ilv2=bordery;ilv2<bordery+48;ilv2++)
+		{
+			for (int ilv3=borderx;ilv3<borderx+32;ilv3++)
+			{
+				screen[ilv2*gfx_screensizex+ilv3]=0xFFFFFF;
+			}
+			screen[ilv2*gfx_screensizex+borderx+31]=0;
+			screen[ilv2*gfx_screensizex+borderx]=0;
+		}
+		for (int ilv2=borderx;ilv2<borderx+32;ilv2++)
+		{
+			screen[bordery*gfx_screensizex+ilv2]=0;
+			screen[(bordery+47)*gfx_screensizex+ilv2]=0;
+		}
+		printmenutext(istartx+element[ilv1].PSEX*32+10,istarty+element[ilv1].PSEY*48+24,element[ilv1].name,NULL,0,0,strlen(element[ilv1].name));
+	}
 }
 int sdl_commonmenudraw()
 {
@@ -237,6 +268,10 @@ int sdl_commonmenudraw()
 		if (menu_list[ilv1].type==1)
 		{
 			sdl_textmenudraw((AUTOSTRUCT_PULLOUTLISTING_*)menu_list[ilv1].what.pointer,menu_list[ilv1].what.count,menu_list[ilv1].alignx,menu_list[ilv1].aligny);
+		}
+		if (menu_list[ilv1].type==2)
+		{
+			sdl_psedraw(menu_list[ilv1].alignx,menu_list[ilv1].aligny);
 		}
 	}
 }

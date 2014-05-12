@@ -229,7 +229,7 @@ menuitem pullout_toolbox[]={
 {14,2,
 35,//Picture
 "color_chooser",
-0x103,0x103,
+0x111,0x111,
 1,
 "color\n",
 "control_drawproperties.color",
@@ -265,5 +265,15 @@ menuitem pullout_toolbox[]={
 "",
 "SAVE","",
 0x00FF00,
+},
+{5,21,
+34,//Picture
+"turn",
+0x103,0x103,
+1,
+"drag to rotate\n",
+"control_drawproperties.color",
+"","",
+0x000000,
 },
 };

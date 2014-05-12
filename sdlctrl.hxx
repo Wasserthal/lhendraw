@@ -36,6 +36,7 @@ char control_clickforpriority=0;//0: frontmost 1: rearmost 2: nearest 3: nearest
 char control_ambiguousity=0;
 float control_startx=0;
 float control_starty=0;
+int control_menudragint=0;
 clickabilitymatrix_ clickabilitymatrix_tooldependent[control_toolcount];
 AUTOSTRUCT_PULLOUTLISTING_ control_multibitbuttonmenu[20];//a variable menu
 structenum popupmenu_multibitbutton={"multibitbutton",0,&control_multibitbuttonmenu,0};
@@ -458,7 +459,7 @@ int issueclick(int iposx,int iposy)
 		}
 		case 6:
 		{
-			if (control_lastmousebutton==1)
+			if (control_lastmousebutton==SDL_BUTTON_LEFT)
 			{
 				tlatom=summonatom(NULL);
 				if (tlatom)
@@ -724,41 +725,45 @@ void issuedrag(int iposx,int iposy)
 		{
 			restoreundo(~0,1);
 			arrow_instance * tl_arrow=summonarrow();
+			if (tl_arrow)
 			{
-				float tl_length=sqrt(sqr(control_coorsx-control_startx)+sqr(control_coorsy-control_starty));
-				float tlangle;
-				float tl_snapdistance;
-				tlangle=getangle(control_coorsx-control_startx,control_coorsy-control_starty);
-				tl_snapdistance=fmod((tlangle+2*Pi+Pi/16),(Pi/2))-Pi/16;
-				if (fabs(tl_snapdistance)<Pi/16)
+				if (MODIFIER_KEYS.ALT==0)
 				{
-					tlangle-=tl_snapdistance;
-					control_coorsx=control_startx+tl_length*cos(tlangle);
-					control_coorsy=control_starty+tl_length*sin(tlangle);
+					float tl_length=sqrt(sqr(control_coorsx-control_startx)+sqr(control_coorsy-control_starty));
+					float tlangle;
+					float tl_snapdistance;
+					tlangle=getangle(control_coorsx-control_startx,control_coorsy-control_starty);
+					tl_snapdistance=fmod((tlangle+2*Pi+Pi/16),(Pi/2))-Pi/16;
+					if (fabs(tl_snapdistance)<Pi/16)
+					{
+						tlangle-=tl_snapdistance;
+						control_coorsx=control_startx+tl_length*cos(tlangle);
+						control_coorsy=control_starty+tl_length*sin(tlangle);
+					}
 				}
+				(*tl_arrow).Head3D.x=control_coorsx;
+				(*tl_arrow).Head3D.y=control_coorsy;
+				(*tl_arrow).Head3D.z=0;
+				(*tl_arrow).Tail3D.x=control_startx;
+				(*tl_arrow).Tail3D.y=control_starty;
+				(*tl_arrow).Tail3D.z=0;
+				(*tl_arrow).Center3D.x=(control_startx+control_coorsx)/2;
+				(*tl_arrow).Center3D.y=(control_starty+control_coorsy)/2;
+				(*tl_arrow).Center3D.z=0;
+				(*tl_arrow).LineType=0;
+				(*tl_arrow).AngularSize=0;
+				(*tl_arrow).MajorAxisEnd3D.x=control_coorsx;
+				(*tl_arrow).MajorAxisEnd3D.y=control_coorsy;
+				(*tl_arrow).MajorAxisEnd3D.z=0;
+				(*tl_arrow).MinorAxisEnd3D.x=(*tl_arrow).Center3D.x-(control_coorsy-(*tl_arrow).Center3D.y);
+				(*tl_arrow).MinorAxisEnd3D.y=(*tl_arrow).Center3D.y+(control_coorsx-(*tl_arrow).Center3D.x);
+				(*tl_arrow).MinorAxisEnd3D.z=0;
+				(*tl_arrow).ArrowheadType=0;
+				(*tl_arrow).ArrowheadHead=1;
+				(*tl_arrow).ArrowheadTail=0;
+				(*tl_arrow).ArrowShaftSpacing=0;
+				(*tl_arrow).Z=0;//TODO: pretty urgent
 			}
-			(*tl_arrow).Head3D.x=control_coorsx;
-			(*tl_arrow).Head3D.y=control_coorsy;
-			(*tl_arrow).Head3D.z=0;
-			(*tl_arrow).Tail3D.x=control_startx;
-			(*tl_arrow).Tail3D.y=control_starty;
-			(*tl_arrow).Tail3D.z=0;
-			(*tl_arrow).Center3D.x=(control_startx+control_coorsx)/2;
-			(*tl_arrow).Center3D.y=(control_starty+control_coorsy)/2;
-			(*tl_arrow).Center3D.z=0;
-			(*tl_arrow).LineType=0;
-			(*tl_arrow).AngularSize=0;
-			(*tl_arrow).MajorAxisEnd3D.x=control_coorsx;
-			(*tl_arrow).MajorAxisEnd3D.y=control_coorsy;
-			(*tl_arrow).MajorAxisEnd3D.z=0;
-			(*tl_arrow).MinorAxisEnd3D.x=(*tl_arrow).Center3D.x-(control_coorsy-(*tl_arrow).Center3D.y);
-			(*tl_arrow).MinorAxisEnd3D.y=(*tl_arrow).Center3D.y+(control_coorsx-(*tl_arrow).Center3D.x);
-			(*tl_arrow).MinorAxisEnd3D.z=0;
-			(*tl_arrow).ArrowheadType=0;
-			(*tl_arrow).ArrowheadHead=1;
-			(*tl_arrow).ArrowheadTail=0;
-			(*tl_arrow).ArrowShaftSpacing=0;
-			(*tl_arrow).Z=0;
 			break;
 		}
 		case 0x10000:
@@ -855,7 +860,7 @@ void issuerelease()
 		{
 			if (rectifyselectionframe())
 			{
-				if (control_lastmousebutton==1)
+				if (control_lastmousebutton==SDL_BUTTON_LEFT)
 				{
 					SDL_scrollx=selection_frame.startx;
 					SDL_scrolly=selection_frame.starty;
@@ -876,7 +881,7 @@ void issuerelease()
 			}
 			else
 			{
-				CONTROL_ZOOMIN(1.414213562,(control_lastmousebutton==2)*2-1);
+				CONTROL_ZOOMIN(1.414213562,(control_lastmousebutton==SDL_BUTTON_RIGHT)*2-1);
 			}
 			break;
 		}
@@ -923,8 +928,25 @@ int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int
 		{
 			ipulloutlisting=&(ilisting[ilv1]);
 			ihitnr=ilv1;
+			goto ifound;
 		}
 	}
+	for (int ilv1=0;ilv1<icount;ilv1++)
+	{
+		if (ilisting[ilv1].lmbmode==0x103)
+		{
+			if (ilisting[ilv1].y==posy)
+			{
+				if ((ilisting[ilv1].x<=posx) && (ilisting[ilv1].x+(gfx_canvassizex/32)>posx))
+				{
+					ipulloutlisting=&(ilisting[ilv1]);
+					ihitnr=ilv1;
+					goto ifound;
+				}
+			}
+		}
+	}
+	ifound:;
 	if (ipulloutlisting)
 	{
 		switch(button)
@@ -971,6 +993,7 @@ int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int
 							control_lastmenuy=pixeloriginposy;
 							control_usingmousebutton=button;
 							control_menuitem=ipulloutlisting;
+							control_menudragint=0;
 						}
 					}
 				}
@@ -990,6 +1013,20 @@ int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int
 						break;
 					}
 					case 6: *((_i32*)((*ipulloutlisting).variable))=0;break;
+					default:
+					{
+						if ((((*ipulloutlisting).rmbmode) & (~0xFF))==0x100)
+						{
+							control_mousestate|=0x20;
+							control_firstmenux=pixeloriginposx;
+							control_firstmenuy=pixeloriginposy;
+							control_lastmenux=pixeloriginposx;
+							control_lastmenuy=pixeloriginposy;
+							control_usingmousebutton=button;
+							control_menuitem=ipulloutlisting;
+							control_menudragint=0;
+						}
+					}
 				}
 				break;
 			}
@@ -1073,16 +1110,39 @@ void issuemenuclicks(int iposx,int iposy,int ibutton)
 	}
 }
 long long counter_SDL;
-void issuemenudrag(int posx,int posy)
+void issuemenudrag(int posx,int posy,char ifinal=0)
 {
 	int diffx,diffy;
-	diffx=posx-control_lastmenux;
-	diffy=posy-control_lastmenuy;
 	switch ((*control_menuitem).lmbmode)
 	{
+		case 0x111:
+		{
+			if ((ifinal) && (posx>=0) && (posy>=0) && (posx<control_firstmenux+32) && (posy<control_firstmenuy+32))
+			{
+				(*(_u32*)(*control_menuitem).variable)=0;
+				break;
+			}
+			diffx=posx-((control_firstmenux/32)*32)-32;
+			diffy=posy-((control_firstmenuy/32)*32)-64;
+			if (diffy<0) diffy=0;if (diffy>255) diffy=255;
+			if (diffx<0) diffx=0;if (diffx>255) diffx=255;
+			if (control_usingmousebutton==SDL_BUTTON_LEFT)
+			{
+				(*(_u8*)(*control_menuitem).variable)=diffx;
+				(*(((_u8*)(*control_menuitem).variable)+1))=diffy;
+			}
+			else
+			{
+				(*(((_u8*)(*control_menuitem).variable)+2))=diffx;
+				(*(((_u8*)(*control_menuitem).variable)+3))=diffy;
+			}
+			break;
+		}
 		case 0x103:
 		{
-			(*(int*)(*control_menuitem).variable)=((*(int*)(*control_menuitem).variable) & 0xFFFF0000)+(0xFF & (((*(int*)(*control_menuitem).variable) & 0xFF)+diffy))+(0xFF00 & (((*(int*)(*control_menuitem).variable) & 0xFF00)+((diffx & 0xFF)<<8)));
+			diffx=posx-control_lastmenux;
+			diffy=posy-control_lastmenuy;
+			control_menudragint+=diffx;
 			break;
 		}
 	}
@@ -1094,6 +1154,7 @@ void sdl_control()
 	LHENDRAW_leave=0;
 	char idirection=1;
 	control_lastmousebutton=0;
+	SDL_Event control_Event2;
 	while ( SDL_PollEvent(&control_Event) ) 
 	{
 		irepeatlabel:;
@@ -1110,15 +1171,15 @@ void sdl_control()
 					issuemenudrag(control_Event.motion.x,control_Event.motion.y);
 				}
 
-				if (SDL_PollEvent(&control_Event))
+				if (SDL_PollEvent(&control_Event2))
 				{
-					if (control_Event.type==SDL_MOUSEMOTION)
+					if (control_Event2.type==SDL_MOUSEMOTION)
 					{
 						goto irepeatlabel;
 					}
 					else
 					{
-						irepeat=1;
+						irepeat=1;//TODO: due the now changed event,, this issues MOUSEMOTION's with illegal coordinates.
 					}
 				}
 				if ((control_mousestate & (~2))==0)
@@ -1167,12 +1228,12 @@ void sdl_control()
 				{
 					case SDL_BUTTON_RIGHT:
 					{
-						control_lastmousebutton=2;
+						control_lastmousebutton=SDL_BUTTON_RIGHT;
 						goto clickshunt;
 					}
 					case SDL_BUTTON_LEFT:
 					{
-						control_lastmousebutton=1;
+						control_lastmousebutton=SDL_BUTTON_LEFT;
 						clickshunt:
 						if (control_mousestate==0)
 						{
@@ -1215,12 +1276,12 @@ void sdl_control()
 				{
 					case SDL_BUTTON_RIGHT:
 					{
-						control_lastmousebutton=2;
+						control_lastmousebutton=SDL_BUTTON_RIGHT;
 						goto dragshunt;
 					}
 					case SDL_BUTTON_LEFT:
 					{
-						control_lastmousebutton=1;
+						control_lastmousebutton=SDL_BUTTON_LEFT;
 						dragshunt:
 						if (control_mousestate==1)
 						{
@@ -1234,7 +1295,7 @@ void sdl_control()
 						{
 							if (control_usingmousebutton==control_lastmousebutton)//Only when same button up as down
 							{
-								issuemenudrag(control_Event.motion.x,control_Event.motion.y);
+								issuemenudrag(control_Event.motion.x,control_Event.motion.y,1);
 								control_mousestate&=~0x20;
 							}
 						}
@@ -1327,6 +1388,7 @@ void sdl_control()
 		}
 		if (irepeat)
 		{
+			control_Event=control_Event2;
 			goto irepeatlabel;
 		}
 		if (idontrepeat)

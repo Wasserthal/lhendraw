@@ -94,6 +94,57 @@ int sdl_toolboxitemdraw(int posx,int posy,int gfxno,_u32 state)
 			}
 		}
 	}
+	return 1;
+}
+int sdl_sliderdraw(int posx,int posy,int gfxno,int shift)
+{
+	_u32 * ibutton=resources_bitmap_buttons[selection_maxbuttons-gfxno][0];
+	int xco,yco;
+	if (shift>=0)
+	{
+		shift=shift%8;
+	}
+	else
+	{
+		shift=8-((-shift)%8);
+	}
+	for (int ilv1=0;ilv1<32;ilv1++)
+	{
+		if (ilv1<8)
+		{
+			yco=ilv1+8;
+			if (yco>=12) yco=11;
+		}
+		else if (ilv1>=24)
+		{
+			yco=ilv1-16;
+			if (yco<12) yco=12;
+		}
+		else
+		{
+			for (int ilv2=0;ilv2<gfx_canvassizex;ilv2++)
+			{
+				screen[gfx_screensizex*(posy+ilv1)+posx+ilv2]=*(ibutton+(ilv2+shift)%8);
+			}
+			goto ifertig;
+		}
+		for (int ilv2=0;ilv2<gfx_canvassizex;ilv2++)
+		{
+			if (ilv2<8)
+			{
+				xco=ilv2;
+				if (xco>=4) xco=3;
+			}
+			else if (ilv2>=gfx_canvassizex-4)
+			{
+				xco=ilv2-(gfx_canvassizex-8);
+				if (xco<4) xco=4;
+			}
+			screen[gfx_screensizex*(posy+ilv1)+posx+ilv2]=*(ibutton+yco*32+xco);
+		}
+		ifertig:;
+	}
+	return 1;
 }
 int quersum(_u32 input,int max=32)
 {
@@ -149,6 +200,29 @@ int sdl_textmenudraw(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int count,int xpos=0,
 		printmenutext(ilisting[ilv1].x*192+xpos,ilisting[ilv1].y*16+ypos+12,ilisting[ilv1].name,NULL,0,0,strlen(ilisting[ilv1].name));
 	}
 }
+void sdl_colorpaldraw(int posx,int posy)
+{
+	_u32 icolor;
+	for (int ilv1=0;ilv1<256;ilv1++)
+	{
+		for (int ilv2=0;ilv2<256;ilv2++)
+		{
+			if (control_usingmousebutton==SDL_BUTTON_LEFT)
+			{
+				icolor=control_drawproperties.color&(0xFFFF0000);
+				icolor+=ilv2 & 0xFF;
+				icolor+=(ilv1 & 0xFF)<<8;
+			}
+			else
+			{
+				icolor=control_drawproperties.color&(0xFFFF);
+				icolor+=(ilv2 & 0xFF)<<16;
+				icolor+=(ilv1 & 0xFF)<<24;
+			}
+			screen[posx+ilv2+(posy+ilv1)*gfx_screensizex]=icolor;
+		}
+	}
+}
 int sdl_buttonmenudraw(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int count,int xpos=0,int ypos=0)
 {
 	for (int ilv1=0;ilv1<count;ilv1++)
@@ -162,7 +236,8 @@ int sdl_buttonmenudraw(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int count,int xpos=
 			case 1: if (control_tool==ilisting[ilv1].toolnr) state|=9;break;
 			case 2: state|=(*((char*)(ilisting[ilv1].variable)) & 1); break;
 			case 3: tlvar=ilisting[ilv1].rmbmode;if (tlvar!=3) goto iagain; break;
-			case 0x103: state=(((*(int*)(ilisting[ilv1]).variable))<<8)|0x1;break;
+			case 0x111: state=(((*(int*)(ilisting[ilv1]).variable))<<8)|0x1;if (((ilisting+ilv1)==control_menuitem) && (control_mousestate & 0x20)) sdl_colorpaldraw(ilisting[ilv1].x*32+xpos+32,ilisting[ilv1].y*32+ypos+64);break;
+			case 0x103: goto sliderdraw;break;
 			case 4: 
 			{
 				int tlval=quersum(*(_u32*)(ilisting[ilv1].variable),STRUCTURE_OBJECTTYPE_ListSize);
@@ -172,7 +247,13 @@ int sdl_buttonmenudraw(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int count,int xpos=
 			case 6: state|=((*((_i32*)(ilisting[ilv1].variable)))==ilisting[ilv1].toolnr)?1:0;break;
 		}
 		sdl_toolboxitemdraw(ilisting[ilv1].x*32+xpos,ilisting[ilv1].y*32+ypos,ilisting[ilv1].picno,state);
+		continue;
+		sliderdraw:
+		sdl_sliderdraw(ilisting[ilv1].x*32+xpos,ilisting[ilv1].y*32+ypos,ilisting[ilv1].picno,-control_menudragint);
+		continue;
 	}
+		
+	return 1;
 }
 int sdl_canvasframedraw()
 {
@@ -242,19 +323,24 @@ int sdl_psedraw(int istartx,int istarty)
 	{
 		int borderx=istartx+element[ilv1].PSEX*32;
 		int bordery=istarty+element[ilv1].PSEY*48;
+		int bordercolor=0;
+		if (ilv1==control_drawproperties.Element)
+		{
+			bordercolor=0xFF9F00;
+		}
 		for (int ilv2=bordery;ilv2<bordery+48;ilv2++)
 		{
 			for (int ilv3=borderx;ilv3<borderx+32;ilv3++)
 			{
 				screen[ilv2*gfx_screensizex+ilv3]=0xFFFFFF;
 			}
-			screen[ilv2*gfx_screensizex+borderx+31]=0;
-			screen[ilv2*gfx_screensizex+borderx]=0;
+			screen[ilv2*gfx_screensizex+borderx+31]=bordercolor;
+			screen[ilv2*gfx_screensizex+borderx]=bordercolor;
 		}
 		for (int ilv2=borderx;ilv2<borderx+32;ilv2++)
 		{
-			screen[bordery*gfx_screensizex+ilv2]=0;
-			screen[(bordery+47)*gfx_screensizex+ilv2]=0;
+			screen[bordery*gfx_screensizex+ilv2]=bordercolor;
+			screen[(bordery+47)*gfx_screensizex+ilv2]=bordercolor;
 		}
 		printmenutext(istartx+element[ilv1].PSEX*32+10,istarty+element[ilv1].PSEY*48+24,element[ilv1].name,NULL,0,0,strlen(element[ilv1].name));
 	}

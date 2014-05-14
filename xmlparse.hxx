@@ -335,3 +335,30 @@ void input_fsm(FILE* infile)
 		fprintf(stderr,"Error: Premature End of File! You are still in a %s",(*currentinstance).getName());exit(1);
 	}
 }
+char valuestring[stringlength+1];
+long long fullu64=0xFFFFFFFFFFFFFFFF;
+void output_object(FILE * outfile,basic_instance * iinstance)
+{
+	_i32 propertycount=(*iinstance)._->properties_count;
+	_u32 * ipointer=(*iinstance).getINTERNALPropertyexistflags();
+	_u32 existflags;
+	if (ipointer==NULL) existflags=*(_u32*)&fullu64; else _u32 existflags=*ipointer;
+	for (int ilv1=0;ilv1<propertycount;ilv1++)
+	{
+		if (existflags & (1<<ilv1))
+		{
+			valuestring[stringlength]=0;
+			strncpy(valuestring,"0",stringlength);
+			fprintf(outfile,"%s=\"%s\"\n ",(*iinstance)._->properties[ilv1].name,valuestring);
+		}
+	}
+}
+struct n_instance;
+extern multilist<n_instance> * glob_n_multilist;
+void output_fsm(FILE * outfile)
+{
+	for (int ilv1=0;ilv1<(*glob_n_multilist).filllevel;ilv1++)
+	{
+		output_object(outfile,(basic_instance*)(((char*)((*glob_n_multilist).pointer))+(ilv1*glob_n_multilist->itemsize)));
+	}
+}

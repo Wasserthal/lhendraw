@@ -26,6 +26,16 @@ struct superconstellation
 	int ref;
 	CDXMLREAD_functype delegate;
 };
+struct AUTOSTRUCT_cstyle_vtable
+{
+	superconstellation * properties;
+	int properties_count;
+	superconstellation * contents;
+	int contents_count;
+	char * FullName;//Points into a static object-specific string.
+	char * Name;//Points into FullName.
+
+};
 #define AUTOSTRUCT_GET_ROUTINE(AUTOSTRUCT_MACRONAME,COUNT_MACROPARAM) static superconstellation AUTOSTRUCT_MACRONAME[]; \
         virtual	int get ## AUTOSTRUCT_MACRONAME(char * name) \
 	{ \
@@ -289,18 +299,29 @@ struct basic_instance
 	virtual const char * getName(){return 0;}
 	virtual const char * getFullName(){return 0;}
 	virtual _u32 * getINTERNALPropertyexistflags(){return NULL;}
+	AUTOSTRUCT_cstyle_vtable * _;
 	basic_instance * master;
 	virtual int hit(float ix,float iy){};
 	char exist;
-	basic_instance(){master=NULL;exist=1;};
+	basic_instance(){master=NULL;exist=1;};//TODO put exist into basic_instance_propertybuffer
 	~basic_instance(){};
 };
 
+/*struct basic_instance_multilistreference:basic_instance
+{
+	public:
+	basic_instance * master;
+	basic_instance_multilistreference(){master=NULL;};
+	~basic_instance_multilistreference(){};
+};*/
+
+//TODO: call that following contentbuffer, not propertybuffer! or better, call THIS basic_instance, the old one basic_basic_instance, and all instances of basic_instance in xmlparse.hxx to basic_instance_multilistreference. or, however, to basic_basic_instance in the case the call has nothing to do with masters. Good that multilists do not care about the listed datastructure's referencing type.
 struct basic_instance_propertybuffer:basic_instance
 {
 	intl pos_in_buffer;//set to the place where it WOULD be if empty
 };
 
+//TODO: remove _xml_ stuff! it was never used!
 class basic_xml_element_set
 {
 	public:

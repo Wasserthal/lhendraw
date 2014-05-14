@@ -220,9 +220,10 @@ int main(int argc,char * * argv)
 	goto propertiesback;
 	propertiesdone:
 	fprintf(outfile,"#define STRUCTUREDEFINED_%s%s_instance\nstruct %s%s_instance:%s\n{\n        static inline const char * INTERNALgetname(){return \"%s%s\";}\n        const char * getName(){return INTERNALgetname()+%i;}\n        const char * getFullName(){return INTERNALgetname();}\n",datablockstring,name,datablockstring,name,(linemode)?"TELESCOPE_element":((internalmode&1)?"basic_instance":"basic_instance_propertybuffer"),datablockstring,name,strlen(datablockstring));
+	fprintf(outfile,"	const static int INTERNALPropertycount=%i;\n",properties_count);
 	if (internalmode&1)
 	{
-		fprintf(outfile,"	const static int INTERNALPropertycount=%i;\n	_u32 INTERNALPropertyexistflags;\n	virtual _u32 * getINTERNALPropertyexistflags(){return &INTERNALPropertyexistflags;}\n",properties_count);
+		fprintf(outfile,"	_u32 INTERNALPropertyexistflags;\n	virtual _u32 * getINTERNALPropertyexistflags(){return &INTERNALPropertyexistflags;}\n");
 	}
 	if (internalmode&1)
 	{
@@ -236,7 +237,7 @@ int main(int argc,char * * argv)
 		fprintf(outfile,"        %s %s;\n",properties_types[ilv1],properties[ilv1]);
 	}
 	
-	fprintf(outfile,"        AUTOSTRUCT_GET_ROUTINE(contents,%i)\n        AUTOSTRUCT_PROPERTY_ROUTINE(%i)\n        %s%s_instance();\n        ~%s%s_instance(){}\n};\nsuperconstellation %s%s_instance::contents[]={\n",contents_count,properties_count,datablockstring,name,datablockstring,name,datablockstring,name);
+	fprintf(outfile,"        static AUTOSTRUCT_cstyle_vtable INTERNAL_cstyle_vtable;\n	AUTOSTRUCT_GET_ROUTINE(contents,%i)\n        AUTOSTRUCT_PROPERTY_ROUTINE(%i)\n        %s%s_instance();\n        ~%s%s_instance(){}\n};\nAUTOSTRUCT_cstyle_vtable %s%s_instance::INTERNAL_cstyle_vtable={%s%s_instance::properties,%i};\nsuperconstellation %s%s_instance::contents[]={\n",contents_count,properties_count,datablockstring,name,datablockstring,name,datablockstring,name,datablockstring,name,properties_count,datablockstring,name);
 	if (internalmode&1)
 	{
 		for (int ilv1=0;ilv1<contents_count;ilv1++)
@@ -318,6 +319,11 @@ int main(int argc,char * * argv)
 		sprintf(helpbufferpos,resetmode_outline[properties_type_nrs[ilv1]],&helpbufferreturnvalue,properties[ilv1],properties_types[ilv1]);
 		helpbufferpos+=helpbufferreturnvalue;
 		(*helpbufferpos)=0;
+	}
+	if (!linemode)
+	{
+		sprintf(helpbufferpos,"	_=&INTERNAL_cstyle_vtable;\n%n",&helpbufferreturnvalue);
+		helpbufferpos+=helpbufferreturnvalue;
 	}
 	sprintf(helpbufferpos,"}\n%n",&helpbufferreturnvalue);
 	helpbufferpos+=helpbufferreturnvalue;

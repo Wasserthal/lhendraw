@@ -22,6 +22,7 @@ LLLLLL H   H EEEEE N    N DDD   R  R A     A    W     W
 #include "lendefs.h"
 #include "elements.hxx"
 #include "xmldata.hxx"
+#include "xmlparse.hxx"
 #include "telescopic_list.hxx"
 #include "definitionlist.h"
 #include "cdxdata.hxx"
@@ -73,7 +74,6 @@ int clockid=0;
 #include "draw.hxx"
 //#include "hatch.hxx" //TODO SUBJECT HATCH needs the moleculefill buffer
 
-#include "xmlparse.hxx"
 
 #include "lhendraw_files.hxx"
 #include "resources_init.hxx"

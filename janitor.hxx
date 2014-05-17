@@ -108,6 +108,24 @@ char deletefromZlist(int listnr, int nr)
 multi_objref_ sortlist()
 {
 }
+//function instead of macro - good for debugging
+/*unsigned int * janitor_getZ(multi_objref_ & MACROPARAM)
+{
+	unsigned int * backval;
+	multi_objref_ * pointer;
+	pointer=&(MACROPARAM);
+	if ((*pointer).listnr!=-1)
+	{
+		multi_Z_geometry_ * pointer2;
+		pointer2=multi_Z_geometry+(*pointer).listnr;
+		backval=(unsigned int *)((int*)((*pointer2).offset+((*pointer2).elementsize)*(*pointer).nr));
+	}
+	else
+	{
+		backval=(unsigned int*)&minusoneint;
+	}
+	return backval;
+}*/
 #define janitor_getZ(MACROPARAM) \
 ({\
 	unsigned int * backval;\
@@ -233,30 +251,32 @@ multi_objref_ initZlist()
 	}
 /*	objectZorderlist[0].last=-1;
 	objectZorderlist[bufferlistsize*multilistZcount-1].last=-1;*/
- 	for (int ilv1=0;ilv1<xml_set_register_count;ilv1++)
+ 	for (int ilv1=0;ilv1<multilist_count;ilv1++)
 	{
 		CDXMLREAD_functype thisfunc;
 		int propertypos;
-		basic_xml_element_set * thisset=((((basic_xml_element_set**)xml_set_register)[ilv1]));
-		propertypos=thisset->getproperties("Z",&thisfunc);
-		basicmultilist * thismultilist=((*thisset).hismultilist);
-		if (propertypos!=-1)
+		if (multilistlist[ilv1].usage==0)
 		{
-			multi_Z_geometry[ilv1].offset=(char*)(((*thismultilist)).pointer)+propertypos;
-			multi_Z_geometry[ilv1].elementsize=(*thismultilist).itemsize;
-			for (int ilv2=0;ilv2<(*thismultilist).filllevel;ilv2++)
+			basicmultilist * thismultilist=multilistlist[ilv1].instance;
+			propertypos=thismultilist->getproperties("Z",&thisfunc);
+			if (propertypos!=-1)
 			{
-				multi_objref_ imulti_objref={ilv1,ilv2};
-				int tlthisZ=*janitor_getZ(imulti_objref);
-				if (!insertinZlist(tlthisZ, (*thismultilist).index,ilv2))
+				multi_Z_geometry[ilv1].offset=(char*)(((*thismultilist)).pointer)+propertypos;
+				multi_Z_geometry[ilv1].elementsize=(*thismultilist).itemsize;
+				for (int ilv2=0;ilv2<(*thismultilist).filllevel;ilv2++)
 				{
-					if (somewhereinZlist((*thismultilist).index,ilv2))
+					multi_objref_ imulti_objref={ilv1,ilv2};
+					int tlthisZ=*janitor_getZ(imulti_objref);
+					if (!insertinZlist(tlthisZ, (*thismultilist).index,ilv2))
 					{
-						iZorderbroken=1;
-					}
-					else
-					{
-						fprintf(stderr,"memory overflow");
+						if (somewhereinZlist((*thismultilist).index,ilv2))
+						{
+							iZorderbroken=1;
+						}
+						else
+						{
+							fprintf(stderr,"memory overflow");
+						}
 					}
 				}
 			}

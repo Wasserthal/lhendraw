@@ -1034,7 +1034,7 @@ void LENNARD_HACK_killtext()
 	int tl_t_number=-1;
 	for (int ilv1=0;ilv1<multilist_count;ilv1++)
 	{
-		if (multilistlist.instances[ilv1]==glob_t_multilist)
+		if (multilistlist[ilv1].instance==glob_t_multilist)
 		{
 			tl_t_number=ilv1;
 		}
@@ -1083,7 +1083,7 @@ void svg_controlprocedure(bool irestriction=0,bool hatches=0)
 	{
 		if (objectZorderlist[ilv1].listnr!=-1)
 		{
-			tlcurrentmultilist=(basicmultilist*)multilistlist.instances[objectZorderlist[ilv1].listnr];
+			tlcurrentmultilist=multilistlist[objectZorderlist[ilv1].listnr].instance;
 			index_in_buffer=objectZorderlist[ilv1].nr;
 			tlcurrentinstance=((char*)((*tlcurrentmultilist).pointer))+((*tlcurrentmultilist).itemsize)*index_in_buffer;
 			if ((*(basic_instance*)tlcurrentinstance).exist==0){goto svg_main_loop;}
@@ -1166,12 +1166,12 @@ void svg_controlprocedure(bool irestriction=0,bool hatches=0)
 										SVG_currentshifty+=ilv3;
 									}
 									LENNARD_HACK_REPEATHOOK=1;
-									if (multilistlist.instances[objectZorderlist[ilv1].listnr]==glob_curve_multilist) goto svg_main_curve;
-									if (multilistlist.instances[objectZorderlist[ilv1].listnr]==glob_graphic_multilist) goto svg_main_graphic;
-									if (multilistlist.instances[objectZorderlist[ilv1].listnr]==glob_b_multilist) goto svg_main_b;
-									if (multilistlist.instances[objectZorderlist[ilv1].listnr]==glob_t_multilist) goto svg_main_t;
-									if (multilistlist.instances[objectZorderlist[ilv1].listnr]==glob_arrow_multilist) goto svg_main_arrow;
-									if (multilistlist.instances[objectZorderlist[ilv1].listnr]==glob_moleculefill_multilist) goto svg_main_moleculefill;
+									if (multilistlist[objectZorderlist[ilv1].listnr].instance==glob_curve_multilist) goto svg_main_curve;
+									if (multilistlist[objectZorderlist[ilv1].listnr].instance==glob_graphic_multilist) goto svg_main_graphic;
+									if (multilistlist[objectZorderlist[ilv1].listnr].instance==glob_b_multilist) goto svg_main_b;
+									if (multilistlist[objectZorderlist[ilv1].listnr].instance==glob_t_multilist) goto svg_main_t;
+									if (multilistlist[objectZorderlist[ilv1].listnr].instance==glob_arrow_multilist) goto svg_main_arrow;
+									if (multilistlist[objectZorderlist[ilv1].listnr].instance==glob_moleculefill_multilist) goto svg_main_moleculefill;
 									LENNARD_HACK_REPEAT:
 									LENNARD_HACK_REPEATHOOK=0;
 									SVG_currentshiftx=LENNARD_HACK_svgcurrentshiftx;
@@ -1185,13 +1185,13 @@ void svg_controlprocedure(bool irestriction=0,bool hatches=0)
 				}
 			}
 			#endif
-			if (multilistlist.instances[objectZorderlist[ilv1].listnr]==glob_n_multilist) goto svg_main_n;
-			if (multilistlist.instances[objectZorderlist[ilv1].listnr]==glob_curve_multilist) goto svg_main_curve;
-			if (multilistlist.instances[objectZorderlist[ilv1].listnr]==glob_graphic_multilist) goto svg_main_graphic;
-			if (multilistlist.instances[objectZorderlist[ilv1].listnr]==glob_b_multilist) goto svg_main_b;
-			if (multilistlist.instances[objectZorderlist[ilv1].listnr]==glob_t_multilist) goto svg_main_t;
-			if (multilistlist.instances[objectZorderlist[ilv1].listnr]==glob_arrow_multilist) goto svg_main_arrow;
-			if (multilistlist.instances[objectZorderlist[ilv1].listnr]==glob_moleculefill_multilist) goto svg_main_moleculefill;
+			if (multilistlist[objectZorderlist[ilv1].listnr].instance==glob_n_multilist) goto svg_main_n;
+			if (multilistlist[objectZorderlist[ilv1].listnr].instance==glob_curve_multilist) goto svg_main_curve;
+			if (multilistlist[objectZorderlist[ilv1].listnr].instance==glob_graphic_multilist) goto svg_main_graphic;
+			if (multilistlist[objectZorderlist[ilv1].listnr].instance==glob_b_multilist) goto svg_main_b;
+			if (multilistlist[objectZorderlist[ilv1].listnr].instance==glob_t_multilist) goto svg_main_t;
+			if (multilistlist[objectZorderlist[ilv1].listnr].instance==glob_arrow_multilist) goto svg_main_arrow;
+			if (multilistlist[objectZorderlist[ilv1].listnr].instance==glob_moleculefill_multilist) goto svg_main_moleculefill;
 		}
 		svg_main_loop:
 		;

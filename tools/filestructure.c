@@ -68,22 +68,25 @@ char register_enum(const char * input)
 
 int main(int argc,char * * argv)
 {
-	FILE * infile,*outfile,*initfile,*propertyfile,*directoryfile;
+	FILE * infile,*outfile,*initfile,*propertyfile,*directoryfile,*multilistlistfile;
 	char ihv1;
 	int helpbufferreturnvalue;
 	int propertynumber_global;//TODO: when multiple files are processed, take it from the former one
+	int usage;
 	propertynumber_global=0;
-	if (strcmp(argv[1],"-m")==0)
+	if (strncmp(argv[1],"-m",2)==0)
 	{
 		internalmode=1;//multilistreference;
 	}
-	if (strcmp(argv[1],"-l")==0)
+	if (strncmp(argv[1],"-l",2)==0)
 	{
 		internalmode=2;//index to contentlist
 	}
+	usage=atoi(argv[1]+2);
 	infile=fopen(argv[2],"r");
 	outfile=fopen(argv[3],"w");
 	initfile=fopen(argv[4],"a");
+	multilistlistfile=fopen("generated/multilistlistfile.hxx","a");
 	if (internalmode&2)
 	{
 		propertyfile=fopen(argv[6],"a");
@@ -328,14 +331,17 @@ int main(int argc,char * * argv)
 	sprintf(helpbufferpos,"}\n%n",&helpbufferreturnvalue);
 	helpbufferpos+=helpbufferreturnvalue;
 	(*helpbufferpos)=0;
+	sprintf(helpbufferpos,"multilist<%s%s_instance> globstat_%s%s_multilist=multilist<%s%s_instance>();\n%n",datablockstring,name,datablockstring,name,datablockstring,name,&helpbufferreturnvalue);
+	helpbufferpos+=helpbufferreturnvalue;
+	sprintf(helpbufferpos,"multilist<%s%s_instance> * glob_%s%s_multilist=&globstat_%s%s_multilist;\n%n",datablockstring,name,datablockstring,name,datablockstring,name,&helpbufferreturnvalue);
+	helpbufferpos+=helpbufferreturnvalue;
 	sprintf(helpbufferpos,"xml_element_set<%s%s_instance> %s%s_list=xml_element_set<%s%s_instance>();\n%n",datablockstring,name,datablockstring,name,datablockstring,name,&helpbufferreturnvalue);
 	helpbufferpos+=helpbufferreturnvalue;
-	sprintf(helpbufferpos,"multilist<%s%s_instance> * glob_%s%s_multilist;\n%n",datablockstring,name,datablockstring,name,&helpbufferreturnvalue);
-	helpbufferpos+=helpbufferreturnvalue;
-	fprintf(initfile,"glob_%s%s_multilist=retrievemultilist<%s%s_instance>();\n",datablockstring,name,datablockstring,name);
+//	fprintf(initfile,"glob_%s%s_multilist=new multilist<%s%s_instance>;\n",datablockstring,name,datablockstring,name);
 	(*helpbufferpos)=0;
 	if (fread(&ihv1,1,1,infile)==0){goto done;};
-	if (ihv1!='\n') {if(!feof(infile)){printf("no breakline");exit(1);}else goto done;}
+	if (ihv1!='\n') {if(!feof(infile)){printf("no linebreak");exit(1);}else goto done;}
+	fprintf(multilistlistfile,"{\"%s%s\",&globstat_%s%s_multilist,%i},\n",datablockstring,name,datablockstring,name,usage);
 	if (!feof(infile))
 	{
 		goto lineback;
@@ -345,6 +351,7 @@ int main(int argc,char * * argv)
 	fclose(infile);
 	fclose(outfile);
 	fclose(initfile);
+	fclose(multilistlistfile);
 	if (internalmode&2)
 	{
 		fclose(propertyfile);

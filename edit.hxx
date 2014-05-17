@@ -531,7 +531,7 @@ catalogized_command_funcdef(BLOT)
 catalogized_command_funcdef(SAVEAS)
 {
 	FILE * ifile=fopen("Schmetzglut.cdxml","w");
-	output_fsm(ifile);
+	output_fsm(ifile,1);
 	fclose(ifile);
 	printf("TODO***stub\n");
 	return 1;

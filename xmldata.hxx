@@ -103,12 +103,12 @@ intl paramvaluestring_length;
 class basic_xml_element_set;
 struct multilistlist_
 {
-	char names[multilistlistlength][stringlength+1];
-	void * instances[multilistlistlength];
-	
+	char name[stringlength+1];
+	basicmultilist * instance;
+	int usage;//0: internal="", 1:CAMBRIDGESOFT="CAMBRIDGE_" 2:hotkeys_xml="CONFIGBRIDGE_"
 };
-multilistlist_ multilistlist;
-intl multilist_count = 0;
+extern multilistlist_ multilistlist[multilistlistlength];
+intl multilist_count = 39;
 template <class whatabout> class multilistreference;
 
 class basicmultilist
@@ -161,7 +161,10 @@ template <class whatabout> class multilist : public basicmultilist
 	{
 		for (int ilv1=filllevel;ilv1>position;ilv1--)
 		{
-			bufferlist[ilv1]=bufferlist[ilv1-1];
+			for (int ilv2=0;ilv2<sizeof(bufferlist[0]);ilv2++)//Thats why oop sucks!
+			{
+				*(((char*)(&(bufferlist[ilv1])))+ilv2)=*(((char*)(&(bufferlist[ilv1-1])))+ilv2);
+			}
 		}
 		for (int ilv1=mynumber+1;ilv1<ourcount;ilv1++)
 		{
@@ -196,9 +199,9 @@ template <class whatabout> multilist<whatabout> * retrievemultilist()
 {
 	for (int ilv1=0;ilv1<multilist_count;ilv1++)
 	{
-		if (strcmp(whatabout::INTERNALgetname(),multilistlist.names[ilv1])==0)
+		if (strcmp(whatabout::INTERNALgetname(),multilistlist[ilv1].name)==0)
 		{
-			return (multilist<whatabout> *) multilistlist.instances[ilv1];
+			return (multilist<whatabout> *) multilistlist[ilv1].instance;
 		}
 	}
 	return 0;
@@ -208,9 +211,9 @@ basicmultilist * findmultilist(const char * thetypesname)
 {
 	for (int ilv1=0;ilv1<multilist_count;ilv1++)
 	{
-		if (strcmp(thetypesname,multilistlist.names[ilv1])==0)
+		if (strcmp(thetypesname,multilistlist[ilv1].name)==0)
 		{
-			return (basicmultilist*)multilistlist.instances[ilv1];
+			return multilistlist[ilv1].instance;
 		}
 	}
 	return 0;
@@ -220,15 +223,15 @@ template <class whatabout> multilist<whatabout> * registermultilist(const char *
 {
 	for (int ilv1=0;ilv1<multilist_count;ilv1++)
 	{
-		if (strcmp(thetypesname,multilistlist.names[ilv1])==0)
+		if (strcmp(thetypesname,multilistlist[ilv1].name)==0)
 		{
-			return (multilist<whatabout> *) multilistlist.instances[ilv1];
+			return (multilist<whatabout> *) multilistlist[ilv1].instance;
 		}
 	}
-	multilistlist.instances[multilist_count]=new(multilist<whatabout>);
-	strcpy(multilistlist.names[multilist_count],thetypesname);
-	(*((basicmultilist*)(multilistlist.instances[multilist_count]))).index=multilist_count;
-	return (multilist<whatabout> *) multilistlist.instances[multilist_count++];
+	multilistlist[multilist_count].instance=new(multilist<whatabout>);
+	strcpy(multilistlist[multilist_count].name,thetypesname);
+	(*((multilistlist[multilist_count].instance))).index=multilist_count;
+	return (multilist<whatabout> *) multilistlist[multilist_count++].instance;
 }
 
 class basicmultilistreference
@@ -321,7 +324,7 @@ struct basic_instance_propertybuffer:basic_instance
 	intl pos_in_buffer;//set to the place where it WOULD be if empty
 };
 
-//TODO: remove _xml_ stuff! it was never used!
+//TODO: remove _xml_ stuff! it was never used! OK, in janitor, but becomes obsolete now.
 class basic_xml_element_set
 {
 	public:

@@ -1,3 +1,4 @@
+void test_routine();
 
 #define intl long long
 #ifndef stringlength

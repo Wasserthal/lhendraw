@@ -77,6 +77,10 @@ int clockid=0;
 
 #include "lhendraw_files.hxx"
 #include "resources_init.hxx"
+multilistlist_ multilistlist[]=
+{
+#include "./generated/multilistlistfile.hxx"
+};
 #include "./generated/reflection.hxx"
 structenum REFLECTION_List[]{
 #include "./generated/pullout_reflectfile.hxx"
@@ -93,9 +97,17 @@ structenum * searchreflectedstruct(const char * input)
 	}
 	return NULL;
 }
+void test_routine()
+{
+	printf("ggg:%llX---%llX\n",(long long)&(((*glob_CAMBRIDGE_t_multilist).bufferlist[7])._vptr),(long long)(((*glob_CAMBRIDGE_t_multilist).bufferlist[7])._vptr));
+}
 int main(int argc,char * * argv)
 {
 	clock_getcpuclockid(getpid(),&clockid);
+	for (int ilv1=0;ilv1<multilist_count;ilv1++)
+	{
+		multilistlist[ilv1].instance->index=ilv1;
+	}
 	initmemory();
 	automatic_init();
 	resources_init(argv[0]);

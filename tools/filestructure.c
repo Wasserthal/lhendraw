@@ -335,8 +335,6 @@ int main(int argc,char * * argv)
 	helpbufferpos+=helpbufferreturnvalue;
 	sprintf(helpbufferpos,"multilist<%s%s_instance> * glob_%s%s_multilist=&globstat_%s%s_multilist;\n%n",datablockstring,name,datablockstring,name,datablockstring,name,&helpbufferreturnvalue);
 	helpbufferpos+=helpbufferreturnvalue;
-	sprintf(helpbufferpos,"xml_element_set<%s%s_instance> %s%s_list=xml_element_set<%s%s_instance>();\n%n",datablockstring,name,datablockstring,name,datablockstring,name,&helpbufferreturnvalue);
-	helpbufferpos+=helpbufferreturnvalue;
 //	fprintf(initfile,"glob_%s%s_multilist=new multilist<%s%s_instance>;\n",datablockstring,name,datablockstring,name);
 	(*helpbufferpos)=0;
 	if (fread(&ihv1,1,1,infile)==0){goto done;};

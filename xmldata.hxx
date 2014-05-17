@@ -75,17 +75,6 @@ int AUTOSTRUCT_Numberofproperty(const char * name,superconstellation * iinput,in
 }
 #define AUTOSTRUCT_EXISTS(AUTOSTRUCT_CLASS,AUTOSTRUCT_VARIABLE,AUTOSTRUCT_ELEMENT) ((AUTOSTRUCT_VARIABLE.INTERNALPropertyexistflags>>AUTOSTRUCT_Numberofproperty(#AUTOSTRUCT_ELEMENT,(AUTOSTRUCT_VARIABLE.properties),AUTOSTRUCT_VARIABLE.INTERNALPropertycount))&1)
 #define AUTOSTRUCT_EXISTS_SET(AUTOSTRUCT_VARIABLE,AUTOSTRUCT_ELEMENT_NR) ((*(AUTOSTRUCT_VARIABLE.getINTERNALPropertyexistflags()))|=(1<<AUTOSTRUCT_ELEMENT_NR))
-struct stringstruct
-{
-	char a[stringlength+1];
-	stringstruct(const char * in) {strcpy(a,in);}
-	static const char * INTERNALgetname(){return "stringstruct";}
-	int getproperties(const char * name,CDXMLREAD_functype * delegateoutput,int * posoutput=NULL)
-	{
-		fprintf(stderr,"Programming error! You asked for the properties of a stringstruct!");
-	};
-	stringstruct(){};
-};
 
 char tagnamestring[stringlength+1];
 char parameterstring[bufferlength+1];
@@ -94,13 +83,6 @@ intl tagnamestring_length;
 intl parameterstring_length;
 intl paramvaluestring_length;
 
-/*stringstruct operator = (char* input)
-{
-	stringstruct wert;
-	strncpy(wert.a,input);
-	return wert;
-};*/
-class basic_xml_element_set;
 struct multilistlist_
 {
 	char name[stringlength+1];
@@ -191,9 +173,6 @@ template <class whatabout> class multilist : public basicmultilist
 		free(bufferlist);
 	};
 };
-multilist<stringstruct> stringlist=multilist<stringstruct>();
-basic_xml_element_set* xml_set_register[bufferlistsize];
-intl xml_set_register_count=0;
 
 template <class whatabout> multilist<whatabout> * retrievemultilist()
 {
@@ -261,16 +240,9 @@ template <class whatabout> class multilistreference : public basicmultilistrefer
 	}
 	multilistreference()
 	{
-		if (typeid(whatabout)==typeid(stringstruct))
-		{
-			instances=(basicmultilist*)&stringlist;
-		}
-		else
-		{
-			instances=(basicmultilist*)registermultilist<whatabout>(whatabout::INTERNALgetname());
-			/*multilistreference(backvalue);*/
-			mynumber=(*((multilist<whatabout>*)instances)).getme(this);
-		}
+		instances=(basicmultilist*)registermultilist<whatabout>(whatabout::INTERNALgetname());
+		/*multilistreference(backvalue);*/
+		mynumber=(*((multilist<whatabout>*)instances)).getme(this);
 	};
 	void multilistreferenx(multilist<whatabout> * input)
 	{
@@ -278,14 +250,6 @@ template <class whatabout> class multilistreference : public basicmultilistrefer
 		mynumber=(*((multilist<whatabout>*)instances)).getme(this);
 	};
 	~multilistreference(){};
-};
-
-struct xml_template_element
-{
-	public:
-	stringstruct name;
-	multilistreference<stringstruct> possible_contents;
-	basic_xml_element_set * content;
 };
 
 struct basic_instance
@@ -324,71 +288,8 @@ struct basic_instance_propertybuffer:basic_instance
 	intl pos_in_buffer;//set to the place where it WOULD be if empty
 };
 
-//TODO: remove _xml_ stuff! it was never used! OK, in janitor, but becomes obsolete now.
-class basic_xml_element_set
-{
-	public:
-	xml_template_element the_template;
-	basic_instance * instances;
-	char name[stringlength+1];
-	multilistreference<stringstruct> possible_contents;
-	basicmultilist * hismultilist;
-	basic_xml_element_set() 
-	{
-		possible_contents=multilistreference<stringstruct>();
-		hismultilist=NULL;
-	};
-	virtual int getproperties(const char * name,CDXMLREAD_functype * delegateoutput)
-	{
-		fprintf(stderr,"Programming error! You asked for the properties of a basic xml element set!");
-		exit(1);
-	}
-	~basic_xml_element_set() {};
-};
-
-
-
-template <class whatabout> class xml_element_set:basic_xml_element_set
-{
-	public:
-	multilistreference<whatabout> instances;
-	xml_element_set() 
-	{
-		strcpy(name,whatabout::INTERNALgetname());
-		name[strlen(name)-strlen("_instance")]=0;
-		xml_set_register[xml_set_register_count++]=this;
-		hismultilist=findmultilist(whatabout::INTERNALgetname());
-	};
-	xml_element_set(const char * first,...)
-	{
-		va_list inlist;
-		const char * wert=first;
-		va_start(inlist,first);
-		back:
-		REGISTER_content(wert);
-		wert=va_arg(inlist,char *);
-		if (wert!=0)
-		{
-			goto back;
-		}
-		va_end(inlist);
-		strcpy(name,whatabout::INTERNALgetname());
-		name[strlen(name)-strlen("_instance")]=0;
-		xml_set_register[xml_set_register_count++]=this;
-	}
-	virtual int getproperties(const char* name,CDXMLREAD_functype * delegateoutput)
-	{
-		(*((whatabout*)0)).whatabout::getproperties(name,delegateoutput);
-//		(reinterpret_cast<whatabout>(*((whatabout*)1)).getproperties(name,delegateoutput);
-//		return (static_cast<whatabout*>((void*)0))->getproperties(name,delegateoutput);
-//		return ((*(static_cast<whatabout*>((void*)0))).getproperties(name,delegateoutput));
-	}
-	~xml_element_set(){};
-};
-
 //This is a hack:
 //1. Objects dependent on variables initalized out of code area
-//2. Object stringlist which all depend on during initialization initialized out of code area
 //3. Offsetof with inherited objects.
 //4. Initialization of static list members in order to obtain self-reflecting code.
 struct gummydummy_instance: basic_instance

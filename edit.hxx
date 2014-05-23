@@ -531,6 +531,8 @@ catalogized_command_funcdef(BLOT)
 catalogized_command_funcdef(SAVEAS)
 {
 	FILE * ifile=fopen("Schmetzglut.cdxml","w");
+	fprintf(ifile,"<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
+	fprintf(ifile,"<!DOCTYPE CDXML SYSTEM \"http://www.cambridgesoft.com/xml/cdxml.dtd\" >");
 	output_fsm(ifile,1);
 	fclose(ifile);
 	printf("TODO***stub\n");

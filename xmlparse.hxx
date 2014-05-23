@@ -335,7 +335,6 @@ void input_fsm(FILE* infile)
 		fprintf(stderr,"Error: Premature End of File! You are still in a %s",(*currentinstance).getName());exit(1);
 	}
 }
-char valuestring[stringlength+1];
 long long fullu64=0xFFFFFFFFFFFFFFFF;
 void output_object(FILE * outfile,basic_instance * iinstance)
 {
@@ -343,15 +342,19 @@ void output_object(FILE * outfile,basic_instance * iinstance)
 	_u32 * ipointer=(*iinstance).getINTERNALPropertyexistflags();
 	_u32 existflags;
 	if (ipointer==NULL) existflags=*(_u32*)&fullu64; else existflags=*ipointer;
+	fprintf(outfile,"<%s\n",(*iinstance).getName());
 	for (int ilv1=0;ilv1<propertycount;ilv1++)
 	{
 		if (existflags & (1<<ilv1))
 		{
-			valuestring[stringlength]=0;
-			strncpy(valuestring,"0",stringlength);
-			fprintf(outfile,"%s=\"%s\"\n ",(*iinstance)._->properties[ilv1].name,valuestring);
+			int ipropertypos=(*iinstance)._->properties[ilv1].ref;
+			fprintf(outfile," %s=\"",(*iinstance)._->properties[ilv1].name);
+			(*iinstance)._->properties[ilv1].writedelegate(((char*)iinstance)+ipropertypos,outfile);
+			fprintf(outfile,"\"\n");
 		}
 	}
+	fprintf(outfile,"/>");
+	return;
 }
 struct n_instance;
 extern multilist<n_instance> * glob_n_multilist;

@@ -73,6 +73,11 @@ inline void clear_cdx_String(cdx_String & input)
 	input.a[0]=0;
 }
 
+int __attribute__((sysv_abi))CDXMLWRITE_cdx_String(char * input,void * output)
+{
+	fprintf((FILE*)output,"%s",input);
+	return 0;
+}
 int __attribute__((sysv_abi))CDXMLREAD_cdx_String(char * input,void * output)
 {
 	strncpy(&((*((cdx_String*)output)).a[0]),input,stringlength);
@@ -134,6 +139,11 @@ int copytobuffer(TELESCOPE_buffer * ibuffer,char * input)//TODO: what if string 
 	(*ibuffer).count=icount;
 	return 0;
 }
+int __attribute__((sysv_abi))CDXMLWRITE_cdx_Buffered_String(char * input,void * output)
+{
+	fprintf((FILE*)output,"%s",input);
+	return 0;
+}
 int __attribute__((sysv_abi))CDXMLREAD_cdx_Buffered_String(char * input,void * output)//Hier hilft nur noch eins: statt input auf Datei zugreifen.
 {
 	if ((*((cdx_Buffered_String*)output)).a!=NULL)
@@ -175,6 +185,11 @@ int __attribute__((sysv_abi))CDXMLREAD_cdx_Buffered_String(char * input,void * o
 	return 0;
 }
 
+int __attribute__((sysv_abi))CDXMLWRITE__i32(char * input,void * output)
+{
+	fprintf((FILE*)output,"%i",*((_i32*)input));
+	return 0;
+}
 int __attribute__((sysv_abi))CDXMLREAD__i32(char * input,void * output)
 {
 	int ilv1;
@@ -194,6 +209,11 @@ int __attribute__((sysv_abi))CDXMLREAD__i32(char * input,void * output)
 	}
 	*((_i32*)output)=wert;
 	return ilv1;
+}
+int __attribute__((sysv_abi))CDXMLWRITE__i8(char * input,void * output)
+{
+	fprintf((FILE*)output,"%hhi",*((_i32*)input));
+	return 0;
 }
 int __attribute__((sysv_abi))CDXMLREAD__i8(char * input,void * output)
 {
@@ -215,11 +235,21 @@ int __attribute__((sysv_abi))CDXMLREAD__i8(char * input,void * output)
 	*((_i8*)output)=wert;
 	return ilv1;
 }
+int __attribute__((sysv_abi))CDXMLWRITE_cdx_enum(char * input,void * output)
+{
+	fprintf((FILE*)output,"%i",(*((cdx_enum*)input)).a);
+	return 0;
+}
 int __attribute__((sysv_abi))CDXMLREAD_cdx_enum(char * input,void * output)
 {
-	CDXMLREAD__i32(input,&((*((cdx_enum*)output)).a));
+	return CDXMLREAD__i32(input,&((*((cdx_enum*)output)).a));
 }
 
+int __attribute__((sysv_abi))CDXMLWRITE_float(char * input,void * output)
+{
+	fprintf((FILE*)output,"%f",*((float*)input));
+	return 0;
+}
 int __attribute__((sysv_abi))CDXMLREAD_float(char * input,void * output)
 {
 	int ilv1;
@@ -270,6 +300,10 @@ int __attribute__((sysv_abi))CDXMLREAD_float(char * input,void * output)
 	return ilv1;
 }
 
+int __attribute__((sysv_abi))CDXMLWRITE__x8(char * input,void * output)
+{
+	fprintf((FILE*)output,"%hhX",*((unsigned char *) input));//TODO: div16
+}
 int __attribute__((sysv_abi))CDXMLREAD__x8(char * input,void * output)
 {
 	int ilv1;
@@ -334,6 +368,15 @@ int __attribute__((sysv_abi))CDXMLREAD__x8(char * input,void * output)
 	return ilv1;
 }
 
+int __attribute__((sysv_abi))CDXMLWRITE_cdx_Bezierpoints(char * input,void * output)
+{
+	cdx_Bezierpoints * list=(cdx_Bezierpoints*)input;
+	for (int ilv1=0;ilv1<(*list).count;ilv1++)
+	{
+		fprintf((FILE*)output," %f ",*(((float*)input)+ilv1));
+	}
+	return 0;
+}
 int __attribute__((sysv_abi))CDXMLREAD_cdx_Bezierpoints(char * input,void * output)
 {
 	int ilv1;
@@ -353,6 +396,15 @@ int __attribute__((sysv_abi))CDXMLREAD_cdx_Bezierpoints(char * input,void * outp
 	return ilv1;
 }
 
+int __attribute__((sysv_abi))CDXMLWRITE_cdx_Pointreferences(char * input,void * output)
+{
+	cdx_Pointreferences * list=(cdx_Pointreferences*)input;
+	for (int ilv1=0;ilv1<(*list).count;ilv1++)
+	{
+		fprintf((FILE*)output," %i ",*(((*list).a)+ilv1));
+	}
+	return 0;
+}
 int __attribute__((sysv_abi))CDXMLREAD_cdx_Pointreferences(char * input,void * output)
 {
 	int ilv1;
@@ -369,6 +421,12 @@ int __attribute__((sysv_abi))CDXMLREAD_cdx_Pointreferences(char * input,void * o
 	return ilv1;
 }
 
+int __attribute__((sysv_abi))CDXMLWRITE_cdx_Rectangle(char * input,void * output)
+{
+	cdx_Rectangle * wert=(cdx_Rectangle*)input;
+	fprintf((FILE*)output," %f %f %f %f ",(*wert).left,(*wert).top,(*wert).right,(*wert).bottom);
+	return 0;
+}
 int __attribute__((sysv_abi))CDXMLREAD_cdx_Rectangle(char * input,void * output)
 {
 		
@@ -385,6 +443,12 @@ int __attribute__((sysv_abi))CDXMLREAD_cdx_Rectangle(char * input,void * output)
 	*((cdx_Rectangle*)output)=wert;
 	return ilv1;
 }
+int __attribute__((sysv_abi))CDXMLWRITE_cdx_Point2D(char * input,void * output)
+{
+	cdx_Point2D * wert=(cdx_Point2D*)input;
+	fprintf((FILE*)output," %f %f ",(*wert).x,(*wert).y);
+	return 0;
+}
 int __attribute__((sysv_abi))CDXMLREAD_cdx_Point2D(char * input,void * output)
 {
 		
@@ -394,6 +458,12 @@ int __attribute__((sysv_abi))CDXMLREAD_cdx_Point2D(char * input,void * output)
 	ilv1+=CDXMLREAD_float(input+ilv1,&(wert.y));
 	*((cdx_Point2D*)output)=wert;
 	return ilv1;
+}
+int __attribute__((sysv_abi))CDXMLWRITE_cdx_Point3D(char * input,void * output)
+{
+	cdx_Point3D * wert=(cdx_Point3D*)input;
+	fprintf((FILE*)output," %f %f %f ",(*wert).x,(*wert).y,(*wert).z);
+	return 0;
 }
 int __attribute__((sysv_abi))CDXMLREAD_cdx_Point3D(char * input,void * output)
 {
@@ -433,6 +503,17 @@ struct structenum
 	int type;//0: MENU pullout
 	int size;//the size of the type
 };
+int set_bienum(bienum * ibienum,FILE * output,intl imax,intl value)
+{
+	for (int ilv1=0;ilv1<imax;ilv1++)
+	{
+		if (ibienum[ilv1].number==value)
+		{
+			fprintf(output,"%s",ibienum[ilv1].name);
+		}
+	}
+	return 0;
+};
 intl get_bienum(bienum * ibienum,char * input,intl count)
 {
 	intl ilv1;
@@ -444,6 +525,17 @@ intl get_bienum(bienum * ibienum,char * input,intl count)
 		}
 	}
 	fprintf(stderr,"unknown mark %s in context",input);
+	return 0;
+};
+int set_bienum_multi(bienum * ibienum,FILE * output,intl imax,intl value)
+{
+	for (int ilv1=0;ilv1<imax;ilv1++)
+	{
+		if ((ibienum[ilv1].number & value)==ibienum[ilv1].number)
+		{
+			fprintf(output,"%s ",ibienum[ilv1].name);
+		}
+	}
 	return 0;
 };
 intl get_bienum_multi(bienum * ibienum,char * input,intl count)

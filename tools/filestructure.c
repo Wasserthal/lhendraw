@@ -256,7 +256,9 @@ int main(int argc,char * * argv)
 			if (register_enum(properties[ilv1]))
 			{
 				fprintf(outfile,"#ifndef FUNCTIONDEFINED_AUTOMATICALLY_CDXMLREAD_ENUM_%s\n#define FUNCTIONDEFINED_AUTOMATICALLY_CDXMLREAD_ENUM_%s\nint __attribute__((sysv_abi))CDXMLREAD_ENUM_%s(char * input,void * output)\n{\n        \
-	*((_i32 *)output)=get_bienum%s(CDXML_%s,input,CDXML_%s_max);\n}\n#endif\n",properties[ilv1],properties[ilv1],properties[ilv1],(properties_type_nrs[ilv1]==7)?"_multi":"",properties[ilv1],properties[ilv1]);
+	*((_i32 *)output)=get_bienum%s(CDXML_%s,input,CDXML_%s_max);\n}\n\
+int __attribute__((sysv_abi))CDXMLWRITE_ENUM_%s(char * input,void * output)\n{\n        \
+	set_bienum%s(CDXML_%s,(FILE*)output,CDXML_%s_max,*((_i32 *)input));\n}\n#endif\n",properties[ilv1],properties[ilv1],properties[ilv1],(properties_type_nrs[ilv1]==7)?"_multi":"",properties[ilv1],properties[ilv1],properties[ilv1],(properties_type_nrs[ilv1]==7)?"_multi":"",properties[ilv1],properties[ilv1]);
 			}
 		}
 	}
@@ -279,11 +281,11 @@ int main(int argc,char * * argv)
 		}
 		if ((properties_type_nrs[ilv1]==5) || (properties_type_nrs[ilv1]==4) || (properties_type_nrs[ilv1]==7))
 		{
-			fprintf(thisfile,"{\"%s\",offsetof(%s%s_instance,%s),CDXMLREAD_ENUM_%s}%s\n",properties[ilv1],datablockstring,name,properties[ilv1],properties[ilv1],",");
+			fprintf(thisfile,"{\"%s\",offsetof(%s%s_instance,%s),CDXMLREAD_ENUM_%s,CDXMLWRITE_ENUM_%s}%s\n",properties[ilv1],datablockstring,name,properties[ilv1],properties[ilv1],properties[ilv1],",");
 		}
 		else
 		{
-			fprintf(thisfile,"{\"%s\",offsetof(%s%s_instance,%s),CDXMLREAD_%s}%s\n",properties[ilv1],datablockstring,name,properties[ilv1],properties_types[ilv1],",");
+			fprintf(thisfile,"{\"%s\",offsetof(%s%s_instance,%s),CDXMLREAD_%s,CDXMLWRITE_%s}%s\n",properties[ilv1],datablockstring,name,properties[ilv1],properties_types[ilv1],properties_types[ilv1],",");
 		}
 	}
 	fprintf(outfile,"};\n");

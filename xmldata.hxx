@@ -25,6 +25,9 @@ struct superconstellation
 	char name[30];
 	int ref;
 	CDXMLREAD_functype delegate;
+	CDXMLREAD_functype writedelegate;
+/*	CDXMLREAD_functype binreaddelegate;
+	CDXMLREAD_functype binwritedelegate;*/
 };
 struct AUTOSTRUCT_cstyle_vtable
 {

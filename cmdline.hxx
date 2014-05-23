@@ -1,37 +1,72 @@
-char argmeanings[1000];
-char parametersthatwantfilename[]={"oslcn"};
-char parametersexecutedimmediately[]={"Io"};
+char argmeanings[1000];//0: filename which is wanted 1: interpret this 2: Filename, to be read at start
+char parametersthatwantfilename[]={"oslcnw"};
+char parametersexecutedimmediately[]={"Ioh"};
 char * parameter_filename;
 char * parameter_filetype;
-int * parameter_argc;
+int parameter_argc;
 char ** parameter_argv;
-char parameter_cmd1[stringsize];
-char parameter_cmd2[stringsize];
-int executeparameter(char which,int parameter,int posinparameter)
+char parameter_cmd1[stringlength+1]="";
+char parameter_cmd2[stringlength+1]="";
+char * getparameter(int parameter,int ioffset,const char * commandout_1,const char * commandout_2,int argc,char ** argv)
+{
+	char * iarg;
+	char * ichar2,*ichar3;
+	iarg=(char*)(argv[parameter]+ioffset+1);
+	if (*iarg==0)
+	{
+		iarg=(char*)(argv[parameter+1]);
+	}
+	else
+	{
+		//TODO: .ending,=, etc... HERE
+	}
+	char * ichar=strchr(iarg,'(');
+	if (ichar!=NULL)
+	{
+		ichar2=strchr(ichar,')');
+		if (ichar2!=NULL)
+		{
+			ichar[0]=0;
+			ichar2[0]=0;
+			ichar3=strchr(ichar,',');
+			if (ichar3==NULL)
+			{
+				ichar3[0]=0;
+			}
+			strncpy(parameter_cmd1,ichar+1,stringlength);parameter_cmd1[stringlength]=0;
+			if (ichar3!=NULL)
+			{
+				strncpy(parameter_cmd2,ichar3+1,stringlength);parameter_cmd2[stringlength]=0;
+			}
+		}
+	}
+	return iarg;
+}
+int executeparameter(const char which,int parameter,int posinparameter,int argc,char ** argv)
 {
 	switch(which)
 	{
-		case 'I' :      control_GUI=0; control_.interactive=0;control_.force=1;break;
-		case 'f' :      control_.force|=1;break;
-		case 'F' :      control_.force|=0;break;
-		case 'o' :      strncpy(control_.filename,getparameter(parameter,posinparameter,parameter_filetype),stringlength-1);control_filename[stringlength-1]=0;strncpy(control_filetype,parameter_filetype,stringlength-1);control_filetype[stringlength-1]=0;control_.saveuponexit=1;break;
-		case 'f' :      strncpy(control_.filename,getparameter(parameter,posinparameter,parameter_filetype),stringlength-1);control_filename[stringlength-1]=0;strncpy(control_filetype,parameter_filetype,stringlength-1);control_filetype[stringlength-1]=0;break;
-		case 'w' :      parameter_filename=getparameter(parameter,posinparameteri,control_.filetype);SAVEAS(parameter_filename,parameter_filetype);break;
-		case 'l' :      parameter_filename=getparameter(parameter,posinparameteri,control_.filetype);LOADAS(parameter_filename,parameter_filetype);break;
+		case 'I' :      control_GUI=0; control_interactive=0;control_force=1;break;
+		case 'f' :      control_force|=1;break;
+		case 'F' :      control_force|=0;break;
+		case 'o' :      strncpy(control_filename,getparameter(parameter,posinparameter,parameter_filetype,NULL,argc,argv),stringlength-1);control_filename[stringlength-1]=0;strncpy(control_filetype,parameter_filetype,stringlength-1);control_filetype[stringlength-1]=0;control_saveuponexit=1;break;
+//		case 'f' :      strncpy(control_filename,getparameter(parameter,posinparameter,parameter_filetype,NULL,argc,argv),stringlength-1);control_filename[stringlength-1]=0;strncpy(control_filetype,parameter_filetype,stringlength-1);control_filetype[stringlength-1]=0;break;
+		case 'w' :      parameter_filetype=NULL;parameter_filename=getparameter(parameter,posinparameter,parameter_filetype,NULL,argc,argv);SAVE_TYPE(parameter_filename,parameter_filetype);break;
+		case 'l' :      parameter_filetype=NULL;parameter_filename=getparameter(parameter,posinparameter,parameter_filetype,NULL,argc,argv);LOAD_TYPE(parameter_filename,parameter_filetype);break;
 		case '-' :      if ((argv[parameter][posinparameter])!=0)
 				{
 				//TODO: add your multi-symbol commands here
 				}//or it was a --, so not interpreted.
 				break;
-		case 'c' :      for (int ilv1=0;ilv1<REFLECTION_FUNCTION_LISTSIZE;ilv1++)
+		case 'c' :      for (int ilv1=0;ilv1<REFLECTION_FUNCTION_ListSize;ilv1++)
 				{
-					if (strcmp(REFLECTION_FUNCTION_LIST[ilv1].command,getparameter(parameter,posinparameter,parameter_cmd1,parameter_cmd2)==0)
+					if (strcmp(REFLECTION_FUNCTION_List[ilv1].name,getparameter(parameter,posinparameter,parameter_cmd1,parameter_cmd2,argc,argv))==0)
 					{
-						REFLECTION_FUNCTION_LISTSIZE.function(parameter_cmd1,parameter_cmd2);
+						REFLECTION_FUNCTION_List[ilv1].function(parameter_cmd1,parameter_cmd2);
 					}
 				}
 				break;
-		case 'N' :      NEW("","");break;
+		case 'N' :      FILE_NEW("","");break;
 		case 'h' :      printf(
 "Usage:\n"
 "lhendraw [-I] [-o output] [-<parameter> <parameter_filename>] (...) <filename> (...)\n"
@@ -67,6 +102,7 @@ int executeparameter(char which,int parameter,int posinparameter)
 "lhendraw -I pattern.cdx --search FUJI0001.cdx FUJI0002.cdx FUJI0003.cdx FUJI0004.cdx FUJI0005.cdx FUJI0006.cdx LÖNNEBERG0001.cdxml LÖNNEBERG0002.cdxml\n"
 "Searches the files FUJI.... and LÖNNE.... for the pattern in pattern.cdxml, then exits\n"
 				);
+				exit(0);
 				break;
 	}
 }
@@ -100,28 +136,35 @@ void cmdline(int argc,char ** argv)
 				}
 				for (int ilv2=1;argv[ilv1][ilv2]!=0;ilv2++)
 				{
-					if (strchr(argv[ilv1][ilv2],parametersthatwantfilename))
+					if (strchr(parametersthatwantfilename,argv[ilv1][ilv2]))
 					{
 						ilv2++;
-						if (argv[ilv1][ilv2]=='.')
+						if (argv[ilv1][ilv2]!=0)
 						{
-							wfn=1;
-							for (;argv[ilv1][ilv2]!=0;ilv2++)//resumed-loop
+							if (argv[ilv1][ilv2]=='.')
 							{
-								if ((argv[ilv1][ilv2]=='=') && (argv[ilv1][ilv2+1]!=0))
+								wfn=1;
+								for (;argv[ilv1][ilv2]!=0;ilv2++)//resumed-loop
 								{
-									wfn=0;
+									if ((argv[ilv1][ilv2]=='=') && (argv[ilv1][ilv2+1]!=0))
+									{
+										wfn=0;
+									}
 								}
+							}
+							else
+							{
+								wfn=0;
 							}
 						}
 						else
 						{
-							wfn=0;
+							wfn=1;
 						}
 					}
-					if (strchr(argv[ilv1][ilv2],parametersexecutedimmediately))
+					if (strchr(parametersexecutedimmediately,argv[ilv1][ilv2]))
 					{
-						executeparameter(argv[ilv1][ilv2],ilv1,ilv2);
+						executeparameter(argv[ilv1][ilv2],ilv1,ilv2,argc,argv);
 					}
 					goto ifertig;
 				}
@@ -129,7 +172,7 @@ void cmdline(int argc,char ** argv)
 			}
 			else
 			{
-				argmeanings=2;//Filename, to be read at start
+				argmeanings[ilv1]=2;//Filename, to be read at start
 			}
 		}
 	}
@@ -147,7 +190,25 @@ void cmdline(int argc,char ** argv)
 	{
 		if (argmeanings[ilv1]==2)
 		{
-			LOADAS(argv[ilv1],"");
+			LOAD_TYPE(argv[ilv1],"");
+		}
+	}
+	for (int ilv1=1;ilv1<argc;ilv1++)
+	{
+		if (argmeanings[ilv1]==1)
+		{
+			for (int ilv2=0;argv[ilv1][ilv2]!=0;ilv2++)
+			{
+				if (strchr(parametersexecutedimmediately,argv[ilv1][ilv2])==NULL)
+				{
+					executeparameter(argv[ilv1][ilv2],ilv1,ilv2,argc,argv);
+				}
+				if (strchr(parametersthatwantfilename,argv[ilv1][ilv2]))
+				{
+					goto filenamefromnow;
+				}
+			}
+			filenamefromnow:;
 		}
 	}
 }

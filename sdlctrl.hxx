@@ -41,6 +41,13 @@ clickabilitymatrix_ clickabilitymatrix_tooldependent[control_toolcount];
 AUTOSTRUCT_PULLOUTLISTING_ control_multibitbuttonmenu[20];//a variable menu
 structenum popupmenu_multibitbutton={"multibitbutton",0,&control_multibitbuttonmenu,0};
 structenum * popupmenu_active;
+
+char control_filename[stringlength]="";
+char control_filetype[stringlength]=".cdx";
+int control_force=0;
+int control_interactive=1;
+int control_saveuponexit=0;
+int control_GUI=1;
 typedef struct control_toolinfo_
 {
 	_u32 undoes;//for BOTH mouse buttons, unless using other tool

@@ -503,6 +503,7 @@ catalogized_command_funcdef(FILE_NEW)
 		if (tlmultilist)
 		{
 			(*tlmultilist).filllevel=0;
+			//TODO: undo: buffer lists!
 		}
 	}
 	return 1;
@@ -528,15 +529,30 @@ catalogized_command_funcdef(BLOT)
 	}
 	return 1;
 }
-catalogized_command_funcdef(SAVEAS)
+catalogized_command_funcdef(SAVE_TYPE)
 {
-	FILE * ifile=fopen("Schmetzglut.cdxml","w");
+	FILE * ifile=fopen(parameter,"w");
 	fprintf(ifile,"<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
 	fprintf(ifile,"<!DOCTYPE CDXML SYSTEM \"http://www.cambridgesoft.com/xml/cdxml.dtd\" >");
 	output_fsm(ifile,1);
 	fclose(ifile);
+	return 1;
+}
+catalogized_command_funcdef(SAVEAS)
+{
+	SAVE_TYPE("Schmetzglut.cdxml","cdxml");
 	printf("TODO***stub\n");
 	return 1;
+}
+catalogized_command_funcdef(LOAD_TYPE)
+{
+	FILE * infile;
+	infile=fopen(parameter,"r");
+	currentinstance=new(CAMBRIDGEPREFIX(Total_Document_instance));
+	input_fsm(infile);
+	fclose(infile);
+	svg_findaround();
+	CAMBRIDGECONV_maintointernal();
 }
 catalogized_command_funcdef(LOADAS)
 {

@@ -86,6 +86,7 @@ structenum REFLECTION_List[]{
 #include "./generated/pullout_reflectfile.hxx"
 };
 int REFLECTION_ListSize=sizeof(REFLECTION_List)/sizeof(structenum);
+#include "cmdline.hxx"
 structenum * searchreflectedstruct(const char * input)
 {
 	for (int ilv1=0;ilv1<REFLECTION_ListSize;ilv1++)
@@ -116,32 +117,26 @@ int main(int argc,char * * argv)
 		clickabilitymatrix_tooldependent[ilv1]=selection_clickabilitymatrix;
 	}
 	conv_config_internalconfig();
-	if (argc==2)
+	FILE_NEW(NULL,NULL);
+	cmdline(argc,argv);
+	if (control_GUI)
 	{
-		infile=fopen(argv[1],"r");
-		currentinstance=new(CAMBRIDGEPREFIX(Total_Document_instance));
-		input_fsm(infile);
-		fclose(infile);
-		CAMBRIDGECONV_maintointernal();
+		svg_findaround();
+		sdl_init();
+		SDL_EnableUNICODE(1);
+		SDL_ShowCursor(0);
+		mainloop:
+		sdl_control();
+		gfx_gfxstart();
+		gfx_output();
+		sdl_canvasframedraw();
+		sdl_commonmenudraw();
+		sdl_selectiondraw();
+		gfx_gfxstop();
+		usleep(1000);
+		if (!LHENDRAW_leave) goto mainloop;
+		sdl_outit();
+		
+		printf("Time consumption:\nInit:%llX\nfindaround:%llX\ngetatoms:%llX\ninitZlist:%llX\ndrawing:%llX\n",counter1,counter2,counter3,counter4,counter5);
 	}
-	else
-	{
-		FILE_NEW(NULL,NULL);
-	}
-	svg_findaround();
-	sdl_init();
-	SDL_EnableUNICODE(1);
-	SDL_ShowCursor(0);
-	mainloop:
-	sdl_control();
-	gfx_gfxstart();
-	gfx_output();
-	sdl_canvasframedraw();
-	sdl_commonmenudraw();
-	sdl_selectiondraw();
-	gfx_gfxstop();
-	usleep(1000);
-	if (!LHENDRAW_leave) goto mainloop;
-	sdl_outit();
-	printf("Time consumption:\nInit:%llX\nfindaround:%llX\ngetatoms:%llX\ninitZlist:%llX\ndrawing:%llX\n",counter1,counter2,counter3,counter4,counter5);
 }

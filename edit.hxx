@@ -544,6 +544,10 @@ catalogized_command_funcdef(SAVEAS)
 	printf("TODO***stub\n");
 	return 1;
 }
+catalogized_command_funcdef(LOAD_INTO_SEARCHBUF)
+{
+	printf("TODO***stub\n");
+}
 catalogized_command_funcdef(LOAD_TYPE)
 {
 	FILE * infile;
@@ -631,5 +635,10 @@ catalogized_command_funcdef(ONETOONE)
 	SDL_scrollx+=(gfx_canvassizex/2)*((1/SDL_zoomx)-1);
 	SDL_scrolly+=(gfx_canvassizey/2)*((1/SDL_zoomy)-1);
 	SDL_zoomx=1;SDL_zoomy=1;
+	return 1;
+}
+catalogized_command_funcdef(SEARCH)
+{
+	printf("TODO***stub\n");
 	return 1;
 }

@@ -1,3 +1,4 @@
+//Processes the commandline parameters
 char argmeanings[1000];//0: filename which is wanted 1: interpret this 2: Filename, to be read at start
 char parametersthatwantfilename[]={"oslcnw"};
 char parametersexecutedimmediately[]={"Ioh"};
@@ -7,32 +8,56 @@ int parameter_argc;
 char ** parameter_argv;
 char parameter_cmd1[stringlength+1]="";
 char parameter_cmd2[stringlength+1]="";
-char * getparameter(int parameter,int ioffset,const char * commandout_1,const char * commandout_2,int argc,char ** argv)
+char * getparameter(int parameter,int ioffset,char * commandout_1,const char * commandout_2,int argc,char ** argv)//Takes a filename or a command from the commandline
 {
 	char * iarg;
-	char * ichar2,*ichar3;
-	iarg=(char*)(argv[parameter]+ioffset+1);
+	char *ichar,*ichar2,*ichar3;
+	iarg=(argv[parameter]+ioffset);
 	if (*iarg==0)
 	{
-		iarg=(char*)(argv[parameter+1]);
+		if (argc==parameter+2)
+		{
+			return NULL;
+		}
+		iarg=(argv[parameter+1]);
 	}
 	else
 	{
-		//TODO: .ending,=, etc... HERE
+		if (*iarg=='.')//attached and starting with a dot, that means its just the filetype
+		{
+			ichar3=NULL;
+			ichar=iarg+1;
+			ichar2=strchr(iarg,'=');
+			if (ichar2)
+			{
+				iarg=ichar2+1;
+			}
+			else
+			{
+				if (argc==parameter+2)
+				{
+					return NULL;
+				}
+				iarg=(argv[parameter+1]);
+			}
+			goto filename_thatswhynobrackets;
+		}
 	}
-	char * ichar=strchr(iarg,'(');
+	ichar=strchr(iarg,'(');//The other variant with brackets
 	if (ichar!=NULL)
 	{
 		ichar2=strchr(ichar,')');
 		if (ichar2!=NULL)
 		{
 			ichar[0]=0;
+			ichar++;
 			ichar2[0]=0;
 			ichar3=strchr(ichar,',');
 			if (ichar3==NULL)
 			{
 				ichar3[0]=0;
 			}
+			filename_thatswhynobrackets:
 			strncpy(parameter_cmd1,ichar+1,stringlength);parameter_cmd1[stringlength]=0;
 			if (ichar3!=NULL)
 			{
@@ -44,6 +69,7 @@ char * getparameter(int parameter,int ioffset,const char * commandout_1,const ch
 }
 int executeparameter(const char which,int parameter,int posinparameter,int argc,char ** argv)
 {
+	posinparameter++;
 	switch(which)
 	{
 		case 'I' :      control_GUI=0; control_interactive=0;control_force=1;break;
@@ -67,6 +93,9 @@ int executeparameter(const char which,int parameter,int posinparameter,int argc,
 				}
 				break;
 		case 'N' :      FILE_NEW("","");break;
+		case 'n' :	parameter_filetype=NULL;parameter_filename=getparameter(parameter,posinparameter,parameter_filetype,NULL,argc,argv);
+				LOAD_INTO_SEARCHBUF(parameter_filename,parameter_filetype);
+				if (SEARCH("","")) {printf("%s\n",parameter_filename);}break;
 		case 'h' :      printf(
 "Usage:\n"
 "lhendraw [-I] [-o output] [-<parameter> <parameter_filename>] (...) <filename> (...)\n"

@@ -1,3 +1,10 @@
+//defines and processes internal variables
+//This is the home of the bufferlist programming
+//The bufferlists are arrays of TELESCOPE called elements, one for each object in the corresponding multilist, IN THE SAME ORDER.
+//There is a reference to the list position of each multilist object in each TELESCOPE,
+//and there is a reference to the bufferstart-relative position of its TELESCOPE.
+//Some objects have no TELESCOPE. In this case, the pointer points to the TELESCOPE of the next object that has one, or at the end of the buffer
+//because that is the position where a TELESCOPE should be inserted for that object.
 char *glob_n_undo_buffer;
 char *glob_n_undo_contentbuffer;
 char *glob_arrow_undo_buffer;

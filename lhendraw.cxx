@@ -75,7 +75,6 @@ int clockid=0;
 //#include "hatch.hxx" //TODO SUBJECT HATCH needs the moleculefill buffer
 
 
-#include "lhendraw_files.hxx"
 #include "resources_init.hxx"
 multilistlist_ multilistlist[]=
 {

@@ -338,7 +338,9 @@ void input_fsm(FILE* infile)
 long long fullu64=0xFFFFFFFFFFFFFFFF;
 void output_object(FILE * outfile,basic_instance * iinstance)
 {
+	char hadhadcontent=0;
 	_i32 propertycount=(*iinstance)._->properties_count;
+	_i32 contentcount=(*iinstance)._->contents_count;
 	_u32 * ipointer=(*iinstance).getINTERNALPropertyexistflags();
 	_u32 existflags;
 	if (ipointer==NULL) existflags=*(_u32*)&fullu64; else existflags=*ipointer;
@@ -353,7 +355,29 @@ void output_object(FILE * outfile,basic_instance * iinstance)
 			fprintf(outfile,"\"\n");
 		}
 	}
-	fprintf(outfile,"/>");
+	hadhadcontent=0;
+	for (int ilv1=0;ilv1<contentcount;ilv1++)
+	{
+		basicmultilistreference * tlmultilistreference=*((basicmultilistreference**)(((char*)iinstance)+((*iinstance)._->contents[ilv1].ref)));
+		int tlcount=(*tlmultilistreference).count_in_it;
+		for (int ilv2=0;ilv2<tlcount;ilv2++)
+		{
+			if (hadhadcontent==0)
+			{
+				fprintf(outfile,">");
+				hadhadcontent=1;
+			}
+			output_object(outfile,(*tlmultilistreference)[ilv2]);
+		}
+	}
+	if (hadhadcontent)
+	{
+		fprintf(outfile,"</%s>",(*iinstance).getName());
+	}
+	else
+	{
+		fprintf(outfile,"/>");
+	}
 	return;
 }
 struct n_instance;

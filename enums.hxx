@@ -205,6 +205,16 @@ bienum CDXML_FillType[]={
 	{{"Respective_To_Internal_Cosy"},0x16},//LHENDRAW EXTENSION
 };
 int CDXML_FillType_max=sizeof(CDXML_FillType)/sizeof(CDXML_FillType[0]);
+bienum CDXML_PrintTrimMarks[]={
+	{{"no"},0},
+	{{"yes"},1},
+};
+int CDXML_PrintTrimMarks_max=sizeof(CDXML_PrintTrimMarks)/sizeof(CDXML_PrintTrimMarks[0]);
+bienum CDXML_DrawingSpace[]={
+	{{"pages"},0},
+	{{"poster"},1},
+};
+int CDXML_DrawingSpace_max=sizeof(CDXML_DrawingSpace)/sizeof(CDXML_DrawingSpace[0]);
 bienum CDXML_type[]={
 	{{"Generic"},0},// but I believe correct numbers are irrelevant here.
 	{{"Atom"},1},

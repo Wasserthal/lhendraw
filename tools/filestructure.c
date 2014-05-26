@@ -240,7 +240,7 @@ int main(int argc,char * * argv)
 		fprintf(outfile,"        %s %s;\n",properties_types[ilv1],properties[ilv1]);
 	}
 	
-	fprintf(outfile,"        static AUTOSTRUCT_cstyle_vtable INTERNAL_cstyle_vtable;\n	AUTOSTRUCT_GET_ROUTINE(contents,%i)\n        AUTOSTRUCT_PROPERTY_ROUTINE(%i)\n        %s%s_instance();\n        ~%s%s_instance(){}\n};\nAUTOSTRUCT_cstyle_vtable %s%s_instance::INTERNAL_cstyle_vtable={%s%s_instance::properties,%i};\nsuperconstellation %s%s_instance::contents[]={\n",contents_count,properties_count,datablockstring,name,datablockstring,name,datablockstring,name,datablockstring,name,properties_count,datablockstring,name);
+	fprintf(outfile,"        static AUTOSTRUCT_cstyle_vtable INTERNAL_cstyle_vtable;\n	AUTOSTRUCT_GET_ROUTINE(contents,%i)\n        AUTOSTRUCT_PROPERTY_ROUTINE(%i)\n        %s%s_instance();\n        ~%s%s_instance(){}\n};\nAUTOSTRUCT_cstyle_vtable %s%s_instance::INTERNAL_cstyle_vtable={%s%s_instance::properties,%i,%s%s_instance::contents,%i};\nsuperconstellation %s%s_instance::contents[]={\n",contents_count,properties_count,datablockstring,name,datablockstring,name,datablockstring,name,datablockstring,name,properties_count,datablockstring,name,contents_count,datablockstring,name);
 	if (internalmode&1)
 	{
 		for (int ilv1=0;ilv1<contents_count;ilv1++)

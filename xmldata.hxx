@@ -40,7 +40,7 @@ struct AUTOSTRUCT_cstyle_vtable
 
 };
 #define AUTOSTRUCT_GET_ROUTINE(AUTOSTRUCT_MACRONAME,COUNT_MACROPARAM) static superconstellation AUTOSTRUCT_MACRONAME[]; \
-        virtual	int get ## AUTOSTRUCT_MACRONAME(char * name) \
+        virtual	int get ## AUTOSTRUCT_MACRONAME(const char * name) \
 	{ \
 		for (int ilv1=0;ilv1<COUNT_MACROPARAM;ilv1++) \
 		{ \
@@ -78,6 +78,7 @@ int AUTOSTRUCT_Numberofproperty(const char * name,superconstellation * iinput,in
 }
 #define AUTOSTRUCT_EXISTS(AUTOSTRUCT_CLASS,AUTOSTRUCT_VARIABLE,AUTOSTRUCT_ELEMENT) ((AUTOSTRUCT_VARIABLE.INTERNALPropertyexistflags>>AUTOSTRUCT_Numberofproperty(#AUTOSTRUCT_ELEMENT,(AUTOSTRUCT_VARIABLE.properties),AUTOSTRUCT_VARIABLE.INTERNALPropertycount))&1)
 #define AUTOSTRUCT_EXISTS_SET(AUTOSTRUCT_VARIABLE,AUTOSTRUCT_ELEMENT_NR) ((*(AUTOSTRUCT_VARIABLE.getINTERNALPropertyexistflags()))|=(1<<AUTOSTRUCT_ELEMENT_NR))
+#define AUTOSTRUCT_EXISTS_SET_NAME(AUTOSTRUCT_VARIABLE,AUTOSTRUCT_ELEMENT_NAME) ((*((*AUTOSTRUCT_VARIABLE).getINTERNALPropertyexistflags()))|=(1<<AUTOSTRUCT_Numberofproperty(# AUTOSTRUCT_ELEMENT_NAME,(*AUTOSTRUCT_VARIABLE).properties,(*AUTOSTRUCT_VARIABLE).INTERNALPropertycount)))
 
 char tagnamestring[stringlength+1];
 char parameterstring[bufferlength+1];
@@ -224,6 +225,10 @@ class basicmultilistreference
 	intl count_in_it;
 	intl mynumber;
 	virtual void * addnew(){};
+	basic_instance * operator [](int ino)
+	{
+		return (basic_instance*)(((char*)((*instances).pointer))+(ino+start_in_it)*((*instances).itemsize));
+	}
 	basicmultilistreference(){};
 	~basicmultilistreference(){};
 };
@@ -258,7 +263,7 @@ template <class whatabout> class multilistreference : public basicmultilistrefer
 struct basic_instance
 {
 	public:
-	virtual int getcontents(char * name)
+	virtual int getcontents(const char * name)
 	{
 		return -1;
 	};
@@ -302,3 +307,16 @@ struct gummydummy_instance: basic_instance
 	int getproperties(const char * name,CDXMLREAD_functype * delegateoutput,int * posoutput){return -1;}
 };
 #define chararray char *
+#define ADD_TO_MULTILISTREFERENCE(WHOM,WHAT)\
+	CAMBRIDGE_ ## WHAT ## _instance * tl_CAMBRIDGE_ ## WHAT ## _instance;\
+	{\
+		int suboffset;\
+		basicmultilistreference * nextinstance_list;\
+		suboffset=((WHOM)->getcontents(# WHAT));\
+		if (suboffset!=-1)\
+		{\
+			nextinstance_list=*(basicmultilistreference**)(((char*)WHOM)+suboffset);\
+			tl_CAMBRIDGE_ ## WHAT ## _instance=(CAMBRIDGE_ ## WHAT ## _instance*)nextinstance_list->addnew();\
+		}\
+		(*tl_CAMBRIDGE_ ## WHAT ## _instance).master=WHOM;\
+	}

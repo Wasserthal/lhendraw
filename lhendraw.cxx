@@ -62,9 +62,10 @@ int clockid=0;
 
 #include "sdlgfx.hxx"
 #include "parsecdxml_variables.hxx"
-#include "conv_cambridge_internal.hxx"
 #include "conv_config_internalconfig.hxx"
 #include "selection.hxx"
+#include "conv_cambridge_internal.hxx"
+#include "conv_internal_cambridge.hxx"
 #include "undo.hxx"
 #include "edit.hxx"
 #include "./generated/pullout_stringfile.hxx"

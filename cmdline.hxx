@@ -15,7 +15,7 @@ char * getparameter(int parameter,int ioffset,char * commandout_1,const char * c
 	iarg=(argv[parameter]+ioffset);
 	if (*iarg==0)
 	{
-		if (argc==parameter+2)
+		if (argc==parameter+1)
 		{
 			return NULL;
 		}
@@ -34,7 +34,7 @@ char * getparameter(int parameter,int ioffset,char * commandout_1,const char * c
 			}
 			else
 			{
-				if (argc==parameter+2)
+				if (argc==parameter+1)
 				{
 					return NULL;
 				}

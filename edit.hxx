@@ -54,17 +54,6 @@ char getleftof(cdx_Point3D * istart,cdx_Point3D * iend,cdx_Point3D * ikink)
 	return (diff1x*diff2y-diff1y*diff2x>0) ? 1 : 2;//then, it is right of=> return1, otherwise, it is left of=>return2;
 }
 
-_small getother(_small inatom, _small inbond)
-{
-	if (bond_actual_node[inbond].end==inatom)
-	{
-		return (bond_actual_node[inbond].start);
-	}
-	if (bond_actual_node[inbond].start==inatom)
-	{
-		return (bond_actual_node[inbond].end);
-	}
-}
 
 
 int get_bond_between(int inatom1, int inatom2)
@@ -532,9 +521,80 @@ catalogized_command_funcdef(BLOT)
 catalogized_command_funcdef(SAVE_TYPE)
 {
 	FILE * ifile=fopen(parameter,"w");
-	fprintf(ifile,"<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
-	fprintf(ifile,"<!DOCTYPE CDXML SYSTEM \"http://www.cambridgesoft.com/xml/cdxml.dtd\" >");
-	output_fsm(ifile,1);
+	fprintf(ifile,"<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n");
+	fprintf(ifile,"<!DOCTYPE CDXML SYSTEM \"http://www.cambridgesoft.com/xml/cdxml.dtd\" >\n");
+	fprintf(ifile,"%s","<CDXML"
+" CreationProgram=\"ChemDraw 12.0.2.1076\""
+" Name=\"whocares.cdxml\""
+" BoundingBox=\"5.5 155.04 724.05 736.75\""
+" WindowPosition=\"-1073741824 1073741824\""
+" WindowSize=\"0 0\""
+" FractionalWidths=\"yes\""
+" InterpretChemically=\"yes\""
+" ShowAtomQuery=\"yes\""
+" ShowAtomStereo=\"no\""
+" ShowAtomEnhancedStereo=\"yes\""
+" ShowAtomNumber=\"no\""
+" ShowBondQuery=\"yes\""
+" ShowBondRxn=\"yes\""
+" ShowBondStereo=\"no\""
+" ShowTerminalCarbonLabels=\"no\""
+" ShowNonTerminalCarbonLabels=\"no\""
+" HideImplicitHydrogens=\"no\""
+" LabelFont=\"3\""
+" LabelSize=\"18\""
+" LabelFace=\"96\""
+" CaptionFont=\"3\""
+" CaptionSize=\"18\""
+" HashSpacing=\"2.7\""
+" MarginWidth=\"2\""
+" LineWidth=\"1\""
+" BoldWidth=\"4\""
+" BondLength=\"30\""
+" BondSpacing=\"12\""
+" ChainAngle=\"120\""
+" LabelJustification=\"Auto\""
+" CaptionJustification=\"Left\""
+" AminoAcidTermini=\"NH2COOH\""
+" ShowSequenceTermini=\"yes\""
+" ShowSequenceBonds=\"yes\""
+" PrintMargins=\"10.71 12.93 10.71 12.93\""
+" MacPrintInfo=\"00030000025802580000000019641380FFCEFFE7199613D30367052803FC00020000025802580000000019641380000100640064000000010001010100000001270F000100010000000000000000000000000002001901900000000000600000000000000000000100000000000000000000000000000000\""
+" color=\"0\""
+" bgcolor=\"1\""
+"><colortable>"
+"<color r=\"1\" g=\"1\" b=\"1\"/>"
+"<color r=\"0\" g=\"0\" b=\"0\"/>"
+"<color r=\"1\" g=\"0\" b=\"0\"/>"
+"<color r=\"1\" g=\"1\" b=\"0\"/>"
+"<color r=\"0\" g=\"1\" b=\"0\"/>"
+"<color r=\"0\" g=\"1\" b=\"1\"/>"
+"<color r=\"0\" g=\"0\" b=\"1\"/>"
+"<color r=\"1\" g=\"0\" b=\"1\"/>"
+"</colortable><fonttable>"
+"<font id=\"3\" charset=\"windows-1258\" name=\"Arial\"/>"
+"<font id=\"7\" charset=\"Unknown\" name=\"Symbol\"/>"
+"</fonttable>");
+	CAMBRIDGE_page_instance i_CAMBRIDGE_page_instance=CAMBRIDGE_page_instance();
+	i_CAMBRIDGE_page_instance.id=0;AUTOSTRUCT_EXISTS_SET_NAME(&i_CAMBRIDGE_page_instance,id);
+	i_CAMBRIDGE_page_instance.BoundingBox.left=0;AUTOSTRUCT_EXISTS_SET_NAME(&i_CAMBRIDGE_page_instance,BoundingBox);
+	i_CAMBRIDGE_page_instance.BoundingBox.top=0;
+	i_CAMBRIDGE_page_instance.BoundingBox.right=28346.46;
+	i_CAMBRIDGE_page_instance.BoundingBox.bottom=28346.46;
+	i_CAMBRIDGE_page_instance.Width=28346.46;AUTOSTRUCT_EXISTS_SET_NAME(&i_CAMBRIDGE_page_instance,Width);
+	i_CAMBRIDGE_page_instance.Height=28346.46;AUTOSTRUCT_EXISTS_SET_NAME(&i_CAMBRIDGE_page_instance,Height);
+	i_CAMBRIDGE_page_instance.HeaderPosition=36;AUTOSTRUCT_EXISTS_SET_NAME(&i_CAMBRIDGE_page_instance,HeaderPosition);
+	i_CAMBRIDGE_page_instance.FooterPosition=36;AUTOSTRUCT_EXISTS_SET_NAME(&i_CAMBRIDGE_page_instance,FooterPosition);
+	i_CAMBRIDGE_page_instance.PageOverlap=0;AUTOSTRUCT_EXISTS_SET_NAME(&i_CAMBRIDGE_page_instance,PageOverlap);
+	i_CAMBRIDGE_page_instance.PrintTrimMarks=1;AUTOSTRUCT_EXISTS_SET_NAME(&i_CAMBRIDGE_page_instance,PrintTrimMarks);
+	i_CAMBRIDGE_page_instance.HeightPages=37;AUTOSTRUCT_EXISTS_SET_NAME(&i_CAMBRIDGE_page_instance,HeightPages);
+	i_CAMBRIDGE_page_instance.WidthPages=48;AUTOSTRUCT_EXISTS_SET_NAME(&i_CAMBRIDGE_page_instance,WidthPages);
+	i_CAMBRIDGE_page_instance.DrawingSpace=1;AUTOSTRUCT_EXISTS_SET_NAME(&i_CAMBRIDGE_page_instance,DrawingSpace);
+	(*glob_CAMBRIDGE_page_multilist).filllevel=0;
+	(*glob_CAMBRIDGE_page_multilist).ADD(&i_CAMBRIDGE_page_instance);
+	CONVCAMBRIDGE_internaltomain(&i_CAMBRIDGE_page_instance);
+	output_object(ifile,&i_CAMBRIDGE_page_instance);
+	fprintf(ifile,"</CDXML>");
 	fclose(ifile);
 	return 1;
 }
@@ -555,8 +615,9 @@ catalogized_command_funcdef(LOAD_TYPE)
 	currentinstance=new(CAMBRIDGEPREFIX(Total_Document_instance));
 	input_fsm(infile);
 	fclose(infile);
-	svg_findaround();
 	CAMBRIDGECONV_maintointernal();
+	svg_findaround();
+	getatoms();
 }
 catalogized_command_funcdef(LOADAS)
 {

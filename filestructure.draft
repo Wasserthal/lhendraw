@@ -1,8 +1,8 @@
 Total_Document;CDXML ;;
 CDXML;colortable page fonttable LENHACK_ANNOTATION ;4 BoundingBox ;
-page;group fragment t graphic arrow curve ;;
+page;group fragment t graphic arrow curve ;0 id 4 BoundingBox 1 Width 1 Height 1 HeaderPosition 1 FooterPosition 1 PageOverlap ! PrintTrimMarks 0 HeightPages 0 WidthPages ! DrawingSpace ;
 group;annotation group fragment t graphic arrow curve ;;
-fragment;annotation n b t graphic arrow curve ;;
+fragment;annotation n b t graphic arrow curve ;4 BoundingBox ;
 n;t annotation ;! NodeType 0 Element 0 id 0 NumHydrogens 0 Charge 0 color 2 p 3 xyz 0 Z ! ExternalConnectionType ;
 b;;0 id 0 color 0 B 0 E 0 Z 1 Order ! Display ! Display2 ! DoublePosition ;
 t;s ;0 id 0 Z 4 BoundingBox ! Justification ! LabelAlignment 0 color 2 p 0 IGOTYOU ;

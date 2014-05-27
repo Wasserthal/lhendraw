@@ -101,14 +101,38 @@ void CAMBRIDGECONV_bonds()
 			tl_b_instance.color=0x000000;
 		}
 		color_fertig:
+		_u32 tl_outorder=0x10;
 		if (AUTOSTRUCT_EXISTS(CAMBRIDGE_b_instance,(*tl_CAMBRIDGE_b_instance),Order))
 		{
-			tl_b_instance.Order=(*tl_CAMBRIDGE_b_instance).Order;
+			_u32 iOrder=(*tl_CAMBRIDGE_b_instance).Order;
+			switch (iOrder & 0xFFF)
+			{
+				case 1: tl_outorder=0x10;break;
+				case 2: tl_outorder=0x20;break;
+				case 4: tl_outorder=0x30;break;
+				case 8: tl_outorder=0x40;break;
+				case 0x10: tl_outorder=0x50;break;
+				case 0x20: tl_outorder=0x60;break;
+				case 0x40: tl_outorder=0x8;break;
+				case 0x80: tl_outorder=0x18;break;
+				case 0x100: tl_outorder=0x28;break;
+				case 0x200: tl_outorder=0x38;break;
+				case 0x400: tl_outorder=0x48;break;
+				case 0x800: tl_outorder=0x58;break;
+			}
+			if (iOrder & 0x1000)
+			{
+				if (tl_outorder<=0x10)
+				{
+					tl_b_instance.Display=0x80;
+				}
+				else
+				{
+					tl_b_instance.Display2=0x80;
+				}//TODO: conflict with other "Display"
+			}
 		}
-		else
-		{
-			tl_b_instance.Order=1;
-		}
+		tl_b_instance.Order=tl_outorder;
 		tl_b_instance.B=(*tl_CAMBRIDGE_b_instance).B;
 		tl_b_instance.E=(*tl_CAMBRIDGE_b_instance).E;
 		if (AUTOSTRUCT_EXISTS(CAMBRIDGE_b_instance,(*tl_CAMBRIDGE_b_instance),Z))

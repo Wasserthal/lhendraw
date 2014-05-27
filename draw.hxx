@@ -1666,7 +1666,7 @@ void svg_controlprocedure(bool irestriction=0,bool hatches=0)
 		}
 	}
 	ibonddist=0;ibonddist2=0;
-	if ((*i_b_instance).Order>1.1)//floats, after all....
+	if ((*i_b_instance).Order>16)
 	{
 		switch((*i_b_instance).DoublePosition & 0xFF)
 		{
@@ -1674,10 +1674,10 @@ void svg_controlprocedure(bool irestriction=0,bool hatches=0)
 			case 1 : ibonddist=bonddist;break;
 			case 2 : ibonddist=-bonddist;break;
 		}
-		if ((*i_b_instance).Order>2.1)
+		if ((*i_b_instance).Order>32)
 		{
 			ibonddist=bonddist;ibonddist2=0;
-			if ((*i_b_instance).Order>3.1)
+			if ((*i_b_instance).Order>48)
 			{
 				ibonddist=(bonddist/2)*3;ibonddist2=(bonddist/2);
 			}
@@ -1748,14 +1748,14 @@ iBBX.right+ibonddist2*cos(cangle)+ibonddist4*(cos(cangle)-(cos(langle)*tlrightta
 		stylegenestring(((iDisplaytype1==1) ?8:0) | 1);
 		expressline(iBBX.left+ibonddist2*cos(cangle),iBBX.top+ibonddist2*sin(cangle),iBBX.right+ibonddist2*cos(cangle),iBBX.bottom+ibonddist2*sin(cangle));
 	}
-	if ((*i_b_instance).Order>1.1)
+	if ((*i_b_instance).Order>16)
 	{
 		stylegenestring((((*glob_b_multilist).bufferlist[index_in_buffer].Display2==1)?8:0)|1);
 		expressline(iBBX.left+ibonddist*cos(cangle),iBBX.top+ibonddist*sin(cangle),iBBX.right+ibonddist*cos(cangle),iBBX.bottom+ibonddist*sin(cangle));
-		if ((*i_b_instance).Order>2.1)
+		if ((*i_b_instance).Order>32)
 		{
 			expressline(iBBX.left-ibonddist*cos(cangle),iBBX.top-ibonddist*sin(cangle),iBBX.right-ibonddist*cos(cangle),iBBX.bottom-ibonddist*sin(cangle));
-			if ((*i_b_instance).Order>3.1)
+			if ((*i_b_instance).Order>48)
 			{
 				expressline(iBBX.left-ibonddist2*cos(cangle),iBBX.top-ibonddist2*sin(cangle),iBBX.right-ibonddist2*cos(cangle),iBBX.bottom-ibonddist2*sin(cangle));
 			}

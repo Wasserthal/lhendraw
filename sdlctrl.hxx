@@ -157,7 +157,12 @@ void checkupinconsistencies()
 						if (masamune==murasame)
 						{
 							(*glob_b_multilist).bufferlist[thisbond].exist=0;
-							(*glob_b_multilist).bufferlist[ilv2].Order+=1;//TODO: *16
+							(*glob_b_multilist).bufferlist[ilv2].Order&=0xF0;
+							(*glob_b_multilist).bufferlist[ilv2].Order+=16;
+							if ((*glob_b_multilist).bufferlist[ilv2].Order>64)
+							{
+								(*glob_b_multilist).bufferlist[ilv2].Order=16;
+							}
 						}
 					}
 				}
@@ -498,10 +503,11 @@ int issueclick(int iposx,int iposy)
 					tlbond=(b_instance*)getclicked(STRUCTURE_OBJECTTYPE_b);
 					if ((control_drawproperties.bond_multiplicity==1) && (control_drawproperties.bond_Display1==0) && ((*tlbond).Display==0))
 					{
-						(*tlbond).Order+=1;//TODO: *16
-						if ((*tlbond).Order>4)//TODO
+						(*tlbond).Order&=0xF0;
+						(*tlbond).Order+=16;
+						if ((*tlbond).Order>64)
 						{
-							(*tlbond).Order=1;
+							(*tlbond).Order=16;
 						}
 					}
 					else

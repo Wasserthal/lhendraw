@@ -40,6 +40,20 @@ void CONVCAMBRIDGE_bonds(CAMBRIDGE_fragment_instance * master)
 			(*tl_CAMBRIDGE_b_instance).Z=(*tl_b_instance).Z;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_b_instance,Z);
 			(*tl_CAMBRIDGE_b_instance).B=(*tl_b_instance).B;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_b_instance,B);
 			(*tl_CAMBRIDGE_b_instance).E=(*tl_b_instance).E;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_b_instance,E);
+			_i32 iOrderout=1;
+			_u8 iOrder=(*tl_b_instance).Order;
+if (iOrder>8){ if (iOrder>16) {if (iOrder>24) {if (iOrder>32) {if (iOrder>40) {if (iOrder>48) {if (iOrder>56) {if (iOrder>64) {if (iOrder>72) {if (iOrder>80) {if (iOrder>88) {
+iOrderout=0x20;}else iOrderout=0x800;}else iOrderout=0x10;}else iOrderout=0x400;}else iOrderout=0x8;}else iOrderout=0x200;}else iOrderout=0x4;}else iOrderout=0x100;}else 
+iOrderout=0x2;}else iOrderout=0x80;}else iOrderout=0x1;}else iOrderout=0x40;
+			if ((iOrder>16) && ((*tl_b_instance).Display2 & 0x80))
+			{
+				iOrderout|=0x1000;//ChemDraw cannot process this
+			}
+			if ((iOrder<=16) && ((*tl_b_instance).Display & 0x80))
+			{
+				iOrderout=0x1000;//which is why it gets omitted here.
+			}
+			(*tl_CAMBRIDGE_b_instance).Order=iOrderout;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_b_instance,Order);
 			(*tl_CAMBRIDGE_b_multilist).ADD(tl_CAMBRIDGE_b_instance);
 		}
 	}

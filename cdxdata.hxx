@@ -302,7 +302,7 @@ int __attribute__((sysv_abi))CDXMLREAD_float(char * input,void * output)
 
 int __attribute__((sysv_abi))CDXMLWRITE__x8(char * input,void * output)
 {
-	fprintf((FILE*)output,"%hhX",*((unsigned char *) input));//TODO: div16
+	fprintf((FILE*)output,"%hhX.%hhX",(*((unsigned char *) input))/16,(*((unsigned char *) input))%16);//TODO: div16
 }
 int __attribute__((sysv_abi))CDXMLREAD__x8(char * input,void * output)
 {

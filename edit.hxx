@@ -348,6 +348,7 @@ b_instance * summonbond(int i_id_begin,int i_id_end,int i_nr_begin,int i_nr_end)
 		(*tlinstance).B=i_id_begin;
 		(*tlinstance).E=i_id_end;
 		(*tlinstance).Display=control_drawproperties.bond_Display1;
+		(*tlinstance).Order=0x10;
 		(*tlinstance).color=control_drawproperties.color;
 		atom_actual_node[i_nr_begin]+=((*glob_b_multilist).filllevel);
 		atom_actual_node[i_nr_end]+=((*glob_b_multilist).filllevel);

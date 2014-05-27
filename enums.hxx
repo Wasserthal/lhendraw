@@ -104,6 +104,7 @@ bienum CDXML_Display2[]={
 	{{"WavyWedgeEnd"},12},
 	{{"Dot"},13},
 	{{"DashDot"},14},
+	{{"dative"},0x80},
 };
 int CDXML_Display2_max=sizeof(CDXML_Display2)/sizeof(CDXML_Display2[0]);
 bienum CDXML_Display[]={
@@ -122,6 +123,7 @@ bienum CDXML_Display[]={
 	{{"WavyWedgeEnd"},12},
 	{{"Dot"},13},
 	{{"DashDot"},14},
+	{{"dative"},0x80},
 };
 int CDXML_Display_max=sizeof(CDXML_Display)/sizeof(CDXML_Display[0]);
 bienum CDXML_Justification[]={
@@ -205,6 +207,23 @@ bienum CDXML_FillType[]={
 	{{"Respective_To_Internal_Cosy"},0x16},//LHENDRAW EXTENSION
 };
 int CDXML_FillType_max=sizeof(CDXML_FillType)/sizeof(CDXML_FillType[0]);
+bienum CDXML_Order[]={
+	{{"any"},-1},
+	{{"1"},0x1},
+	{{"2"},0x2},
+	{{"3"},0x4},
+	{{"4"},0x8},
+	{{"5"},0x10},
+	{{"6"},0x20},
+	{{"0.5"},0x40},
+	{{"1.5"},0x80},
+	{{"2.5"},0x100},
+	{{"3.5"},0x200},
+	{{"4.5"},0x400},
+	{{"5.5"},0x800},
+	{{"dative"},0x1000},
+};
+int CDXML_Order_max=sizeof(CDXML_Order)/sizeof(CDXML_Order[0]);
 bienum CDXML_PrintTrimMarks[]={
 	{{"no"},0},
 	{{"yes"},1},

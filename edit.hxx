@@ -519,63 +519,134 @@ catalogized_command_funcdef(BLOT)
 	}
 	return 1;
 }
+void edit_scoopcolors(basic_instance * master)
+{
+	int ilv1,ilv2,ilv3;
+	_u32 icolor;
+	unsigned char r,g,b;
+	CDXMLREAD_functype idummy;
+	for (int ilv1=0;ilv1<8;ilv1++)
+	{
+		ADD_TO_MULTILISTREFERENCE(master,color);
+	}
+	for (ilv1=0;ilv1<8;ilv1++)//sortta explanation for da weird colortable order, roflz
+	{
+		r=ilv1%2;
+		g=(ilv1>>1)%2;
+		b=(ilv1>>2)%2;
+		if (b) {r^=1;g^=r;r^=g;}else{r^=g;}
+		(*glob_CAMBRIDGE_color_multilist).bufferlist[(ilv1+1)%8].b=b;
+		(*glob_CAMBRIDGE_color_multilist).bufferlist[(ilv1+1)%8].g=g;
+		(*glob_CAMBRIDGE_color_multilist).bufferlist[(ilv1+1)%8].r=r;
+	}
+	basicmultilist * tl_multilist;
+	for (ilv1=1;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
+	{
+		tl_multilist=findmultilist(STRUCTURE_OBJECTTYPE_List[ilv1].name);
+		if (tl_multilist!=NULL)
+		{
+			int icompare=(1<<ilv1);
+			int tl_size=(*tl_multilist).itemsize;
+			int ifilllevel=(*tl_multilist).filllevel;//separately, so it doesn't grow while executing the loop
+			int ioffset=(*tl_multilist).getproperties("color",&idummy);
+			if (ioffset!=-1)
+			{
+				for (ilv2=0;ilv2<ifilllevel;ilv2++)
+				{
+					if ((*tl_multilist)[ilv2].exist)
+					{
+						icolor=*(_u32*)(((char*)(&((*tl_multilist)[ilv2])))+ioffset);
+						r=(icolor&0xFF0000)>>16;
+						g=(icolor&0xFF00)>>8;
+						b=(icolor&0xFF);
+						for (ilv3=0;ilv3<(*glob_CAMBRIDGE_color_multilist).filllevel;ilv3++)
+						{
+							if ((((unsigned char)((*((CAMBRIDGE_color_instance*)&((*glob_CAMBRIDGE_color_multilist)[ilv3]))).r*255))==r) && 
+							(((unsigned char)((*((CAMBRIDGE_color_instance*)&((*glob_CAMBRIDGE_color_multilist)[ilv3]))).g*255))==g) && 
+							(((unsigned char)((*((CAMBRIDGE_color_instance*)&((*glob_CAMBRIDGE_color_multilist)[ilv3]))).b*255))==b))
+							{
+								goto idone;
+							}
+						}
+						ADD_TO_MULTILISTREFERENCE(master,color);
+						(*tl_CAMBRIDGE_color_instance).r=r/255.0;
+						(*tl_CAMBRIDGE_color_instance).g=g/255.0;
+						(*tl_CAMBRIDGE_color_instance).b=b/255.0;
+						printf("r:%i,g:%i,b:%i\n",r,g,b);
+						printf("r:%f,g:%f,b:%f\n",(*tl_CAMBRIDGE_color_instance).r,(*tl_CAMBRIDGE_color_instance).g,(*tl_CAMBRIDGE_color_instance).b);
+						idone:;
+					}
+				}
+			}
+		}
+	}
+}
 catalogized_command_funcdef(SAVE_TYPE)
 {
 	FILE * ifile=fopen(parameter,"w");
 	fprintf(ifile,"<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n");
 	fprintf(ifile,"<!DOCTYPE CDXML SYSTEM \"http://www.cambridgesoft.com/xml/cdxml.dtd\" >\n");
-	fprintf(ifile,"%s","<CDXML"
-" CreationProgram=\"ChemDraw 12.0.2.1076\""
-" Name=\"whocares.cdxml\""
-" BoundingBox=\"5.5 155.04 724.05 736.75\""
-" WindowPosition=\"-1073741824 1073741824\""
-" WindowSize=\"0 0\""
-" FractionalWidths=\"yes\""
-" InterpretChemically=\"yes\""
-" ShowAtomQuery=\"yes\""
-" ShowAtomStereo=\"no\""
-" ShowAtomEnhancedStereo=\"yes\""
-" ShowAtomNumber=\"no\""
-" ShowBondQuery=\"yes\""
-" ShowBondRxn=\"yes\""
-" ShowBondStereo=\"no\""
-" ShowTerminalCarbonLabels=\"no\""
-" ShowNonTerminalCarbonLabels=\"no\""
-" HideImplicitHydrogens=\"no\""
-" LabelFont=\"3\""
-" LabelSize=\"18\""
-" LabelFace=\"96\""
-" CaptionFont=\"3\""
-" CaptionSize=\"18\""
-" HashSpacing=\"2.7\""
-" MarginWidth=\"2\""
-" LineWidth=\"1\""
-" BoldWidth=\"4\""
-" BondLength=\"30\""
-" BondSpacing=\"12\""
-" ChainAngle=\"120\""
-" LabelJustification=\"Auto\""
-" CaptionJustification=\"Left\""
-" AminoAcidTermini=\"NH2COOH\""
-" ShowSequenceTermini=\"yes\""
-" ShowSequenceBonds=\"yes\""
-" PrintMargins=\"10.71 12.93 10.71 12.93\""
-" MacPrintInfo=\"00030000025802580000000019641380FFCEFFE7199613D30367052803FC00020000025802580000000019641380000100640064000000010001010100000001270F000100010000000000000000000000000002001901900000000000600000000000000000000100000000000000000000000000000000\""
-" color=\"0\""
-" bgcolor=\"1\""
-"><colortable>"
-"<color r=\"1\" g=\"1\" b=\"1\"/>"
-"<color r=\"0\" g=\"0\" b=\"0\"/>"
-"<color r=\"1\" g=\"0\" b=\"0\"/>"
-"<color r=\"1\" g=\"1\" b=\"0\"/>"
-"<color r=\"0\" g=\"1\" b=\"0\"/>"
-"<color r=\"0\" g=\"1\" b=\"1\"/>"
-"<color r=\"0\" g=\"0\" b=\"1\"/>"
-"<color r=\"1\" g=\"0\" b=\"1\"/>"
-"</colortable><fonttable>"
-"<font id=\"3\" charset=\"windows-1258\" name=\"Arial\"/>"
-"<font id=\"7\" charset=\"Unknown\" name=\"Symbol\"/>"
-"</fonttable>");
+	for (int ilv1=0;ilv1<multilist_count;ilv1++)
+	{
+		if (multilistlist[ilv1].usage==1)
+		{
+			(*(multilistlist[ilv1].instance)).filllevel=0;
+		}
+	}
+	CAMBRIDGE_colortable_instance i_CAMBRIDGE_colortable_instance=CAMBRIDGE_colortable_instance();
+	(*glob_CAMBRIDGE_colortable_multilist).ADD(&i_CAMBRIDGE_colortable_instance);
+	printf("!!%i!!\n",(*((*glob_CAMBRIDGE_colortable_multilist).bufferlist[0].color)).start_in_it);
+	edit_scoopcolors(&i_CAMBRIDGE_colortable_instance);
+	fprintf(ifile,"%s","<CDXML\n"
+" CreationProgram=\"ChemDraw 12.0.2.1076\"\n"
+" Name=\"whocares.cdxml\"\n"
+" BoundingBox=\"5.5 155.04 724.05 736.75\"\n"
+" WindowPosition=\"-1073741824 1073741824\"\n"
+" WindowSize=\"0 0\"\n"
+" FractionalWidths=\"yes\"\n"
+" InterpretChemically=\"yes\"\n"
+" ShowAtomQuery=\"yes\"\n"
+" ShowAtomStereo=\"no\"\n"
+" ShowAtomEnhancedStereo=\"yes\"\n"
+" ShowAtomNumber=\"no\"\n"
+" ShowBondQuery=\"yes\"\n"
+" ShowBondRxn=\"yes\"\n"
+" ShowBondStereo=\"no\"\n"
+" ShowTerminalCarbonLabels=\"no\"\n"
+" ShowNonTerminalCarbonLabels=\"no\"\n"
+" HideImplicitHydrogens=\"no\"\n"
+" LabelFont=\"3\"\n"
+" LabelSize=\"18\"\n"
+" LabelFace=\"96\"\n"
+" CaptionFont=\"3\"\n"
+" CaptionSize=\"18\"\n"
+" HashSpacing=\"2.7\"\n"
+" MarginWidth=\"2\"\n"
+" LineWidth=\"1\"\n"
+" BoldWidth=\"4\"\n"
+" BondLength=\"30\"\n"
+" BondSpacing=\"12\"\n"
+" ChainAngle=\"120\"\n"
+" LabelJustification=\"Auto\"\n"
+" CaptionJustification=\"Left\"\n"
+" AminoAcidTermini=\"NH2COOH\"\n"
+" ShowSequenceTermini=\"yes\"\n"
+" ShowSequenceBonds=\"yes\"\n"
+" PrintMargins=\"10.71 12.93 10.71 12.93\"\n"
+" MacPrintInfo=\"00030000025802580000000019641380FFCEFFE7199613D30367052803FC00020000025802580000000019641380000100640064000000010001010100000001270F000100010000000000000000000000000002001901900000000000600000000000000000000100000000000000000000000000000000\"\n"
+" color=\"0\"\n"
+" bgcolor=\"1\"\n"
+"><colortable>\n");
+for (int ilv1=0;ilv1<(*glob_CAMBRIDGE_color_multilist).filllevel;ilv1++)
+{
+	fprintf(ifile," <color r=\"%f\" g=\"%f\" b=\"%f\"/>\n",(*glob_CAMBRIDGE_color_multilist).bufferlist[ilv1].r,(*glob_CAMBRIDGE_color_multilist).bufferlist[ilv1].g,(*glob_CAMBRIDGE_color_multilist).bufferlist[ilv1].b);
+}
+
+fprintf(ifile,"%s","</colortable><fonttable>\n"
+"<font id=\"3\" charset=\"windows-1258\" name=\"Arial\"/>\n"
+"<font id=\"7\" charset=\"Unknown\" name=\"Symbol\"/>\n"
+"</fonttable>");//TODO: font id's(!)
+	//TODO: all subobjects of page must get filllevel=0 before add!
 	CAMBRIDGE_page_instance i_CAMBRIDGE_page_instance=CAMBRIDGE_page_instance();
 	i_CAMBRIDGE_page_instance.id=0;AUTOSTRUCT_EXISTS_SET_NAME(&i_CAMBRIDGE_page_instance,id);
 	i_CAMBRIDGE_page_instance.BoundingBox.left=0;AUTOSTRUCT_EXISTS_SET_NAME(&i_CAMBRIDGE_page_instance,BoundingBox);
@@ -591,7 +662,6 @@ catalogized_command_funcdef(SAVE_TYPE)
 	i_CAMBRIDGE_page_instance.HeightPages=37;AUTOSTRUCT_EXISTS_SET_NAME(&i_CAMBRIDGE_page_instance,HeightPages);
 	i_CAMBRIDGE_page_instance.WidthPages=48;AUTOSTRUCT_EXISTS_SET_NAME(&i_CAMBRIDGE_page_instance,WidthPages);
 	i_CAMBRIDGE_page_instance.DrawingSpace=1;AUTOSTRUCT_EXISTS_SET_NAME(&i_CAMBRIDGE_page_instance,DrawingSpace);
-	(*glob_CAMBRIDGE_page_multilist).filllevel=0;
 	(*glob_CAMBRIDGE_page_multilist).ADD(&i_CAMBRIDGE_page_instance);
 	CONVCAMBRIDGE_internaltomain(&i_CAMBRIDGE_page_instance);
 	output_object(ifile,&i_CAMBRIDGE_page_instance);

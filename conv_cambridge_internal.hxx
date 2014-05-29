@@ -101,6 +101,14 @@ void CAMBRIDGECONV_bonds()
 			tl_b_instance.color=0x000000;
 		}
 		color_fertig:
+		if (AUTOSTRUCT_EXISTS(CAMBRIDGE_b_instance,(*tl_CAMBRIDGE_b_instance),Display))
+		{
+			tl_b_instance.Display=(*tl_CAMBRIDGE_b_instance).Display;
+		}
+		if (AUTOSTRUCT_EXISTS(CAMBRIDGE_b_instance,(*tl_CAMBRIDGE_b_instance),Display2))
+		{
+			tl_b_instance.Display2=(*tl_CAMBRIDGE_b_instance).Display2;
+		}
 		_u32 tl_outorder=0x10;
 		if (AUTOSTRUCT_EXISTS(CAMBRIDGE_b_instance,(*tl_CAMBRIDGE_b_instance),Order))
 		{
@@ -124,12 +132,12 @@ void CAMBRIDGECONV_bonds()
 			{
 				if (tl_outorder<=0x10)
 				{
-					tl_b_instance.Display=0x80;
+					tl_b_instance.Display|=0x80;
 				}
 				else
 				{
-					tl_b_instance.Display2=0x80;
-				}//TODO: conflict with other "Display"
+					tl_b_instance.Display2|=0x80;
+				}
 			}
 		}
 		tl_b_instance.Order=tl_outorder;
@@ -138,14 +146,6 @@ void CAMBRIDGECONV_bonds()
 		if (AUTOSTRUCT_EXISTS(CAMBRIDGE_b_instance,(*tl_CAMBRIDGE_b_instance),Z))
 		{
 			tl_b_instance.Z=(*tl_CAMBRIDGE_b_instance).Z;
-		}
-		if (AUTOSTRUCT_EXISTS(CAMBRIDGE_b_instance,(*tl_CAMBRIDGE_b_instance),Display))
-		{
-			tl_b_instance.Display=(*tl_CAMBRIDGE_b_instance).Display;
-		}
-		if (AUTOSTRUCT_EXISTS(CAMBRIDGE_b_instance,(*tl_CAMBRIDGE_b_instance),Display2))
-		{
-			tl_b_instance.Display2=(*tl_CAMBRIDGE_b_instance).Display2;
 		}
 		if (AUTOSTRUCT_EXISTS(CAMBRIDGE_b_instance,(*tl_CAMBRIDGE_b_instance),DoublePosition))
 		{

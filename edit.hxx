@@ -595,7 +595,6 @@ catalogized_command_funcdef(SAVE_TYPE)
 	}
 	CAMBRIDGE_colortable_instance i_CAMBRIDGE_colortable_instance=CAMBRIDGE_colortable_instance();
 	(*glob_CAMBRIDGE_colortable_multilist).ADD(&i_CAMBRIDGE_colortable_instance);
-	printf("!!%i!!\n",(*((*glob_CAMBRIDGE_colortable_multilist).bufferlist[0].color)).start_in_it);
 	edit_scoopcolors(&i_CAMBRIDGE_colortable_instance);
 	fprintf(ifile,"%s","<CDXML\n"
 " CreationProgram=\"ChemDraw 12.0.2.1076\"\n"

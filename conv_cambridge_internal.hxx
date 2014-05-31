@@ -1,3 +1,31 @@
+#define CAMBRIDGECONV_EXISTSTHEN(MACROPARAM_TYPE,MACROPARAM_PARAM) \
+if (AUTOSTRUCT_EXISTS(CAMBRIDGE_ ## MACROPARAM_TYPE ## _instance,(*tl_CAMBRIDGE_ ## MACROPARAM_TYPE ## _instance),MACROPARAM_PARAM))\
+{\
+	tl_ ## MACROPARAM_TYPE ## _instance.MACROPARAM_PARAM=(*tl_CAMBRIDGE_ ## MACROPARAM_TYPE ## _instance).MACROPARAM_PARAM;\
+}
+#define CAMBRIDGECONV_COLORCONV(MACROPARAM_TYPE) \
+{\
+	__label__ color_fertig;\
+	if (AUTOSTRUCT_EXISTS(CAMBRIDGE_ ## MACROPARAM_TYPE ## _instance,(*tl_CAMBRIDGE_ ## MACROPARAM_TYPE ## _instance),color))\
+	{\
+		int tlcolor=(*tl_CAMBRIDGE_ ## MACROPARAM_TYPE ## _instance).color-2;\
+		if (tlcolor==-2) {tl_ ## MACROPARAM_TYPE ## _instance.color=0x000000; goto color_fertig; }\
+		if (tlcolor==-1) {tl_ ## MACROPARAM_TYPE ## _instance.color=0xFFFFFF; goto color_fertig; }\
+		if (tlcolor<(*glob_CAMBRIDGE_color_multilist).filllevel)\
+		{\
+			tl_ ## MACROPARAM_TYPE ## _instance.color=((_u8)(((*glob_CAMBRIDGE_color_multilist).bufferlist)[tlcolor].r*255)*65536)|((_u8)(((*glob_CAMBRIDGE_color_multilist).bufferlist)[tlcolor].g*255)*256)|((_u8)(((*glob_CAMBRIDGE_color_multilist).bufferlist)[tlcolor].b*255));\
+		}\
+		else\
+		{\
+			tl_ ## MACROPARAM_TYPE ## _instance.color=0x000000;\
+		}\
+	}\
+	else\
+	{\
+		tl_ ## MACROPARAM_TYPE ## _instance.color=0x000000;\
+	}\
+	color_fertig:;\
+}
 CAMBRIDGE_font_instance * getfont(_small iid)
 {
 	for (int ilv1=0;ilv1<(*glob_CAMBRIDGE_font_multilist).filllevel;ilv1++)
@@ -9,7 +37,7 @@ CAMBRIDGE_font_instance * getfont(_small iid)
 	}
 	return NULL;
 }
-void CAMBRIDGECONV_atoms()
+void CAMBRIDGECONV_atom()
 {
 	multilist<CAMBRIDGE_n_instance> * tl_CAMBRIDGE_n_multilist=retrievemultilist<CAMBRIDGE_n_instance>();
 	multilist<n_instance> * tl_n_multilist=retrievemultilist<n_instance>();
@@ -46,25 +74,7 @@ void CAMBRIDGECONV_atoms()
 		{
 			tl_n_instance.xyz=(*tl_CAMBRIDGE_n_instance).xyz;
 		}
-		if (AUTOSTRUCT_EXISTS(CAMBRIDGE_n_instance,(*tl_CAMBRIDGE_n_instance),color))
-		{
-			int tlcolor=(*tl_CAMBRIDGE_n_instance).color-2;
-			if (tlcolor==-2) {tl_n_instance.color=0x000000; goto color_fertig; }
-			if (tlcolor==-1) {tl_n_instance.color=0xFFFFFF; goto color_fertig; }
-			if (tlcolor<(*glob_CAMBRIDGE_color_multilist).filllevel)
-			{
-				tl_n_instance.color=((_u8)(((*glob_CAMBRIDGE_color_multilist).bufferlist)[tlcolor].r*255)*65536)|((_u8)(((*glob_CAMBRIDGE_color_multilist).bufferlist)[tlcolor].g*255)*256)|((_u8)(((*glob_CAMBRIDGE_color_multilist).bufferlist)[tlcolor].b*255));
-			}
-			else
-			{
-				tl_n_instance.color=0x000000;
-			}
-		}
-		else
-		{
-			tl_n_instance.color=0x000000;
-		}
-		color_fertig:
+		CAMBRIDGECONV_COLORCONV(n);
 		//TODO: ExternalConnectionType, and respecting this enumerated property in draw
 		tl_n_instance.id=(*tl_CAMBRIDGE_n_instance).id;
 		tl_n_instance.Z=(*tl_CAMBRIDGE_n_instance).Z;
@@ -72,7 +82,7 @@ void CAMBRIDGECONV_atoms()
 	}
 }
 
-void CAMBRIDGECONV_bonds()
+void CAMBRIDGECONV_bond()
 {
 	multilist<CAMBRIDGE_b_instance> * tl_CAMBRIDGE_b_multilist=retrievemultilist<CAMBRIDGE_b_instance>();
 	multilist<b_instance> * tl_b_multilist=retrievemultilist<b_instance>();
@@ -82,25 +92,7 @@ void CAMBRIDGECONV_bonds()
 		CAMBRIDGE_b_instance * tl_CAMBRIDGE_b_instance=(*tl_CAMBRIDGE_b_multilist).bufferlist+ilv1;
 		b_instance tl_b_instance;
 		tl_b_instance=b_instance();
-		if (AUTOSTRUCT_EXISTS(CAMBRIDGE_b_instance,(*tl_CAMBRIDGE_b_instance),color))
-		{
-			int tlcolor=(*tl_CAMBRIDGE_b_instance).color-2;
-			if (tlcolor==-2) {tl_b_instance.color=0x000000; goto color_fertig; }
-			if (tlcolor==-1) {tl_b_instance.color=0xFFFFFF; goto color_fertig; }
-			if (tlcolor<(*glob_CAMBRIDGE_color_multilist).filllevel)
-			{
-				tl_b_instance.color=((_u8)(((*glob_CAMBRIDGE_color_multilist).bufferlist)[tlcolor].r*255)*65536)|((_u8)(((*glob_CAMBRIDGE_color_multilist).bufferlist)[tlcolor].g*255)*256)|((_u8)(((*glob_CAMBRIDGE_color_multilist).bufferlist)[tlcolor].b*255));
-			}
-			else
-			{
-				tl_b_instance.color=0x000000;
-			}
-		}
-		else
-		{
-			tl_b_instance.color=0x000000;
-		}
-		color_fertig:
+		CAMBRIDGECONV_COLORCONV(b);
 		if (AUTOSTRUCT_EXISTS(CAMBRIDGE_b_instance,(*tl_CAMBRIDGE_b_instance),Display))
 		{
 			tl_b_instance.Display=(*tl_CAMBRIDGE_b_instance).Display;
@@ -159,7 +151,7 @@ void CAMBRIDGECONV_bonds()
 	}
 }
 
-void CAMBRIDGECONV_texts()
+void CAMBRIDGECONV_text()
 {
 	multilist<CAMBRIDGE_t_instance> * tl_CAMBRIDGE_t_multilist=retrievemultilist<CAMBRIDGE_t_instance>();
 	multilist<CAMBRIDGE_s_instance> * tl_CAMBRIDGE_s_multilist=retrievemultilist<CAMBRIDGE_s_instance>();
@@ -184,25 +176,7 @@ void CAMBRIDGECONV_texts()
 		t_instance tl_t_instance;
 		s_instance tl_s_instance;
 		tl_t_instance=t_instance();
-		if (AUTOSTRUCT_EXISTS(CAMBRIDGE_t_instance,(*tl_CAMBRIDGE_t_instance),color))
-		{
-			int tlcolor=(*tl_CAMBRIDGE_t_instance).color-2;
-			if (tlcolor==-2) {tl_t_instance.color=0x000000; goto color_fertig; }
-			if (tlcolor==-1) {tl_t_instance.color=0xFFFFFF; goto color_fertig; }
-			if (tlcolor<(*glob_CAMBRIDGE_color_multilist).filllevel)
-			{
-				tl_t_instance.color=((_u8)(((*glob_CAMBRIDGE_color_multilist).bufferlist)[tlcolor].r*255)*65536)|((_u8)(((*glob_CAMBRIDGE_color_multilist).bufferlist)[tlcolor].g*255)*256)|((_u8)(((*glob_CAMBRIDGE_color_multilist).bufferlist)[tlcolor].b*255));
-			}
-			else
-			{
-				tl_t_instance.color=0x000000;
-			}
-		}
-		else
-		{
-			tl_t_instance.color=0x000000;
-		}
-		color_fertig:
+		CAMBRIDGECONV_COLORCONV(t)
 		if (AUTOSTRUCT_EXISTS(CAMBRIDGE_t_instance,(*tl_CAMBRIDGE_t_instance),p))
 		{
 			tl_t_instance.xyz.x=(*tl_CAMBRIDGE_t_instance).p.x;
@@ -218,24 +192,7 @@ void CAMBRIDGECONV_texts()
 			CAMBRIDGE_s_instance * tl_CAMBRIDGE_s_instance=(*tl_CAMBRIDGE_s_multilist).bufferlist+ilv2;
 			tl_s_instance.font=(*tl_CAMBRIDGE_s_instance).font;
 			tl_s_instance.face=(*tl_CAMBRIDGE_s_instance).face;
-			if (AUTOSTRUCT_EXISTS(CAMBRIDGE_s_instance,(*tl_CAMBRIDGE_s_instance),color))
-			{
-				int tlcolor=(*tl_CAMBRIDGE_s_instance).color-2;
-				if (tlcolor==-2) {tl_s_instance.color=0x000000; goto color_fertig; }
-				if (tlcolor==-1) {tl_s_instance.color=0xFFFFFF; goto color_fertig; }
-				if (tlcolor<(*glob_CAMBRIDGE_color_multilist).filllevel)
-				{
-					tl_s_instance.color=((_u8)(((*glob_CAMBRIDGE_color_multilist).bufferlist)[tlcolor].r*255)*65536)|((_u8)(((*glob_CAMBRIDGE_color_multilist).bufferlist)[tlcolor].g*255)*256)|((_u8)(((*glob_CAMBRIDGE_color_multilist).bufferlist)[tlcolor].b*255));
-				}
-				else
-				{
-					tl_s_instance.color=0x000000;
-				}
-			}
-			else
-			{
-				tl_s_instance.color=0x000000;
-			}
+			CAMBRIDGECONV_COLORCONV(s)
 			tl_s_instance.type=TELESCOPE_ELEMENTTYPE_s;
 			if (strcmp((*getfont((*tl_CAMBRIDGE_s_instance).font)).name.a,"Symbol")==0)
 			{
@@ -271,6 +228,59 @@ void CAMBRIDGECONV_texts()
 		iskipthis:;
 	}
 }
+void CAMBRIDGECONV_graphic()
+{
+	multilist<CAMBRIDGE_graphic_instance> * tl_CAMBRIDGE_graphic_multilist=retrievemultilist<CAMBRIDGE_graphic_instance>();
+	multilist<graphic_instance> * tl_graphic_multilist=retrievemultilist<graphic_instance>();
+	(*tl_graphic_multilist).filllevel=0;
+	for (int ilv1=0;ilv1<(*tl_CAMBRIDGE_graphic_multilist).filllevel;ilv1++)
+	{
+		CAMBRIDGE_graphic_instance * tl_CAMBRIDGE_graphic_instance=(*tl_CAMBRIDGE_graphic_multilist).bufferlist+ilv1;
+		graphic_instance tl_graphic_instance;
+		tl_graphic_instance=graphic_instance();
+		CAMBRIDGECONV_COLORCONV(graphic);
+		CAMBRIDGECONV_EXISTSTHEN(graphic,BoundingBox);
+		CAMBRIDGECONV_EXISTSTHEN(graphic,GraphicType);
+		CAMBRIDGECONV_EXISTSTHEN(graphic,SymbolType);
+		CAMBRIDGECONV_EXISTSTHEN(graphic,OvalType);
+		CAMBRIDGECONV_EXISTSTHEN(graphic,RectangleType);
+		CAMBRIDGECONV_EXISTSTHEN(graphic,LineType);
+		CAMBRIDGECONV_EXISTSTHEN(graphic,BracketType);
+		CAMBRIDGECONV_EXISTSTHEN(graphic,Center3D);
+		CAMBRIDGECONV_EXISTSTHEN(graphic,MajorAxisEnd3D);
+		CAMBRIDGECONV_EXISTSTHEN(graphic,MinorAxisEnd3D);
+		CAMBRIDGECONV_EXISTSTHEN(graphic,id);//TODO: possibly not needed. Remove?
+		CAMBRIDGECONV_EXISTSTHEN(graphic,Z);
+		(*tl_graphic_multilist).ADD(&tl_graphic_instance);
+	}
+}
+void CAMBRIDGECONV_arrow()
+{
+	multilist<CAMBRIDGE_arrow_instance> * tl_CAMBRIDGE_arrow_multilist=retrievemultilist<CAMBRIDGE_arrow_instance>();
+	multilist<arrow_instance> * tl_arrow_multilist=retrievemultilist<arrow_instance>();
+	(*tl_arrow_multilist).filllevel=0;
+	for (int ilv1=0;ilv1<(*tl_CAMBRIDGE_arrow_multilist).filllevel;ilv1++)
+	{
+		CAMBRIDGE_arrow_instance * tl_CAMBRIDGE_arrow_instance=(*tl_CAMBRIDGE_arrow_multilist).bufferlist+ilv1;
+		arrow_instance tl_arrow_instance;
+		tl_arrow_instance=arrow_instance();
+		CAMBRIDGECONV_COLORCONV(arrow);
+		CAMBRIDGECONV_EXISTSTHEN(arrow,Head3D);
+		CAMBRIDGECONV_EXISTSTHEN(arrow,Tail3D);
+		CAMBRIDGECONV_EXISTSTHEN(arrow,Center3D);
+		CAMBRIDGECONV_EXISTSTHEN(arrow,LineType);
+		CAMBRIDGECONV_EXISTSTHEN(arrow,AngularSize);
+		CAMBRIDGECONV_EXISTSTHEN(arrow,MajorAxisEnd3D);
+		CAMBRIDGECONV_EXISTSTHEN(arrow,MinorAxisEnd3D);
+		CAMBRIDGECONV_EXISTSTHEN(arrow,ArrowheadType);
+		CAMBRIDGECONV_EXISTSTHEN(arrow,ArrowheadHead);
+		CAMBRIDGECONV_EXISTSTHEN(arrow,ArrowheadTail);
+		CAMBRIDGECONV_EXISTSTHEN(arrow,ArrowShaftSpacing);
+		CAMBRIDGECONV_EXISTSTHEN(arrow,Z);
+//graphicType???
+		(*tl_arrow_multilist).ADD(&tl_arrow_instance);
+	}
+}
 #define WORKIFIX_REGISTERED_TRADEMARK_workthrough_variables\
 	_u32 icompare;\
 	int isize;\
@@ -295,7 +305,9 @@ void CAMBRIDGECONV_texts()
 
 void CAMBRIDGECONV_maintointernal()
 {
-	CAMBRIDGECONV_atoms();
-	CAMBRIDGECONV_bonds();
-	CAMBRIDGECONV_texts();
+	CAMBRIDGECONV_atom();
+	CAMBRIDGECONV_bond();
+	CAMBRIDGECONV_text();
+	CAMBRIDGECONV_graphic();
+	CAMBRIDGECONV_arrow();
 }

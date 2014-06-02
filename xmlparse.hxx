@@ -339,6 +339,8 @@ long long fullu64=0xFFFFFFFFFFFFFFFF;
 void output_object(FILE * outfile,basic_instance * iinstance)
 {
 	char hadhadcontent=0;
+	char haspctext=0;
+	char * PCTEXT_pointer;
 	_i32 propertycount=(*iinstance)._->properties_count;
 	_i32 contentcount=(*iinstance)._->contents_count;
 	_u32 * ipointer=(*iinstance).getINTERNALPropertyexistflags();
@@ -350,12 +352,26 @@ void output_object(FILE * outfile,basic_instance * iinstance)
 		if (existflags & (1<<ilv1))
 		{
 			int ipropertypos=(*iinstance)._->properties[ilv1].ref;
-			fprintf(outfile," %s=\"",(*iinstance)._->properties[ilv1].name);
-			(*iinstance)._->properties[ilv1].writedelegate(((char*)iinstance)+ipropertypos,outfile);
-			fprintf(outfile,"\"\n");
+			char * name=(*iinstance)._->properties[ilv1].name;
+			if (strcmp(name,"PCTEXT")==0)
+			{
+				haspctext=1;
+				PCTEXT_pointer=((char*)iinstance)+ipropertypos;
+			}
+			else
+			{
+				fprintf(outfile," %s=\"",name);
+				(*iinstance)._->properties[ilv1].writedelegate(((char*)iinstance)+ipropertypos,outfile);
+				fprintf(outfile,"\"\n");
+			}
 		}
 	}
-	hadhadcontent=0;
+	if (haspctext)
+	{
+		fprintf(outfile,">");
+		writefrombuffer(outfile,*(char**)PCTEXT_pointer);
+	}
+	hadhadcontent=haspctext;
 	for (int ilv1=0;ilv1<contentcount;ilv1++)
 	{
 		basicmultilistreference * tlmultilistreference=*((basicmultilistreference**)(((char*)iinstance)+((*iinstance)._->contents[ilv1].ref)));

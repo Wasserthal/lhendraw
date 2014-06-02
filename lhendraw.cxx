@@ -22,10 +22,10 @@ LLLLLL H   H EEEEE N    N DDD   R  R A     A    W     W
 #include "lendefs.h"
 #include "elements.hxx"
 #include "xmldata.hxx"
-#include "xmlparse.hxx"
 #include "telescopic_list.hxx"
 #include "definitionlist.h"
 #include "cdxdata.hxx"
+#include "xmlparse.hxx"
 #include "./generated/reflection_headers.hxx"
 #include "internal_enum.hxx"
 

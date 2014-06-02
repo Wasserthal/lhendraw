@@ -86,6 +86,22 @@ int __attribute__((sysv_abi))CDXMLREAD_cdx_String(char * input,void * output)
 	return 0;
 }
 
+int writefrombuffer(FILE * output,char * input)
+{
+	for (int ilv1=0;input[ilv1]!=0;ilv1++)
+	{
+		for (int ilv2=0;ilv2<sizeof(list_xml)/sizeof(list_bookstavecode);ilv2++)
+		{
+			if (input[ilv1]==list_xml[ilv2].unicode[0])
+			{
+				fprintf(output,"&%s;",list_xml[ilv2].name);
+				goto ifertig;
+			}
+		}
+		fprintf(output,"%c",input[ilv1]);
+		ifertig:;
+	}
+}
 int copytobuffer(TELESCOPE_buffer * ibuffer,char * input)//TODO: what if string is longer than 2147483647 bytes?
 {
 	int ilv2;
@@ -141,10 +157,10 @@ int copytobuffer(TELESCOPE_buffer * ibuffer,char * input)//TODO: what if string 
 }
 int __attribute__((sysv_abi))CDXMLWRITE_cdx_Buffered_String(char * input,void * output)
 {
-	fprintf((FILE*)output,"%s",input);
+	writefrombuffer((FILE*)output,*(char**)input);
 	return 0;
 }
-int __attribute__((sysv_abi))CDXMLREAD_cdx_Buffered_String(char * input,void * output)//Hier hilft nur noch eins: statt input auf Datei zugreifen.
+int __attribute__((sysv_abi))CDXMLREAD_cdx_Buffered_String(char * input,void * output)
 {
 	if ((*((cdx_Buffered_String*)output)).a!=NULL)
 	{

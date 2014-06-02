@@ -192,6 +192,7 @@ void CAMBRIDGECONV_text()
 			CAMBRIDGE_s_instance * tl_CAMBRIDGE_s_instance=(*tl_CAMBRIDGE_s_multilist).bufferlist+ilv2;
 			tl_s_instance.font=(*tl_CAMBRIDGE_s_instance).font;
 			tl_s_instance.face=(*tl_CAMBRIDGE_s_instance).face;
+			tl_s_instance.size=(*tl_CAMBRIDGE_s_instance).size;
 			CAMBRIDGECONV_COLORCONV(s)
 			tl_s_instance.type=TELESCOPE_ELEMENTTYPE_s;
 			if (strcmp((*getfont((*tl_CAMBRIDGE_s_instance).font)).name.a,"Symbol")==0)

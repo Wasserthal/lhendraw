@@ -569,7 +569,7 @@ intl get_bienum_multi(bienum * ibienum,char * input,intl count)
 		*tlbackvalue=0;
 		again=1;
 	}
-	if (input[0]==0) return 0;
+	if (currentpos[0]==0) return 0;
 	for (ilv1=0;ilv1<count;ilv1++)
 	{
 		if (strcmp(currentpos,ibienum[ilv1].name)==0)
@@ -578,7 +578,7 @@ intl get_bienum_multi(bienum * ibienum,char * input,intl count)
 			goto ifound;
 		}
 	}
-	fprintf(stderr,"unknown Element of mark %s in context",input);
+	fprintf(stderr,"unknown Element of mark %s in context",currentpos);
 	ifound:
 	if (again){currentpos=tlbackvalue+1; goto iback;}
 	return wert;

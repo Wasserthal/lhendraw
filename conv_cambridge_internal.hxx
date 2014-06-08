@@ -46,7 +46,7 @@ void CAMBRIDGECONV_atom()
 	{
 		int ihv1;
 		CAMBRIDGE_n_instance * tl_CAMBRIDGE_n_instance=(*tl_CAMBRIDGE_n_multilist).bufferlist+ilv1;
-		
+		multilistreference<CAMBRIDGE_t_instance> * tl_CAMBRIDGE_t_multilistreference=(multilistreference<CAMBRIDGE_t_instance>*)((*tl_CAMBRIDGE_n_instance).t);
 		n_instance tl_n_instance;
 		tl_n_instance=n_instance();
 		tl_n_instance.Element=9;
@@ -62,6 +62,11 @@ void CAMBRIDGECONV_atom()
 			{
 				(tl_n_instance).Element++;
 			}
+		}
+		for (int ilv2=(*tl_CAMBRIDGE_t_multilistreference).start_in_it;ilv2<(*tl_CAMBRIDGE_t_multilistreference).start_in_it+(*tl_CAMBRIDGE_t_multilistreference).count_in_it;ilv2++)
+		{
+			(*glob_CAMBRIDGE_t_multilist).bufferlist[ilv2].relN=(*glob_n_multilist).filllevel;
+			tl_n_instance.Element=-1;
 		}
 		(tl_n_instance).protons=(*tl_CAMBRIDGE_n_instance).NumHydrogens;
 		if (AUTOSTRUCT_EXISTS(CAMBRIDGE_n_instance,(*tl_CAMBRIDGE_n_instance),p))
@@ -156,37 +161,41 @@ void CAMBRIDGECONV_text()
 	multilist<CAMBRIDGE_t_instance> * tl_CAMBRIDGE_t_multilist=retrievemultilist<CAMBRIDGE_t_instance>();
 	multilist<CAMBRIDGE_s_instance> * tl_CAMBRIDGE_s_multilist=retrievemultilist<CAMBRIDGE_s_instance>();
 	multilist<t_instance> * tl_t_multilist=retrievemultilist<t_instance>();
+	multilist<n_instance> * tl_n_multilist=retrievemultilist<n_instance>();
+	t_instance tl_t_instance;
+	s_instance tl_s_instance;
 	(*tl_t_multilist).filllevel=0;
 	for (int ilv1=0;ilv1<(*tl_CAMBRIDGE_t_multilist).filllevel;ilv1++)
 	{
-		{
 		CAMBRIDGE_t_instance * tl_CAMBRIDGE_t_instance=(*tl_CAMBRIDGE_t_multilist).bufferlist+ilv1;
 		if ((*tl_CAMBRIDGE_t_instance).master!=NULL)
 		{
 			if (strcmp(((*tl_CAMBRIDGE_t_instance).master)->getName(),"n")==0)
 			{
 				CAMBRIDGE_n_instance * tl_CAMBRIDGE_n_instance=(CAMBRIDGE_n_instance*)((*tl_CAMBRIDGE_t_instance).master);
-				if (AUTOSTRUCT_EXISTS(CAMBRIDGE_n_instance,(*tl_CAMBRIDGE_n_instance),Element))
-				{
-					continue;
-					goto iskipthis;
-				}
+				TELESCOPE_aggressobject(tl_n_multilist,(*tl_CAMBRIDGE_t_instance).relN);
+				goto i_n_only;
 			}
 		}
-		t_instance tl_t_instance;
-		s_instance tl_s_instance;
 		tl_t_instance=t_instance();
 		CAMBRIDGECONV_COLORCONV(t)
+		CAMBRIDGECONV_EXISTSTHEN(t,xyz);
 		if (AUTOSTRUCT_EXISTS(CAMBRIDGE_t_instance,(*tl_CAMBRIDGE_t_instance),p))
 		{
 			tl_t_instance.xyz.x=(*tl_CAMBRIDGE_t_instance).p.x;
 			tl_t_instance.xyz.y=(*tl_CAMBRIDGE_t_instance).p.y;
 			tl_t_instance.xyz.z=0;
 		}
-		tl_t_instance.id=(*tl_CAMBRIDGE_t_instance).id;
-		tl_t_instance.Z=(*tl_CAMBRIDGE_t_instance).Z;
+		CAMBRIDGECONV_EXISTSTHEN(t,id);
+		CAMBRIDGECONV_EXISTSTHEN(t,Z);
+		CAMBRIDGECONV_EXISTSTHEN(t,BoundingBox);
+		CAMBRIDGECONV_EXISTSTHEN(t,Justification);
+		CAMBRIDGECONV_EXISTSTHEN(t,LabelAlignment);
+		CAMBRIDGECONV_EXISTSTHEN(t,color);
+		CAMBRIDGECONV_EXISTSTHEN(t,IGOTYOU);
 		(*tl_t_multilist).ADD(&tl_t_instance);
 		TELESCOPE_aggressobject(tl_t_multilist,(*tl_t_multilist).filllevel-1);
+		i_n_only:;
 		for (int ilv2=(*((*tl_CAMBRIDGE_t_instance).s)).start_in_it;ilv2<(*((*tl_CAMBRIDGE_t_instance).s)).start_in_it+(*((*tl_CAMBRIDGE_t_instance).s)).count_in_it;ilv2++)
 		{
 			CAMBRIDGE_s_instance * tl_CAMBRIDGE_s_instance=(*tl_CAMBRIDGE_s_multilist).bufferlist+ilv2;
@@ -207,6 +216,10 @@ void CAMBRIDGECONV_text()
 					tl_char1[0]=(*tl_CAMBRIDGE_s_instance).PCTEXT.a[ilv1];
 					tl_text=tl_char1;
 					tl_text=get_list_greeklist((*tl_CAMBRIDGE_s_instance).PCTEXT.a+ilv1);
+					if (tl_text==0)
+					{
+						tl_text=tl_char1;
+					}
 					if (ilv1==0)
 					{
 						TELESCOPE_add(TELESCOPE_ELEMENTTYPE_s,tl_text,strlen(tl_text)+((ilv1+1==tl_length)?1:0));
@@ -225,8 +238,6 @@ void CAMBRIDGECONV_text()
 			}
 			*((s_instance*)TELESCOPE_getproperty())=tl_s_instance;
 		}
-		}
-		iskipthis:;
 	}
 }
 void CAMBRIDGECONV_graphic()
@@ -306,7 +317,7 @@ void CAMBRIDGECONV_arrow()
 
 void CAMBRIDGECONV_maintointernal()
 {
-	CAMBRIDGECONV_atom();
+	CAMBRIDGECONV_atom();//atoms before text, or some atoms get no label.
 	CAMBRIDGECONV_bond();
 	CAMBRIDGECONV_text();
 	CAMBRIDGECONV_graphic();

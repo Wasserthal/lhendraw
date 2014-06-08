@@ -189,7 +189,7 @@ int TELESCOPE_stretch_buffer(basicmultilist * imultilist,int ideltaplus,int ityp
 	(*ibuffer).count+=ideltaplus2;
 	return 1;
 }
-void TELESCOPE_aggressobject(basicmultilist * imultilist,int objectpos)
+int TELESCOPE_aggressobject(basicmultilist * imultilist,int objectpos)
 {
 	TELESCOPE_tempvar.multilist=imultilist;
 	TELESCOPE_tempvar.inside_TELESCOPE=0;
@@ -198,6 +198,7 @@ void TELESCOPE_aggressobject(basicmultilist * imultilist,int objectpos)
 	getbufferfromstructure(imultilist,&TELESCOPE_tempvar.buffer);
 	TELESCOPE_tempvar.objectpos=objectpos;
 	TELESCOPE_tempvar.pos=(*((basic_instance_propertybuffer*)(((char*)((*imultilist).pointer))+(TELESCOPE_tempvar.objectsize*TELESCOPE_tempvar.objectpos)))).pos_in_buffer;
+	return TELESCOPE_verify_objectpresent();
 }
 int TELESCOPE_searchthroughobject(int tag)
 {

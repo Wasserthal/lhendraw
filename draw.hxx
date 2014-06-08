@@ -181,10 +181,11 @@ float compangle(float first,float second)
 
 void getatoms()//makes some preprocessing
 {
+	float theside,thelevel;
+	float tl_angle;
 	for (int ilv1=0;ilv1<bufferlistsize;ilv1++)
 	{
 		atom_actual_node[ilv1].bondcount=0;
-		atom_actual_node[ilv1].special=-1;
 	}
 	for (int ilv1=0;ilv1<bufferlistsize;ilv1++)
 	{
@@ -227,12 +228,18 @@ void getatoms()//makes some preprocessing
 	for (int ilv1=0;ilv1<(*glob_n_multilist).filllevel;ilv1++)//defines processable atoms
 	{
 		n_instance * tlatominstance=&((*glob_n_multilist).bufferlist[ilv1]);
+		theside=0;thelevel=0;
 		for (int ilv2=0;ilv2<atom_actual_node[ilv1].bondcount;ilv2++)
 		{
 			_small partner=getother(ilv1,(atom_actual_node[ilv1]).bonds[ilv2]);
-			angle_between[ilv2][ilv2]=getangle((*glob_n_multilist).bufferlist[partner].xyz.x-(*tlatominstance).xyz.x,(*glob_n_multilist).bufferlist[partner].xyz.y-(*tlatominstance).xyz.y);//TODO:not good at real-time!!!
+			
+			tl_angle=getangle((*glob_n_multilist).bufferlist[partner].xyz.x-(*tlatominstance).xyz.x,(*glob_n_multilist).bufferlist[partner].xyz.y-(*tlatominstance).xyz.y);//TODO:not good at real-time!!!
+			theside+=cos(tl_angle);
+			thelevel+=sin(tl_angle);
+			angle_between[ilv2][ilv2]=tl_angle;
 			number_between[ilv2]=(atom_actual_node[ilv1]).bonds[ilv2];
 		}
+		atom_actual_node[ilv1].labelside=(theside>0.2);
 		for (int ilv2=0;ilv2<atom_actual_node[ilv1].bondcount;ilv2++)//TODO:not good at real-time!!!
 		{
 			float intermediate;
@@ -321,8 +328,7 @@ void getatoms()//makes some preprocessing
 		}
 		(*glob_t_multilist).bufferlist[ilv2].xyz.y=((*glob_n_multilist).bufferlist)[ilv1].xyz.y;
 		text_actual_node[ilv2].owner=ilv1;//GET THIS INTO conversion routines
-		(*glob_t_multilist).bufferlist[ilv2].Z=((*glob_n_multilist).bufferlist)[ilv1].Z;//DO THIS
-		atom_actual_node[ilv1].special=ilv2;//GET THIS INTO conversion routines
+		(*glob_t_multilist).bufferlist[ilv2].Z=((*glob_n_multilist).bufferlist)[ilv1].Z;//DO THIS TODO
 		textreference_failed:
 		;
 	}
@@ -705,7 +711,6 @@ void svg_findaround()
 	for (int ilv1=0;ilv1<bufferlistsize;ilv1++)
 	{
 		atom_actual_node[ilv1].bondcount=0;
-		atom_actual_node[ilv1].special=-1;
 	}
 	for (int ilv1=0;ilv1<bufferlistsize;ilv1++)
 	{
@@ -738,7 +743,6 @@ void svg_findaround()
 		}
 		(*glob_t_multilist).bufferlist[ilv2].xyz.y=((*glob_n_multilist).bufferlist)[ilv1].xyz.y;
 		text_actual_node[ilv2].owner=ilv1;
-		atom_actual_node[ilv1].special=ilv2;
 		//WE HAD THIS! WHY WAS IT NECESSARY TO DO IT also here, in findaround? ONE MORE TIME?
 		textreference_failed:
 		;
@@ -1073,6 +1077,7 @@ void svg_controlprocedure(bool irestriction=0,bool hatches=0)
 	int ipropertyoffset;
 	void * tlcurrentinstance;
 	basicmultilist * tlcurrentmultilist;
+	char sortback;
 	#ifdef LENNARD_HACK
 	char LENNARD_HACK_REPEATHOOK=0;
 	color_instance* tlcolorr;
@@ -1205,6 +1210,15 @@ void svg_controlprocedure(bool irestriction=0,bool hatches=0)
 		i_n_instance=(n_instance*)&((*glob_n_multilist).bufferlist[index_in_buffer]);
 		int tlElement=((*i_n_instance).Element);
 		stylegenestring(3);
+		if (tlElement==-1)
+		{
+			colornr=(*i_n_instance).color;
+			get_colorstring(colornr);
+			sortback=atom_actual_node[index_in_buffer].labelside;
+			express_txinit(sortback,((*glob_n_multilist).bufferlist)[index_in_buffer].xyz.x,((*glob_n_multilist).bufferlist)[index_in_buffer].xyz.y,atomfontheight);
+			TELESCOPE_aggressobject(glob_n_multilist,index_in_buffer);
+			goto n_to_t_shunt;
+		}
 		if (tlElement==constants_Element_implicitcarbon)
 		{
 			expresscdxcircle((*i_n_instance).xyz.x,(*i_n_instance).xyz.y,2);
@@ -1686,8 +1700,8 @@ void svg_controlprocedure(bool irestriction=0,bool hatches=0)
 	langle=getangle((*endnode).xyz.x-(*startnode).xyz.x,(*endnode).xyz.y-(*startnode).xyz.y);
 	cangle=langle+Pi/2;
 	calcdelta(&textdeltax,&textdeltay,(*endnode).xyz.x-(*startnode).xyz.x,(*endnode).xyz.y-(*startnode).xyz.y);
-	specialS=(atom_actual_node[inr_S].special!=-1);
-	specialE=(atom_actual_node[inr_E].special!=-1);
+	specialS=((*glob_n_multilist).bufferlist[inr_S].Element==-1);
+	specialE=((*glob_n_multilist).bufferlist[inr_E].Element==-1);
 	iBBX.left=(*startnode).xyz.x+textdeltax*specialS;
 	iBBX.top=(*startnode).xyz.y+textdeltay*specialS;
 	iDisplaytype1=((*glob_b_multilist).bufferlist[index_in_buffer].Display);
@@ -1779,11 +1793,16 @@ tlposx+tlcos-tlsin,tlposy+tlsin+tlcos,tlposx+2*tlcos-tlsin,tlposy+2*tlsin+tlcos,
 	}
 	goto svg_main_loop;
 	svg_main_t:
+	sortback=0;
 	owner=text_actual_node[index_in_buffer].owner;
 	colornr=0;
 	get_colorstring(colornr);
 	if (owner!=-1)
 	{
+		if (atom_actual_node[owner].labelside==-1)
+		{
+			sortback=1;
+		}
 		colornr=(*glob_n_multilist).bufferlist[text_actual_node[index_in_buffer].owner].color;
 		get_colorstring(colornr);
 	}
@@ -1791,9 +1810,10 @@ tlposx+tlcos-tlsin,tlposy+tlsin+tlcos,tlposx+2*tlcos-tlsin,tlposy+2*tlsin+tlcos,
 	get_colorstring_passive(colornr);
 
 	express_txinit(((*glob_t_multilist).bufferlist[index_in_buffer].LabelAlignment==-1),((*glob_t_multilist).bufferlist)[index_in_buffer].xyz.x,((*glob_t_multilist).bufferlist)[index_in_buffer].xyz.y,atomfontheight);
-	intl start,end;
 	TELESCOPE_aggressobject(glob_t_multilist,index_in_buffer);
+	n_to_t_shunt:
 	int tlbackval;
+	intl start,end;
 	tlbackval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_s);
 	string_resorted=0;
 	ifsmat=0;//0: nothing //1: on a subscript number; 2: on text; 3: on a superscript
@@ -2080,7 +2100,15 @@ tlposx+tlcos-tlsin,tlposy+tlsin+tlcos,tlposx+2*tlcos-tlsin,tlposy+2*tlsin+tlcos,
 		colorstring,finalstring,(tlformlabeltype & 0x20)?"<tspan dy=\"-3\"/>":((tlformlabeltype & 0x40)?"<tspan dy=\"3\"/>":""));*/
 		printformatted(finalstring,iparms,((tlformlabeltype & 0x20) ? 1 : 0) | ((tlformlabeltype & 0x40) ? 4 : 0),0,strlen(finalstring));
 	}
+	if (sortback)
+	{
+		text_rewind((unsigned char*)finalstring,strlen(finalstring));
+	}
 	tlbackval=TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_s);
+	if (sortback)
+	{
+		text_rewind(((unsigned char*)TELESCOPE_getproperty_contents()),strlen(((char*)TELESCOPE_getproperty_contents())));
+	}
 	goto svg_text_back;
 	svg_text_finished:
 	express_text_tail();

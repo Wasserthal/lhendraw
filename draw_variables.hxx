@@ -58,7 +58,7 @@ struct atom_actual_node_
 {
 	_small bonds[10];
 	_small bondcount;
-	_small special;//offset in text list. TODO**** for other purposes (if applicable)
+	_small labelside;
 	inline char operator += (_small input)
 	{
 		if (bondcount<10)

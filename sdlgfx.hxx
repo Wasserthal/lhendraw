@@ -24,7 +24,7 @@ int get_colorstringv(int number)
 }
 void express_txinit(char ialignment,float iposx,float iposy,float iatomfontheight)
 {
-	SDL_txcursorx=(iposx-SDL_scrollx)*SDL_zoomx;SDL_txcursory=(iposy-SDL_scrolly)*SDL_zoomy;
+	SDL_txcursorx=(iposx-3-SDL_scrollx)*SDL_zoomx;SDL_txcursory=(iposy+4-SDL_scrolly)*SDL_zoomy;
 }
 inline void express_text_tail()
 {
@@ -760,6 +760,17 @@ void expresshexangle(float ix1,float iy1,float ix2,float iy2,float ix3,float iy3
 	tlinficorn[4].y=iy5;
 	tlinficorn[5].y=iy6;
 	expressinfinityangle(tlinficorn,6);
+}
+void text_rewind(unsigned char * windtext,int length)
+{
+	int ilv4;
+	int backcount;
+	for (ilv4=0;ilv4<length;ilv4+=backcount)
+	{
+		fontpixinf_ * ifontpixinf=&fontpixinf[indexfromunicode(utf8resolve((unsigned char*)windtext + ilv4,&backcount))];
+		SDL_txcursorx-=(*ifontpixinf).deltax;
+		SDL_txcursory-=(*ifontpixinf).deltay;
+	}
 }
 void text_print_bitmap(int * posx,int * posy,fontpixinf_ * ifontpixinf)
 {

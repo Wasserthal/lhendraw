@@ -32,6 +32,8 @@
 //contains an id with purposes.
 #define TELESCOPE_ELEMENTTYPE_ContentList 8
 //contains a id list
+#define TELESCOPE_ELEMENTTYPE_s_f 9
+//contains a format list for atom symbols
 //--TELESCOPE_IDPURPOSE
 #define TELESCOPE_IDPURPOSE_None 0
 //better do not use ...

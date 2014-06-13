@@ -93,8 +93,8 @@ struct multilistlist_
 	basicmultilist * instance;
 	int usage;//0: internal="", 1:CAMBRIDGESOFT="CAMBRIDGE_" 2:hotkeys_xml="CONFIGBRIDGE_"
 };
-extern multilistlist_ multilistlist[multilistlistlength];
-intl multilist_count = 39;
+extern multilistlist_ multilistlist[];
+intl multilist_count;
 template <class whatabout> class multilistreference;
 
 class basicmultilist
@@ -277,6 +277,10 @@ struct basic_instance
 	AUTOSTRUCT_cstyle_vtable * _;
 	basic_instance * master;
 	virtual int hit(float ix,float iy){};
+/*	int & operator [] (O_int which)///TODO: enum NEEDED for each datatype
+	{
+		return *(int*)(((char*)this)+(*(((int*)_)+which)));
+	}*/
 	char exist;
 	basic_instance(){master=NULL;exist=1;};//TODO put exist into basic_instance_propertybuffer
 	~basic_instance(){};

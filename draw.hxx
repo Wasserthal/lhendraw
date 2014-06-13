@@ -303,34 +303,6 @@ void getatoms()//makes some preprocessing
 				(*i_bond_actual_node).xcotanright[(*i_bond_actual_node).start==ilv1]=-tlxrightest;
 			}
 		}
-		//TODO SUBJECT to new memory structure
-
-		int ilv2;
-		TELESCOPE_aggressobject(glob_n_multilist,ilv1);
-		while (TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_ID_Reference))
-		{
-			ID_Reference_instance * iID_Reference_instance=(ID_Reference_instance*)TELESCOPE_getproperty();
-			if ((*iID_Reference_instance).Purpose==TELESCOPE_IDPURPOSE_TextField)
-			{
-				ilv2=(*iID_Reference_instance).Id;
-				goto textreference_fertig;
-			}
-		}
-		goto textreference_failed;
-		textreference_fertig:
-		if ((*glob_t_multilist).bufferlist[ilv2].LabelAlignment==-1)
-		{
-			(*glob_t_multilist).bufferlist[ilv2].xyz.x=((*glob_n_multilist).bufferlist)[ilv1].xyz.x;//MUST BE DONE REAL-Time
-		}
-		else
-		{
-			(*glob_t_multilist).bufferlist[ilv2].xyz.x=((*glob_n_multilist).bufferlist)[ilv1].xyz.x;
-		}
-		(*glob_t_multilist).bufferlist[ilv2].xyz.y=((*glob_n_multilist).bufferlist)[ilv1].xyz.y;
-		text_actual_node[ilv2].owner=ilv1;//GET THIS INTO conversion routines
-		(*glob_t_multilist).bufferlist[ilv2].Z=((*glob_n_multilist).bufferlist)[ilv1].Z;//DO THIS TODO
-		textreference_failed:
-		;
 	}
 	for (int ilv1=0;ilv1<(*glob_b_multilist).filllevel;ilv1++)//refines undefined double bonds
 	{
@@ -460,7 +432,7 @@ void expresstetrangle(float ix1,float iy1,float ix2,float iy2,float ix3,float iy
 {
 	fprintf(outfile,"<path d=\"M %f %f L %f %f L %f %f L %f %f z \" %s/>\n",
 	ix1+SVG_currentshiftx,iy1+SVG_currentshifty,ix2+SVG_currentshiftx,iy2+SVG_currentshifty,ix3+SVG_currentshiftx,iy3+SVG_currentshifty,ix4+SVG_currentshiftx,iy4+SVG_currentshifty,
-stylestring);
+	stylestring);
 }
 #endif
 #define dashdist 3
@@ -716,38 +688,6 @@ void svg_findaround()
 	{
 		text_actual_node[ilv1].owner=-1;
 	}
-	for (int ilv1=0;ilv1<(*glob_n_multilist).filllevel;ilv1++)//defines processable atoms//TODO SUBJECT replace it like its copy
-	{
-		n_instance * tlatominstance=&((*glob_n_multilist).bufferlist[ilv1]);
-		
-		int ilv2;
-		TELESCOPE_aggressobject(glob_n_multilist,ilv1);
-		while (TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_ID_Reference))
-		{
-			ID_Reference_instance * iID_Reference_instance=(ID_Reference_instance*)TELESCOPE_getproperty();
-			if ((*iID_Reference_instance).Purpose==TELESCOPE_IDPURPOSE_TextField)
-			{
-				ilv2=(*iID_Reference_instance).Id;
-				goto textreference_fertig;
-			}
-		}
-		goto textreference_failed;
-		textreference_fertig:
-		if ((*glob_t_multilist).bufferlist[ilv2].LabelAlignment==-1)
-		{
-			(*glob_t_multilist).bufferlist[ilv2].xyz.x=((*glob_n_multilist).bufferlist)[ilv1].xyz.x;
-		}
-		else
-		{
-			(*glob_t_multilist).bufferlist[ilv2].xyz.x=((*glob_n_multilist).bufferlist)[ilv1].xyz.x;
-		}
-		(*glob_t_multilist).bufferlist[ilv2].xyz.y=((*glob_n_multilist).bufferlist)[ilv1].xyz.y;
-		text_actual_node[ilv2].owner=ilv1;
-		//WE HAD THIS! WHY WAS IT NECESSARY TO DO IT also here, in findaround? ONE MORE TIME?
-		textreference_failed:
-		;
-	}
-	/*This was a piece from getatoms information needed also when there are no graphics form bound calculation*/
 	getcaptions(&SVG_width,&SVG_height,&SVG_ileft,&SVG_itop);
 	SVG_ileft-=10;
 	SVG_itop-=10;
@@ -1226,7 +1166,7 @@ void svg_controlprocedure(bool irestriction=0,bool hatches=0)
 		else
 		{
 			char istring[1000];
-			sprintf(istring,"%s%s",element[tlElement].name,((*i_n_instance).protons==0)?"":"H");
+			sprintf(istring,"%s%s",element[tlElement].name,((*i_n_instance).protons<=0)?"":"H");
 			if ((*i_n_instance).protons>1)
 			{
 				sprintf(istring+strlen(istring),"%i",(*i_n_instance).protons);
@@ -1813,7 +1753,6 @@ tlposx+tlcos-tlsin,tlposy+tlsin+tlcos,tlposx+2*tlcos-tlsin,tlposy+2*tlsin+tlcos,
 	TELESCOPE_aggressobject(glob_t_multilist,index_in_buffer);
 	n_to_t_shunt:
 	int tlbackval;
-	intl start,end;
 	tlbackval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_s);
 	string_resorted=0;
 	ifsmat=0;//0: nothing //1: on a subscript number; 2: on text; 3: on a superscript
@@ -1879,7 +1818,7 @@ tlposx+tlcos-tlsin,tlposy+tlsin+tlcos,tlposx+2*tlcos-tlsin,tlposy+2*tlsin+tlcos,
 	{
 /*		if ((*((*glob_t_multilist).bufferlist[index_in_buffer].s)).count_in_it==1)//TODO: check if it consists of exactly one element
 		{*/
-			if (((*glob_s_multilist).bufferlist[start].face & 0x60)==0x60)
+			if (((*glob_s_multilist).bufferlist[0].face & 0x60)==0x60)
 			{
 				if ((*glob_t_multilist).bufferlist[index_in_buffer].Justification==-1)
 				{

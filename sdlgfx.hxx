@@ -693,6 +693,8 @@ void expressarc_enhanced(float centerx,float centery,float radiusx,float radiusy
 {
 	centerx=(centerx-SDL_scrollx)*SDL_zoomx;
 	centery=(centery-SDL_scrolly)*SDL_zoomy;
+	radiusx=radiusx*SDL_zoomx;
+	radiusy=radiusy*SDL_zoomx;
 	int isteps=radiusx*Pi*2;
 	if (startangle>endangle)
 	{
@@ -732,6 +734,8 @@ void expressellipse(float centerx,float centery,float radiusx,float radiusy)
 {
 	centerx=(centerx-SDL_scrollx)*SDL_zoomx;
 	centery=(centery-SDL_scrolly)*SDL_zoomy;
+	radiusx*=SDL_zoomx;
+	radiusy*=SDL_zoomy;
 	int isteps=radiusx*Pi*2;
 	if (radiusy>radiusx)
 	{

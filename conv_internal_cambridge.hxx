@@ -21,11 +21,15 @@
 		}\
 	}\
 }
+
+void CONVCAMBRIDGE_s(CAMBRIDGE_t_instance * master,s_instance * tl_s_instance,char * CAMBRIDGE_s_instance_buffer);
 void CONVCAMBRIDGE_atoms(CAMBRIDGE_fragment_instance * master,cdx_Rectangle * iBoundingBox)
 {
+	int backval;
 	_u32 icompare=1<<STRUCTURE_OBJECTTYPE_n;
 	multilist<CAMBRIDGE_n_instance> * tl_CAMBRIDGE_n_multilist=retrievemultilist<CAMBRIDGE_n_instance>();
 	multilist<n_instance> * tl_n_multilist=retrievemultilist<n_instance>();
+	multilist<CAMBRIDGE_t_instance> * tl_CAMBRIDGE_t_multilist=retrievemultilist<CAMBRIDGE_t_instance>();
 	for (int ilv1=0;ilv1<(*tl_n_multilist).filllevel;ilv1++)
 	{
 		if (selection_fragmentselection[ilv1] & icompare)
@@ -33,6 +37,42 @@ void CONVCAMBRIDGE_atoms(CAMBRIDGE_fragment_instance * master,cdx_Rectangle * iB
 			n_instance * tl_n_instance=(*tl_n_multilist).bufferlist+ilv1;
 			ADD_TO_MULTILISTREFERENCE(master,n);
 			CONVCAMBRIDGE_COLORCONV(n);
+			TELESCOPE_aggressobject(tl_n_multilist,ilv1);
+			backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_s);
+			if (backval)
+			{
+ADD_TO_MULTILISTREFERENCE(tl_CAMBRIDGE_n_instance,t);
+TELESCOPE_aggressobject(tl_n_multilist,ilv1);
+backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_s);
+while (backval)
+{
+	s_instance * nd_s_instance=(s_instance*)TELESCOPE_getproperty();
+	CONVCAMBRIDGE_s(tl_CAMBRIDGE_t_instance,(s_instance*)TELESCOPE_getproperty(),(char*)TELESCOPE_getproperty_contents());
+	backval=TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_s);
+}
+int tl_color;
+unsigned char r,g,b;
+AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_t_instance,color);
+tl_color=(*tl_n_instance).color;
+(*tl_CAMBRIDGE_t_instance).color=0;
+for (int ilv1=0;ilv1<(*glob_CAMBRIDGE_color_multilist).filllevel;ilv1++)
+{
+	r=(tl_color&0xFF0000)>>16;
+	g=(tl_color&0xFF00)>>8;
+	b=(tl_color&0xFF);
+	if ((((unsigned char)((*((CAMBRIDGE_color_instance*)&((*glob_CAMBRIDGE_color_multilist)[ilv1]))).r*255))==r) &&
+	(((unsigned char)((*((CAMBRIDGE_color_instance*)&((*glob_CAMBRIDGE_color_multilist)[ilv1]))).g*255))==g) &&
+	(((unsigned char)((*((CAMBRIDGE_color_instance*)&((*glob_CAMBRIDGE_color_multilist)[ilv1]))).b*255))==b))
+	{
+		(*tl_CAMBRIDGE_n_instance).color=ilv1+2;
+	}
+}
+(*tl_CAMBRIDGE_t_instance).p.x=(*tl_n_instance).xyz.x;//BACKWARDS COMPATIBILITY
+(*tl_CAMBRIDGE_t_instance).p.y=(*tl_n_instance).xyz.y;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_t_instance,p);//BACKWARDS COMPATIBILITY
+(*tl_CAMBRIDGE_t_instance).xyz=(*tl_n_instance).xyz;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_t_instance,xyz);
+(*tl_CAMBRIDGE_t_instance).Z=(*tl_n_instance).Z;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_t_instance,Z);
+(*tl_CAMBRIDGE_t_multilist).ADD(tl_CAMBRIDGE_t_instance);
+			}
 			(*tl_CAMBRIDGE_n_instance).id=(*tl_n_instance).id;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_n_instance,id);
 			(*tl_CAMBRIDGE_n_instance).Z=(*tl_n_instance).Z;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_n_instance,Z);
 			(*tl_CAMBRIDGE_n_instance).xyz=(*tl_n_instance).xyz;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_n_instance,xyz);
@@ -66,7 +106,7 @@ void CONVCAMBRIDGE_bonds(CAMBRIDGE_fragment_instance * master)
 			_u8 iOrder=(*tl_b_instance).Order;
 			_i32 iOrderout=1;
 if (iOrder>8){ if (iOrder>16) {if (iOrder>24) {if (iOrder>32) {if (iOrder>40) {if (iOrder>48) {if (iOrder>56) {if (iOrder>64) {if (iOrder>72) {if (iOrder>80) {if (iOrder>88) {
-iOrderout=0x20;}else iOrderout=0x800;}else iOrderout=0x10;}else iOrderout=0x400;}else iOrderout=0x8;}else iOrderout=0x200;}else iOrderout=0x4;}else iOrderout=0x100;}else 
+iOrderout=0x20;}else iOrderout=0x800;}else iOrderout=0x10;}else iOrderout=0x400;}else iOrderout=0x8;}else iOrderout=0x200;}else iOrderout=0x4;}else iOrderout=0x100;}else
 iOrderout=0x2;}else iOrderout=0x80;}else iOrderout=0x1;}else iOrderout=0x40;
 			(*tl_CAMBRIDGE_b_instance).Display=(*tl_b_instance).Display & 0x7F;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_b_instance,Display);
 			if (iOrder>16)

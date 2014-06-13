@@ -105,6 +105,7 @@ void test_routine()
 int main(int argc,char * * argv)
 {
 	clock_getcpuclockid(getpid(),&clockid);
+	multilist_count=sizeof(multilistlist)/sizeof(multilistlist_);
 	for (int ilv1=0;ilv1<multilist_count;ilv1++)
 	{
 		multilistlist[ilv1].instance->index=ilv1;

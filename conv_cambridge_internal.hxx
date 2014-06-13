@@ -26,6 +26,7 @@ if (AUTOSTRUCT_EXISTS(CAMBRIDGE_ ## MACROPARAM_TYPE ## _instance,(*tl_CAMBRIDGE_
 	}\
 	color_fertig:;\
 }
+int edit_interpretaselementwithimplicithydrogens(multilist<n_instance> * imultilist,int inumber);
 CAMBRIDGE_font_instance * getfont(_small iid)
 {
 	for (int ilv1=0;ilv1<(*glob_CAMBRIDGE_font_multilist).filllevel;ilv1++)
@@ -67,8 +68,15 @@ void CAMBRIDGECONV_atom()
 		{
 			(*glob_CAMBRIDGE_t_multilist).bufferlist[ilv2].relN=(*glob_n_multilist).filllevel;
 			tl_n_instance.Element=-1;
+			tl_n_instance.Z=(*glob_CAMBRIDGE_t_multilist).bufferlist[ilv1].Z;
+			(*tl_CAMBRIDGE_n_instance).color=(*glob_CAMBRIDGE_t_multilist).bufferlist[ilv1].color;
+			(tl_n_instance).protons=0;
+			goto skip_because_text;
 		}
 		(tl_n_instance).protons=(*tl_CAMBRIDGE_n_instance).NumHydrogens;
+		CAMBRIDGECONV_COLORCONV(n);
+		tl_n_instance.Z=(*tl_CAMBRIDGE_n_instance).Z;
+		skip_because_text:;
 		if (AUTOSTRUCT_EXISTS(CAMBRIDGE_n_instance,(*tl_CAMBRIDGE_n_instance),p))
 		{
 			tl_n_instance.xyz.x=(*tl_CAMBRIDGE_n_instance).p.x;
@@ -79,10 +87,8 @@ void CAMBRIDGECONV_atom()
 		{
 			tl_n_instance.xyz=(*tl_CAMBRIDGE_n_instance).xyz;
 		}
-		CAMBRIDGECONV_COLORCONV(n);
 		//TODO: ExternalConnectionType, and respecting this enumerated property in draw
 		tl_n_instance.id=(*tl_CAMBRIDGE_n_instance).id;
-		tl_n_instance.Z=(*tl_CAMBRIDGE_n_instance).Z;
 		(*tl_n_multilist).ADD(&tl_n_instance);
 	}
 }
@@ -158,6 +164,7 @@ void CAMBRIDGECONV_bond()
 
 void CAMBRIDGECONV_text()
 {
+	char atommode;
 	multilist<CAMBRIDGE_t_instance> * tl_CAMBRIDGE_t_multilist=retrievemultilist<CAMBRIDGE_t_instance>();
 	multilist<CAMBRIDGE_s_instance> * tl_CAMBRIDGE_s_multilist=retrievemultilist<CAMBRIDGE_s_instance>();
 	multilist<t_instance> * tl_t_multilist=retrievemultilist<t_instance>();
@@ -167,6 +174,7 @@ void CAMBRIDGECONV_text()
 	(*tl_t_multilist).filllevel=0;
 	for (int ilv1=0;ilv1<(*tl_CAMBRIDGE_t_multilist).filllevel;ilv1++)
 	{
+		atommode=0;
 		CAMBRIDGE_t_instance * tl_CAMBRIDGE_t_instance=(*tl_CAMBRIDGE_t_multilist).bufferlist+ilv1;
 		if ((*tl_CAMBRIDGE_t_instance).master!=NULL)
 		{
@@ -174,6 +182,7 @@ void CAMBRIDGECONV_text()
 			{
 				CAMBRIDGE_n_instance * tl_CAMBRIDGE_n_instance=(CAMBRIDGE_n_instance*)((*tl_CAMBRIDGE_t_instance).master);
 				TELESCOPE_aggressobject(tl_n_multilist,(*tl_CAMBRIDGE_t_instance).relN);
+				atommode=1;
 				goto i_n_only;
 			}
 		}
@@ -238,6 +247,7 @@ void CAMBRIDGECONV_text()
 			}
 			*((s_instance*)TELESCOPE_getproperty())=tl_s_instance;
 		}
+		if (atommode) edit_interpretaselementwithimplicithydrogens(glob_n_multilist,(*tl_CAMBRIDGE_t_instance).relN);
 	}
 }
 void CAMBRIDGECONV_graphic()

@@ -773,3 +773,223 @@ catalogized_command_funcdef(SEARCH)
 	printf("TODO***stub\n");
 	return 1;
 }
+
+struct edit_formatstruct
+{
+	_u32 color;
+	_u8 face;
+}__attribute__((packed));
+char edit_scoop_atomstring[4];
+int edit_scoop_numhydrogens;
+int edit_scoop_charge;
+edit_formatstruct edit_scoop_packedformats[6];
+s_instance edit_scoop_formats[6];
+_u8 edit_scoop_valids;//0: BIG 1: SMALL1 2: SMALL2 3: H 4: Nr 5: Charge
+void processatomsymbol(int * fsm,char * pointer,s_instance * format)
+{
+	char ihv1;
+	if ((*fsm)==6) return;
+	if (pointer==NULL)
+	{
+		(*fsm)=6;
+		return;
+	}
+	iback:
+	if ((*pointer)==0) return;
+	ihv1=(*pointer);
+	if ((*fsm)==0)
+	{
+		if ((ihv1>='A') && (ihv1<='Z'))
+		{
+			edit_scoop_atomstring[0]=ihv1;
+			edit_scoop_valids|=1<<0;
+			edit_scoop_formats[0]=*format;
+			(*fsm)=1;
+			pointer++;
+			goto iback;
+		}
+		if ((ihv1>='a') && (ihv1<='z'))//protons, neutrons or something
+		{
+			edit_scoop_atomstring[0]=ihv1;
+			edit_scoop_valids|=1<<0;
+			edit_scoop_formats[0]=*format;
+			(*fsm)=5;
+			pointer++;
+			goto iback;
+		}
+		if ((ihv1=='.') || (ihv1==' ') || (ihv1==':'))
+		{
+			if (ihv1!=' ')
+			{
+				edit_scoop_atomstring[0]=ihv1;
+			}
+			edit_scoop_valids|=1<<0;
+			edit_scoop_formats[0]=*format;
+			(*fsm)=5;
+			pointer++;
+			goto iback;
+		}
+		(*fsm)=6;
+		return;
+	}
+	if ((*fsm)==1)
+	{
+		if (ihv1=='H')
+		{
+			(*fsm)=3;
+			edit_scoop_valids|=1<<3;
+			edit_scoop_formats[3]=*format;
+			edit_scoop_numhydrogens=1;
+			pointer++;
+			goto iback;
+		}
+		if ((ihv1>='a') && (ihv1<='z'))
+		{
+			edit_scoop_atomstring[2]=ihv1;
+			edit_scoop_valids|=1<<1;
+			edit_scoop_formats[1]=*format;
+			(*fsm)=2;
+			pointer++;
+			goto iback;
+		}
+		(*fsm)=6;
+		return;
+	}
+	if ((*fsm)==2)
+	{
+		if (ihv1=='H')//Some idea: would this be wise to do for fluorine?
+		{
+			(*fsm)=3;
+			edit_scoop_valids|=1<<3;
+			edit_scoop_formats[3]=*format;
+			edit_scoop_numhydrogens=1;
+			pointer++;
+			goto iback;
+		}
+		if ((ihv1>='a') && (ihv1<='z'))
+		{
+			edit_scoop_atomstring[2]=ihv1;//Overwrites
+			edit_scoop_valids|=1<<2;
+			edit_scoop_formats[2]=*format;
+			(*fsm)=2;
+			pointer++;
+			goto iback;
+		}
+		(*fsm)=6;
+		return;
+	}
+	if ((*fsm)==3)
+	{
+		if ((ihv1>='0') && (ihv1<='9'))
+		{
+			edit_scoop_numhydrogens=ihv1-'0';
+			edit_scoop_valids|=1<<4;
+			edit_scoop_formats[4]=*format;
+			(*fsm)=4;
+			pointer++;
+			goto iback;
+		}
+		(*fsm)=6;
+		return;
+	}
+	if ((*fsm)==4)
+	{
+		if ((ihv1>='0') && (ihv1<='9'))
+		{
+			edit_scoop_numhydrogens=(edit_scoop_numhydrogens*10)+ihv1-'0';
+			edit_scoop_valids|=1<<4;
+			edit_scoop_formats[4]=*format;
+			(*fsm)=4;
+			pointer++;
+			goto iback;
+		}
+		(*fsm)=6;
+		return;
+	}
+	if ((*fsm)==5)
+	{
+		(*fsm)=6;
+		return;
+	}
+	return;
+}
+int edit_interpretaselementwithimplicithydrogens(multilist<n_instance> * imultilist,int inumber)
+{
+	edit_scoop_valids=0;
+	(*(_u32*)edit_scoop_atomstring)=0;
+	edit_scoop_numhydrogens=0;
+	char * ipointer;
+	int i_backval=0;
+	int fsm=0;//0: nothing 1: One big letter 2: One big Letter, and also small letters 3: Hydrogens-H 4: Number reached 5: other symbol, done 6: Invalid-cant interpret
+	i_backval=TELESCOPE_aggressobject(imultilist,inumber);
+	if (i_backval)
+	{
+		i_backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_s);
+		if (i_backval) ipointer=(char*)TELESCOPE_getproperty_contents();
+	}
+	else
+	{
+		return 0;
+	}
+	iback:
+	if (i_backval)
+	{
+		processatomsymbol(&fsm,ipointer,(s_instance*)TELESCOPE_getproperty());
+/*		if ((((s_instance*)TELESCOPE_getproperty()).face & 0x60)!=0x60)
+		{
+			fsm=6;
+		}*///This would be too strict, I think.
+		i_backval=TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_s);
+		if (i_backval)
+		{
+			ipointer=(char*)TELESCOPE_getproperty_contents();
+			goto iback;
+		}
+	}
+	if (fsm==6)
+	{
+		printf("Unknown:%s",edit_scoop_atomstring);
+		return 0;
+	}
+	for (int ilv1=0;ilv1<sizeof(element)/sizeof(element_);ilv1++)
+	{
+		if (strcmp(edit_scoop_atomstring,element[ilv1].name)==0)
+		{
+			(*imultilist).bufferlist[inumber].Element=ilv1;
+			goto yes_its_an_element;
+		}
+	}
+	return 0;
+	yes_its_an_element:;
+
+	iback2://Then, we delete any s objects of the object
+	TELESCOPE_aggressobject(imultilist,inumber);
+	i_backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_s);
+	if (i_backval)
+	{
+		TELESCOPE_clear_item();
+		goto iback2;
+	}
+	TELESCOPE_aggressobject(imultilist,inumber);
+	i_backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_s_f);
+	if (i_backval)
+	{
+		TELESCOPE_clear_item();
+	}
+	TELESCOPE_aggressobject(imultilist,inumber);
+	_u8 cursor=1;
+	_u8 fill=0;
+	for (int ilv1=0;ilv1<6;ilv1++)
+	{
+		if (cursor & edit_scoop_valids)
+		{
+			edit_scoop_packedformats[fill].color=edit_scoop_formats[ilv1].color;
+			edit_scoop_packedformats[fill].face=edit_scoop_formats[ilv1].face;
+		}
+		cursor<<1;
+	}
+	TELESCOPE_insertintoproperties(TELESCOPE_ELEMENTTYPE_s_f,(char*)&edit_scoop_packedformats,fill*sizeof(edit_formatstruct));
+	(*imultilist).bufferlist[inumber].protons=edit_scoop_numhydrogens;
+	(*imultilist).bufferlist[inumber].color=edit_scoop_formats[0].color;
+	return 1;
+}

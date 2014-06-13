@@ -9,5 +9,6 @@ matrix;0 matrixpicture;0 Z ;
 spectrum;0 spectrumpicture;0 Z ;
 tlcplate;0 tlcplatepicture;0 Z ;
 !s;c PCTEXT ;0 color 0 size 0 font c face c connect ;
+!s_f;;c valids ;
 !Bezierpoint;3 pos ;0 count ;
 !ID_Reference;;0 Purpose 1 Id ;

@@ -365,11 +365,25 @@ int telescope_merge(int ipos,int ilength)
 	return 0;
 }
 
-int TELESCOPE_clear()
+int TELESCOPE_clear()//clears all elements of that object
 {
 	if (TELESCOPE_verify_objectpresent())
 	{
 		(*((TELESCOPE*)(((*(TELESCOPE_tempvar.buffer)).buffer)+TELESCOPE_tempvar.pos))).owner=-1;
+	}
+}
+int TELESCOPE_clear_item()
+{
+	int ilength;
+	ilength=(*((TELESCOPE_element*)(((*(TELESCOPE_tempvar.buffer)).buffer)+TELESCOPE_tempvar.pos+TELESCOPE_tempvar.subpos))).length;
+	for (int ilv1=TELESCOPE_tempvar.pos+TELESCOPE_tempvar.subpos;ilv1<(*(TELESCOPE_tempvar.buffer)).count-ilength;ilv1++)
+	{
+		(*(TELESCOPE_tempvar.buffer)).buffer[ilv1]=(*(TELESCOPE_tempvar.buffer)).buffer[ilv1+ilength];
+	}
+	(*((TELESCOPE*)(((*(TELESCOPE_tempvar.buffer)).buffer)+TELESCOPE_tempvar.pos))).length-=ilength;
+	for (int ilv1=TELESCOPE_tempvar.objectpos+1;ilv1<(*(TELESCOPE_tempvar.multilist)).filllevel;ilv1++)
+	{
+		(*((basic_instance_propertybuffer*)(((char*)((*(TELESCOPE_tempvar.multilist)).pointer))+(TELESCOPE_tempvar.objectsize*ilv1)))).pos_in_buffer-=ilength;
 	}
 }
 void * TELESCOPE_getproperty()//returns the pointer to the current content, and it should be named TELESCOPE_getcontent

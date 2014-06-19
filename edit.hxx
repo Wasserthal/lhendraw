@@ -485,6 +485,18 @@ catalogized_command_iterated_funcdef(LABELTEXT)
 	}
 	return 0;
 }
+catalogized_command_iterated_funcdef(SETITEMVARIABLE)
+{
+	for (int ilv1=0;ilv1<(*iinstance)._->properties_count;ilv1++)
+	{
+		if (strcmp((*iinstance)._->properties[ilv1].name,parameter)==0)
+		{
+			*(((char*)iinstance)+((*iinstance)._->properties[ilv1].ref))=atoi(value);
+			return 1;
+		}
+	}
+	return 0;
+}
 catalogized_command_funcdef(FILE_NEW)
 {
 	for (int ilv1=1;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
@@ -678,6 +690,26 @@ catalogized_command_funcdef(LOAD_INTO_SEARCHBUF)
 {
 	printf("TODO***stub\n");
 }
+void edit_add_deltahydrogens()
+{
+	for (int ilv1=0;ilv1<(*glob_n_multilist).filllevel;ilv1++)
+	{
+		float i_bond_sum=0;
+		n_instance * tl_n_instance=(*glob_n_multilist).bufferlist+ilv1;
+		if ((*tl_n_instance).exist)
+		{
+			for (int ilv2=0;ilv2<atom_actual_node[ilv1].bondcount;ilv2++)
+			{
+				i_bond_sum+=(*glob_b_multilist).bufferlist[atom_actual_node[ilv1].bonds[ilv2]].Order/16.0;
+			}
+		}
+		if (fmod(i_bond_sum,1.0)>0.4)
+		{
+			i_bond_sum=trunc(i_bond_sum)+1;
+		}
+		(*tl_n_instance).protons+=i_bond_sum;
+	}
+}
 catalogized_command_funcdef(LOAD_TYPE)
 {
 	FILE * infile;
@@ -688,6 +720,7 @@ catalogized_command_funcdef(LOAD_TYPE)
 	CAMBRIDGECONV_maintointernal();
 	svg_findaround();
 	getatoms();
+	edit_add_deltahydrogens();
 }
 catalogized_command_funcdef(LOADAS)
 {
@@ -913,6 +946,7 @@ int edit_interpretaselementwithimplicithydrogens(multilist<n_instance> * imultil
 	edit_scoop_valids=0;
 	(*(_u32*)edit_scoop_atomstring)=0;
 	edit_scoop_numhydrogens=0;
+	edit_scoop_charge=0;
 	char * ipointer;
 	int i_backval=0;
 	int fsm=0;//0: nothing 1: One big letter 2: One big Letter, and also small letters 3: Hydrogens-H 4: Number reached 5: other symbol, done 6: Invalid-cant interpret
@@ -924,7 +958,9 @@ int edit_interpretaselementwithimplicithydrogens(multilist<n_instance> * imultil
 	}
 	else
 	{
-		return 0;
+		edit_scoop_numhydrogens=4;
+		(*imultilist).bufferlist[inumber].Element=constants_Element_implicitcarbon;
+		goto yes_its_an_element;
 	}
 	iback:
 	if (i_backval)

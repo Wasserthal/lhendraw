@@ -1172,6 +1172,15 @@ void svg_controlprocedure(bool irestriction=0,bool hatches=0)
 			_u8 imatch=1;
 			int inr=0;
 			int tl_fill;
+			float i_bond_sum=0;
+			for (int ilv2=0;ilv2<atom_actual_node[index_in_buffer].bondcount;ilv2++)
+			{
+				i_bond_sum+=(*glob_b_multilist).bufferlist[atom_actual_node[index_in_buffer].bonds[ilv2]].Order/16.0;
+			}
+			if (fmod(i_bond_sum,1.0)>0.4)
+			{
+				i_bond_sum=trunc(i_bond_sum)+1;
+			}
 			last.color=(*i_n_instance).color;
 			TELESCOPE_aggressobject(glob_n_multilist,index_in_buffer);
 			tl_format=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_s_f);
@@ -1205,14 +1214,14 @@ void svg_controlprocedure(bool irestriction=0,bool hatches=0)
 					case 0 : sprintf(istring,"%c",element[tlElement].name[0]);break;
 					case 1 : sprintf(istring,"%c",element[tlElement].name[1]);break;
 					case 2 : sprintf(istring,"%c",element[tlElement].name[2]);break;
-					case 3 : sprintf(istring,"%s",((*i_n_instance).protons<=0)?"":"H");break;
-					case 4 : if ((*i_n_instance).protons>1) sprintf(istring,"%i",(*i_n_instance).protons); else istring[0]=0;break;
+					case 3 : sprintf(istring,"%s",((*i_n_instance).protons-i_bond_sum<=0)?"":"H");break;
+					case 4 : if ((*i_n_instance).protons-i_bond_sum>1) sprintf(istring,"%i",(*i_n_instance).protons-(int)i_bond_sum); else istring[0]=0;break;
 					case 5 :
 					if ((*i_n_instance).charge<0) {sprintf(istring,"%i-",-(*i_n_instance).charge);break;}
 					if ((*i_n_instance).charge>0) {sprintf(istring,"%i+",(*i_n_instance).charge);break;}
 					if ((*i_n_instance).charge==0) {istring[0]=0;break;}
 				}
-				if ((atom_actual_node[index_in_buffer].labelside==1) && (ilv1!=0))
+				if ((atom_actual_node[index_in_buffer].labelside==1) && (actual>=3))
 				{
 					text_rewind((unsigned char*)istring,strlen(istring));
 				}

@@ -321,6 +321,10 @@ int interpretkey(int listnr=-1)
 											{
 												if (((catalogized_command_iterated_functype)(hotkeylist[ilv1].command))(hotkeylist[ilv1].variable,hotkeylist[ilv1].value,tl_multilist,&((*tl_multilist)[ilv2]),ilv2)){erledigt=1;};
 											}
+											if ((ihot) && (erledigt==0))
+											{
+												goto hotbackshunt;
+											}
 										}
 									}
 								}
@@ -328,6 +332,7 @@ int interpretkey(int listnr=-1)
 								{
 									ilv2=control_hot[tltype & 0xFFFF];
 									goto hotshunt;
+									hotbackshunt:;
 								}
 							}
 						}
@@ -1364,7 +1369,10 @@ void sdl_control()
 					}
 					case SDLK_F11:
 					{
-						SDL_WM_ToggleFullScreen(video);
+						if (idirection==1)
+						{
+							SDL_WM_ToggleFullScreen(video);
+						}
 						break;
 					}
 					case SDLK_ESCAPE:

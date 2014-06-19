@@ -80,10 +80,10 @@
 <Hotkey key="l" command="SETITEMVARIABLE" variable="Doubleposition" value="Left"/>
 <Hotkey key="r" command="SETITEMVARIABLE" variable="Doubleposition" value="Right"/>
 <Hotkey key="c" command="SETITEMVARIABLE" variable="Doubleposition" value="Center"/>
-<Hotkey key="1" command="SETITEMVARIABLE" variable="Order" value="1"/>
-<Hotkey key="2" command="SETITEMVARIABLE" variable="Order" value="2"/>
-<Hotkey key="3" command="SETITEMVARIABLE" variable="Order" value="3"/>
-<Hotkey key="4" command="SETITEMVARIABLE" variable="Order" value="4"/>
+<Hotkey key="1" command="SETITEMVARIABLE" variable="Order" value="16"/>
+<Hotkey key="2" command="SETITEMVARIABLE" variable="Order" value="32"/>
+<Hotkey key="3" command="SETITEMVARIABLE" variable="Order" value="48"/>
+<Hotkey key="4" command="SETITEMVARIABLE" variable="Order" value="64"/>
 <Hotkey key="5" command="FUSERING" value="5"/>
 <Hotkey key="6" command="FUSERING" value="6"/>
 <Hotkey key="7" command="FUSERING" value="7"/>

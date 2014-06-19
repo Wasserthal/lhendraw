@@ -48,6 +48,7 @@ struct TELESCOPE_tempvar_
 	basicmultilist * multilist;
 };
 TELESCOPE_tempvar_ TELESCOPE_tempvar;
+TELESCOPE_tempvar_ TELESCOPE_debugvar;
 void TELESCOPE_measure(int tag)
 {
 	TELESCOPE * start;
@@ -131,12 +132,45 @@ char TELESCOPE_verify_objectpresent()
 		return 0;
 	}
 }
+int TELESCOPE_verify_objectcorrect()//-1: error 0: end of list 1: object 2: empty object
+{
+	if (TELESCOPE_debugvar.pos<(*(TELESCOPE_debugvar.buffer)).count)
+	{
+		TELESCOPE_debugvar.objectpos=(*((TELESCOPE*)(((*(TELESCOPE_debugvar.buffer)).buffer)+TELESCOPE_debugvar.pos))).owner;
+		if (TELESCOPE_debugvar.objectpos==-1)
+		{
+			return 2;
+		}
+		if ((TELESCOPE_debugvar.objectpos<0) || (TELESCOPE_debugvar.objectpos>(*(TELESCOPE_debugvar.multilist)).filllevel))
+		{
+			fprintf(stderr,"TELESCOPE invalid object number%i of %lli\n",TELESCOPE_debugvar.objectpos,(*(TELESCOPE_debugvar.multilist)).filllevel);exit(1);
+		}
+		basic_instance_propertybuffer * i_basic_instance=((basic_instance_propertybuffer*)(((char*)((*(TELESCOPE_debugvar.multilist)).pointer))+(TELESCOPE_debugvar.objectsize*TELESCOPE_debugvar.objectpos)));
+		if ((*i_basic_instance).exist==0)
+		{
+			fprintf(stderr,"TELESCOPE owned by dead object\n");exit(1);
+		}
+		if ((*i_basic_instance).pos_in_buffer!=TELESCOPE_debugvar.pos)
+		{
+			fprintf(stderr,"TELESCOPE and object went asynchronous:%i,%i\n",(int)(*i_basic_instance).pos_in_buffer,(int)TELESCOPE_debugvar.pos);exit(1);
+		}
+	}
+	else
+	{
+		if (TELESCOPE_debugvar.pos>(*(TELESCOPE_debugvar.buffer)).count)
+		{
+			fprintf(stderr,"TELESCOPE_buffer_overflow at beginning of object");exit(1);
+		}
+		return 0;
+	}
+	return 1;
+}
 int TELESCOPE_stretch_buffer(basicmultilist * imultilist,int ideltaplus,int itype)
 {
 	int ideltaplus2;char enlengthen=0;char enlengthen2=0;
 	TELESCOPE_buffer * ibuffer=TELESCOPE_tempvar.buffer;
 	ideltaplus2=ideltaplus;
-	if (TELESCOPE_verify_objectpresent()) goto wehadit;
+	if (TELESCOPE_verify_objectpresent()) {goto wehadit;}
 	ideltaplus2+=sizeof(TELESCOPE);
 	enlengthen=1;
 	wehadit:
@@ -221,6 +255,65 @@ int TELESCOPE_searchthroughobject(int tag)
 	TELESCOPE_tempvar.subpos2=0;
 	return 0;
 }
+int TELESCOPE_buffercheck(basicmultilist * imultilist)
+{
+	int ilength;
+	int backval;
+	TELESCOPE_debugvar.multilist=imultilist;
+	TELESCOPE_debugvar.inside_TELESCOPE=0;
+	TELESCOPE_debugvar.inside_TELESCOPE_element=0;
+	TELESCOPE_debugvar.objectsize=(*imultilist).itemsize;
+	getbufferfromstructure(imultilist,&TELESCOPE_debugvar.buffer);
+	TELESCOPE_debugvar.pos=0;
+	iback:
+	TELESCOPE_debugvar.subpos=0;
+	TELESCOPE_debugvar.subpos2=0;
+	backval=TELESCOPE_verify_objectcorrect();
+	if (backval<0) return backval;
+	if (backval)
+	{
+		TELESCOPE_debugvar.inside_TELESCOPE=1;
+		ilength=(*((TELESCOPE*)((*TELESCOPE_debugvar.buffer).buffer+TELESCOPE_debugvar.pos))).length;
+		TELESCOPE_debugvar.subpos=sizeof(TELESCOPE);
+		if (ilength<=sizeof(TELESCOPE))
+		{
+			fprintf(stderr,"TELESCOPE stupid length%i\n",ilength);exit(1);
+		}
+		if ((TELESCOPE_debugvar.pos+ilength)>(*(TELESCOPE_debugvar.buffer)).max)
+		{
+			fprintf(stderr,"TELESCOPE buffer seems overflown%i\n",ilength);exit(1);
+			return -21;
+		}
+	}
+	if (backval & 1)
+	{
+		TELESCOPE_element * iTELESCOPE_element;
+		while (TELESCOPE_debugvar.subpos<ilength)
+		{
+			iTELESCOPE_element=(TELESCOPE_element*)((*(TELESCOPE_debugvar.buffer)).buffer+TELESCOPE_debugvar.pos+TELESCOPE_debugvar.subpos);
+			if (((*iTELESCOPE_element).type<0) || ((*iTELESCOPE_element).type>=TELESCOPE_ELEMENTTYPE_ListSize))
+			{
+				fprintf(stderr,"TELESCOPE bad element type%i\n",(*iTELESCOPE_element).type);exit(1);
+			}
+			fprintf(stderr,"%s",((*(TELESCOPE_debugvar.buffer)).buffer+TELESCOPE_debugvar.pos+TELESCOPE_debugvar.subpos)+TELESCOPE_ELEMENTTYPE_List[(*iTELESCOPE_element).type].size);
+			fprintf(stderr," %i",(int)((*iTELESCOPE_element).length-TELESCOPE_ELEMENTTYPE_List[(*iTELESCOPE_element).type].size));
+			TELESCOPE_debugvar.subpos+=(*iTELESCOPE_element).length;
+			TELESCOPE_debugvar.subpos2=TELESCOPE_debugvar.subpos;
+		}
+		if (TELESCOPE_debugvar.subpos>ilength)
+		{
+			fprintf(stderr,"TELESCOPE object contents overflow%i,%i>%i\n",(*iTELESCOPE_element).length,TELESCOPE_debugvar.subpos,ilength);exit(1);
+		}
+	}
+	TELESCOPE_debugvar.subpos=0;
+	TELESCOPE_debugvar.subpos2=0;
+	if (backval)
+	{
+		TELESCOPE_debugvar.pos+=ilength;
+		goto iback;
+	}
+	return 0;
+}
 int TELESCOPE_searchthroughobject_next(int tag)
 {
 	int ilength;
@@ -229,7 +322,7 @@ int TELESCOPE_searchthroughobject_next(int tag)
 	{
 		if (TELESCOPE_tempvar.inside_TELESCOPE_element)
 		{
-			ilength=(*((TELESCOPE*)((*TELESCOPE_tempvar.buffer).buffer+TELESCOPE_tempvar.pos))).length-sizeof(TELESCOPE);
+			ilength=(*((TELESCOPE*)((*TELESCOPE_tempvar.buffer).buffer+TELESCOPE_tempvar.pos))).length;
 			TELESCOPE_element * iTELESCOPE_element=(TELESCOPE_element*)((*(TELESCOPE_tempvar.buffer)).buffer+TELESCOPE_tempvar.pos+TELESCOPE_tempvar.subpos);
 			TELESCOPE_tempvar.subpos+=(*iTELESCOPE_element).length;
 			TELESCOPE_tempvar.subpos2=TELESCOPE_tempvar.subpos;
@@ -385,6 +478,7 @@ int TELESCOPE_clear_item()
 	{
 		(*((basic_instance_propertybuffer*)(((char*)((*(TELESCOPE_tempvar.multilist)).pointer))+(TELESCOPE_tempvar.objectsize*ilv1)))).pos_in_buffer-=ilength;
 	}
+	(*(TELESCOPE_tempvar.buffer)).count-=ilength;
 }
 void * TELESCOPE_getproperty()//returns the pointer to the current content, and it should be named TELESCOPE_getcontent
 {

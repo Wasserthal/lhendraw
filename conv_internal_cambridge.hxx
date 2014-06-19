@@ -21,8 +21,65 @@
 		}\
 	}\
 }
+#define CONVCAMBRIDGE_COLORCONV2(AUTOPARM,MACROPARAM_color) \
+{\
+	int tl_color;\
+	unsigned char r,g,b;\
+	AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_ ## AUTOPARM ## _instance,color);\
+	tl_color=MACROPARAM_color;\
+	(*tl_CAMBRIDGE_ ## AUTOPARM ## _instance).color=0;\
+	for (int ilv1=0;ilv1<(*glob_CAMBRIDGE_color_multilist).filllevel;ilv1++)\
+	{\
+		r=(tl_color&0xFF0000)>>16;\
+		g=(tl_color&0xFF00)>>8;\
+		b=(tl_color&0xFF);\
+		if ((((unsigned char)((*((CAMBRIDGE_color_instance*)&((*glob_CAMBRIDGE_color_multilist)[ilv1]))).r*255))==r) && \
+		(((unsigned char)((*((CAMBRIDGE_color_instance*)&((*glob_CAMBRIDGE_color_multilist)[ilv1]))).g*255))==g) && \
+		(((unsigned char)((*((CAMBRIDGE_color_instance*)&((*glob_CAMBRIDGE_color_multilist)[ilv1]))).b*255))==b))\
+		{\
+			(*tl_CAMBRIDGE_ ## AUTOPARM ## _instance).color=ilv1+2;\
+		}\
+	}\
+}
 
-void CONVCAMBRIDGE_s(CAMBRIDGE_t_instance * master,s_instance * tl_s_instance,char * CAMBRIDGE_s_instance_buffer);
+int CONVCAMBRIDGE_s_f(CAMBRIDGE_t_instance * master,edit_formatstruct * iformat,char * ibuffer)
+{
+	char * ibuffer2;
+	ibuffer2=filestructure_text_buffer.buffer+filestructure_text_buffer.count;
+	if (filestructure_text_buffer.count+strlen(ibuffer)+1>=filestructure_text_buffer.max)
+	{
+		return -1;
+	}
+	if (strlen(ibuffer)==0) return 0;
+	strcpy(ibuffer2,ibuffer);
+	filestructure_text_buffer.count+=1+strlen(ibuffer);
+	multilist<CAMBRIDGE_s_instance> * tl_CAMBRIDGE_s_multilist=retrievemultilist<CAMBRIDGE_s_instance>();
+	ADD_TO_MULTILISTREFERENCE(master,s);
+	CONVCAMBRIDGE_COLORCONV2(s,(*iformat).color);
+	if ((*master).color==(*tl_CAMBRIDGE_s_instance).color)
+	{
+		AUTOSTRUCT_EXISTS_CLEAR_NAME(tl_CAMBRIDGE_s_instance,color);
+	}
+	(*tl_CAMBRIDGE_s_instance).font=1;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_s_instance,font);
+	(*tl_CAMBRIDGE_s_instance).face=(*iformat).face|0x60;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_s_instance,face);
+	(*tl_CAMBRIDGE_s_instance).size=12;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_s_instance,size);
+	(*tl_CAMBRIDGE_s_instance).PCTEXT.a=ibuffer2;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_s_instance,PCTEXT);
+	(*tl_CAMBRIDGE_s_instance).PCTEXTcounter=strlen((*tl_CAMBRIDGE_s_instance).PCTEXT.a);
+	(*tl_CAMBRIDGE_s_multilist).ADD(tl_CAMBRIDGE_s_instance);
+	return 1;
+}
+void CONVCAMBRIDGE_s(CAMBRIDGE_t_instance * master,s_instance * tl_s_instance,char * CAMBRIDGE_s_instance_buffer)
+{
+	multilist<CAMBRIDGE_s_instance> * tl_CAMBRIDGE_s_multilist=retrievemultilist<CAMBRIDGE_s_instance>();
+	ADD_TO_MULTILISTREFERENCE(master,s);
+	CONVCAMBRIDGE_COLORCONV(s);
+	(*tl_CAMBRIDGE_s_instance).font=1;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_s_instance,font);
+	(*tl_CAMBRIDGE_s_instance).face=(*tl_s_instance).face;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_s_instance,face);
+	(*tl_CAMBRIDGE_s_instance).size=(*tl_s_instance).size;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_s_instance,size);
+	(*tl_CAMBRIDGE_s_instance).PCTEXT.a=CAMBRIDGE_s_instance_buffer;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_s_instance,PCTEXT);
+	(*tl_CAMBRIDGE_s_instance).PCTEXTcounter=strlen((*tl_CAMBRIDGE_s_instance).PCTEXT.a);
+	(*tl_CAMBRIDGE_s_multilist).ADD(tl_CAMBRIDGE_s_instance);
+}
 void CONVCAMBRIDGE_atoms(CAMBRIDGE_fragment_instance * master,cdx_Rectangle * iBoundingBox)
 {
 	int backval;
@@ -37,6 +94,7 @@ void CONVCAMBRIDGE_atoms(CAMBRIDGE_fragment_instance * master,cdx_Rectangle * iB
 			n_instance * tl_n_instance=(*tl_n_multilist).bufferlist+ilv1;
 			ADD_TO_MULTILISTREFERENCE(master,n);
 			CONVCAMBRIDGE_COLORCONV(n);
+			int tl_Element=(*tl_n_instance).Element;
 			TELESCOPE_aggressobject(tl_n_multilist,ilv1);
 			backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_s);
 			if (backval)
@@ -50,32 +108,80 @@ while (backval)
 	CONVCAMBRIDGE_s(tl_CAMBRIDGE_t_instance,(s_instance*)TELESCOPE_getproperty(),(char*)TELESCOPE_getproperty_contents());
 	backval=TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_s);
 }
-int tl_color;
-unsigned char r,g,b;
-AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_t_instance,color);
-tl_color=(*tl_n_instance).color;
-(*tl_CAMBRIDGE_t_instance).color=0;
-for (int ilv1=0;ilv1<(*glob_CAMBRIDGE_color_multilist).filllevel;ilv1++)
-{
-	r=(tl_color&0xFF0000)>>16;
-	g=(tl_color&0xFF00)>>8;
-	b=(tl_color&0xFF);
-	if ((((unsigned char)((*((CAMBRIDGE_color_instance*)&((*glob_CAMBRIDGE_color_multilist)[ilv1]))).r*255))==r) &&
-	(((unsigned char)((*((CAMBRIDGE_color_instance*)&((*glob_CAMBRIDGE_color_multilist)[ilv1]))).g*255))==g) &&
-	(((unsigned char)((*((CAMBRIDGE_color_instance*)&((*glob_CAMBRIDGE_color_multilist)[ilv1]))).b*255))==b))
-	{
-		(*tl_CAMBRIDGE_n_instance).color=ilv1+2;
-	}
-}
+CONVCAMBRIDGE_COLORCONV2(t,(*tl_n_instance).color);
 (*tl_CAMBRIDGE_t_instance).p.x=(*tl_n_instance).xyz.x;//BACKWARDS COMPATIBILITY
 (*tl_CAMBRIDGE_t_instance).p.y=(*tl_n_instance).xyz.y;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_t_instance,p);//BACKWARDS COMPATIBILITY
 (*tl_CAMBRIDGE_t_instance).xyz=(*tl_n_instance).xyz;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_t_instance,xyz);
 (*tl_CAMBRIDGE_t_instance).Z=(*tl_n_instance).Z;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_t_instance,Z);
 (*tl_CAMBRIDGE_t_multilist).ADD(tl_CAMBRIDGE_t_instance);
 			}
+			else
+			{
+ADD_TO_MULTILISTREFERENCE(tl_CAMBRIDGE_n_instance,t);
+TELESCOPE_aggressobject(tl_n_multilist,ilv1);
+backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_s);
+CONVCAMBRIDGE_COLORCONV2(t,(*tl_n_instance).color);
+				char istring[10];
+				char tl_fill;
+				char imatch;
+				char tl_format=0;
+				s_f_instance * tl_s_f_instance;
+				edit_formatstruct * tl_formatpointer;
+				edit_formatstruct iformatstruct;
+				edit_formatstruct * currentformatpointer=&iformatstruct;
+				iformatstruct.color=(*tl_n_instance).color;
+				iformatstruct.face=0x60;
+				backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_s_f);
+				if (backval)
+				{
+					tl_format=(*(s_f_instance*)TELESCOPE_getproperty()).valids;
+					tl_formatpointer=(edit_formatstruct*)TELESCOPE_getproperty_contents();
+				}
+				for (int ilv1=0;ilv1<6;ilv1++)
+				{
+					if (tl_s_f_instance)
+					{
+						tl_fill=0;
+						for (int ilv2=0;ilv2<=ilv1;ilv2++)
+						{
+							imatch=1<<ilv2;
+							if (tl_format & imatch)
+							{
+								currentformatpointer=tl_formatpointer+tl_fill;
+								tl_fill++;
+							}
+						}
+					}
+					switch (ilv1)
+					{
+						case 0 : if (element[tl_Element].name[0]==0) {ilv1=2;goto ifertig;}sprintf(istring,"%c",element[tl_Element].name[0]);break;
+						case 1 : if (element[tl_Element].name[1]==0) {ilv1=2;goto ifertig;}sprintf(istring,"%c",element[tl_Element].name[1]);break;
+						case 2 : if (element[tl_Element].name[2]==0) {ilv1=2;goto ifertig;}sprintf(istring,"%c",element[tl_Element].name[2]);break;
+						case 3 : sprintf(istring,"%s",((*tl_n_instance).protons<=0)?"":"H");break;
+						case 4 : if ((*tl_n_instance).protons>1) sprintf(istring,"%i",(*tl_n_instance).protons); else istring[0]=0;break;
+						case 5 :
+						if ((*tl_n_instance).charge<0) {sprintf(istring,"%i-",-(*tl_n_instance).charge);break;}
+						if ((*tl_n_instance).charge>0) {sprintf(istring,"%i+",(*tl_n_instance).charge);break;}
+						if ((*tl_n_instance).charge==0) {istring[0]=0;break;}
+					}
+					CONVCAMBRIDGE_s_f(tl_CAMBRIDGE_t_instance,currentformatpointer,istring);
+					ifertig:;
+				}
+(*tl_CAMBRIDGE_t_instance).p.x=(*tl_n_instance).xyz.x;//BACKWARDS COMPATIBILITY
+(*tl_CAMBRIDGE_t_instance).p.y=(*tl_n_instance).xyz.y;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_t_instance,p);//BACKWARDS COMPATIBILITY
+(*tl_CAMBRIDGE_t_instance).xyz=(*tl_n_instance).xyz;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_t_instance,xyz);
+(*tl_CAMBRIDGE_t_instance).Z=(*tl_n_instance).Z;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_t_instance,Z);
+(*tl_CAMBRIDGE_t_multilist).ADD(tl_CAMBRIDGE_t_instance);
+			}
+			if (tl_Element!=-1)
+			{
+				(*tl_CAMBRIDGE_n_instance).Element=element[tl_Element].protons;
+				AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_n_instance,Element);
+			}
 			(*tl_CAMBRIDGE_n_instance).id=(*tl_n_instance).id;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_n_instance,id);
 			(*tl_CAMBRIDGE_n_instance).Z=(*tl_n_instance).Z;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_n_instance,Z);
 			(*tl_CAMBRIDGE_n_instance).xyz=(*tl_n_instance).xyz;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_n_instance,xyz);
+			(*tl_CAMBRIDGE_n_instance).NumHydrogens=(*tl_n_instance).protons;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_n_instance,NumHydrogens);
 			if (iBoundingBox!=NULL)
 			{
 				if ((*tl_CAMBRIDGE_n_instance).xyz.x<(*iBoundingBox).left){(*iBoundingBox).left=(*tl_CAMBRIDGE_n_instance).xyz.x;}
@@ -130,19 +236,6 @@ iOrderout=0x2;}else iOrderout=0x80;}else iOrderout=0x1;}else iOrderout=0x40;
 	}
 }
 
-void CONVCAMBRIDGE_s(CAMBRIDGE_t_instance * master,s_instance * tl_s_instance,char * CAMBRIDGE_s_instance_buffer)
-{
-	char backval=0;
-	multilist<CAMBRIDGE_s_instance> * tl_CAMBRIDGE_s_multilist=retrievemultilist<CAMBRIDGE_s_instance>();
-	ADD_TO_MULTILISTREFERENCE(master,s);
-	CONVCAMBRIDGE_COLORCONV(s);
-	(*tl_CAMBRIDGE_s_instance).font=(*tl_s_instance).font;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_s_instance,font);
-	(*tl_CAMBRIDGE_s_instance).face=(*tl_s_instance).face;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_s_instance,face);
-	(*tl_CAMBRIDGE_s_instance).size=(*tl_s_instance).size;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_s_instance,size);
-	(*tl_CAMBRIDGE_s_instance).PCTEXT.a=CAMBRIDGE_s_instance_buffer;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_s_instance,PCTEXT);
-	(*tl_CAMBRIDGE_s_instance).PCTEXTcounter=strlen((*tl_CAMBRIDGE_s_instance).PCTEXT.a);
-	(*tl_CAMBRIDGE_s_multilist).ADD(tl_CAMBRIDGE_s_instance);
-}
 void CONVCAMBRIDGE_text(CAMBRIDGE_page_instance * master)
 {
 	char backval=0;

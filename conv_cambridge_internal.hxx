@@ -68,8 +68,8 @@ void CAMBRIDGECONV_atom()
 		{
 			(*glob_CAMBRIDGE_t_multilist).bufferlist[ilv2].relN=(*glob_n_multilist).filllevel;
 			tl_n_instance.Element=-1;
-			tl_n_instance.Z=(*glob_CAMBRIDGE_t_multilist).bufferlist[ilv1].Z;
-			(*tl_CAMBRIDGE_n_instance).color=(*glob_CAMBRIDGE_t_multilist).bufferlist[ilv1].color;
+			tl_n_instance.Z=(*glob_CAMBRIDGE_t_multilist).bufferlist[ilv2].Z;
+			(*tl_CAMBRIDGE_n_instance).color=(*glob_CAMBRIDGE_t_multilist).bufferlist[ilv2].color;
 			(tl_n_instance).protons=0;
 			goto skip_because_text;
 		}
@@ -237,7 +237,7 @@ void CAMBRIDGECONV_text()
 					{
 						TELESCOPE_insertintoproperties(TELESCOPE_ELEMENTTYPE_s,tl_text,strlen(tl_text)+((ilv1+1==tl_length)?1:0));
 					}
-					tl_s_instance.length+=strlen(tl_text)+((ilv1+1==tl_length)?1:0);
+					tl_s_instance.length+=strlen(tl_text);
 				}
 			}
 			else

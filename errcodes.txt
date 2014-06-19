@@ -21,3 +21,6 @@ Error codes:
 -18: important element missing in external data structure
 -19: external value out of range
 -20: syntax error in file
+-21: internal memory organisation failure - list of variable-size-elements seems overflown
+-22: internal memory-block management data damaged
+-23: internal memory organisation failure - list of variable-size-elements damaged

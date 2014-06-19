@@ -7,6 +7,11 @@ struct TELESCOPE_buffer
 	intl max;
 	intl count;
 };
+struct edit_formatstruct
+{
+	_u32 color;
+	_u8 face;
+}__attribute__((packed));
 #define REGISTER_content the_template.possible_contents.add
 void CDXMLREAD_basic(char * input,void * output);
 typedef int __attribute__((sysv_abi))(*CDXMLREAD_functype)(char * input,void * output);
@@ -79,6 +84,7 @@ int AUTOSTRUCT_Numberofproperty(const char * name,superconstellation * iinput,in
 #define AUTOSTRUCT_EXISTS(AUTOSTRUCT_CLASS,AUTOSTRUCT_VARIABLE,AUTOSTRUCT_ELEMENT) ((AUTOSTRUCT_VARIABLE.INTERNALPropertyexistflags>>AUTOSTRUCT_Numberofproperty(#AUTOSTRUCT_ELEMENT,(AUTOSTRUCT_VARIABLE.properties),AUTOSTRUCT_VARIABLE.INTERNALPropertycount))&1)
 #define AUTOSTRUCT_EXISTS_SET(AUTOSTRUCT_VARIABLE,AUTOSTRUCT_ELEMENT_NR) ((*(AUTOSTRUCT_VARIABLE.getINTERNALPropertyexistflags()))|=(1<<AUTOSTRUCT_ELEMENT_NR))
 #define AUTOSTRUCT_EXISTS_SET_NAME(AUTOSTRUCT_VARIABLE,AUTOSTRUCT_ELEMENT_NAME) ((*((*AUTOSTRUCT_VARIABLE).getINTERNALPropertyexistflags()))|=(1<<AUTOSTRUCT_Numberofproperty(# AUTOSTRUCT_ELEMENT_NAME,(*AUTOSTRUCT_VARIABLE).properties,(*AUTOSTRUCT_VARIABLE).INTERNALPropertycount)))
+#define AUTOSTRUCT_EXISTS_CLEAR_NAME(AUTOSTRUCT_VARIABLE,AUTOSTRUCT_ELEMENT_NAME) ((*((*AUTOSTRUCT_VARIABLE).getINTERNALPropertyexistflags()))&=~(1<<AUTOSTRUCT_Numberofproperty(# AUTOSTRUCT_ELEMENT_NAME,(*AUTOSTRUCT_VARIABLE).properties,(*AUTOSTRUCT_VARIABLE).INTERNALPropertycount)))
 
 char tagnamestring[stringlength+1];
 char parameterstring[bufferlength+1];
@@ -118,6 +124,46 @@ class basicmultilist
 	}
 	~basicmultilist(){};
 };
+class basicmultilistreference
+{
+	public:
+	basicmultilist * instances;
+	intl start_in_it;
+	intl count_in_it;
+	intl mynumber;
+	virtual void * addnew(){};
+	basic_instance * operator [](int ino)
+	{
+		return (basic_instance*)(((char*)((*instances).pointer))+(ino+start_in_it)*((*instances).itemsize));
+	}
+	basicmultilistreference(){};
+	~basicmultilistreference(){};
+};
+struct basic_instance
+{
+	public:
+	virtual int getcontents(const char * name)
+	{
+		return -1;
+	};
+	virtual int getproperties(const char * name,CDXMLREAD_functype * delegateoutput,int * posoutput=NULL)
+	{
+		return -1;
+	};
+	virtual const char * getName(){return 0;}
+	virtual const char * getFullName(){return 0;}
+	virtual _u32 * getINTERNALPropertyexistflags(){return NULL;}
+	AUTOSTRUCT_cstyle_vtable * _;
+	basic_instance * master;
+	virtual int hit(float ix,float iy){};
+/*	int & operator [] (O_int which)///TODO: enum NEEDED for each datatype
+	{
+		return *(int*)(((char*)this)+(*(((int*)_)+which)));
+	}*/
+	char exist;
+	basic_instance(){master=NULL;exist=1;};//TODO put exist into basic_instance_propertybuffer
+	~basic_instance(){};
+};
 template <class whatabout> class multilist : public basicmultilist
 {
 	public:
@@ -143,13 +189,22 @@ template <class whatabout> class multilist : public basicmultilist
 	{
 		bufferlist[index].exist=0;
 	}
-	void * insert(whatabout input,intl position,intl mynumber)
+	void * insert(whatabout input,intl position,intl mynumber)//position must be given to allow later refills
 	{
 		for (int ilv1=filllevel;ilv1>position;ilv1--)
 		{
 			for (int ilv2=0;ilv2<sizeof(bufferlist[0]);ilv2++)//Thats why oop sucks!
 			{
 				*(((char*)(&(bufferlist[ilv1])))+ilv2)=*(((char*)(&(bufferlist[ilv1-1])))+ilv2);
+			}
+			for (int ilv2=0;ilv2<sizeof(whatabout::contents)/sizeof(superconstellation);ilv2++)
+			{
+				basicmultilistreference * tl_multilistreference=*(basicmultilistreference**)(((char*)(&(bufferlist[ilv1])))+whatabout::contents[ilv2].ref);
+				for (int ilv3=(*tl_multilistreference).start_in_it;ilv3<(*tl_multilistreference).start_in_it+(*tl_multilistreference).count_in_it;ilv3++)
+				{
+					basic_instance * tl_basic_instance=(basic_instance*)(((char*)((*((*tl_multilistreference).instances)).pointer))+(*((*tl_multilistreference).instances)).itemsize*ilv3);
+					(*tl_basic_instance).master=(basic_instance*)(&(bufferlist[ilv1]));
+				}
 			}
 		}
 		for (int ilv1=mynumber+1;ilv1<ourcount;ilv1++)
@@ -217,22 +272,6 @@ template <class whatabout> multilist<whatabout> * registermultilist(const char *
 	return (multilist<whatabout> *) multilistlist[multilist_count++].instance;
 }
 
-class basicmultilistreference
-{
-	public:
-	basicmultilist * instances;
-	intl start_in_it;
-	intl count_in_it;
-	intl mynumber;
-	virtual void * addnew(){};
-	basic_instance * operator [](int ino)
-	{
-		return (basic_instance*)(((char*)((*instances).pointer))+(ino+start_in_it)*((*instances).itemsize));
-	}
-	basicmultilistreference(){};
-	~basicmultilistreference(){};
-};
-
 template <class whatabout> class multilistreference : public basicmultilistreference
 {
 	public:
@@ -252,38 +291,12 @@ template <class whatabout> class multilistreference : public basicmultilistrefer
 		/*multilistreference(backvalue);*/
 		mynumber=(*((multilist<whatabout>*)instances)).getme(this);
 	};
-	void multilistreferenx(multilist<whatabout> * input)
+	void multilistreferenx(multilist<whatabout> * input)//not used???
 	{
 		instances=(basicmultilist*)input;
 		mynumber=(*((multilist<whatabout>*)instances)).getme(this);
 	};
 	~multilistreference(){};
-};
-
-struct basic_instance
-{
-	public:
-	virtual int getcontents(const char * name)
-	{
-		return -1;
-	};
-	virtual int getproperties(const char * name,CDXMLREAD_functype * delegateoutput,int * posoutput=NULL)
-	{
-		return -1;
-	};
-	virtual const char * getName(){return 0;}
-	virtual const char * getFullName(){return 0;}
-	virtual _u32 * getINTERNALPropertyexistflags(){return NULL;}
-	AUTOSTRUCT_cstyle_vtable * _;
-	basic_instance * master;
-	virtual int hit(float ix,float iy){};
-/*	int & operator [] (O_int which)///TODO: enum NEEDED for each datatype
-	{
-		return *(int*)(((char*)this)+(*(((int*)_)+which)));
-	}*/
-	char exist;
-	basic_instance(){master=NULL;exist=1;};//TODO put exist into basic_instance_propertybuffer
-	~basic_instance(){};
 };
 
 /*struct basic_instance_multilistreference:basic_instance

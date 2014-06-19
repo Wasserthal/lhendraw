@@ -1166,15 +1166,59 @@ void svg_controlprocedure(bool irestriction=0,bool hatches=0)
 		else
 		{
 			char istring[1000];
-			sprintf(istring,"%s%s",element[tlElement].name,((*i_n_instance).protons<=0)?"":"H");
-			if ((*i_n_instance).protons>1)
+			_u8 tl_format=0;
+			edit_formatstruct * tl_formatpointer;
+			edit_formatstruct last;
+			_u8 imatch=1;
+			int inr=0;
+			int tl_fill;
+			last.color=(*i_n_instance).color;
+			TELESCOPE_aggressobject(glob_n_multilist,index_in_buffer);
+			tl_format=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_s_f);
+			if (tl_format)
 			{
-				sprintf(istring+strlen(istring),"%i",(*i_n_instance).protons);
+				tl_format=(*((s_f_instance*)TELESCOPE_getproperty())).valids;
+				tl_formatpointer=(edit_formatstruct*)TELESCOPE_getproperty_contents();
 			}
-			colornr=(*i_n_instance).color;
-			get_colorstring(colornr);
 			express_txinit(0/*TODO: reverse*/,(*i_n_instance).xyz.x,(*i_n_instance).xyz.y,atomfontheight);
-			printformatted(istring,0,0,0,strlen(istring));
+			for (int ilv1=0;ilv1<6;ilv1++)
+			{
+				int actual=ilv1;
+				if (atom_actual_node[index_in_buffer].labelside==1)
+				{
+					if (ilv1==3) actual=4;
+					if (ilv1==4) actual=3;
+				}
+				tl_fill=0;
+				for (int ilv2=0;ilv2<=actual;ilv2++)
+				{
+					imatch=1<<ilv2;
+					if (tl_format & imatch)
+					{
+						last.color=tl_formatpointer[tl_fill].color;
+						get_colorstring(last.color);
+						tl_fill++;
+					}
+				}
+				switch (actual)
+				{
+					case 0 : sprintf(istring,"%c",element[tlElement].name[0]);break;
+					case 1 : sprintf(istring,"%c",element[tlElement].name[1]);break;
+					case 2 : sprintf(istring,"%c",element[tlElement].name[2]);break;
+					case 3 : sprintf(istring,"%s",((*i_n_instance).protons<=0)?"":"H");break;
+					case 4 : if ((*i_n_instance).protons>1) sprintf(istring,"%i",(*i_n_instance).protons); else istring[0]=0;break;
+					case 5 :
+					if ((*i_n_instance).charge<0) {sprintf(istring,"%i-",-(*i_n_instance).charge);break;}
+					if ((*i_n_instance).charge>0) {sprintf(istring,"%i+",(*i_n_instance).charge);break;}
+					if ((*i_n_instance).charge==0) {istring[0]=0;break;}
+				}
+				if ((atom_actual_node[index_in_buffer].labelside==1) && (ilv1!=0))
+				{
+					text_rewind((unsigned char*)istring,strlen(istring));
+				}
+				printformatted(istring,0,(1*(actual==4)) | (3*(ilv1==5)),0,strlen(istring));
+			}
+			express_text_tail();
 		}
 	}
 	goto svg_main_loop;
@@ -1606,19 +1650,10 @@ void svg_controlprocedure(bool irestriction=0,bool hatches=0)
 	i_b_instance=&(((*glob_b_multilist).bufferlist)[index_in_buffer]);
 	colornr=(*i_b_instance).color;
 	get_colorstring(colornr);
-	for (int ilv2=0;ilv2<(*glob_n_multilist).filllevel;ilv2++)//TODO: base on pre-calcd. values
-	{
-		if (((*glob_n_multilist).bufferlist)[ilv2].id==(*i_b_instance).E)
-		{
-			inr_E=ilv2;
-			endnode=&(((*glob_n_multilist).bufferlist)[ilv2]);
-		}
-		if (((*glob_n_multilist).bufferlist)[ilv2].id==(*i_b_instance).B)
-		{
-			inr_S=ilv2;
-			startnode=&(((*glob_n_multilist).bufferlist)[ilv2]);
-		}
-	}
+	inr_S=bond_actual_node[index_in_buffer].start;
+	inr_E=bond_actual_node[index_in_buffer].end;
+	startnode=((*glob_n_multilist).bufferlist)+inr_S;
+	endnode=((*glob_n_multilist).bufferlist)+inr_E;
 	ibonddist=0;ibonddist2=0;
 	if ((*i_b_instance).Order>16)
 	{
@@ -1640,8 +1675,8 @@ void svg_controlprocedure(bool irestriction=0,bool hatches=0)
 	langle=getangle((*endnode).xyz.x-(*startnode).xyz.x,(*endnode).xyz.y-(*startnode).xyz.y);
 	cangle=langle+Pi/2;
 	calcdelta(&textdeltax,&textdeltay,(*endnode).xyz.x-(*startnode).xyz.x,(*endnode).xyz.y-(*startnode).xyz.y);
-	specialS=((*glob_n_multilist).bufferlist[inr_S].Element==-1);
-	specialE=((*glob_n_multilist).bufferlist[inr_E].Element==-1);
+	specialS=((*glob_n_multilist).bufferlist[inr_S].Element!=constants_Element_implicitcarbon);
+	specialE=((*glob_n_multilist).bufferlist[inr_E].Element!=constants_Element_implicitcarbon);
 	iBBX.left=(*startnode).xyz.x+textdeltax*specialS;
 	iBBX.top=(*startnode).xyz.y+textdeltay*specialS;
 	iDisplaytype1=((*glob_b_multilist).bufferlist[index_in_buffer].Display);
@@ -1739,7 +1774,7 @@ tlposx+tlcos-tlsin,tlposy+tlsin+tlcos,tlposx+2*tlcos-tlsin,tlposy+2*tlsin+tlcos,
 	get_colorstring(colornr);
 	if (owner!=-1)
 	{
-		if (atom_actual_node[owner].labelside==-1)
+		if (atom_actual_node[owner].labelside==1)
 		{
 			sortback=1;
 		}

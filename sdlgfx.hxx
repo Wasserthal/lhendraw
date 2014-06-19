@@ -11,6 +11,7 @@
 float SDL_scrollx=0,SDL_scrolly=0;
 float SDL_zoomx=1,SDL_zoomy=1;
 int SDL_txcursorx=0;int SDL_txcursory=0;
+int SDL_old_txcursorx=0;int SDL_old_txcursory=0;
 //_u8 screen[gfx_screensizex*gfx_screensizey*gfx_depth];
 _u32 * screen;
 _u32 * canvas;
@@ -24,7 +25,8 @@ int get_colorstringv(int number)
 }
 void express_txinit(char ialignment,float iposx,float iposy,float iatomfontheight)
 {
-	SDL_txcursorx=(iposx-3-SDL_scrollx)*SDL_zoomx;SDL_txcursory=(iposy+4-SDL_scrolly)*SDL_zoomy;
+	SDL_txcursorx=(iposx-SDL_scrollx)*SDL_zoomx-3;SDL_txcursory=(iposy-SDL_scrolly)*SDL_zoomy+4;
+	SDL_old_txcursorx=SDL_txcursorx;SDL_old_txcursory=SDL_txcursory;
 }
 inline void express_text_tail()
 {
@@ -323,7 +325,7 @@ int gfx_gfxstop()
 	SDL_UpdateRect(video,0,0,gfx_screensizex,gfx_screensizey);
 }
 
-int expresstriangle(intl ifx1,intl ify1,intl ifx2,intl ify2,intl ifx3,intl ify3)
+int expresstriangle(float ifx1,float ify1,float ifx2,float ify2,float ifx3,float ify3)
 {
 	int ibrakelist_bks[256];
 	int ibrakelist_pps[256];//1: end 2: start 0: unknown 0x4: other than 8 0x8: other than 0x4 0x10: deaf(horz)
@@ -442,7 +444,7 @@ int expresstriangle(intl ifx1,intl ify1,intl ifx2,intl ify2,intl ifx3,intl ify3)
 	}
 }
 
-int expresstetrangle(intl ifx1,intl ify1,intl ifx2,intl ify2,intl ifx3,intl ify3,intl ifx4,intl ify4)
+int expresstetrangle(float ifx1,float ify1,float ifx2,float ify2,float ifx3,float ify3,float ifx4,float ify4)
 {
 	int ibrakelist_bks[256];
 	int ibrakelist_pps[256];//1: end 2: start 0: unknown 0x4: other than 8 0x8: other than 0x4 0x10: deaf(horz)
@@ -769,11 +771,15 @@ void text_rewind(unsigned char * windtext,int length)
 {
 	int ilv4;
 	int backcount;
+	SDL_txcursorx=SDL_old_txcursorx;
+	SDL_txcursory=SDL_old_txcursory;
 	for (ilv4=0;ilv4<length;ilv4+=backcount)
 	{
 		fontpixinf_ * ifontpixinf=&fontpixinf[indexfromunicode(utf8resolve((unsigned char*)windtext + ilv4,&backcount))];
 		SDL_txcursorx-=(*ifontpixinf).deltax;
 		SDL_txcursory-=(*ifontpixinf).deltay;
+		SDL_old_txcursorx=SDL_txcursorx;
+		SDL_old_txcursory=SDL_txcursory;
 	}
 }
 void text_print_bitmap(int * posx,int * posy,fontpixinf_ * ifontpixinf)

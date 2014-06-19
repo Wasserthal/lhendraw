@@ -642,8 +642,8 @@ for (int ilv1=0;ilv1<(*glob_CAMBRIDGE_color_multilist).filllevel;ilv1++)
 }
 
 fprintf(ifile,"%s","</colortable><fonttable>\n"
-"<font id=\"3\" charset=\"windows-1258\" name=\"Arial\"/>\n"
-"<font id=\"7\" charset=\"Unknown\" name=\"Symbol\"/>\n"
+"<font id=\"1\" charset=\"windows-1258\" name=\"Arial\"/>\n"
+"<font id=\"2\" charset=\"Unknown\" name=\"Symbol\"/>\n"
 "</fonttable>");//TODO: font id's(!)
 	//TODO: all subobjects of page must get filllevel=0 before add!
 	CAMBRIDGE_page_instance i_CAMBRIDGE_page_instance=CAMBRIDGE_page_instance();
@@ -774,11 +774,6 @@ catalogized_command_funcdef(SEARCH)
 	return 1;
 }
 
-struct edit_formatstruct
-{
-	_u32 color;
-	_u8 face;
-}__attribute__((packed));
 char edit_scoop_atomstring[4];
 int edit_scoop_numhydrogens;
 int edit_scoop_charge;
@@ -935,10 +930,10 @@ int edit_interpretaselementwithimplicithydrogens(multilist<n_instance> * imultil
 	if (i_backval)
 	{
 		processatomsymbol(&fsm,ipointer,(s_instance*)TELESCOPE_getproperty());
-/*		if ((((s_instance*)TELESCOPE_getproperty()).face & 0x60)!=0x60)
+		if (((*(s_instance*)TELESCOPE_getproperty()).face & 0x60)!=0x60)
 		{
 			fsm=6;
-		}*///This would be too strict, I think.
+		}
 		i_backval=TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_s);
 		if (i_backval)
 		{
@@ -948,7 +943,6 @@ int edit_interpretaselementwithimplicithydrogens(multilist<n_instance> * imultil
 	}
 	if (fsm==6)
 	{
-		printf("Unknown:%s",edit_scoop_atomstring);
 		return 0;
 	}
 	for (int ilv1=0;ilv1<sizeof(element)/sizeof(element_);ilv1++)
@@ -988,7 +982,10 @@ int edit_interpretaselementwithimplicithydrogens(multilist<n_instance> * imultil
 		}
 		cursor<<1;
 	}
-	TELESCOPE_insertintoproperties(TELESCOPE_ELEMENTTYPE_s_f,(char*)&edit_scoop_packedformats,fill*sizeof(edit_formatstruct));
+	TELESCOPE_add(TELESCOPE_ELEMENTTYPE_s_f,(char*)&edit_scoop_packedformats,fill*sizeof(edit_formatstruct));
+	(*(s_f_instance*)TELESCOPE_getproperty()).valids=edit_scoop_valids;
+	(*(s_f_instance*)TELESCOPE_getproperty()).length=sizeof(s_f_instance)+fill*sizeof(edit_formatstruct);
+	(*(s_f_instance*)TELESCOPE_getproperty()).type=TELESCOPE_ELEMENTTYPE_s_f;
 	(*imultilist).bufferlist[inumber].protons=edit_scoop_numhydrogens;
 	(*imultilist).bufferlist[inumber].color=edit_scoop_formats[0].color;
 	return 1;

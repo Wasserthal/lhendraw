@@ -569,7 +569,7 @@ intl get_bienum_multi(bienum * ibienum,char * input,intl count)
 		*tlbackvalue=0;
 		again=1;
 	}
-	if (currentpos[0]==0) return 0;
+	if (currentpos[0]==0) return wert;
 	for (ilv1=0;ilv1<count;ilv1++)
 	{
 		if (strcmp(currentpos,ibienum[ilv1].name)==0)

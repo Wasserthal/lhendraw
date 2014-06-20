@@ -70,6 +70,7 @@ int clockid=0;
 #include "edit.hxx"
 #include "./generated/pullout_stringfile.hxx"
 #include "./generated/pullout_structfile.hxx"
+#include "pivot.hxx"
 #include "sdlctrl.hxx"
 #include "menugfx.hxx"
 #include "draw.hxx"

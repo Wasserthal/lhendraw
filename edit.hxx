@@ -9,6 +9,19 @@ struct drawproperties_
 };
 drawproperties_ control_drawproperties={1,0,1,0,constants_Element_implicitcarbon};
 int control_hot[32]={-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,};
+int getbondsum(intl inumber)
+{
+	float i_bond_sum=0;
+	for (int ilv2=0;ilv2<atom_actual_node[inumber].bondcount;ilv2++)
+	{
+		i_bond_sum+=(*glob_b_multilist).bufferlist[atom_actual_node[inumber].bonds[ilv2]].Order/16.0;
+	}
+	if (fmod(i_bond_sum,1.0)>0.4)
+	{
+		i_bond_sum=trunc(i_bond_sum)+1;
+	}
+	return i_bond_sum;
+}
 int janitor_getmaxid(_u32 ino)
 {
 	_u32 iid=0;
@@ -479,7 +492,42 @@ catalogized_command_iterated_funcdef(LABELTEXT)
 	{
 		if (strcmp(value,element[ilv1].name)==0)
 		{
-			(*(n_instance*)iinstance).Element=ilv1;
+			if ((*(n_instance*)iinstance).Element==constants_Element_implicitcarbon)
+			{
+				(*(n_instance*)iinstance).charge=0;
+				(*(n_instance*)iinstance).protons=4;
+			}
+			if ((*(n_instance*)iinstance).Element!=ilv1)
+			{
+				if ((element[ilv1].maxbonds!=element[(*(n_instance*)iinstance).Element].maxbonds) || (element[ilv1].hasVE!=element[(*(n_instance*)iinstance).Element].hasVE))
+				{
+					(*(n_instance*)iinstance).protons=element[ilv1].maxbonds;
+				}
+				(*(n_instance*)iinstance).Element=ilv1;
+			}
+			else
+			{
+				(*(n_instance*)iinstance).protons-=1;
+				if ((*(n_instance*)iinstance).protons-getbondsum(iindex)<0)
+				{
+					(*(n_instance*)iinstance).protons=element[ilv1].maxbonds;
+				}
+			}
+			if (ilv1==constants_Element_implicitcarbon)
+			{
+				(*(n_instance*)iinstance).protons=4;
+			}
+			if (element[ilv1].maxbonds!=-1)
+			{
+				if ((*(n_instance*)iinstance).protons>8-(element[ilv1].hasVE-(*(n_instance*)iinstance).charge))
+				{
+					(*(n_instance*)iinstance).protons=8-(element[ilv1].hasVE-(*(n_instance*)iinstance).charge);
+				}
+				if ((*(n_instance*)iinstance).protons>element[ilv1].hasVE-(*(n_instance*)iinstance).charge)
+				{
+					(*(n_instance*)iinstance).protons=element[ilv1].hasVE-(*(n_instance*)iinstance).charge;
+				}
+			}
 			return 1;
 		}
 	}

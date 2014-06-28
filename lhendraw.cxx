@@ -40,6 +40,7 @@ LLLLLL H   H EEEEE N    N DDD   R  R A     A    W     W
 #include <SDL.h>
 #include <unistd.h>
 #include "draw_variables.hxx"
+#include "variables.hxx"
 void automatic_init() {
 #include "./generated/initialization_lhendraw.hxx"
 }
@@ -73,6 +74,7 @@ int clockid=0;
 #include "pivot.hxx"
 #include "sdlctrl.hxx"
 #include "menugfx.hxx"
+#include "filedlg.hxx"
 #include "draw.hxx"
 //#include "hatch.hxx" //TODO SUBJECT HATCH needs the moleculefill buffer
 
@@ -128,13 +130,25 @@ int main(int argc,char * * argv)
 		SDL_EnableUNICODE(1);
 		SDL_ShowCursor(0);
 		mainloop:
-		sdl_control();
-		gfx_gfxstart();
-		gfx_output();
-		sdl_canvasframedraw();
-		sdl_commonmenudraw();
-		sdl_selectiondraw();
-		gfx_gfxstop();
+		if (LHENDRAW_filedlgmode==0)
+		{
+			control_normal();
+			gfx_gfxstart();
+			gfx_output();
+			sdl_canvasframedraw();
+			sdl_commonmenudraw();
+			sdl_selectiondraw();
+			draw_reticle();
+			gfx_gfxstop();
+		}
+		else
+		{
+			control_filedlg();
+			gfx_gfxstart();
+			sdl_filemenudraw();
+			draw_reticle();
+			gfx_gfxstop();
+		}
 		usleep(1000);
 		if (!LHENDRAW_leave) goto mainloop;
 		sdl_outit();

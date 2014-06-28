@@ -119,69 +119,72 @@ CONVCAMBRIDGE_COLORCONV2(t,(*tl_n_instance).color);
 			}
 			else
 			{
+				if ((*tl_n_instance).Element!=constants_Element_implicitcarbon)
+				{
 ADD_TO_MULTILISTREFERENCE(tl_CAMBRIDGE_n_instance,t);
 TELESCOPE_aggressobject(tl_n_multilist,ilv1);
 backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_s);
 CONVCAMBRIDGE_COLORCONV2(t,(*tl_n_instance).color);
-				char istring[10];
-				char tl_fill;
-				char imatch;
-				char tl_format=0;
-				s_f_instance * tl_s_f_instance;
-				edit_formatstruct * tl_formatpointer;
-				edit_formatstruct iformatstruct;
-				edit_formatstruct * currentformatpointer=&iformatstruct;
-				iformatstruct.color=(*tl_n_instance).color;
-				iformatstruct.face=0x60;
-				backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_s_f);
-				if (backval)
-				{
-					tl_format=(*(s_f_instance*)TELESCOPE_getproperty()).valids;
-					tl_formatpointer=(edit_formatstruct*)TELESCOPE_getproperty_contents();
-				}
-				for (int ilv2=0;ilv2<atom_actual_node[ilv1].bondcount;ilv2++)
-				{
-					i_bond_sum+=(*glob_b_multilist).bufferlist[atom_actual_node[ilv1].bonds[ilv2]].Order/16.0;
-				}
-				if (fmod(i_bond_sum,1.0)>0.4)
-				{
-					i_bond_sum=trunc(i_bond_sum)+1;
-				}
-				for (int ilv1=0;ilv1<6;ilv1++)
-				{
-					if (tl_s_f_instance)
+					char istring[10];
+					char tl_fill;
+					char imatch;
+					char tl_format=0;
+					s_f_instance * tl_s_f_instance;
+					edit_formatstruct * tl_formatpointer;
+					edit_formatstruct iformatstruct;
+					edit_formatstruct * currentformatpointer=&iformatstruct;
+					iformatstruct.color=(*tl_n_instance).color;
+					iformatstruct.face=0x60;
+					backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_s_f);
+					if (backval)
 					{
-						tl_fill=0;
-						for (int ilv2=0;ilv2<=ilv1;ilv2++)
+						tl_format=(*(s_f_instance*)TELESCOPE_getproperty()).valids;
+						tl_formatpointer=(edit_formatstruct*)TELESCOPE_getproperty_contents();
+					}
+					for (int ilv2=0;ilv2<atom_actual_node[ilv1].bondcount;ilv2++)
+					{
+						i_bond_sum+=(*glob_b_multilist).bufferlist[atom_actual_node[ilv1].bonds[ilv2]].Order/16.0;
+					}
+					if (fmod(i_bond_sum,1.0)>0.4)
+					{
+						i_bond_sum=trunc(i_bond_sum)+1;
+					}
+					for (int ilv1=0;ilv1<6;ilv1++)
+					{
+						if (tl_s_f_instance)
 						{
-							imatch=1<<ilv2;
-							if (tl_format & imatch)
+							tl_fill=0;
+							for (int ilv2=0;ilv2<=ilv1;ilv2++)
 							{
-								currentformatpointer=tl_formatpointer+tl_fill;
-								tl_fill++;
+								imatch=1<<ilv2;
+								if (tl_format & imatch)
+								{
+									currentformatpointer=tl_formatpointer+tl_fill;
+									tl_fill++;
+								}
 							}
 						}
+						switch (ilv1)
+						{
+							case 0 : if (element[tl_Element].name[0]==0) {ilv1=2;goto ifertig;}sprintf(istring,"%c",element[tl_Element].name[0]);break;
+							case 1 : if (element[tl_Element].name[1]==0) {ilv1=2;goto ifertig;}sprintf(istring,"%c",element[tl_Element].name[1]);break;
+							case 2 : if (element[tl_Element].name[2]==0) {ilv1=2;goto ifertig;}sprintf(istring,"%c",element[tl_Element].name[2]);break;
+							case 3 : sprintf(istring,"%s",((*tl_n_instance).protons-(int)i_bond_sum<=0)?"":"H");break;
+							case 4 : if ((*tl_n_instance).protons-(int)i_bond_sum>1) sprintf(istring,"%i",(*tl_n_instance).protons-(int)i_bond_sum); else istring[0]=0;break;
+							case 5 :
+							if ((*tl_n_instance).charge<0) {sprintf(istring,"%i-",-(*tl_n_instance).charge);break;}
+							if ((*tl_n_instance).charge>0) {sprintf(istring,"%i+",(*tl_n_instance).charge);break;}
+							if ((*tl_n_instance).charge==0) {istring[0]=0;break;}
+						}
+						CONVCAMBRIDGE_s_f(tl_CAMBRIDGE_t_instance,currentformatpointer,istring);
+						ifertig:;
 					}
-					switch (ilv1)
-					{
-						case 0 : if (element[tl_Element].name[0]==0) {ilv1=2;goto ifertig;}sprintf(istring,"%c",element[tl_Element].name[0]);break;
-						case 1 : if (element[tl_Element].name[1]==0) {ilv1=2;goto ifertig;}sprintf(istring,"%c",element[tl_Element].name[1]);break;
-						case 2 : if (element[tl_Element].name[2]==0) {ilv1=2;goto ifertig;}sprintf(istring,"%c",element[tl_Element].name[2]);break;
-						case 3 : sprintf(istring,"%s",((*tl_n_instance).protons-(int)i_bond_sum<=0)?"":"H");break;
-						case 4 : if ((*tl_n_instance).protons-(int)i_bond_sum>1) sprintf(istring,"%i",(*tl_n_instance).protons-(int)i_bond_sum); else istring[0]=0;break;
-						case 5 :
-						if ((*tl_n_instance).charge<0) {sprintf(istring,"%i-",-(*tl_n_instance).charge);break;}
-						if ((*tl_n_instance).charge>0) {sprintf(istring,"%i+",(*tl_n_instance).charge);break;}
-						if ((*tl_n_instance).charge==0) {istring[0]=0;break;}
-					}
-					CONVCAMBRIDGE_s_f(tl_CAMBRIDGE_t_instance,currentformatpointer,istring);
-					ifertig:;
-				}
 (*tl_CAMBRIDGE_t_instance).p.x=(*tl_n_instance).xyz.x;//BACKWARDS COMPATIBILITY
 (*tl_CAMBRIDGE_t_instance).p.y=(*tl_n_instance).xyz.y;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_t_instance,p);//BACKWARDS COMPATIBILITY
 (*tl_CAMBRIDGE_t_instance).xyz=(*tl_n_instance).xyz;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_t_instance,xyz);
 (*tl_CAMBRIDGE_t_instance).Z=(*tl_n_instance).Z;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_t_instance,Z);
 (*tl_CAMBRIDGE_t_multilist).ADD(tl_CAMBRIDGE_t_instance);
+				}
 			}
 			if (tl_Element!=-1)
 			{

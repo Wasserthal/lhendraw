@@ -27,7 +27,6 @@ long long control_id=-1;
 float control_coorsx=0;
 float control_coorsy=0;
 int control_mousex,control_mousey;
-char LHENDRAW_leave;
 char control_reticle=1;
 char control_dragged=0;
 char control_lastmousebutton=0;
@@ -38,12 +37,11 @@ float control_startx=0;
 float control_starty=0;
 int control_menudragint=0;
 clickabilitymatrix_ clickabilitymatrix_tooldependent[control_toolcount];
-AUTOSTRUCT_PULLOUTLISTING_ control_multibitbuttonmenu[20];//a variable menu
-structenum popupmenu_multibitbutton={"multibitbutton",0,&control_multibitbuttonmenu,0};
-structenum * popupmenu_active;
 
 char control_filename[stringlength]="";
 char control_filetype[stringlength]=".cdx";
+char control_nextfilename[stringlength]="";
+char control_nextfiletype[stringlength]=".cdx";
 int control_force=0;
 int control_interactive=1;
 int control_saveuponexit=0;
@@ -936,10 +934,15 @@ void issuerelease()
 	control_mousestate=0;
 	return;
 }
-int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int posy,int button,int pixeloriginposx,int pixeloriginposy)
+int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int posy,int button,int pixeloriginposx,int pixeloriginposy,int starthitnr=-1)
 {
 	int ihitnr=0;
 	AUTOSTRUCT_PULLOUTLISTING_ * ipulloutlisting=NULL;
+	if (starthitnr!=-1)
+	{
+		ihitnr=starthitnr;
+		goto ifound;
+	}
 	for (int ilv1=0;ilv1<icount;ilv1++)
 	{
 		if ((ilisting[ilv1].x==posx) && (ilisting[ilv1].y==posy))
@@ -997,6 +1000,15 @@ int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int
 						else
 						{
 							*((_i32*)((*ipulloutlisting).variable))=0;
+						}
+						break;
+					}
+					case 7: 
+					{
+						if ((*ipulloutlisting).LMB_function(control_nextfilename,control_nextfiletype))
+						{
+							strcpy(control_filename,control_nextfilename);
+							strcpy(control_filetype,control_nextfiletype);
 						}
 						break;
 					}
@@ -1097,9 +1109,27 @@ int issuepseclick(int x,int y,int ibutton)
 	}
 	return 0;
 }
+int issuerectclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int iposx,int iposy,int ibutton)
+{
+	int ihitnr=0;
+	AUTOSTRUCT_PULLOUTLISTING_ * ipulloutlisting=NULL;
+	for (int ilv1=0;ilv1<icount;ilv1++)
+	{
+		if ((ilisting[ilv1].x>=iposx) && (ilisting[ilv1].y>=iposy) &&
+		(ilisting[ilv1].maxx>=iposx) && (ilisting[ilv1].maxy>=iposy))
+		{
+			ipulloutlisting=&(ilisting[ilv1]);
+			ihitnr=ilv1;
+			goto ifound;
+		}
+	}
+	return 0;
+	ifound:;
+	issuemenuclick(ilisting,icount,iposx,iposy,iposx,iposy,ibutton,ihitnr);
+	return 1;
+}
 void issuemenuclicks(int iposx,int iposy,int ibutton)
 {
-	sdl_commonmenucommon();
 	int tlsuccess=0;
 	for (int ilv1=menu_list_count;ilv1>=0;ilv1--)
 	{
@@ -1110,6 +1140,8 @@ void issuemenuclicks(int iposx,int iposy,int ibutton)
 				case 0:tlsuccess|=issuemenuclick((AUTOSTRUCT_PULLOUTLISTING_*)menu_list[ilv1].what.pointer,menu_list[ilv1].what.count,(iposx-menu_list[ilv1].alignx)/32,(iposy-menu_list[ilv1].aligny)/32,ibutton,iposx,iposy);break;
 				case 1:tlsuccess|=issuemenuclick((AUTOSTRUCT_PULLOUTLISTING_*)menu_list[ilv1].what.pointer,menu_list[ilv1].what.count,(iposx-menu_list[ilv1].alignx)/192,(iposy-menu_list[ilv1].aligny)/16,ibutton,iposx,iposy);break;
 				case 2: tlsuccess|=issuepseclick((iposx-menu_list[ilv1].alignx)/32,(iposy-menu_list[ilv1].aligny)/48,ibutton);break;
+				case 3: tlsuccess|=issuerectclick((AUTOSTRUCT_PULLOUTLISTING_*)menu_list[ilv1].what.pointer,menu_list[ilv1].what.count,iposx-menu_list[ilv1].alignx,iposy-menu_list[ilv1].aligny,ibutton);break;
+				case 4: tlsuccess|=issuerectclick((AUTOSTRUCT_PULLOUTLISTING_*)menu_list[ilv1].what.pointer,menu_list[ilv1].what.count,iposx-menu_list[ilv1].alignx,iposy-menu_list[ilv1].aligny,ibutton);break;
 			}
 		}
 		if (tlsuccess)
@@ -1167,9 +1199,8 @@ void issuemenudrag(int posx,int posy,char ifinal=0)
 	control_lastmenux=posx;
 	control_lastmenuy=posy;
 }
-void sdl_control()
+void control_normal()
 {
-	LHENDRAW_leave=0;
 	char idirection=1;
 	control_lastmousebutton=0;
 	SDL_Event control_Event2;
@@ -1186,6 +1217,7 @@ void sdl_control()
 				control_mousey=control_Event.motion.y;
 				if (control_mousestate & 0x20)
 				{
+					sdl_commonmenucommon();
 					issuemenudrag(control_Event.motion.x,control_Event.motion.y);
 				}
 
@@ -1238,6 +1270,7 @@ void sdl_control()
 				{
 					if ((control_mousestate & (24)) || (control_Event.button.x<gfx_canvasminx) || (control_Event.button.y<gfx_canvasminy) || (control_Event.button.x>=gfx_canvasmaxx) || (control_Event.button.y>=gfx_canvasmaxy))
 					{
+						sdl_commonmenucommon();
 						issuemenuclicks(control_Event.button.x,control_Event.button.y,control_Event.button.button);
 						break;
 					}
@@ -1377,7 +1410,10 @@ void sdl_control()
 					}
 					case SDLK_ESCAPE:
 					{
-						LHENDRAW_leave=1;
+						if (idirection==1)
+						{
+							LHENDRAW_leave=1;
+						}
 						break;
 					}
 					case SDLK_SPACE:
@@ -1418,4 +1454,11 @@ void sdl_control()
 		}
 	}
 	iloopendlabel:;
+	if (LHENDRAW_leave==1)
+	{
+		if (video->flags & SDL_FULLSCREEN)
+		{
+			SDL_WM_ToggleFullScreen(video);
+		}
+	}
 }

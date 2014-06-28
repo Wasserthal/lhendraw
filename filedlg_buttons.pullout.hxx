@@ -1,0 +1,24 @@
+menuitem pullout_filedlg_buttons[]={
+{100,730,
+34,//Picture
+"Save",
+3,0,
+0,
+"SAVE",
+"",
+"SAVEAS","",
+0x00FF00,
+164,730,
+},
+{200,730,
+34,//Picture
+"Load",
+3,0,
+0,
+"LOADAS",
+"",
+"SAVEAS","",
+0x00FF00,
+264,730,
+},
+};

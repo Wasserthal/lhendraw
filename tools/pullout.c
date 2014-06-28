@@ -19,6 +19,7 @@ typedef struct menuitem
 	char LMBfunction[80];//LMB: Name of the variable which is influenced/function name on lmb
 	char RMBfunction[80];//same When clicking with RMB
 	int bgcolor; //color of the lights when pressed
+	int maxx,maxy;//right-bottom corner
 }menuitem;
 typedef struct reflective_head
 {
@@ -42,7 +43,7 @@ char pulloutlisting_string[]="\n"
 "	catalogized_command_functype RMB_function;\n"
 "	int bgcolor;\n"
 "	void * variable;\n//Either char, at 2 or _u32 at 4 \n"
-"	AUTOSTRUCT_GETSET_FUNCTYPE getflag;\n"
+"	int maxx,maxy;\n"
 "}AUTOSTRUCT_PULLOUTLISTING_;\n"
 "_u32 nope;\n";
 #include "../toolbox.pullout.hxx"
@@ -54,6 +55,8 @@ char pulloutlisting_string[]="\n"
 #include "../submenu_toolbox_M4.pullout.hxx"
 #include "../submenu_toolbox_M5.pullout.hxx"
 #include "../submenu_toolbox_M6.pullout.hxx"
+#include "../filedlg_buttons.pullout.hxx"
+#include "../filedlg_lists.pullout.hxx"
 int stringlist_count=0;
 char nullstring[]="NULL";
 char nopestring[]="nope";
@@ -96,13 +99,13 @@ void addstring(char * input)
 	ibyte:
 	fprintf(stringfile,"\\x%02X",input[ilv1]);
 	idone:
-	ilv1++;
 	if (input[ilv1]==0)
 	{
-		stringlist_count+=ilv1;
+		stringlist_count+=ilv1+1;
 		fprintf(stringfile,"\"\n");
 		return;
 	}
+	ilv1++;
 	goto iback;
 }
 void domenu(menuitem * input,int count,char * name)
@@ -116,10 +119,10 @@ void domenu(menuitem * input,int count,char * name)
 		addstring(input[ilv1].name);
 		fprintf(structfile,"NULL,NULL,\nAUTOSTRUCT_STRINGLIST_PULLOUT+%i,\n",stringlist_count);
 		addstring(input[ilv1].LMBfunction);
-		fprintf(structfile,"\nAUTOSTRUCT_STRINGLIST_PULLOUT+%i\n,%s,%s,0x%08X,&(%s)},",stringlist_count,stringifnull(input[ilv1].LMBfunction),stringifnull(input[ilv1].RMBfunction),input[ilv1].bgcolor,stringifnope(input[ilv1].variablename));
+		fprintf(structfile,"\nAUTOSTRUCT_STRINGLIST_PULLOUT+%i\n,%s,%s,0x%08X,&(%s),%i,%i},",stringlist_count,stringifnull(input[ilv1].LMBfunction),stringifnull(input[ilv1].RMBfunction),input[ilv1].bgcolor,stringifnope(input[ilv1].variablename),input[ilv1].maxx,input[ilv1].maxy);
 		addstring(input[ilv1].RMBfunction);
 	}
-	fprintf(reflectfile,"{\"%s\",%i,&AUTOSTRUCT_PULLOUTLISTING_%s,sizeof(AUTOSTRUCT_PULLOUTLISTING_%s)},",name,count,name,name);
+	fprintf(reflectfile,"{\"%s\",%i,%i,&AUTOSTRUCT_PULLOUTLISTING_%s,sizeof(AUTOSTRUCT_PULLOUTLISTING_%s)},",name,count,count,name,name);
 	fprintf(structfile,"};\nint AUTOSTRUCT_PULLOUTLISTING_%s_Size=sizeof(AUTOSTRUCT_PULLOUTLISTING_%s)/sizeof(AUTOSTRUCT_PULLOUTLISTING_);",name,name);
 	return;
 }
@@ -141,6 +144,8 @@ void main(int argc,char ** argv)
 	domenu(pullout_submenu_toolbox_M4,sizeof(pullout_submenu_toolbox_M4)/sizeof(menuitem),"submenu_toolbox_M4");
 	domenu(pullout_submenu_toolbox_M5,sizeof(pullout_submenu_toolbox_M5)/sizeof(menuitem),"submenu_toolbox_M5");
 	domenu(pullout_submenu_toolbox_M6,sizeof(pullout_submenu_toolbox_M6)/sizeof(menuitem),"submenu_toolbox_M6");
+	domenu(pullout_filedlg_buttons,sizeof(pullout_filedlg_buttons)/sizeof(menuitem),"filedlg_buttons");
+	domenu(pullout_filedlg_lists,sizeof(pullout_filedlg_lists)/sizeof(menuitem),"filedlg_lists");
 	fprintf(stringfile,";\n");
 	
 	

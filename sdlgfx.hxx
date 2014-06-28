@@ -286,7 +286,7 @@ void expressline(float ileft,float itop,float iright,float ibottom)
 	}
 	return;
 }
- SDL_Surface *video;
+SDL_Surface *video;
 
 void screenclear(_u32 icolor)
 {

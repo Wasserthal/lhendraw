@@ -200,6 +200,89 @@ int sdl_textmenudraw(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int count,int xpos=0,
 		printmenutext(ilisting[ilv1].x*192+xpos,ilisting[ilv1].y*16+ypos+12,ilisting[ilv1].name,NULL,0,0,strlen(ilisting[ilv1].name));
 	}
 }
+int sdl_textbuttonmenudraw(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int count,int xpos=0,int ypos=0)
+{
+	SDL_color=0;
+	for (int ilv1=0;ilv1<count;ilv1++)
+	{
+		int left,top,right,bottom;
+		left=xpos+ilisting[ilv1].x;
+		top=ypos+ilisting[ilv1].y;
+		right=xpos+ilisting[ilv1].maxx;
+		bottom=ypos+ilisting[ilv1].maxy;
+		_u32 * ibutton=resources_bitmap_buttons[selection_maxbuttons-34][0];
+		int xco,yco;
+		for (int ilv1=0;ilv1<32;ilv1++)
+		{
+			if (ilv1<8)
+			{
+				yco=ilv1+8;
+				if (yco>=12) yco=11;
+			}
+			else if (ilv1>=24)
+			{
+				yco=ilv1-16;
+				if (yco<12) yco=12;
+			}
+			else
+			{
+				yco==11;
+			}
+			for (int ilv2=0;ilv2<right-left;ilv2++)
+			{
+				if (ilv2<8)
+				{
+					xco=ilv2;
+					if (xco>=4) xco=3;
+				}
+				else if (ilv2>=gfx_canvassizex-4)
+				{
+					xco=ilv2-(gfx_canvassizex-8);
+					if (xco<4) xco=4;
+				}
+				screen[gfx_screensizex*(top+ilv1)+left+ilv2]=*(ibutton+yco*32+xco);
+			}
+		}
+		printmenutext(left,top+12,ilisting[ilv1].name,NULL,0,0,strlen(ilisting[ilv1].name));
+	}
+}
+int sdl_listmenudraw(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int count,int xpos=0,int ypos=0)
+{
+	int ilv2;
+	structenum istructenum;
+	int bgcolor=0;
+	for (int ilv1=0;ilv1<count;ilv1++)
+	{
+		istructenum=(*(structenum*)(ilisting[ilv1].variable));
+		for (ilv2=0;ilv2*16+ypos+ilisting[ilv1].y+100<gfx_screensizey;ilv2++)//TODO: actual listlength
+		{
+			if (ilv2==istructenum.number)
+			{
+				bgcolor=0xFF;
+			}
+			else
+			{
+				bgcolor=0;
+			}
+			_u32 * iscreen=screen+((ypos+ilisting[ilv1].y+ilv2*16))*gfx_screensizex+xpos+ilisting[ilv1].x;
+			SDL_color=ilisting[ilv1].bgcolor;
+			for (int ilv3=0;ilv3<16;ilv3++)
+			{
+				for (int ilv4=0;ilv4<192;ilv4++)
+				{
+					*(iscreen)=bgcolor;
+					iscreen++;
+				}
+				iscreen+=gfx_screensizex-192;
+			}
+			if (ilv2<istructenum.count)
+			{
+				printmenutext(ilisting[ilv1].x+xpos,(ilisting[ilv1].y+ilv2*16)+ypos+12,((char*)(istructenum.pointer))+istructenum.size*ilv2,NULL,0,0,strlen(((char*)(istructenum.pointer))+istructenum.size*ilv2));
+			}
+		}
+	}
+	return 1;
+}
 void sdl_colorpaldraw(int posx,int posy)
 {
 	_u32 icolor;
@@ -289,6 +372,12 @@ int addmenu(const char * name,int type,int alignx=0,int aligny=0)
 	}
 }
 extern int control_tool;
+int sdl_filemenucommon()
+{
+	menu_list_count=0;
+	addmenu("filedlg_buttons",4);
+	addmenu("filedlg_lists",3);
+}
 int sdl_commonmenucommon()
 {
 	char tlstring[60];
@@ -345,9 +434,8 @@ int sdl_psedraw(int istartx,int istarty)
 		printmenutext(istartx+element[ilv1].PSEX*32+10,istarty+element[ilv1].PSEY*48+24,element[ilv1].name,NULL,0,0,strlen(element[ilv1].name));
 	}
 }
-int sdl_commonmenudraw()
+int sdl_menudraw()
 {
-	sdl_commonmenucommon();
 	for (int ilv1=0;ilv1<menu_list_count;ilv1++)
 	{
 		if (menu_list[ilv1].type==0)
@@ -362,9 +450,47 @@ int sdl_commonmenudraw()
 		{
 			sdl_psedraw(menu_list[ilv1].alignx,menu_list[ilv1].aligny);
 		}
+		if (menu_list[ilv1].type==3)
+		{
+			sdl_listmenudraw((AUTOSTRUCT_PULLOUTLISTING_*)menu_list[ilv1].what.pointer,menu_list[ilv1].what.count,menu_list[ilv1].alignx,menu_list[ilv1].aligny);
+		}
+		if (menu_list[ilv1].type==4)
+		{
+			sdl_textbuttonmenudraw((AUTOSTRUCT_PULLOUTLISTING_*)menu_list[ilv1].what.pointer,menu_list[ilv1].what.count,menu_list[ilv1].alignx,menu_list[ilv1].aligny);
+		}
 	}
 }
+int sdl_commonmenudraw()
+{
+	sdl_commonmenucommon();
+	sdl_menudraw();
+}
+int sdl_filemenudraw()
+{
+	sdl_filemenucommon();
+	sdl_menudraw();
+}
 extern int control_hotatom;
+void draw_reticle()
+{
+	if (control_reticle)
+	{
+		if ((control_mousey<gfx_screensizey) && (control_mousey>=0))
+		{
+			for (int ilv1=0;ilv1<gfx_screensizex;ilv1++)
+			{
+				screen[gfx_screensizex*(control_mousey)+ilv1]^=0xFFFFFF;
+			}
+		}
+		if ((control_mousex<gfx_screensizex) && (control_mousex>=0))
+		{
+			for (int ilv1=0;ilv1<gfx_screensizey;ilv1++)
+			{
+				screen[gfx_screensizex*(ilv1)+control_mousex]^=0xFFFFFF;
+			}
+		}
+	}
+}
 int sdl_selectiondraw()
 {
 	_u32 icompare;
@@ -436,21 +562,4 @@ int sdl_selectiondraw()
 							goto iback2;
 						}
 					}
-	if (control_reticle)
-	{
-		if ((control_mousey<gfx_screensizey) && (control_mousey>=0))
-		{
-			for (int ilv1=0;ilv1<gfx_screensizex;ilv1++)
-			{
-				screen[gfx_screensizex*(control_mousey)+ilv1]^=0xFFFFFF;
-			}
-		}
-		if ((control_mousex<gfx_screensizex) && (control_mousex>=0))
-		{
-			for (int ilv1=0;ilv1<gfx_screensizey;ilv1++)
-			{
-				screen[gfx_screensizex*(ilv1)+control_mousex]^=0xFFFFFF;
-			}
-		}
-	}
 }

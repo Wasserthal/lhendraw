@@ -514,10 +514,12 @@ struct fuenum
 struct structenum
 {
 	char name[25];
-	int count;
+	int count;//actual count
+	int max;//max numbers. only valid if list is intended to be variable.
 	void * pointer;
-	int type;//0: MENU pullout
+	int type;//0: MENU pullout 1: stringlist, size contains symbol count
 	int size;//the size of the type
+	int number;//the currently selected element, if any, otherwise -1
 };
 int set_bienum(bienum * ibienum,FILE * output,intl imax,intl value)
 {

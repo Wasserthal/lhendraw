@@ -25,6 +25,8 @@ TELESCOPE_buffer internalstructure_text_undobuffer;
 TELESCOPE_buffer internalstructure_b_undobuffer;
 TELESCOPE_buffer internalstructure_n_undobuffer;
 TELESCOPE_buffer internalstructure_arrow_undobuffer;
+char LHENDRAW_filedlgmode=0;
+char LHENDRAW_leave=0;
 #define selection_maxbuttons 46
 #define constants_bondlength 30
 #define constants_angular_distance 2.094395102
@@ -49,6 +51,18 @@ struct TELESCOPE_tempvar_
 };
 TELESCOPE_tempvar_ TELESCOPE_tempvar;
 TELESCOPE_tempvar_ TELESCOPE_debugvar;
+char control_filememory_buffer[255][256];
+char control_devicememory_buffer[255][64];
+structenum control_devicememory
+{
+	{"control_devicememory"},
+	0,255,&control_devicememory_buffer,1,sizeof(control_devicememory_buffer[0],-1),
+};
+structenum control_filememory
+{
+	{"control_filememory"},
+	0,255,&control_filememory_buffer,1,sizeof(control_filememory_buffer[0],-1),
+};
 void TELESCOPE_measure(int tag)
 {
 	TELESCOPE * start;

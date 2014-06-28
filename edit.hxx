@@ -682,7 +682,7 @@ fprintf(ifile,"%s","</colortable><fonttable>\n"
 }
 catalogized_command_funcdef(SAVEAS)
 {
-	SAVE_TYPE("Schmetzglut.cdxml","cdxml");
+	LHENDRAW_filedlgmode=1;
 	printf("TODO***stub\n");
 	return 1;
 }

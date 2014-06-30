@@ -520,6 +520,7 @@ struct structenum
 	int type;//0: MENU pullout 1: stringlist, size contains symbol count
 	int size;//the size of the type
 	int number;//the currently selected element, if any, otherwise -1
+	int scroll;//the current scroll-position in the list.
 };
 int set_bienum(bienum * ibienum,FILE * output,intl imax,intl value)
 {

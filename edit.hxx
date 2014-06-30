@@ -1074,3 +1074,27 @@ int edit_interpretaselementwithimplicithydrogens(multilist<n_instance> * imultil
 	(*imultilist).bufferlist[inumber].color=edit_scoop_formats[0].color;
 	return 1;
 }
+catalogized_command_funcdef(FILEDLG_DEVICE_SEL)
+{
+	DIR * DD=opendir(parameter);
+	struct dirent * dirpy;
+	control_filememory.count=0;
+	if (DD)
+	{
+		for (int ilv1=0;ilv1<255;ilv1++)
+		{
+			dirpy=readdir(DD);
+			if (dirpy==NULL) goto readfinished;
+			strncpy(control_filememory_buffer[ilv1],dirpy->d_name,255);//TODO: limit
+			control_filememory.count++;
+		}
+		readfinished:;
+	}
+	printf("TODO: stub1%s\n",parameter);
+	return 0;
+}
+catalogized_command_funcdef(FILEDLG_FILE_SEL)
+{
+	printf("TODO: stub2%s\n",parameter);
+	return 0;
+}

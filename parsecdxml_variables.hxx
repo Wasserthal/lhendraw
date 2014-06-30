@@ -56,12 +56,12 @@ char control_devicememory_buffer[255][64];
 structenum control_devicememory
 {
 	{"control_devicememory"},
-	0,255,&control_devicememory_buffer,1,sizeof(control_devicememory_buffer[0],-1),
+	0,255,&control_devicememory_buffer,1,sizeof(control_devicememory_buffer[0]),-1,0,
 };
 structenum control_filememory
 {
 	{"control_filememory"},
-	0,255,&control_filememory_buffer,1,sizeof(control_filememory_buffer[0],-1),
+	0,255,&control_filememory_buffer,1,sizeof(control_filememory_buffer[0]),-1,0,
 };
 void TELESCOPE_measure(int tag)
 {

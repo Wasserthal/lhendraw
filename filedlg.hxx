@@ -8,13 +8,13 @@ int control_filedlg()
 	control_devicememory.count=1;
 	if (tl_POSIXFILE)
 	{
-		for (int ilv1=1;ilv1<64;ilv1++)
+		for (int ilv1=1;ilv1<255;ilv1++)
 		{
 			int tl_mode=0;
 			int tl_counter=0;
 			int tl_precounter=0;
 			int goodline=1;
-			for (int ilv2=0;ilv2<255;ilv2++)
+			for (int ilv2=0;ilv2<63;ilv2++)
 			{
 				int backval=fread(&ihv1,1,1,tl_POSIXFILE);
 				if (backval==0) { goto i_POSIX_done;}
@@ -76,7 +76,7 @@ int control_filedlg()
 			{
 				if ((control_mousestate & (~0x18))==0)
 				{
-					sdl_commonmenucommon();
+					sdl_filemenucommon();
 					issuemenuclicks(control_Event.button.x,control_Event.button.y,control_Event.button.button);
 					break;
 				}

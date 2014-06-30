@@ -8,7 +8,7 @@ menuitem pullout_filedlg_buttons[]={
 "",
 "SAVEAS","",
 0x00FF00,
-164,730,
+164,762,
 },
 {200,730,
 34,//Picture
@@ -17,8 +17,8 @@ menuitem pullout_filedlg_buttons[]={
 0,
 "LOADAS",
 "",
-"SAVEAS","",
+"LOADAS","",
 0x00FF00,
-264,730,
+264,762,
 },
 };

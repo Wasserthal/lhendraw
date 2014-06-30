@@ -941,6 +941,7 @@ int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int
 	if (starthitnr!=-1)
 	{
 		ihitnr=starthitnr;
+		ipulloutlisting=ilisting+ihitnr;
 		goto ifound;
 	}
 	for (int ilv1=0;ilv1<icount;ilv1++)
@@ -1010,6 +1011,12 @@ int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int
 							strcpy(control_filename,control_nextfilename);
 							strcpy(control_filetype,control_nextfiletype);
 						}
+						break;
+					}
+					case 0x201:
+					{
+						structenum * istructenum=(structenum*)(*ipulloutlisting).variable;
+						(*ipulloutlisting).LMB_function(((char*)((*istructenum).pointer))+(*istructenum).size*((pixeloriginposy/16)-(*istructenum).scroll),"");
 						break;
 					}
 					default:
@@ -1115,8 +1122,8 @@ int issuerectclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int iposx,in
 	AUTOSTRUCT_PULLOUTLISTING_ * ipulloutlisting=NULL;
 	for (int ilv1=0;ilv1<icount;ilv1++)
 	{
-		if ((ilisting[ilv1].x>=iposx) && (ilisting[ilv1].y>=iposy) &&
-		(ilisting[ilv1].maxx>=iposx) && (ilisting[ilv1].maxy>=iposy))
+		if ((ilisting[ilv1].x<=iposx) && (ilisting[ilv1].y<=iposy) &&
+		(ilisting[ilv1].maxx>iposx) && (ilisting[ilv1].maxy>iposy))
 		{
 			ipulloutlisting=&(ilisting[ilv1]);
 			ihitnr=ilv1;
@@ -1125,13 +1132,13 @@ int issuerectclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int iposx,in
 	}
 	return 0;
 	ifound:;
-	issuemenuclick(ilisting,icount,iposx,iposy,iposx,iposy,ibutton,ihitnr);
+	issuemenuclick(ilisting,icount,iposx,iposy,ibutton,iposx,iposy,ihitnr);
 	return 1;
 }
 void issuemenuclicks(int iposx,int iposy,int ibutton)
 {
 	int tlsuccess=0;
-	for (int ilv1=menu_list_count;ilv1>=0;ilv1--)
+	for (int ilv1=menu_list_count-1;ilv1>=0;ilv1--)
 	{
 		if (((iposx-menu_list[ilv1].alignx)>=0) && ((iposy-menu_list[ilv1].aligny)>=0))
 		{

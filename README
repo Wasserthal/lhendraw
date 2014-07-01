@@ -1,7 +1,9 @@
-lhendraw LGPLv3/MPL
+lhendraw AGPLv3
 written by Lennard K. Wasserthal
 cdx/cdxml compatible chemical drawing program
 for more information, read INSTALL
+Lennard K. Wasserthal is allowed to release this program under a commercial license,
+but will nevertheless still provide the source code under AGPLv3.
 
 unimportant info, except for the professional user:
 Known bugs:

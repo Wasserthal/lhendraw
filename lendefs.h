@@ -64,3 +64,19 @@ char sentenumeric(char input)
 	}
 	return 0;
 }
+inline intl max(intl in1,intl in2)
+{
+	if (in1>in2) return in1; else return in2;
+}
+inline intl min(intl in1,intl in2)
+{
+	if (in1<in2) return in1; else return in2;
+}
+inline float fmax(float in1,float in2)
+{
+	if (in1>in2) return in1; else return in2;
+}
+inline float fmin(float in1,float in2)
+{
+	if (in1<in2) return in1; else return in2;
+}

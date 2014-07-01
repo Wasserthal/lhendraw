@@ -1016,7 +1016,11 @@ int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int
 					case 0x201:
 					{
 						structenum * istructenum=(structenum*)(*ipulloutlisting).variable;
-						(*ipulloutlisting).LMB_function(((char*)((*istructenum).pointer))+(*istructenum).size*((pixeloriginposy/16)-(*istructenum).scroll),"");
+						int tl_clickindex=(((pixeloriginposy-ipulloutlisting->y)/16)+(*istructenum).scroll);
+						if (tl_clickindex<istructenum->count)
+						{
+							(*ipulloutlisting).LMB_function(((char*)((*istructenum).pointer))+(*istructenum).size*tl_clickindex,"");
+						}
 						break;
 					}
 					default:
@@ -1050,6 +1054,16 @@ int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int
 						break;
 					}
 					case 6: *((_i32*)((*ipulloutlisting).variable))=0;break;
+					case 0x201: 
+					{
+						structenum * istructenum=(structenum*)(*ipulloutlisting).variable;
+						int tl_clickindex=(((pixeloriginposy-ipulloutlisting->y)/16)+(*istructenum).scroll);
+						if (tl_clickindex<istructenum->count)
+						{
+							istructenum->number=tl_clickindex;
+						}
+						break;
+					}
 					default:
 					{
 						if ((((*ipulloutlisting).rmbmode) & (~0xFF))==0x100)
@@ -1063,6 +1077,34 @@ int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int
 							control_menuitem=ipulloutlisting;
 							control_menudragint=0;
 						}
+					}
+				}
+				break;
+			}
+			case SDL_BUTTON_WHEELUP:
+			{
+				switch ((*ipulloutlisting).lmbmode)
+				{
+					case 0x201: 
+					{
+						structenum * istructenum=(structenum*)(*ipulloutlisting).variable;
+						istructenum->scroll-=1;
+						if (istructenum->scroll<0) istructenum->scroll=0;
+						break;
+					}
+				}
+				break;
+			}
+			case SDL_BUTTON_WHEELDOWN:
+			{
+				switch ((*ipulloutlisting).lmbmode)
+				{
+					case 0x201: 
+					{
+						structenum * istructenum=(structenum*)(*ipulloutlisting).variable;
+						istructenum->scroll+=1;
+						if (istructenum->scroll>=istructenum->count) istructenum->scroll=istructenum->count-1;
+						break;
 					}
 				}
 				break;

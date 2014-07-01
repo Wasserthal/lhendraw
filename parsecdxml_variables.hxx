@@ -36,6 +36,11 @@ char LHENDRAW_leave=0;
 #define constants_Element_implicitcarbon 9
 float glob_clickradius=170;
 #define constants_maxbonds 10
+#ifndef CROFTOIDAL
+#define constants_Directoryslash '/'
+#else
+#define constants_Directoryslash '\\'
+#endif
 _u32 resources_bitmap_buttons[selection_maxbuttons][32][32];
 struct TELESCOPE_tempvar_
 {
@@ -63,6 +68,7 @@ structenum control_filememory
 	{"control_filememory"},
 	0,255,&control_filememory_buffer,1,sizeof(control_filememory_buffer[0]),-1,0,
 };
+char control_currentdirectory[1024];
 void TELESCOPE_measure(int tag)
 {
 	TELESCOPE * start;

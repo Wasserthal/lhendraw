@@ -41,7 +41,6 @@ LLLLLL H   H EEEEE N    N DDD   R  R A     A    W     W
 #include <SDL.h>
 #include <unistd.h>
 #include "draw_variables.hxx"
-#include "variables.hxx"
 void automatic_init() {
 #include "./generated/initialization_lhendraw.hxx"
 }

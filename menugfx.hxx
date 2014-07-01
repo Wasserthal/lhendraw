@@ -254,9 +254,10 @@ int sdl_listmenudraw(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int count,int xpos=0,
 	for (int ilv1=0;ilv1<count;ilv1++)
 	{
 		istructenum=(*(structenum*)(ilisting[ilv1].variable));
-		for (ilv2=0;ilv2*16+ypos+ilisting[ilv1].y+100<gfx_screensizey;ilv2++)//TODO: actual listlength
+		for (ilv2=0;ilv2*16+ypos<ilisting[ilv1].maxy-ilisting[ilv1].y;ilv2++)
 		{
-			if (ilv2==istructenum.number)
+			int tl_number=ilv2+istructenum.scroll;
+			if (tl_number==istructenum.number)
 			{
 				bgcolor=0xFF;
 			}
@@ -268,16 +269,17 @@ int sdl_listmenudraw(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int count,int xpos=0,
 			SDL_color=ilisting[ilv1].bgcolor;
 			for (int ilv3=0;ilv3<16;ilv3++)
 			{
-				for (int ilv4=0;ilv4<192;ilv4++)
+				for (int ilv4=ilisting[ilv1].x;ilv4<ilisting[ilv1].maxx;ilv4++)
 				{
 					*(iscreen)=bgcolor;
 					iscreen++;
 				}
-				iscreen+=gfx_screensizex-192;
+				iscreen+=gfx_screensizex-ilisting[ilv1].maxx+ilisting[ilv1].x;
 			}
-			if (ilv2<istructenum.count)
+			if (tl_number<istructenum.count)
 			{
-				printmenutext(ilisting[ilv1].x+xpos,(ilisting[ilv1].y+ilv2*16)+ypos+12,((char*)(istructenum.pointer))+istructenum.size*ilv2,NULL,0,0,strlen(((char*)(istructenum.pointer))+istructenum.size*ilv2));
+				char * tl_pointer=((char*)(istructenum.pointer))+istructenum.size*tl_number;
+				printmenutext(ilisting[ilv1].x+xpos,(ilisting[ilv1].y+ilv2*16)+ypos+12,tl_pointer,NULL,0,0,max(strlen(tl_pointer),(ilisting[ilv1].maxx-ilisting[ilv1].x)/8));
 			}
 		}
 	}

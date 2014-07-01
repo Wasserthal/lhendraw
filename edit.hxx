@@ -1085,16 +1085,36 @@ catalogized_command_funcdef(FILEDLG_DEVICE_SEL)
 		{
 			dirpy=readdir(DD);
 			if (dirpy==NULL) goto readfinished;
-			strncpy(control_filememory_buffer[ilv1],dirpy->d_name,255);//TODO: limit
+			strncpy(control_filememory_buffer[ilv1],dirpy->d_name,255);control_filememory_buffer[ilv1][255]=0;
+			strncpy(control_currentdirectory,parameter,255);control_currentdirectory[255]=0;
 			control_filememory.count++;
 		}
 		readfinished:;
 	}
+	control_filememory.scroll=0;
+	control_filememory.number=0;
 	printf("TODO: stub1%s\n",parameter);
 	return 0;
 }
 catalogized_command_funcdef(FILEDLG_FILE_SEL)
 {
-	printf("TODO: stub2%s\n",parameter);
+	sprintf(control_currentdirectory+strlen(control_currentdirectory),"%c%s",constants_Directoryslash,parameter);//TODO: limit
+	DIR * DD=opendir(control_currentdirectory);
+	struct dirent * dirpy;
+	control_filememory.count=0;
+	if (DD)
+	{
+		for (int ilv1=0;ilv1<255;ilv1++)
+		{
+			dirpy=readdir(DD);
+			if (dirpy==NULL) goto readfinished;
+			strncpy(control_filememory_buffer[ilv1],dirpy->d_name,255);control_filememory_buffer[ilv1][255]=0;
+			control_filememory.count++;
+		}
+		readfinished:;
+	}
+	printf("TODO: stub2%s\n",control_currentdirectory);
+	control_filememory.scroll=0;
+	control_filememory.number=0;
 	return 0;
 }

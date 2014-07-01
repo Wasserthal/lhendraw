@@ -91,6 +91,39 @@ int control_filedlg()
 			{
 				switch (control_Event.key.keysym.sym)
 				{
+					case SDLK_RCTRL:
+					case SDLK_LCTRL://FALLTHROUGH
+					{
+						MODIFIER_KEYS.CTRL=idirection;
+						break;
+					}
+					case SDLK_RALT:
+					case SDLK_LALT://FALLTHROUGH
+					{
+						fallthrough:
+						MODIFIER_KEYS.ALT=idirection;
+						break;
+					}
+					case SDLK_RSHIFT:
+					case SDLK_LSHIFT://FALLTHROUGH
+					{
+						MODIFIER_KEYS.SHIFT=idirection;
+						break;
+					}
+					case SDLK_RSUPER:
+					case SDLK_LSUPER://FALLTHROUGH
+					{
+						MODIFIER_KEYS.SUPER=idirection;
+						break;
+					}
+					case SDLK_F11:
+					{
+						if (idirection==1)
+						{
+							SDL_WM_ToggleFullScreen(video);
+						}
+						break;
+					}
 					case SDLK_ESCAPE:
 					{
 						LHENDRAW_filedlgmode=0;

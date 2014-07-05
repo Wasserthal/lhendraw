@@ -54,10 +54,14 @@ struct TELESCOPE_tempvar_
 	char inside_TELESCOPE_element;
 	basicmultilist * multilist;
 };
+int control_menutextedithorziscroll=0;
+int control_menutexteditcursor=0;
 TELESCOPE_tempvar_ TELESCOPE_tempvar;
 TELESCOPE_tempvar_ TELESCOPE_debugvar;
 char control_filememory_buffer[255][256];
 char control_devicememory_buffer[255][64];
+_u32 control_filememory_attribs[255];
+int menu_selectedmenuelement;
 structenum control_devicememory
 {
 	{"control_devicememory"},
@@ -69,6 +73,7 @@ structenum control_filememory
 	0,255,&control_filememory_buffer,1,sizeof(control_filememory_buffer[0]),-1,0,
 };
 char control_currentdirectory[1024];
+char control_filenamehead[256];
 void TELESCOPE_measure(int tag)
 {
 	TELESCOPE * start;

@@ -1023,6 +1023,12 @@ int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int
 						}
 						break;
 					}
+					case 0x301:
+					{
+						menu_selectedmenuelement=menu_itembyname((*ipulloutlisting).name);
+						control_menutexteditcursor=(pixeloriginposx-(*ipulloutlisting).x)/8;
+						break;
+					}
 					default:
 					{
 						if ((((*ipulloutlisting).lmbmode) & (~0xFF))==0x100)
@@ -1058,10 +1064,16 @@ int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int
 					{
 						structenum * istructenum=(structenum*)(*ipulloutlisting).variable;
 						int tl_clickindex=(((pixeloriginposy-ipulloutlisting->y)/16)+(*istructenum).scroll);
+						menu_selectedmenuelement=menu_itembyname((*ipulloutlisting).name);
 						if (tl_clickindex<istructenum->count)
 						{
 							istructenum->number=tl_clickindex;
 						}
+						break;
+					}
+					case 0x301:
+					{
+						menu_selectedmenuelement=menu_itembyname((*ipulloutlisting).name);
 						break;
 					}
 					default:

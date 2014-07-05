@@ -1074,20 +1074,23 @@ int edit_interpretaselementwithimplicithydrogens(multilist<n_instance> * imultil
 	(*imultilist).bufferlist[inumber].color=edit_scoop_formats[0].color;
 	return 1;
 }
+int menu_itembyname(const char * name,int * menu=NULL,int * index=NULL);
 catalogized_command_funcdef(FILEDLG_DEVICE_SEL)
 {
 	DIR * DD=opendir(parameter);
 	struct dirent * dirpy;
-	control_filememory.count=0;
 	if (DD)
 	{
+		control_filememory.count=0;
 		for (int ilv1=0;ilv1<255;ilv1++)
 		{
 			dirpy=readdir(DD);
 			if (dirpy==NULL) goto readfinished;
 			strncpy(control_filememory_buffer[ilv1],dirpy->d_name,255);control_filememory_buffer[ilv1][255]=0;
 			strncpy(control_currentdirectory,parameter,255);control_currentdirectory[255]=0;
+			control_filememory_attribs[ilv1]=dirpy->d_type;
 			control_filememory.count++;
+			menu_selectedmenuelement=menu_itembyname("FILEDLG_FILE_SEL");
 		}
 		readfinished:;
 	}
@@ -1098,23 +1101,31 @@ catalogized_command_funcdef(FILEDLG_DEVICE_SEL)
 }
 catalogized_command_funcdef(FILEDLG_FILE_SEL)
 {
+	int formerlength=strlen(control_currentdirectory);
 	sprintf(control_currentdirectory+strlen(control_currentdirectory),"%c%s",constants_Directoryslash,parameter);//TODO: limit
 	DIR * DD=opendir(control_currentdirectory);
 	struct dirent * dirpy;
-	control_filememory.count=0;
 	if (DD)
 	{
+		control_filememory.count=0;
 		for (int ilv1=0;ilv1<255;ilv1++)
 		{
 			dirpy=readdir(DD);
 			if (dirpy==NULL) goto readfinished;
 			strncpy(control_filememory_buffer[ilv1],dirpy->d_name,255);control_filememory_buffer[ilv1][255]=0;
+			control_filememory_attribs[ilv1]=dirpy->d_type;
 			control_filememory.count++;
 		}
 		readfinished:;
+		control_filememory.scroll=0;
+		control_filememory.number=0;
+	}
+	else
+	{
+		control_currentdirectory[formerlength]=0;
+		strncpy(control_filenamehead,parameter,255);control_filenamehead[255]=0;
+		menu_selectedmenuelement=menu_itembyname("FILEDLG_FILE_HEAD");
 	}
 	printf("TODO: stub2%s\n",control_currentdirectory);
-	control_filememory.scroll=0;
-	control_filememory.number=0;
 	return 0;
 }

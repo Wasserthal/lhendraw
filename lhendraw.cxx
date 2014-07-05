@@ -145,7 +145,9 @@ int main(int argc,char * * argv)
 		{
 			control_filedlg();
 			gfx_gfxstart();
+			screenclear(0xFFFFFF);
 			sdl_filemenudraw();
+			sdl_menuframe();
 			draw_reticle();
 			gfx_gfxstop();
 		}

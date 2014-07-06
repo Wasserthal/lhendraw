@@ -539,7 +539,7 @@ catalogized_command_iterated_funcdef(SETITEMVARIABLE)
 	{
 		if (strcmp((*iinstance)._->properties[ilv1].name,parameter)==0)
 		{
-			*(((char*)iinstance)+((*iinstance)._->properties[ilv1].ref))=atoi(value);
+			*(((char*)iinstance)+((*iinstance)._->properties[ilv1].ref))=atoi(value);//TODO: other things than chars!
 			return 1;
 		}
 	}
@@ -644,6 +644,7 @@ void edit_scoopcolors(basic_instance * master)
 catalogized_command_funcdef(SAVE_TYPE)
 {
 	FILE * ifile=fopen(parameter,"w");
+	if (ifile==NULL) return 0;
 	fprintf(ifile,"<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n");
 	fprintf(ifile,"<!DOCTYPE CDXML SYSTEM \"http://www.cambridgesoft.com/xml/cdxml.dtd\" >\n");
 	for (int ilv1=0;ilv1<multilist_count;ilv1++)
@@ -731,7 +732,7 @@ fprintf(ifile,"%s","</colortable><fonttable>\n"
 catalogized_command_funcdef(SAVEAS)
 {
 	LHENDRAW_filedlgmode=1;
-	printf("TODO***stub\n");
+	control_filemenu_mode=1;
 	return 1;
 }
 catalogized_command_funcdef(LOAD_INTO_SEARCHBUF)
@@ -762,6 +763,7 @@ catalogized_command_funcdef(LOAD_TYPE)
 {
 	FILE * infile;
 	infile=fopen(parameter,"r");
+	if (infile==NULL) return 0;
 	currentinstance=new(CAMBRIDGEPREFIX(Total_Document_instance));
 	input_fsm(infile);
 	fclose(infile);
@@ -769,10 +771,12 @@ catalogized_command_funcdef(LOAD_TYPE)
 	svg_findaround();
 	getatoms();
 	edit_add_deltahydrogens();
+	return 1;
 }
 catalogized_command_funcdef(LOADAS)
 {
-	printf("TODO***stub\n");
+	LHENDRAW_filedlgmode=1;
+	control_filemenu_mode=0;
 	return 1;
 }
 catalogized_command_funcdef(SAVE)
@@ -1093,11 +1097,12 @@ catalogized_command_funcdef(FILEDLG_DEVICE_SEL)
 			menu_selectedmenuelement=menu_itembyname("FILEDLG_FILE_SEL");
 		}
 		readfinished:;
+		closedir(DD);
+		control_filememory.scroll=0;
+		control_filememory.number=0;
+		return 1;
 	}
-	control_filememory.scroll=0;
-	control_filememory.number=0;
-	printf("TODO: stub1%s\n",parameter);
-	return 0;
+	return -30;
 }
 catalogized_command_funcdef(FILEDLG_FILE_SEL)
 {
@@ -1119,6 +1124,7 @@ catalogized_command_funcdef(FILEDLG_FILE_SEL)
 		readfinished:;
 		control_filememory.scroll=0;
 		control_filememory.number=0;
+		closedir(DD);
 	}
 	else
 	{
@@ -1126,6 +1132,68 @@ catalogized_command_funcdef(FILEDLG_FILE_SEL)
 		strncpy(control_filenamehead,parameter,255);control_filenamehead[255]=0;
 		menu_selectedmenuelement=menu_itembyname("FILEDLG_FILE_HEAD");
 	}
-	printf("TODO: stub2%s\n",control_currentdirectory);
-	return 0;
+	return 1;
+}
+catalogized_command_funcdef(FILEDLG_FILE_PATH)
+{
+	DIR * DD=opendir(control_currentdirectory);
+	struct dirent * dirpy;
+	if (DD)
+	{
+		control_filememory.count=0;
+		for (int ilv1=0;ilv1<255;ilv1++)
+		{
+			dirpy=readdir(DD);
+			if (dirpy==NULL) goto readfinished;
+			strncpy(control_filememory_buffer[ilv1],dirpy->d_name,255);control_filememory_buffer[ilv1][255]=0;
+			control_filememory_attribs[ilv1]=dirpy->d_type;
+			control_filememory.count++;
+		}
+		readfinished:;
+		control_filememory.scroll=0;
+		control_filememory.number=0;
+		menu_selectedmenuelement=menu_itembyname("FILEDLG_FILE_HEAD");
+		closedir(DD);
+		return 1;
+	}
+	return -30;
+}
+catalogized_command_funcdef(FILEDLG_FILE_HEAD)
+{
+	menu_selectedmenuelement=0;
+	return 1;
+}
+char control_totalfilename[stringlength+stringlength+2];
+catalogized_command_funcdef(FILEDLG_FILE_SAVE)
+{
+	DIR * DD=opendir(control_currentdirectory);
+	char retval=-30;
+	if (DD)
+	{
+		sprintf(control_totalfilename,"%s/%s",control_currentdirectory,control_filenamehead);
+		retval=SAVE_TYPE(control_totalfilename,".cdxml");
+		if (retval>=1)
+		{
+			retval=1;
+			LHENDRAW_filedlgmode=0;
+		}
+		closedir(DD);
+	}
+	return retval;
+}
+catalogized_command_funcdef(FILEDLG_FILE_LOAD)
+{
+	DIR * DD=opendir(control_currentdirectory);
+	char retval=-30;
+	if (DD)
+	{
+		sprintf(control_totalfilename,"%s/%s",control_currentdirectory,control_filenamehead);
+		retval=LOAD_TYPE(control_totalfilename,".cdxml");
+		if (retval>=1)
+		{
+			LHENDRAW_filedlgmode=0;
+		}
+		closedir(DD);
+	}
+	return retval;
 }

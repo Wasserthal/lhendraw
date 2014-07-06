@@ -48,7 +48,6 @@ int main(int argc,char ** argv)
 	outfile=fopen("./generated/reflection.hxx","a");
 	outfile2=fopen("./generated/reflection_headers.hxx","a");
 	fprintf(outfile2,"extern fuenum REFLECTION_FUNCTION_List[];\nextern int REFLECTION_FUNCTION_ListSize;\n");
-	fclose(outfile2);
 	fprintf(outfile,"fuenum REFLECTION_FUNCTION_List[]{\n");
 	for (int ilv1=1;ilv1<argc;ilv1++)
 	{
@@ -59,16 +58,19 @@ int main(int argc,char ** argv)
 			if (backval>0)
 			{
 				fprintf(outfile,"{%i,\"%s\",(catalogized_command_functype)%s,0},\n",ilv1,namestring,namestring);
+				fprintf(outfile2,"extern int __attribute__((sysv_abi))%s(const char * parameter,const char * value);\n",namestring);
 			}
 			backval=sscanf(buffer,"catalogized_command_iterated_funcdef(%[A-Za-z0-9_])",namestring);
 			if (backval>0)
 			{
 				fprintf(outfile,"{%i,\"%s\",(catalogized_command_functype)%s,1},\n",ilv1,namestring,namestring);
+				fprintf(outfile2,"extern int __attribute__((sysv_abi))%s(const char * parameter,const char * value,basicmultilist * imultilist,basic_instance * iinstance,int iindex);\n",namestring);
 			}
 		}
 		fclose(infile);
 	}
 	fprintf(outfile,"};\nint REFLECTION_FUNCTION_ListSize=sizeof(REFLECTION_FUNCTION_List)/sizeof(fuenum);\n");
+	fclose(outfile2);
 	fclose(outfile);
 	return 0;
 }

@@ -1,4 +1,9 @@
 _u8 filedlg_devstring[]="/dev/";
+catalogized_command_funcdef(CANCEL)
+{
+	LHENDRAW_filedlgmode=0;
+	return 1;
+}
 int control_filedlg()
 {
 	_u8 ihv1;
@@ -129,17 +134,12 @@ int control_filedlg()
 						LHENDRAW_filedlgmode=0;
 						break;
 					}
-					case SDLK_UP:
-					{
-						break;
-					}
-					case SDLK_DOWN:
-					{
-						break;
-					}
 					default:
 					if (idirection)
 					{
+						int tl_menunr,tl_index;
+						menu_itemwadethrough(&menu_selectedmenuelement,&tl_menunr,&tl_index,0);
+						AUTOSTRUCT_PULLOUTLISTING_ * tl_pulloutlisting=((AUTOSTRUCT_PULLOUTLISTING_*)(menu_list[tl_menunr].what.pointer))+tl_index;
 						switch (control_Event.key.keysym.sym)
 						{
 							case SDLK_TAB:
@@ -147,18 +147,62 @@ int control_filedlg()
 								int tl_menunr,tl_index;
 								if (MODIFIER_KEYS.SHIFT) menu_selectedmenuelement--; else menu_selectedmenuelement++;
 								menu_itemwadethrough(&menu_selectedmenuelement,&tl_menunr,&tl_index,0);
-								printf("%i\n",menu_selectedmenuelement);
+								goto keyprocessed;
+								break;
+							}
+							case SDLK_RETURN:
+							{
+								if ((*tl_pulloutlisting).LMB_function!=NULL)
+								{
+									(*tl_pulloutlisting).LMB_function("","");
+								}
+								goto keyprocessed;
 								break;
 							}
 						}
-						int tl_menunr,tl_index;
-						menu_itemwadethrough(&menu_selectedmenuelement,&tl_menunr,&tl_index,0);
-						AUTOSTRUCT_PULLOUTLISTING_ * tl_pulloutlisting=((AUTOSTRUCT_PULLOUTLISTING_*)(menu_list[tl_menunr].what.pointer))+tl_index;
+						if (((*tl_pulloutlisting).lmbmode&(0xFF00))==0x200)
+						{
+							structenum * tl_structenum=(structenum*)((*tl_pulloutlisting).variable);
+							switch (control_Event.key.keysym.sym)
+							{
+								case SDLK_PAGEUP:
+								{
+									tl_structenum->number-=20;
+								}//FALLTHROUGH
+								case SDLK_UP:
+								{
+									tl_structenum->number--;
+									if (tl_structenum->number<0) tl_structenum->number=0;
+									break;
+								}
+								case SDLK_HOME:
+								{
+									tl_structenum->number=0;
+									break;
+								}
+								case SDLK_END:
+								{
+									tl_structenum->number=tl_structenum->count-1;
+									break;
+								}
+								case SDLK_PAGEDOWN:
+								{
+									tl_structenum->number+=20;
+								}//FALLTHROUGH
+								case SDLK_DOWN://FALLTHROUGH
+								{
+									tl_structenum->number++;
+									if (tl_structenum->number>=tl_structenum->count) tl_structenum->number=tl_structenum->count-1;
+									break;
+								}
+							}
+						}
 						if (((*tl_pulloutlisting).lmbmode&(0xFF00))==0x300)
 						{
 							char tl_symboltype;
 							char arrester=0;
-							tl_symboltype=sentenumeric(control_filenamehead[control_menutexteditcursor]);
+							if (control_menutexteditcursor>strlen(((char*)(tl_pulloutlisting->variable)))) control_menutexteditcursor=strlen(((char*)(tl_pulloutlisting->variable)));
+							tl_symboltype=sentenumeric(((char*)(tl_pulloutlisting->variable))[control_menutexteditcursor]);
 							iback:
 							arrester=0;
 							switch (control_Event.key.keysym.sym)
@@ -173,15 +217,15 @@ int control_filedlg()
 								case SDLK_RIGHT:
 								{
 									control_menutexteditcursor++;
-									if (control_menutexteditcursor>strlen(control_filenamehead)) {control_menutexteditcursor=strlen(control_filenamehead);arrester=1;}
+									if (control_menutexteditcursor>strlen(((char*)(tl_pulloutlisting->variable)))) {control_menutexteditcursor=strlen(((char*)(tl_pulloutlisting->variable)));arrester=1;}
 									if (control_menutextedithorziscroll+((tl_pulloutlisting->maxx-tl_pulloutlisting->x)/8)<control_menutexteditcursor) {control_menutextedithorziscroll=control_menutexteditcursor;arrester=1;}
 									break;
 								}
 								case SDLK_END:
 								{
-									control_menutexteditcursor=strlen(control_filenamehead);
+									control_menutexteditcursor=strlen(((char*)(tl_pulloutlisting->variable)));
 									arrester=1;
-									if (control_menutexteditcursor>strlen(control_filenamehead)) {control_menutexteditcursor=strlen(control_filenamehead);arrester=1;}
+									if (control_menutexteditcursor>strlen(((char*)(tl_pulloutlisting->variable)))) {control_menutexteditcursor=strlen(((char*)(tl_pulloutlisting->variable)));arrester=1;}
 									if (control_menutextedithorziscroll+((tl_pulloutlisting->maxx-tl_pulloutlisting->x)/8)<control_menutexteditcursor) {control_menutextedithorziscroll=control_menutexteditcursor;arrester=1;}
 									break;
 								}
@@ -198,14 +242,21 @@ int control_filedlg()
 									control_menutexteditcursor--;
 									if (control_menutexteditcursor<0) {control_menutexteditcursor=0;arrester=1;}
 									if (control_menutextedithorziscroll>control_menutexteditcursor) {control_menutextedithorziscroll=control_menutexteditcursor;arrester=1;}
+									if (control_menutexteditcursor>=1)
+									{
+										if (sentenumeric(((char*)(tl_pulloutlisting->variable))[control_menutexteditcursor])!=sentenumeric(((char*)(tl_pulloutlisting->variable))[control_menutexteditcursor-1]))
+										{
+											arrester=1;
+										}
+									}
 								}
 								case SDLK_DELETE:
 								{
-									if (strlen(control_filenamehead)>control_menutexteditcursor)
+									if (strlen(((char*)(tl_pulloutlisting->variable)))>control_menutexteditcursor)
 									{
-										for (int ilv1=control_menutexteditcursor;ilv1<strlen(control_filenamehead);ilv1++)
+										for (int ilv1=control_menutexteditcursor;ilv1<strlen(((char*)(tl_pulloutlisting->variable)));ilv1++)
 										{
-											control_filenamehead[ilv1]=control_filenamehead[ilv1+1];
+											((char*)(tl_pulloutlisting->variable))[ilv1]=((char*)(tl_pulloutlisting->variable))[ilv1+1];
 										}
 									}
 									else
@@ -214,12 +265,25 @@ int control_filedlg()
 									}
 									break;
 								}
+								default:
+								{
+									_u16 ihv1=(control_Event.key.keysym.unicode);
+									if (control_menutexteditcursor<=strlen(((char*)(tl_pulloutlisting->variable))))
+									{
+										for (int ilv1=strlen(((char*)(tl_pulloutlisting->variable)));ilv1>=control_menutexteditcursor;ilv1--)
+										{
+											((char*)(tl_pulloutlisting->variable))[ilv1+1]=((char*)(tl_pulloutlisting->variable))[ilv1];
+										}
+										((char*)(tl_pulloutlisting->variable))[control_menutexteditcursor++]=ihv1;
+									}
+									arrester=1;
+								}
 							}
 							if (MODIFIER_KEYS.CTRL)
 							{
 								if (arrester==0)
 								{
-									if (tl_symboltype==sentenumeric(control_filenamehead[control_menutexteditcursor]))
+									if (tl_symboltype==sentenumeric(((char*)(tl_pulloutlisting->variable))[control_menutexteditcursor]))
 									{
 										goto iback;
 									}
@@ -227,6 +291,7 @@ int control_filedlg()
 							}
 						}
 					}
+					keyprocessed:;
 				}
 				break;
 			}

@@ -1,0 +1,24 @@
+menuitem pullout_filedlg_buttons_load[]={
+{200,730,
+34,//Picture
+"Load",
+3,0,
+0,
+"LOADAS",
+"",
+"FILEDLG_FILE_LOAD","",
+0x00FF00,
+264,762,
+},
+{300,730,
+34,//Picture
+"Cancel",
+3,0,
+0,
+"CANCEL",
+"",
+"CANCEL","",
+0x00FF00,
+364,762,
+},
+};

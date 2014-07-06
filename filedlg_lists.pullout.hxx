@@ -1,4 +1,15 @@
 menuitem pullout_filedlg_lists[]={
+{256,0,
+0,//Picture
+"FILEDLG_FILE_PATH",
+0x301,0x301,
+0,
+"File Name Head",
+"control_currentdirectory",
+"FILEDLG_FILE_PATH","",
+0xFF,
+1016,16,
+},
 {0,0,
 0,//Picture
 "FILEDLG_DEVICE_SEL",
@@ -28,7 +39,7 @@ menuitem pullout_filedlg_lists[]={
 0,
 "File Name Head",
 "control_filenamehead",
-"","",
+"FILEDLG_FILE_HEAD","",
 0xFFFFFF,
 1016,720,
 },

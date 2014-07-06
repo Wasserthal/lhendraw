@@ -24,3 +24,5 @@ Error codes:
 -21: internal memory organisation failure - list of variable-size-elements seems overflown
 -22: internal memory-block management data damaged
 -23: internal memory organisation failure - list of variable-size-elements damaged
+-30: could not open directory
+-31: could not create directory

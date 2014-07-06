@@ -246,7 +246,7 @@ int sdl_textbuttonmenudraw(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int count,int x
 		printmenutext(left,top+12,ilisting[ilv1].name,NULL,0,0,strlen(ilisting[ilv1].name));
 	}
 }
-int sdl_listmenudraw(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int count,int xpos=0,int ypos=0)
+int sdl_listmenudraw(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int count,int xpos=0,int ypos=0,int item=-1)
 {
 	int ilv2;
 	structenum istructenum;
@@ -298,7 +298,7 @@ int sdl_listmenudraw(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int count,int xpos=0,
 				{
 					for (int ilv4=ilisting[ilv1].x,tl_counter=0;ilv4<ilisting[ilv1].maxx;ilv4+=8,tl_counter++)
 					{
-						if (control_menutexteditcursor-control_menutextedithorziscroll-tl_counter!=0)
+						if ((control_menutexteditcursor-control_menutextedithorziscroll*(item==ilv1)-tl_counter!=0) || (item!=ilv1))
 						{
 							*(iscreen++)=0x5F5F5F;
 							*(iscreen++)=0x5F5F5F;
@@ -323,8 +323,8 @@ int sdl_listmenudraw(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int count,int xpos=0,
 					}
 					iscreen+=gfx_screensizex-ilisting[ilv1].maxx+ilisting[ilv1].x;
 				}
-				tl_pointer=control_filenamehead;
-				printmenutext(ilisting[ilv1].x+xpos,(ilisting[ilv1].y)+ypos+12,tl_pointer,NULL,0,0,max(strlen(tl_pointer),(ilisting[ilv1].maxx-ilisting[ilv1].x)/8));
+				tl_pointer=(char*)(ilisting[ilv1].variable);
+				printmenutext(ilisting[ilv1].x+xpos,(ilisting[ilv1].y)+ypos+12,tl_pointer,NULL,0,0,min(strlen(tl_pointer),(ilisting[ilv1].maxx-ilisting[ilv1].x)/8));
 				break;
 			}
 		}
@@ -425,7 +425,8 @@ extern int control_tool;
 int sdl_filemenucommon()
 {
 	menu_list_count=0;
-	addmenu("filedlg_buttons",4);
+	if (control_filemenu_mode==0) addmenu("filedlg_buttons_load",4);
+	if (control_filemenu_mode==1) addmenu("filedlg_buttons_save",4);
 	addmenu("filedlg_lists",3);
 }
 int menu_itembyname(const char * name,int * menu,int * index)
@@ -525,8 +526,11 @@ int sdl_psedraw(int istartx,int istarty)
 }
 int sdl_menudraw()
 {
+	int i_menu;int i_index;
+	menu_itemwadethrough(&menu_selectedmenuelement,&i_menu,&i_index,0);
 	for (int ilv1=0;ilv1<menu_list_count;ilv1++)
 	{
+		int tl_index=(i_menu==ilv1)?i_index:-1;
 		if (menu_list[ilv1].type==0)
 		{
 			sdl_buttonmenudraw((AUTOSTRUCT_PULLOUTLISTING_*)menu_list[ilv1].what.pointer,menu_list[ilv1].what.count,menu_list[ilv1].alignx,menu_list[ilv1].aligny);
@@ -541,7 +545,7 @@ int sdl_menudraw()
 		}
 		if (menu_list[ilv1].type==3)
 		{
-			sdl_listmenudraw((AUTOSTRUCT_PULLOUTLISTING_*)menu_list[ilv1].what.pointer,menu_list[ilv1].what.count,menu_list[ilv1].alignx,menu_list[ilv1].aligny);
+			sdl_listmenudraw((AUTOSTRUCT_PULLOUTLISTING_*)menu_list[ilv1].what.pointer,menu_list[ilv1].what.count,menu_list[ilv1].alignx,menu_list[ilv1].aligny,tl_index);
 		}
 		if (menu_list[ilv1].type==4)
 		{

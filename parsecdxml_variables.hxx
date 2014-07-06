@@ -62,6 +62,7 @@ char control_filememory_buffer[255][256];
 char control_devicememory_buffer[255][64];
 _u32 control_filememory_attribs[255];
 int menu_selectedmenuelement;
+char control_filemenu_mode=0;
 structenum control_devicememory
 {
 	{"control_devicememory"},

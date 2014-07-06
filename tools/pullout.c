@@ -3,7 +3,6 @@
 #include <stddef.h>
 FILE * stringfile;//a binary
 FILE * structfile;//contains what is left of the menuitem structures and control code.
-FILE * functionfile;//contains automatically generated functions of menu items
 FILE * reflectfile;
 //TODO: create a reflection block, which lists up ANY automatically generated file structure
 typedef struct menuitem
@@ -55,7 +54,8 @@ char pulloutlisting_string[]="\n"
 #include "../submenu_toolbox_M4.pullout.hxx"
 #include "../submenu_toolbox_M5.pullout.hxx"
 #include "../submenu_toolbox_M6.pullout.hxx"
-#include "../filedlg_buttons.pullout.hxx"
+#include "../filedlg_buttons_save.pullout.hxx"
+#include "../filedlg_buttons_load.pullout.hxx"
 #include "../filedlg_lists.pullout.hxx"
 int stringlist_count=0;
 char nullstring[]="NULL";
@@ -144,7 +144,8 @@ void main(int argc,char ** argv)
 	domenu(pullout_submenu_toolbox_M4,sizeof(pullout_submenu_toolbox_M4)/sizeof(menuitem),"submenu_toolbox_M4");
 	domenu(pullout_submenu_toolbox_M5,sizeof(pullout_submenu_toolbox_M5)/sizeof(menuitem),"submenu_toolbox_M5");
 	domenu(pullout_submenu_toolbox_M6,sizeof(pullout_submenu_toolbox_M6)/sizeof(menuitem),"submenu_toolbox_M6");
-	domenu(pullout_filedlg_buttons,sizeof(pullout_filedlg_buttons)/sizeof(menuitem),"filedlg_buttons");
+	domenu(pullout_filedlg_buttons_save,sizeof(pullout_filedlg_buttons_save)/sizeof(menuitem),"filedlg_buttons_save");
+	domenu(pullout_filedlg_buttons_load,sizeof(pullout_filedlg_buttons_load)/sizeof(menuitem),"filedlg_buttons_load");
 	domenu(pullout_filedlg_lists,sizeof(pullout_filedlg_lists)/sizeof(menuitem),"filedlg_lists");
 	fprintf(stringfile,";\n");
 	

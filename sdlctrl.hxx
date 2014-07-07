@@ -1033,6 +1033,7 @@ int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int
 					{
 						if ((((*ipulloutlisting).lmbmode) & (~0xFF))==0x100)
 						{
+							storeundo(~0);
 							control_mousestate|=0x20;
 							control_firstmenux=pixeloriginposx;
 							control_firstmenuy=pixeloriginposy;
@@ -1251,9 +1252,13 @@ void issuemenudrag(int posx,int posy,char ifinal=0)
 		}
 		case 0x103:
 		{
+			restoreundo(~0,0);
 			diffx=posx-control_lastmenux;
 			diffy=posy-control_lastmenuy;
 			control_menudragint+=diffx;
+			char istring[100];
+			sprintf(istring,"%f",((float)(control_menudragint))/gfx_canvassizex*2.0*Pi);
+			(*control_menuitem).LMB_function("",istring);
 			break;
 		}
 	}

@@ -273,7 +273,7 @@ menuitem pullout_toolbox[]={
 1,
 "drag to rotate\n",
 "control_drawproperties.color",
-"","",
+"PIVOT_TURN","PIVOT_APPLY",
 0x000000,
 },
 };

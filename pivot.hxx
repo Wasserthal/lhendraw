@@ -9,10 +9,13 @@ void get_selection_pivot()
 		n_instance * tl_n_instance=(*glob_n_multilist).bufferlist+ilv1;
 		if ((*tl_n_instance).exist)
 		{
-			edit_pivot.x+=(*tl_n_instance).xyz.x;
-			edit_pivot.y+=(*tl_n_instance).xyz.y;
-			edit_pivot.z+=(*tl_n_instance).xyz.z;
-			edit_pivot_counter++;
+			if (selection_currentselection[ilv1]&(1<<STRUCTURE_OBJECTTYPE_n))
+			{
+				edit_pivot.x+=(*tl_n_instance).xyz.x;
+				edit_pivot.y+=(*tl_n_instance).xyz.y;
+				edit_pivot.z+=(*tl_n_instance).xyz.z;
+				edit_pivot_counter++;
+			}
 		}
 	}
 	edit_pivot.x/=edit_pivot_counter;

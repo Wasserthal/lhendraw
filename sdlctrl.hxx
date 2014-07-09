@@ -305,7 +305,7 @@ int interpretkey(int listnr=-1)
 							if (hotkeylist[ilv1].command!=NULL)
 							{
 								basicmultilist * tl_multilist=findmultilist(STRUCTURE_OBJECTTYPE_List[tltype & 0xFFFF].name);
-								int icompare=(1<<(tltype & 0xFFFF));
+								_u32 icompare=(1<<(tltype & 0xFFFF));
 								int tl_size=(*tl_multilist).itemsize;
 								int ifilllevel=(*tl_multilist).filllevel;//separately, so it doesn't grow while executing the loop
 								if (ihot==0)
@@ -1232,7 +1232,7 @@ void issuemenudrag(int posx,int posy,char ifinal=0)
 			if ((ifinal) && (posx>=0) && (posy>=0) && (posx<control_firstmenux+32) && (posy<control_firstmenuy+32))
 			{
 				(*(_u32*)(*control_menuitem).variable)=0;
-				break;
+				goto apply_111;
 			}
 			diffx=posx-((control_firstmenux/32)*32)-32;
 			diffy=posy-((control_firstmenuy/32)*32)-64;
@@ -1247,6 +1247,13 @@ void issuemenudrag(int posx,int posy,char ifinal=0)
 			{
 				(*(((_u8*)(*control_menuitem).variable)+2))=diffx;
 				(*(((_u8*)(*control_menuitem).variable)+3))=diffy;
+			}
+			char istring[100];
+			sprintf(istring,"%i",*(int*)((*control_menuitem).variable));
+			apply_111:
+			if ((*control_menuitem).LMB_function)
+			{
+				(*control_menuitem).LMB_function((*control_menuitem).name,istring);
 			}
 			break;
 		}

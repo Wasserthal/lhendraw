@@ -1150,10 +1150,10 @@ void svg_controlprocedure(bool irestriction=0,bool hatches=0)
 		i_n_instance=(n_instance*)&((*glob_n_multilist).bufferlist[index_in_buffer]);
 		int tlElement=((*i_n_instance).Element);
 		stylegenestring(3);
+		colornr=(*i_n_instance).color;
+		get_colorstring(colornr);
 		if (tlElement==-1)
 		{
-			colornr=(*i_n_instance).color;
-			get_colorstring(colornr);
 			sortback=atom_actual_node[index_in_buffer].labelside;
 			express_txinit(sortback,((*glob_n_multilist).bufferlist)[index_in_buffer].xyz.x,((*glob_n_multilist).bufferlist)[index_in_buffer].xyz.y,atomfontheight);
 			TELESCOPE_aggressobject(glob_n_multilist,index_in_buffer);

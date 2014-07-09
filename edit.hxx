@@ -54,6 +54,28 @@ int edit_getnewZ()
 {
 	return 0;//TODO pretty urgent :)(!)
 }
+int for_all_objects(catalogized_command_iterated_functype ifunc,char selectiononly=0)
+{
+	char erledigt=0;
+	for (int ilv1=0;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
+	{
+		basicmultilist * tl_multilist=findmultilist(STRUCTURE_OBJECTTYPE_List[ilv1].name);
+		_u32  icompare=(1<<ilv1);
+		int tl_size=(*tl_multilist).itemsize;
+		int ifilllevel=(*tl_multilist).filllevel;//separately, so it doesn't grow while executing the loop
+		for (int ilv2=0;ilv2<ifilllevel;ilv2++)
+		{
+			if ((selection_currentselection[ilv2] & icompare) || (selectiononly==0))
+			{
+				if ((*tl_multilist)[ilv2].exist)
+				{
+					if (((catalogized_command_iterated_functype)(ifunc))(hotkeylist[ilv1].variable,hotkeylist[ilv1].value,tl_multilist,&((*tl_multilist)[ilv2]),ilv2)){erledigt=1;};
+				}
+			}
+		}
+	}
+	return erledigt;
+}
 char getleftof(cdx_Point3D * istart,cdx_Point3D * iend,cdx_Point3D * ikink)
 {
 	float diff1x,diff1y,diff2x,diff2y;
@@ -1196,4 +1218,27 @@ catalogized_command_funcdef(FILEDLG_FILE_LOAD)
 		closedir(DD);
 	}
 	return retval;
+}
+catalogized_command_funcdef(SET_ALL_ITEMS)//TODO: works for _i32 only, right now
+{
+	intl suboffset=0;
+	CDXMLREAD_functype dummy;
+	for (int ilv1=1;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
+	{
+		basicmultilist * tl_multilist=findmultilist(STRUCTURE_OBJECTTYPE_List[ilv1].name);
+		suboffset=(*tl_multilist).getproperties(parameter,&dummy);
+		_u32  icompare=(1<<ilv1);
+		int tl_size=(*tl_multilist).itemsize;
+		int ifilllevel=(*tl_multilist).filllevel;//separately, so it doesn't grow while executing the loop
+		for (int ilv2=0;ilv2<ifilllevel;ilv2++)
+		{
+			if (selection_currentselection[ilv2] & icompare)
+			{
+				if ((*tl_multilist)[ilv2].exist)
+				{
+					*((_i32*)(((char*)(&((*tl_multilist)[ilv2])))+suboffset))=atoi(value);
+				}
+			}
+		}
+	}
 }

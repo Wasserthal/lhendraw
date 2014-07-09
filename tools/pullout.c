@@ -119,7 +119,7 @@ void domenu(menuitem * input,int count,char * name)
 		addstring(input[ilv1].name);
 		fprintf(structfile,"NULL,NULL,\nAUTOSTRUCT_STRINGLIST_PULLOUT+%i,\n",stringlist_count);
 		addstring(input[ilv1].LMBfunction);
-		fprintf(structfile,"\nAUTOSTRUCT_STRINGLIST_PULLOUT+%i\n,%s,(catalogized_command_functype)%s,0x%08X,&(%s),%i,%i},",stringlist_count,stringifnull(input[ilv1].LMBfunction),stringifnull(input[ilv1].RMBfunction),input[ilv1].bgcolor,stringifnope(input[ilv1].variablename),input[ilv1].maxx,input[ilv1].maxy);
+		fprintf(structfile,"\nAUTOSTRUCT_STRINGLIST_PULLOUT+%i\n,%s,%s,0x%08X,&(%s),%i,%i},",stringlist_count,stringifnull(input[ilv1].LMBfunction),stringifnull(input[ilv1].RMBfunction),input[ilv1].bgcolor,stringifnope(input[ilv1].variablename),input[ilv1].maxx,input[ilv1].maxy);
 		addstring(input[ilv1].RMBfunction);
 	}
 	fprintf(reflectfile,"{\"%s\",%i,%i,&AUTOSTRUCT_PULLOUTLISTING_%s,sizeof(AUTOSTRUCT_PULLOUTLISTING_%s)},",name,count,count,name,name);

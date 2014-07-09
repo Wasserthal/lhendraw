@@ -13,7 +13,7 @@ int control_firstmenux,control_firstmenuy;
 int control_lastmenux,control_lastmenuy;
 int control_mousestate=0;//0: inactive; 0x1: from tool, mouseclick; 0x2: from special tool, keyboard 0x4: on menu, dragging 0x8: on button_function dependent menu, popup 0x10 popup-menu or PSE, multiple levels 0x20 dragging menuitem
 int control_toolaction=0;//1: move 2: move selection 3: tool specific
-int control_tool=0;//1: Hand 2: 2coordinate Selection 3: Lasso, no matter which 4: Shift tool 5: Magnifying glass 6: Element draw 7: chemdraw draw 8: eraser 9: Arrows 10: attributes 11: graphic 12: bezier 13: image 14: spectrum 15: tlc plate/gel plate 16: text tool
+int control_tool=2;//1: Hand 2: 2coordinate Selection 3: Lasso, no matter which 4: Shift tool 5: Magnifying glass 6: Element draw 7: chemdraw draw 8: eraser 9: Arrows 10: attributes 11: graphic 12: bezier 13: image 14: spectrum 15: tlc plate/gel plate 16: text tool
 int control_menumode=0;//1: shliderhorz, 2: slidervert 3: colorchooser
 AUTOSTRUCT_PULLOUTLISTING_ * control_menuitem=NULL;
 #define control_toolcount 17
@@ -46,6 +46,7 @@ int control_force=0;
 int control_interactive=1;
 int control_saveuponexit=0;
 int control_GUI=1;
+int control_doubleclickenergy=0;
 typedef struct control_toolinfo_
 {
 	_u32 undoes;//for BOTH mouse buttons, unless using other tool
@@ -458,10 +459,33 @@ int issueclick(int iposx,int iposy)
 	{
 		case 2:
 		{
-			selection_frame.startx=control_coorsx;
-			selection_frame.starty=control_coorsy;
-			selection_frame.endx=control_coorsx;
-			selection_frame.endy=control_coorsy;
+			if (control_lastmousebutton==SDL_BUTTON_LEFT)
+			{
+				selection_frame.startx=control_coorsx;
+				selection_frame.starty=control_coorsy;
+				selection_frame.endx=control_coorsx;
+				selection_frame.endy=control_coorsy;
+			}
+			if (control_lastmousebutton==SDL_BUTTON_RIGHT)
+			{
+				control_mousestate=2;
+				control_toolstartkeysym=SDLK_UNKNOWN;
+				control_keycombotool=4;
+				control_usingmousebutton=control_lastmousebutton;
+				return 0;
+			}
+			break;
+		}
+		case 3:
+		{
+			if (control_lastmousebutton==SDL_BUTTON_RIGHT)
+			{
+				control_mousestate=2;
+				control_toolstartkeysym=SDLK_UNKNOWN;
+				control_keycombotool=4;
+				control_usingmousebutton=control_lastmousebutton;
+				return 0;
+			}
 			break;
 		}
 		case 5:
@@ -810,6 +834,31 @@ int rectifyselectionframe()
 	}
 	return 1;
 }
+#define KEYDEPENDENTSELECTION \
+{\
+	__label__ tl_found;\
+	if (MODIFIER_KEYS.SHIFT)\
+	{\
+		if (MODIFIER_KEYS.CTRL)\
+		{\
+			selection_ANDselection(selection_currentselection,selection_clickselection);\
+		}\
+		else\
+		{\
+			selection_XORselection(selection_currentselection,selection_clickselection);\
+		}\
+		selection_recheck(selection_currentselection,&selection_currentselection_found);\
+		break;\
+	}\
+	if (MODIFIER_KEYS.CTRL)\
+	{\
+		selection_ORselection(selection_currentselection,selection_clickselection);\
+		break;\
+	}\
+	selection_copyselection(selection_currentselection,selection_clickselection);\
+	selection_currentselection_found=selection_clickselection_found;\
+	tl_found:;\
+}
 void issuerelease()
 {
 	_u32 icompare;
@@ -820,20 +869,24 @@ void issuerelease()
 	{
 		case 2:
 		{
-
-			selection_clearselection(selection_currentselection);
-			selection_currentselection_found=0;
+			if (control_usingmousebutton==SDL_BUTTON_RIGHT)
+			{
+				checkupinconsistencies();
+				break;
+			}
 			if (!rectifyselectionframe())
 			{
-				selection_clearselection(selection_clickselection);
-				selection_clickselection_found=0;
 				clickforthem();
 				if (selection_currentselection_found)
 				{
-					selection_copyselection(selection_currentselection,selection_clickselection);
-					selection_currentselection_found=selection_clickselection_found;
-					break;
+					KEYDEPENDENTSELECTION;
 				}
+				else
+				{
+					selection_clearselection(selection_currentselection);
+					selection_currentselection_found=0;
+				}
+				break;
 			}
 			for (int ilv1=0;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
 			{
@@ -858,8 +911,8 @@ void issuerelease()
 								{
 									if ((tlpy>=selection_frame.starty) && (tlpy<=selection_frame.endy))
 									{
-										selection_currentselection[ilv2]|=icompare;
-										selection_currentselection_found|=icompare;
+										selection_clickselection[ilv2]|=icompare;
+										selection_clickselection_found|=icompare;
 									}
 								}
 								ilv3++;
@@ -869,6 +922,16 @@ void issuerelease()
 					}
 				}
 				i_control2_fertig:;
+			}
+			KEYDEPENDENTSELECTION;
+			break;
+		}
+		case 3:
+		{
+			if (control_usingmousebutton==SDL_BUTTON_RIGHT)
+			{
+				checkupinconsistencies();
+				break;
 			}
 			break;
 		}
@@ -1286,6 +1349,7 @@ void control_normal()
 		{
 			case SDL_MOUSEMOTION:
 			{
+				control_doubleclickenergy=0;
 				control_mousex=control_Event.motion.x;
 				control_mousey=control_Event.motion.y;
 				if (control_mousestate & 0x20)
@@ -1357,7 +1421,35 @@ void control_normal()
 					}
 					case SDL_BUTTON_LEFT:
 					{
+						if (control_doubleclickenergy>=150)
+						{
+							clickforthem();
+							selection_clearselection(selection_fragmentselection);
+							if (selection_clickselection_found & ((1<<STRUCTURE_OBJECTTYPE_n) | (1<<STRUCTURE_OBJECTTYPE_b)))
+							{
+								for (int ilv1=0;ilv1<(*glob_n_multilist).filllevel;ilv1++)
+								{
+									if (selection_clickselection[ilv1] & (1<<STRUCTURE_OBJECTTYPE_n))
+									{
+										select_fragment_by_atom(ilv1);
+										goto doubleclicktargetfound;
+									}
+								}
+								for (int ilv1=0;ilv1<(*glob_b_multilist).filllevel;ilv1++)
+								{
+									if (selection_clickselection[ilv1] & (1<<STRUCTURE_OBJECTTYPE_b))
+									{
+										select_fragment_by_atom(bond_actual_node[ilv1].start);
+										goto doubleclicktargetfound;
+									}
+								}
+								doubleclicktargetfound:;
+								KEYDEPENDENTSELECTION;
+								break;
+							}
+						}
 						control_lastmousebutton=SDL_BUTTON_LEFT;
+						control_doubleclickenergy=300;
 						clickshunt:
 						if (control_mousestate==0)
 						{
@@ -1407,7 +1499,7 @@ void control_normal()
 					{
 						control_lastmousebutton=SDL_BUTTON_LEFT;
 						dragshunt:
-						if (control_mousestate==1)
+						if ((control_mousestate==1) || ((control_mousestate==2) && (control_toolstartkeysym==SDLK_UNKNOWN)))
 						{
 							if (control_usingmousebutton==control_lastmousebutton)//Only when same button up as down
 							{

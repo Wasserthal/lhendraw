@@ -60,7 +60,3 @@ catalogized_command_funcdef(PIVOT_TURN)
 	applytransform(matrix);
 	return 1;
 }
-catalogized_command_iterated_funcdef(PIVOT_APPLY)
-{
-	return 1;
-}

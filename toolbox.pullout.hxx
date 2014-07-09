@@ -273,7 +273,7 @@ menuitem pullout_toolbox[]={
 1,
 "drag to rotate\n",
 "",
-"PIVOT_TURN","PIVOT_APPLY",
+"PIVOT_TURN","",
 0x000000,
 },
 };

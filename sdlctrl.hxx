@@ -486,6 +486,9 @@ int issueclick(int iposx,int iposy)
 				control_usingmousebutton=control_lastmousebutton;
 				return 0;
 			}
+			selection_lassostartx=iposx;
+			selection_lassostarty=iposy;
+			selection_lassoclear();
 			break;
 		}
 		case 5:
@@ -615,6 +618,11 @@ void issuedrag(int iposx,int iposy)
 		{
 			selection_frame.endx=control_coorsx;
 			selection_frame.endy=control_coorsy;
+			break;
+		}
+		case 3:
+		{
+			selection_lassotrail(control_posx,control_posy,iposx,iposy);
 			break;
 		}
 		case 5:
@@ -933,6 +941,8 @@ void issuerelease()
 				checkupinconsistencies();
 				break;
 			}
+			selection_lassotrail(control_posx,control_posy,selection_lassostartx,selection_lassostarty);
+			if (selection_lasso_up==2) selection_lasso_putpixel(selection_lassostartx,selection_lassostarty,1);
 			break;
 		}
 		case 5:

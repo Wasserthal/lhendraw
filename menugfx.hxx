@@ -614,6 +614,7 @@ int sdl_selectiondraw()
 	_u32 icompare;
 	int isize;
 	char * ibufferpos;
+	char markstate=0;
 	if (control_mousestate==1)
 	{
 		if ((control_tool==2) || (control_tool==5))
@@ -622,6 +623,19 @@ int sdl_selectiondraw()
 			expressline(selection_frame.startx,selection_frame.starty,selection_frame.startx,selection_frame.endy);
 			expressline(selection_frame.startx,selection_frame.endy,selection_frame.endx,selection_frame.endy);
 			expressline(selection_frame.endx,selection_frame.starty,selection_frame.endx,selection_frame.endy);
+		}
+		if (control_tool==3)
+		{
+			for (int ilv1=0;ilv1<gfx_canvassizey;ilv1++)
+			{
+				markstate=0;
+				for (int ilv2=0;ilv2<gfx_canvassizex;ilv2++)
+				{
+					if (selection_lassobuffer[ilv1*gfx_canvassizex+ilv2] & 1) markstate^=1;
+					if (selection_lassobuffer[ilv1*gfx_canvassizex+ilv2] & 2) markstate^=1;
+					if (markstate) screen[(ilv1+gfx_canvasminy)*gfx_screensizex+ilv2+gfx_canvasminx]=0x00FF00;
+				}
+			}
 		}
 	}
 	for (int ilv1=0;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)

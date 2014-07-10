@@ -51,14 +51,6 @@ void selection_ANDselection(selection_ iselection,selection_ iselection2)
 		iselection[ilv1]&=iselection2[ilv1];
 	}
 }
-typedef struct selection_frame_
-{
-	float startx,starty;
-	float endx,endy;
-	float left,top;
-	float right,bottom;
-}selection_frame_;
-selection_frame_ selection_frame;
 void selection_recheck(selection_ iselection,_u32 * matrix)
 {
 	(*matrix)=0;
@@ -81,6 +73,133 @@ void selection_recheck(selection_ iselection,_u32 * matrix)
 			}
 		}
 		ifertig:;
+	}
+}
+typedef struct selection_frame_
+{
+	float startx,starty;
+	float endx,endy;
+	float left,top;
+	float right,bottom;
+}selection_frame_;
+selection_frame_ selection_frame;
+char selection_lassobuffer[gfx_canvassizex*gfx_canvassizey];//The selection_lasso buffer corresponds to the pixels, not to the datastructure units!
+struct selection_lassoline_
+{
+	int items[40];
+	char itemm[40];
+	int count;
+};
+selection_lassoline_ selection_lassohub[20000];//off-screen selection_lasso passes 10000 at upper rim of selection frame
+int selection_lassostartx,selection_lassostarty;//TODO: end one pixel before the startpoint!
+char selection_lasso_up;
+void selection_lassoclear()
+{
+	for (int ilv1=0;ilv1<20000;ilv1++)
+	{
+		selection_lassohub[ilv1].count=0;
+	}
+	for (int ilv1=0;ilv1<gfx_canvassizex*gfx_canvassizey;ilv1++)
+	{
+		selection_lassobuffer[ilv1]=0;
+	}
+	selection_lasso_up=1;
+	return;
+}
+inline void offscreenlasso(selection_lassoline_ * ilassoline,int value,char up)
+{
+	int ilv1;
+	for (ilv1=0;ilv1<(*ilassoline).count;ilv1++)
+	{
+		if ((value<(*ilassoline).items[ilv1]) || ((value==(*ilassoline).items[ilv1]) && (up<(*ilassoline).itemm[ilv1])))
+		{
+			goto fillline;
+		}
+		else
+		{
+			if (value==(*ilassoline).items[ilv1])
+			{
+				if (up>(*ilassoline).itemm[ilv1])
+				{
+					if ((*ilassoline).count>ilv1+1)
+					{
+						if ((*ilassoline).items[ilv1+1]==value)//up will then definitely be correct
+						{
+							goto scrapline;
+						}
+					}
+				}
+				else
+				{
+					scrapline:;//goto considered helpful
+					for (int ilv2=ilv1;ilv2<(*ilassoline).count-1;ilv2++)
+					{
+						(*ilassoline).items[ilv2]=(*ilassoline).items[ilv2+1];
+					}
+					(*ilassoline).count--;
+					return;
+				}
+			}
+		}
+	}
+	fillline:;
+	if ((*ilassoline).count>=40)return;
+	for (int ilv2=(*ilassoline).count;ilv2>ilv1;ilv2--)
+	{
+		(*ilassoline).items[ilv2]=(*ilassoline).items[ilv2-1];
+	}
+	(*ilassoline).count++;
+	(*ilassoline).items[ilv1]=value;
+	(*ilassoline).itemm[ilv1]=up;
+}
+inline void selection_lasso_putpixel(int tl_x,int tl_y,char up)
+{
+	if ((tl_x>=0) && (tl_x<gfx_canvassizex))
+	{
+		if ((tl_y>=0) && (tl_y<gfx_canvassizey))
+		{
+			selection_lassobuffer[tl_y*gfx_canvassizex+tl_x]^=up;
+			return;
+		}
+	}
+	if (tl_y<-10000) return;
+	if (tl_y>=10000) return;
+	offscreenlasso(selection_lassohub+10000+tl_y,tl_x,up);
+}
+void selection_lassotrail(int x,int y,int x2,int y2)
+{
+	float m;
+	float t;
+	int tl_x;
+	int tl_y;
+	char up;
+	if (y==y2) return;
+	if (y>y2)
+	{
+		int swap;
+		swap=y2;y2=y;y=swap;
+		swap=x2;x2=x;x=swap;
+		up=2;
+		if (selection_lasso_up & up)
+		{
+			selection_lasso_putpixel(x2,y2,up);
+		}
+	}
+	else
+	{
+		up=1;
+		if (selection_lasso_up & up)
+		{
+			selection_lasso_putpixel(x,y,up);
+		}
+	}
+	selection_lasso_up=up;
+	m=((float)(x2-x))/(y2-y);
+	t=x-m*y;
+	for (tl_y=y;tl_y<=y2;tl_y++)
+	{
+		tl_x=t+m*tl_y;
+		selection_lasso_putpixel(tl_x,tl_y,up);
 	}
 }
 _small getother(_small inatom, _small inbond)

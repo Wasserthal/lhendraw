@@ -202,6 +202,27 @@ void selection_lassotrail(int x,int y,int x2,int y2)
 		selection_lasso_putpixel(tl_x,tl_y,up);
 	}
 }
+void selection_lassofill()
+{
+	char markstate;
+	for (int ilv1=0;ilv1<gfx_canvassizey;ilv1++)
+	{
+		markstate=0;
+		for (int ilv3=0;ilv3<selection_lassohub[10000+ilv1].count;ilv3++)
+		{
+			if (selection_lassohub[10000+ilv1].items[ilv3]<0)
+			{
+				markstate^=1;
+			}
+		}
+		for (int ilv2=0;ilv2<gfx_canvassizex;ilv2++)
+		{
+			if (selection_lassobuffer[ilv1*gfx_canvassizex+ilv2] & 1) markstate^=1;
+			if (selection_lassobuffer[ilv1*gfx_canvassizex+ilv2] & 2) markstate^=1;
+			if (markstate) selection_lassobuffer[ilv1*gfx_canvassizex+ilv2]|=0x80;
+		}
+	}
+}
 _small getother(_small inatom, _small inbond)
 {
 	if (bond_actual_node[inbond].end==inatom)

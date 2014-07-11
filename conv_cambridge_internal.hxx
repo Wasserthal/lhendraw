@@ -3,6 +3,11 @@ if (AUTOSTRUCT_EXISTS(CAMBRIDGE_ ## MACROPARAM_TYPE ## _instance,(*tl_CAMBRIDGE_
 {\
 	tl_ ## MACROPARAM_TYPE ## _instance.MACROPARAM_PARAM=(*tl_CAMBRIDGE_ ## MACROPARAM_TYPE ## _instance).MACROPARAM_PARAM;\
 }
+#define CAMBRIDGECONV_EXISTSTHEN2(MACROPARAM_TYPE,MACROPARAM_PARAM,MACROPARAM_PARAM2) \
+if (AUTOSTRUCT_EXISTS(CAMBRIDGE_ ## MACROPARAM_TYPE ## _instance,(*tl_CAMBRIDGE_ ## MACROPARAM_TYPE ## _instance),MACROPARAM_PARAM))\
+{\
+	tl_ ## MACROPARAM_TYPE ## _instance.MACROPARAM_PARAM2=(*tl_CAMBRIDGE_ ## MACROPARAM_TYPE ## _instance).MACROPARAM_PARAM;\
+}
 #define CAMBRIDGECONV_COLORCONV(MACROPARAM_TYPE) \
 {\
 	__label__ color_fertig;\
@@ -259,6 +264,10 @@ void CAMBRIDGECONV_graphic()
 	{
 		CAMBRIDGE_graphic_instance * tl_CAMBRIDGE_graphic_instance=(*tl_CAMBRIDGE_graphic_multilist).bufferlist+ilv1;
 		graphic_instance tl_graphic_instance;
+		if (tl_CAMBRIDGE_graphic_instance->SupersededBy!=0)
+		{
+			goto skip_because_superseded;
+		}
 		tl_graphic_instance=graphic_instance();
 		CAMBRIDGECONV_COLORCONV(graphic);
 		CAMBRIDGECONV_EXISTSTHEN(graphic,BoundingBox);
@@ -274,6 +283,7 @@ void CAMBRIDGECONV_graphic()
 		CAMBRIDGECONV_EXISTSTHEN(graphic,id);//TODO: possibly not needed. Remove?
 		CAMBRIDGECONV_EXISTSTHEN(graphic,Z);
 		(*tl_graphic_multilist).ADD(&tl_graphic_instance);
+		skip_because_superseded:;
 	}
 }
 void CAMBRIDGECONV_arrow()

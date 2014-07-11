@@ -725,7 +725,6 @@ void issuedrag(int iposx,int iposy)
 				if (tlmultilist==NULL) goto i_control4_fertig;
 				CDXMLREAD_functype tldummy;
 				ioffset=(*tlmultilist).getproperties("xyz",&tldummy);
-				if (ioffset<0) goto i_control4_fertig;
 				ibufferpos=(char*)((*tlmultilist).pointer);
 				cdx_Point2D * tlpoint2d;
 				for (int ilv2=0;ilv2<(*tlmultilist).filllevel;ilv2++)
@@ -734,9 +733,21 @@ void issuedrag(int iposx,int iposy)
 					{
 						if ((*((basic_instance*)(ibufferpos+isize*ilv2))).exist)
 						{
-							tlpoint2d = ((cdx_Point2D*)(ibufferpos+isize*ilv2+ioffset));
-							(*tlpoint2d).x+=ideltax/SDL_zoomx;
-							(*tlpoint2d).y+=ideltay/SDL_zoomy;
+							if (ioffset<0)
+							{
+								float tl_x=0;
+								float tl_y=0;
+								retrievepoints_basic(((basic_instance*)(ibufferpos+isize*ilv2)),&tl_x,&tl_y,0,ilv1);
+								tl_x+=ideltax/SDL_zoomx;
+								tl_y+=ideltay/SDL_zoomy;
+								placepoints_basic(((basic_instance*)(ibufferpos+isize*ilv2)),tl_x,tl_y,0,ilv1);
+							}
+							else
+							{
+								tlpoint2d = ((cdx_Point2D*)(ibufferpos+isize*ilv2+ioffset));
+								(*tlpoint2d).x+=ideltax/SDL_zoomx;
+								(*tlpoint2d).y+=ideltay/SDL_zoomy;
+							}
 						}
 					}
 				}
@@ -896,6 +907,7 @@ void issuerelease()
 				}
 				break;
 			}
+			selection_clearselection(selection_clickselection);selection_clickselection_found=0;
 			for (int ilv1=0;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
 			{
 				icompare=1<<ilv1;
@@ -912,8 +924,7 @@ void issuerelease()
 						if ((*((basic_instance*)(ibufferpos+isize*ilv2))).exist)
 						{
 							int ilv3=0;
-							i_control2_back:
-							if (retrievepoints_basic((basic_instance*)(ibufferpos+isize*ilv2),&tlpx,&tlpy,ilv3,ilv1)>0)
+							while (retrievepoints_basic((basic_instance*)(ibufferpos+isize*ilv2),&tlpx,&tlpy,ilv3,ilv1)>0)
 							{
 								if ((tlpx>=selection_frame.startx) && (tlpx<=selection_frame.endx))
 								{
@@ -924,7 +935,6 @@ void issuerelease()
 									}
 								}
 								ilv3++;
-								goto i_control2_back;
 							}
 						}
 					}
@@ -941,8 +951,84 @@ void issuerelease()
 				checkupinconsistencies();
 				break;
 			}
+			//TODO: what if not moved
 			selection_lassotrail(control_posx,control_posy,selection_lassostartx,selection_lassostarty);
 			if (selection_lasso_up==2) selection_lasso_putpixel(selection_lassostartx,selection_lassostarty,1);
+			selection_lassofill();
+			selection_clearselection(selection_clickselection);selection_clickselection_found=0;
+			for (int ilv1=1;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
+			{
+				icompare=1<<ilv1;
+				int isize= STRUCTURE_OBJECTTYPE_List[ilv1].size;
+				basicmultilist * tlmultilist=findmultilist(STRUCTURE_OBJECTTYPE_List[ilv1].name);
+				if (tlmultilist==NULL) goto i_control3_fertig;
+				ibufferpos=(char*)((*tlmultilist).pointer);
+				float tlpx,tlpy;
+				int tl_x,tl_y;
+				if (tlmultilist!=NULL)
+				{
+					for (int ilv2=0;ilv2<(*tlmultilist).filllevel;ilv2++)
+					{
+						if ((*((basic_instance*)(ibufferpos+isize*ilv2))).exist)
+						{
+							int ilv3=0;
+							int ilv4;
+							char markstate=0;
+							//goto considered helpful
+							//I am not kidding. Mixing goto statements into if constructs means just:
+							//continue exactly as you would have done in the other case.
+							while (retrievepoints_basic((basic_instance*)(ibufferpos+isize*ilv2),&tlpx,&tlpy,ilv3,ilv1)>0)
+							{
+								tl_x=(tlpx-SDL_scrollx)*SDL_zoomx;
+								tl_y=(tlpy-SDL_scrolly)*SDL_zoomy;
+								if ((tl_x<0)|| (tl_y<0) || (tl_y>=gfx_canvassizey))
+								{
+									markstate=0;
+									ilv4=0;
+									i_control3_hub:;
+									for (;ilv4<selection_lassohub[tl_y+10000].count;ilv4++)
+									{
+										if (selection_lassohub[tl_y+10000].items[ilv4]>tl_x)
+										{
+											goto i_control3_hubdone;
+										}
+										markstate^=1;
+									}
+									i_control3_hubdone:;
+									if (markstate)
+									{
+										goto i_control3_yesselect;
+									}
+								}
+								else
+								{
+									if (tl_x>=gfx_canvassizex) 
+									{
+										markstate=((selection_lassobuffer[tl_y*gfx_canvassizex+gfx_canvassizex-1]&0x80)!=0);
+										for (ilv4=0;ilv4<selection_lassohub[tl_y+10000].count;ilv4++)
+										{
+											if (selection_lassohub[tl_y+10000].items[ilv4]>0)//right of canvas
+											{
+												goto i_control3_hub;
+											}
+										}
+										goto i_control3_hub;
+									}
+									if (selection_lassobuffer[tl_y*gfx_canvassizex+tl_x]&0x80)
+									{
+										i_control3_yesselect:;
+										selection_clickselection[ilv2]|=icompare;
+										selection_clickselection_found|=icompare;
+									}
+								}
+								ilv3++;
+							}
+						}
+					}
+				}
+				i_control3_fertig:;
+			}
+			KEYDEPENDENTSELECTION;
 			break;
 		}
 		case 5:

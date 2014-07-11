@@ -105,6 +105,7 @@ int get_bond_between(int inatom1, int inatom2)
 			return ilv1;
 		}
 	}
+	return -3;
 }
 basic_instance * gethot(int ino,int * nr=NULL)
 {
@@ -125,6 +126,53 @@ basic_instance * gethot(int ino,int * nr=NULL)
 	}
 	return NULL;
 }
+inline int retrievepoints(n_instance * iinstance,float * ix,float * iy,int inumber)
+{
+	if (inumber>0) return 0;
+	(*ix)=(*iinstance).xyz.x;
+	(*iy)=(*iinstance).xyz.y;
+	return 1;
+}
+inline int retrievepoints(b_instance * iinstance,float * ix,float * iy,int inumber)
+{
+	if (inumber>0) return 0;
+	n_instance *iinstance1=NULL;
+	n_instance *iinstance2=NULL;
+	for (int ilv1=0;ilv1<(*glob_n_multilist).filllevel;ilv1++)
+	{
+		n_instance * tlinstance=&((*glob_n_multilist).bufferlist[ilv1]);
+		if ((*tlinstance).exist)
+		{
+			if ((*tlinstance).id==(*iinstance).B)
+			{
+				iinstance1=tlinstance;
+			}
+			if ((*tlinstance).id==(*iinstance).E)
+			{
+				iinstance2=tlinstance;
+			}
+		}
+	}
+	if (iinstance1==NULL) {return -3;}
+	if (iinstance2==NULL) {return -3;}
+	(*ix)=((*iinstance1).xyz.x+(*iinstance2).xyz.x)*0.5;
+	(*iy)=((*iinstance1).xyz.y+(*iinstance2).xyz.y)*0.5;
+	return 1;
+}
+inline int retrievepoints(graphic_instance * iinstance,float * ix,float * iy,int inumber)
+{
+	if (inumber>0) return 0;
+	(*ix)=(*iinstance).BoundingBox.right;
+	(*iy)=(*iinstance).BoundingBox.bottom;
+	return 1;
+}
+inline int retrievepoints(arrow_instance * iinstance,float * ix,float * iy,int inumber)
+{
+	if (inumber>0) return 0;
+	(*ix)=((*iinstance).Head3D.x+(*iinstance).Tail3D.x)/2;
+	(*iy)=((*iinstance).Head3D.y+(*iinstance).Tail3D.y)/2;
+	return 1;
+}
 int hit(n_instance * iinstance,float ix,float iy)
 {
 	if ((sqr(ix-(*iinstance).xyz.x)+sqr(iy-(*iinstance).xyz.y))<glob_clickradius)
@@ -135,8 +183,8 @@ int hit(n_instance * iinstance,float ix,float iy)
 }
 int hit(b_instance * iinstance,float ix,float iy)
 {
-	n_instance *iinstance1=0;
-	n_instance *iinstance2=0;
+	n_instance *iinstance1=NULL;
+	n_instance *iinstance2=NULL;
 	for (int ilv1=0;ilv1<(*glob_n_multilist).filllevel;ilv1++)
 	{
 		n_instance * tlinstance=&((*glob_n_multilist).bufferlist[ilv1]);
@@ -160,6 +208,97 @@ int hit(b_instance * iinstance,float ix,float iy)
 	}
 	return 0;
 }
+int hit(graphic_instance * iinstance,float ix,float iy)
+{
+	float tl_x,tl_y;
+	retrievepoints(iinstance,&tl_x,&tl_y,0);
+	if ((sqr(ix-tl_x)+sqr(iy-tl_y))<glob_clickradius)
+	{
+		return 1;
+	}
+	return 0;
+}
+int hit(arrow_instance * iinstance,float ix,float iy)
+{
+	float tl_x,tl_y;
+	retrievepoints(iinstance,&tl_x,&tl_y,0);
+	if ((sqr(ix-tl_x)+sqr(iy-tl_y))<glob_clickradius)
+	{
+		return 1;
+	}
+	return 0;
+}
+inline int placepoints(n_instance * iinstance,float ix,float iy,int inumber)
+{
+	if (inumber>0) return 0;
+	(*iinstance).xyz.x=ix;
+	(*iinstance).xyz.y=iy;
+	return 1;
+}
+inline int placepoints(b_instance * iinstance,float ix,float iy,int inumber)
+{
+	if (inumber>0) return 0;
+	float tl_x,tl_y;
+	retrievepoints(iinstance,&tl_x,&tl_y,0);
+	tl_x-=ix;
+	tl_y-=iy;
+	n_instance *iinstance1=NULL;
+	n_instance *iinstance2=NULL;
+	for (int ilv1=0;ilv1<(*glob_n_multilist).filllevel;ilv1++)
+	{
+		n_instance * tlinstance=&((*glob_n_multilist).bufferlist[ilv1]);
+		if ((*tlinstance).exist)
+		{
+			if ((*tlinstance).id==(*iinstance).B)
+			{
+				if (selection_currentselection[ilv1] & (1<<STRUCTURE_OBJECTTYPE_n)) return 0;
+				iinstance1=tlinstance;
+			}
+			if ((*tlinstance).id==(*iinstance).E)
+			{
+				if (selection_currentselection[ilv1] & (1<<STRUCTURE_OBJECTTYPE_n)) return 0;
+				iinstance2=tlinstance;
+			}
+		}
+	}
+	if (iinstance1==NULL) {return -3;}
+	if (iinstance2==NULL) {return -3;}
+	(*iinstance1).xyz.x-=tl_x;
+	(*iinstance1).xyz.y-=tl_y;
+	return 1;
+}
+inline int placepoints(graphic_instance * iinstance,float ix,float iy,int inumber)
+{
+	if (inumber>0) return 0;
+	float tl_x,tl_y;
+	retrievepoints(iinstance,&tl_x,&tl_y,0);
+	tl_x-=ix;
+	tl_y-=iy;
+	(*iinstance).BoundingBox.left-=tl_x;
+	(*iinstance).BoundingBox.top-=tl_y;
+	(*iinstance).BoundingBox.right-=tl_x;
+	(*iinstance).BoundingBox.bottom-=tl_y;
+	return 1;
+}
+inline int placepoints(arrow_instance * iinstance,float ix,float iy,int inumber)
+{
+	if (inumber>0) return 0;
+	float tl_x,tl_y;
+	retrievepoints(iinstance,&tl_x,&tl_y,0);
+	tl_x-=ix;
+	tl_y-=iy;
+	(*iinstance).Head3D.x-=tl_x;
+	(*iinstance).Head3D.y-=tl_y;
+	(*iinstance).Tail3D.x-=tl_x;
+	(*iinstance).Tail3D.y-=tl_y;
+	(*iinstance).Center3D.x-=tl_x;
+	(*iinstance).Center3D.y-=tl_y;
+	(*iinstance).MajorAxisEnd3D.x-=tl_x;
+	(*iinstance).MajorAxisEnd3D.y-=tl_y;
+	(*iinstance).MinorAxisEnd3D.x-=tl_x;
+	(*iinstance).MinorAxisEnd3D.y-=tl_y;
+	return 1;
+}
 template <class thisinstance> inline int clickfor_template(float posx,float posy,int objecttype)
 {
 	char found=0;
@@ -178,39 +317,6 @@ template <class thisinstance> inline int clickfor_template(float posx,float posy
 	}
 	return found;
 }
-inline int retrievepoints(n_instance * iinstance,float * ix,float * iy,int inumber)
-{
-	if (inumber>0) return 0;
-	(*ix)=(*iinstance).xyz.x;
-	(*iy)=(*iinstance).xyz.y;
-	return 1;
-}
-inline int retrievepoints(b_instance * iinstance,float * ix,float * iy,int inumber)
-{
-	if (inumber>0) return 0;
-	n_instance *iinstance1=0;
-	n_instance *iinstance2=0;
-	for (int ilv1=0;ilv1<(*glob_n_multilist).filllevel;ilv1++)
-	{
-		n_instance * tlinstance=&((*glob_n_multilist).bufferlist[ilv1]);
-		if ((*tlinstance).exist)
-		{
-			if ((*tlinstance).id==(*iinstance).B)
-			{
-				iinstance1=tlinstance;
-			}
-			if ((*tlinstance).id==(*iinstance).E)
-			{
-				iinstance2=tlinstance;
-			}
-		}
-	}
-	if (iinstance1==NULL) {return -3;}
-	if (iinstance2==NULL) {return -3;}
-	(*ix)=((*iinstance1).xyz.x+(*iinstance2).xyz.x)*0.5;
-	(*iy)=((*iinstance1).xyz.y+(*iinstance2).xyz.y)*0.5;
-	return 1;
-}
 
 #define LOCALMACRO_1(whatabout) case STRUCTURE_OBJECTTYPE_ ## whatabout: return retrievepoints((whatabout ## _instance*)iinstance,ix,iy,inumber);break;
 int retrievepoints_basic(basic_instance * iinstance,float * ix,float * iy,int inumber,int objecttype)
@@ -219,6 +325,21 @@ int retrievepoints_basic(basic_instance * iinstance,float * ix,float * iy,int in
 	{
 		LOCALMACRO_1(n)
 		LOCALMACRO_1(b)
+		LOCALMACRO_1(graphic)
+		LOCALMACRO_1(arrow)
+	}
+	return 0;
+}
+#undef LOCALMACRO_1
+#define LOCALMACRO_1(whatabout) case STRUCTURE_OBJECTTYPE_ ## whatabout: return placepoints((whatabout ## _instance*)iinstance,ix,iy,inumber);break;
+int placepoints_basic(basic_instance * iinstance,float ix,float iy,int inumber,int objecttype)
+{
+	switch (objecttype)
+	{
+		LOCALMACRO_1(n)
+		LOCALMACRO_1(b)
+		LOCALMACRO_1(graphic)
+		LOCALMACRO_1(arrow)
 	}
 	return 0;
 }
@@ -231,7 +352,10 @@ int clickfor(float ix,float iy,int objecttype,float iclickradius=constants_click
 	{
 		LOCALMACRO_1(n)
 		LOCALMACRO_1(b)
+		LOCALMACRO_1(graphic)
+		LOCALMACRO_1(arrow)
 	}
+	return 0;
 }
 #undef LOCALMACRO_1
 

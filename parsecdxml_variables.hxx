@@ -5,26 +5,9 @@
 //and there is a reference to the bufferstart-relative position of its TELESCOPE.
 //Some objects have no TELESCOPE. In this case, the pointer points to the TELESCOPE of the next object that has one, or at the end of the buffer
 //because that is the position where a TELESCOPE should be inserted for that object.
-char *glob_n_undo_buffer;
-char *glob_n_undo_contentbuffer;
-char *glob_arrow_undo_buffer;
-char *glob_arrow_undo_contentbuffer;
-char *glob_b_undo_buffer;
-char *glob_b_undo_contentbuffer;
-char *glob_graphic_undo_buffer;
-char *glob_graphic_undo_contentbuffer;
-char *glob_text_undo_buffer;
-char *glob_text_undo_contentbuffer;
 TELESCOPE_buffer filestructure_text_buffer;
 TELESCOPE_buffer filestructure_curve_buffer;
-TELESCOPE_buffer internalstructure_text_buffer;
-TELESCOPE_buffer internalstructure_b_buffer;
-TELESCOPE_buffer internalstructure_n_buffer;
-TELESCOPE_buffer internalstructure_arrow_buffer;
-TELESCOPE_buffer internalstructure_text_undobuffer;
-TELESCOPE_buffer internalstructure_b_undobuffer;
-TELESCOPE_buffer internalstructure_n_undobuffer;
-TELESCOPE_buffer internalstructure_arrow_undobuffer;
+intl LHENDRAW_buffersize=1048576;
 char LHENDRAW_filedlgmode=0;
 char LHENDRAW_leave=0;
 #define selection_maxbuttons 46
@@ -42,6 +25,7 @@ float glob_clickradius=170;
 #define constants_Directoryslash '\\'
 #endif
 _u32 resources_bitmap_buttons[selection_maxbuttons][32][32];
+extern TELESCOPE_buffer glob_contentbuffer[];
 struct TELESCOPE_tempvar_
 {
 	int pos;//object inside buffer
@@ -63,6 +47,7 @@ char control_devicememory_buffer[255][64];
 _u32 control_filememory_attribs[255];
 int menu_selectedmenuelement;
 char control_filemenu_mode=0;
+int undo_undodirty=0;
 structenum control_devicememory
 {
 	{"control_devicememory"},
@@ -75,7 +60,7 @@ structenum control_filememory
 };
 char control_currentdirectory[1024];
 char control_filenamehead[256];
-void TELESCOPE_measure(int tag)
+void TELESCOPE_measure(int tag,TELESCOPE_buffer * ibuffer)
 {
 	TELESCOPE * start;
 	TELESCOPE_element * tl_telescope_element;
@@ -83,17 +68,17 @@ void TELESCOPE_measure(int tag)
 	int share=0;
 	printf("start\n");
 	iback:
-	start=(TELESCOPE*)(((char*)((internalstructure_text_buffer).buffer))+total);
+	start=(TELESCOPE*)(((char*)((*ibuffer).buffer))+total);
 	printf("le:%iow:%i\n",start->length,start->owner);
 /*	for (int ilv1=0;ilv1<20;ilv1++)
 	{
-		printf("%02hhX ",*(((char*)((internalstructure_text_buffer).buffer))+ilv1));
+		printf("%02hhX ",*(((char*)((*ibuffer).buffer))+ilv1));
 	}
 	printf("\n");*/
 	share=0;
 	iback2:
-	tl_telescope_element=(TELESCOPE_element*)(((char*)((internalstructure_text_buffer).buffer))+total+sizeof(TELESCOPE)+share);
-	printf("  le:%ity:%i:%s\n",tl_telescope_element->length,tl_telescope_element->type,((char*)((internalstructure_text_buffer).buffer))+total+sizeof(TELESCOPE)+share+TELESCOPE_ELEMENTTYPE_List[tag].size);
+	tl_telescope_element=(TELESCOPE_element*)(((char*)((*ibuffer).buffer))+total+sizeof(TELESCOPE)+share);
+	printf("  le:%ity:%i:%s\n",tl_telescope_element->length,tl_telescope_element->type,((char*)((*ibuffer).buffer))+total+sizeof(TELESCOPE)+share+TELESCOPE_ELEMENTTYPE_List[tag].size);
 	if (tl_telescope_element->length==0)
 	{
 		goto idontgoback;
@@ -105,12 +90,15 @@ void TELESCOPE_measure(int tag)
 	}
 	idontgoback:
 	total+=start->length;
-	if (total<internalstructure_text_buffer.count)
+	if (total<(*ibuffer).count)
 	{
 		goto iback;
 	}
 	return;
 }
+int undosteps_count=0;
+int currentundostep=-1;
+TELESCOPE_buffer * undo_retrievecontentbuffer(intl start,intl list,intl * auxno=NULL);
 int getbufferfromstructure(basicmultilist * input,TELESCOPE_buffer * * bufferptr)
 {
 	if (input==CAMBRIDGEPREFIX2(glob,s_multilist))
@@ -123,7 +111,7 @@ int getbufferfromstructure(basicmultilist * input,TELESCOPE_buffer * * bufferptr
 		(*bufferptr)=&filestructure_curve_buffer;
 		return 1;
 	}
-	if (input==glob_t_multilist)
+/*	if (input==glob_t_multilist)
 	{
 		(*bufferptr)=&internalstructure_text_buffer;
 		return 1;
@@ -137,6 +125,22 @@ int getbufferfromstructure(basicmultilist * input,TELESCOPE_buffer * * bufferptr
 	{
 		(*bufferptr)=&internalstructure_arrow_buffer;
 		return 1;
+	}*/
+	char * name=NULL;
+	for (int ilv1=0;ilv1<multilist_count;ilv1++)
+	{
+		if (multilistlist[ilv1].instance==input)
+		{
+			name=multilistlist[ilv1].name;
+		}
+	}
+	for (int ilv1=1;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
+	{
+		if (strcmp(name,STRUCTURE_OBJECTTYPE_List[ilv1].name)==0)
+		{
+			(*bufferptr)=glob_contentbuffer+ilv1;
+			return 1;
+		}
 	}
 	return 0;
 }
@@ -516,30 +520,10 @@ void * TELESCOPE_getproperty_contents()//Like before, but returns the pointer to
 }
 int initmemory()
 {
-	filestructure_text_buffer.buffer=(char*)malloc(1000000);
-	filestructure_text_buffer.max=1000000;
+	filestructure_text_buffer.buffer=(char*)malloc(LHENDRAW_buffersize);
+	filestructure_text_buffer.max=LHENDRAW_buffersize;
 	filestructure_text_buffer.count=0;
-	filestructure_curve_buffer.buffer=(char*)malloc(1000000);
-	filestructure_curve_buffer.max=1000000;
+	filestructure_curve_buffer.buffer=(char*)malloc(LHENDRAW_buffersize);
+	filestructure_curve_buffer.max=LHENDRAW_buffersize;
 	filestructure_curve_buffer.count=0;
-	internalstructure_text_buffer.buffer=(char*)malloc(1000000);
-	internalstructure_text_buffer.max=1000000;
-	internalstructure_text_buffer.count=0;
-	internalstructure_n_buffer.buffer=(char*)malloc(1000000);
-	internalstructure_n_buffer.max=1000000;
-	internalstructure_n_buffer.count=0;
-	internalstructure_arrow_buffer.buffer=(char*)malloc(1000000);
-	internalstructure_arrow_buffer.max=1000000;
-	internalstructure_arrow_buffer.count=0;
-	internalstructure_b_buffer.buffer=(char*)malloc(1000000);
-	internalstructure_b_buffer.max=1000000;
-	internalstructure_b_buffer.count=0;
-	glob_n_undo_buffer=(char*)malloc(sizeof(multilist<n_instance>)+sizeof(n_instance)*bufferlistsize);
-	glob_arrow_undo_buffer=(char*)malloc(sizeof(multilist<arrow_instance>)+sizeof(arrow_instance)*bufferlistsize);
-	glob_b_undo_buffer=(char*)malloc(sizeof(multilist<b_instance>)+sizeof(b_instance)*bufferlistsize);
-	glob_graphic_undo_buffer=(char*)malloc(sizeof(multilist<n_instance>)+sizeof(n_instance)*bufferlistsize);
-	glob_text_undo_contentbuffer=(char*)malloc(1000000);
-	glob_b_undo_contentbuffer=(char*)malloc(1000000);
-	glob_n_undo_contentbuffer=(char*)malloc(1000000);
-	glob_arrow_undo_contentbuffer=(char*)malloc(1000000);
 }

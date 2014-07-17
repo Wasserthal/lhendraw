@@ -1,127 +1,176 @@
-
-char storeundo(_u32 flags)
+struct undo_singlebuffer
 {
-	int ilv0;
-	for (int ilv1=0;ilv1<sizeof(multilist<n_instance>);ilv1++)
+	char * buffer;//When==NULL, this buffer is empty, apply the buffer of the parent
+	char * contentbuffer;//NULL if no buffer.
+	char imultilist[sizeof(multilist<basic_instance>)];
+	TELESCOPE_buffer bufferhead;
+};
+struct undo_undostep_
+{
+	undo_singlebuffer handles[sizeof(STRUCTURE_OBJECTTYPE_List)/sizeof(trienum)];
+	char commandname[80];
+	int parent;//Number of the step it arose from. -1 for "is the first parent"
+};
+undo_undostep_ undosteps[4000];
+TELESCOPE_buffer glob_contentbuffer[sizeof(STRUCTURE_OBJECTTYPE_List)/sizeof(trienum)];
+char * undo_retrievebuffer(intl start,intl list,intl * auxno=NULL)
+{
+	intl current=start;
+	char * wert;
+	iback:;
+	if ((wert=undosteps[current].handles[list].buffer)!=NULL)
 	{
-		glob_n_undo_buffer[ilv1]=((char*)(glob_n_multilist))[ilv1];
+		return wert;
 	}
-	for (int ilv1=0,ilv0=sizeof(multilist<n_instance>);ilv1<sizeof(n_instance)*bufferlistsize;ilv1++,ilv0++)
+	else
 	{
-		glob_n_undo_buffer[ilv0]=((char*)((*glob_n_multilist).bufferlist))[ilv1];
+		current=undosteps[current].parent;
 	}
-	for (int ilv1=0;ilv1<1000000;ilv1++)
+	if (current==-1) return NULL;
+	goto iback;
+}
+TELESCOPE_buffer * undo_retrievecontentbuffer(intl start,intl list,intl * auxno)
+{
+	intl current=start;
+	char * wert;
+	iback:;
+	if ((wert=undosteps[current].handles[list].contentbuffer)!=NULL)
 	{
-		glob_n_undo_contentbuffer[ilv1]=internalstructure_n_buffer.buffer[ilv1];
+		return &(undosteps[current].handles[list].bufferhead);
 	}
-	internalstructure_n_undobuffer.max=internalstructure_n_buffer.max;
-	internalstructure_n_undobuffer.count=internalstructure_n_buffer.count;
-	for (int ilv1=0;ilv1<sizeof(multilist<b_instance>);ilv1++)
+	else
 	{
-		glob_b_undo_buffer[ilv1]=((char*)(glob_b_multilist))[ilv1];
+		current=undosteps[current].parent;
 	}
-	for (int ilv1=0,ilv0=sizeof(multilist<b_instance>);ilv1<sizeof(b_instance)*bufferlistsize;ilv1++,ilv0++)
+	if (current==-1) return NULL;
+	goto iback;
+}
+int init_buffers()
+{
+	for (int ilv1=0;ilv1<sizeof(STRUCTURE_OBJECTTYPE_List)/sizeof(trienum);ilv1++)
 	{
-		glob_b_undo_buffer[ilv0]=((char*)((*glob_b_multilist).bufferlist))[ilv1];
+		glob_contentbuffer[ilv1].buffer=(char*)malloc(LHENDRAW_buffersize);
+		glob_contentbuffer[ilv1].max=LHENDRAW_buffersize;
+		glob_contentbuffer[ilv1].count=0;
 	}
-	for (int ilv1=0;ilv1<1000000;ilv1++)
+	return 0;
+}
+int undo_trackredo(int param)
+{
+	for (int ilv1=undosteps_count-1;ilv1>=0;ilv1--)
 	{
-		glob_b_undo_contentbuffer[ilv1]=internalstructure_b_buffer.buffer[ilv1];
+		if (undosteps[ilv1].parent==currentundostep)
+		{
+			currentundostep=ilv1;
+			return 1;
+		}
 	}
-	internalstructure_b_undobuffer.max=internalstructure_b_buffer.max;
-	internalstructure_b_undobuffer.count=internalstructure_b_buffer.count;
-/*	for (int ilv1=0;ilv1<sizeof(multilist<text_instance>);ilv1++)
+//	printf("-%i\n",currentundostep);
+	return -1;
+}
+int undo_trackundo()
+{
+	int lastundostep=currentundostep;
+	if (currentundostep==-1) return -1;
+	currentundostep=undosteps[currentundostep].parent;
+	if (currentundostep==-1)
 	{
-		glob_text_undo_buffer[ilv1]=((char*)(glob_text_multilist))[ilv1];
+		currentundostep=lastundostep;
 	}
-	for (int ilv1=0,ilv0=sizeof(multilist<text_instance>);ilv1<sizeof(text_instance)*bufferlistsize;ilv1++,ilv0++)
+//	printf("%i\n",currentundostep);
+	return 0;
+}
+int storeundo(_u32 flags)
+{
+	intl imax=0;
+	basicmultilist * tl_multilist;
+	if (undosteps_count>=4000) return -1;//TODO: remove one UNDO level to free memory!
+	for (int ilv1=1;ilv1<sizeof(STRUCTURE_OBJECTTYPE_List)/sizeof(trienum);ilv1++)
 	{
-		glob_text_undo_buffer[ilv0]=((char*)((*glob_text_multilist).bufferlist))[ilv1];
+		if (tl_multilist=findmultilist(STRUCTURE_OBJECTTYPE_List[ilv1].name))
+		{
+			if (flags & (1<<ilv1))
+			{
+				undosteps[undosteps_count].handles[ilv1].buffer=(char*)malloc(LHENDRAW_buffersize);
+				undosteps[undosteps_count].handles[ilv1].contentbuffer=(char*)malloc(LHENDRAW_buffersize);
+				imax=min(LHENDRAW_buffersize,glob_contentbuffer[ilv1].count)/sizeof(intl);
+				for (int ilv3=0;ilv3<imax;ilv3++)
+				{
+					((intl*)(undosteps[undosteps_count].handles[ilv1].contentbuffer))[ilv3]=((intl*)(glob_contentbuffer[ilv1].buffer))[ilv3];
+				}
+				for (int ilv2=0;ilv2<sizeof(multilist<basic_instance>);ilv2++)
+				{
+					((char*)(undosteps[undosteps_count].handles[ilv1].imultilist))[ilv2]=((char*)(tl_multilist))[ilv2];
+				}
+				imax=min(LHENDRAW_buffersize,(tl_multilist->itemsize*tl_multilist->filllevel+sizeof(intl)-1))/sizeof(intl);
+				for (int ilv3=0;ilv3<imax;ilv3++)
+				{
+					((intl*)(undosteps[undosteps_count].handles[ilv1].buffer))[ilv3]=((intl*)((*tl_multilist).pointer))[ilv3];
+				}
+				undosteps[undosteps_count].handles[ilv1].bufferhead.count=glob_contentbuffer[ilv1].count;
+			}
+			else
+			{
+				undosteps[undosteps_count].handles[ilv1].buffer=NULL;
+				undosteps[undosteps_count].handles[ilv1].contentbuffer=NULL;
+			}
+			undosteps[undosteps_count].handles[ilv1].bufferhead.max=LHENDRAW_buffersize;
+			undosteps[undosteps_count].handles[ilv1].bufferhead.buffer=undosteps[undosteps_count].handles[ilv1].contentbuffer;
+		}
 	}
-	for (int ilv1=0;ilv1<1000000;ilv1++)
-	{
-		glob_text_undo_contentbuffer[ilv1]=internalstructure_text_buffer.buffer[ilv1];
-	}
-	internalstructure_text_undobuffer.max=internalstructure_text_buffer.max;
-	internalstructure_text_undobuffer.count=internalstructure_text_buffer.count;*/
-	for (int ilv1=0;ilv1<sizeof(multilist<arrow_instance>);ilv1++)
-	{
-		glob_arrow_undo_buffer[ilv1]=((char*)(glob_arrow_multilist))[ilv1];
-	}
-	for (int ilv1=0,ilv0=sizeof(multilist<arrow_instance>);ilv1<sizeof(arrow_instance)*bufferlistsize;ilv1++,ilv0++)
-	{
-		glob_arrow_undo_buffer[ilv0]=((char*)((*glob_arrow_multilist).bufferlist))[ilv1];
-	}
-	for (int ilv1=0;ilv1<1000000;ilv1++)
-	{
-		glob_arrow_undo_contentbuffer[ilv1]=internalstructure_arrow_buffer.buffer[ilv1];
-	}
-	internalstructure_arrow_undobuffer.max=internalstructure_arrow_buffer.max;
-	internalstructure_arrow_undobuffer.count=internalstructure_arrow_buffer.count;
+	undosteps[undosteps_count].parent=currentundostep;
+	currentundostep=undosteps_count;
+//	printf("\e[31m%i\e[0m\n",currentundostep);
+	undosteps_count++;
+	undo_undodirty=1;
 	return 1;
 }
-char restoreundo(_u32 flags,_u32 orderflags/*bit0: restore count only*/)//doesn't discard the old undo state, loads ONLY
+int restoreundo(_u32 flags,_u32 orderflags/*bit0: restore count only*/)//doesn't discard the old undo state, loads ONLY
 {
-	int ilv0;
-	int max;
-	for (int ilv1=0;ilv1<sizeof(multilist<n_instance>);ilv1++)
+	intl imax=0;
+	basicmultilist * tl_multilist;
+	if (currentundostep==-1) return -1;
+	intl * tl_buffer=NULL;
+	intl thatundostep;
+//	printf("\e[34m%i\e[0m\n",currentundostep);
+	for (int ilv1=1;ilv1<sizeof(STRUCTURE_OBJECTTYPE_List)/sizeof(trienum);ilv1++)
 	{
-		((char*)(glob_n_multilist))[ilv1]=glob_n_undo_buffer[ilv1];
-	}
-	if ((orderflags & 0)==0)
-	{
-		max=(sizeof(n_instance)*bufferlistsize/sizeof(intl));
-		intl * source=(intl*)(((char*)glob_n_undo_buffer)+sizeof(multilist<n_instance>));
-		intl * target=(intl*)((*glob_n_multilist).bufferlist);
-		for (int ilv1=0;ilv1<max;ilv1++)
+		if (tl_multilist=findmultilist(STRUCTURE_OBJECTTYPE_List[ilv1].name))
 		{
-			target[ilv1]=source[ilv1];
-		}
-		for (int ilv1=0;ilv1<1000000/sizeof(intl);ilv1++)
-		{
-			((intl*)(internalstructure_n_buffer.buffer))[ilv1]=((intl*)(glob_n_undo_contentbuffer))[ilv1];
-		}
-	}
-	internalstructure_n_buffer.max=internalstructure_n_undobuffer.max;
-	internalstructure_n_buffer.count=internalstructure_n_undobuffer.count;
-	for (int ilv1=0;ilv1<sizeof(multilist<b_instance>);ilv1++)
-	{
-		((char*)(glob_b_multilist))[ilv1]=glob_b_undo_buffer[ilv1];
-	}
-	if ((orderflags & 0)==0)
-	{
-		max=(sizeof(b_instance)*bufferlistsize/sizeof(intl));
-		intl * source=(intl*)(((char*)glob_b_undo_buffer)+sizeof(multilist<b_instance>));
-		intl * target=(intl*)((*glob_b_multilist).bufferlist);
-		for (int ilv1=0;ilv1<max;ilv1++)
-		{
-			target[ilv1]=source[ilv1];
-		}
-		for (int ilv1=0;ilv1<1000000/sizeof(intl);ilv1++)
-		{
-			((intl*)(internalstructure_b_buffer.buffer))[ilv1]=((intl*)(glob_b_undo_contentbuffer))[ilv1];
-		}
-	}
-	internalstructure_b_buffer.max=internalstructure_b_undobuffer.max;
-	internalstructure_b_buffer.count=internalstructure_b_undobuffer.count;
-	for (int ilv1=0;ilv1<sizeof(multilist<arrow_instance>);ilv1++)
-	{
-		((char*)(glob_arrow_multilist))[ilv1]=glob_arrow_undo_buffer[ilv1];
-	}
-	if ((orderflags & 0)==0)
-	{
-		max=(sizeof(arrow_instance)*bufferlistsize/sizeof(intl));
-		intl * source=(intl*)(((char*)glob_arrow_undo_buffer)+sizeof(multilist<arrow_instance>));
-		intl * target=(intl*)((*glob_arrow_multilist).bufferlist);
-		for (int ilv1=0;ilv1<max;ilv1++)
-		{
-			target[ilv1]=source[ilv1];
-		}
-		for (int ilv1=0;ilv1<1000000/sizeof(intl);ilv1++)
-		{
-			((intl*)(internalstructure_arrow_buffer.buffer))[ilv1]=((intl*)(glob_arrow_undo_contentbuffer))[ilv1];
+			if (flags & (1<<ilv1))
+			{
+				imax=min(LHENDRAW_buffersize,undosteps[currentundostep].handles[ilv1].bufferhead.count)/sizeof(intl);
+				tl_buffer=(intl*)(undosteps[currentundostep].handles[ilv1].contentbuffer);
+				if (tl_buffer==NULL)
+				{
+					tl_buffer=(intl*)(undo_retrievecontentbuffer(currentundostep,ilv1)->buffer);
+				}
+				for (int ilv3=0;ilv3<imax;ilv3++)
+				{
+					((intl*)(glob_contentbuffer[ilv1].buffer))[ilv3]=tl_buffer[ilv3];
+				}
+				thatundostep=currentundostep;
+				tl_buffer=(intl*)(undosteps[currentundostep].handles[ilv1].buffer);
+				if (tl_buffer==NULL)
+				{
+					tl_buffer=(intl*)(undo_retrievebuffer(currentundostep,ilv1,&thatundostep));
+				}
+				for (int ilv2=0;ilv2<sizeof(multilist<basic_instance>);ilv2++)
+				{
+					((char*)(tl_multilist))[ilv2]=((char*)(undosteps[thatundostep].handles[ilv1].imultilist))[ilv2];
+				}
+				imax=min(LHENDRAW_buffersize,(tl_multilist->itemsize*tl_multilist->filllevel+sizeof(intl)-1))/sizeof(intl);
+				for (int ilv3=0;ilv3<imax;ilv3++)
+				{
+					((intl*)((*tl_multilist).pointer))[ilv3]=(tl_buffer)[ilv3];
+				}
+				glob_contentbuffer[ilv1].count=undosteps[currentundostep].handles[ilv1].bufferhead.count;
+			}
+			undosteps[currentundostep].handles[ilv1].bufferhead.max=LHENDRAW_buffersize;
+			undosteps[currentundostep].handles[ilv1].bufferhead.buffer=undosteps[currentundostep].handles[ilv1].contentbuffer;
 		}
 	}
-	internalstructure_arrow_buffer.max=internalstructure_arrow_undobuffer.max;
-	internalstructure_arrow_buffer.count=internalstructure_arrow_undobuffer.count;
+	undo_undodirty=0;
+	return 1;
 }
+

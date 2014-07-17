@@ -67,7 +67,10 @@ int clockid=0;
 #include "selection.hxx"
 #include "conv_cambridge_internal.hxx"
 #include "conv_internal_cambridge.hxx"
-#include "undo.hxx"
+int storeundo(_u32 flags);
+int restoreundo(_u32 flags,_u32 orderflags);
+int undo_trackundo();
+int undo_trackredo(int variable);
 #include "edit.hxx"
 #include "pivot.hxx"
 #include "./generated/pullout_stringfile.hxx"
@@ -90,6 +93,7 @@ structenum REFLECTION_List[]{
 };
 int REFLECTION_ListSize=sizeof(REFLECTION_List)/sizeof(structenum);
 #include "cmdline.hxx"
+#include "undo.hxx"
 structenum * searchreflectedstruct(const char * input)
 {
 	for (int ilv1=0;ilv1<REFLECTION_ListSize;ilv1++)
@@ -116,6 +120,7 @@ int main(int argc,char * * argv)
 	initmemory();
 	automatic_init();
 	resources_init(argv[0]);
+	init_buffers();
 	for (int ilv1=0;ilv1<control_toolcount;ilv1++)
 	{
 		clickabilitymatrix_tooldependent[ilv1]=selection_clickabilitymatrix;

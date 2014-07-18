@@ -45,18 +45,7 @@ char pulloutlisting_string[]="\n"
 "	int maxx,maxy;\n"
 "}AUTOSTRUCT_PULLOUTLISTING_;\n"
 "_u32 nope;\n";
-#include "../toolbox.pullout.hxx"
-#include "../toolspecific_BOND.pullout.hxx"
-#include "../toolspecific_ATTRIBUTES.pullout.hxx"
-#include "../submenu_toolbox_M1.pullout.hxx"
-#include "../submenu_toolbox_M2.pullout.hxx"
-#include "../submenu_toolbox_M3.pullout.hxx"
-#include "../submenu_toolbox_M4.pullout.hxx"
-#include "../submenu_toolbox_M5.pullout.hxx"
-#include "../submenu_toolbox_M6.pullout.hxx"
-#include "../filedlg_buttons_save.pullout.hxx"
-#include "../filedlg_buttons_load.pullout.hxx"
-#include "../filedlg_lists.pullout.hxx"
+#include "../pullout.hxx"
 int stringlist_count=0;
 char nullstring[]="NULL";
 char nopestring[]="nope";
@@ -135,18 +124,7 @@ void main(int argc,char ** argv)
 	reflectfile=fopen("./generated/pullout_reflectfile.hxx","w+");
 	fprintf(structfile,"%s",pulloutlisting_string);
 	fprintf(stringfile,"char AUTOSTRUCT_STRINGLIST_PULLOUT[]=\n");
-	domenu(pullout_toolbox,sizeof(pullout_toolbox)/sizeof(menuitem),"toolbox");
-	domenu(pullout_toolspecific_BOND,sizeof(pullout_toolspecific_BOND)/sizeof(menuitem),"toolspecific_BOND");
-	domenu(pullout_toolspecific_ATTRIBUTES,sizeof(pullout_toolspecific_ATTRIBUTES)/sizeof(menuitem),"toolspecific_ATTRIBUTES");
-	domenu(pullout_submenu_toolbox_M1,sizeof(pullout_submenu_toolbox_M1)/sizeof(menuitem),"submenu_toolbox_M1");
-	domenu(pullout_submenu_toolbox_M2,sizeof(pullout_submenu_toolbox_M2)/sizeof(menuitem),"submenu_toolbox_M2");
-	domenu(pullout_submenu_toolbox_M3,sizeof(pullout_submenu_toolbox_M3)/sizeof(menuitem),"submenu_toolbox_M3");
-	domenu(pullout_submenu_toolbox_M4,sizeof(pullout_submenu_toolbox_M4)/sizeof(menuitem),"submenu_toolbox_M4");
-	domenu(pullout_submenu_toolbox_M5,sizeof(pullout_submenu_toolbox_M5)/sizeof(menuitem),"submenu_toolbox_M5");
-	domenu(pullout_submenu_toolbox_M6,sizeof(pullout_submenu_toolbox_M6)/sizeof(menuitem),"submenu_toolbox_M6");
-	domenu(pullout_filedlg_buttons_save,sizeof(pullout_filedlg_buttons_save)/sizeof(menuitem),"filedlg_buttons_save");
-	domenu(pullout_filedlg_buttons_load,sizeof(pullout_filedlg_buttons_load)/sizeof(menuitem),"filedlg_buttons_load");
-	domenu(pullout_filedlg_lists,sizeof(pullout_filedlg_lists)/sizeof(menuitem),"filedlg_lists");
+#include "../generated/pulloutmatic.hxx"
 	fprintf(stringfile,";\n");
 	
 	

@@ -30,6 +30,8 @@ sdl: ./generated/cambridgestructure.hxx ./generated/structure.hxx parsecdxml.cxx
 lennard_infget: makeinf.hxx makeinf_test.cxx cdxdata.hxx lendefs.h
 	g++ -g -O0 -std=c++0x -Wno-invalid-offsetof makeinf_test.cxx -o lennard_infget -D DEBUG -D MACHINE_READABLE -Wno-format
 pullout_stringfile.hxx: tools/pullout.c *.pullout.hxx
+	ls -1 *\.pullout.hxx | cut -d. -f 1 | xargs -I{} ./tools/pulloutmatic.sh {} > ./generated/pulloutmatic.hxx
+	cat *.pullout.hxx > pullout.hxx
 	gcc tools/pullout.c -o tools/pullout
 	./tools/pullout
 install:

@@ -932,13 +932,18 @@ catalogized_command_funcdef(SAVE)
 }
 catalogized_command_funcdef(UNDO)
 {
+	if (undo_undodirty) {storeundo(~0);}
+	undo_trackundo();
 	restoreundo(~0,0);
 	return 1;
 }
 catalogized_command_funcdef(REDO)
 {
-	printf("TODO***stub\n");
-	return 1;
+	if (undo_trackredo(0)>0)
+	{
+		return restoreundo(~0,0);
+	}
+	return 0;
 }
 catalogized_command_funcdef(SELECTALL)
 {

@@ -2,6 +2,12 @@ cdx_Point3D edit_pivot;
 intl edit_pivot_counter;
 void get_selection_pivot()
 {
+	intl ioffset;
+	char * ibufferpos;
+	_u32 icompare;
+	float tl_x,tl_y;
+	int internalpointcount;
+	char iAllofthem=0;
 	edit_pivot_counter=0;
 	edit_pivot.x=0;edit_pivot.y=0;edit_pivot.z=0;
 	for (int ilv1=0;ilv1<(*glob_n_multilist).filllevel;ilv1++)
@@ -18,6 +24,35 @@ void get_selection_pivot()
 			}
 		}
 	}
+	for (int ilv1=2;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
+	{
+		internalpointcount=retrieveprops_basic(-1,ilv1);
+		icompare=1<<ilv1;
+		int isize= STRUCTURE_OBJECTTYPE_List[ilv1].size;
+		basicmultilist * tlmultilist=findmultilist(STRUCTURE_OBJECTTYPE_List[ilv1].name);
+		if (tlmultilist==NULL) goto i_standard_fertig;
+		CDXMLREAD_functype tldummy;
+		ibufferpos=(char*)((*tlmultilist).pointer);
+		for (int ilv2=0;ilv2<(*tlmultilist).filllevel;ilv2++)
+		{
+			if ((*((basic_instance*)(ibufferpos+isize*ilv2))).exist)
+			{
+				iAllofthem=((selection_currentselection[ilv2]) & icompare)>0;
+				for (int ilv3=-1;retrievepoints_basic(((basic_instance*)(ibufferpos+isize*ilv2)),&tl_x,&tl_y,ilv3,ilv1)>0;ilv3--)
+				{
+					if (ilv3<=-3) continue;//HACK: this is a hack because some components are undefined
+					if ((selection_currentselection[ilv2*internalpointcount] & (1<<(STRUCTURE_OBJECTTYPE_ListSize+ilv1))) || (iAllofthem))
+					{
+						edit_pivot.x+=tl_x;
+						edit_pivot.y+=tl_y;
+						edit_pivot.z+=0;//TODO: tl_z
+						edit_pivot_counter++;
+					}
+				}
+			}
+		}
+		i_standard_fertig:;
+	}
 	edit_pivot.x/=edit_pivot_counter;
 	edit_pivot.y/=edit_pivot_counter;
 	edit_pivot.z/=edit_pivot_counter;
@@ -29,6 +64,8 @@ void applytransform(float matrix[3][3])
 	char * ibufferpos;
 	_u32 icompare;
 	cdx_Point3D xyz;
+	int internalpointcount;
+	char iAllofthem=0;
 	for (int ilv1=0;ilv1<(*glob_n_multilist).filllevel;ilv1++)
 	{
 		n_instance * tl_n_instance=(*glob_n_multilist).bufferlist+ilv1;
@@ -47,6 +84,7 @@ void applytransform(float matrix[3][3])
 	}
 	for (int ilv1=2;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
 	{
+		internalpointcount=retrieveprops_basic(-1,ilv1);
 		icompare=1<<ilv1;
 		int isize= STRUCTURE_OBJECTTYPE_List[ilv1].size;
 		basicmultilist * tlmultilist=findmultilist(STRUCTURE_OBJECTTYPE_List[ilv1].name);
@@ -55,18 +93,21 @@ void applytransform(float matrix[3][3])
 		ibufferpos=(char*)((*tlmultilist).pointer);
 		for (int ilv2=0;ilv2<(*tlmultilist).filllevel;ilv2++)
 		{
-			if ((selection_currentselection[ilv2]) & icompare)
+			if ((*((basic_instance*)(ibufferpos+isize*ilv2))).exist)
 			{
-				if ((*((basic_instance*)(ibufferpos+isize*ilv2))).exist)
+				iAllofthem=((selection_currentselection[ilv2]) & icompare);
+				for (int ilv3=-1;retrievepoints_basic(((basic_instance*)(ibufferpos+isize*ilv2)),&tl_x,&tl_y,ilv3,ilv1)>0;ilv3--)
 				{
-					retrievepoints_basic(((basic_instance*)(ibufferpos+isize*ilv2)),&tl_x,&tl_y,0,ilv1);
-					xyz.x=tl_x-edit_pivot.x;
-					xyz.y=tl_y-edit_pivot.y;
-					xyz.z=0-edit_pivot.z;//TODO: tl_z
-					tl_x=xyz.x*matrix[0][0]+xyz.y*matrix[1][0]+xyz.z*matrix[2][0]+edit_pivot.x;
-					tl_y=xyz.x*matrix[0][1]+xyz.y*matrix[1][1]+xyz.z*matrix[2][1]+edit_pivot.y;
-					//TODO: tl_z
-					placepoints_basic(((basic_instance*)(ibufferpos+isize*ilv2)),tl_x,tl_y,0,ilv1);
+					if ((selection_currentselection[ilv2*internalpointcount] & (1<<(STRUCTURE_OBJECTTYPE_ListSize+ilv1))) || (iAllofthem))
+					{
+						xyz.x=tl_x-edit_pivot.x;
+						xyz.y=tl_y-edit_pivot.y;
+						xyz.z=0-edit_pivot.z;//TODO: tl_z
+						tl_x=xyz.x*matrix[0][0]+xyz.y*matrix[1][0]+xyz.z*matrix[2][0]+edit_pivot.x;
+						tl_y=xyz.x*matrix[0][1]+xyz.y*matrix[1][1]+xyz.z*matrix[2][1]+edit_pivot.y;
+						//TODO: tl_z
+						placepoints_basic(((basic_instance*)(ibufferpos+isize*ilv2)),tl_x,tl_y,ilv3,ilv1);
+					}
 				}
 			}
 		}

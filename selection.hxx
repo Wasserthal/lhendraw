@@ -14,6 +14,9 @@ typedef struct clickabilitymatrix_
 	//list of object groups to process click following. For bit fields, see internal_enum.hxx
 	_u32 types2[8];//indexed as: 0x0: other 0x1: centers 0x2: auxpoints, e.g. endpoints 0x3: shape-specific graphic manipulators, like mid-arrow manipulators or corner roundness selectionlers 0x4: lines 0x5: area 0x6: virtual scaling handles 
 }clickabilitymatrix_;
+//Numbering of handles inside the object:
+//The actual object has number 0. Auxpoints are numbered with positive numbers, internal coordinate system data with negative numbers.
+//The selection bits from STRUCTURE_OBJECTTYPE_ListSize upwards list auxpoints, in a row for the same object
 clickabilitymatrix_ selection_clickabilitymatrix={2,0,0,
 {0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF}};
 void selection_clearselection(selection_ iselection)

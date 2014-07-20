@@ -183,6 +183,7 @@ int issueshiftstart()
 int interpretkey(int listnr=-1)
 {
 	_u32 modifierpattern;
+	char undostored=0;
 	int ilv1,ilv2;
 	_u32 tltype;
 	char keystring[4]={0,0,0,0};
@@ -192,7 +193,6 @@ int interpretkey(int listnr=-1)
 	_u32 hotties=0;
 	getatoms();
 	if (listnr!=-1) {ilv1=listnr;goto interpreted;}
-	storeundo(~0);
 	switch (control_Event.key.keysym.sym)
 	{
 		case SDLK_F1: keystring[0]='F';keystring[1]='1';break;
@@ -286,6 +286,8 @@ int interpretkey(int listnr=-1)
 				{
 					if ((hotkeylist[ilv1].modifiers & ((~((_u32)(1-careaboutshift)))))==modifierpattern)
 					{
+
+						if ((undostored==0) && (hotkeylist[ilv1].UNDO & 1)) {storeundo(~0); undostored=1;}
 						if (tltype & 0x40000)
 						{
 							issueshiftstart();

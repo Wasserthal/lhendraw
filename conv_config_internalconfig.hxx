@@ -6,6 +6,7 @@ struct hotkeylist_
 	catalogized_command_functype command;
 	char variable[20];
 	char value[20];
+	_u32 UNDO;
 	int functype;//type type of the function. See tools/reflection.hxx
 };
 hotkeylist_ hotkeylist[1000];
@@ -18,6 +19,7 @@ void conv_config_internalconfig()
 	{
 		CONFIGBRIDGE_Object_instance * tl_CONFIGBRIDGE_Object_instance=(CONFIGBRIDGE_Object_instance*)((*(CONFIGBRIDGE_Hotkeys_instance*)((*glob_CONFIGBRIDGE_Hotkey_multilist).bufferlist[ilv1].master)).master);
 		hotkeylist[ilv1].type=(*tl_CONFIGBRIDGE_Object_instance).type;
+		hotkeylist[ilv1].UNDO=(*glob_CONFIGBRIDGE_Hotkey_multilist).bufferlist[ilv1].UNDO;
 		hotkeylist[ilv1].modifiers=(*glob_CONFIGBRIDGE_Hotkey_multilist).bufferlist[ilv1].modifiers;
 		strncpy(hotkeylist[ilv1].key,(*glob_CONFIGBRIDGE_Hotkey_multilist).bufferlist[ilv1].key.a,4);
 		hotkeylist[ilv1].command=NULL;

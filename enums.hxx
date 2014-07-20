@@ -279,3 +279,8 @@ bienum CDXML_modifiers[]={
 	{{"HYPER"},0x8},
 };
 int CDXML_modifiers_max=sizeof(CDXML_modifiers)/sizeof(CDXML_modifiers[0]);
+bienum CDXML_UNDO[]={
+	{{"False"},0x0},
+	{{"True"},0x1},
+};
+int CDXML_UNDO_max=sizeof(CDXML_UNDO)/sizeof(CDXML_UNDO[0]);

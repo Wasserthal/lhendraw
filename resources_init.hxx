@@ -2,22 +2,22 @@
 FILE * criticalfilename(char * iargv0,char * idirectorystring,const char * iname)
 {
 	FILE * thefile;
-	strcpy(idirectorystring,"/usr/share/lhendraw");
-	strcat(idirectorystring,iname);
+	strcpy(idirectorystring,iargv0);
+	for (int ilv1=strlen(idirectorystring);ilv1>0;ilv1--)
+	{
+		if (idirectorystring[ilv1]=='/')
+		{
+			idirectorystring[ilv1]=0;
+			strcat(idirectorystring,iname);
+			goto ifilenamefertig;
+		}
+	}
+	ifilenamefertig:;
 	thefile=fopen(idirectorystring,"r");
 	if (thefile==NULL)
 	{
-		strcpy(idirectorystring,iargv0);
-		for (int ilv1=strlen(idirectorystring);ilv1>0;ilv1--)
-		{
-			if (idirectorystring[ilv1]=='/')
-			{
-				idirectorystring[ilv1]=0;
-				strcat(idirectorystring,iname);
-				goto ifilenamefertig;
-			}
-		}
-		ifilenamefertig:;
+		strcpy(idirectorystring,"/usr/share/lhendraw");
+		strcat(idirectorystring,iname);
 		thefile=fopen(idirectorystring,"r");
 	}
 	return thefile;

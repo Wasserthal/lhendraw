@@ -20,18 +20,18 @@ commandline: ./generated/filestructure.hxx ./generated/internalstructure.hxx par
 	./tools/filestructure_maker -l0 internalstructure.draft ./generated/structure.hxx ./generated/initialization_lhendraw.hxx '' ./generated/propertylist_lhendraw.hxx ./generated/propertydirectory_lhendraw.hxx
 	./tools/filestructure_maker -m1 filestructure.draft ./generated/cambridgestructure.hxx ./generated/initialization_lhendraw.hxx CAMBRIDGE
 	./tools/filestructure_maker -m2 configfile.draft ./generated/configfilestructure.hxx ./generated/initialization_lhendraw.hxx CONFIGBRIDGE
-./generated/reflection_enums.hxx: ./tools/reflection_enums ./internal_enum.hxx ./tools/reflection edit.hxx sdlctrl.hxx filedlg.hxx pivot.hxx
+./generated/reflection_enums.hxx: ./tools/reflection_enums ./internal_enum.hxx ./tools/reflection edit.hxx sdlctrl.hxx filedlg.hxx pivot.hxx janitor.hxx
 	./tools/reflection_enums
 	./tools/reflection edit.hxx sdlctrl.hxx filedlg.hxx pivot.hxx
 makeinf_test: makeinf.hxx makeinf_test.cxx cdxdata.hxx lendefs.h
 	g++ -g -O0 -std=c++0x -Wno-invalid-offsetof makeinf_test.cxx -o makeinftest -D DEBUG -Wno-format
-sdl: ./generated/cambridgestructure.hxx ./generated/structure.hxx parsecdxml.cxx lendefs.h xmldata.hxx xmlparse.hxx cdxdata.hxx conv_cambridge_internal.hxx enums.hxx definitionlist.h lendefs.h janitor.hxx draw.hxx sdlgfx.hxx lhendraw.cxx conv_cambridge_internal.hxx draw_variables.hxx ./generated/initialization_lhendraw.hxx ./generated/reflection_enums.hxx ./pullout_stringfile.hxx ./generated/reflection_headers.hxx edit.hxx sdlctrl.hxx selection.hxx conv_config_internalconfig.hxx resources_init.hxx filedlg.hxx
+sdl: ./generated/cambridgestructure.hxx ./generated/structure.hxx parsecdxml.cxx lendefs.h xmldata.hxx xmlparse.hxx cdxdata.hxx conv_cambridge_internal.hxx enums.hxx definitionlist.h lendefs.h janitor.hxx draw.hxx sdlgfx.hxx lhendraw.cxx conv_cambridge_internal.hxx draw_variables.hxx ./generated/initialization_lhendraw.hxx ./generated/reflection_enums.hxx ./generated/pullout_stringfile.hxx ./generated/reflection_headers.hxx edit.hxx sdlctrl.hxx selection.hxx conv_config_internalconfig.hxx resources_init.hxx filedlg.hxx
 	g++ -g -O0 -std=c++0x -m64 lhendraw.cxx -o lhendraw -I/usr/include/SDL -I/usr/include/freetype2 -L/usr/lib64 -L/usr/lib/x86_64-linux-gnu -lSDL -lm -lfreetype -Wno-invalid-offsetof -D GFXOUT_SDL -lrt
 lennard_infget: makeinf.hxx makeinf_test.cxx cdxdata.hxx lendefs.h
 	g++ -g -O0 -std=c++0x -Wno-invalid-offsetof makeinf_test.cxx -o lennard_infget -D DEBUG -D MACHINE_READABLE -Wno-format
-pullout_stringfile.hxx: tools/pullout.c *.pullout.hxx
+./generated/pullout_stringfile.hxx: tools/pullout.c *.pullout.hxx
 	ls -1 *\.pullout.hxx | cut -d. -f 1 | xargs -I{} ./tools/pulloutmatic.sh {} > ./generated/pulloutmatic.hxx
-	cat *.pullout.hxx > pullout.hxx
+	cat *.pullout.hxx > ./generated/pullout.hxx
 	gcc tools/pullout.c -o tools/pullout
 	./tools/pullout
 install:

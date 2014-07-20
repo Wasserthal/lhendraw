@@ -10,7 +10,7 @@ TELESCOPE_buffer filestructure_curve_buffer;
 intl LHENDRAW_buffersize=1048576;
 char LHENDRAW_filedlgmode=0;
 char LHENDRAW_leave=0;
-#define selection_maxbuttons 46
+#define selection_maxbuttons 54
 #define constants_bondlength 30
 #define constants_angular_distance 2.094395102
 #define constants_clickradius 170

@@ -288,4 +288,25 @@ multi_objref_ initZlist()
 		reenumerate();
 	}
 }
-
+void janitor_memoryresort()
+{
+	return;
+}
+void janitor_tidynumbers()
+{
+	return;
+}
+catalogized_command_funcdef(REMEM)
+{
+	janitor_memoryresort();
+	janitor_tidynumbers();
+	return 1;
+}
+catalogized_command_funcdef(MEMX2)
+{
+	return 1;
+}
+catalogized_command_funcdef(MEMD2)
+{
+	return 1;
+}

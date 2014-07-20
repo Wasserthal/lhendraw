@@ -1569,3 +1569,11 @@ catalogized_command_funcdef(SET_ALL_ITEMS)//TODO: works for _i32 only, right now
 		}
 	}
 }
+catalogized_command_funcdef(HELP)
+{
+	return 0;
+}
+catalogized_command_funcdef(OPTIONS)
+{
+	return 0;
+}

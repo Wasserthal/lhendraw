@@ -20,6 +20,11 @@ float Pi=3.141592654;
 #define _small int
 #define minfloat -1.0e20
 #define maxfloat 1.0e20
+union ARGB
+{
+	_u32 A;
+	char c[4];
+};
 inline intl sqr(intl input)
 {
 	return input*input;

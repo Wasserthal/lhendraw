@@ -45,7 +45,7 @@ char pulloutlisting_string[]="\n"
 "	int maxx,maxy;\n"
 "}AUTOSTRUCT_PULLOUTLISTING_;\n"
 "_u32 nope;\n";
-#include "../pullout.hxx"
+#include "../generated/pullout.hxx"
 int stringlist_count=0;
 char nullstring[]="NULL";
 char nopestring[]="nope";

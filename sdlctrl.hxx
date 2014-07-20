@@ -379,6 +379,10 @@ void clickforthem()
 		}
 	}
 }
+catalogized_command_funcdef(UNDOTREE)
+{
+	return 1;
+}
 catalogized_command_funcdef(ISSUEDELETE)
 {
 	_u32 icompare;

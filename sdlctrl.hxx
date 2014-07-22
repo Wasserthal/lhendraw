@@ -706,6 +706,7 @@ void issuedrag(int iposx,int iposy)
 		case 7:
 		{
 			restoreundo(~0,1);
+			undo_undodirty=1;
 			int atomnr=-1;
 			int atomnr2=-1;
 			n_instance * tlatom,*tlatom2;
@@ -865,6 +866,7 @@ void issuedrag(int iposx,int iposy)
 		case 9:
 		{
 			restoreundo(~0,1);
+			undo_undodirty=1;
 			arrow_instance * tl_arrow=summonarrow();
 			if (tl_arrow)
 			{
@@ -1521,6 +1523,7 @@ void issuemenudrag(int posx,int posy,char ifinal=0)
 		case 0x103:
 		{
 			restoreundo(~0,0);
+			undo_undodirty=1;
 			diffx=posx-control_lastmenux;
 			diffy=posy-control_lastmenuy;
 			control_menudragint+=diffx;

@@ -636,6 +636,7 @@ int draw_drawmarkpoint(int x,int y,int gfxno,int number)
 }
 int sdl_selectiondraw()
 {
+	int internalpointcount;
 	_u32 icompare;
 	int isize;
 	char * ibufferpos;
@@ -662,6 +663,7 @@ int sdl_selectiondraw()
 	for (int ilv1=0;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
 	{
 		icompare=1<<ilv1;
+		internalpointcount=retrieveprops_basic(1,ilv1);
 		int isize= STRUCTURE_OBJECTTYPE_List[ilv1].size;
 		basicmultilist * tlmultilist=findmultilist(STRUCTURE_OBJECTTYPE_List[ilv1].name);
 		if (tlmultilist==NULL) goto i_fertig;
@@ -671,21 +673,25 @@ int sdl_selectiondraw()
 		SDL_color=0x00FF00;
 		for (int ilv2=0;ilv2<(*tlmultilist).filllevel;ilv2++)
 		{
-			if ((selection_currentselection[ilv2]) & icompare)
+			if ((*((basic_instance*)(ibufferpos+isize*ilv2))).exist)
 			{
-				if ((*((basic_instance*)(ibufferpos+isize*ilv2))).exist)
+				int ilv3=0;
+				iback:
+				if (retrievepoints_basic(((basic_instance*)(ibufferpos+isize*ilv2)),&tlpx,&tlpy,ilv3,ilv1)>0)
 				{
-					int ilv3=0;
-					iback:
-					if (retrievepoints_basic(((basic_instance*)(ibufferpos+isize*ilv2)),&tlpx,&tlpy,ilv3,ilv1)>0)
+					if (((selection_clickabilitymatrix.types2[2] & (1<<ilv1)) && (ilv3!=0)) || ((selection_clickabilitymatrix.types2[1] & (1<<ilv1)) && (ilv3==0)))
 					{
-						if (((selection_clickabilitymatrix.types2[2] & (1<<ilv1)) && (ilv3!=0)) || ((selection_clickabilitymatrix.types2[1] & (1<<ilv1)) && (ilv3==0)))
+						if ((((selection_currentselection[ilv2]) & icompare)>0) ^ (ilv3!=0))
 						{
 							draw_drawmarkpoint((tlpx-SDL_scrollx)*SDL_zoomx-3+gfx_canvasminx,(tlpy-SDL_scrolly)*SDL_zoomy-3+gfx_canvasminy,48,(ilv3!=0));
 						}
-						ilv3++;
-						goto iback;
 					}
+					if (ilv3>0) if ((selection_currentselection[ilv2*internalpointcount+ilv3-1]) & (1<<(ilv1+STRUCTURE_OBJECTTYPE_ListSize)))
+					{
+						draw_drawmarkpoint((tlpx-SDL_scrollx)*SDL_zoomx-3+gfx_canvasminx,(tlpy-SDL_scrolly)*SDL_zoomy-3+gfx_canvasminy,48,5);
+					}
+					ilv3++;
+					goto iback;
 				}
 			}
 		}

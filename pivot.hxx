@@ -41,7 +41,7 @@ void get_selection_pivot()
 				for (int ilv3=-1;retrievepoints_basic(((basic_instance*)(ibufferpos+isize*ilv2)),&tl_x,&tl_y,ilv3,ilv1)>0;ilv3--)
 				{
 					if (ilv3<=-3) continue;//HACK: this is a hack because some components are undefined
-					if ((selection_currentselection[ilv2*internalpointcount] & (1<<(STRUCTURE_OBJECTTYPE_ListSize+ilv1))) || (iAllofthem))
+					if ((selection_currentselection[ilv2*internalpointcount-ilv3+1] & (1<<(STRUCTURE_OBJECTTYPE_ListSize+ilv1))) || (iAllofthem))
 					{
 						edit_pivot.x+=tl_x;
 						edit_pivot.y+=tl_y;
@@ -98,7 +98,7 @@ void applytransform(float matrix[3][3])
 				iAllofthem=((selection_currentselection[ilv2]) & icompare);
 				for (int ilv3=-1;retrievepoints_basic(((basic_instance*)(ibufferpos+isize*ilv2)),&tl_x,&tl_y,ilv3,ilv1)>0;ilv3--)
 				{
-					if ((selection_currentselection[ilv2*internalpointcount] & (1<<(STRUCTURE_OBJECTTYPE_ListSize+ilv1))) || (iAllofthem))
+					if ((selection_currentselection[ilv2*internalpointcount+ilv3-1] & (1<<(STRUCTURE_OBJECTTYPE_ListSize+ilv1))) || (iAllofthem))
 					{
 						xyz.x=tl_x-edit_pivot.x;
 						xyz.y=tl_y-edit_pivot.y;

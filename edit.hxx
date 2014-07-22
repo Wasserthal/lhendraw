@@ -147,7 +147,7 @@ inline int retrieveprops_graphic(int what)
 	}
 	if (what==1)
 	{
-		return 5;
+		return 2;
 	}
 	return 0;
 }
@@ -159,7 +159,7 @@ inline int retrieveprops_arrow(int what)
 	}
 	if (what==1)
 	{
-		return 5;
+		return 2;
 	}
 	return 0;
 }
@@ -286,7 +286,7 @@ inline int retrievepoints(arrow_instance * iinstance,float * ix,float * iy,int i
 	(*iy)=((*iinstance).Head3D.y+(*iinstance).Tail3D.y)/2;
 	return 1;
 }
-int hit(n_instance * iinstance,float ix,float iy)
+int hit(n_instance * iinstance,float ix,float iy,int ino)
 {
 	if ((sqr(ix-(*iinstance).xyz.x)+sqr(iy-(*iinstance).xyz.y))<glob_clickradius)
 	{
@@ -294,7 +294,7 @@ int hit(n_instance * iinstance,float ix,float iy)
 	}
 	return 0;
 }
-int hit(b_instance * iinstance,float ix,float iy)
+int hit(b_instance * iinstance,float ix,float iy,int ino)
 {
 	n_instance *iinstance1=NULL;
 	n_instance *iinstance2=NULL;
@@ -321,22 +321,23 @@ int hit(b_instance * iinstance,float ix,float iy)
 	}
 	return 0;
 }
-int hit(graphic_instance * iinstance,float ix,float iy)
+int hit(graphic_instance * iinstance,float ix,float iy,int ino)
 {
 	float tl_x,tl_y;
-	retrievepoints(iinstance,&tl_x,&tl_y,0);
+	retrievepoints(iinstance,&tl_x,&tl_y,ino);
 	if ((sqr(ix-tl_x)+sqr(iy-tl_y))<glob_clickradius)
 	{
 		return 1;
 	}
 	return 0;
 }
-int hit(arrow_instance * iinstance,float ix,float iy)
+int hit(arrow_instance * iinstance,float ix,float iy,int ino)
 {
 	float tl_x,tl_y;
-	retrievepoints(iinstance,&tl_x,&tl_y,0);
+	retrievepoints(iinstance,&tl_x,&tl_y,ino);
 	if ((sqr(ix-tl_x)+sqr(iy-tl_y))<glob_clickradius)
 	{
+		printf("\\%i",ino);
 		return 1;
 	}
 	return 0;
@@ -488,25 +489,6 @@ inline int placepoints(arrow_instance * iinstance,float ix,float iy,int inumber)
 	(*iinstance).MinorAxisEnd3D.y-=tl_y;
 	return 1;
 }
-template <class thisinstance> inline int clickfor_template(float posx,float posy,int objecttype)
-{
-	char found=0;
-	multilist<thisinstance> * imultilist=retrievemultilist<thisinstance>();
-	for (int ilv1=0;ilv1<(*imultilist).filllevel;ilv1++)
-	{
-		thisinstance * tlinstance=&((*imultilist).bufferlist[ilv1]);
-		if ((*tlinstance).exist)
-		{
-			if (hit(tlinstance,posx,posy)>0)
-			{
-				selection_clickselection[ilv1]|=(1<<objecttype);
-				found=1;
-			}
-		}
-	}
-	return found;
-}
-
 #define LOCALMACRO_1(whatabout) case STRUCTURE_OBJECTTYPE_ ## whatabout: return retrieveprops_ ## whatabout(what);break;
 int retrieveprops_basic(int what,int objecttype)
 {
@@ -517,6 +499,36 @@ int retrieveprops_basic(int what,int objecttype)
 	return 0;
 }
 #undef LOCALMACRO_1
+template <class thisinstance> inline _u32 clickfor_template(float posx,float posy,int objecttype,_u32 mode)
+{
+	_u32 found=0;
+	int internalpointcount;
+	multilist<thisinstance> * imultilist=retrievemultilist<thisinstance>();
+	for (int ilv1=0;ilv1<(*imultilist).filllevel;ilv1++)
+	{
+		internalpointcount=retrieveprops_basic(1,objecttype);
+		thisinstance * tlinstance=&((*imultilist).bufferlist[ilv1]);
+		if ((*tlinstance).exist)
+		{
+			if (mode & 1) if (hit(tlinstance,posx,posy,0)>0)
+			{
+				selection_clickselection[ilv1]|=(1<<objecttype);
+				found|=1;
+			}
+			if (mode & 2) for (int ilv3=1;ilv3<internalpointcount+1;ilv3++)
+			{
+				if (hit(tlinstance,posx,posy,ilv3)>0)
+				{
+					printf("OK\n");
+					selection_clickselection[ilv1*internalpointcount+ilv3-1]|=(1<<(objecttype+STRUCTURE_OBJECTTYPE_ListSize));
+					found|=1<<(objecttype+STRUCTURE_OBJECTTYPE_ListSize);
+				}
+			}
+		}
+	}
+	return found;
+}
+
 #define LOCALMACRO_1(whatabout) case STRUCTURE_OBJECTTYPE_ ## whatabout: return retrievepoints((whatabout ## _instance*)iinstance,ix,iy,inumber);break;
 int retrievepoints_basic(basic_instance * iinstance,float * ix,float * iy,int inumber,int objecttype)
 {
@@ -537,8 +549,8 @@ int placepoints_basic(basic_instance * iinstance,float ix,float iy,int inumber,i
 	return 0;
 }
 #undef LOCALMACRO_1
-#define LOCALMACRO_1(whatabout) case STRUCTURE_OBJECTTYPE_ ## whatabout: return clickfor_template<whatabout ## _instance>(ix,iy,objecttype);break;
-int clickfor(float ix,float iy,int objecttype,float iclickradius=constants_clickradius)
+#define LOCALMACRO_1(whatabout) case STRUCTURE_OBJECTTYPE_ ## whatabout: return clickfor_template<whatabout ## _instance>(ix,iy,objecttype,mode);break;
+_u32 clickfor(float ix,float iy,int objecttype,float iclickradius=constants_clickradius,_u32 mode=1)
 {
 	glob_clickradius=iclickradius;
 	switch (objecttype)
@@ -914,7 +926,7 @@ catalogized_command_funcdef(BLOT)
 {
 	int issueshiftstart();
 	selection_clearselection(selection_clickselection);
-	clickfor(control_coorsx,control_coorsy,STRUCTURE_OBJECTTYPE_n,1000);
+	clickfor(control_coorsx,control_coorsy,STRUCTURE_OBJECTTYPE_n,1000,1);
 	n_instance * iinstance=(n_instance*)getclicked(STRUCTURE_OBJECTTYPE_n);
 	printf("|%i,%lli,%lli\n",(*glob_n_multilist).maxid,(*glob_n_multilist).filllevel,(*glob_b_multilist).filllevel);
 	if (iinstance)

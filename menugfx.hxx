@@ -40,7 +40,20 @@ void text_output_bitmap(int * posx,int * posy,fontpixinf_ * ifontpixinf)
 		iscreen+=iscreenskip;
 	}
 }
-void printmenutext(int posx,int posy,const char * iinput,const char * parms,int imode,int start,int end)
+void sdl_buttondraw(int posx,int posy,int number)
+{
+	for (int ilv2=0;ilv2<32;ilv2++)
+	{
+		for (int ilv3=0;ilv3<32;ilv3++)
+		{
+			_u32 tlgfx=resources_bitmap_buttons[selection_maxbuttons-number][ilv2][ilv3];
+			if ((tlgfx>>24)>0x00)
+			screen[(posy+ilv2)*gfx_screensizex+posx+ilv3]=tlgfx;
+		}
+	}
+	return;
+}
+void printmenutext(int posx,int posy,const char * iinput,const char * parms,int imode,int start,int end,char symbolmode)
 {
 	int ilv4=start;
 	char linebreak;
@@ -50,6 +63,21 @@ void printmenutext(int posx,int posy,const char * iinput,const char * parms,int 
 	linebreak=0;
 	for (;ilv4<end;ilv4++)
 	{
+		if ((iinput[ilv4]=='\e') && (symbolmode))
+		{
+			int wert=0;
+			ilv4++;
+			while (iinput[ilv4]!=' ')
+			{
+				wert*=10;
+				wert+=iinput[ilv4]-'0';
+				ilv4++;
+			}
+			ilv4++;
+			sdl_buttondraw(iposx,iposy-16,wert+1);
+			iposx+=32;
+			continue;
+		}
 		if (iinput[ilv4]==10)
 		{
 			ilv4++;
@@ -59,7 +87,7 @@ void printmenutext(int posx,int posy,const char * iinput,const char * parms,int 
 		text_output_bitmap(&iposx,&iposy,&fontpixinf[indexfromunicode(((unsigned char)iinput[ilv4]))]);
 	}
 	skipfornow:
-	if (linebreak) {if (ilv4<end) goto thatwasatemporaryskip;}//a line break;
+	if (linebreak) {if (ilv4<end) {if (symbolmode) {iposx=posx;iposy+=16;}goto thatwasatemporaryskip;}}//a line break;
 }
 int sdl_toolboxitemdraw(int posx,int posy,int gfxno,_u32 state)
 {

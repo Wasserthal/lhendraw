@@ -75,6 +75,7 @@ int undo_trackredo(int variable);
 #include "pivot.hxx"
 #include "./generated/pullout_stringfile.hxx"
 #include "./generated/pullout_structfile.hxx"
+#include "help.hxx"
 #include "sdlctrl.hxx"
 #include "menugfx.hxx"
 #include "filedlg.hxx"

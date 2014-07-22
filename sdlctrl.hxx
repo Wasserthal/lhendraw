@@ -385,6 +385,12 @@ void clickforthem()
 		}
 	}
 }
+catalogized_command_funcdef(HELP)
+{
+	printf("OK\n");
+	control_help();
+	return 1;
+}
 catalogized_command_funcdef(UNDOTREE)
 {
 	return 1;

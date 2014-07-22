@@ -431,8 +431,14 @@ catalogized_command_funcdef(ISSUEDELETE)
 					{
 						TELESCOPE_aggressobject(tlmultilist,ilv2);
 						TELESCOPE_clear();
+						if (ilv1==1) if ((*((n_instance*)(ibufferpos+isize*ilv2))).Element!=constants_Element_implicitcarbon)
+						{
+							(*((n_instance*)(ibufferpos+isize*ilv2))).Element=constants_Element_implicitcarbon;
+							goto i_delete_skip;
+						}
 						(*((basic_instance*)(ibufferpos+isize*ilv2))).exist=0;
 					}
+					i_delete_skip:;
 				}
 			}
 			i_delete_fertig:;
@@ -451,7 +457,13 @@ catalogized_command_funcdef(ISSUEDELETE)
 				{
 					TELESCOPE_aggressobject(glob_n_multilist,control_hot[STRUCTURE_OBJECTTYPE_n]);
 					TELESCOPE_clear();
+					if ((*((n_instance*)(ibufferpos+isize*control_hot[STRUCTURE_OBJECTTYPE_n]))).Element!=constants_Element_implicitcarbon)
+					{
+						(*((n_instance*)(ibufferpos+isize*control_hot[STRUCTURE_OBJECTTYPE_n]))).Element=constants_Element_implicitcarbon;
+						goto i_delete_hot_skip;
+					}
 					(*((basic_instance*)(ibufferpos+isize*control_hot[STRUCTURE_OBJECTTYPE_n]))).exist=0;
+					i_delete_hot_skip:;
 					isuccessful=1;
 				}
 			}

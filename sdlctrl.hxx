@@ -72,6 +72,10 @@ typedef struct MODIFIER_KEYS_
 	char ALT;
 	char SHIFT;
 	char SUPER;
+	char LEFT;
+	char RIGHT;
+	char UP;
+	char DOWN;
 }MODIFIER_KEYS_;
 MODIFIER_KEYS_ MODIFIER_KEYS={0,0,0,0};
 int CONTROL_ZOOMIN(float ifactor,char i_direction)
@@ -387,7 +391,6 @@ void clickforthem()
 }
 catalogized_command_funcdef(HELP)
 {
-	printf("OK\n");
 	control_help();
 	return 1;
 }
@@ -596,7 +599,7 @@ int issueclick(int iposx,int iposy)
 					}
 					else
 					{
-						(*tlbond).Order=control_drawproperties.bond_multiplicity;
+						(*tlbond).Order=control_drawproperties.bond_multiplicity<<4;
 						(*tlbond).Display=control_drawproperties.bond_Display1;
 					}
 					control_mousestate=0;
@@ -756,6 +759,7 @@ void issuedrag(int iposx,int iposy)
 					(*tlatom2).xyz.x=control_coorsx;
 					(*tlatom2).xyz.y=control_coorsy;
 					(*tlatom2).xyz.z=(*tlatom).xyz.z;
+					(*tlatom2).Z=edit_getnewZ();
 				}
 			}
 			if ((tlatom) && (tlatom2))
@@ -766,7 +770,7 @@ void issuedrag(int iposx,int iposy)
 					if (tlbond)
 					{
 						(*tlbond).Z=0;
-						(*tlbond).Order=control_drawproperties.bond_multiplicity;//TODO: *4
+						(*tlbond).Order=control_drawproperties.bond_multiplicity<<4;
 					}
 				}
 			}
@@ -1603,7 +1607,7 @@ void control_normal()
 					}
 					case SDL_BUTTON_LEFT:
 					{
-						if (control_doubleclickenergy>=150)
+						if (control_doubleclickenergy>0)
 						{
 							clickforthem();
 							selection_clearselection(selection_fragmentselection);
@@ -1631,7 +1635,7 @@ void control_normal()
 							}
 						}
 						control_lastmousebutton=SDL_BUTTON_LEFT;
-						control_doubleclickenergy=300;
+						control_doubleclickenergy=50;
 						clickshunt:
 						if (control_mousestate==0)
 						{
@@ -1771,6 +1775,26 @@ void control_normal()
 							control_keycombotool=1;
 							control_mousestate=2;
 						}
+						break;
+					}
+					case SDLK_LEFT:
+					{
+						MODIFIER_KEYS.LEFT=idirection;
+						break;
+					}
+					case SDLK_RIGHT:
+					{
+						MODIFIER_KEYS.RIGHT=idirection;
+						break;
+					}
+					case SDLK_UP:
+					{
+						MODIFIER_KEYS.UP=idirection;
+						break;
+					}
+					case SDLK_DOWN:
+					{
+						MODIFIER_KEYS.DOWN=idirection;
 						break;
 					}
 					default:

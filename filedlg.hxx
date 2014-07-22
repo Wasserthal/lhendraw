@@ -63,9 +63,13 @@ int control_filedlg()
 	}
 	#endif
 	char idirection=1;
+	char polled=0;
 	control_lastmousebutton=0;
+	if (control_doubleclickenergy>0) control_doubleclickenergy--;
 	while ( SDL_PollEvent(&control_Event) ) 
 	{
+		keyshunt:;
+		polled=1;
 		char irepeat=0;
 		char idontrepeat=0;
 		char idirection=1;
@@ -94,6 +98,7 @@ int control_filedlg()
 			}
 			case SDL_KEYDOWN://FALLTRHOUGH
 			{
+				control_doubleclickenergy=25;//in this menu, dblclickenergy relates to keyboard timer 1!
 				switch (control_Event.key.keysym.sym)
 				{
 					case SDLK_RCTRL:
@@ -154,7 +159,18 @@ int control_filedlg()
 							{
 								if ((*tl_pulloutlisting).LMB_function!=NULL)
 								{
-									(*tl_pulloutlisting).LMB_function("","");
+									if ((*tl_pulloutlisting).lmbmode==0x201)
+									{
+										structenum * tl_structenum=(structenum*)((*tl_pulloutlisting).variable);
+										if ((*tl_structenum).number<tl_structenum->count)
+										{
+											(*tl_pulloutlisting).LMB_function(((char*)((*tl_structenum).pointer))+(*tl_structenum).size*(*tl_structenum).number,"");
+										}
+									}
+									else
+									{
+										(*tl_pulloutlisting).LMB_function("","");
+									}
 								}
 								goto keyprocessed;
 								break;
@@ -173,16 +189,20 @@ int control_filedlg()
 								{
 									tl_structenum->number--;
 									if (tl_structenum->number<0) tl_structenum->number=0;
+									if (tl_structenum->number<tl_structenum->scroll) tl_structenum->scroll=tl_structenum->number;
 									break;
 								}
 								case SDLK_HOME:
 								{
 									tl_structenum->number=0;
+									if (tl_structenum->number<tl_structenum->scroll) tl_structenum->scroll=tl_structenum->number;
 									break;
 								}
 								case SDLK_END:
 								{
 									tl_structenum->number=tl_structenum->count-1;
+									int tl_max=((*tl_pulloutlisting).maxy-(*tl_pulloutlisting).y)/16;
+									if (tl_structenum->number>=tl_structenum->scroll+tl_max) tl_structenum->scroll=tl_structenum->number-tl_max+1;
 									break;
 								}
 								case SDLK_PAGEDOWN:
@@ -193,6 +213,8 @@ int control_filedlg()
 								{
 									tl_structenum->number++;
 									if (tl_structenum->number>=tl_structenum->count) tl_structenum->number=tl_structenum->count-1;
+									int tl_max=((*tl_pulloutlisting).maxy-(*tl_pulloutlisting).y)/16;
+									if (tl_structenum->number>=tl_structenum->scroll+tl_max) tl_structenum->scroll=tl_structenum->number-tl_max+1;
 									break;
 								}
 							}
@@ -293,8 +315,42 @@ int control_filedlg()
 					}
 					keyprocessed:;
 				}
+				switch (control_Event.key.keysym.sym)
+				{
+					case SDLK_LEFT:
+					{
+						MODIFIER_KEYS.LEFT=idirection;
+						break;
+					}
+					case SDLK_RIGHT:
+					{
+						MODIFIER_KEYS.RIGHT=idirection;
+						break;
+					}
+					case SDLK_UP:
+					{
+						MODIFIER_KEYS.UP=idirection;
+						break;
+					}
+					case SDLK_DOWN:
+					{
+						MODIFIER_KEYS.DOWN=idirection;
+						break;
+					}
+				}
 				break;
 			}
+		}
+	}
+	if ((control_doubleclickenergy==0) && (polled==0))
+	{
+		if (MODIFIER_KEYS.UP || MODIFIER_KEYS.DOWN || MODIFIER_KEYS.LEFT || MODIFIER_KEYS.RIGHT)
+		{
+			control_Event.type=SDL_KEYDOWN;
+			control_Event.key.state=SDL_PRESSED;
+			control_Event.key.keysym.sym=MODIFIER_KEYS.LEFT?SDLK_LEFT:(MODIFIER_KEYS.RIGHT?SDLK_RIGHT:(MODIFIER_KEYS.UP?SDLK_UP:(MODIFIER_KEYS.DOWN?SDLK_DOWN:SDLK_UNKNOWN)));
+			control_doubleclickenergy=1;
+			goto keyshunt;
 		}
 	}
 }

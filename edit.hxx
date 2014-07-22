@@ -337,7 +337,6 @@ int hit(arrow_instance * iinstance,float ix,float iy,int ino)
 	retrievepoints(iinstance,&tl_x,&tl_y,ino);
 	if ((sqr(ix-tl_x)+sqr(iy-tl_y))<glob_clickradius)
 	{
-		printf("\\%i",ino);
 		return 1;
 	}
 	return 0;
@@ -513,13 +512,12 @@ template <class thisinstance> inline _u32 clickfor_template(float posx,float pos
 			if (mode & 1) if (hit(tlinstance,posx,posy,0)>0)
 			{
 				selection_clickselection[ilv1]|=(1<<objecttype);
-				found|=1;
+				found|=1<<objecttype;
 			}
 			if (mode & 2) for (int ilv3=1;ilv3<internalpointcount+1;ilv3++)
 			{
 				if (hit(tlinstance,posx,posy,ilv3)>0)
 				{
-					printf("OK\n");
 					selection_clickselection[ilv1*internalpointcount+ilv3-1]|=(1<<(objecttype+STRUCTURE_OBJECTTYPE_ListSize));
 					found|=1<<(objecttype+STRUCTURE_OBJECTTYPE_ListSize);
 				}
@@ -669,6 +667,8 @@ n_instance * summonatom(int * inr=NULL)
 		tlinstance=new(&((*glob_n_multilist).bufferlist[tl_nr])) n_instance;
 		(*tlinstance).Element=constants_Element_implicitcarbon;
 		(*tlinstance).color=control_drawproperties.color;
+		(*tlinstance).charge=0;
+		(*tlinstance).protons=4;
 		selection_currentselection[tl_nr]&=(~(1<<STRUCTURE_OBJECTTYPE_n));
 		atom_actual_node[tl_nr].bondcount=0;
 		((*glob_n_multilist).filllevel)++;
@@ -848,11 +848,6 @@ catalogized_command_iterated_funcdef(LABELTEXT)
 	{
 		if (strcmp(value,element[ilv1].name)==0)
 		{
-			if ((*(n_instance*)iinstance).Element==constants_Element_implicitcarbon)
-			{
-				(*(n_instance*)iinstance).charge=0;
-				(*(n_instance*)iinstance).protons=4;
-			}
 			if ((*(n_instance*)iinstance).Element!=ilv1)
 			{
 				if ((element[ilv1].maxbonds!=element[(*(n_instance*)iinstance).Element].maxbonds) || (element[ilv1].hasVE!=element[(*(n_instance*)iinstance).Element].hasVE))
@@ -869,9 +864,9 @@ catalogized_command_iterated_funcdef(LABELTEXT)
 					(*(n_instance*)iinstance).protons=element[ilv1].maxbonds;
 				}
 			}
-			if (ilv1==constants_Element_implicitcarbon)
+			if ((*(n_instance*)iinstance).Element==constants_Element_implicitcarbon)
 			{
-				(*(n_instance*)iinstance).protons=4;
+				(*(n_instance*)iinstance).protons=4-abs((*(n_instance*)iinstance).charge);
 			}
 			if (element[ilv1].maxbonds!=-1)
 			{
@@ -888,6 +883,10 @@ catalogized_command_iterated_funcdef(LABELTEXT)
 		}
 	}
 	return 0;
+}
+catalogized_command_iterated_funcdef(LASTLABELTEXT)
+{
+	LABELTEXT(parameter,element[control_drawproperties.Element].name,imultilist,iinstance,iindex);
 }
 catalogized_command_iterated_funcdef(SETITEMVARIABLE)
 {

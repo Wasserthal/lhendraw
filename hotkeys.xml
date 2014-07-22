@@ -71,6 +71,7 @@
 <Hotkey key="?" command="DIALOG" value="PROPERTIES" description="Lhendraw command"/>
 <Hotkey key="/" command="DIALOG" value="PROPERTIES" description="Lhendraw command"/>
 <Hotkey key="=" command="DIALOG" value="APPLYNICKNAME" description="Lhendraw command"/>
+<Hotkey key="RET" command="LASTLABELTEXT"/>
 </Hotkeys>
 </Object>
 <Object type="Bond">

@@ -9,7 +9,7 @@ void text_output_bitmap(int * posx,int * posy,fontpixinf_ * ifontpixinf)
 	int skip=(*ifontpixinf).sizex;
 	char * mempos=(*ifontpixinf).memstart;
 	scanx=(*posx)+(*ifontpixinf).pivotx;
-	scany=(*posy)+(*ifontpixinf).pivoty;
+	scany=(*posy)+(*ifontpixinf).pivoty+12;
 	maxx=(*ifontpixinf).sizex+scanx;
 	maxy=(*ifontpixinf).sizey+scany;
 	if (scanx<0) {mempos-=scanx;scanx=0;}
@@ -225,7 +225,7 @@ int sdl_textmenudraw(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int count,int xpos=0,
 			default:
 			SDL_color=0x000000;
 		}
-		printmenutext(ilisting[ilv1].x*192+xpos,ilisting[ilv1].y*16+ypos+12,ilisting[ilv1].name,NULL,0,0,strlen(ilisting[ilv1].name));
+		printmenutext(ilisting[ilv1].x*192+xpos,ilisting[ilv1].y*16+ypos,ilisting[ilv1].name,NULL,0,0,strlen(ilisting[ilv1].name));
 	}
 }
 int sdl_textbuttonmenudraw(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int count,int xpos=0,int ypos=0)
@@ -271,7 +271,7 @@ int sdl_textbuttonmenudraw(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int count,int x
 				screen[gfx_screensizex*(top+ilv1)+left+ilv2]=*(ibutton+yco*32+xco);
 			}
 		}
-		printmenutext(left,top+12,ilisting[ilv1].name,NULL,0,0,strlen(ilisting[ilv1].name));
+		printmenutext(left,top,ilisting[ilv1].name,NULL,0,0,strlen(ilisting[ilv1].name));
 	}
 }
 int sdl_listmenudraw(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int count,int xpos=0,int ypos=0,int item=-1)
@@ -311,7 +311,7 @@ int sdl_listmenudraw(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int count,int xpos=0,
 					if (tl_number<istructenum.count)
 					{
 						char * tl_pointer=((char*)(istructenum.pointer))+istructenum.size*tl_number;
-						printmenutext(ilisting[ilv1].x+xpos,(ilisting[ilv1].y+ilv2*16)+ypos+12,tl_pointer,NULL,0,0,max(strlen(tl_pointer),(ilisting[ilv1].maxx-ilisting[ilv1].x)/8));
+						printmenutext(ilisting[ilv1].x+xpos,(ilisting[ilv1].y+ilv2*16)+ypos,tl_pointer,NULL,0,0,max(strlen(tl_pointer),(ilisting[ilv1].maxx-ilisting[ilv1].x)/8));
 					}
 				}
 				break;
@@ -352,7 +352,7 @@ int sdl_listmenudraw(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int count,int xpos=0,
 					iscreen+=gfx_screensizex-ilisting[ilv1].maxx+ilisting[ilv1].x;
 				}
 				tl_pointer=(char*)(ilisting[ilv1].variable);
-				printmenutext(ilisting[ilv1].x+xpos,(ilisting[ilv1].y)+ypos+12,tl_pointer,NULL,0,0,min(strlen(tl_pointer),(ilisting[ilv1].maxx-ilisting[ilv1].x)/8));
+				printmenutext(ilisting[ilv1].x+xpos,(ilisting[ilv1].y)+ypos,tl_pointer,NULL,0,0,min(strlen(tl_pointer),(ilisting[ilv1].maxx-ilisting[ilv1].x)/8));
 				break;
 			}
 		}

@@ -842,44 +842,48 @@ catalogized_command_iterated_funcdef(SPROUT)
 	}
 	return found;
 }
+int edit_setelement(int i_Elementnr,n_instance * iinstance,int iindex)
+{
+	if ((*(n_instance*)iinstance).Element!=i_Elementnr)
+	{
+		if ((element[i_Elementnr].maxbonds!=element[(*(n_instance*)iinstance).Element].maxbonds) || (element[i_Elementnr].hasVE!=element[(*(n_instance*)iinstance).Element].hasVE))
+		{
+			(*(n_instance*)iinstance).protons=element[i_Elementnr].maxbonds;
+		}
+		(*(n_instance*)iinstance).Element=i_Elementnr;
+	}
+	else
+	{
+		(*(n_instance*)iinstance).protons-=1;
+		if ((*(n_instance*)iinstance).protons-getbondsum(iindex)<0)
+		{
+			(*(n_instance*)iinstance).protons=element[i_Elementnr].maxbonds;
+		}
+	}
+	if ((*(n_instance*)iinstance).Element==constants_Element_implicitcarbon)
+	{
+		(*(n_instance*)iinstance).protons=4-abs((*(n_instance*)iinstance).charge);
+	}
+	if (element[i_Elementnr].maxbonds!=-1)
+	{
+		if ((*(n_instance*)iinstance).protons>8-(element[i_Elementnr].hasVE-(*(n_instance*)iinstance).charge))
+		{
+			(*(n_instance*)iinstance).protons=8-(element[i_Elementnr].hasVE-(*(n_instance*)iinstance).charge);
+		}
+		if ((*(n_instance*)iinstance).protons>element[i_Elementnr].hasVE-(*(n_instance*)iinstance).charge)
+		{
+			(*(n_instance*)iinstance).protons=element[i_Elementnr].hasVE-(*(n_instance*)iinstance).charge;
+		}
+	}
+	return 1;
+}
 catalogized_command_iterated_funcdef(LABELTEXT)
 {
 	for (int ilv1=0;ilv1<sizeof(element)/sizeof(element_);ilv1++)
 	{
 		if (strcmp(value,element[ilv1].name)==0)
 		{
-			if ((*(n_instance*)iinstance).Element!=ilv1)
-			{
-				if ((element[ilv1].maxbonds!=element[(*(n_instance*)iinstance).Element].maxbonds) || (element[ilv1].hasVE!=element[(*(n_instance*)iinstance).Element].hasVE))
-				{
-					(*(n_instance*)iinstance).protons=element[ilv1].maxbonds;
-				}
-				(*(n_instance*)iinstance).Element=ilv1;
-			}
-			else
-			{
-				(*(n_instance*)iinstance).protons-=1;
-				if ((*(n_instance*)iinstance).protons-getbondsum(iindex)<0)
-				{
-					(*(n_instance*)iinstance).protons=element[ilv1].maxbonds;
-				}
-			}
-			if ((*(n_instance*)iinstance).Element==constants_Element_implicitcarbon)
-			{
-				(*(n_instance*)iinstance).protons=4-abs((*(n_instance*)iinstance).charge);
-			}
-			if (element[ilv1].maxbonds!=-1)
-			{
-				if ((*(n_instance*)iinstance).protons>8-(element[ilv1].hasVE-(*(n_instance*)iinstance).charge))
-				{
-					(*(n_instance*)iinstance).protons=8-(element[ilv1].hasVE-(*(n_instance*)iinstance).charge);
-				}
-				if ((*(n_instance*)iinstance).protons>element[ilv1].hasVE-(*(n_instance*)iinstance).charge)
-				{
-					(*(n_instance*)iinstance).protons=element[ilv1].hasVE-(*(n_instance*)iinstance).charge;
-				}
-			}
-			return 1;
+			return edit_setelement(ilv1,(n_instance*)iinstance,iindex);
 		}
 	}
 	return 0;

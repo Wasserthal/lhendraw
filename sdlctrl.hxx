@@ -572,18 +572,37 @@ int issueclick(int iposx,int iposy)
 		{
 			if (control_lastmousebutton==SDL_BUTTON_LEFT)
 			{
-				tlatom=summonatom(NULL);
-				if (tlatom)
+				if ((MODIFIER_KEYS.ALT==0) && (selection_clickselection_found & (1<<STRUCTURE_OBJECTTYPE_n)))
 				{
-					(*tlatom).xyz.x=control_coorsx;
-					(*tlatom).xyz.y=control_coorsy;
-					(*tlatom).xyz.z=0;
-					(*tlatom).Z=edit_getnewZ();
-					(*tlatom).Element=control_drawproperties.Element;
+					for (int ilv2=0;ilv2<(*glob_n_multilist).filllevel;ilv2++)
+					{
+						if (selection_clickselection[ilv2] & (1<<STRUCTURE_OBJECTTYPE_n))
+						{
+							if ((*glob_n_multilist)[ilv2].exist)
+							{
+								tlatom=(*glob_n_multilist).bufferlist+ilv2;
+								edit_setelement(control_drawproperties.Element,tlatom,ilv2);
+							}
+						}
+					}
+				}
+				else
+				{
+					int atomnr;
+					tlatom=summonatom(&atomnr);
+					if (tlatom)
+					{
+						(*tlatom).xyz.x=control_coorsx;
+						(*tlatom).xyz.y=control_coorsy;
+						(*tlatom).xyz.z=0;
+						(*tlatom).Z=edit_getnewZ();
+						edit_setelement(control_drawproperties.Element,tlatom,atomnr);
+					}
 				}
 			}
 			else
 			{
+				selection_clearselection(selection_currentselection);selection_currentselection_found=0;
 				OPEN_PSE("","");
 				return 0;
 			}
@@ -1412,7 +1431,7 @@ int issuepseclick(int x,int y,int ibutton)
 						{
 							if (((*glob_n_multilist).bufferlist+ilv2)->exist)
 							{
-								LABELTEXT("",element[ilv1].name,glob_n_multilist,(*glob_n_multilist).bufferlist+ilv2,ilv2);
+								edit_setelement(ilv1,(*glob_n_multilist).bufferlist+ilv2,ilv2);
 								//It is by reason that uninterpreted text labels are not overwritten!
 							}
 						}
@@ -1622,7 +1641,7 @@ void control_normal()
 					}
 					case SDL_BUTTON_LEFT:
 					{
-						if (control_doubleclickenergy>0)
+						if ((control_doubleclickenergy>0) && (control_tool==2) || (control_tool==3) || (control_tool==4))
 						{
 							clickforthem();
 							selection_clearselection(selection_fragmentselection);

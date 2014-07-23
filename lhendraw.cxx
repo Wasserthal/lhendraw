@@ -9,6 +9,9 @@ LLLLLL H   H EEEEE N    N DDD   R  R A     A    W     W
 
 */
 #include <new>
+#ifndef NODEBUG
+#include <signal.h>
+#endif
 #define _XOPEN_SOURCE 700
 #include <stddef.h>
 #include <stdlib.h>
@@ -110,8 +113,25 @@ void test_routine()
 {
 	printf("ggg:%llX---%llX\n",(long long)&(((*glob_CAMBRIDGE_t_multilist).bufferlist[7])._vptr),(long long)(((*glob_CAMBRIDGE_t_multilist).bufferlist[7])._vptr));
 }
+#ifndef NODEBUG
+const char *progname=NULL;
+void Signal(int signum)
+{
+	char localbuf[512+1]; 
+	snprintf(localbuf,512,"gdb %s %d",progname,getpid());
+	system(localbuf);
+}
+#endif
 int main(int argc,char * * argv)
 {
+#ifndef NODEBUG
+	progname=argv[0];
+	signal(SIGSEGV,&Signal);
+	signal(SIGILL,&Signal);
+	signal(SIGFPE,&Signal);
+	signal(SIGSYS,&Signal);
+	signal(SIGPIPE,&Signal);
+#endif
 	clock_getcpuclockid(getpid(),&clockid);
 	multilist_count=sizeof(multilistlist)/sizeof(multilistlist_);
 	for (int ilv1=0;ilv1<multilist_count;ilv1++)

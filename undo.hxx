@@ -80,8 +80,17 @@ int undo_trackundo()
 //	printf("%i\n",currentundostep);
 	return 0;
 }
+void drawundo()//TEST routine
+{
+	for (int ilv1=0;ilv1<undosteps_count;ilv1++)
+	{
+		printf("\e[32m%4i\e[0m",undosteps[ilv1].parent);
+	}
+	printf("\n");
+}
 int slayredo()
 {
+	int oldparent=-1;
 	for (int ilv1=undosteps_count-1;ilv1>=0;ilv1--)
 	{
 		if (ilv1==currentundostep) goto cantdeletethis;
@@ -90,6 +99,7 @@ int slayredo()
 		{
 			if (undosteps[ilv2].parent==ilv1) goto cantdeletethis;
 		}
+		oldparent=undosteps[ilv1].parent;
 		for (int ilv3=1;ilv3<sizeof(STRUCTURE_OBJECTTYPE_List)/sizeof(trienum);ilv3++)
 		{
 			if (undosteps[ilv1].handles[ilv3].buffer!=NULL)
@@ -103,16 +113,16 @@ int slayredo()
 		}
 		for (int ilv2=ilv1;ilv2<undosteps_count-1;ilv2++)
 		{
-			undosteps[ilv1]=undosteps[ilv1+1];
+			undosteps[ilv2]=undosteps[ilv2+1];
 		}
 		if (currentundostep>ilv1)
 		{
 			currentundostep--;
 		}
 		undosteps_count--;
-		for (int ilv2=1;ilv2<undosteps_count;ilv2++)
+		for (int ilv2=ilv1;ilv2<undosteps_count;ilv2++)
 		{
-			if (undosteps[ilv2].parent>=1) undosteps[ilv2].parent--;
+			if (undosteps[ilv2].parent>ilv1) undosteps[ilv2].parent--; else if (undosteps[ilv2].parent==ilv1) undosteps[ilv2].parent=oldparent;//== case should be unnecessary
 		}
 		return 1;
 		cantdeletethis:;

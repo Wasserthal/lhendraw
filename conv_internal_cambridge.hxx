@@ -65,7 +65,6 @@ int CONVCAMBRIDGE_s_f(CAMBRIDGE_t_instance * master,edit_formatstruct * iformat,
 	(*tl_CAMBRIDGE_s_instance).size=12;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_s_instance,size);
 	(*tl_CAMBRIDGE_s_instance).PCTEXT.a=ibuffer2;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_s_instance,PCTEXT);
 	(*tl_CAMBRIDGE_s_instance).PCTEXTcounter=strlen((*tl_CAMBRIDGE_s_instance).PCTEXT.a);
-	(*tl_CAMBRIDGE_s_multilist).ADD(tl_CAMBRIDGE_s_instance);
 	return 1;
 }
 void CONVCAMBRIDGE_s(CAMBRIDGE_t_instance * master,s_instance * tl_s_instance,char * CAMBRIDGE_s_instance_buffer)
@@ -78,7 +77,6 @@ void CONVCAMBRIDGE_s(CAMBRIDGE_t_instance * master,s_instance * tl_s_instance,ch
 	(*tl_CAMBRIDGE_s_instance).size=(*tl_s_instance).size;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_s_instance,size);
 	(*tl_CAMBRIDGE_s_instance).PCTEXT.a=CAMBRIDGE_s_instance_buffer;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_s_instance,PCTEXT);
 	(*tl_CAMBRIDGE_s_instance).PCTEXTcounter=strlen((*tl_CAMBRIDGE_s_instance).PCTEXT.a);
-	(*tl_CAMBRIDGE_s_multilist).ADD(tl_CAMBRIDGE_s_instance);
 }
 void CONVCAMBRIDGE_atoms(CAMBRIDGE_fragment_instance * master,cdx_Rectangle * iBoundingBox)
 {
@@ -115,7 +113,6 @@ CONVCAMBRIDGE_COLORCONV2(t,(*tl_n_instance).color);
 (*tl_CAMBRIDGE_t_instance).p.y=(*tl_n_instance).xyz.y;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_t_instance,p);//BACKWARDS COMPATIBILITY
 (*tl_CAMBRIDGE_t_instance).xyz=(*tl_n_instance).xyz;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_t_instance,xyz);
 (*tl_CAMBRIDGE_t_instance).Z=(*tl_n_instance).Z;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_t_instance,Z);
-(*tl_CAMBRIDGE_t_multilist).ADD(tl_CAMBRIDGE_t_instance);
 			}
 			else
 			{
@@ -183,7 +180,6 @@ CONVCAMBRIDGE_COLORCONV2(t,(*tl_n_instance).color);
 (*tl_CAMBRIDGE_t_instance).p.y=(*tl_n_instance).xyz.y;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_t_instance,p);//BACKWARDS COMPATIBILITY
 (*tl_CAMBRIDGE_t_instance).xyz=(*tl_n_instance).xyz;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_t_instance,xyz);
 (*tl_CAMBRIDGE_t_instance).Z=(*tl_n_instance).Z;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_t_instance,Z);
-(*tl_CAMBRIDGE_t_multilist).ADD(tl_CAMBRIDGE_t_instance);
 				}
 			}
 			if (tl_Element!=-1)
@@ -244,14 +240,13 @@ iOrderout=0x2;}else iOrderout=0x80;}else iOrderout=0x1;}else iOrderout=0x40;
 				}
 			}
 			(*tl_CAMBRIDGE_b_instance).Order=iOrderout;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_b_instance,Order);
-			(*tl_CAMBRIDGE_b_multilist).ADD(tl_CAMBRIDGE_b_instance);
 		}
 	}
 }
 
 void CONVCAMBRIDGE_text(CAMBRIDGE_page_instance * master)
 {
-	char backval=0;
+	int backval=0;
 	multilist<CAMBRIDGE_t_instance> * tl_CAMBRIDGE_t_multilist=retrievemultilist<CAMBRIDGE_t_instance>();
 	multilist<t_instance> * tl_t_multilist=retrievemultilist<t_instance>();
 	for (int ilv1=0;ilv1<(*tl_t_multilist).filllevel;ilv1++)
@@ -278,7 +273,6 @@ void CONVCAMBRIDGE_text(CAMBRIDGE_page_instance * master)
 		(*tl_CAMBRIDGE_t_instance).IGOTYOU=(*tl_t_instance).IGOTYOU;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_t_instance,IGOTYOU);
 		(*tl_CAMBRIDGE_t_instance).id=(*tl_t_instance).id;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_t_instance,id);
 		(*tl_CAMBRIDGE_t_instance).Z=(*tl_t_instance).Z;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_t_instance,Z);
-		(*tl_CAMBRIDGE_t_multilist).ADD(tl_CAMBRIDGE_t_instance);
 	}
 }
 
@@ -328,7 +322,6 @@ void CONVCAMBRIDGE_arrow(CAMBRIDGE_page_instance * master)
 		(*tl_CAMBRIDGE_arrow_instance).ArrowheadTail=(*tl_arrow_instance).ArrowheadTail;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_arrow_instance,ArrowheadTail);
 		(*tl_CAMBRIDGE_arrow_instance).ArrowShaftSpacing=(*tl_arrow_instance).ArrowShaftSpacing;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_arrow_instance,ArrowShaftSpacing);
 		(*tl_CAMBRIDGE_arrow_instance).Z=(*tl_arrow_instance).Z;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_arrow_instance,Z);
-		(*tl_CAMBRIDGE_arrow_multilist).ADD(tl_CAMBRIDGE_arrow_instance);
 	}
 }
 void CONVCAMBRIDGE_graphic(CAMBRIDGE_page_instance * master)
@@ -352,7 +345,65 @@ void CONVCAMBRIDGE_graphic(CAMBRIDGE_page_instance * master)
 		(*tl_CAMBRIDGE_graphic_instance).MinorAxisEnd3D=(*tl_graphic_instance).MinorAxisEnd3D;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_graphic_instance,MinorAxisEnd3D);
 		(*tl_CAMBRIDGE_graphic_instance).id=(*tl_graphic_instance).id;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_graphic_instance,id);
 		(*tl_CAMBRIDGE_graphic_instance).Z=(*tl_graphic_instance).Z;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_graphic_instance,Z);
-		(*tl_CAMBRIDGE_graphic_multilist).ADD(tl_CAMBRIDGE_graphic_instance);
+	}
+}
+void CONVCAMBRIDGE_represent(CAMBRIDGE_graphic_instance * master,int SymbolType,int object)
+{
+	multilist<CAMBRIDGE_represent_instance> * tl_CAMBRIDGE_represent_multilist=retrievemultilist<CAMBRIDGE_represent_instance>();
+	ADD_TO_MULTILISTREFERENCE(master,represent);
+	(*tl_CAMBRIDGE_represent_instance).object=object;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_represent_instance,object);
+}
+void CONVCAMBRIDGE_Symbol(CAMBRIDGE_page_instance * master)
+{
+	_u32 icompare;
+	int tl_size;
+	int ifilllevel;
+	int i_offset;
+	int backval;
+	CDXMLREAD_functype dummy;
+	multilist<CAMBRIDGE_graphic_instance> * tl_CAMBRIDGE_graphic_multilist=retrievemultilist<CAMBRIDGE_graphic_instance>();
+	for (int ilv1=1;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
+	{
+		basicmultilist * tl_multilist=findmultilist(STRUCTURE_OBJECTTYPE_List[ilv1].name);
+		icompare=(1<<ilv1);
+		tl_size=(*tl_multilist).itemsize;
+		i_offset=(*tl_multilist).getproperties("xyz",&dummy);
+		if (i_offset<0) i_offset=(*tl_multilist).getproperties("Center3D",&dummy);
+		if (i_offset<0) goto skipthismultilist;
+		ifilllevel=(*tl_multilist).filllevel;
+		for (int ilv2=0;ilv2<ifilllevel;ilv2++)
+		{
+			TELESCOPE_aggressobject(tl_multilist,ilv2);
+			backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_Symbol);
+			while (backval)
+			{
+				Symbol_instance * tl_Symbol_instance=(Symbol_instance*)TELESCOPE_getproperty();
+				ADD_TO_MULTILISTREFERENCE(master,graphic);
+				CONVCAMBRIDGE_COLORCONV2(graphic,(*tl_Symbol_instance).color);
+				cdx_Point3D tl_cdx_Point3D;
+				tl_cdx_Point3D.x=(*tl_Symbol_instance).dxyz.x+((cdx_Point3D*)(((char*)((*tl_multilist).pointer))+tl_size*ilv2+i_offset))->x;
+				tl_cdx_Point3D.y=(*tl_Symbol_instance).dxyz.y+((cdx_Point3D*)(((char*)((*tl_multilist).pointer))+tl_size*ilv2+i_offset))->y;
+				tl_cdx_Point3D.z=(*tl_Symbol_instance).dxyz.z+((cdx_Point3D*)(((char*)((*tl_multilist).pointer))+tl_size*ilv2+i_offset))->z;
+				(*tl_CAMBRIDGE_graphic_instance).Center3D=tl_cdx_Point3D;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_graphic_instance,Center3D);
+				(*tl_CAMBRIDGE_graphic_instance).BoundingBox.left=tl_cdx_Point3D.x;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_graphic_instance,BoundingBox);
+				(*tl_CAMBRIDGE_graphic_instance).BoundingBox.top=tl_cdx_Point3D.y;
+				(*tl_CAMBRIDGE_graphic_instance).BoundingBox.right=tl_cdx_Point3D.x;
+				(*tl_CAMBRIDGE_graphic_instance).BoundingBox.bottom=tl_cdx_Point3D.y+10;
+				//TODO: Major/Minor axis
+				(*tl_CAMBRIDGE_graphic_instance).SymbolType=(*tl_Symbol_instance).SymbolType;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_graphic_instance,SymbolType);
+				(*tl_CAMBRIDGE_graphic_instance).GraphicType=7;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_graphic_instance,GraphicType);
+				switch ((*tl_Symbol_instance).SymbolType)
+				{
+					case 2: case 3: case 4: case 5: case 8: case 9: CONVCAMBRIDGE_represent(tl_CAMBRIDGE_graphic_instance,0x421,ilv2);break;
+				}
+				switch ((*tl_Symbol_instance).SymbolType)
+				{
+					case 0: case 1: case 4: case 5: CONVCAMBRIDGE_represent(tl_CAMBRIDGE_graphic_instance,0x422,ilv2);break;
+				}
+				backval=TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_Symbol);
+			}
+		}
+		skipthismultilist:;
 	}
 }
 
@@ -363,4 +414,5 @@ void CONVCAMBRIDGE_internaltomain(CAMBRIDGE_page_instance * master)
 	CONVCAMBRIDGE_text(master);
 	CONVCAMBRIDGE_arrow(master);
 	CONVCAMBRIDGE_graphic(master);
+	CONVCAMBRIDGE_Symbol(master);
 }

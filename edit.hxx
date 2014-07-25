@@ -12,7 +12,7 @@ struct drawproperties_
 	int color;
 	_i32 Element;
 };
-drawproperties_ control_drawproperties={1,0,1,0,constants_Element_implicitcarbon};
+drawproperties_ control_drawproperties={1,0,4,0,constants_Element_implicitcarbon};
 int control_hot[32]={-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,};
 int getbondsum(intl inumber)
 {

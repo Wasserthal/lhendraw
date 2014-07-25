@@ -3,7 +3,7 @@ menuitem pullout_toolspecific_ATTRIBUTES[]={
 37,//Picture
 "chargeplus",
 6,6,
-1,
+4,
 "positive Charge",
 "control_drawproperties.attribute_tool",
 "","",
@@ -13,7 +13,7 @@ menuitem pullout_toolspecific_ATTRIBUTES[]={
 38,//Picture
 "chargeminus",
 6,6,
-2,
+5,
 "negative Charge",
 "control_drawproperties.attribute_tool",
 "","",
@@ -21,9 +21,9 @@ menuitem pullout_toolspecific_ATTRIBUTES[]={
 },
 {2,0,
 39,//Picture
-"radicalplus",
+"radical",
 6,6,
-3,
+1,
 "single Radical",
 "control_drawproperties.attribute_tool",
 "","",
@@ -31,9 +31,9 @@ menuitem pullout_toolspecific_ATTRIBUTES[]={
 },
 {3,0,
 40,//Picture
-"radicalminus",
+"lonepair",
 6,6,
-4,
+0,
 "double Radical",
 "control_drawproperties.attribute_tool",
 "","",

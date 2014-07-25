@@ -324,6 +324,7 @@ struct gummydummy_instance: basic_instance
 	int getproperties(const char * name,CDXMLREAD_functype * delegateoutput,int * posoutput){return -1;}
 };
 #define chararray char *
+//adds an object to its master
 #define ADD_TO_MULTILISTREFERENCE(WHOM,WHAT)\
 	CAMBRIDGE_ ## WHAT ## _instance * tl_CAMBRIDGE_ ## WHAT ## _instance;\
 	{\

@@ -34,6 +34,8 @@
 //contains a id list
 #define TELESCOPE_ELEMENTTYPE_s_f 9
 //contains a format list for atom symbols
+#define TELESCOPE_ELEMENTTYPE_Symbol 10
+//a charge symbol placed next to the atom
 //--TELESCOPE_IDPURPOSE
 #define TELESCOPE_IDPURPOSE_None 0
 //better do not use ...

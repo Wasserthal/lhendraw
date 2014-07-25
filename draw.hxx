@@ -1007,6 +1007,39 @@ void svg_tail()
 	fprintf(outfile,"</svg>");
 	fclose(outfile);
 }
+void draw_Symbol(int SymbolType)
+{
+	stylegenestring(1);
+	switch(SymbolType)
+	{
+		case 4 : strcpy(colorstring2,"FFFFFF");goto charge;break;
+		case 5 : strcpy(colorstring2,"FFFFFF");goto charge;break;
+		case 1 : strcpy(colorstring2,colorstring);goto radical;break;
+		case 6 : strcpy(colorstring2,colorstring);goto dagger;break;
+		case 7 : strcpy(colorstring2,colorstring);goto dagger2;break;
+		default:
+		return;
+	}
+	charge:
+	stylegenestring(1,0xFFFFFFFF);
+	expressellipse(iBBX.left,iBBX.top,6,6);
+	expressline(iBBX.left-3,iBBX.top,iBBX.left+3,iBBX.top);
+	if (SymbolType==4)
+	{
+		expressline(iBBX.left,iBBX.top-3,iBBX.left,iBBX.top+3);
+	}
+	return;
+	radical:
+	stylegenestring(3);
+	expressellipse(iBBX.left,iBBX.top,4,4);
+	return;
+	dagger2:
+	expressline(iBBX.left-5,iBBX.top+10,iBBX.right+5,iBBX.top+10);
+	//PASSTHROUGH
+	dagger:
+	expressline(iBBX.left-5,iBBX.top,iBBX.right+5,iBBX.top);
+	expressline(iBBX.left,iBBX.top-5,iBBX.right,iBBX.top+15);
+}
 void svg_controlprocedure(bool irestriction=0,bool hatches=0)
 {
 	int ilv3,ilv4;
@@ -1152,6 +1185,16 @@ void svg_controlprocedure(bool irestriction=0,bool hatches=0)
 		stylegenestring(3);
 		colornr=(*i_n_instance).color;
 		get_colorstring(colornr);
+		TELESCOPE_aggressobject(glob_n_multilist,index_in_buffer);
+		int tlbackval;
+		tlbackval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_Symbol);
+		if (tlbackval)
+		{
+			Symbol_instance * tl_Symbol_instance=(Symbol_instance*)TELESCOPE_getproperty();
+			iBBX.left=i_n_instance->xyz.x+tl_Symbol_instance->dxyz.x;
+			iBBX.top=i_n_instance->xyz.y+tl_Symbol_instance->dxyz.y;
+			draw_Symbol(tl_Symbol_instance->SymbolType);
+		}
 		if (tlElement==-1)
 		{
 			sortback=atom_actual_node[index_in_buffer].labelside;
@@ -1514,37 +1557,7 @@ void svg_controlprocedure(bool irestriction=0,bool hatches=0)
 	}
 	if ((*i_graphic_instance).GraphicType==7)
 	{
-		stylegenestring(1);
-		switch((*i_graphic_instance).SymbolType)
-		{
-			case 4 : strcpy(colorstring2,"FFFFFF");goto charge;break;
-			case 5 : strcpy(colorstring2,"FFFFFF");goto charge;break;
-			case 1 : strcpy(colorstring2,colorstring);goto radical;break;
-			case 6 : strcpy(colorstring2,colorstring);goto dagger;break;
-			case 7 : strcpy(colorstring2,colorstring);goto dagger2;break;
-		}
-		charge:
-		stylegenestring(1,0xFFFFFFFF);
-		expressellipse(iBBX.left,iBBX.top,6,6);
-		expressline(iBBX.left-3,iBBX.top,iBBX.left+3,iBBX.top);
-		if ((*i_graphic_instance).SymbolType==4)
-		{
-			expressline(iBBX.left,iBBX.top-3,iBBX.left,iBBX.top+3);
-		}
-		goto GraphicType7done;
-		radical:
-		stylegenestring(3);
-		expressellipse(iBBX.left,iBBX.top,4,4);
-		goto GraphicType7done;
-		dagger2:
-		expressline(iBBX.left-5,iBBX.top+10,iBBX.right+5,iBBX.top+10);
-		//PASSTHROUGH
-		dagger:
-		expressline(iBBX.left-5,iBBX.top,iBBX.right+5,iBBX.top);
-		expressline(iBBX.left,iBBX.top-5,iBBX.right,iBBX.top+15);
-		goto GraphicType7done;
-		GraphicType7done:
-		;
+		draw_Symbol(i_graphic_instance->SymbolType);
 	}
 	if ((*i_graphic_instance).GraphicType==6)
 	{

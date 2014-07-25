@@ -659,6 +659,36 @@ int issueclick(int iposx,int iposy)
 			control_id=-1;
 			break;
 		}
+		case 10:
+		{
+			if (selection_clickselection_found & (1<<STRUCTURE_OBJECTTYPE_n))
+			{
+				if (MODIFIER_KEYS.ALT==0)
+				{
+					for (int ilv2=0;ilv2<(*glob_n_multilist).filllevel;ilv2++)
+					{
+						if (selection_clickselection[ilv2] & (1<<STRUCTURE_OBJECTTYPE_n))
+						{
+							if ((*glob_n_multilist)[ilv2].exist)
+							{
+								(*glob_n_multilist).bufferlist[ilv2].charge+=1;
+								TELESCOPE_aggressobject(glob_n_multilist,ilv2);
+								Symbol_instance tl_Symbol_instance;
+								tl_Symbol_instance.length=sizeof(Symbol_instance);
+								tl_Symbol_instance.dxyz.x=10;
+								tl_Symbol_instance.dxyz.y=-10;
+								tl_Symbol_instance.dxyz.z=0;
+								tl_Symbol_instance.SymbolType=control_drawproperties.attribute_tool;
+								TELESCOPE_add(TELESCOPE_ELEMENTTYPE_Symbol,NULL,0);
+								*((Symbol_instance*)TELESCOPE_getproperty())=tl_Symbol_instance;
+//								TELESCOPE_measure(TELESCOPE_ELEMENTTYPE_Symbol,glob_contentbuffer+STRUCTURE_OBJECTTYPE_n);
+							}
+						}
+					}
+				}
+			}
+			break;
+		}
 	}
 	control_mousestate=1;
 	control_usingmousebutton=control_lastmousebutton;

@@ -92,6 +92,8 @@ void CAMBRIDGECONV_atom()
 				(tl_n_instance).Element++;
 			}
 		}
+		CAMBRIDGECONV_COLORCONV(n);
+		(tl_n_instance).charge=(*tl_CAMBRIDGE_n_instance).Charge;
 		for (int ilv2=(*tl_CAMBRIDGE_t_multilistreference).start_in_it;ilv2<(*tl_CAMBRIDGE_t_multilistreference).start_in_it+(*tl_CAMBRIDGE_t_multilistreference).count_in_it;ilv2++)
 		{
 			(*glob_CAMBRIDGE_t_multilist).bufferlist[ilv2].relN=(*glob_n_multilist).filllevel;
@@ -102,7 +104,6 @@ void CAMBRIDGECONV_atom()
 			goto skip_because_text;
 		}
 		(tl_n_instance).protons=(*tl_CAMBRIDGE_n_instance).NumHydrogens;
-		CAMBRIDGECONV_COLORCONV(n);
 		tl_n_instance.Z=(*tl_CAMBRIDGE_n_instance).Z;
 		skip_because_text:;
 		if (AUTOSTRUCT_EXISTS(CAMBRIDGE_n_instance,(*tl_CAMBRIDGE_n_instance),p))

@@ -156,8 +156,6 @@ char * next_content()
 }
 char TELESCOPE_verify_objectpresent()
 {
-	TELESCOPE_tempvar.subpos=0;
-	TELESCOPE_tempvar.subpos2=0;
 	if (TELESCOPE_tempvar.pos<(*(TELESCOPE_tempvar.buffer)).count)
 	{
 		return ((*((TELESCOPE*)(((*(TELESCOPE_tempvar.buffer)).buffer)+TELESCOPE_tempvar.pos))).owner==TELESCOPE_tempvar.objectpos);
@@ -267,6 +265,8 @@ int TELESCOPE_aggressobject(basicmultilist * imultilist,int objectpos)
 	TELESCOPE_tempvar.objectsize=(*imultilist).itemsize;
 	getbufferfromstructure(imultilist,&TELESCOPE_tempvar.buffer);
 	TELESCOPE_tempvar.objectpos=objectpos;
+	TELESCOPE_tempvar.subpos=0;
+	TELESCOPE_tempvar.subpos2=0;
 	TELESCOPE_tempvar.pos=(*((basic_instance_propertybuffer*)(((char*)((*imultilist).pointer))+(TELESCOPE_tempvar.objectsize*TELESCOPE_tempvar.objectpos)))).pos_in_buffer;
 	return TELESCOPE_verify_objectpresent();
 }

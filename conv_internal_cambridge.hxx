@@ -94,6 +94,7 @@ void CONVCAMBRIDGE_atoms(CAMBRIDGE_fragment_instance * master,cdx_Rectangle * iB
 			n_instance * tl_n_instance=(*tl_n_multilist).bufferlist+ilv1;
 			ADD_TO_MULTILISTREFERENCE(master,n);
 			CONVCAMBRIDGE_COLORCONV(n);
+			(*tl_CAMBRIDGE_n_instance).Charge=(*tl_n_instance).charge;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_n_instance,Charge);
 			int tl_Element=(*tl_n_instance).Element;
 			TELESCOPE_aggressobject(tl_n_multilist,ilv1);
 			backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_s);

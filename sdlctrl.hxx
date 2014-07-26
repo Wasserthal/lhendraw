@@ -681,8 +681,9 @@ int issueclick(int iposx,int iposy)
 								tl_Symbol_instance.dxyz.y=-10;
 								tl_Symbol_instance.dxyz.z=0;
 								tl_Symbol_instance.SymbolType=control_drawproperties.attribute_tool;
-								if (TELESCOPE_add(TELESCOPE_ELEMENTTYPE_Symbol,NULL,0)>0)
+								if (TELESCOPE_add(TELESCOPE_ELEMENTTYPE_Symbol,NULL,0)>=0)
 								{
+//									TELESCOPE_measure(TELESCOPE_ELEMENTTYPE_Symbol,glob_contentbuffer+STRUCTURE_OBJECTTYPE_n);
 									*((Symbol_instance*)TELESCOPE_getproperty())=tl_Symbol_instance;
 									control_manipulatededinstance=(basic_instance*)TELESCOPE_getproperty();
 									control_manipulatededinstance2=(basic_instance*)(glob_n_multilist->bufferlist+ilv2);

@@ -26,7 +26,7 @@
 	int tl_color;\
 	unsigned char r,g,b;\
 	AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_ ## AUTOPARM ## _instance,color);\
-	tl_color=MACROPARAM_color;\
+	tl_color=(MACROPARAM_color);\
 	(*tl_CAMBRIDGE_ ## AUTOPARM ## _instance).color=0;\
 	for (int ilv1=0;ilv1<(*glob_CAMBRIDGE_color_multilist).filllevel;ilv1++)\
 	{\

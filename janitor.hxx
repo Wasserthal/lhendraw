@@ -311,3 +311,54 @@ catalogized_command_funcdef(MEMD2)
 {
 	return 1;
 }
+#define WORKIFIX_REGISTERED_TRADEMARK_workthrough_variables\
+	_u32 icompare;\
+	int isize;\
+	char * ibufferpos;\
+	int ioffset;
+#define WORKIFIX_REGISTERED_TRADEMARK_workthrough(MACROPARAM_PROPERTY)\
+				for (int ilv1=0;ilv1<sizeof(STRUCTURE_OBJECTTYPE_List)/sizeof(trienum);ilv1++)\
+				{\
+					icompare=1<<ilv1;\
+					int isize= STRUCTURE_OBJECTTYPE_List[ilv1].size;\
+					basicmultilist * tlmultilist=findmultilist(STRUCTURE_OBJECTTYPE_List[ilv1].name);\
+					if (tlmultilist==NULL) goto i_macrointernal_fertig;\
+					CDXMLREAD_functype tldummy;\
+					ioffset=(*tlmultilist).getproperties(# MACROPARAM_PROPERTY,&tldummy);\
+					if (ioffset<0) goto i_macrointernal_fertig;\
+					ibufferpos=(char*)((*tlmultilist).pointer);\
+					cdx_Point2D * tlpoint2d;\
+					for (int ilv2=0;ilv2<(*tlmultilist).filllevel;ilv2++)\
+					{\
+						if ((*((basic_instance*)(ibufferpos+isize*ilv2))).exist)\
+						{
+basic_instance * edit_locatebyid(_u32 ino,int iid,int * number=NULL)
+{
+	WORKIFIX_REGISTERED_TRADEMARK_workthrough_variables
+	icompare=1<<ino;
+
+	basicmultilist * tlmultilist=findmultilist(STRUCTURE_OBJECTTYPE_List[ino].name);
+	if (tlmultilist==NULL) return NULL;
+	ibufferpos=(char*)((*tlmultilist).pointer);
+	isize=STRUCTURE_OBJECTTYPE_List[ino].size;
+	CDXMLREAD_functype tldummy;
+	ioffset=(*tlmultilist).getproperties("id",&tldummy);
+	if (ioffset<0) return NULL;
+	
+	for (int ilv2=0;ilv2<(*tlmultilist).filllevel;ilv2++)
+	{
+		if ((*((basic_instance*)(ibufferpos+isize*ilv2))).exist)
+		{
+			_u32 tlid=((*((_u32*)(ibufferpos+isize*ilv2+ioffset))));
+			if (tlid==iid)
+			{
+				if (number!=NULL)
+				{
+					*number=ilv2;
+				}
+				return ((((basic_instance*)(ibufferpos+isize*ilv2))));
+			}
+		}
+	}
+	return NULL;
+}

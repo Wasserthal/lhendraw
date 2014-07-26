@@ -668,36 +668,6 @@ basic_instance * getclicked(int ino)
 	return NULL;
 }
 
-basic_instance * edit_locatebyid(_u32 ino,int iid,int * number=NULL)
-{
-	WORKIFIX_REGISTERED_TRADEMARK_workthrough_variables
-	icompare=1<<ino;
-
-	basicmultilist * tlmultilist=findmultilist(STRUCTURE_OBJECTTYPE_List[ino].name);
-	if (tlmultilist==NULL) return NULL;
-	ibufferpos=(char*)((*tlmultilist).pointer);
-	isize=STRUCTURE_OBJECTTYPE_List[ino].size;
-	CDXMLREAD_functype tldummy;
-	ioffset=(*tlmultilist).getproperties("id",&tldummy);
-	if (ioffset<0) return NULL;
-	
-	for (int ilv2=0;ilv2<(*tlmultilist).filllevel;ilv2++)
-	{
-		if ((*((basic_instance*)(ibufferpos+isize*ilv2))).exist)
-		{
-			_u32 tlid=((*((_u32*)(ibufferpos+isize*ilv2+ioffset))));
-			if (tlid==iid)
-			{
-				if (number!=NULL)
-				{
-					*number=ilv2;
-				}
-				return ((((basic_instance*)(ibufferpos+isize*ilv2))));
-			}
-		}
-	}
-	return NULL;
-}
 
 n_instance * summonatom(int * inr=NULL)
 {

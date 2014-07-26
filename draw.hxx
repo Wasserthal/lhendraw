@@ -1188,12 +1188,15 @@ void svg_controlprocedure(bool irestriction=0,bool hatches=0)
 		TELESCOPE_aggressobject(glob_n_multilist,index_in_buffer);
 		int tlbackval;
 		tlbackval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_Symbol);
+		n_Symbol_loop:;
 		if (tlbackval)
 		{
 			Symbol_instance * tl_Symbol_instance=(Symbol_instance*)TELESCOPE_getproperty();
 			iBBX.left=i_n_instance->xyz.x+tl_Symbol_instance->dxyz.x;
 			iBBX.top=i_n_instance->xyz.y+tl_Symbol_instance->dxyz.y;
 			draw_Symbol(tl_Symbol_instance->SymbolType);
+			tlbackval=TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_Symbol);
+			goto n_Symbol_loop;
 		}
 		if (tlElement==-1)
 		{

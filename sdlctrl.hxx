@@ -47,6 +47,8 @@ int control_interactive=1;
 int control_saveuponexit=0;
 int control_GUI=1;
 int control_doubleclickenergy=0;
+basic_instance * control_manipulatededinstance;
+basic_instance * control_manipulatededinstance2;
 typedef struct control_toolinfo_
 {
 	_u32 undoes;//for BOTH mouse buttons, unless using other tool
@@ -679,17 +681,22 @@ int issueclick(int iposx,int iposy)
 								tl_Symbol_instance.dxyz.y=-10;
 								tl_Symbol_instance.dxyz.z=0;
 								tl_Symbol_instance.SymbolType=control_drawproperties.attribute_tool;
-								TELESCOPE_add(TELESCOPE_ELEMENTTYPE_Symbol,NULL,0);
-								*((Symbol_instance*)TELESCOPE_getproperty())=tl_Symbol_instance;
-//								TELESCOPE_measure(TELESCOPE_ELEMENTTYPE_Symbol,glob_contentbuffer+STRUCTURE_OBJECTTYPE_n);
+								if (TELESCOPE_add(TELESCOPE_ELEMENTTYPE_Symbol,NULL,0)>0)
+								{
+									*((Symbol_instance*)TELESCOPE_getproperty())=tl_Symbol_instance;
+									control_manipulatededinstance=(basic_instance*)TELESCOPE_getproperty();
+									control_manipulatededinstance2=(basic_instance*)(glob_n_multilist->bufferlist+ilv2);
+									goto ifertig;
+								}
 							}
 						}
 					}
 				}
 			}
-			break;
+			control_mousestate=0;return 0;
 		}
 	}
+	ifertig:;
 	control_mousestate=1;
 	control_usingmousebutton=control_lastmousebutton;
 	//warning: there ARE in-function returns.
@@ -958,9 +965,20 @@ void issuedrag(int iposx,int iposy)
 			}
 			break;
 		}
+		case 10:
+		{
+			float tl_angle;
+			Symbol_instance * tl_Symbol_instance=(Symbol_instance*)control_manipulatededinstance;
+			n_instance * tl_n_instance=(n_instance*)control_manipulatededinstance2;
+			tl_angle=getangle(control_coorsx-(*tl_n_instance).xyz.x,control_coorsy-(*tl_n_instance).xyz.y);
+			(*tl_Symbol_instance).dxyz.x=cos(tl_angle)*10;
+			(*tl_Symbol_instance).dxyz.y=sin(tl_angle)*10;
+			break;
+		}
 		case 0x10000:
 		{
 			interpretkey(control_lastinterpret);
+			break;
 		}
 	}
 	control_posx=iposx;

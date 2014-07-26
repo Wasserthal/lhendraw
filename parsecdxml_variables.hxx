@@ -68,10 +68,10 @@ void TELESCOPE_measure(int tag,TELESCOPE_buffer * ibuffer)
 	TELESCOPE_element * tl_telescope_element;
 	int total=0;
 	int share=0;
-	printf("start\n");
+	printf("count:%i\n",(int)ibuffer->count);
 	iback:
 	start=(TELESCOPE*)(((char*)((*ibuffer).buffer))+total);
-	printf("le:%iow:%i\n",start->length,start->owner);
+	printf("%ile:%iow:%i\n",total,start->length,start->owner);
 /*	for (int ilv1=0;ilv1<20;ilv1++)
 	{
 		printf("%02hhX ",*(((char*)((*ibuffer).buffer))+ilv1));
@@ -80,18 +80,20 @@ void TELESCOPE_measure(int tag,TELESCOPE_buffer * ibuffer)
 	share=0;
 	iback2:
 	tl_telescope_element=(TELESCOPE_element*)(((char*)((*ibuffer).buffer))+total+sizeof(TELESCOPE)+share);
-	printf("  le:%ity:%i:%s\n",tl_telescope_element->length,tl_telescope_element->type,((char*)((*ibuffer).buffer))+total+sizeof(TELESCOPE)+share+TELESCOPE_ELEMENTTYPE_List[tag].size);
+	printf("  %i:le:%ity:%i:%s\n",share,tl_telescope_element->length,tl_telescope_element->type,((char*)((*ibuffer).buffer))+total+sizeof(TELESCOPE)+share+TELESCOPE_ELEMENTTYPE_List[tag].size);
 	if (tl_telescope_element->length==0)
 	{
 		goto idontgoback;
 	}
 	share+=tl_telescope_element->length;
+	if (tl_telescope_element->length==0) {printf("Zero-Length Element at %i:\n",share);return;}
 	if (share<start->length-sizeof(TELESCOPE))
 	{
 		goto iback2;
 	}
 	idontgoback:
 	total+=start->length;
+	if (start->length==0) {printf("Zero-Length Object at %i:\n",total);return;}
 	if (total<(*ibuffer).count)
 	{
 		goto iback;
@@ -154,6 +156,8 @@ char * next_content()
 }
 char TELESCOPE_verify_objectpresent()
 {
+	TELESCOPE_tempvar.subpos=0;
+	TELESCOPE_tempvar.subpos2=0;
 	if (TELESCOPE_tempvar.pos<(*(TELESCOPE_tempvar.buffer)).count)
 	{
 		return ((*((TELESCOPE*)(((*(TELESCOPE_tempvar.buffer)).buffer)+TELESCOPE_tempvar.pos))).owner==TELESCOPE_tempvar.objectpos);
@@ -215,7 +219,7 @@ int TELESCOPE_stretch_buffer(basicmultilist * imultilist,int ideltaplus,int ityp
 	{
 		return -1;
 	}
-	for (int ilv1=(*ibuffer).count+ideltaplus2-1;ilv1>=TELESCOPE_tempvar.pos+ideltaplus2+TELESCOPE_tempvar.subpos2;ilv1--)//TODO: FASTER! buffercopy_reverse((*ibuffer).buffer+(*ibuffer).count,ipos,(*ibuffer).buffer+(*ibuffer).count+ideltaplus2,ipos+ideltaplus2);
+	for (int ilv1=(*ibuffer).count+ideltaplus2-1;ilv1>=TELESCOPE_tempvar.pos+ideltaplus2+TELESCOPE_tempvar.subpos2;ilv1--)//TODO: FASTER! buffercopy_reverse(
 	{
 		(*ibuffer).buffer[ilv1]=(*ibuffer).buffer[ilv1-ideltaplus2];
 	}

@@ -31,6 +31,29 @@ if (AUTOSTRUCT_EXISTS(CAMBRIDGE_ ## MACROPARAM_TYPE ## _instance,(*tl_CAMBRIDGE_
 	}\
 	color_fertig:;\
 }
+#define CAMBRIDGECONV_COLORCONV2(MACROPARAM_TYPE,MACROPARAM_TYPE2) \
+{\
+	__label__ color_fertig;\
+	if (AUTOSTRUCT_EXISTS(CAMBRIDGE_ ## MACROPARAM_TYPE2 ## _instance,(*tl_CAMBRIDGE_ ## MACROPARAM_TYPE2 ## _instance),color))\
+	{\
+		int tlcolor=(*tl_CAMBRIDGE_ ## MACROPARAM_TYPE2 ## _instance).color-2;\
+		if (tlcolor==-2) {tl_ ## MACROPARAM_TYPE ## _instance.color=0x000000; goto color_fertig; }\
+		if (tlcolor==-1) {tl_ ## MACROPARAM_TYPE ## _instance.color=0xFFFFFF; goto color_fertig; }\
+		if (tlcolor<(*glob_CAMBRIDGE_color_multilist).filllevel)\
+		{\
+			tl_ ## MACROPARAM_TYPE ## _instance.color=((_u8)(((*glob_CAMBRIDGE_color_multilist).bufferlist)[tlcolor].r*255)*65536)|((_u8)(((*glob_CAMBRIDGE_color_multilist).bufferlist)[tlcolor].g*255)*256)|((_u8)(((*glob_CAMBRIDGE_color_multilist).bufferlist)[tlcolor].b*255));\
+		}\
+		else\
+		{\
+			tl_ ## MACROPARAM_TYPE ## _instance.color=0x000000;\
+		}\
+	}\
+	else\
+	{\
+		tl_ ## MACROPARAM_TYPE ## _instance.color=0x000000;\
+	}\
+	color_fertig:;\
+}
 int edit_interpretaselementwithimplicithydrogens(multilist<n_instance> * imultilist,int inumber);
 CAMBRIDGE_font_instance * getfont(_small iid)
 {
@@ -255,6 +278,33 @@ void CAMBRIDGECONV_text()
 		if (atommode) edit_interpretaselementwithimplicithydrogens(glob_n_multilist,(*tl_CAMBRIDGE_t_instance).relN);
 	}
 }
+int CAMBRIDGECONV_represent(CAMBRIDGE_graphic_instance * tl_CAMBRIDGE_graphic_instance,int ino)
+{
+	
+	multilist<CAMBRIDGE_represent_instance> * tl_CAMBRIDGE_represent_multilist=retrievemultilist<CAMBRIDGE_represent_instance>();
+	CAMBRIDGE_represent_instance * tl_CAMBRIDGE_represent_instance=(*tl_CAMBRIDGE_represent_multilist).bufferlist+ino;
+	n_instance * i_n_instance;int n_index;
+	if (i_n_instance=(n_instance*)edit_locatebyid(STRUCTURE_OBJECTTYPE_n,(*tl_CAMBRIDGE_represent_instance).object,&n_index))
+	{
+		TELESCOPE_aggressobject(glob_n_multilist,n_index);
+		Symbol_instance tl_Symbol_instance;
+		CAMBRIDGECONV_COLORCONV2(Symbol,graphic);
+		tl_Symbol_instance.SymbolType=(*tl_CAMBRIDGE_graphic_instance).SymbolType;
+		tl_Symbol_instance.dxyz.x=(*tl_CAMBRIDGE_graphic_instance).BoundingBox.left-(*i_n_instance).xyz.x;
+		tl_Symbol_instance.dxyz.y=(*tl_CAMBRIDGE_graphic_instance).BoundingBox.top-(*i_n_instance).xyz.y;
+		if (TELESCOPE_add(TELESCOPE_ELEMENTTYPE_Symbol,NULL,0)>0)
+		{
+			*((Symbol_instance*)TELESCOPE_getproperty())=tl_Symbol_instance;
+		}
+		else
+		{
+			//TODO: else, warn that there is not enough memory.
+			return 0;
+		}
+		return 1;
+	}
+	return 0;
+}
 void CAMBRIDGECONV_graphic()
 {
 	multilist<CAMBRIDGE_graphic_instance> * tl_CAMBRIDGE_graphic_multilist=retrievemultilist<CAMBRIDGE_graphic_instance>();
@@ -267,6 +317,13 @@ void CAMBRIDGECONV_graphic()
 		if (tl_CAMBRIDGE_graphic_instance->SupersededBy!=0)
 		{
 			goto skip_because_superseded;
+		}
+		for (int ilv1=(*tl_CAMBRIDGE_graphic_instance).represent->start_in_it;ilv1<(*tl_CAMBRIDGE_graphic_instance).represent->start_in_it+(*tl_CAMBRIDGE_graphic_instance).represent->count_in_it;ilv1++)
+		{
+			if (CAMBRIDGECONV_represent(tl_CAMBRIDGE_graphic_instance,ilv1)>0)
+			{
+				goto skip_because_superseded;
+			}
 		}
 		tl_graphic_instance=graphic_instance();
 		CAMBRIDGECONV_COLORCONV(graphic);
@@ -313,27 +370,6 @@ void CAMBRIDGECONV_arrow()
 		(*tl_arrow_multilist).ADD(&tl_arrow_instance);
 	}
 }
-#define WORKIFIX_REGISTERED_TRADEMARK_workthrough_variables\
-	_u32 icompare;\
-	int isize;\
-	char * ibufferpos;\
-	int ioffset;
-#define WORKIFIX_REGISTERED_TRADEMARK_workthrough(MACROPARAM_PROPERTY)\
-				for (int ilv1=0;ilv1<sizeof(STRUCTURE_OBJECTTYPE_List)/sizeof(trienum);ilv1++)\
-				{\
-					icompare=1<<ilv1;\
-					int isize= STRUCTURE_OBJECTTYPE_List[ilv1].size;\
-					basicmultilist * tlmultilist=findmultilist(STRUCTURE_OBJECTTYPE_List[ilv1].name);\
-					if (tlmultilist==NULL) goto i_macrointernal_fertig;\
-					CDXMLREAD_functype tldummy;\
-					ioffset=(*tlmultilist).getproperties(# MACROPARAM_PROPERTY,&tldummy);\
-					if (ioffset<0) goto i_macrointernal_fertig;\
-					ibufferpos=(char*)((*tlmultilist).pointer);\
-					cdx_Point2D * tlpoint2d;\
-					for (int ilv2=0;ilv2<(*tlmultilist).filllevel;ilv2++)\
-					{\
-						if ((*((basic_instance*)(ibufferpos+isize*ilv2))).exist)\
-						{
 
 void CAMBRIDGECONV_maintointernal()
 {

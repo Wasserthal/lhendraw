@@ -45,6 +45,7 @@ typedef struct multi_Z_geometry_
 	int elementsize;
 }multi_Z_geometry_;
 multi_Z_geometry_ multi_Z_geometry[multilistlistlength];
+int janitor_id_list[STRUCTURE_OBJECTTYPE_ListSize+TELESCOPE_ELEMENTTYPE_ListSize];
 
 /*
 how is the depth order list created for the first time?

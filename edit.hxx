@@ -48,16 +48,59 @@ int janitor_getmaxid(_u32 ino)
 			_u32 tlid=((*((_u32*)(ibufferpos+isize*ilv2+ioffset))));
 			if (tlid>=iid)
 			{
-				iid=tlid+1;
+				iid=tlid;
 			}
 		}
 	}
 	(*tlmultilist).maxid=iid;
-	return 0;
+	return iid;
 }
 int edit_getnewZ()
 {
-	return 0;//TODO pretty urgent :)(!)
+	if (janitor_maxZ>0) {janitor_maxZ++;return janitor_maxZ;}
+	janitor_maxZ=0;
+	_u32 icompare;
+	CDXMLREAD_functype dummy;
+	int isize;
+	int ioffset;
+	char * ibufferpos;
+	char isuccessful=0;
+	for (int ilv1=1;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
+	{
+		icompare=1<<ilv1;
+		isize= STRUCTURE_OBJECTTYPE_List[ilv1].size;
+		basicmultilist * tlmultilist=findmultilist(STRUCTURE_OBJECTTYPE_List[ilv1].name);
+		if (tlmultilist==NULL) goto hasnoZ;
+		ioffset=(*tlmultilist).getproperties("xyz",&dummy);
+		if (ioffset<0) goto hasnoZ;
+		ibufferpos=(char*)((*tlmultilist).pointer);
+		for (int ilv2=0;ilv2<(*tlmultilist).filllevel;ilv2++)
+		{
+			if ((*((basic_instance*)(ibufferpos+isize*ilv2))).exist)
+			{
+				if ((*((_i32*)(ibufferpos+isize*ilv2+ioffset)))>janitor_maxZ)
+				{
+					janitor_maxZ=(*((_i32*)(ibufferpos+isize*ilv2+ioffset)));
+				}
+			}
+		}
+		hasnoZ:;
+	}
+	janitor_maxZ+=1;
+	return janitor_maxZ;
+}
+int janitor_biasids(int i_bias)
+{
+	janitor_id_list[0]=i_bias;
+	for (int ilv1=1;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
+	{
+		janitor_id_list[ilv1]=janitor_id_list[ilv1-1]+max(0,janitor_getmaxid(ilv1));
+	}
+	janitor_id_list[STRUCTURE_OBJECTTYPE_ListSize]=janitor_id_list[STRUCTURE_OBJECTTYPE_ListSize-1];
+	for (int ilv1=1;ilv1<TELESCOPE_ELEMENTTYPE_ListSize;ilv1++)
+	{
+		janitor_id_list[STRUCTURE_OBJECTTYPE_ListSize+ilv1]=janitor_id_list[STRUCTURE_OBJECTTYPE_ListSize+ilv1-1]+max(0,janitor_getmaxid(ilv1));
+	}
 }
 int for_all_objects(catalogized_command_iterated_functype ifunc,char selectiononly=0)
 {
@@ -662,7 +705,7 @@ n_instance * summonatom(int * inr=NULL)
 	{
 		int tl_nr=-1;
 		n_instance * tlinstance;
-		if (janitor_getmaxid(STRUCTURE_OBJECTTYPE_n)==-1) return NULL;
+		if (janitor_getmaxid(STRUCTURE_OBJECTTYPE_n)<0) return NULL;
 		tl_nr=(*glob_n_multilist).filllevel;
 		tlinstance=new(&((*glob_n_multilist).bufferlist[tl_nr])) n_instance;
 		(*tlinstance).Element=constants_Element_implicitcarbon;
@@ -672,7 +715,7 @@ n_instance * summonatom(int * inr=NULL)
 		selection_currentselection[tl_nr]&=(~(1<<STRUCTURE_OBJECTTYPE_n));
 		atom_actual_node[tl_nr].bondcount=0;
 		((*glob_n_multilist).filllevel)++;
-		(*tlinstance).id=(*glob_n_multilist).maxid;
+		(*tlinstance).id=(*glob_n_multilist).maxid+1;
 		(*glob_n_multilist).maxid++;
 		if (inr!=NULL)
 		{
@@ -717,6 +760,8 @@ b_instance * summonbond(int i_id_begin,int i_id_end,int i_nr_begin,int i_nr_end)
 		atom_actual_node[i_nr_begin]+=((*glob_b_multilist).filllevel);
 		atom_actual_node[i_nr_end]+=((*glob_b_multilist).filllevel);
 		((*glob_b_multilist).filllevel)++;
+		(*tlinstance).id=(*glob_b_multilist).maxid+1;
+		(*glob_b_multilist).maxid++;
 		return tlinstance;
 	}
 	return NULL;
@@ -915,6 +960,10 @@ catalogized_command_funcdef(FILE_NEW)
 			//TODO: undo: buffer lists!
 		}
 	}
+	for (int ilv1=0;ilv1<sizeof(janitor_id_list)/sizeof(int);ilv1++)
+	{
+		janitor_id_list[ilv1]=0;
+	}
 	return 1;
 }
 extern float control_coorsx;
@@ -1061,10 +1110,11 @@ for (int ilv1=0;ilv1<(*glob_CAMBRIDGE_color_multilist).filllevel;ilv1++)
 	fprintf(ifile," <color r=\"%f\" g=\"%f\" b=\"%f\"/>\n",(*glob_CAMBRIDGE_color_multilist).bufferlist[ilv1].r,(*glob_CAMBRIDGE_color_multilist).bufferlist[ilv1].g,(*glob_CAMBRIDGE_color_multilist).bufferlist[ilv1].b);
 }
 
+janitor_biasids(3);
 fprintf(ifile,"%s","</colortable><fonttable>\n"
 "<font id=\"1\" charset=\"windows-1258\" name=\"Arial\"/>\n"
 "<font id=\"2\" charset=\"Unknown\" name=\"Symbol\"/>\n"
-"</fonttable>");//TODO: font id's(!)
+"</fonttable>");
 	//TODO: all subobjects of page must get filllevel=0 before add!
 	CAMBRIDGE_page_instance i_CAMBRIDGE_page_instance=CAMBRIDGE_page_instance();
 	i_CAMBRIDGE_page_instance.id=0;AUTOSTRUCT_EXISTS_SET_NAME(&i_CAMBRIDGE_page_instance,id);

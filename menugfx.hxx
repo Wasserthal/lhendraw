@@ -690,6 +690,7 @@ int sdl_selectiondraw()
 	}
 	for (int ilv1=0;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
 	{
+		int follower3=0;
 		icompare=1<<ilv1;
 		internalpointcount=retrieveprops_basic(1,ilv1);
 		int isize= STRUCTURE_OBJECTTYPE_List[ilv1].size;
@@ -714,9 +715,17 @@ int sdl_selectiondraw()
 							draw_drawmarkpoint((tlpx-SDL_scrollx)*SDL_zoomx-3+gfx_canvasminx,(tlpy-SDL_scrolly)*SDL_zoomy-3+gfx_canvasminy,48,(ilv3!=0));
 						}
 					}
-					if (ilv3>0) if ((selection_currentselection[ilv2*internalpointcount+ilv3-1]) & (1<<(ilv1+STRUCTURE_OBJECTTYPE_ListSize)))
+					if (ilv3>0)
 					{
-						draw_drawmarkpoint((tlpx-SDL_scrollx)*SDL_zoomx-3+gfx_canvasminx,(tlpy-SDL_scrolly)*SDL_zoomy-3+gfx_canvasminy,48,5);
+						if (internalpointcount>0)
+						{
+							follower3=ilv2*internalpointcount+ilv3-1;
+						}
+						if ((selection_currentselection[follower3]) & (1<<(ilv1+STRUCTURE_OBJECTTYPE_ListSize)))
+						{
+							draw_drawmarkpoint((tlpx-SDL_scrollx)*SDL_zoomx-3+gfx_canvasminx,(tlpy-SDL_scrolly)*SDL_zoomy-3+gfx_canvasminy,48,5);
+						}
+						follower3++;
 					}
 					ilv3++;
 					goto iback;

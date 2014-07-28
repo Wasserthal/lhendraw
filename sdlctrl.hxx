@@ -673,7 +673,11 @@ int issueclick(int iposx,int iposy)
 						{
 							if ((*glob_n_multilist)[ilv2].exist)
 							{
-								(*glob_n_multilist).bufferlist[ilv2].charge+=1;
+								switch (control_drawproperties.attribute_tool)
+								{
+									case 2: case 4: case 8: (*glob_n_multilist).bufferlist[ilv2].charge+=1;break;
+									case 3: case 5: case 9: (*glob_n_multilist).bufferlist[ilv2].charge-=1;break;
+								}
 								TELESCOPE_aggressobject(glob_n_multilist,ilv2);
 								Symbol_instance tl_Symbol_instance;
 								tl_Symbol_instance.length=sizeof(Symbol_instance);
@@ -850,6 +854,7 @@ void issuedrag(int iposx,int iposy)
 		{
 			for (int ilv1=0;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
 			{
+				int follower=0;
 				icompare=1<<ilv1;
 				int isize= STRUCTURE_OBJECTTYPE_List[ilv1].size;
 				basicmultilist * tlmultilist=findmultilist(STRUCTURE_OBJECTTYPE_List[ilv1].name);
@@ -881,12 +886,17 @@ void issuedrag(int iposx,int iposy)
 						}
 						else
 						{
+							if (internalpointcount>0)
+							{
+								follower=ilv2*internalpointcount;
+							}
 							for (int ilv3=1;retrievepoints_basic((basic_instance*)(ibufferpos+isize*ilv2),&tl_x,&tl_y,ilv3,ilv1)>0;ilv3++)
 							{
-								if (selection_currentselection[ilv2*internalpointcount+ilv3-1] & (1<<(STRUCTURE_OBJECTTYPE_ListSize+ilv1)))
+								if (selection_currentselection[follower] & (1<<(STRUCTURE_OBJECTTYPE_ListSize+ilv1)))
 								{
 									placepoints_basic(((basic_instance*)(ibufferpos+isize*ilv2)),tl_x+ideltax/SDL_zoomx,tl_y+ideltay/SDL_zoomy,ilv3,ilv1);
 								}
+								follower++;
 							}
 						}
 					}
@@ -1063,6 +1073,7 @@ void issuerelease()
 			selection_clearselection(selection_clickselection);selection_clickselection_found=0;
 			for (int ilv1=0;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
 			{
+				int follower=0;
 				icompare=1<<ilv1;
 				internalpointcount=retrieveprops_basic(1,ilv1);
 				int isize= STRUCTURE_OBJECTTYPE_List[ilv1].size;
@@ -1078,6 +1089,10 @@ void issuerelease()
 						if ((*((basic_instance*)(ibufferpos+isize*ilv2))).exist)
 						{
 							int ilv3=0;
+							if (internalpointcount>0)
+							{
+								follower=ilv2*internalpointcount;
+							}
 							while (retrievepoints_basic((basic_instance*)(ibufferpos+isize*ilv2),&tlpx,&tlpy,ilv3,ilv1)>0)
 							{
 								if ((tlpx>=selection_frame.startx) && (tlpx<=selection_frame.endx))
@@ -1088,7 +1103,7 @@ void issuerelease()
 										{
 											if (selection_clickabilitymatrix.types2[2] & (1<<ilv1))
 											{
-												selection_clickselection[ilv2*internalpointcount+ilv3-1]|=(1<<(ilv1+STRUCTURE_OBJECTTYPE_ListSize));
+												selection_clickselection[follower]|=(1<<(ilv1+STRUCTURE_OBJECTTYPE_ListSize));
 												goto i_control2_skipthiscenter;
 											}
 										}
@@ -1096,6 +1111,10 @@ void issuerelease()
 										selection_clickselection_found|=icompare;
 										i_control2_skipthiscenter:;
 									}
+								}
+								if (ilv3>0)
+								{
+									follower++;
 								}
 								ilv3++;
 							}
@@ -1121,6 +1140,7 @@ void issuerelease()
 			selection_clearselection(selection_clickselection);selection_clickselection_found=0;
 			for (int ilv1=1;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
 			{
+				int follower=0;
 				icompare=1<<ilv1;
 				int isize= STRUCTURE_OBJECTTYPE_List[ilv1].size;
 				basicmultilist * tlmultilist=findmultilist(STRUCTURE_OBJECTTYPE_List[ilv1].name);
@@ -1140,6 +1160,10 @@ void issuerelease()
 							//goto considered helpful
 							//I am not kidding. Mixing goto statements into if constructs means just:
 							//continue exactly as you would have done in the other case.
+							if (internalpointcount>0)
+							{
+								follower=ilv2*internalpointcount;
+							}
 							while (retrievepoints_basic((basic_instance*)(ibufferpos+isize*ilv2),&tlpx,&tlpy,ilv3,ilv1)>0)
 							{
 								tl_x=(tlpx-SDL_scrollx)*SDL_zoomx;
@@ -1184,7 +1208,7 @@ void issuerelease()
 										{
 											if (selection_clickabilitymatrix.types2[2] & (1<<ilv1))
 											{
-												selection_clickselection[ilv2*internalpointcount+ilv3-1]|=(1<<(ilv1+STRUCTURE_OBJECTTYPE_ListSize));
+												selection_clickselection[follower]|=(1<<(ilv1+STRUCTURE_OBJECTTYPE_ListSize));
 												goto i_control3_skipthiscenter;
 											}
 										}
@@ -1192,6 +1216,10 @@ void issuerelease()
 										selection_clickselection_found|=icompare;
 										i_control3_skipthiscenter:;
 									}
+								}
+								if (ilv3>0)
+								{
+									follower++;
 								}
 								ilv3++;
 							}

@@ -176,6 +176,10 @@ basic_instance * gethot(int ino,int * nr=NULL)
 }
 inline int retrieveprops_n(int what)
 {
+	if (what==1)
+	{
+		return -1;
+	}
 	return 0;
 }
 inline int retrieveprops_b(int what)
@@ -208,7 +212,28 @@ inline int retrieveprops_arrow(int what)
 }
 inline int retrievepoints(n_instance * iinstance,float * ix,float * iy,int inumber)
 {
-	if (inumber>0) return 0;
+	if (inumber>0)
+	{
+		int tl_backval=0;
+		int ilv1=0;
+		tl_backval=TELESCOPE_aggressobject(glob_n_multilist,iinstance-glob_n_multilist->bufferlist);
+		tl_backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_Symbol);
+		iback:;
+		if (tl_backval>0)
+		{
+			ilv1++;
+			Symbol_instance * tl_Symbol_instance=(Symbol_instance*)TELESCOPE_getproperty();
+			if (ilv1==inumber)
+			{
+				(*ix)=(*iinstance).xyz.x+(*tl_Symbol_instance).dxyz.x;
+				(*iy)=(*iinstance).xyz.y+(*tl_Symbol_instance).dxyz.y;
+				return 1;
+			}
+			tl_backval=TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_Symbol);
+			goto iback;
+		}
+		return 0;
+	}
 	if (inumber<0) return 0;
 	(*ix)=(*iinstance).xyz.x;
 	(*iy)=(*iinstance).xyz.y;
@@ -331,16 +356,25 @@ inline int retrievepoints(arrow_instance * iinstance,float * ix,float * iy,int i
 }
 int hit(n_instance * iinstance,float ix,float iy,int ino)
 {
-	if ((sqr(ix-(*iinstance).xyz.x)+sqr(iy-(*iinstance).xyz.y))<glob_clickradius)
+	float tl_x,tl_y;
+	if (retrievepoints(iinstance,&tl_x,&tl_y,ino)>0)
 	{
-		return 1;
+		if ((sqr(ix-tl_x)+sqr(iy-tl_y))<((ino>0)?glob_subpoint_clickradius:glob_clickradius))
+		{
+			return 1;
+		}
+		else
+		{
+			return 0;
+		}
 	}
-	return 0;
+	return -1;
 }
 int hit(b_instance * iinstance,float ix,float iy,int ino)
 {
 	n_instance *iinstance1=NULL;
 	n_instance *iinstance2=NULL;
+	if (ino!=0) return -1;
 	for (int ilv1=0;ilv1<(*glob_n_multilist).filllevel;ilv1++)
 	{
 		n_instance * tlinstance=&((*glob_n_multilist).bufferlist[ilv1]);
@@ -367,26 +401,59 @@ int hit(b_instance * iinstance,float ix,float iy,int ino)
 int hit(graphic_instance * iinstance,float ix,float iy,int ino)
 {
 	float tl_x,tl_y;
-	retrievepoints(iinstance,&tl_x,&tl_y,ino);
-	if ((sqr(ix-tl_x)+sqr(iy-tl_y))<glob_clickradius)
+	if (retrievepoints(iinstance,&tl_x,&tl_y,ino)>0)
 	{
-		return 1;
+		if ((sqr(ix-tl_x)+sqr(iy-tl_y))<glob_clickradius)
+		{
+			return 1;
+		}
+		else
+		{
+			return 0;
+		}
 	}
-	return 0;
+	return -1;
 }
 int hit(arrow_instance * iinstance,float ix,float iy,int ino)
 {
 	float tl_x,tl_y;
-	retrievepoints(iinstance,&tl_x,&tl_y,ino);
-	if ((sqr(ix-tl_x)+sqr(iy-tl_y))<glob_clickradius)
+	if (retrievepoints(iinstance,&tl_x,&tl_y,ino)>0)
 	{
-		return 1;
+		if ((sqr(ix-tl_x)+sqr(iy-tl_y))<glob_clickradius)
+		{
+			return 1;
+		}
+		else
+		{
+			return 0;
+		}
 	}
-	return 0;
+	return -1;
 }
 inline int placepoints(n_instance * iinstance,float ix,float iy,int inumber)
 {
-	if (inumber>0) return 0;
+	int tl_backval;
+	int ilv1=0;
+	if (inumber>0)
+	{
+		tl_backval=TELESCOPE_aggressobject(glob_n_multilist,iinstance-glob_n_multilist->bufferlist);
+		tl_backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_Symbol);
+		iback:;
+		if (tl_backval>0)
+		{
+			ilv1++;
+			Symbol_instance * tl_Symbol_instance=(Symbol_instance*)TELESCOPE_getproperty();
+			if (ilv1==inumber)
+			{
+				(*tl_Symbol_instance).dxyz.x=ix-(*iinstance).xyz.x;
+				(*tl_Symbol_instance).dxyz.y=iy-(*iinstance).xyz.y;
+				return 1;
+			}
+			tl_backval=TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_Symbol);
+			goto iback;
+		}
+		return 0;
+	}
 	if (inumber<0) return 0;
 	(*iinstance).xyz.x=ix;
 	(*iinstance).xyz.y=iy;
@@ -397,7 +464,7 @@ inline int placepoints(b_instance * iinstance,float ix,float iy,int inumber)
 	if (inumber>0) return 0;
 	if (inumber<0) return 0;
 	float tl_x,tl_y;
-	retrievepoints(iinstance,&tl_x,&tl_y,0);
+	if (retrievepoints(iinstance,&tl_x,&tl_y,inumber)<=0) return 0;
 	tl_x-=ix;
 	tl_y-=iy;
 	n_instance *iinstance1=NULL;
@@ -423,6 +490,8 @@ inline int placepoints(b_instance * iinstance,float ix,float iy,int inumber)
 	if (iinstance2==NULL) {return -3;}
 	(*iinstance1).xyz.x-=tl_x;
 	(*iinstance1).xyz.y-=tl_y;
+	(*iinstance2).xyz.x-=tl_x;
+	(*iinstance2).xyz.y-=tl_y;
 	return 1;
 }
 inline int placepoints(graphic_instance * iinstance,float ix,float iy,int inumber)
@@ -460,7 +529,7 @@ inline int placepoints(graphic_instance * iinstance,float ix,float iy,int inumbe
 		return 1;
 	}
 	float tl_x,tl_y;
-	retrievepoints(iinstance,&tl_x,&tl_y,inumber);
+	if (retrievepoints(iinstance,&tl_x,&tl_y,inumber)<=0) return 0;
 	tl_x-=ix;
 	tl_y-=iy;
 	(*iinstance).BoundingBox.left-=tl_x;
@@ -504,7 +573,7 @@ inline int placepoints(arrow_instance * iinstance,float ix,float iy,int inumber)
 		return 1;
 	}
 	float tl_x,tl_y;
-	retrievepoints(iinstance,&tl_x,&tl_y,inumber);
+	if (retrievepoints(iinstance,&tl_x,&tl_y,inumber)<=0) return 0;
 	tl_x-=ix;
 	tl_y-=iy;
 	if (inumber==1)
@@ -544,11 +613,13 @@ int retrieveprops_basic(int what,int objecttype)
 template <class thisinstance> inline _u32 clickfor_template(float posx,float posy,int objecttype,_u32 mode)
 {
 	_u32 found=0;
+	int ilv3;
+	int follower=0;
 	int internalpointcount;
 	multilist<thisinstance> * imultilist=retrievemultilist<thisinstance>();
+	internalpointcount=retrieveprops_basic(1,objecttype);
 	for (int ilv1=0;ilv1<(*imultilist).filllevel;ilv1++)
 	{
-		internalpointcount=retrieveprops_basic(1,objecttype);
 		thisinstance * tlinstance=&((*imultilist).bufferlist[ilv1]);
 		if ((*tlinstance).exist)
 		{
@@ -557,12 +628,26 @@ template <class thisinstance> inline _u32 clickfor_template(float posx,float pos
 				selection_clickselection[ilv1]|=(1<<objecttype);
 				found|=1<<objecttype;
 			}
-			if (mode & 2) for (int ilv3=1;ilv3<internalpointcount+1;ilv3++)
+			if (mode & 2)
 			{
-				if (hit(tlinstance,posx,posy,ilv3)>0)
+				int tl_backval;
+				if (internalpointcount>0)
 				{
-					selection_clickselection[ilv1*internalpointcount+ilv3-1]|=(1<<(objecttype+STRUCTURE_OBJECTTYPE_ListSize));
-					found|=1<<(objecttype+STRUCTURE_OBJECTTYPE_ListSize);
+					follower=ilv1*internalpointcount;
+				}
+	 			ilv3=1;
+				iback:;
+				tl_backval=hit(tlinstance,posx,posy,ilv3);
+				if (tl_backval>=0)
+				{
+					if (tl_backval>0)
+					{
+						selection_clickselection[follower]|=(1<<(objecttype+STRUCTURE_OBJECTTYPE_ListSize));
+						found|=1<<(objecttype+STRUCTURE_OBJECTTYPE_ListSize);
+					}
+					ilv3++;
+					follower++;
+					goto iback;
 				}
 			}
 		}

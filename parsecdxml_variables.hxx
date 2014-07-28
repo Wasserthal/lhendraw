@@ -19,6 +19,7 @@ char janitor_maxZ=0;
 #define constants_Element_lonepair 1
 #define constants_Element_implicitcarbon 9
 float glob_clickradius=170;
+float glob_subpoint_clickradius=50;
 #define constants_maxbonds 10
 #define constants_undostep_max 40
 #ifndef CROFTOIDAL

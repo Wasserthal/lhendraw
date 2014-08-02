@@ -210,7 +210,7 @@ inline int retrieveprops_arrow(int what)
 	}
 	return 0;
 }
-inline int retrievepoints(n_instance * iinstance,float * ix,float * iy,int inumber)
+inline int retrievepoints(n_instance * iinstance,float * ix,float * iy,float * iz,int inumber)
 {
 	if (inumber>0)
 	{
@@ -227,6 +227,7 @@ inline int retrievepoints(n_instance * iinstance,float * ix,float * iy,int inumb
 			{
 				(*ix)=(*iinstance).xyz.x+(*tl_Symbol_instance).dxyz.x;
 				(*iy)=(*iinstance).xyz.y+(*tl_Symbol_instance).dxyz.y;
+				(*iz)=(*iinstance).xyz.z+(*tl_Symbol_instance).dxyz.z;
 				return 1;
 			}
 			tl_backval=TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_Symbol);
@@ -237,9 +238,10 @@ inline int retrievepoints(n_instance * iinstance,float * ix,float * iy,int inumb
 	if (inumber<0) return 0;
 	(*ix)=(*iinstance).xyz.x;
 	(*iy)=(*iinstance).xyz.y;
+	(*iz)=(*iinstance).xyz.z;
 	return 1;
 }
-inline int retrievepoints(b_instance * iinstance,float * ix,float * iy,int inumber)
+inline int retrievepoints(b_instance * iinstance,float * ix,float * iy,float * iz,int inumber)
 {
 	if (inumber>0) return 0;
 	if (inumber<0) return 0;
@@ -264,9 +266,10 @@ inline int retrievepoints(b_instance * iinstance,float * ix,float * iy,int inumb
 	if (iinstance2==NULL) {return -3;}
 	(*ix)=((*iinstance1).xyz.x+(*iinstance2).xyz.x)*0.5;
 	(*iy)=((*iinstance1).xyz.y+(*iinstance2).xyz.y)*0.5;
+	(*iz)=((*iinstance1).xyz.z+(*iinstance2).xyz.z)*0.5;
 	return 1;
 }
-inline int retrievepoints(graphic_instance * iinstance,float * ix,float * iy,int inumber)
+inline int retrievepoints(graphic_instance * iinstance,float * ix,float * iy,float * iz,int inumber)
 {
 	if (inumber>2) return 0;
 	if (inumber<-5) return 0;
@@ -302,9 +305,10 @@ inline int retrievepoints(graphic_instance * iinstance,float * ix,float * iy,int
 	}
 	(*ix)=((*iinstance).BoundingBox.right+(*iinstance).BoundingBox.left)/2;
 	(*iy)=((*iinstance).BoundingBox.bottom+(*iinstance).BoundingBox.top)/2;
+	(*iz)=0;
 	return 1;
 }
-inline int retrievepoints(arrow_instance * iinstance,float * ix,float * iy,int inumber)
+inline int retrievepoints(arrow_instance * iinstance,float * ix,float * iy,float * iz,int inumber)
 {
 	if (inumber>2) return 0;
 	if (inumber<-5) return 0;
@@ -312,52 +316,60 @@ inline int retrievepoints(arrow_instance * iinstance,float * ix,float * iy,int i
 	{
 		*ix=(*iinstance).Head3D.x;
 		*iy=(*iinstance).Head3D.y;
+		*iz=(*iinstance).Head3D.z;
 		return 1;
 	}
 	if (inumber==-2)
 	{
 		*ix=(*iinstance).Tail3D.x;
 		*iy=(*iinstance).Tail3D.y;
+		*iz=(*iinstance).Tail3D.z;
 		return 1;
 	}
 	if (inumber==-3)
 	{
 		*ix=(*iinstance).Center3D.x;
 		*iy=(*iinstance).Center3D.y;
+		*iz=(*iinstance).Center3D.z;
 		return 1;
 	}
 	if (inumber==-4)
 	{
 		*ix=(*iinstance).MajorAxisEnd3D.x;
 		*iy=(*iinstance).MajorAxisEnd3D.y;
+		*iz=(*iinstance).MajorAxisEnd3D.z;
 		return 1;
 	}
 	if (inumber==-5)
 	{
 		*ix=(*iinstance).MinorAxisEnd3D.x;
 		*iy=(*iinstance).MinorAxisEnd3D.y;
+		*iz=(*iinstance).MinorAxisEnd3D.z;
 		return 1;
 	}
 	if (inumber==1)
 	{
 		*ix=(*iinstance).Head3D.x;
 		*iy=(*iinstance).Head3D.y;
+		*iz=(*iinstance).Head3D.z;
 		return 1;
 	}
 	if (inumber==2)
 	{
 		*ix=(*iinstance).Tail3D.x;
 		*iy=(*iinstance).Tail3D.y;
+		*iz=(*iinstance).Tail3D.z;
 		return 1;
 	}
 	(*ix)=((*iinstance).Head3D.x+(*iinstance).Tail3D.x)/2;
 	(*iy)=((*iinstance).Head3D.y+(*iinstance).Tail3D.y)/2;
+	(*iz)=((*iinstance).Head3D.z+(*iinstance).Tail3D.z)/2;
 	return 1;
 }
 int hit(n_instance * iinstance,float ix,float iy,int ino)
 {
-	float tl_x,tl_y;
-	if (retrievepoints(iinstance,&tl_x,&tl_y,ino)>0)
+	float tl_x,tl_y,tl_z;
+	if (retrievepoints(iinstance,&tl_x,&tl_y,&tl_z,ino)>0)
 	{
 		if ((sqr(ix-tl_x)+sqr(iy-tl_y))<((ino>0)?glob_subpoint_clickradius:glob_clickradius))
 		{
@@ -400,8 +412,8 @@ int hit(b_instance * iinstance,float ix,float iy,int ino)
 }
 int hit(graphic_instance * iinstance,float ix,float iy,int ino)
 {
-	float tl_x,tl_y;
-	if (retrievepoints(iinstance,&tl_x,&tl_y,ino)>0)
+	float tl_x,tl_y,tl_z;
+	if (retrievepoints(iinstance,&tl_x,&tl_y,&tl_z,ino)>0)
 	{
 		if ((sqr(ix-tl_x)+sqr(iy-tl_y))<glob_clickradius)
 		{
@@ -416,8 +428,8 @@ int hit(graphic_instance * iinstance,float ix,float iy,int ino)
 }
 int hit(arrow_instance * iinstance,float ix,float iy,int ino)
 {
-	float tl_x,tl_y;
-	if (retrievepoints(iinstance,&tl_x,&tl_y,ino)>0)
+	float tl_x,tl_y,tl_z;
+	if (retrievepoints(iinstance,&tl_x,&tl_y,&tl_z,ino)>0)
 	{
 		if ((sqr(ix-tl_x)+sqr(iy-tl_y))<glob_clickradius)
 		{
@@ -430,7 +442,7 @@ int hit(arrow_instance * iinstance,float ix,float iy,int ino)
 	}
 	return -1;
 }
-inline int placepoints(n_instance * iinstance,float ix,float iy,int inumber)
+inline int placepoints(n_instance * iinstance,float ix,float iy,float iz,int inumber)
 {
 	int tl_backval;
 	int ilv1=0;
@@ -447,6 +459,7 @@ inline int placepoints(n_instance * iinstance,float ix,float iy,int inumber)
 			{
 				(*tl_Symbol_instance).dxyz.x=ix-(*iinstance).xyz.x;
 				(*tl_Symbol_instance).dxyz.y=iy-(*iinstance).xyz.y;
+				(*tl_Symbol_instance).dxyz.z=iz-(*iinstance).xyz.z;
 				return 1;
 			}
 			tl_backval=TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_Symbol);
@@ -457,14 +470,15 @@ inline int placepoints(n_instance * iinstance,float ix,float iy,int inumber)
 	if (inumber<0) return 0;
 	(*iinstance).xyz.x=ix;
 	(*iinstance).xyz.y=iy;
+	(*iinstance).xyz.z=iz;
 	return 1;
 }
-inline int placepoints(b_instance * iinstance,float ix,float iy,int inumber)
+inline int placepoints(b_instance * iinstance,float ix,float iy,float iz,int inumber)
 {
 	if (inumber>0) return 0;
 	if (inumber<0) return 0;
-	float tl_x,tl_y;
-	if (retrievepoints(iinstance,&tl_x,&tl_y,inumber)<=0) return 0;
+	float tl_x,tl_y,tl_z;
+	if (retrievepoints(iinstance,&tl_x,&tl_y,&tl_z,inumber)<=0) return 0;
 	tl_x-=ix;
 	tl_y-=iy;
 	n_instance *iinstance1=NULL;
@@ -490,11 +504,13 @@ inline int placepoints(b_instance * iinstance,float ix,float iy,int inumber)
 	if (iinstance2==NULL) {return -3;}
 	(*iinstance1).xyz.x-=tl_x;
 	(*iinstance1).xyz.y-=tl_y;
+	(*iinstance1).xyz.z-=tl_z;
 	(*iinstance2).xyz.x-=tl_x;
 	(*iinstance2).xyz.y-=tl_y;
+	(*iinstance2).xyz.z-=tl_z;
 	return 1;
 }
-inline int placepoints(graphic_instance * iinstance,float ix,float iy,int inumber)
+inline int placepoints(graphic_instance * iinstance,float ix,float iy,float iz,int inumber)
 {
 	if (inumber>2) return 0;
 	if (inumber<-5) return 0;
@@ -528,8 +544,8 @@ inline int placepoints(graphic_instance * iinstance,float ix,float iy,int inumbe
 		(*iinstance).BoundingBox.bottom=iy;
 		return 1;
 	}
-	float tl_x,tl_y;
-	if (retrievepoints(iinstance,&tl_x,&tl_y,inumber)<=0) return 0;
+	float tl_x,tl_y,tl_z;
+	if (retrievepoints(iinstance,&tl_x,&tl_y,&tl_z,inumber)<=0) return 0;
 	tl_x-=ix;
 	tl_y-=iy;
 	(*iinstance).BoundingBox.left-=tl_x;
@@ -538,7 +554,7 @@ inline int placepoints(graphic_instance * iinstance,float ix,float iy,int inumbe
 	(*iinstance).BoundingBox.bottom-=tl_y;
 	return 1;
 }
-inline int placepoints(arrow_instance * iinstance,float ix,float iy,int inumber)
+inline int placepoints(arrow_instance * iinstance,float ix,float iy,float iz,int inumber)
 {
 	if (inumber>2) return 0;
 	if (inumber<-5) return 0;
@@ -546,58 +562,71 @@ inline int placepoints(arrow_instance * iinstance,float ix,float iy,int inumber)
 	{
 		(*iinstance).Head3D.x=ix;
 		(*iinstance).Head3D.y=iy;
+		(*iinstance).Head3D.z=iz;
 		return 1;
 	}
 	if (inumber==-2)
 	{
 		(*iinstance).Tail3D.x=ix;
 		(*iinstance).Tail3D.y=iy;
+		(*iinstance).Tail3D.z=iz;
 		return 1;
 	}
 	if (inumber==-3)
 	{
 		(*iinstance).Center3D.x=ix;
 		(*iinstance).Center3D.y=iy;
+		(*iinstance).Center3D.z=iz;
 		return 1;
 	}
 	if (inumber==-4)
 	{
 		(*iinstance).MajorAxisEnd3D.x=ix;
 		(*iinstance).MajorAxisEnd3D.y=iy;
+		(*iinstance).MajorAxisEnd3D.z=iz;
 		return 1;
 	}
 	if (inumber==-5)
 	{
 		(*iinstance).MinorAxisEnd3D.x=ix;
 		(*iinstance).MinorAxisEnd3D.y=iy;
+		(*iinstance).MinorAxisEnd3D.z=iz;
 		return 1;
 	}
-	float tl_x,tl_y;
-	if (retrievepoints(iinstance,&tl_x,&tl_y,inumber)<=0) return 0;
+	float tl_x,tl_y,tl_z;
+	if (retrievepoints(iinstance,&tl_x,&tl_y,&tl_z,inumber)<=0) return 0;
 	tl_x-=ix;
 	tl_y-=iy;
+	tl_z-=iz;
 	if (inumber==1)
 	{
 		(*iinstance).Head3D.x-=tl_x;
 		(*iinstance).Head3D.y-=tl_y;
+		(*iinstance).Head3D.z-=tl_z;
 		return 1;
 	}
 	if (inumber==2)
 	{
 		(*iinstance).Tail3D.x-=tl_x;
 		(*iinstance).Tail3D.y-=tl_y;
+		(*iinstance).Tail3D.z-=tl_z;
 		return 1;
 	}
 	(*iinstance).Head3D.x-=tl_x;
 	(*iinstance).Head3D.y-=tl_y;
+	(*iinstance).Head3D.z-=tl_z;
 	(*iinstance).Tail3D.x-=tl_x;
 	(*iinstance).Tail3D.y-=tl_y;
+	(*iinstance).Tail3D.z-=tl_z;
 	(*iinstance).Center3D.x-=tl_x;
 	(*iinstance).Center3D.y-=tl_y;
+	(*iinstance).Center3D.z-=tl_z;
 	(*iinstance).MajorAxisEnd3D.x-=tl_x;
 	(*iinstance).MajorAxisEnd3D.y-=tl_y;
+	(*iinstance).MajorAxisEnd3D.z-=tl_z;
 	(*iinstance).MinorAxisEnd3D.x-=tl_x;
 	(*iinstance).MinorAxisEnd3D.y-=tl_y;
+	(*iinstance).MinorAxisEnd3D.z-=tl_z;
 	return 1;
 }
 #define LOCALMACRO_1(whatabout) case STRUCTURE_OBJECTTYPE_ ## whatabout: return retrieveprops_ ## whatabout(what);break;
@@ -655,9 +684,11 @@ template <class thisinstance> inline _u32 clickfor_template(float posx,float pos
 	return found;
 }
 
-#define LOCALMACRO_1(whatabout) case STRUCTURE_OBJECTTYPE_ ## whatabout: return retrievepoints((whatabout ## _instance*)iinstance,ix,iy,inumber);break;
-int retrievepoints_basic(basic_instance * iinstance,float * ix,float * iy,int inumber,int objecttype)
+#define LOCALMACRO_1(whatabout) case STRUCTURE_OBJECTTYPE_ ## whatabout: return retrievepoints((whatabout ## _instance*)iinstance,ix,iy,iz,inumber);break;
+int retrievepoints_basic(basic_instance * iinstance,float * ix,float * iy,float * iz,int inumber,int objecttype)
 {
+	float tl_iz=0;
+	if (iz==NULL) iz=&tl_iz;
 	switch (objecttype)
 	{
 		LOCALMACROES
@@ -665,8 +696,8 @@ int retrievepoints_basic(basic_instance * iinstance,float * ix,float * iy,int in
 	return 0;
 }
 #undef LOCALMACRO_1
-#define LOCALMACRO_1(whatabout) case STRUCTURE_OBJECTTYPE_ ## whatabout: return placepoints((whatabout ## _instance*)iinstance,ix,iy,inumber);break;
-int placepoints_basic(basic_instance * iinstance,float ix,float iy,int inumber,int objecttype)
+#define LOCALMACRO_1(whatabout) case STRUCTURE_OBJECTTYPE_ ## whatabout: return placepoints((whatabout ## _instance*)iinstance,ix,iy,iz,inumber);break;
+int placepoints_basic(basic_instance * iinstance,float ix,float iy,float iz,int inumber,int objecttype)
 {
 	switch (objecttype)
 	{

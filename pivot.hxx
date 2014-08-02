@@ -5,7 +5,7 @@ void get_selection_pivot()
 	intl ioffset;
 	char * ibufferpos;
 	_u32 icompare;
-	float tl_x,tl_y;
+	float tl_x,tl_y,tl_z;
 	int internalpointcount;
 	char iAllofthem=0;
 	edit_pivot_counter=0;
@@ -38,7 +38,7 @@ void get_selection_pivot()
 			if ((*((basic_instance*)(ibufferpos+isize*ilv2))).exist)
 			{
 				iAllofthem=((selection_currentselection[ilv2]) & icompare)>0;
-				for (int ilv3=-1;retrievepoints_basic(((basic_instance*)(ibufferpos+isize*ilv2)),&tl_x,&tl_y,ilv3,ilv1)>0;ilv3--)
+				for (int ilv3=-1;retrievepoints_basic(((basic_instance*)(ibufferpos+isize*ilv2)),&tl_x,&tl_y,&tl_z,ilv3,ilv1)>0;ilv3--)
 				{
 					if (ilv3<=-3) continue;//HACK: this is a hack because some components are undefined
 					if ((selection_currentselection[ilv2*internalpointcount-ilv3+1] & (1<<(STRUCTURE_OBJECTTYPE_ListSize+ilv1))) || (iAllofthem))
@@ -60,7 +60,7 @@ void get_selection_pivot()
 void applytransform(float matrix[3][3])
 {
 	intl ioffset;
-	float tl_x,tl_y;
+	float tl_x,tl_y,tl_z;
 	char * ibufferpos;
 	_u32 icompare;
 	cdx_Point3D xyz;
@@ -96,17 +96,17 @@ void applytransform(float matrix[3][3])
 			if ((*((basic_instance*)(ibufferpos+isize*ilv2))).exist)
 			{
 				iAllofthem=((selection_currentselection[ilv2]) & icompare);
-				for (int ilv3=-1;retrievepoints_basic(((basic_instance*)(ibufferpos+isize*ilv2)),&tl_x,&tl_y,ilv3,ilv1)>0;ilv3--)
+				for (int ilv3=-1;retrievepoints_basic(((basic_instance*)(ibufferpos+isize*ilv2)),&tl_x,&tl_y,&tl_z,ilv3,ilv1)>0;ilv3--)
 				{
 					if ((selection_currentselection[ilv2*internalpointcount+ilv3-1] & (1<<(STRUCTURE_OBJECTTYPE_ListSize+ilv1))) || (iAllofthem))
 					{
 						xyz.x=tl_x-edit_pivot.x;
 						xyz.y=tl_y-edit_pivot.y;
-						xyz.z=0-edit_pivot.z;//TODO: tl_z
+						xyz.z=tl_z-edit_pivot.z;
 						tl_x=xyz.x*matrix[0][0]+xyz.y*matrix[1][0]+xyz.z*matrix[2][0]+edit_pivot.x;
 						tl_y=xyz.x*matrix[0][1]+xyz.y*matrix[1][1]+xyz.z*matrix[2][1]+edit_pivot.y;
-						//TODO: tl_z
-						placepoints_basic(((basic_instance*)(ibufferpos+isize*ilv2)),tl_x,tl_y,ilv3,ilv1);
+						tl_z=xyz.x*matrix[0][1]+xyz.y*matrix[1][1]+xyz.z*matrix[2][1]+edit_pivot.z;
+						placepoints_basic(((basic_instance*)(ibufferpos+isize*ilv2)),tl_x,tl_y,tl_z,ilv3,ilv1);
 					}
 				}
 			}
@@ -115,7 +115,7 @@ void applytransform(float matrix[3][3])
 	}
 	return;
 }
-catalogized_command_funcdef(PIVOT_TURN)
+catalogized_command_funcdef(PIVOT_TURNZ)
 {
 	float angle=atof(value);
 	float matrix[3][3];
@@ -123,12 +123,46 @@ catalogized_command_funcdef(PIVOT_TURN)
 	matrix[0][0]=cos(angle);
 	matrix[0][1]=sin(angle);
 	matrix[0][2]=0;
-	matrix[1][1]=cos(angle);
 	matrix[1][0]=-sin(angle);
+	matrix[1][1]=cos(angle);
 	matrix[1][2]=0;
 	matrix[2][0]=0;
 	matrix[2][1]=0;
 	matrix[2][2]=1;
+	applytransform(matrix);
+	return 1;
+}
+catalogized_command_funcdef(PIVOT_TURNX)
+{
+	float angle=atof(value);
+	float matrix[3][3];
+	get_selection_pivot();
+	matrix[0][0]=1;
+	matrix[0][1]=0;
+	matrix[0][2]=0;
+	matrix[1][0]=0;
+	matrix[1][1]=cos(angle);
+	matrix[1][2]=sin(angle);
+	matrix[2][0]=0;
+	matrix[2][1]=-sin(angle);
+	matrix[2][2]=cos(angle);
+	applytransform(matrix);
+	return 1;
+}
+catalogized_command_funcdef(PIVOT_TURNY)
+{
+	float angle=atof(value);
+	float matrix[3][3];
+	get_selection_pivot();
+	matrix[0][0]=cos(angle);
+	matrix[0][1]=0;
+	matrix[0][2]=-sin(angle);
+	matrix[1][0]=0;
+	matrix[1][1]=1;
+	matrix[1][2]=0;
+	matrix[2][0]=sin(angle);
+	matrix[2][1]=1;
+	matrix[2][2]=cos(angle);
 	applytransform(matrix);
 	return 1;
 }

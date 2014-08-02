@@ -408,7 +408,7 @@ int sdl_buttonmenudraw(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int count,int xpos=
 		sdl_toolboxitemdraw(ilisting[ilv1].x*32+xpos,ilisting[ilv1].y*32+ypos,ilisting[ilv1].picno,state);
 		continue;
 		sliderdraw:
-		sdl_sliderdraw(ilisting[ilv1].x*32+xpos,ilisting[ilv1].y*32+ypos,ilisting[ilv1].picno,-control_menudragint);
+		sdl_sliderdraw(ilisting[ilv1].x*32+xpos,ilisting[ilv1].y*32+ypos,ilisting[ilv1].picno,(ilisting+ilv1==control_menuitem)?(-control_menudragint):0);
 		continue;
 	}
 		
@@ -706,7 +706,7 @@ int sdl_selectiondraw()
 			{
 				int ilv3=0;
 				iback:
-				if (retrievepoints_basic(((basic_instance*)(ibufferpos+isize*ilv2)),&tlpx,&tlpy,ilv3,ilv1)>0)
+				if (retrievepoints_basic(((basic_instance*)(ibufferpos+isize*ilv2)),&tlpx,&tlpy,NULL,ilv3,ilv1)>0)
 				{
 					if (((selection_clickabilitymatrix.types2[2] & (1<<ilv1)) && (ilv3!=0)) || ((selection_clickabilitymatrix.types2[1] & (1<<ilv1)) && (ilv3==0)))
 					{
@@ -740,7 +740,7 @@ int sdl_selectiondraw()
 					{
 					int ilv3=0;
 					iback2:
-						if (retrievepoints_basic(((basic_instance*)(((char*)(*glob_n_multilist).pointer)+sizeof(n_instance)*control_hot[STRUCTURE_OBJECTTYPE_n])),&tlpx,&tlpy,ilv3,STRUCTURE_OBJECTTYPE_n)>0)
+						if (retrievepoints_basic(((basic_instance*)(((char*)(*glob_n_multilist).pointer)+sizeof(n_instance)*control_hot[STRUCTURE_OBJECTTYPE_n])),&tlpx,&tlpy,NULL,ilv3,STRUCTURE_OBJECTTYPE_n)>0)
 						{
 							draw_drawmarkpoint((tlpx-SDL_scrollx)*SDL_zoomx-3+gfx_canvasminx,(tlpy-SDL_scrolly)*SDL_zoomy-3+gfx_canvasminy,48,4);
 							ilv3++;

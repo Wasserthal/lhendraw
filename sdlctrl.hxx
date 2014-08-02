@@ -711,6 +711,7 @@ void issuedrag(int iposx,int iposy)
 {
 	float tl_x=0;
 	float tl_y=0;
+	float tl_z=0;
 	int internalpointcount;
 	int atomnr2=-1;
 	int tlwhichtool=control_tool;
@@ -872,10 +873,10 @@ void issuedrag(int iposx,int iposy)
 						{
 							if (ioffset<0)
 							{
-								retrievepoints_basic(((basic_instance*)(ibufferpos+isize*ilv2)),&tl_x,&tl_y,0,ilv1);
+								retrievepoints_basic(((basic_instance*)(ibufferpos+isize*ilv2)),&tl_x,&tl_y,&tl_z,0,ilv1);
 								tl_x+=ideltax/SDL_zoomx;
 								tl_y+=ideltay/SDL_zoomy;
-								placepoints_basic(((basic_instance*)(ibufferpos+isize*ilv2)),tl_x,tl_y,0,ilv1);
+								placepoints_basic(((basic_instance*)(ibufferpos+isize*ilv2)),tl_x,tl_y,tl_z,0,ilv1);
 							}
 							else
 							{
@@ -890,11 +891,11 @@ void issuedrag(int iposx,int iposy)
 							{
 								follower=ilv2*internalpointcount;
 							}
-							for (int ilv3=1;retrievepoints_basic((basic_instance*)(ibufferpos+isize*ilv2),&tl_x,&tl_y,ilv3,ilv1)>0;ilv3++)
+							for (int ilv3=1;retrievepoints_basic((basic_instance*)(ibufferpos+isize*ilv2),&tl_x,&tl_y,&tl_z,ilv3,ilv1)>0;ilv3++)
 							{
 								if (selection_currentselection[follower] & (1<<(STRUCTURE_OBJECTTYPE_ListSize+ilv1)))
 								{
-									placepoints_basic(((basic_instance*)(ibufferpos+isize*ilv2)),tl_x+ideltax/SDL_zoomx,tl_y+ideltay/SDL_zoomy,ilv3,ilv1);
+									placepoints_basic(((basic_instance*)(ibufferpos+isize*ilv2)),tl_x+ideltax/SDL_zoomx,tl_y+ideltay/SDL_zoomy,tl_z,ilv3,ilv1);
 								}
 								follower++;
 							}
@@ -1081,7 +1082,7 @@ void issuerelease()
 				if (tlmultilist==NULL) goto i_control2_fertig;
 				CDXMLREAD_functype tldummy;
 				ibufferpos=(char*)((*tlmultilist).pointer);
-				float tlpx,tlpy;
+				float tlpx,tlpy,tlpz;
 				if (tlmultilist!=NULL)
 				{
 					for (int ilv2=0;ilv2<(*tlmultilist).filllevel;ilv2++)
@@ -1093,7 +1094,7 @@ void issuerelease()
 							{
 								follower=ilv2*internalpointcount;
 							}
-							while (retrievepoints_basic((basic_instance*)(ibufferpos+isize*ilv2),&tlpx,&tlpy,ilv3,ilv1)>0)
+							while (retrievepoints_basic((basic_instance*)(ibufferpos+isize*ilv2),&tlpx,&tlpy,&tlpz,ilv3,ilv1)>0)
 							{
 								if ((tlpx>=selection_frame.startx) && (tlpx<=selection_frame.endx))
 								{
@@ -1146,8 +1147,8 @@ void issuerelease()
 				basicmultilist * tlmultilist=findmultilist(STRUCTURE_OBJECTTYPE_List[ilv1].name);
 				if (tlmultilist==NULL) goto i_control3_fertig;
 				ibufferpos=(char*)((*tlmultilist).pointer);
-				float tlpx,tlpy;
-				int tl_x,tl_y;
+				float tlpx,tlpy,tlpz;
+				int tl_x,tl_y,tl_z;
 				if (tlmultilist!=NULL)
 				{
 					for (int ilv2=0;ilv2<(*tlmultilist).filllevel;ilv2++)
@@ -1164,10 +1165,11 @@ void issuerelease()
 							{
 								follower=ilv2*internalpointcount;
 							}
-							while (retrievepoints_basic((basic_instance*)(ibufferpos+isize*ilv2),&tlpx,&tlpy,ilv3,ilv1)>0)
+							while (retrievepoints_basic((basic_instance*)(ibufferpos+isize*ilv2),&tlpx,&tlpy,&tlpz,ilv3,ilv1)>0)
 							{
 								tl_x=(tlpx-SDL_scrollx)*SDL_zoomx;
 								tl_y=(tlpy-SDL_scrolly)*SDL_zoomy;
+								tl_z=tlpz;
 								if ((tl_x<0)|| (tl_y<0) || (tl_y>=gfx_canvassizey))
 								{
 									markstate=0;

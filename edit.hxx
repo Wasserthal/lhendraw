@@ -277,30 +277,35 @@ inline int retrievepoints(graphic_instance * iinstance,float * ix,float * iy,flo
 	{
 		*ix=(*iinstance).Center3D.x;
 		*iy=(*iinstance).Center3D.y;
+		*iz=(*iinstance).Center3D.z;
 		return 1;
 	}
 	if (inumber==-4)
 	{
 		*ix=(*iinstance).MajorAxisEnd3D.x;
 		*iy=(*iinstance).MajorAxisEnd3D.y;
+		*iz=(*iinstance).MajorAxisEnd3D.z;
 		return 1;
 	}
 	if (inumber==-5)
 	{
 		*ix=(*iinstance).MinorAxisEnd3D.x;
 		*iy=(*iinstance).MinorAxisEnd3D.y;
+		*iz=(*iinstance).MinorAxisEnd3D.z;
 		return 1;
 	}
 	if ((inumber==1) || (inumber==-1))
 	{
 		(*ix)=(*iinstance).BoundingBox.left;
 		(*iy)=(*iinstance).BoundingBox.top;
+		(*iz)=0;
 		return 1;
 	}
 	if ((inumber==2) || (inumber==-2))
 	{
 		(*ix)=(*iinstance).BoundingBox.right;
 		(*iy)=(*iinstance).BoundingBox.bottom;
+		(*iz)=0;
 		return 1;
 	}
 	(*ix)=((*iinstance).BoundingBox.right+(*iinstance).BoundingBox.left)/2;

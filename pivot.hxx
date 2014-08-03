@@ -45,7 +45,7 @@ void get_selection_pivot()
 					{
 						edit_pivot.x+=tl_x;
 						edit_pivot.y+=tl_y;
-						edit_pivot.z+=0;//TODO: tl_z
+						edit_pivot.z+=tl_z;
 						edit_pivot_counter++;
 					}
 				}
@@ -105,7 +105,7 @@ void applytransform(float matrix[3][3])
 						xyz.z=tl_z-edit_pivot.z;
 						tl_x=xyz.x*matrix[0][0]+xyz.y*matrix[1][0]+xyz.z*matrix[2][0]+edit_pivot.x;
 						tl_y=xyz.x*matrix[0][1]+xyz.y*matrix[1][1]+xyz.z*matrix[2][1]+edit_pivot.y;
-						tl_z=xyz.x*matrix[0][1]+xyz.y*matrix[1][1]+xyz.z*matrix[2][1]+edit_pivot.z;
+						tl_z=xyz.x*matrix[0][2]+xyz.y*matrix[1][2]+xyz.z*matrix[2][2]+edit_pivot.z;
 						placepoints_basic(((basic_instance*)(ibufferpos+isize*ilv2)),tl_x,tl_y,tl_z,ilv3,ilv1);
 					}
 				}
@@ -161,7 +161,7 @@ catalogized_command_funcdef(PIVOT_TURNY)
 	matrix[1][1]=1;
 	matrix[1][2]=0;
 	matrix[2][0]=sin(angle);
-	matrix[2][1]=1;
+	matrix[2][1]=0;
 	matrix[2][2]=cos(angle);
 	applytransform(matrix);
 	return 1;

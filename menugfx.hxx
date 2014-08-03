@@ -40,6 +40,31 @@ void text_output_bitmap(int * posx,int * posy,fontpixinf_ * ifontpixinf)
 		iscreen+=iscreenskip;
 	}
 }
+int draw_drawmarkpoint(int x,int y,int gfxno,int number,char noclip)
+{
+	_u32 * ibutton=resources_bitmap_buttons[selection_maxbuttons-gfxno][0];
+	ibutton+=(number%4)*8+(number/4)*256;
+	for (int ilv1=0;ilv1<8;ilv1++)
+	{
+		for (int ilv2=0;ilv2<8;ilv2++)
+		{
+			ARGB pixin;
+			if ((((y+ilv1)>=gfx_canvasminy) && ((y+ilv1)<gfx_canvasmaxy) && ((x+ilv2)>=gfx_canvasminx) && ((x+ilv2)<gfx_canvasmaxx)) || (noclip))
+			{
+				pixin.A=screen[(y+ilv1)*gfx_screensizex+x+ilv2];
+				ARGB bitsin;
+				bitsin.A=ibutton[ilv1*32+ilv2];
+				int alpha=(_u8)bitsin.c[3];//no ENDIAN problem. bit order still from file!
+				for (int ilv3=0;ilv3<4;ilv3++)
+				{
+					pixin.c[ilv3]=(((256-alpha)*(_u8)(pixin.c[ilv3]))>>8)+(((alpha)*(_u8)(bitsin.c[ilv3]))>>8);
+				}
+				screen[(y+ilv1)*gfx_screensizex+x+ilv2]=pixin.A;
+			}
+		}
+	}
+	return 1;
+}
 void sdl_buttondraw(int posx,int posy,int number)
 {
 	for (int ilv2=0;ilv2<32;ilv2++)
@@ -171,6 +196,16 @@ int sdl_sliderdraw(int posx,int posy,int gfxno,int shift)
 			screen[gfx_screensizex*(posy+ilv1)+posx+ilv2]=*(ibutton+yco*32+xco);
 		}
 		ifertig:;
+	}
+	for (int ilv1=-180;ilv1<=180;ilv1+=15)
+	{
+		int tl_no=4;
+		if (ilv1%30==0) tl_no=1;
+		if (ilv1%45==0) tl_no=2;
+		if (ilv1%90==0) tl_no=2;
+		if (ilv1%180==0) tl_no=5;
+		if (ilv1==0) tl_no=3;
+		draw_drawmarkpoint(posx+(((ilv1+180)*gfx_canvassizex)/360)-4,posy+24,48,tl_no,1);
 	}
 	return 1;
 }
@@ -637,31 +672,6 @@ void draw_reticle()
 		}
 	}
 }
-int draw_drawmarkpoint(int x,int y,int gfxno,int number)
-{
-	_u32 * ibutton=resources_bitmap_buttons[selection_maxbuttons-gfxno][0];
-	ibutton+=(number%4)*8+(number/4)*256;
-	for (int ilv1=0;ilv1<8;ilv1++)
-	{
-		for (int ilv2=0;ilv2<8;ilv2++)
-		{
-			ARGB pixin;
-			if (((y+ilv1)>=gfx_canvasminy) && ((y+ilv1)<gfx_canvasmaxy) && ((x+ilv2)>=gfx_canvasminx) && ((x+ilv2)<gfx_canvasmaxx))
-			{
-				pixin.A=screen[(y+ilv1)*gfx_screensizex+x+ilv2];
-				ARGB bitsin;
-				bitsin.A=ibutton[ilv1*32+ilv2];
-				int alpha=(_u8)bitsin.c[3];//no ENDIAN problem. bit order still from file!
-				for (int ilv3=0;ilv3<4;ilv3++)
-				{
-					pixin.c[ilv3]=(((256-alpha)*(_u8)(pixin.c[ilv3]))>>8)+(((alpha)*(_u8)(bitsin.c[ilv3]))>>8);
-				}
-				screen[(y+ilv1)*gfx_screensizex+x+ilv2]=pixin.A;
-			}
-		}
-	}
-	return 1;
-}
 int sdl_selectiondraw()
 {
 	int internalpointcount;
@@ -712,7 +722,7 @@ int sdl_selectiondraw()
 					{
 						if ((((selection_currentselection[ilv2]) & icompare)>0) ^ (ilv3!=0))
 						{
-							draw_drawmarkpoint((tlpx-SDL_scrollx)*SDL_zoomx-3+gfx_canvasminx,(tlpy-SDL_scrolly)*SDL_zoomy-3+gfx_canvasminy,48,(ilv3!=0));
+							draw_drawmarkpoint((tlpx-SDL_scrollx)*SDL_zoomx-3+gfx_canvasminx,(tlpy-SDL_scrolly)*SDL_zoomy-3+gfx_canvasminy,48,(ilv3!=0),0);
 						}
 					}
 					if (ilv3>0)
@@ -723,7 +733,7 @@ int sdl_selectiondraw()
 						}
 						if ((selection_currentselection[follower3]) & (1<<(ilv1+STRUCTURE_OBJECTTYPE_ListSize)))
 						{
-							draw_drawmarkpoint((tlpx-SDL_scrollx)*SDL_zoomx-3+gfx_canvasminx,(tlpy-SDL_scrolly)*SDL_zoomy-3+gfx_canvasminy,48,5);
+							draw_drawmarkpoint((tlpx-SDL_scrollx)*SDL_zoomx-3+gfx_canvasminx,(tlpy-SDL_scrolly)*SDL_zoomy-3+gfx_canvasminy,48,5,0);
 						}
 						follower3++;
 					}
@@ -742,7 +752,7 @@ int sdl_selectiondraw()
 					iback2:
 						if (retrievepoints_basic(((basic_instance*)(((char*)(*glob_n_multilist).pointer)+sizeof(n_instance)*control_hot[STRUCTURE_OBJECTTYPE_n])),&tlpx,&tlpy,NULL,ilv3,STRUCTURE_OBJECTTYPE_n)>0)
 						{
-							draw_drawmarkpoint((tlpx-SDL_scrollx)*SDL_zoomx-3+gfx_canvasminx,(tlpy-SDL_scrolly)*SDL_zoomy-3+gfx_canvasminy,48,4);
+							draw_drawmarkpoint((tlpx-SDL_scrollx)*SDL_zoomx-3+gfx_canvasminx,(tlpy-SDL_scrolly)*SDL_zoomy-3+gfx_canvasminy,48,4,0);
 							ilv3++;
 							goto iback2;
 						}

@@ -1374,6 +1374,19 @@ int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int
 						}
 						break;
 					}
+					case 0x103:
+					{
+						if ((pixeloriginposy-(posy*32))>=24)
+						{
+							int tl_angle;
+							tl_angle=((((((pixeloriginposx-(ipulloutlisting->x*32))*360)/gfx_canvassizex)+7)/15)*15)-180;
+							char istring[100];
+							sprintf(istring,"%f",tl_angle/180.0*Pi);
+							(*ipulloutlisting).LMB_function("",istring);
+							break;
+						}
+						goto idefault;
+					}
 					case 0x201:
 					{
 						structenum * istructenum=(structenum*)(*ipulloutlisting).variable;
@@ -1392,6 +1405,7 @@ int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int
 					}
 					default:
 					{
+						idefault:;
 						if ((((*ipulloutlisting).lmbmode) & (~0xFF))==0x100)
 						{
 							storeundo(~0);

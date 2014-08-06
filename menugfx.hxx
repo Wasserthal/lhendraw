@@ -149,10 +149,11 @@ int sdl_toolboxitemdraw(int posx,int posy,int gfxno,_u32 state)
 	}
 	return 1;
 }
-int sdl_sliderdraw(int posx,int posy,int gfxno,int shift)
+int sdl_sliderdraw(int posx,int posy,int gfxno,int shift,int color)
 {
 	_u32 * ibutton=resources_bitmap_buttons[selection_maxbuttons-gfxno][0];
 	int xco,yco;
+	_u32 islider[8];
 	if (shift>=0)
 	{
 		shift=shift%8;
@@ -160,6 +161,18 @@ int sdl_sliderdraw(int posx,int posy,int gfxno,int shift)
 	else
 	{
 		shift=8-((-shift)%8);
+	}
+	for (int ilv1=0;ilv1<8;ilv1++)
+	{
+		islider[ilv1]=((_u64)*(ibutton+(ilv1+shift)%8));
+		if (color>=8)
+		{
+			islider[ilv1]=((islider[ilv1]<<8) & 0xFFFFFF)|(islider[ilv1]>>16);
+		}
+		if (color>=16)
+		{
+			islider[ilv1]=((islider[ilv1]<<8) & 0xFFFFFF)|(islider[ilv1]>>16);
+		}
 	}
 	for (int ilv1=0;ilv1<32;ilv1++)
 	{
@@ -175,9 +188,13 @@ int sdl_sliderdraw(int posx,int posy,int gfxno,int shift)
 		}
 		else
 		{
-			for (int ilv2=0;ilv2<gfx_canvassizex;ilv2++)
+			for (int ilv2=0;ilv2<gfx_canvassizex;ilv2+=8)
 			{
-				screen[gfx_screensizex*(posy+ilv1)+posx+ilv2]=*(ibutton+(ilv2+shift)%8);
+				_u32 * tl_screen=screen+(gfx_screensizex*(posy+ilv1)+posx+ilv2);
+				for (int ilv3=0;ilv3<8;ilv3++)
+				{
+					tl_screen[ilv3]=islider[ilv3];
+				}
 			}
 			goto ifertig;
 		}
@@ -443,7 +460,7 @@ int sdl_buttonmenudraw(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int count,int xpos=
 		sdl_toolboxitemdraw(ilisting[ilv1].x*32+xpos,ilisting[ilv1].y*32+ypos,ilisting[ilv1].picno,state);
 		continue;
 		sliderdraw:
-		sdl_sliderdraw(ilisting[ilv1].x*32+xpos,ilisting[ilv1].y*32+ypos,ilisting[ilv1].picno,(ilisting+ilv1==control_menuitem)?(-control_menudragint):0);
+		sdl_sliderdraw(ilisting[ilv1].x*32+xpos,ilisting[ilv1].y*32+ypos,ilisting[ilv1].picno,(ilisting+ilv1==control_menuitem)?(-control_menudragint):0,ilisting[ilv1].bgcolor);
 		continue;
 	}
 		

@@ -295,7 +295,7 @@ menuitem pullout_toolbox[]={
 "drag to rotate\n",
 "",
 "PIVOT_TURNY","",
-0x000000,
+0x000008,
 },
 {5,23,
 34,//Picture
@@ -305,7 +305,7 @@ menuitem pullout_toolbox[]={
 "drag to rotate\n",
 "",
 "PIVOT_TURNX","",
-0x000000,
+0x000010,
 },
 {20,0,
 52,//Picture

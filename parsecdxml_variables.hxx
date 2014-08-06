@@ -11,7 +11,7 @@ intl LHENDRAW_buffersize=1048576;
 char LHENDRAW_filedlgmode=0;
 char LHENDRAW_leave=0;
 char janitor_maxZ=0;
-#define selection_maxbuttons 54
+#define selection_maxbuttons 74
 #define constants_bondlength 30
 #define constants_angular_distance 2.094395102
 #define constants_clickradius 170

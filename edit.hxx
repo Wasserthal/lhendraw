@@ -4,6 +4,7 @@
 		LOCALMACRO_1(b)\
 		LOCALMACRO_1(graphic)\
 		LOCALMACRO_1(arrow)
+extern char control_filename[512];
 struct drawproperties_
 {
 	_i32 bond_multiplicity;
@@ -12,6 +13,7 @@ struct drawproperties_
 	int color;
 	_i32 Element;
 };
+_small edit_current5bondcarbon=0;
 drawproperties_ control_drawproperties={1,0,4,0,constants_Element_implicitcarbon};
 int control_hot[32]={-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,};
 int getbondsum(intl inumber)
@@ -1264,6 +1266,7 @@ catalogized_command_funcdef(LOAD_TYPE)
 	FILE * infile;
 	infile=fopen(parameter,"r");
 	if (infile==NULL) return 0;
+	strncpy(control_filename,parameter,511);control_filename[511]=0;
 	currentinstance=new(CAMBRIDGEPREFIX(Total_Document_instance));
 	input_fsm(infile);
 	fclose(infile);
@@ -1430,7 +1433,7 @@ void processatomsymbol(int * fsm,char * pointer,s_instance * format)
 		}
 		if ((ihv1>='a') && (ihv1<='z'))
 		{
-			edit_scoop_atomstring[2]=ihv1;
+			edit_scoop_atomstring[1]=ihv1;
 			edit_scoop_valids|=1<<1;
 			edit_scoop_formats[1]=*format;
 			(*fsm)=2;
@@ -1453,7 +1456,7 @@ void processatomsymbol(int * fsm,char * pointer,s_instance * format)
 		}
 		if ((ihv1>='a') && (ihv1<='z'))
 		{
-			edit_scoop_atomstring[2]=ihv1;//Overwrites
+			edit_scoop_atomstring[1]=ihv1;//Overwrites
 			edit_scoop_valids|=1<<2;
 			edit_scoop_formats[2]=*format;
 			(*fsm)=2;
@@ -1727,5 +1730,29 @@ catalogized_command_funcdef(SET_ALL_ITEMS)//TODO: works for _i32 only, right now
 }
 catalogized_command_funcdef(OPTIONS)
 {
+	return 0;
+}
+catalogized_command_funcdef(WARN_HYPERC)
+{
+	int ifound=0;
+	getatoms();
+	iback:;
+	for (int ilv1=edit_current5bondcarbon;ilv1<glob_n_multilist->filllevel;ilv1++)
+	{
+		n_instance * tl_n_instance=glob_n_multilist->bufferlist+ilv1;
+		if (tl_n_instance->exist==0) continue;
+		if ((tl_n_instance->Element!=constants_Element_implicitcarbon) && (tl_n_instance->Element!=constants_Element_implicitcarbon+1)) continue;
+		int i_bond_sum;
+		i_bond_sum=getbondsum(ilv1);
+		if (i_bond_sum>=5)
+		{
+			SDL_scrollx=tl_n_instance->xyz.x-gfx_canvassizex/SDL_zoomx/2;
+			SDL_scrolly=tl_n_instance->xyz.y-gfx_canvassizey/SDL_zoomy/2;
+			ifound=1;
+			edit_current5bondcarbon=ilv1+1;
+			return 1;
+		}
+	}
+	if (ifound==0){edit_current5bondcarbon=0;ifound=1;goto iback;}
 	return 0;
 }

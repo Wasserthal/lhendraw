@@ -173,6 +173,7 @@ void CAMBRIDGECONV_bond()
 			}
 		}
 		tl_b_instance.Order=tl_outorder;
+		tl_b_instance.id=(*tl_CAMBRIDGE_b_instance).id;
 		tl_b_instance.B=(*tl_CAMBRIDGE_b_instance).B;
 		tl_b_instance.E=(*tl_CAMBRIDGE_b_instance).E;
 		if (AUTOSTRUCT_EXISTS(CAMBRIDGE_b_instance,(*tl_CAMBRIDGE_b_instance),Z))

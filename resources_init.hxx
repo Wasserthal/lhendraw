@@ -1,4 +1,5 @@
 //reads in all files essential for the program
+
 FILE * criticalfilename(char * iargv0,char * idirectorystring,const char * iname)
 {
 	FILE * thefile;
@@ -18,7 +19,9 @@ FILE * criticalfilename(char * iargv0,char * idirectorystring,const char * iname
 	{
 		strcpy(idirectorystring,"/usr/share/lhendraw");
 		strcat(idirectorystring,iname);
+		
 		thefile=fopen(idirectorystring,"r");
+		if (thefile==NULL){printf("File not found: %s\n",idirectorystring);}
 	}
 	return thefile;
 }

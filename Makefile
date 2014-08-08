@@ -37,6 +37,7 @@ lennard_infget: makeinf.hxx makeinf_test.cxx cdxdata.hxx lendefs.h
 install:
 	mkdir -p /usr/share/lhendraw
 	cp lhendraw -t /usr/share/lhendraw
+	cp hotkeys.xml -t /usr/share/lhendraw
 	cp -R gfx -t /usr/share/lhendraw/
 	cp *.ttf -t /usr/share/lhendraw
 	ln -s -f /usr/share/lhendraw/lhendraw /usr/bin/lhendraw

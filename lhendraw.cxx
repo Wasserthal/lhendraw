@@ -117,9 +117,10 @@ void test_routine()
 const char *progname=NULL;
 void Signal(int signum)
 {
-	char localbuf[512+1]; 
+/*	char localbuf[512+1]; 
 	snprintf(localbuf,512,"gdb %s %d",progname,getpid());
-	system(localbuf);
+	system(localbuf);*/
+	fprintf(stderr,"FILE crashes:%s\n",control_filename);exit(1);
 }
 #endif
 int main(int argc,char * * argv)

@@ -4,7 +4,7 @@ void test_routine();
 #ifndef stringlength
 #define stringlength 512
 #endif
-#define bufferlength 256
+#define bufferlength 512
 #define bufferlistsize 4096
 #define multilistlistlength 512
 #define _u64 unsigned long long

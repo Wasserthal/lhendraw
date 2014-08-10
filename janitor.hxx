@@ -1,30 +1,21 @@
 /*
-Controls the internal data structure.
-gap design
-each gap contains a pointer to the next and last one, each item contains a pointer to the next and last one
-Why do I need another sort list?
-That list would contain the depth order.
+Janitor: Controls and tidy-up the internal data structure.
 Why not order by depth order?
 This would make rearrangements necessary, which is time-consuming
-Why not make a depth order link variable?
-From a certain point of view, a list is nothing else.
-What is better, ordered list or depth links?
-links are easier to be kept in order when objects are changed.
-Also take in account that there are different types of objects, but only one depth for all.
-=> The depth links must be inside these objects anyway.
-Ordered list has the advantage that the processor works on it more easily, and insertion on a certain position requires no search.
-As it requires a pre-ordering, latter is no good advantage.
-if back effects should arise, the objects must be linked back to ordered list.This is impossible if Objects are reordered without being changed.
-Either we need backlink lists(overkill), or NO back effects may arise. OK, no backeffects!!!
-The ordered list will have to be gappy, too, for that reason!
-Gaps will disappear on mergesort.
-If we make a mergesort everytime an object is deleted, we need no gaps. But that would produce lags.
-the sortlist doesnt get more items than any other lists altogether. 
+A depth-order list will be built at realtime, one for each program cycle (consisting of 1. Graphics and 2. Change).
+Object Buffers:
+gap design
+All objects are appended on the end of their list.
+Deleted objects will not be replaced, thus creating gaps consisting of objects with exist-flag=0
+The property lists, which are of variable size, are indirected to by the objects by their position in the buffer in bytes, and indirect to the object by its INDEX in the buffer.
+Indirection between objects is done by their id.
+The
+the sortlist doesnt get more items than any other lists altogether.
 As long the objects are only appended on the end, we can do a list sort which would go with n.(no exclamation mark here, please!)
 */
 /*struct multi_objref
 {
-	int listnr;//number of multilist, -1 means empty 
+	int listnr;//number of multilist, -1 means empty
 	int nr;
 	int next;//-1 means final
 	int last;//-1 means first
@@ -33,7 +24,7 @@ As long the objects are only appended on the end, we can do a list sort which wo
 int minusoneint=-1;
 typedef struct multi_objref_
 {
-	int listnr;//number of multilist, -1 means empty 
+	int listnr;//number of multilist, -1 means empty
 	int nr;//-1 means empty
 }multi_objref_;
 #define multilistZcount 100//TODO: calculate properly
@@ -57,7 +48,7 @@ The objects are dumbly listed. Then we do a merge sort.
 //Problem: Z-Order is changed of Objects that are technically unchanged.
 //Consequence: Z-Order must not be inside of the objects, but in the order list.
 //No back effects!
-//If objects should be inserted at a determined POSITION, The ordering list is ordered FIRST, 
+//If objects should be inserted at a determined POSITION, The ordering list is ordered FIRST,
 //Howto retrieve partner numbers on a freshly inserted/deleted object?
 //Then anything is <i>ad felis</i>, sortlist gotta be rebuild after each change, we omit storing it...
 //Storing the Z order in the Objects, gotta rebuild each time anyway.
@@ -164,7 +155,7 @@ void mergesortrecursion(int single,int max,char ibool)
 		}
 		if (remainingright>single) remainingright=single;
 		iback:
-		if (usedup1>=single) 
+		if (usedup1>=single)
 		{
 			goto finishright;
 		}

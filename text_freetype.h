@@ -80,6 +80,37 @@ _i32 utf8resolve(_u8 * input,_i32 * backcount)
 	(*backcount)=icounter;
 	return currentunicode;
 }
+_u8 unicodeoutputbuffer[8];
+int utf8encode(_u32 input,char ** outputbuffer)
+{
+	_u32 headmask=0xFFFFFFE0;
+	unicodeoutputbuffer[7]=0;
+	if ((input & 0x80)==0)
+	{
+		unicodeoutputbuffer[0]=input;
+		unicodeoutputbuffer[1]=0;
+		*outputbuffer=(char*)unicodeoutputbuffer;
+		return 1;
+	}
+	int cursor=6;
+	iback:
+	if (input & headmask)
+	{
+		unicodeoutputbuffer[cursor]=(input & 0x3F) | 0x80;
+		input=input>>6;
+		headmask=headmask>>1;
+		cursor--;
+		if (cursor<0) return -1;
+		goto iback;
+	}
+	else
+	{
+		unicodeoutputbuffer[cursor]=((headmask<<1) & 0xFF) | input;
+	}
+	*outputbuffer=(char*)(unicodeoutputbuffer+cursor);
+	printf("%s\n",*outputbuffer);
+	return 7-cursor;
+}
 int indexfromunicode(int input)//Weighed approximation
 {
 	int scanner_start=0;
@@ -97,6 +128,8 @@ int indexfromunicode(int input)//Weighed approximation
 		goto heutemuszligdieglockewerden;
 	}
 	searchpos=((input-codeat_start)*(scanner_end-scanner_start)/(codeat_end-codeat_start))+scanner_start;
+	if (searchpos<scanner_start) return 0;
+	if (searchpos>scanner_end) return 0;
 	if (searchpos>=fontpixinf_count) {goto to_smaller;}
 	if (fontpixinf[searchpos].unicode==input)
 	{

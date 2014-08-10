@@ -11,9 +11,9 @@ char * menu_matrixsubmenuvariable;
 SDL_Event control_Event;
 int control_firstmenux,control_firstmenuy;
 int control_lastmenux,control_lastmenuy;
-int control_mousestate=0;//0: inactive; 0x1: from tool, mouseclick; 0x2: from special tool, keyboard 0x4: on menu, dragging 0x8: on button_function dependent menu, popup 0x10 popup-menu or PSE, multiple levels 0x20 dragging menuitem
+int control_mousestate=0;//0: inactive; 0x1: from tool, mouseclick; 0x2: from special tool, keyboard 0x4: on menu, dragging 0x8: on button_function dependent menu, popup 0x10 popup-menu or PSE, multiple levels 0x20 dragging menuitem 0x40: text editing
 int control_toolaction=0;//1: move 2: move selection 3: tool specific
-int control_tool=2;//1: Hand 2: 2coordinate Selection 3: Lasso, no matter which 4: Shift tool 5: Magnifying glass 6: Element draw 7: chemdraw draw 8: eraser 9: Arrows 10: attributes 11: graphic 12: bezier 13: image 14: spectrum 15: tlc plate/gel plate 16: text tool
+int control_tool=2;//1: Hand 2: 2coordinate Selection 3: Lasso, no matter which 4: Shift tool 5: Magnifying glass 6: Element draw 7: chemdraw draw 8: eraser 9: Arrows 10: attributes 11: text tool 12: bezier 13: image 14: spectrum 15: tlc plate/gel plate 16: graphic
 int control_menumode=0;//1: shliderhorz, 2: slidervert 3: colorchooser
 AUTOSTRUCT_PULLOUTLISTING_ * control_menuitem=NULL;
 #define control_toolcount 17
@@ -489,6 +489,31 @@ _u32 upfrom(int input)
 	}
 	return wert;
 }
+void control_aggresstextcursor()
+{
+	for (int ilv1=0;ilv1<glob_n_multilist->filllevel;ilv1++)
+	{
+		if (selection_clickselection[ilv1] & (1<<STRUCTURE_OBJECTTYPE_n))
+		{
+			if (glob_n_multilist->bufferlist[ilv1].exist)
+			{
+				TELESCOPE_aggressobject(glob_n_multilist,ilv1);
+				return;
+			}
+		}
+	}
+	for (int ilv1=0;ilv1<glob_t_multilist->filllevel;ilv1++)
+	{
+		if (selection_clickselection[ilv1] & (1<<STRUCTURE_OBJECTTYPE_t))
+		{
+			if (glob_t_multilist->bufferlist[ilv1].exist)
+			{
+				TELESCOPE_aggressobject(glob_t_multilist,ilv1);
+				return;
+			}
+		}
+	}
+}
 int issueclick(int iposx,int iposy)
 {
 	int ibackval;
@@ -700,6 +725,25 @@ int issueclick(int iposx,int iposy)
 			}
 			control_mousestate=0;return 0;
 		}
+		case 11:
+		{
+			if (selection_clickselection_found & (1<<STRUCTURE_OBJECTTYPE_t))
+			{
+				for (int ilv1=0;ilv1<glob_t_multilist->filllevel;ilv1++)
+				{
+					if (selection_clickselection[ilv1] & (1<<STRUCTURE_OBJECTTYPE_t))
+					{
+						if (glob_t_multilist->bufferlist[ilv1].exist)
+						{
+							TELESCOPE_aggressobject(glob_t_multilist,ilv1);
+							TELESCOPE_insertintoproperties_offset(TELESCOPE_ELEMENTTYPE_s,(char*)"\uE000",3,-1);
+							control_mousestate=0x40;return 0;
+						}
+					}
+				}
+			}
+			control_mousestate=0;return 0;
+		}
 	}
 	ifertig:;
 	control_mousestate=1;
@@ -871,7 +915,7 @@ void issuedrag(int iposx,int iposy)
 					{
 						if ((selection_currentselection[ilv2]) & icompare)
 						{
-							if (ioffset<0)
+							if ((ioffset<0) || (ilv1==STRUCTURE_OBJECTTYPE_t))
 							{
 								retrievepoints_basic(((basic_instance*)(ibufferpos+isize*ilv2)),&tl_x,&tl_y,&tl_z,0,ilv1);
 								tl_x+=ideltax/SDL_zoomx;
@@ -1888,9 +1932,17 @@ void control_normal()
 					}
 					case SDLK_ESCAPE:
 					{
-						if (idirection==1)
+						if (control_mousestate==0)
 						{
-							LHENDRAW_leave=1;
+							if (idirection==1)
+							{
+								LHENDRAW_leave=1;
+							}
+						}
+						if (control_mousestate==2)
+						{
+							issuedrag(control_mousex-gfx_canvasminx, control_mousey-gfx_canvasminy);
+							control_mousestate=0;
 						}
 						break;
 					}
@@ -1931,6 +1983,20 @@ void control_normal()
 						{
 							interpretkey();
 						}
+					}
+				}
+				if ((control_mousestate==0x40) && (idirection==1))
+				{
+					switch (control_Event.key.keysym.sym)
+					{
+						case SDLK_ESCAPE:
+						control_mousestate=0;
+						break;
+						default:
+						char * tl_unicode;
+						control_aggresstextcursor();
+						utf8encode(control_Event.key.keysym.unicode,&tl_unicode);
+						TELESCOPE_insertintoproperties_offset(TELESCOPE_ELEMENTTYPE_s,tl_unicode,strlen(tl_unicode),-1);
 					}
 				}
 				break;

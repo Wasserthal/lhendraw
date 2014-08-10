@@ -834,6 +834,15 @@ void printformatted(const char * iinput,const char * parms,int imode,int start,i
 	_i32 backcount=0;
 	for (;ilv4<end;ilv4+=backcount)
 	{
+		if ((iinput[ilv4]=='\xee') && (iinput[ilv4+1]=='\x80') && (iinput[ilv4+2]=='\x80'))
+		{
+			ilv4+=3;
+			for (int ilv5=0;ilv5<16;ilv5++)
+			{
+				putpixel(SDL_txcursorx,SDL_txcursory-12+ilv5);
+			}
+			goto thatwasatemporaryskip;
+		}
 		if (iinput[ilv4]==10)
 		{
 			ilv4++;

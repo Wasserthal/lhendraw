@@ -3,7 +3,8 @@
 		LOCALMACRO_1(n)\
 		LOCALMACRO_1(b)\
 		LOCALMACRO_1(graphic)\
-		LOCALMACRO_1(arrow)
+		LOCALMACRO_1(arrow)\
+		LOCALMACRO_1(t)
 extern char control_filename[512];
 struct drawproperties_
 {
@@ -212,6 +213,10 @@ inline int retrieveprops_arrow(int what)
 	}
 	return 0;
 }
+inline int retrieveprops_t(int what)
+{
+	return 0;
+}
 inline int retrievepoints(n_instance * iinstance,float * ix,float * iy,float * iz,int inumber)
 {
 	if (inumber>0)
@@ -373,6 +378,14 @@ inline int retrievepoints(arrow_instance * iinstance,float * ix,float * iy,float
 	(*iz)=((*iinstance).Head3D.z+(*iinstance).Tail3D.z)/2;
 	return 1;
 }
+inline int retrievepoints(t_instance * iinstance,float * ix,float * iy,float * iz,int inumber)
+{
+	if (inumber!=0) return 0;
+	(*ix)=iinstance->xyz.x;
+	(*iy)=iinstance->xyz.y;
+	(*iz)=iinstance->xyz.z;
+	return 1;
+}
 int hit(n_instance * iinstance,float ix,float iy,int ino)
 {
 	float tl_x,tl_y,tl_z;
@@ -448,6 +461,16 @@ int hit(arrow_instance * iinstance,float ix,float iy,int ino)
 		}
 	}
 	return -1;
+}
+int hit(t_instance * iinstance,float ix,float iy, int ino)
+{
+	if (ino!=0) return -1;
+	if ((ix>=(*iinstance).BoundingBox.left) && (iy>=(*iinstance).BoundingBox.top)
+	&& (ix<(*iinstance).BoundingBox.right) && (iy<(*iinstance).BoundingBox.bottom))
+	{
+		return 1;
+	}
+	return 0;
 }
 inline int placepoints(n_instance * iinstance,float ix,float iy,float iz,int inumber)
 {
@@ -636,6 +659,25 @@ inline int placepoints(arrow_instance * iinstance,float ix,float iy,float iz,int
 	(*iinstance).MinorAxisEnd3D.z-=tl_z;
 	return 1;
 }
+inline int placepoints(t_instance * iinstance,float ix,float iy,float iz,int inumber)
+{
+	float tl_x,tl_y,tl_z;
+	if (retrievepoints(iinstance,&tl_x,&tl_y,&tl_z,inumber)>0)
+	{
+		tl_x-=ix;
+		tl_y-=iy;
+		tl_z-=iz;
+		(*iinstance).xyz.x-=tl_x;
+		(*iinstance).xyz.y-=tl_y;
+		(*iinstance).xyz.z-=tl_z;
+		(*iinstance).BoundingBox.left-=tl_x;
+		(*iinstance).BoundingBox.right-=tl_x;
+		(*iinstance).BoundingBox.top-=tl_y;
+		(*iinstance).BoundingBox.bottom-=tl_y;
+		return 1;
+	}
+	return 0;
+}
 #define LOCALMACRO_1(whatabout) case STRUCTURE_OBJECTTYPE_ ## whatabout: return retrieveprops_ ## whatabout(what);break;
 int retrieveprops_basic(int what,int objecttype)
 {
@@ -719,10 +761,7 @@ _u32 clickfor(float ix,float iy,int objecttype,float iclickradius=constants_clic
 	glob_clickradius=iclickradius;
 	switch (objecttype)
 	{
-		LOCALMACRO_1(n)
-		LOCALMACRO_1(b)
-		LOCALMACRO_1(graphic)
-		LOCALMACRO_1(arrow)
+		LOCALMACROES
 	}
 	return 0;
 }

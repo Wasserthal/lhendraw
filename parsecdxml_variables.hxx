@@ -404,6 +404,36 @@ int TELESCOPE_insertintoproperties(int tag,char * iinput,int ilength)//TODO: mem
 	}
 	return 1;
 }
+int TELESCOPE_insertintoproperties_offset(int tag,char * iinput,int ilength,int ioffset)//TODO: memory overflow handling
+{
+	if (TELESCOPE_searchthroughobject(tag))
+	{
+		while (TELESCOPE_searchthroughobject_next(tag))
+		{
+		}
+		TELESCOPE_rushtoend();
+	}
+	int tl_elementlength=((TELESCOPE_element*)((*TELESCOPE_tempvar.buffer).buffer+TELESCOPE_tempvar.pos+TELESCOPE_tempvar.subpos))->length;
+	if (TELESCOPE_stretch_buffer(TELESCOPE_tempvar.multilist,ilength,tag)==-1) {return -1;}
+	if (abs(ioffset)>tl_elementlength) return -1;
+	{
+	}
+	if (ioffset>=0)
+	{
+		ioffset-=tl_elementlength;
+	}
+	char * ilv1b=(*TELESCOPE_tempvar.buffer).buffer+TELESCOPE_tempvar.pos+TELESCOPE_tempvar.subpos2+ilength-1;
+	for (int ilv1=0;ilv1>ioffset;ilv1--,ilv1b--)
+	{
+		(*ilv1b)=(*(ilv1b-ilength));
+	}
+	ilv1b=(*TELESCOPE_tempvar.buffer).buffer+TELESCOPE_tempvar.pos+TELESCOPE_tempvar.subpos2+ioffset;
+	for (int ilv1=0;ilv1<ilength;ilv1++,ilv1b++)//TODO: faster...
+	{
+		(*ilv1b)=(*(iinput+ilv1));
+	}
+	return 1;
+}
 int TELESCOPE_add(int tag,char * iinput,int ilength)//Like insertintoproperties, but unconditionally creates a NEW TELESCOPE_element
 {
 	//This NEW TELESCOPE_element, or derived structure, must be obtained with TELESCOPE_getproperty and written later.

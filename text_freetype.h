@@ -105,11 +105,40 @@ int utf8encode(_u32 input,char ** outputbuffer)
 	}
 	else
 	{
-		unicodeoutputbuffer[cursor]=((headmask<<1) & 0xFF) | input;
+		unicodeoutputbuffer[cursor]=((headmask<<2) & 0xFF) | input;
 	}
 	*outputbuffer=(char*)(unicodeoutputbuffer+cursor);
-	printf("%s\n",*outputbuffer);
 	return 7-cursor;
+}
+int utf8encompass(const char * string,int * position,int * length)
+{
+	int start=*position;
+	if ((((_u8*)string)[start]&0xC0)==0xC0)
+	{
+		start++;
+	}
+	while ((((_u8*)string)[start]&0xC0)==0x80)
+	{
+		start++;
+	}
+	iback:;
+	if (position<0) {position=0;length=0;return -1;}
+	if ((string[*position]& 0x80)==0)
+	{
+		start++;
+		goto ifound;
+	}
+	if ((((_u8*)string)[*position]&0xC0)==0x80)
+	{
+		(*position)-=1;
+	}
+	else
+	{
+		ifound:;
+		(*length)=start-(*position);
+		return 1;
+	}
+	goto iback;
 }
 int indexfromunicode(int input)//Weighed approximation
 {

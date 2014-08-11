@@ -16,6 +16,14 @@ void test_routine();
 #define _u8 unsigned char
 #define _i8 signed char
 #define _x8 signed char
+#ifdef BITMODE32
+#define _iXX signed int
+#define _uXX unsigned int
+#endif
+#ifdef BITMODE64
+#define _iXX signed long long
+#define _uXX unsigned long long
+#endif
 float Pi=3.141592654;
 #define _small int
 #define minfloat -1.0e20

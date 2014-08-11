@@ -29,6 +29,10 @@ float control_coorsy=0;
 int control_mousex,control_mousey;
 char control_reticle=1;
 char control_dragged=0;
+char control_textedit_type=0;
+char control_textedit_index=0;
+char control_textedit_telescope=0;
+int control_textedit_cursor=0;
 char control_lastmousebutton=0;
 char control_usingmousebutton=0;
 char control_clickforpriority=0;//0: frontmost 1: rearmost 2: nearest 3: nearest3d
@@ -489,30 +493,31 @@ _u32 upfrom(int input)
 	}
 	return wert;
 }
-void control_aggresstextcursor()
+int control_aggresstextcursor()
 {
-	for (int ilv1=0;ilv1<glob_n_multilist->filllevel;ilv1++)
+	basicmultilist * tl_multilist=findmultilist(STRUCTURE_OBJECTTYPE_List[control_textedit_type].name);
+	if ((*tl_multilist)[control_textedit_index].exist)
 	{
-		if (selection_clickselection[ilv1] & (1<<STRUCTURE_OBJECTTYPE_n))
+		TELESCOPE_aggressobject(tl_multilist,control_textedit_index);
+		control_textedit_telescope=0;
+		int tl_backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_s);
+		iback:
+		if (tl_backval)
 		{
-			if (glob_n_multilist->bufferlist[ilv1].exist)
+			char * tl_buffer=(char*)TELESCOPE_getproperty_contents();
+			control_textedit_cursor=(_iXX)strstr(tl_buffer,"\uE000");
+			if (control_textedit_cursor==0)
 			{
-				TELESCOPE_aggressobject(glob_n_multilist,ilv1);
-				return;
+				control_textedit_telescope++;
+				tl_backval=TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_s);
+				goto iback;
 			}
+			control_textedit_cursor-=(_uXX)tl_buffer;
+			return 1;
 		}
+		return 0;
 	}
-	for (int ilv1=0;ilv1<glob_t_multilist->filllevel;ilv1++)
-	{
-		if (selection_clickselection[ilv1] & (1<<STRUCTURE_OBJECTTYPE_t))
-		{
-			if (glob_t_multilist->bufferlist[ilv1].exist)
-			{
-				TELESCOPE_aggressobject(glob_t_multilist,ilv1);
-				return;
-			}
-		}
-	}
+	return 0;
 }
 int issueclick(int iposx,int iposy)
 {
@@ -616,7 +621,7 @@ int issueclick(int iposx,int iposy)
 				else
 				{
 					int atomnr;
-					tlatom=summonatom(&atomnr);
+					tlatom=edit_summonatom(&atomnr);
 					if (tlatom)
 					{
 						(*tlatom).xyz.x=control_coorsx;
@@ -727,19 +732,48 @@ int issueclick(int iposx,int iposy)
 		}
 		case 11:
 		{
+			int tl_t_nr;
+			int tl_backval;
+			int ilv1;
+			t_instance * i_t_instance;
 			if (selection_clickselection_found & (1<<STRUCTURE_OBJECTTYPE_t))
 			{
-				for (int ilv1=0;ilv1<glob_t_multilist->filllevel;ilv1++)
+				for (ilv1=0;ilv1<glob_t_multilist->filllevel;ilv1++)
 				{
 					if (selection_clickselection[ilv1] & (1<<STRUCTURE_OBJECTTYPE_t))
 					{
 						if (glob_t_multilist->bufferlist[ilv1].exist)
 						{
+							control_textedit_type=STRUCTURE_OBJECTTYPE_t;
+							control_textedit_index=ilv1;
 							TELESCOPE_aggressobject(glob_t_multilist,ilv1);
-							TELESCOPE_insertintoproperties_offset(TELESCOPE_ELEMENTTYPE_s,(char*)"\uE000",3,-1);
+							tl_backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_s);
+							if (tl_backval==0) {control_mousestate=0;return 0;}
+							iOK:
+							TELESCOPE_insertintoproperties_offset((char*)"\uE000",3,-1);
 							control_mousestate=0x40;return 0;
 						}
 					}
+				}
+			}
+			else
+			{
+				i_t_instance=edit_summontext(&tl_t_nr);
+				if (i_t_instance)
+				{
+					(*i_t_instance).xyz.x=control_coorsx;
+					(*i_t_instance).xyz.y=control_coorsy;
+					(*i_t_instance).xyz.z=0;
+					TELESCOPE_aggressobject(glob_t_multilist,tl_t_nr);
+					TELESCOPE_add(TELESCOPE_ELEMENTTYPE_s,"",1);
+					s_instance * tl_s_instance=(s_instance*)TELESCOPE_getproperty();
+					(*tl_s_instance).color=control_drawproperties.color;
+					(*tl_s_instance).font=1;
+					(*tl_s_instance).face=0;
+					(*tl_s_instance).size=12;
+					control_textedit_type=STRUCTURE_OBJECTTYPE_t;
+					control_textedit_index=tl_t_nr;
+					goto iOK;
 				}
 			}
 			control_mousestate=0;return 0;
@@ -826,7 +860,7 @@ void issuedrag(int iposx,int iposy)
 			}
 			if (!tlatom)
 			{
-				tlatom=summonatom(&atomnr);
+				tlatom=edit_summonatom(&atomnr);
 				if (tlatom)
 				{
 					(*tlatom).xyz.x=control_startx;
@@ -872,7 +906,7 @@ void issuedrag(int iposx,int iposy)
 			}
 			if (!tlatom2)
 			{
-				tlatom2=summonatom(&atomnr2);
+				tlatom2=edit_summonatom(&atomnr2);
 				if (tlatom2)
 				{
 					(*tlatom2).xyz.x=control_coorsx;
@@ -885,7 +919,7 @@ void issuedrag(int iposx,int iposy)
 			{
 				if (tlatom!=tlatom2)
 				{
-					tlbond=summonbond((*tlatom).id,(*tlatom2).id,atomnr,atomnr2);
+					tlbond=edit_summonbond((*tlatom).id,(*tlatom2).id,atomnr,atomnr2);
 					if (tlbond)
 					{
 						(*tlbond).Z=0;
@@ -979,7 +1013,7 @@ void issuedrag(int iposx,int iposy)
 		{
 			restoreundo(~0,1);
 			undo_undodirty=1;
-			arrow_instance * tl_arrow=summonarrow();
+			arrow_instance * tl_arrow=edit_summonarrow();
 			if (tl_arrow)
 			{
 				if (MODIFIER_KEYS.ALT==0)
@@ -1321,7 +1355,7 @@ void issuerelease()
 				}
 				else
 				{
-					n_instance * tl_atom=summonatom();
+					n_instance * tl_atom=edit_summonatom();
 					if (tl_atom)
 					{
 						(*tl_atom).xyz.x=control_startx;
@@ -1639,6 +1673,79 @@ void issuemenuclicks(int iposx,int iposy,int ibutton)
 			control_mousestate=control_mousestate & (~8);
 		}
 	}
+}
+int textedit_left()
+{
+	int wert=1;
+	int tl_length=1;
+	int tl_backval=0;
+	TELESCOPE_shrink(control_textedit_cursor,3);
+	iback:;
+	control_textedit_cursor-=1;
+	if (control_textedit_cursor<0)
+	{
+		control_textedit_cursor=0;
+		if (control_textedit_telescope>0)
+		{
+			control_textedit_telescope-=1;
+			tl_backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_s);
+			for (int ilv1=0;ilv1<control_textedit_telescope;ilv1++)
+			{
+				if (tl_backval<=0) {wert=0;goto skipfail;}
+				tl_backval=TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_s);
+			}
+			if (tl_backval>0)
+			{
+				control_textedit_cursor=strlen((char*)TELESCOPE_getproperty_contents());
+				goto iback;
+			}
+			else
+			{
+				wert=0;
+			}
+			skipfail:;
+		}
+		else
+		{
+			wert=0;
+		}
+	}
+	utf8encompass((char*)TELESCOPE_getproperty_contents(),&control_textedit_cursor,&tl_length);
+	TELESCOPE_insertintoproperties_offset("\uE000",3,control_textedit_cursor);
+	return wert;
+}
+int textedit_right()
+{
+	int wert=1;
+	int tl_length=1;
+	int tl_backval=0;
+	TELESCOPE_shrink(control_textedit_cursor,3);
+	iback:;
+	utf8encompass((char*)TELESCOPE_getproperty_contents(),&control_textedit_cursor,&tl_length);
+	control_textedit_cursor+=tl_length;
+	if (control_textedit_cursor>strlen((char*)TELESCOPE_getproperty_contents()))
+	{
+		control_textedit_cursor=strlen((char*)TELESCOPE_getproperty_contents());
+		control_textedit_telescope+=1;
+		tl_backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_s);
+		for (int ilv1=0;ilv1<control_textedit_telescope;ilv1++)
+		{
+			if (tl_backval<=0) {wert=0;goto skipfail;}
+			tl_backval=TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_s);
+		}
+		if (tl_backval>0)
+		{
+			control_textedit_cursor=0;
+			goto iback;
+		}
+		else
+		{
+			wert=0;
+		}
+		skipfail:;
+	}
+	TELESCOPE_insertintoproperties_offset("\uE000",3,control_textedit_cursor);
+	return wert;
 }
 long long counter_SDL;
 void issuemenudrag(int posx,int posy,char ifinal=0)
@@ -1987,16 +2094,74 @@ void control_normal()
 				}
 				if ((control_mousestate==0x40) && (idirection==1))
 				{
+					int tl_length;
 					switch (control_Event.key.keysym.sym)
 					{
 						case SDLK_ESCAPE:
+						if (control_aggresstextcursor())
+						{
+							TELESCOPE_shrink(control_textedit_cursor,3);
+						}
 						control_mousestate=0;
+						break;
+						case SDLK_LEFT:
+						if (control_aggresstextcursor())
+						{
+							textedit_left();
+						}
+						break;
+						case SDLK_RIGHT:
+						if (control_aggresstextcursor())
+						{
+							textedit_right();
+						}
+						break;
+						case SDLK_HOME:
+						{
+							if (control_aggresstextcursor())
+							{
+								while (textedit_left()>0){}
+							}
+						}
+						break;
+						case SDLK_END:
+						{
+							if (control_aggresstextcursor())
+							{
+								while (textedit_right()>0){}
+							}
+						}
+						break;
+						case SDLK_BACKSPACE:
+						if (control_aggresstextcursor())
+						{
+							textedit_left();
+							control_textedit_cursor+=3;
+							utf8encompass((char*)TELESCOPE_getproperty_contents(),&control_textedit_cursor,&tl_length);
+							TELESCOPE_shrink(control_textedit_cursor,tl_length);
+						}
+						break;
+						case SDLK_DELETE:
+						if (control_aggresstextcursor())
+						{
+							control_textedit_cursor+=3;
+							utf8encompass((char*)TELESCOPE_getproperty_contents(),&control_textedit_cursor,&tl_length);
+							TELESCOPE_shrink(control_textedit_cursor,tl_length);
+						}
+						break;
+						case SDLK_RETURN:
+						if (control_aggresstextcursor())
+						{
+							TELESCOPE_insertintoproperties_offset("\n",1,control_textedit_cursor);
+						}
 						break;
 						default:
 						char * tl_unicode;
-						control_aggresstextcursor();
-						utf8encode(control_Event.key.keysym.unicode,&tl_unicode);
-						TELESCOPE_insertintoproperties_offset(TELESCOPE_ELEMENTTYPE_s,tl_unicode,strlen(tl_unicode),-1);
+						if (control_aggresstextcursor())
+						{
+							utf8encode(control_Event.key.keysym.unicode,&tl_unicode);
+							TELESCOPE_insertintoproperties_offset(tl_unicode,strlen(tl_unicode),control_textedit_cursor);
+						}
 					}
 				}
 				break;

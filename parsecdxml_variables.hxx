@@ -386,7 +386,7 @@ void TELESCOPE_rushtoend()
 }
 #define TELESCOPE_item ((TELESCOPE_element*)((*(TELESCOPE_tempvar.buffer)).buffer+TELESCOPE_tempvar.pos+TELESCOPE_tempvar.subpos))
 #define TELESCOPE_item_1(PARAM) ((PARAM ## _instance*)((*(TELESCOPE_tempvar.buffer)).buffer+TELESCOPE_tempvar.pos+TELESCOPE_tempvar.subpos))
-int TELESCOPE_insertintoproperties(int tag,char * iinput,int ilength)//TODO: memory overflow handling
+int TELESCOPE_insertintoproperties(int tag,const char * iinput,int ilength)//TODO: memory overflow handling
 {
 	if (TELESCOPE_searchthroughobject(tag))
 	{
@@ -404,20 +404,13 @@ int TELESCOPE_insertintoproperties(int tag,char * iinput,int ilength)//TODO: mem
 	}
 	return 1;
 }
-int TELESCOPE_insertintoproperties_offset(int tag,char * iinput,int ilength,int ioffset)//TODO: memory overflow handling
+int TELESCOPE_insertintoproperties_offset(const char * iinput,int ilength,int ioffset)//TODO: memory overflow handling
 {
-	if (TELESCOPE_searchthroughobject(tag))
-	{
-		while (TELESCOPE_searchthroughobject_next(tag))
-		{
-		}
-		TELESCOPE_rushtoend();
-	}
-	int tl_elementlength=((TELESCOPE_element*)((*TELESCOPE_tempvar.buffer).buffer+TELESCOPE_tempvar.pos+TELESCOPE_tempvar.subpos))->length;
-	if (TELESCOPE_stretch_buffer(TELESCOPE_tempvar.multilist,ilength,tag)==-1) {return -1;}
+	TELESCOPE_element * tl_element=((TELESCOPE_element*)((*(TELESCOPE_tempvar.buffer)).buffer+TELESCOPE_tempvar.pos+TELESCOPE_tempvar.subpos));
+	int tl_elementlength=tl_element->length-TELESCOPE_ELEMENTTYPE_List[tl_element->type].size;
+	TELESCOPE_rushtoend();
+	if (TELESCOPE_stretch_buffer(TELESCOPE_tempvar.multilist,ilength,tl_element->type)==-1) {return -1;}
 	if (abs(ioffset)>tl_elementlength) return -1;
-	{
-	}
 	if (ioffset>=0)
 	{
 		ioffset-=tl_elementlength;
@@ -434,7 +427,7 @@ int TELESCOPE_insertintoproperties_offset(int tag,char * iinput,int ilength,int 
 	}
 	return 1;
 }
-int TELESCOPE_add(int tag,char * iinput,int ilength)//Like insertintoproperties, but unconditionally creates a NEW TELESCOPE_element
+int TELESCOPE_add(int tag,const char * iinput,int ilength)//Like insertintoproperties, but unconditionally creates a NEW TELESCOPE_element
 {
 	//This NEW TELESCOPE_element, or derived structure, must be obtained with TELESCOPE_getproperty and written later.
 	TELESCOPE_tempvar.inside_TELESCOPE=TELESCOPE_verify_objectpresent();//TODO: such calls in aggressobject and nowhere else
@@ -500,7 +493,7 @@ int TELESCOPE_split(int ipos,char * iadditive_input,int ilength)
 	printf("+%i;%lli---%s---\n",ideltaplus2,TELESCOPE_ELEMENTTYPE_List[itype].size,((char*)tl_Element)+TELESCOPE_ELEMENTTYPE_List[itype].size);
 	return 0;
 }
-int telescope_merge(int ipos,int ilength)
+int TELESCOPE_merge(int ipos,int ilength)
 {
 	char * ilv1;
 	TELESCOPE_element * tl_Element=((TELESCOPE_element*)((*TELESCOPE_tempvar.buffer).buffer+TELESCOPE_tempvar.pos+TELESCOPE_tempvar.subpos));
@@ -508,18 +501,41 @@ int telescope_merge(int ipos,int ilength)
 	TELESCOPE_element * tl_SecondElement=(TELESCOPE_element*)(((char*)tl_Element)+(*tl_Element).length);
 	int ideltaminus2=ilength+TELESCOPE_ELEMENTTYPE_List[itype].size;
 	int isecondlength=(*tl_SecondElement).length;
-	for (ilv1=((char*)tl_Element)-ilength;ilv1<(*TELESCOPE_tempvar.buffer).buffer-ideltaminus2;ilv1++)//compresses buffer and concatenates end
+	for (ilv1=((char*)tl_Element)+TELESCOPE_ELEMENTTYPE_List[itype].size+ipos;ilv1<(*TELESCOPE_tempvar.buffer).buffer+(*TELESCOPE_tempvar.buffer).count-ideltaminus2;ilv1++)//compresses buffer and concatenates end
 	{
 		*ilv1=*(ilv1+ideltaminus2);
 	}
 	(*tl_SecondElement).length=isecondlength+TELESCOPE_ELEMENTTYPE_List[itype].size;
-	char * ilv1b=(*TELESCOPE_tempvar.buffer).buffer+TELESCOPE_tempvar.pos+TELESCOPE_tempvar.subpos+TELESCOPE_ELEMENTTYPE_List[itype].size+ipos;
 	for (int ilv1=TELESCOPE_tempvar.objectpos+1;ilv1<(*TELESCOPE_tempvar.multilist).filllevel;ilv1++)
 	{
 		(*((basic_instance_propertybuffer*)(((char*)((*TELESCOPE_tempvar.multilist).pointer))+(TELESCOPE_tempvar.objectsize*ilv1)))).pos_in_buffer-=ideltaminus2;
 	}
 	(*(TELESCOPE_tempvar.buffer)).count-=ideltaminus2;
 	(*tl_Element).length+=isecondlength-ilength;
+	TELESCOPE_tempvar.subpos2=TELESCOPE_tempvar.subpos+(*tl_Element).length;
+	(*(TELESCOPE*)((*TELESCOPE_tempvar.buffer).buffer+TELESCOPE_tempvar.pos)).length-=ideltaminus2;
+	return 0;
+}
+int TELESCOPE_shrink(int ipos,int ilength)
+{
+	char * ilv1;
+	TELESCOPE_element * tl_Element=((TELESCOPE_element*)((*TELESCOPE_tempvar.buffer).buffer+TELESCOPE_tempvar.pos+TELESCOPE_tempvar.subpos));
+	int itype=(*tl_Element).type;
+	int tl_length=(*tl_Element).length-TELESCOPE_ELEMENTTYPE_List[itype].size;
+	if (abs(ipos)>tl_length) return -1;
+	if (ipos<0) ipos+=tl_length;//TODO: convert to offset-type for better understandability
+	if (ilength+ipos>tl_length) return -1;
+	int ideltaminus2=ilength;
+	for (ilv1=((char*)tl_Element)+TELESCOPE_ELEMENTTYPE_List[itype].size+ipos;ilv1<(*TELESCOPE_tempvar.buffer).buffer+(*TELESCOPE_tempvar.buffer).count-ideltaminus2;ilv1++)//compresses buffer
+	{
+		*ilv1=*(ilv1+ideltaminus2);
+	}
+	for (int ilv1=TELESCOPE_tempvar.objectpos+1;ilv1<(*TELESCOPE_tempvar.multilist).filllevel;ilv1++)
+	{
+		(*((basic_instance_propertybuffer*)(((char*)((*TELESCOPE_tempvar.multilist).pointer))+(TELESCOPE_tempvar.objectsize*ilv1)))).pos_in_buffer-=ideltaminus2;
+	}
+	(*(TELESCOPE_tempvar.buffer)).count-=ideltaminus2;
+	(*tl_Element).length-=ilength;
 	TELESCOPE_tempvar.subpos2=TELESCOPE_tempvar.subpos+(*tl_Element).length;
 	(*(TELESCOPE*)((*TELESCOPE_tempvar.buffer).buffer+TELESCOPE_tempvar.pos)).length-=ideltaminus2;
 	return 0;

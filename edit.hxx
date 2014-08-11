@@ -831,7 +831,7 @@ basic_instance * getclicked(int ino)
 }
 
 
-n_instance * summonatom(int * inr=NULL)
+n_instance * edit_summonatom(int * inr=NULL)
 {
 	if ((*glob_n_multilist).filllevel<bufferlistsize)
 	{
@@ -854,11 +854,10 @@ n_instance * summonatom(int * inr=NULL)
 			*inr=tl_nr;
 		}
 		return tlinstance;
-		
 	}
 	return NULL;
 }
-arrow_instance * summonarrow(int * inr=NULL)
+arrow_instance * edit_summonarrow(int * inr=NULL)
 {
 	if ((*glob_arrow_multilist).filllevel<bufferlistsize)
 	{
@@ -877,7 +876,7 @@ arrow_instance * summonarrow(int * inr=NULL)
 	}
 	return NULL;
 }
-b_instance * summonbond(int i_id_begin,int i_id_end,int i_nr_begin,int i_nr_end)
+b_instance * edit_summonbond(int i_id_begin,int i_id_end,int i_nr_begin,int i_nr_end)
 {
 	if ((*glob_b_multilist).filllevel<bufferlistsize)
 	{
@@ -894,6 +893,25 @@ b_instance * summonbond(int i_id_begin,int i_id_end,int i_nr_begin,int i_nr_end)
 		((*glob_b_multilist).filllevel)++;
 		(*tlinstance).id=(*glob_b_multilist).maxid+1;
 		(*glob_b_multilist).maxid++;
+		return tlinstance;
+	}
+	return NULL;
+}
+t_instance * edit_summontext(int * inr=NULL)
+{
+	if ((*glob_t_multilist).filllevel<bufferlistsize)
+	{
+		int tl_nr=-1;
+		t_instance * tlinstance;
+		tl_nr=(*glob_t_multilist).filllevel;
+		tlinstance=new(&((*glob_t_multilist).bufferlist[tl_nr])) t_instance;
+		(*tlinstance).color=control_drawproperties.color;
+		selection_currentselection[tl_nr]&=(~(1<<STRUCTURE_OBJECTTYPE_t));
+		((*glob_t_multilist).filllevel)++;
+		if (inr!=NULL)
+		{
+			*inr=tl_nr;
+		}
 		return tlinstance;
 	}
 	return NULL;
@@ -960,7 +978,7 @@ int edit_errichten(int startatom)
 	}
 	else
 	{
-		tlatom2=summonatom(&atomnr2);
+		tlatom2=edit_summonatom(&atomnr2);
 		if (tlatom2)
 		{
 			(*tlatom2).xyz.x=posx;
@@ -971,7 +989,7 @@ int edit_errichten(int startatom)
 	}
 	if ((tlatom) && (tlatom2))
 	{
-		tlbond=summonbond((*tlatom).id,(*tlatom2).id,startatom,atomnr2);
+		tlbond=edit_summonbond((*tlatom).id,(*tlatom2).id,startatom,atomnr2);
 		if (tlbond)
 		{
 			(*tlbond).Z=(*tlatom).Z;

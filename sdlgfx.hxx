@@ -829,6 +829,7 @@ void printformatted(const char * iinput,const char * parms,int imode,int start,i
 	int ilv4=start;
 	char linebreak;
 	int i_offsy=0;
+	int i_startx=SDL_txcursorx;
 	thatwasatemporaryskip:
 	linebreak=0;
 	_i32 backcount=0;
@@ -857,7 +858,7 @@ void printformatted(const char * iinput,const char * parms,int imode,int start,i
 //		print_bitmap(&SDL_txcursorx,&SDL_txcursory,&fontpixinf[indexfromunicode(((unsigned char)iinput[ilv4]))]);
 	}
 	skipfornow:
-	if (linebreak) {if (ilv4<end) goto thatwasatemporaryskip;}//a line break;
+	if (linebreak) {if (ilv4<end) {SDL_txcursory+=16;SDL_txcursorx=i_startx;goto thatwasatemporaryskip;}}//a line break;
 }
 
 void sdl_init()

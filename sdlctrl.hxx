@@ -1848,6 +1848,10 @@ void control_normal()
 								{
 									if ((*tl_multilist)[ilv2].exist)
 									{
+										for (int ilv1=0;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
+										{
+											control_hot[ilv1]=-1;
+										}
 										control_hot[ilv0]=ilv2;
 									}
 								}
@@ -2055,11 +2059,14 @@ void control_normal()
 					}
 					case SDLK_SPACE:
 					{
-						if (control_mousestate==0)
+						if (idirection==1)
 						{
-							issueshiftstart();
-							control_keycombotool=1;
-							control_mousestate=2;
+							if (control_mousestate==0)
+							{
+								issueshiftstart();
+								control_keycombotool=1;
+								control_mousestate=2;
+							}
 						}
 						break;
 					}

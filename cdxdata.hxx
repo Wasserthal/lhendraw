@@ -251,15 +251,6 @@ int __attribute__((sysv_abi))CDXMLREAD__i8(char * input,void * output)
 	*((_i8*)output)=wert;
 	return ilv1;
 }
-int __attribute__((sysv_abi))CDXMLWRITE_cdx_enum(char * input,void * output)
-{
-	fprintf((FILE*)output,"%i",(*((cdx_enum*)input)).a);
-	return 0;
-}
-int __attribute__((sysv_abi))CDXMLREAD_cdx_enum(char * input,void * output)
-{
-	return CDXMLREAD__i32(input,&((*((cdx_enum*)output)).a));
-}
 
 int __attribute__((sysv_abi))CDXMLWRITE_float(char * input,void * output)
 {

@@ -37,7 +37,7 @@ char linemode;//tells if the line is a buffer entry
 	unsigned char tlfirst=ihv1;\
 	int tlucs;\
 	int tlmask=0x3F;\
-	unsigned char tlscan=0x64;\
+	unsigned char tlscan=0x40;\
 	tlucs=tlfirst;\
 	tlback:\
 	fread(&ihv1,1,1,infile);\
@@ -192,9 +192,9 @@ int main(int argc,char * * argv)
 		switch (tlbackvalue)
 		{
 			case 0x203c: strcpy(properties_types[properties_count],"_i32");properties_type_nrs[properties_count]=7;break;//an ENUM with two possibilities
-			break;
+			case 0xe7: strcpy(properties_types[properties_count],"_i8");properties_type_nrs[properties_count]=5;break;//8 bit enum
 			default:
-			goto unknownType;
+			printf("Something went wrong defining %s - unknown symbol 0x%04X! ",name,tlbackvalue);exit(1);
 		}
 	}
 	fread(&ihv1,1,1,infile);//should be a blank

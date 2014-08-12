@@ -1093,8 +1093,12 @@ catalogized_command_iterated_funcdef(SETITEMVARIABLE)
 	{
 		if (strcmp((*iinstance)._->properties[ilv1].name,parameter)==0)
 		{
-			*(((char*)iinstance)+((*iinstance)._->properties[ilv1].ref))=atoi(value);//TODO: other things than chars!
-			return 1;
+			printf("Does%08llX,\n",*(long long*)(((char*)iinstance)+((*iinstance)._->properties[ilv1].ref)));
+			if (((catalogized_command_iterated_functype)((*iinstance)._->properties[ilv1].delegate))((char*)value,(((char*)iinstance)+((*iinstance)._->properties[ilv1].ref)),imultilist,iinstance,iindex)>=0)
+			{
+				printf("it work%s\n",value);
+				return 1;
+			}
 		}
 	}
 	return 0;

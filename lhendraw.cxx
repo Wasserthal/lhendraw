@@ -155,7 +155,7 @@ int main(int argc,char * * argv)
 		svg_findaround();
 		sdl_init();
 		SDL_EnableUNICODE(1);
-		SDL_ShowCursor(0);
+//		SDL_ShowCursor(0);
 		mainloop:
 		if (LHENDRAW_filedlgmode==0)
 		{

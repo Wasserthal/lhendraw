@@ -1,6 +1,6 @@
 menuitem pullout_filedlg_buttons_load[]={
 {200,730,
-34,//Picture
+33,//Picture
 "Load",
 3,0,
 0,
@@ -11,7 +11,7 @@ menuitem pullout_filedlg_buttons_load[]={
 264,762,
 },
 {300,730,
-34,//Picture
+33,//Picture
 "Cancel",
 3,0,
 0,

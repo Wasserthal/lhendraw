@@ -1,6 +1,6 @@
 menuitem pullout_filedlg_buttons_save[]={
 {100,730,
-34,//Picture
+33,//Picture
 "Save",
 3,0,
 0,
@@ -11,7 +11,7 @@ menuitem pullout_filedlg_buttons_save[]={
 164,762,
 },
 {300,730,
-34,//Picture
+33,//Picture
 "Cancel",
 3,0,
 0,

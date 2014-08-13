@@ -1,6 +1,6 @@
 menuitem pullout_toolspecific_ATTRIBUTES[]={
 {0,0,
-37,//Picture
+36,//Picture
 "chargeplus",
 6,6,
 4,
@@ -10,7 +10,7 @@ menuitem pullout_toolspecific_ATTRIBUTES[]={
 0xFFFF,
 },
 {1,0,
-38,//Picture
+37,//Picture
 "chargeminus",
 6,6,
 5,
@@ -20,7 +20,7 @@ menuitem pullout_toolspecific_ATTRIBUTES[]={
 0xFFFF,
 },
 {2,0,
-39,//Picture
+38,//Picture
 "radical",
 6,6,
 1,
@@ -30,7 +30,7 @@ menuitem pullout_toolspecific_ATTRIBUTES[]={
 0xFFFF,
 },
 {3,0,
-40,//Picture
+39,//Picture
 "lonepair",
 6,6,
 0,

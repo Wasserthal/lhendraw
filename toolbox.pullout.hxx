@@ -1,6 +1,6 @@
 menuitem pullout_toolbox[]={
 {0,0,
-11,//Picture
+10,//Picture
 "HAND",
 1,0,
 1,
@@ -11,7 +11,7 @@ menuitem pullout_toolbox[]={
 0x00FF00,
 },
 {1,0,
-10,//Picture
+9,//Picture
 "Rectangular selection",
 1,0,
 2,//Toolmode
@@ -27,7 +27,7 @@ menuitem pullout_toolbox[]={
 0x00FF00,
 },
 {0,1,
-7,//Picture
+6,//Picture
 "LASSO",
 1,0,
 3,
@@ -37,7 +37,7 @@ menuitem pullout_toolbox[]={
 0x00FF00,
 },
 {1,1,
-8,//Picture
+7,//Picture
 "Shift items",
 1,0,
 4,
@@ -47,7 +47,7 @@ menuitem pullout_toolbox[]={
 0x00FF00,
 },
 {0,2,
-6,//Picture
+5,//Picture
 "Magnifying glass",
 1,0,
 5,
@@ -59,7 +59,7 @@ menuitem pullout_toolbox[]={
 0x00FF00,
 },
 {1,2,
-13,//Picture
+12,//Picture
 "Put atoms",
 3,1,
 6,
@@ -69,7 +69,7 @@ menuitem pullout_toolbox[]={
 0x00FF00,
 },
 {0,3,
-12,//Picture
+11,//Picture
 "BOND",
 1,0,
 7,
@@ -82,7 +82,7 @@ menuitem pullout_toolbox[]={
 0x00FF00,
 },
 {1,3,
-9,//Picture
+8,//Picture
 "ERASER",
 1,0,
 8,
@@ -93,7 +93,7 @@ menuitem pullout_toolbox[]={
 0x00FF00,
 },
 {0,4,
-5,//Picture
+4,//Picture
 "ARROWS",
 1,0,
 9,
@@ -104,7 +104,7 @@ menuitem pullout_toolbox[]={
 0x00FF00,
 },
 {1,4,
-36,//Picture
+35,//Picture
 "ATTRIBUTES",
 1,0,
 10,
@@ -115,7 +115,7 @@ menuitem pullout_toolbox[]={
 0x00FF00,
 },
 {0,5,
-41,//Picture
+40,//Picture
 "TEXT",
 1,0,
 11,
@@ -126,7 +126,7 @@ menuitem pullout_toolbox[]={
 0x00FF00,
 },
 {0,6,
-47,//Picture
+46,//Picture
 "TRACKBALL",
 0,0,
 11,
@@ -137,7 +137,7 @@ menuitem pullout_toolbox[]={
 0x00FF00,
 },
 {2,2,
-3,//Picture
+2,//Picture
 "Save",
 3,0,
 0,
@@ -148,7 +148,7 @@ menuitem pullout_toolbox[]={
 0x00FF00,
 },
 {3,2,
-4,//Picture
+3,//Picture
 "Load",
 3,0,
 0,
@@ -158,7 +158,7 @@ menuitem pullout_toolbox[]={
 0x00FF00,
 },
 {5,2,
-2,//Picture
+1,//Picture
 "Undo",
 3,0,
 0,
@@ -168,7 +168,7 @@ menuitem pullout_toolbox[]={
 0x00FF00,
 },
 {6,2,
-1,//Picture
+0,//Picture
 "Redo",
 3,0,
 0,
@@ -178,7 +178,7 @@ menuitem pullout_toolbox[]={
 0x00FF00,
 },
 {8,2,
-18,//Picture
+17,//Picture
 "toolbox_M1",
 4,4,
 1,
@@ -188,7 +188,7 @@ menuitem pullout_toolbox[]={
 0x0000FF,
 },
 {9,2,
-19,//Picture
+18,//Picture
 "toolbox_M2",
 4,4,
 1,
@@ -198,7 +198,7 @@ menuitem pullout_toolbox[]={
 0x0000FF,
 },
 {10,2,
-20,//Picture
+19,//Picture
 "toolbox_M3",
 4,4,
 1,
@@ -208,7 +208,7 @@ menuitem pullout_toolbox[]={
 0x0000FF,
 },
 {11,2,
-21,//Picture
+20,//Picture
 "toolbox_M4",
 4,4,
 1,
@@ -218,7 +218,7 @@ menuitem pullout_toolbox[]={
 0x0000FF,
 },
 {12,2,
-22,//Picture
+21,//Picture
 "toolbox_M5",
 4,4,
 1,
@@ -228,7 +228,7 @@ menuitem pullout_toolbox[]={
 0x0000FF,
 },
 {13,2,
-23,//Picture
+22,//Picture
 "toolbox_M6",
 4,4,
 1,
@@ -238,7 +238,7 @@ menuitem pullout_toolbox[]={
 0x0000FF,
 },
 {14,2,
-35,//Picture
+34,//Picture
 "color",
 0x111,0x111,
 1,
@@ -248,7 +248,7 @@ menuitem pullout_toolbox[]={
 0x000000,
 },
 {5,1,
-42,//Picture
+41,//Picture
 "Home",
 3,0,
 4,
@@ -258,7 +258,7 @@ menuitem pullout_toolbox[]={
 0xFFFF00,
 },
 {6,1,
-43,//Picture
+42,//Picture
 "One to one",
 3,0,
 4,
@@ -268,7 +268,7 @@ menuitem pullout_toolbox[]={
 0xFFFF00,
 },
 {4,2,
-44,//Picture
+43,//Picture
 "Save Immediately",
 3,0,
 4,
@@ -278,7 +278,7 @@ menuitem pullout_toolbox[]={
 0x00FF00,
 },
 {5,21,
-34,//Picture
+33,//Picture
 "turn",
 0x103,0x103,
 1,
@@ -288,7 +288,7 @@ menuitem pullout_toolbox[]={
 0x000000,
 },
 {5,22,
-34,//Picture
+33,//Picture
 "turn",
 0x103,0x103,
 1,
@@ -298,7 +298,7 @@ menuitem pullout_toolbox[]={
 0x000008,
 },
 {5,23,
-34,//Picture
+33,//Picture
 "turn",
 0x103,0x103,
 1,
@@ -308,7 +308,7 @@ menuitem pullout_toolbox[]={
 0x000010,
 },
 {20,0,
-52,//Picture
+51,//Picture
 "ReMem",
 3,0,
 4,
@@ -318,7 +318,7 @@ menuitem pullout_toolbox[]={
 0x00FF00,
 },
 {19,0,
-51,//Picture
+50,//Picture
 "ReMem",
 3,0,
 4,
@@ -328,7 +328,7 @@ menuitem pullout_toolbox[]={
 0x00FF00,
 },
 {18,0,
-50,//Picture
+49,//Picture
 "ReMem",
 3,0,
 4,
@@ -338,7 +338,7 @@ menuitem pullout_toolbox[]={
 0x00FF00,
 },
 {7,0,
-45,//Picture
+44,//Picture
 "UndoTree",
 3,0,
 4,
@@ -348,7 +348,7 @@ menuitem pullout_toolbox[]={
 0x00FF00,
 },
 {22,0,
-46,//Picture
+45,//Picture
 "Help",
 3,0,
 4,
@@ -358,7 +358,7 @@ menuitem pullout_toolbox[]={
 0x00FF00,
 },
 {23,0,
-49,//Picture
+48,//Picture
 "Options",
 3,0,
 4,

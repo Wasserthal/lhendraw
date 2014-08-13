@@ -42,7 +42,7 @@ void text_output_bitmap(int * posx,int * posy,fontpixinf_ * ifontpixinf)
 }
 int draw_drawmarkpoint(int x,int y,int gfxno,int number,char noclip)
 {
-	_u32 * ibutton=resources_bitmap_buttons[selection_maxbuttons-gfxno][0];
+	_u32 * ibutton=resources_bitmap_buttons[LHENDRAW_maxbuttons-gfxno-1][0];
 	ibutton+=(number%4)*8+(number/4)*256;
 	for (int ilv1=0;ilv1<8;ilv1++)
 	{
@@ -71,7 +71,7 @@ void sdl_buttondraw(int posx,int posy,int number)
 	{
 		for (int ilv3=0;ilv3<32;ilv3++)
 		{
-			_u32 tlgfx=resources_bitmap_buttons[selection_maxbuttons-number][ilv2][ilv3];
+			_u32 tlgfx=resources_bitmap_buttons[LHENDRAW_maxbuttons-number][ilv2][ilv3];
 			if ((tlgfx>>24)>0x00)
 			screen[(posy+ilv2)*gfx_screensizex+posx+ilv3]=tlgfx;
 		}
@@ -123,7 +123,7 @@ int sdl_toolboxitemdraw(int posx,int posy,int gfxno,_u32 state)
 	{
 		for (int ilv3=0;ilv3<32-idelta;ilv3++)
 		{
-			_u32 tlgfx=resources_bitmap_buttons[selection_maxbuttons-gfxno][ilv2][ilv3];
+			_u32 tlgfx=resources_bitmap_buttons[LHENDRAW_maxbuttons-gfxno-1][ilv2][ilv3];
 			_u8 tlgfr=(tlgfx>>16) & 0xFF;
 			_u8 tlgfg=(tlgfx>>8) & 0xFF;
 			_u8 tlgfb=tlgfx & 0xFF;
@@ -133,7 +133,7 @@ int sdl_toolboxitemdraw(int posx,int posy,int gfxno,_u32 state)
 				tlgfg=((1+(((tlgfx>>24) & 0xFF)))*tlgfg+((state & 0xFF0000)>>16)*(0xFF-((tlgfx>>24) & 0xFF)))>>8;
 				tlgfb=((1+(((tlgfx>>24) & 0xFF)))*tlgfb+((state & 0xFF00)>>8)*(0xFF-((tlgfx>>24) & 0xFF)))>>8;
 			}
-			screen[gfx_screensizex*(posy+ilv2+idelta)+posx+ilv3+idelta]=((tlgfx & 0xFF000000)==0x00000000) ? resources_bitmap_buttons[selection_maxbuttons-17][ilv2][ilv3]:((tlgfr<<16)+(tlgfg<<8)+(tlgfb));
+			screen[gfx_screensizex*(posy+ilv2+idelta)+posx+ilv3+idelta]=((tlgfx & 0xFF000000)==0x00000000) ? resources_bitmap_buttons[LHENDRAW_maxbuttons-17][ilv2][ilv3]:((tlgfr<<16)+(tlgfg<<8)+(tlgfb));
 		}
 	}
 	if (idelta>0)
@@ -142,8 +142,8 @@ int sdl_toolboxitemdraw(int posx,int posy,int gfxno,_u32 state)
 		{
 			for (int ilv2=0;ilv2<32;ilv2++)
 			{
-				screen[gfx_screensizex*(posy+ilv1)+posx+ilv2]=resources_bitmap_buttons[selection_maxbuttons-16][ilv1][ilv2];
-				screen[gfx_screensizex*(posy+ilv2)+posx+ilv1]=resources_bitmap_buttons[selection_maxbuttons-16][ilv2][ilv1];
+				screen[gfx_screensizex*(posy+ilv1)+posx+ilv2]=resources_bitmap_buttons[LHENDRAW_maxbuttons-16][ilv1][ilv2];
+				screen[gfx_screensizex*(posy+ilv2)+posx+ilv1]=resources_bitmap_buttons[LHENDRAW_maxbuttons-16][ilv2][ilv1];
 			}
 		}
 	}
@@ -151,7 +151,7 @@ int sdl_toolboxitemdraw(int posx,int posy,int gfxno,_u32 state)
 }
 int sdl_sliderdraw(int posx,int posy,int gfxno,int shift,int color)
 {
-	_u32 * ibutton=resources_bitmap_buttons[selection_maxbuttons-gfxno][0];
+	_u32 * ibutton=resources_bitmap_buttons[LHENDRAW_maxbuttons-gfxno-1][0];
 	int xco,yco;
 	_u32 islider[8];
 	if (shift>=0)
@@ -222,7 +222,7 @@ int sdl_sliderdraw(int posx,int posy,int gfxno,int shift,int color)
 		if (ilv1%90==0) tl_no=2;
 		if (ilv1%180==0) tl_no=5;
 		if (ilv1==0) tl_no=3;
-		draw_drawmarkpoint(posx+(((ilv1+180)*gfx_canvassizex)/360)-4,posy+24,48,tl_no,1);
+		draw_drawmarkpoint(posx+(((ilv1+180)*gfx_canvassizex)/360)-4,posy+24,47,tl_no,1);
 	}
 	return 1;
 }
@@ -290,7 +290,7 @@ int sdl_textbuttonmenudraw(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int count,int x
 		top=ypos+ilisting[ilv1].y;
 		right=xpos+ilisting[ilv1].maxx;
 		bottom=ypos+ilisting[ilv1].maxy;
-		_u32 * ibutton=resources_bitmap_buttons[selection_maxbuttons-34][0];
+		_u32 * ibutton=resources_bitmap_buttons[LHENDRAW_maxbuttons-34][0];
 		int xco,yco;
 		for (int ilv1=0;ilv1<32;ilv1++)
 		{
@@ -739,7 +739,7 @@ int sdl_selectiondraw()
 					{
 						if ((((selection_currentselection[ilv2]) & icompare)>0) ^ (ilv3!=0))
 						{
-							draw_drawmarkpoint((tlpx-SDL_scrollx)*SDL_zoomx-3+gfx_canvasminx,(tlpy-SDL_scrolly)*SDL_zoomy-3+gfx_canvasminy,48,(ilv3!=0),0);
+							draw_drawmarkpoint((tlpx-SDL_scrollx)*SDL_zoomx-3+gfx_canvasminx,(tlpy-SDL_scrolly)*SDL_zoomy-3+gfx_canvasminy,47,(ilv3!=0),0);
 						}
 					}
 					if (ilv3>0)
@@ -750,7 +750,7 @@ int sdl_selectiondraw()
 						}
 						if ((selection_currentselection[follower3]) & (1<<(ilv1+STRUCTURE_OBJECTTYPE_ListSize)))
 						{
-							draw_drawmarkpoint((tlpx-SDL_scrollx)*SDL_zoomx-3+gfx_canvasminx,(tlpy-SDL_scrolly)*SDL_zoomy-3+gfx_canvasminy,48,5,0);
+							draw_drawmarkpoint((tlpx-SDL_scrollx)*SDL_zoomx-3+gfx_canvasminx,(tlpy-SDL_scrolly)*SDL_zoomy-3+gfx_canvasminy,47,5,0);
 						}
 						follower3++;
 					}
@@ -769,7 +769,7 @@ int sdl_selectiondraw()
 					iback2:
 						if (retrievepoints_basic(((basic_instance*)(((char*)(*glob_n_multilist).pointer)+sizeof(n_instance)*control_hot[STRUCTURE_OBJECTTYPE_n])),&tlpx,&tlpy,NULL,ilv3,STRUCTURE_OBJECTTYPE_n)>0)
 						{
-							draw_drawmarkpoint((tlpx-SDL_scrollx)*SDL_zoomx-3+gfx_canvasminx,(tlpy-SDL_scrolly)*SDL_zoomy-3+gfx_canvasminy,48,4,0);
+							draw_drawmarkpoint((tlpx-SDL_scrollx)*SDL_zoomx-3+gfx_canvasminx,(tlpy-SDL_scrolly)*SDL_zoomy-3+gfx_canvasminy,47,4,0);
 							ilv3++;
 							goto iback2;
 						}

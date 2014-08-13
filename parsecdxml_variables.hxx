@@ -11,7 +11,7 @@ intl LHENDRAW_buffersize=1048576;
 char LHENDRAW_filedlgmode=0;
 char LHENDRAW_leave=0;
 char janitor_maxZ=0;
-#define selection_maxbuttons 74
+_small LHENDRAW_maxbuttons=74;
 #define constants_bondlength 30
 #define constants_angular_distance 2.094395102
 #define constants_clickradius 170
@@ -27,7 +27,8 @@ float glob_subpoint_clickradius=50;
 #else
 #define constants_Directoryslash '\\'
 #endif
-_u32 resources_bitmap_buttons[selection_maxbuttons][32][32];
+typedef _u32 resources_button_[32][32];
+resources_button_ * resources_bitmap_buttons;
 extern TELESCOPE_buffer glob_contentbuffer[];
 struct TELESCOPE_tempvar_
 {

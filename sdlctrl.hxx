@@ -13,10 +13,10 @@ int control_firstmenux,control_firstmenuy;
 int control_lastmenux,control_lastmenuy;
 int control_mousestate=0;//0: inactive; 0x1: from tool, mouseclick; 0x2: from special tool, keyboard 0x4: on menu, dragging 0x8: on button_function dependent menu, popup 0x10 popup-menu or PSE, multiple levels 0x20 dragging menuitem 0x40: text editing
 int control_toolaction=0;//1: move 2: move selection 3: tool specific
-int control_tool=2;//1: Hand 2: 2coordinate Selection 3: Lasso, no matter which 4: Shift tool 5: Magnifying glass 6: Element draw 7: chemdraw draw 8: eraser 9: Arrows 10: attributes 11: text tool 12: bezier 13: image 14: spectrum 15: tlc plate/gel plate 16: graphic
+int control_tool=2;//1: Hand 2: 2coordinate Selection 3: Lasso, no matter which 4: Shift tool 5: Magnifying glass 6: Element draw 7: chemdraw draw 8: eraser 9: Arrows 10: attributes 11: text tool 12: bezier 13: image 14: spectrum 15: tlc plate/gel plate 16: graphic 17: aromatic ring tool
 int control_menumode=0;//1: shliderhorz, 2: slidervert 3: colorchooser
 AUTOSTRUCT_PULLOUTLISTING_ * control_menuitem=NULL;
-#define control_toolcount 17
+#define control_toolcount 18
 clickabilitymatrix_ clickabilitymatrixes[control_toolcount];
 int control_keycombotool=0;//as above, but only valid if (mousestate & 2)
 SDLKey control_toolstartkeysym;
@@ -532,6 +532,10 @@ int issueclick(int iposx,int iposy)
 	control_dragged=0;
 	control_id=-1;
 	clickforthem();
+	if (control_tool>control_toolcount)
+	{
+		fprintf(stderr,"Error! tool number out of range!\n");
+	}
 	switch (control_tool)
 	{
 		case 2:
@@ -777,6 +781,102 @@ int issueclick(int iposx,int iposy)
 				}
 			}
 			control_mousestate=0;return 0;
+		}
+		case 17:
+		{
+			char bond_shift=(MODIFIER_KEYS.SHIFT>0);
+			n_instance ** tl_atom=(n_instance**)alloca(sizeof(n_instance*)*control_drawproperties.ring_element_count);
+			int * atomnr=(int*)alloca(sizeof(int)*control_drawproperties.ring_element_count);
+			control_mousestate=1;
+			control_usingmousebutton=control_lastmousebutton;
+			int skipatoms=0;
+			control_startx=control_coorsx;
+			control_starty=control_coorsy;
+			float control_startz=0;
+			float tl_angle=0;
+			float radius=constants_bondlength/(2*sin(Pi/control_drawproperties.ring_element_count));
+			float tl_h=radius*cos(Pi/control_drawproperties.ring_element_count);
+			printf("...%f\n",tl_h);
+			if (selection_clickselection_found & (1<<STRUCTURE_OBJECTTYPE_b))
+			{
+				for (int ilv1=0;ilv1<(*glob_b_multilist).filllevel;ilv1++)
+				{
+					if (selection_clickselection[ilv1] & (1<<STRUCTURE_OBJECTTYPE_b))
+					{
+						atomnr[0]=bond_actual_node[ilv1].start;
+						atomnr[1]=bond_actual_node[ilv1].end;
+						tl_atom[0]=(*glob_n_multilist).bufferlist+atomnr[0];
+						tl_atom[1]=(*glob_n_multilist).bufferlist+atomnr[1];
+						printf("%i--%i\n",atomnr[0],atomnr[1]);
+						skipatoms=2;
+						retrievepoints((*glob_b_multilist).bufferlist+ilv1,&control_startx,&control_starty,&control_startz,0);
+						tl_angle=getangle(tl_atom[1]->xyz.x-tl_atom[0]->xyz.x,tl_atom[1]->xyz.y-tl_atom[0]->xyz.y);
+						printf("%f\n",tl_angle);
+						float tl_mouseangle=getangle(control_coorsx-tl_atom[0]->xyz.x,control_coorsy-tl_atom[0]->xyz.y);
+						if (fmod((tl_mouseangle-tl_angle+2*Pi),(2*Pi))<Pi)
+						{
+							tl_angle+=Pi/2;
+						}
+						else
+						{
+							atomnr[2]=atomnr[0];
+							atomnr[0]=atomnr[1];
+							atomnr[1]=atomnr[2];
+							tl_atom[2]=tl_atom[0];
+							tl_atom[0]=tl_atom[1];
+							tl_atom[1]=tl_atom[2];
+							tl_angle-=Pi/2;
+						}
+						control_startx+=cos(tl_angle)*tl_h;
+						control_starty+=sin(tl_angle)*tl_h;
+						goto ifoundbond;
+					}
+				}
+			}
+			ifoundbond:;
+			for (int ilv1=skipatoms;ilv1<control_drawproperties.ring_element_count;ilv1++)
+			{
+				float tl_positionx,tl_positiony;
+				tl_positionx=control_startx+cos(((ilv1*Pi*2.0)/control_drawproperties.ring_element_count)+tl_angle+Pi/2+Pi/3)*radius;
+				tl_positiony=control_starty+sin(((ilv1*Pi*2.0)/control_drawproperties.ring_element_count)+tl_angle+Pi/2+Pi/3)*radius;
+				tl_atom[ilv1]=snapatom_short(tl_positionx,tl_positiony,atomnr+ilv1);
+				if (tl_atom[ilv1])
+				{
+					control_id=(*tl_atom[ilv1]).id;
+				}
+				else
+				{
+					tl_atom[ilv1]=edit_summonatom(atomnr+ilv1);
+					if (tl_atom[ilv1])
+					{
+						(*tl_atom[ilv1]).xyz.x=tl_positionx;
+						(*tl_atom[ilv1]).xyz.y=tl_positiony;
+						(*tl_atom[ilv1]).xyz.z=control_startz;
+						(*tl_atom[ilv1]).Z=edit_getnewZ();
+					}
+					else
+					{
+						control_mousestate=0;
+						return -1;
+					}
+				}
+			}
+			for (int ilv1=0;ilv1<control_drawproperties.ring_element_count;ilv1++)
+			{
+				int end=(ilv1+1)%control_drawproperties.ring_element_count;
+				if (get_bond_between(atomnr[ilv1],atomnr[end])<0)
+				{
+					b_instance * tl_b_instance=edit_summonbond(tl_atom[ilv1]->id,tl_atom[end]->id,atomnr[ilv1],atomnr[end]);
+					if (((ilv1%2)==0) ^ (bond_shift))
+					{
+						if ((getbondsum(atomnr[ilv1])<4) && (getbondsum(atomnr[end])<4))
+						{
+							(*tl_b_instance).Order=0x20;
+						}
+					}
+				}
+			}
+			return 0;
 		}
 	}
 	ifertig:;
@@ -1418,7 +1518,12 @@ int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int
 				{
 					case 1: clickabilitymatrix_tooldependent[control_tool]=selection_clickabilitymatrix;control_tool=(*ipulloutlisting).toolnr;selection_clickabilitymatrix=clickabilitymatrix_tooldependent[control_tool];break;
 					case 2: *((char*)(*ipulloutlisting).variable)^=1;break;
-					case 3: (*ipulloutlisting).LMB_function("","");break;
+					case 3: 
+					{
+						char istring[100];
+						sprintf(istring,"%i",(*ipulloutlisting).toolnr);
+						(*ipulloutlisting).LMB_function("",istring);break;
+					}
 					case 4:
 					{
 						_u32 * tltl=(_u32 *)((*ipulloutlisting).variable);

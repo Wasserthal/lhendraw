@@ -136,6 +136,16 @@ menuitem pullout_toolbox[]={
 "","",
 0x00FF00,
 },
+{1,6,
+63,//Picture
+"AROMATIC",
+1,0,
+17,
+"draw aromatic rings",
+"",
+"","",
+0x00FF00,
+},
 {2,2,
 2,//Picture
 "Save",

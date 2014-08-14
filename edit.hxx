@@ -13,9 +13,11 @@ struct drawproperties_
 	_i32 attribute_tool;
 	int color;
 	_i32 Element;
+	_i32 ring_element_count;
+	_i32 ring_unsaturation;
 };
 _small edit_current5bondcarbon=0;
-drawproperties_ control_drawproperties={1,0,4,0,constants_Element_implicitcarbon};
+drawproperties_ control_drawproperties={1,0,4,0,constants_Element_implicitcarbon,6,1};
 int control_hot[32]={-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,};
 int getbondsum(intl inumber)
 {
@@ -886,10 +888,13 @@ b_instance * edit_summonbond(int i_id_begin,int i_id_end,int i_nr_begin,int i_nr
 		(*tlinstance).B=i_id_begin;
 		(*tlinstance).E=i_id_end;
 		(*tlinstance).Display=control_drawproperties.bond_Display1;
+		(*tlinstance).Display2=0;
 		(*tlinstance).Order=0x10;
 		(*tlinstance).color=control_drawproperties.color;
 		atom_actual_node[i_nr_begin]+=((*glob_b_multilist).filllevel);
 		atom_actual_node[i_nr_end]+=((*glob_b_multilist).filllevel);
+		bond_actual_node[(*glob_b_multilist).filllevel].start=i_nr_begin;
+		bond_actual_node[(*glob_b_multilist).filllevel].end=i_nr_end;
 		((*glob_b_multilist).filllevel)++;
 		(*tlinstance).id=(*glob_b_multilist).maxid+1;
 		(*glob_b_multilist).maxid++;
@@ -1421,6 +1426,10 @@ catalogized_command_funcdef(ONETOONE)
 	SDL_scrolly+=(gfx_canvassizey/2)*((1/SDL_zoomy)-1);
 	SDL_zoomx=1;SDL_zoomy=1;
 	return 1;
+}
+catalogized_command_funcdef(TOGGLETEXTATTRIBUTE)
+{
+	printf("TODO***stub\n");
 }
 catalogized_command_funcdef(SEARCH)
 {

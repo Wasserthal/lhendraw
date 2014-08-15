@@ -51,7 +51,7 @@ char control_devicememory_buffer[255][64];
 _u32 control_filememory_attribs[255];
 int menu_selectedmenuelement;
 char control_filemenu_mode=0;
-int undo_undodirty=0;
+int undo_undodirty=0;//set when undo was stored just to become immediately modified in the same command, like the storeundo at issueclick
 structenum control_devicememory
 {
 	{"control_devicememory"},

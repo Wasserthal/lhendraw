@@ -183,6 +183,10 @@ int storeundo(_u32 flags)
 {
 	intl imax=0;
 	basicmultilist * tl_multilist;
+	if (undo_undodirty==0)
+	{
+		currentundostep=undosteps[currentundostep].parent;
+	}
 	if (undosteps_count>=constants_undostep_max)
 	{
 		if (slayredo()<=0)

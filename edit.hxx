@@ -390,11 +390,28 @@ inline int retrievepoints(t_instance * iinstance,float * ix,float * iy,float * i
 }
 int hit(n_instance * iinstance,float ix,float iy,int ino)
 {
+	float idistance;
 	float tl_x,tl_y,tl_z;
 	if (retrievepoints(iinstance,&tl_x,&tl_y,&tl_z,ino)>0)
 	{
-		if ((sqr(ix-tl_x)+sqr(iy-tl_y))<((ino>0)?glob_subpoint_clickradius:glob_clickradius))
+		idistance=(sqr(ix-tl_x)+sqr(iy-tl_y));
+		if (idistance<glob_clickradius)
 		{
+			if (idistance<glob_subpoint_clickradius) return 1;
+			int inr=(((_iXX)iinstance)-((_iXX)(glob_n_multilist->bufferlist)))/sizeof(n_instance);
+			int tl_bondcount=atom_actual_node[inr].bondcount;
+			for (int ilv1=0;ilv1<tl_bondcount;ilv1++)
+			{
+				n_instance * iinstance2=(glob_n_multilist->bufferlist)+getother(inr,atom_actual_node[inr].bonds[ilv1]);
+				float main_angle=getangle((*iinstance2).xyz.x-(*iinstance).xyz.x,(*iinstance2).xyz.y-(*iinstance).xyz.y);
+				float tl_angle;
+				tl_angle=getangle(ix-(*iinstance).xyz.x,iy-(*iinstance).xyz.y);
+				tl_angle=fmod(tl_angle-main_angle+4*Pi,2*Pi);
+				if ((tl_angle<Pi/4) || (tl_angle>7*Pi/4))
+				{
+					return 0;
+				}
+			}
 			return 1;
 		}
 		else
@@ -406,6 +423,7 @@ int hit(n_instance * iinstance,float ix,float iy,int ino)
 }
 int hit(b_instance * iinstance,float ix,float iy,int ino)
 {
+	float idistance;
 	n_instance *iinstance1=NULL;
 	n_instance *iinstance2=NULL;
 	if (ino!=0) return -1;
@@ -426,8 +444,25 @@ int hit(b_instance * iinstance,float ix,float iy,int ino)
 	}
 	if (iinstance1==NULL) {return -3;}
 	if (iinstance2==NULL) {return -3;}
-	if ((sqr(ix-((*iinstance1).xyz.x+(*iinstance2).xyz.x)*0.5)+sqr(iy-((*iinstance1).xyz.y+(*iinstance2).xyz.y)*0.5))<40)
+	idistance=sqr(ix-((*iinstance1).xyz.x+(*iinstance2).xyz.x)*0.5)+sqr(iy-((*iinstance1).xyz.y+(*iinstance2).xyz.y)*0.5);
+	if (idistance<glob_clickradius)
 	{
+		if (sqr(ix-(*iinstance1).xyz.x)+sqr(iy-(*iinstance1).xyz.y)<glob_subpoint_clickradius) return 0;
+		if (sqr(ix-(*iinstance2).xyz.x)+sqr(iy-(*iinstance2).xyz.y)<glob_subpoint_clickradius) return 0;
+		float main_angle=getangle((*iinstance2).xyz.x-(*iinstance1).xyz.x,(*iinstance2).xyz.y-(*iinstance1).xyz.y);
+		float tl_angle;
+		tl_angle=getangle(ix-(*iinstance1).xyz.x,iy-(*iinstance1).xyz.y);
+		tl_angle=fmod(tl_angle-main_angle+4*Pi,2*Pi);
+		if ((tl_angle>Pi/4) && (tl_angle<7*Pi/4))
+		{
+			return 0;
+		}
+		tl_angle=getangle((*iinstance2).xyz.x-ix,(*iinstance2).xyz.y-iy);
+		tl_angle=fmod(tl_angle-main_angle+4*Pi,2*Pi);
+		if ((tl_angle>Pi/4) && (tl_angle<7*Pi/4))
+		{
+			return 0;
+		}
 		return 1;
 	}
 	return 0;
@@ -1199,8 +1234,6 @@ void edit_scoopcolors(basic_instance * master)
 						(*tl_CAMBRIDGE_color_instance).r=r/255.0;
 						(*tl_CAMBRIDGE_color_instance).g=g/255.0;
 						(*tl_CAMBRIDGE_color_instance).b=b/255.0;
-						printf("r:%i,g:%i,b:%i\n",r,g,b);
-						printf("r:%f,g:%f,b:%f\n",(*tl_CAMBRIDGE_color_instance).r,(*tl_CAMBRIDGE_color_instance).g,(*tl_CAMBRIDGE_color_instance).b);
 						idone:;
 					}
 				}

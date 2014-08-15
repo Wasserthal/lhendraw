@@ -796,7 +796,6 @@ int issueclick(int iposx,int iposy)
 			float tl_angle=0;
 			float radius=constants_bondlength/(2*sin(Pi/control_drawproperties.ring_element_count));
 			float tl_h=radius*cos(Pi/control_drawproperties.ring_element_count);
-			printf("...%f\n",tl_h);
 			if (selection_clickselection_found & (1<<STRUCTURE_OBJECTTYPE_b))
 			{
 				for (int ilv1=0;ilv1<(*glob_b_multilist).filllevel;ilv1++)
@@ -807,13 +806,11 @@ int issueclick(int iposx,int iposy)
 						atomnr[1]=bond_actual_node[ilv1].end;
 						tl_atom[0]=(*glob_n_multilist).bufferlist+atomnr[0];
 						tl_atom[1]=(*glob_n_multilist).bufferlist+atomnr[1];
-						printf("%i--%i\n",atomnr[0],atomnr[1]);
 						skipatoms=2;
 						retrievepoints((*glob_b_multilist).bufferlist+ilv1,&control_startx,&control_starty,&control_startz,0);
 						tl_angle=getangle(tl_atom[1]->xyz.x-tl_atom[0]->xyz.x,tl_atom[1]->xyz.y-tl_atom[0]->xyz.y);
-						printf("%f\n",tl_angle);
 						float tl_mouseangle=getangle(control_coorsx-tl_atom[0]->xyz.x,control_coorsy-tl_atom[0]->xyz.y);
-						if (fmod((tl_mouseangle-tl_angle+2*Pi),(2*Pi))<Pi)
+						if (fmod((tl_mouseangle-tl_angle+4*Pi),(2*Pi))<Pi)
 						{
 							tl_angle+=Pi/2;
 						}

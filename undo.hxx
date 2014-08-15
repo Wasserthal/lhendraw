@@ -13,7 +13,7 @@ struct undo_undostep_
 };
 undo_undostep_ undosteps[constants_undostep_max];
 TELESCOPE_buffer glob_contentbuffer[sizeof(STRUCTURE_OBJECTTYPE_List)/sizeof(trienum)];
-char * undo_retrievebuffer(intl start,intl list,intl * auxno=NULL)
+char * undo_retrievebuffer(intl start,intl list)
 {
 	intl current=start;
 	char * wert;
@@ -251,6 +251,15 @@ int restoreundo(_u32 flags,_u32 orderflags/*bit0: restore count only*/)//doesn't
 		{
 			if (flags & (1<<ilv1))
 			{
+				thatundostep=currentundostep;
+				if (orderflags & 1)
+				{
+					for (int ilv2=0;ilv2<sizeof(multilist<basic_instance>);ilv2++)
+					{
+						((char*)(tl_multilist))[ilv2]=((char*)(undosteps[thatundostep].handles[ilv1].imultilist))[ilv2];
+					}
+					goto count_only;
+				}
 				imax=min(LHENDRAW_buffersize,undosteps[currentundostep].handles[ilv1].bufferhead.count+sizeof(intl)-1)/sizeof(intl);
 				tl_buffer=(intl*)(undosteps[currentundostep].handles[ilv1].contentbuffer);
 				if (tl_buffer==NULL)
@@ -261,11 +270,10 @@ int restoreundo(_u32 flags,_u32 orderflags/*bit0: restore count only*/)//doesn't
 				{
 					((intl*)(glob_contentbuffer[ilv1].buffer))[ilv3]=tl_buffer[ilv3];
 				}
-				thatundostep=currentundostep;
 				tl_buffer=(intl*)(undosteps[currentundostep].handles[ilv1].buffer);
 				if (tl_buffer==NULL)
 				{
-					tl_buffer=(intl*)(undo_retrievebuffer(currentundostep,ilv1,&thatundostep));
+					tl_buffer=(intl*)(undo_retrievebuffer(currentundostep,ilv1));
 				}
 				for (int ilv2=0;ilv2<sizeof(multilist<basic_instance>);ilv2++)
 				{
@@ -276,6 +284,7 @@ int restoreundo(_u32 flags,_u32 orderflags/*bit0: restore count only*/)//doesn't
 				{
 					((intl*)((*tl_multilist).pointer))[ilv3]=(tl_buffer)[ilv3];
 				}
+				count_only:;
 				glob_contentbuffer[ilv1].count=undosteps[currentundostep].handles[ilv1].bufferhead.count;
 			}
 			undosteps[currentundostep].handles[ilv1].bufferhead.max=LHENDRAW_buffersize;

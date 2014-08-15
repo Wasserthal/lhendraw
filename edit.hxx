@@ -19,6 +19,44 @@ struct drawproperties_
 _small edit_current5bondcarbon=0;
 drawproperties_ control_drawproperties={1,0,4,0,constants_Element_implicitcarbon,6,1};
 int control_hot[32]={-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,};
+//Copies a set of atoms and bonds from one buffer to another. Can take atoms from ANY other buffer
+int edit_flexicopy(n_instance * n_input,multilist<n_instance> * n_target,b_instance * b_input,multilist<b_instance> * b_target,selection_ iselection,intl n_max,intl b_max)
+{
+	_u32 icompare;
+	intl min_id=(~((unsigned intl)0))>>1;
+	intl max_id=0;
+	icompare=1<<STRUCTURE_OBJECTTYPE_n;
+	for (int ilv1=0;ilv1<n_max;ilv1++)
+	{
+		if (iselection[ilv1] & icompare)
+		{
+			if (max_id<n_input[ilv1].id) max_id=n_input[ilv1].id;
+			if (min_id>n_input[ilv1].id) min_id=n_input[ilv1].id;
+			ifertig:;
+		}
+	}
+	for (int ilv1=0;ilv1<n_max;ilv1++)
+	{
+		if (iselection[ilv1] & icompare)
+		{
+			memcpy((n_target->bufferlist)+(n_target->filllevel),n_input+ilv1,sizeof(n_instance));
+			(n_target->bufferlist)[n_target->filllevel].id+=n_target->maxid-min_id+1;
+			n_target->filllevel++;
+		}
+	}
+	icompare=1<<STRUCTURE_OBJECTTYPE_b;
+	for (int ilv1=0;ilv1<b_max;ilv1++)
+	{
+		if (iselection[ilv1] & icompare)
+		{
+			memcpy((b_target->bufferlist)+(b_target->filllevel),b_input+ilv1,sizeof(b_instance));
+			(b_target->bufferlist)[b_target->filllevel].B+=n_target->maxid-min_id+1;
+			(b_target->bufferlist)[b_target->filllevel].E+=n_target->maxid-min_id+1;
+			b_target->filllevel++;
+		}
+	}
+	//TODO: grow buffer!
+}
 int getbondsum(intl inumber)
 {
 	float i_bond_sum=0;

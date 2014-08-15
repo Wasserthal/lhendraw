@@ -882,6 +882,7 @@ int issueclick(int iposx,int iposy)
 	//warning: there ARE in-function returns.
 	return 0;
 }
+char * undo_retrievebuffer(intl start,intl list);
 void issuedrag(int iposx,int iposy)
 {
 	float tl_x=0;
@@ -942,7 +943,7 @@ void issuedrag(int iposx,int iposy)
 		}
 		case 7:
 		{
-			restoreundo(~0,1);
+			restoreundo(~0,0);
 			undo_undodirty=1;
 			int atomnr=-1;
 			int atomnr2=-1;
@@ -1028,6 +1029,13 @@ void issuedrag(int iposx,int iposy)
 		}
 		case 4:
 		{
+			if (MODIFIER_KEYS.CTRL)
+			{
+				restoreundo(~0,1);
+				janitor_getmaxid(STRUCTURE_OBJECTTYPE_n);
+				edit_flexicopy((n_instance*)undo_retrievebuffer(currentundostep,STRUCTURE_OBJECTTYPE_n),glob_n_multilist,(b_instance*)undo_retrievebuffer(currentundostep,STRUCTURE_OBJECTTYPE_b),glob_b_multilist,selection_currentselection,glob_n_multilist->filllevel,glob_b_multilist->filllevel);
+				getatoms();
+			}
 			for (int ilv1=0;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
 			{
 				int follower=0;

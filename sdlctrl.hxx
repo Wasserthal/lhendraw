@@ -707,22 +707,9 @@ int issueclick(int iposx,int iposy)
 						{
 							if ((*glob_n_multilist)[ilv2].exist)
 							{
-								switch (control_drawproperties.attribute_tool)
+								if (atom_addsymbol(ilv2,control_drawproperties.attribute_tool)>=0)
 								{
-									case 2: case 4: case 8: (*glob_n_multilist).bufferlist[ilv2].charge+=1;break;
-									case 3: case 5: case 9: (*glob_n_multilist).bufferlist[ilv2].charge-=1;break;
-								}
-								TELESCOPE_aggressobject(glob_n_multilist,ilv2);
-								Symbol_instance tl_Symbol_instance;
-								tl_Symbol_instance.length=sizeof(Symbol_instance);
-								tl_Symbol_instance.dxyz.x=10;
-								tl_Symbol_instance.dxyz.y=-10;
-								tl_Symbol_instance.dxyz.z=0;
-								tl_Symbol_instance.SymbolType=control_drawproperties.attribute_tool;
-								if (TELESCOPE_add(TELESCOPE_ELEMENTTYPE_Symbol,NULL,0)>=0)
-								{
-//									TELESCOPE_measure(TELESCOPE_ELEMENTTYPE_Symbol,glob_contentbuffer+STRUCTURE_OBJECTTYPE_n);
-									*((Symbol_instance*)TELESCOPE_getproperty())=tl_Symbol_instance;
+									//TELESCOPE_measure(TELESCOPE_ELEMENTTYPE_Symbol,glob_contentbuffer+STRUCTURE_OBJECTTYPE_n);
 									control_manipulatededinstance=(basic_instance*)TELESCOPE_getproperty();
 									control_manipulatededinstance2=(basic_instance*)(glob_n_multilist->bufferlist+ilv2);
 									goto ifertig;
@@ -834,8 +821,8 @@ int issueclick(int iposx,int iposy)
 			for (int ilv1=skipatoms;ilv1<control_drawproperties.ring_element_count;ilv1++)
 			{
 				float tl_positionx,tl_positiony;
-				tl_positionx=control_startx+cos(((ilv1*Pi*2.0)/control_drawproperties.ring_element_count)+tl_angle+Pi/2+Pi/3)*radius;
-				tl_positiony=control_starty+sin(((ilv1*Pi*2.0)/control_drawproperties.ring_element_count)+tl_angle+Pi/2+Pi/3)*radius;
+				tl_positionx=control_startx+cos(((ilv1*Pi*2.0)/control_drawproperties.ring_element_count)+tl_angle+Pi-Pi/control_drawproperties.ring_element_count)*radius;
+				tl_positiony=control_starty+sin(((ilv1*Pi*2.0)/control_drawproperties.ring_element_count)+tl_angle+Pi-Pi/control_drawproperties.ring_element_count)*radius;
 				tl_atom[ilv1]=snapatom_short(tl_positionx,tl_positiony,atomnr+ilv1);
 				if (tl_atom[ilv1])
 				{
@@ -864,11 +851,24 @@ int issueclick(int iposx,int iposy)
 				if (get_bond_between(atomnr[ilv1],atomnr[end])<0)
 				{
 					b_instance * tl_b_instance=edit_summonbond(tl_atom[ilv1]->id,tl_atom[end]->id,atomnr[ilv1],atomnr[end]);
-					if (((ilv1%2)==0) ^ (bond_shift))
+					if ((((ilv1%2)==0) ^ (bond_shift)) && (control_drawproperties.ring_unsaturation))
 					{
-						if ((getbondsum(atomnr[ilv1])<4) && (getbondsum(atomnr[end])<4))
+						if ((getbondsum(atomnr[ilv1])<4))
 						{
-							(*tl_b_instance).Order=0x20;
+							if ((ilv1==control_drawproperties.ring_element_count-1) && ((ilv1&1)==0))
+							{
+								atom_addsymbol(atomnr[ilv1],((control_drawproperties.ring_element_count%4)==1)?5:4);
+								Symbol_instance * tl_Symbol_instance=(Symbol_instance*)TELESCOPE_getproperty();
+								tl_Symbol_instance->dxyz.x=cos(((ilv1*Pi*2.0)/control_drawproperties.ring_element_count)+tl_angle+Pi-Pi/control_drawproperties.ring_element_count)*10;
+								tl_Symbol_instance->dxyz.y=sin(((ilv1*Pi*2.0)/control_drawproperties.ring_element_count)+tl_angle+Pi-Pi/control_drawproperties.ring_element_count)*10;
+							}
+							else
+							{
+								if (getbondsum(atomnr[end])<4)
+								{
+									(*tl_b_instance).Order=0x20;
+								}
+							}
 						}
 					}
 				}

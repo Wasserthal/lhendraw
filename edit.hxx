@@ -994,6 +994,27 @@ t_instance * edit_summontext(int * inr=NULL)
 	}
 	return NULL;
 }
+int atom_addsymbol(int inr,int itype)
+{
+	switch (itype)
+	{
+		case 2: case 4: case 8: (*glob_n_multilist).bufferlist[inr].charge+=1;break;
+		case 3: case 5: case 9: (*glob_n_multilist).bufferlist[inr].charge-=1;break;
+	}
+	TELESCOPE_aggressobject(glob_n_multilist,inr);
+	Symbol_instance tl_Symbol_instance;
+	tl_Symbol_instance.length=sizeof(Symbol_instance);
+	tl_Symbol_instance.dxyz.x=10;
+	tl_Symbol_instance.dxyz.y=-10;
+	tl_Symbol_instance.dxyz.z=0;
+	tl_Symbol_instance.SymbolType=itype;
+	int wert=TELESCOPE_add(TELESCOPE_ELEMENTTYPE_Symbol,NULL,0);
+	if (wert)
+	{
+		*((Symbol_instance*)TELESCOPE_getproperty())=tl_Symbol_instance;
+	}
+	return wert;
+}
 float edit_get_atom_best_free_side(int atomnr)
 {
 //	atom_actual_node//Should I really rely on them? better leave them as they were. But then it wont work for NEW atoms...

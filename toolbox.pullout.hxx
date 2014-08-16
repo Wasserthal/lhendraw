@@ -138,10 +138,10 @@ menuitem pullout_toolbox[]={
 },
 {1,6,
 63,//Picture
-"AROMATIC",
+"RING",
 1,0,
 17,
-"draw aromatic rings",
+"draw aromatic/aliphatic rings",
 "",
 "","",
 0x00FF00,

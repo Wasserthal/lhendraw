@@ -117,6 +117,14 @@ CONVCAMBRIDGE_COLORCONV2(t,(*tl_n_instance).color);
 			}
 			else
 			{
+				for (int ilv2=0;ilv2<atom_actual_node[ilv1].bondcount;ilv2++)
+				{
+					i_bond_sum+=(*glob_b_multilist).bufferlist[atom_actual_node[ilv1].bonds[ilv2]].Order/16.0;
+				}
+				if (fmod(i_bond_sum,1.0)>0.4)
+				{
+					i_bond_sum=trunc(i_bond_sum)+1;
+				}
 				if ((*tl_n_instance).Element!=constants_Element_implicitcarbon)
 				{
 ADD_TO_MULTILISTREFERENCE(tl_CAMBRIDGE_n_instance,t);
@@ -138,14 +146,6 @@ CONVCAMBRIDGE_COLORCONV2(t,(*tl_n_instance).color);
 					{
 						tl_format=(*(s_f_instance*)TELESCOPE_getproperty()).valids;
 						tl_formatpointer=(edit_formatstruct*)TELESCOPE_getproperty_contents();
-					}
-					for (int ilv2=0;ilv2<atom_actual_node[ilv1].bondcount;ilv2++)
-					{
-						i_bond_sum+=(*glob_b_multilist).bufferlist[atom_actual_node[ilv1].bonds[ilv2]].Order/16.0;
-					}
-					if (fmod(i_bond_sum,1.0)>0.4)
-					{
-						i_bond_sum=trunc(i_bond_sum)+1;
 					}
 					for (int ilv1=0;ilv1<6;ilv1++)
 					{
@@ -191,7 +191,10 @@ CONVCAMBRIDGE_COLORCONV2(t,(*tl_n_instance).color);
 			(*tl_CAMBRIDGE_n_instance).id=janitor_id_list[STRUCTURE_OBJECTTYPE_n-1]+(*tl_n_instance).id;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_n_instance,id);
 			(*tl_CAMBRIDGE_n_instance).Z=(*tl_n_instance).Z;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_n_instance,Z);
 			(*tl_CAMBRIDGE_n_instance).xyz=(*tl_n_instance).xyz;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_n_instance,xyz);
-			(*tl_CAMBRIDGE_n_instance).NumHydrogens=(*tl_n_instance).protons-(int)i_bond_sum;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_n_instance,NumHydrogens);
+			if (tl_Element!=constants_Element_implicitcarbon)
+			{
+				(*tl_CAMBRIDGE_n_instance).NumHydrogens=(*tl_n_instance).protons-(int)i_bond_sum;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_n_instance,NumHydrogens);
+			}
 			if (iBoundingBox!=NULL)
 			{
 				if ((*tl_CAMBRIDGE_n_instance).xyz.x<(*iBoundingBox).left){(*iBoundingBox).left=(*tl_CAMBRIDGE_n_instance).xyz.x;}

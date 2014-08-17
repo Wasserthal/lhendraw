@@ -51,8 +51,8 @@ int control_interactive=1;
 int control_saveuponexit=0;
 int control_GUI=1;
 int control_doubleclickenergy=0;
-basic_instance * control_manipulatededinstance;
-basic_instance * control_manipulatededinstance2;
+basic_instance * control_manipulatedinstance;
+basic_instance * control_manipulatedinstance2;
 typedef struct control_toolinfo_
 {
 	_u32 undoes;//for BOTH mouse buttons, unless using other tool
@@ -146,6 +146,13 @@ void checkupinconsistencies()
 				if ((*tl_n_instance).Element==constants_Element_implicitcarbon)
 				{
 					(*tl_n_instance).exist=0;
+				}
+			}
+			else
+			{
+				if ((*tl_n_instance).Element==constants_Element_implicitcarbon)
+				{
+					(*tl_n_instance).protons=4;
 				}
 			}
 		}
@@ -548,6 +555,7 @@ int issueclick(int iposx,int iposy)
 					control_toolstartkeysym=SDLK_UNKNOWN;
 					control_keycombotool=4;
 					control_usingmousebutton=control_lastmousebutton;
+					control_manipulatedinstance=getclicked(STRUCTURE_OBJECTTYPE_n);
 					selection_ORselection(selection_currentselection,selection_clickselection);
 					return 0;
 				}
@@ -565,6 +573,8 @@ int issueclick(int iposx,int iposy)
 				control_toolstartkeysym=SDLK_UNKNOWN;
 				control_keycombotool=4;
 				control_usingmousebutton=control_lastmousebutton;
+				control_manipulatedinstance=getclicked(STRUCTURE_OBJECTTYPE_n);
+				selection_copyselection(selection_currentselection,selection_clickselection);
 				return 0;
 			}
 			break;
@@ -579,6 +589,7 @@ int issueclick(int iposx,int iposy)
 					control_toolstartkeysym=SDLK_UNKNOWN;
 					control_keycombotool=4;
 					control_usingmousebutton=control_lastmousebutton;
+					control_manipulatedinstance=getclicked(STRUCTURE_OBJECTTYPE_n);
 					selection_ORselection(selection_currentselection,selection_clickselection);
 					return 0;
 				}
@@ -594,6 +605,12 @@ int issueclick(int iposx,int iposy)
 			selection_lassostartx=iposx;
 			selection_lassostarty=iposy;
 			selection_lassoclear();
+			break;
+		}
+		case 4:
+		{
+			control_manipulatedinstance=getclicked(STRUCTURE_OBJECTTYPE_n);
+			selection_copyselection(selection_currentselection,selection_clickselection);
 			break;
 		}
 		case 5:
@@ -710,8 +727,8 @@ int issueclick(int iposx,int iposy)
 								if (atom_addsymbol(ilv2,control_drawproperties.attribute_tool)>=0)
 								{
 									//TELESCOPE_measure(TELESCOPE_ELEMENTTYPE_Symbol,glob_contentbuffer+STRUCTURE_OBJECTTYPE_n);
-									control_manipulatededinstance=(basic_instance*)TELESCOPE_getproperty();
-									control_manipulatededinstance2=(basic_instance*)(glob_n_multilist->bufferlist+ilv2);
+									control_manipulatedinstance=(basic_instance*)TELESCOPE_getproperty();
+									control_manipulatedinstance2=(basic_instance*)(glob_n_multilist->bufferlist+ilv2);
 									goto ifertig;
 								}
 							}
@@ -1036,6 +1053,31 @@ void issuedrag(int iposx,int iposy)
 				edit_flexicopy((n_instance*)undo_retrievebuffer(currentundostep,STRUCTURE_OBJECTTYPE_n),glob_n_multilist,(b_instance*)undo_retrievebuffer(currentundostep,STRUCTURE_OBJECTTYPE_b),glob_b_multilist,selection_currentselection,glob_n_multilist->filllevel,glob_b_multilist->filllevel);
 				getatoms();
 			}
+			if (MODIFIER_KEYS.ALT)
+			{
+				icompare=1<<STRUCTURE_OBJECTTYPE_n;
+				if (control_manipulatedinstance!=NULL)
+				{
+					float ix=(*((n_instance*)control_manipulatedinstance)).xyz.x;
+					float iy=(*((n_instance*)control_manipulatedinstance)).xyz.y;
+					for (int ilv1=0;ilv1<glob_n_multilist->filllevel;ilv1++)
+					{
+						n_instance * tl_n_instance=glob_n_multilist->bufferlist+ilv1;
+						if ((*tl_n_instance).exist)
+						{
+							if ((selection_currentselection[ilv1] & icompare)==0)
+							{
+								float idist=fsqr((*tl_n_instance).xyz.x-ix)+fsqr((*tl_n_instance).xyz.y-iy);
+								if (idist<100)
+								{
+									ideltax=((*tl_n_instance).xyz.x-ix)*SDL_zoomx;
+									ideltay=((*tl_n_instance).xyz.y-iy)*SDL_zoomy;
+								}
+							}
+						}
+					}
+				}
+			}
 			for (int ilv1=0;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
 			{
 				int follower=0;
@@ -1163,8 +1205,8 @@ void issuedrag(int iposx,int iposy)
 		case 10:
 		{
 			float tl_angle;
-			Symbol_instance * tl_Symbol_instance=(Symbol_instance*)control_manipulatededinstance;
-			n_instance * tl_n_instance=(n_instance*)control_manipulatededinstance2;
+			Symbol_instance * tl_Symbol_instance=(Symbol_instance*)control_manipulatedinstance;
+			n_instance * tl_n_instance=(n_instance*)control_manipulatedinstance2;
 			tl_angle=getangle(control_coorsx-(*tl_n_instance).xyz.x,control_coorsy-(*tl_n_instance).xyz.y);
 			(*tl_Symbol_instance).dxyz.x=cos(tl_angle)*10;
 			(*tl_Symbol_instance).dxyz.y=sin(tl_angle)*10;
@@ -1228,18 +1270,20 @@ void issuerelease()
 {
 	_u32 icompare;
 	int isize;
+	int tlwhichtool=control_tool;
 	int ioffset;
 	char * ibufferpos;
 	int internalpointcount;
-	switch (control_tool)
+	if (control_mousestate==2)
+	{
+		tlwhichtool=control_keycombotool;
+		goto shiftshunt;
+	}
+	shiftshunt:
+	switch (tlwhichtool)
 	{
 		case 2:
 		{
-			if (control_usingmousebutton==SDL_BUTTON_RIGHT)
-			{
-				checkupinconsistencies();
-				break;
-			}
 			if (!rectifyselectionframe())
 			{
 				clickforthem();
@@ -1312,11 +1356,6 @@ void issuerelease()
 		}
 		case 3:
 		{
-			if (control_usingmousebutton==SDL_BUTTON_RIGHT)
-			{
-				checkupinconsistencies();
-				break;
-			}
 			//TODO: what if not moved
 			selection_lassotrail(control_posx,control_posy,selection_lassostartx,selection_lassostarty);
 			if (selection_lasso_up==2) selection_lasso_putpixel(selection_lassostartx,selection_lassostarty,1);
@@ -1414,6 +1453,40 @@ void issuerelease()
 				i_control3_fertig:;
 			}
 			KEYDEPENDENTSELECTION;
+			break;
+		}
+		case 4:
+		{
+			for (int ilv1=0;ilv1<glob_n_multilist->filllevel;ilv1++)
+			{
+				if (selection_currentselection[ilv1] & (1<<STRUCTURE_OBJECTTYPE_n))
+				{
+					n_instance * iinstance=glob_n_multilist->bufferlist+ilv1;
+					if (iinstance->exist)
+					{
+						for (int ilv2=0;ilv2<glob_n_multilist->filllevel;ilv2++)
+						{
+							if (ilv1!=ilv2)
+							{
+//								if ((selection_currentselection[ilv2] & (1<<STRUCTURE_OBJECTTYPE_n))==0)
+//TODO: Lock only selection to unselected and CLEAN THIS MESS
+								{
+									n_instance * iinstance2=glob_n_multilist->bufferlist+ilv2;
+									if (iinstance2->exist)
+									{
+										if (edit_atommatch(iinstance,iinstance2))
+										{
+											edit_joinatom(iinstance2,iinstance,ilv1);
+											goto ifound;
+										}
+									}
+								}
+							}
+						}
+					}
+					ifound:;
+				}
+			}
 			break;
 		}
 		case 5:
@@ -1995,11 +2068,12 @@ void control_normal()
 					case SDL_BUTTON_RIGHT:
 					{
 						control_lastmousebutton=SDL_BUTTON_RIGHT;
+						control_doubleclickenergy=0;
 						goto clickshunt;
 					}
 					case SDL_BUTTON_LEFT:
 					{
-						if ((control_doubleclickenergy>0) && (control_tool==2) || (control_tool==3) || (control_tool==4))
+						if ((control_doubleclickenergy>0) && ((control_tool==2) || (control_tool==3) || (control_tool==4)))
 						{
 							clickforthem();
 							selection_clearselection(selection_fragmentselection);
@@ -2041,6 +2115,7 @@ void control_normal()
 					}
 					case SDL_BUTTON_WHEELDOWN://FALLTHROUGH
 					{
+						control_doubleclickenergy=0;
 						if (MODIFIER_KEYS.CTRL)
 						{
 							float tl_factor=1.414213562;

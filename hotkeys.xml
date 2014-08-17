@@ -120,6 +120,7 @@
 <Hotkey modifiers="CTRL" key="A" command="SELECTALL" value="0"/>
 <Hotkey modifiers="CTRL" key="h" command="TEST_SMASH" variable="2" value="1"/>
 <Hotkey modifiers="CTRL" key="5" command="WARN_HYPERC" variable="" value=""/>
+<Hotkey modifiers="CTRL" key="K" command="CLEANUP" variable="" value=""/>
 </Hotkeys>
 </Object>
 <Object type="Generic Some">

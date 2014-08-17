@@ -695,6 +695,20 @@ int sdl_selectiondraw()
 	_u32 icompare;
 	int isize;
 	char * ibufferpos;
+	for (int ilv0=0;ilv0<5;ilv0++)
+	{
+		for (int ilv1=0;ilv1<100;ilv1++)
+		{
+			if (control_doubleclickenergy>ilv1)
+			{
+				screen[160+ilv1+((96+ilv0)*gfx_screensizex)]=0xFF0000;
+			}
+			else
+			{
+				screen[160+ilv1+((96+ilv0)*gfx_screensizex)]=0x3F0000;
+			}
+		}
+	}
 	if (control_mousestate==1)
 	{
 		if ((control_tool==2) || (control_tool==5))

@@ -847,6 +847,31 @@ template <class whatabout> inline int retrievepoints_relay(whatabout * iinstance
 	return retrievepoints(iinstance,ix,iy,inumber);
 }
 
+char edit_atommatch(n_instance * iinstance1,n_instance * iinstance2)
+{
+	if ((fsqr((*iinstance1).xyz.x-(*iinstance2).xyz.x)+fsqr((*iinstance1).xyz.y-(*iinstance2).xyz.y))<9)
+	{
+		return 1;
+	}
+	return 0;
+}
+void edit_joinatom(n_instance * iinstance1,n_instance * iinstance2,int index2)
+{
+	int id=(*iinstance1).id;
+	int oldid=(*iinstance2).id;
+	for (int ilv1=0;ilv1<glob_b_multilist->filllevel;ilv1++)
+	{
+		b_instance * tl_b_instance=(*glob_b_multilist).bufferlist+ilv1;
+		if (tl_b_instance->exist)
+		{
+			if (tl_b_instance->B==oldid) tl_b_instance->B=id;
+			if (tl_b_instance->E==oldid) tl_b_instance->E=id;
+		}
+	}
+	TELESCOPE_aggressobject(glob_n_multilist,index2);
+	TELESCOPE_clear();
+	iinstance2->exist=0;
+}
 n_instance * snapatom(float posx,float posy,_small * iatomnr=NULL)
 {
 	float best=2000000000;
@@ -1917,4 +1942,89 @@ catalogized_command_funcdef(WARN_HYPERC)
 	}
 	if (ifound==0){edit_current5bondcarbon=0;ifound=1;goto iback;}
 	return 0;
+}
+catalogized_command_funcdef(CLEANUP)
+{
+	//TODO: make 3D!
+	char changed;
+	int count=0;
+	_u32 icompare=1<<STRUCTURE_OBJECTTYPE_b;
+	iback:;
+	changed=0;
+	count++;
+	for (int ilv1=0;ilv1<glob_b_multilist->filllevel;ilv1++)
+	{
+		if (selection_currentselection[ilv1] & icompare)
+		{
+			b_instance * iinstance=(*glob_b_multilist).bufferlist+ilv1;
+			n_instance * iinstance1=glob_n_multilist->bufferlist+bond_actual_node[ilv1].start;
+			n_instance * iinstance2=glob_n_multilist->bufferlist+bond_actual_node[ilv1].end;
+			float length=fsqr(iinstance2->xyz.x-iinstance1->xyz.x)+fsqr(iinstance2->xyz.y-iinstance1->xyz.y);
+			float idirection=getangle(iinstance2->xyz.x-iinstance1->xyz.x,iinstance2->xyz.y-iinstance1->xyz.y);
+			if (length>=fsqr(constants_bondlength+0.02))
+			{
+				iinstance1->xyz.x+=cos(idirection)*0.01;
+				iinstance2->xyz.x-=cos(idirection)*0.01;
+				iinstance1->xyz.y+=sin(idirection)*0.01;
+				iinstance2->xyz.y-=sin(idirection)*0.01;
+				changed=1;
+			}
+			if (length<=fsqr(constants_bondlength-0.02))
+			{
+				iinstance1->xyz.x-=cos(idirection)*0.01;
+				iinstance2->xyz.x+=cos(idirection)*0.01;
+				iinstance1->xyz.y-=sin(idirection)*0.01;
+				iinstance2->xyz.y+=sin(idirection)*0.01;
+				changed=1;
+			}
+		}
+	}
+/*	icompare=1<<STRUCTURE_OBJECTTYPE_n;
+	for (int ilv1=0;ilv1<glob_n_multilist->filllevel;ilv1++)
+	{
+		if (selection_currentselection[ilv1] & icompare)
+		{
+			n_instance * iinstance=(*glob_n_multilist).bufferlist+ilv1;
+			for (int ilv2=0;ilv2<atom_actual_node[ilv1].bondcount;ilv2++)
+			{
+//TODO: ignore bondorder-0 bonds				b_instance * i_b_instance1=glob_b_multilist->bufferlist+atom_actual_node[ilv1].bonds[ilv2];
+				n_instance * i_n_instance1=glob_n_multilist->bufferlist+getother(ilv1,atom_actual_node[ilv1].bonds[ilv2]);
+				for (int ilv3=ilv2+1;ilv3<atom_actual_node[ilv1].bondcount;ilv3++)
+				{
+//					b_instance * iinstance2=glob_b_multilist->bufferlist+atom_actual_node[ilv1].bonds[ilv3];
+					n_instance * i_n_instance2=glob_n_multilist->bufferlist+getother(ilv1,atom_actual_node[ilv1].bonds[ilv3]);
+					float angle1=getangle(i_n_instance1->xyz.x-iinstance->xyz.x,i_n_instance1->xyz.y-iinstance->xyz.y);
+					float angle2=getangle(i_n_instance2->xyz.x-iinstance->xyz.x,i_n_instance2->xyz.y-iinstance->xyz.y);
+					float iangle=fmod(angle2-angle1+4*Pi,Pi/12);
+					float idirection1,idirection2;
+					if (iangle>Pi/24) iangle-=Pi/12;
+					if (fabs(iangle)>(Pi/3000))
+					{
+						float force=0.01;
+						if ((fabs(iangle)>Pi/300))
+						{
+							force=0.11-0.1/(fabs(iangle)/(Pi/12));
+						}
+						force=0.01-0.0099*(fabs(iangle)/(Pi/12));
+						if (iangle>0)
+						{
+							idirection1=angle1+Pi/2;
+							idirection2=angle2-Pi/2;
+						}
+						else
+						{
+							idirection1=angle1-Pi/2;
+							idirection2=angle2+Pi/2;
+						}
+						i_n_instance1->xyz.x+=cos(idirection1)*force;
+						i_n_instance2->xyz.x+=cos(idirection2)*force;
+						i_n_instance1->xyz.y+=sin(idirection1)*force;
+						i_n_instance2->xyz.y+=sin(idirection2)*force;
+						changed=1;
+					}
+				}
+			}
+		}
+	}*/
+	if ((changed) && (count<1000000)) goto iback;
 }

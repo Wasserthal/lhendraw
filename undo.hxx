@@ -1,10 +1,3 @@
-struct undo_singlebuffer
-{
-	char * buffer;//When==NULL, this buffer is empty, apply the buffer of the parent
-	char * contentbuffer;//NULL if no buffer.
-	char imultilist[sizeof(multilist<basic_instance>)];
-	TELESCOPE_buffer bufferhead;
-};
 struct undo_undostep_
 {
 	undo_singlebuffer handles[sizeof(STRUCTURE_OBJECTTYPE_List)/sizeof(trienum)];
@@ -29,7 +22,23 @@ char * undo_retrievebuffer(intl start,intl list)
 	if (current==-1) return NULL;
 	goto iback;
 }
-TELESCOPE_buffer * undo_retrievecontentbuffer(intl start,intl list,intl * auxno)
+undo_singlebuffer * undo_retrievehandle(intl start,intl list)
+{
+	intl current=start;
+	char * wert;
+	iback:;
+	if ((undosteps[current].handles[list].buffer)!=NULL)
+	{
+		return undosteps[current].handles+list;
+	}
+	else
+	{
+		current=undosteps[current].parent;
+	}
+	if (current==-1) return NULL;
+	goto iback;
+}
+TELESCOPE_buffer * undo_retrievecontentbuffer(intl start,intl list)
 {
 	intl current=start;
 	char * wert;

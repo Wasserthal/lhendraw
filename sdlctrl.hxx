@@ -554,6 +554,8 @@ int issueclick(int iposx,int iposy)
 					control_mousestate=2;
 					control_toolstartkeysym=SDLK_UNKNOWN;
 					control_keycombotool=4;
+					control_startx=control_coorsx;
+					control_starty=control_coorsy;
 					control_usingmousebutton=control_lastmousebutton;
 					control_manipulatedinstance=getclicked(STRUCTURE_OBJECTTYPE_n);
 					selection_ORselection(selection_currentselection,selection_clickselection);
@@ -572,6 +574,8 @@ int issueclick(int iposx,int iposy)
 				control_mousestate=2;
 				control_toolstartkeysym=SDLK_UNKNOWN;
 				control_keycombotool=4;
+				control_startx=control_coorsx;
+				control_starty=control_coorsy;
 				control_usingmousebutton=control_lastmousebutton;
 				control_manipulatedinstance=getclicked(STRUCTURE_OBJECTTYPE_n);
 				selection_copyselection(selection_currentselection,selection_clickselection);
@@ -588,6 +592,8 @@ int issueclick(int iposx,int iposy)
 					control_mousestate=2;
 					control_toolstartkeysym=SDLK_UNKNOWN;
 					control_keycombotool=4;
+					control_startx=control_coorsx;
+					control_starty=control_coorsy;
 					control_usingmousebutton=control_lastmousebutton;
 					control_manipulatedinstance=getclicked(STRUCTURE_OBJECTTYPE_n);
 					selection_ORselection(selection_currentselection,selection_clickselection);
@@ -599,6 +605,8 @@ int issueclick(int iposx,int iposy)
 				control_mousestate=2;
 				control_toolstartkeysym=SDLK_UNKNOWN;
 				control_keycombotool=4;
+				control_startx=control_coorsx;
+				control_starty=control_coorsy;
 				control_usingmousebutton=control_lastmousebutton;
 				return 0;
 			}
@@ -611,6 +619,8 @@ int issueclick(int iposx,int iposy)
 		{
 			control_manipulatedinstance=getclicked(STRUCTURE_OBJECTTYPE_n);
 			selection_copyselection(selection_currentselection,selection_clickselection);
+			control_startx=control_coorsx;
+			control_starty=control_coorsy;
 			break;
 		}
 		case 5:
@@ -899,7 +909,6 @@ int issueclick(int iposx,int iposy)
 	//warning: there ARE in-function returns.
 	return 0;
 }
-char * undo_retrievebuffer(intl start,intl list);
 void issuedrag(int iposx,int iposy)
 {
 	float tl_x=0;
@@ -1046,13 +1055,9 @@ void issuedrag(int iposx,int iposy)
 		}
 		case 4:
 		{
-			if (MODIFIER_KEYS.CTRL)
-			{
-				restoreundo(~0,1);
-				janitor_getmaxid(STRUCTURE_OBJECTTYPE_n);
-				edit_flexicopy((n_instance*)undo_retrievebuffer(currentundostep,STRUCTURE_OBJECTTYPE_n),glob_n_multilist,(b_instance*)undo_retrievebuffer(currentundostep,STRUCTURE_OBJECTTYPE_b),glob_b_multilist,selection_currentselection,glob_n_multilist->filllevel,glob_b_multilist->filllevel);
-				getatoms();
-			}
+			intl tl_deltaback=0;
+			float tl_deltax=control_coorsx-control_startx;
+			float tl_deltay=control_coorsy-control_starty;
 			if (MODIFIER_KEYS.ALT)
 			{
 				icompare=1<<STRUCTURE_OBJECTTYPE_n;
@@ -1067,67 +1072,29 @@ void issuedrag(int iposx,int iposy)
 						{
 							if ((selection_currentselection[ilv1] & icompare)==0)
 							{
-								float idist=fsqr((*tl_n_instance).xyz.x-ix)+fsqr((*tl_n_instance).xyz.y-iy);
+								float idist=fsqr((*tl_n_instance).xyz.x+tl_deltax/SDL_zoomx-ix)+fsqr((*tl_n_instance).xyz.y+tl_deltay/SDL_zoomy-iy);
 								if (idist<100)
 								{
-									ideltax=((*tl_n_instance).xyz.x-ix)*SDL_zoomx;
-									ideltay=((*tl_n_instance).xyz.y-iy)*SDL_zoomy;
+									tl_deltax+=((*tl_n_instance).xyz.x-ix)*SDL_zoomx;
+									tl_deltay+=((*tl_n_instance).xyz.y-iy)*SDL_zoomy;
 								}
 							}
 						}
 					}
 				}
 			}
-			for (int ilv1=0;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
+			if (MODIFIER_KEYS.CTRL)
 			{
-				int follower=0;
-				icompare=1<<ilv1;
-				int isize= STRUCTURE_OBJECTTYPE_List[ilv1].size;
-				basicmultilist * tlmultilist=findmultilist(STRUCTURE_OBJECTTYPE_List[ilv1].name);
-				internalpointcount=retrieveprops_basic(1,ilv1);
-				if (tlmultilist==NULL) goto i_control4_fertig;
-				CDXMLREAD_functype tldummy;
-				ioffset=(*tlmultilist).getproperties("xyz",&tldummy);
-				ibufferpos=(char*)((*tlmultilist).pointer);
-				cdx_Point2D * tlpoint2d;
-				for (int ilv2=0;ilv2<(*tlmultilist).filllevel;ilv2++)
-				{
-					if ((*((basic_instance*)(ibufferpos+isize*ilv2))).exist)
-					{
-						if ((selection_currentselection[ilv2]) & icompare)
-						{
-							if ((ioffset<0) || (ilv1==STRUCTURE_OBJECTTYPE_t))
-							{
-								retrievepoints_basic(((basic_instance*)(ibufferpos+isize*ilv2)),&tl_x,&tl_y,&tl_z,0,ilv1);
-								tl_x+=ideltax/SDL_zoomx;
-								tl_y+=ideltay/SDL_zoomy;
-								placepoints_basic(((basic_instance*)(ibufferpos+isize*ilv2)),tl_x,tl_y,tl_z,0,ilv1);
-							}
-							else
-							{
-								tlpoint2d = ((cdx_Point2D*)(ibufferpos+isize*ilv2+ioffset));
-								(*tlpoint2d).x+=ideltax/SDL_zoomx;
-								(*tlpoint2d).y+=ideltay/SDL_zoomy;
-							}
-						}
-						else
-						{
-							if (internalpointcount>0)
-							{
-								follower=ilv2*internalpointcount;
-							}
-							for (int ilv3=1;retrievepoints_basic((basic_instance*)(ibufferpos+isize*ilv2),&tl_x,&tl_y,&tl_z,ilv3,ilv1)>0;ilv3++)
-							{
-								if (selection_currentselection[follower] & (1<<(STRUCTURE_OBJECTTYPE_ListSize+ilv1)))
-								{
-									placepoints_basic(((basic_instance*)(ibufferpos+isize*ilv2)),tl_x+ideltax/SDL_zoomx,tl_y+ideltay/SDL_zoomy,tl_z,ilv3,ilv1);
-								}
-								follower++;
-							}
-						}
-					}
-				}
-				i_control4_fertig:;
+				restoreundo(~0,0);
+				getatoms();
+				janitor_getmaxid(STRUCTURE_OBJECTTYPE_n);
+				edit_flexicopy(currentundostep,glob_n_multilist,glob_b_multilist,selection_currentselection,&tl_deltaback,tl_deltax,tl_deltay,0);
+				getatoms();
+			}
+			else
+			{
+				restoreundo(~0,1);
+				edit_flexicopy(currentundostep,glob_n_multilist,glob_b_multilist,selection_currentselection,&tl_deltaback,tl_deltax,tl_deltay,1);
 			}
 			break;
 		}

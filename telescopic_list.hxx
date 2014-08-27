@@ -24,6 +24,6 @@ struct TELESCOPE_element
 };
 struct TELESCOPE//one for each object
 {
-	int length; //starting from beginning of this structure
+	_i32 length; //starting from beginning of this structure
 	_u32 owner;//number of the owner. ordinal numbers can be reset upon resorting, so 32 bit is enough. However, I dont WANT to resort, since I need unique ID's anyway.-1 means dummy.
 };

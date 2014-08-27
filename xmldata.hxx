@@ -323,6 +323,13 @@ struct gummydummy_instance: basic_instance
 	int getcontents(char * name){return -1;}
 	int getproperties(const char * name,CDXMLREAD_functype * delegateoutput,int * posoutput){return -1;}
 };
+struct undo_singlebuffer
+{
+	char * buffer;//When==NULL, this buffer is empty, apply the buffer of the parent
+	char * contentbuffer;//NULL if no buffer.
+	char imultilist[sizeof(multilist<basic_instance>)];
+	TELESCOPE_buffer bufferhead;
+};
 #define chararray char *
 //adds an object to its master
 #define ADD_TO_MULTILISTREFERENCE(WHOM,WHAT)\

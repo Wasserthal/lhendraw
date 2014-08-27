@@ -104,7 +104,7 @@ void TELESCOPE_measure(int tag,TELESCOPE_buffer * ibuffer)
 }
 int undosteps_count=0;
 int currentundostep=-1;
-TELESCOPE_buffer * undo_retrievecontentbuffer(intl start,intl list,intl * auxno=NULL);
+TELESCOPE_buffer * undo_retrievecontentbuffer(intl start,intl list);
 int getbufferfromstructure(basicmultilist * input,TELESCOPE_buffer * * bufferptr)
 {
 	if (input==CAMBRIDGEPREFIX2(glob,s_multilist))

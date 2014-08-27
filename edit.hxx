@@ -20,43 +20,8 @@ _small edit_current5bondcarbon=0;
 drawproperties_ control_drawproperties={1,0,4,0,constants_Element_implicitcarbon,6,1};
 int control_hot[32]={-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,};
 //Copies a set of atoms and bonds from one buffer to another. Can take atoms from ANY other buffer
-int edit_flexicopy(n_instance * n_input,multilist<n_instance> * n_target,b_instance * b_input,multilist<b_instance> * b_target,selection_ iselection,intl n_max,intl b_max)
-{
-	_u32 icompare;
-	intl min_id=(~((unsigned intl)0))>>1;
-	intl max_id=0;
-	icompare=1<<STRUCTURE_OBJECTTYPE_n;
-	for (int ilv1=0;ilv1<n_max;ilv1++)
-	{
-		if (iselection[ilv1] & icompare)
-		{
-			if (max_id<n_input[ilv1].id) max_id=n_input[ilv1].id;
-			if (min_id>n_input[ilv1].id) min_id=n_input[ilv1].id;
-			ifertig:;
-		}
-	}
-	for (int ilv1=0;ilv1<n_max;ilv1++)
-	{
-		if (iselection[ilv1] & icompare)
-		{
-			memcpy((n_target->bufferlist)+(n_target->filllevel),n_input+ilv1,sizeof(n_instance));
-			(n_target->bufferlist)[n_target->filllevel].id+=n_target->maxid-min_id+1;
-			n_target->filllevel++;
-		}
-	}
-	icompare=1<<STRUCTURE_OBJECTTYPE_b;
-	for (int ilv1=0;ilv1<b_max;ilv1++)
-	{
-		if (iselection[ilv1] & icompare)
-		{
-			memcpy((b_target->bufferlist)+(b_target->filllevel),b_input+ilv1,sizeof(b_instance));
-			(b_target->bufferlist)[b_target->filllevel].B+=n_target->maxid-min_id+1;
-			(b_target->bufferlist)[b_target->filllevel].E+=n_target->maxid-min_id+1;
-			b_target->filllevel++;
-		}
-	}
-	//TODO: grow buffer!
-}
+char * undo_retrievebuffer(intl start,intl list);
+undo_singlebuffer * undo_retrievehandle(intl start,intl list);
 int getbondsum(intl inumber)
 {
 	float i_bond_sum=0;
@@ -2027,4 +1992,138 @@ catalogized_command_funcdef(CLEANUP)
 		}
 	}*/
 	if ((changed) && (count<1000000)) goto iback;
+}
+int edit_flexicopy(int undostep_no,multilist<n_instance> * n_target,multilist<b_instance> * b_target,selection_ iselection,intl * i_deltaback,float dx,float dy,char overwrite)
+{
+	n_instance * n_input=(n_instance*)undo_retrievebuffer(currentundostep,STRUCTURE_OBJECTTYPE_n);
+	b_instance * b_input=(b_instance*)undo_retrievebuffer(currentundostep,STRUCTURE_OBJECTTYPE_b);
+	multilist<n_instance> * i_n_multilist=(multilist<n_instance>*)&(undo_retrievehandle(undostep_no,STRUCTURE_OBJECTTYPE_n)->imultilist);
+	multilist<b_instance> * i_b_multilist=(multilist<b_instance>*)&(undo_retrievehandle(undostep_no,STRUCTURE_OBJECTTYPE_b)->imultilist);
+	int n_max=i_n_multilist->filllevel;
+	int b_max=i_b_multilist->filllevel;
+	_u32 icompare;
+	intl min_id=(~((unsigned intl)0))>>1;
+	intl max_id=0;
+	icompare=1<<STRUCTURE_OBJECTTYPE_n;
+	char * ibufferpos;
+	char * ioldbufferpos;
+	int ioffset;
+	int internalpointcount;
+	float tl_x,tl_y,tl_z;
+	for (int ilv1=0;ilv1<n_max;ilv1++)
+	{
+		if (iselection[ilv1] & icompare)
+		{
+			if (max_id<n_input[ilv1].id) max_id=n_input[ilv1].id;
+			if (min_id>n_input[ilv1].id) min_id=n_input[ilv1].id;
+			ifertig:;
+		}
+	}
+	//TODO: memory overflow management
+	(*i_deltaback)=n_target->maxid-min_id+1;
+	if (overwrite)
+	{
+		for (int ilv1=0;ilv1<n_max;ilv1++)
+		{
+			if (iselection[ilv1] & icompare)
+			{
+				memcpy((n_target->bufferlist)+(ilv1),n_input+ilv1,sizeof(n_instance));
+				(n_target->bufferlist)[ilv1].xyz.x+=dx;
+				(n_target->bufferlist)[ilv1].xyz.y+=dy;
+			}
+		}
+	}
+	else
+	{
+		for (int ilv1=0;ilv1<n_max;ilv1++)
+		{
+			if (iselection[ilv1] & icompare)
+			{
+/*				memcpy((n_target->bufferlist)+(n_target->filllevel),n_input+ilv1,sizeof(n_instance));
+				(n_target->bufferlist)[n_target->filllevel].id+=(*i_deltaback);
+				(n_target->bufferlist)[n_target->filllevel].xyz.x+=dx;
+				(n_target->bufferlist)[n_target->filllevel].xyz.y+=dy;
+				n_target->filllevel++;*/
+			}
+		}
+		icompare=1<<STRUCTURE_OBJECTTYPE_b;
+		for (int ilv1=0;ilv1<b_max;ilv1++)
+		{
+			if (iselection[ilv1] & icompare)
+			{
+				if ((iselection[bond_actual_node[ilv1].start] & (1<<STRUCTURE_OBJECTTYPE_n)) && (iselection[bond_actual_node[ilv1].end] & (1<<STRUCTURE_OBJECTTYPE_n)))
+				{
+					memcpy((b_target->bufferlist)+(b_target->filllevel),b_input+ilv1,sizeof(b_instance));
+					(b_target->bufferlist)[b_target->filllevel].B+=(*i_deltaback);
+					(b_target->bufferlist)[b_target->filllevel].E+=(*i_deltaback);
+					b_target->filllevel++;
+				}
+			}
+		}
+	}
+	for (int ilv1=1;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
+	{
+		if ((ilv1!=STRUCTURE_OBJECTTYPE_b))
+		{
+			int follower=0;
+			icompare=1<<ilv1;
+			int isize= STRUCTURE_OBJECTTYPE_List[ilv1].size;
+			basicmultilist * tlmultilist=findmultilist(STRUCTURE_OBJECTTYPE_List[ilv1].name);
+			basicmultilist * tloldmultilist=(basicmultilist*)&(undo_retrievehandle(undostep_no,ilv1)->imultilist);
+			internalpointcount=retrieveprops_basic(1,ilv1);
+			if (tlmultilist==NULL) goto i_fertig;
+			CDXMLREAD_functype tldummy;
+			ioffset=(*tlmultilist).getproperties("xyz",&tldummy);
+			ibufferpos=(char*)((*tlmultilist).pointer);
+			ioldbufferpos=undo_retrievehandle(undostep_no,ilv1)->buffer;
+			cdx_Point2D * tlpoint2d;
+			for (int ilv2=0;ilv2<(*tlmultilist).filllevel;ilv2++)
+			{
+				if ((*((basic_instance*)(ibufferpos+isize*ilv2))).exist)
+				{
+					if ((selection_currentselection[ilv2]) & icompare)
+					{
+						retrievepoints_basic(((basic_instance*)(ioldbufferpos+isize*ilv2)),&tl_x,&tl_y,&tl_z,0,ilv1);
+						tl_x+=dx;
+						tl_y+=dy;
+						if (overwrite)
+						{
+							placepoints_basic(((basic_instance*)(ibufferpos+isize*ilv2)),tl_x,tl_y,tl_z,0,ilv1);
+						}
+						else
+						{
+							memcpy(((char*)(tlmultilist->pointer))+(tlmultilist->filllevel)*isize,ioldbufferpos+(isize*ilv2),isize);
+							if (ilv1==STRUCTURE_OBJECTTYPE_n)
+							{
+								((n_instance*)(ibufferpos+isize*(tlmultilist->filllevel)))->id+=(*i_deltaback);
+							}
+							placepoints_basic(((basic_instance*)(ibufferpos+isize*(tlmultilist->filllevel))),tl_x,tl_y,tl_z,0,ilv1);
+							((basic_instance_propertybuffer*)(ibufferpos+isize*(tlmultilist->filllevel)))->pos_in_buffer=(glob_contentbuffer+ilv1)->count;
+							char * tl_pos_in_old_buffer=undo_retrievecontentbuffer(undostep_no,ilv1)->buffer+((basic_instance_propertybuffer*)(ioldbufferpos+isize*ilv2))->pos_in_buffer;
+							memcpy((glob_contentbuffer+ilv1)->buffer+(glob_contentbuffer+ilv1)->count,tl_pos_in_old_buffer,*(_i32*)tl_pos_in_old_buffer);
+							*(((_i32*)((glob_contentbuffer+ilv1)->buffer+(glob_contentbuffer+ilv1)->count))+1)=tlmultilist->filllevel;
+							(glob_contentbuffer+ilv1)->count+=*(_i32*)tl_pos_in_old_buffer;//TODO: limit
+							tlmultilist->filllevel++;
+						}
+					}
+					else
+					{
+						if (internalpointcount>0)
+						{
+							follower=ilv2*internalpointcount;
+						}
+						for (int ilv3=1;retrievepoints_basic((basic_instance*)(ioldbufferpos+isize*ilv2),&tl_x,&tl_y,&tl_z,ilv3,ilv1)>0;ilv3++)
+						{
+							if (selection_currentselection[follower] & (1<<(STRUCTURE_OBJECTTYPE_ListSize+ilv1)))
+							{
+								placepoints_basic(((basic_instance*)(ibufferpos+isize*ilv2)),tl_x+dx,tl_y+dy,tl_z,ilv3,ilv1);
+							}
+							follower++;
+						}
+					}
+				}
+			}
+			i_fertig:;
+		}
+	}
 }

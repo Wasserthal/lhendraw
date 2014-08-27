@@ -1058,34 +1058,53 @@ void issuedrag(int iposx,int iposy)
 			intl tl_deltaback=0;
 			float tl_deltax=control_coorsx-control_startx;
 			float tl_deltay=control_coorsy-control_starty;
+			restoreundo(~0,((MODIFIER_KEYS.CTRL) || (MODIFIER_KEYS.ALT))?0:1);
 			if (MODIFIER_KEYS.ALT)
 			{
+				float bestdist=4000000000000;
+				float tl_best_deltax=tl_deltax;
+				float tl_best_deltay=tl_deltay;
 				icompare=1<<STRUCTURE_OBJECTTYPE_n;
-				if (control_manipulatedinstance!=NULL)
+				for (int ilv0=0;ilv0<glob_n_multilist->filllevel;ilv0++)
 				{
-					float ix=(*((n_instance*)control_manipulatedinstance)).xyz.x;
-					float iy=(*((n_instance*)control_manipulatedinstance)).xyz.y;
-					for (int ilv1=0;ilv1<glob_n_multilist->filllevel;ilv1++)
+					if (selection_currentselection[ilv0] & icompare)
 					{
-						n_instance * tl_n_instance=glob_n_multilist->bufferlist+ilv1;
-						if ((*tl_n_instance).exist)
+						n_instance * tl_first_instance=glob_n_multilist->bufferlist+ilv0;
+						if (tl_first_instance->exist)
 						{
-							if ((selection_currentselection[ilv1] & icompare)==0)
+							float ix=(*((n_instance*)tl_first_instance)).xyz.x;
+							float iy=(*((n_instance*)tl_first_instance)).xyz.y;
+							for (int ilv1=0;ilv1<glob_n_multilist->filllevel;ilv1++)
 							{
-								float idist=fsqr((*tl_n_instance).xyz.x+tl_deltax/SDL_zoomx-ix)+fsqr((*tl_n_instance).xyz.y+tl_deltay/SDL_zoomy-iy);
-								if (idist<100)
+								n_instance * tl_n_instance=glob_n_multilist->bufferlist+ilv1;
+								if ((*tl_n_instance).exist)
 								{
-									tl_deltax+=((*tl_n_instance).xyz.x-ix)*SDL_zoomx;
-									tl_deltay+=((*tl_n_instance).xyz.y-iy)*SDL_zoomy;
+									if ((selection_currentselection[ilv1] & icompare)==0)
+									{
+										float idist=fsqr(tl_deltax+ix-(*tl_n_instance).xyz.x)+fsqr(tl_deltay+iy-(*tl_n_instance).xyz.y);
+										if (idist<100)
+										{
+											if (idist<bestdist)
+											{
+												bestdist=idist;
+												tl_best_deltax=((*tl_n_instance).xyz.x-ix);
+												tl_best_deltay=((*tl_n_instance).xyz.y-iy);
+											}
+										}
+									}
 								}
 							}
 						}
 					}
 				}
+				if (bestdist<3000000000000)
+				{
+					tl_deltax=tl_best_deltax;
+					tl_deltay=tl_best_deltay;
+				}
 			}
 			if (MODIFIER_KEYS.CTRL)
 			{
-				restoreundo(~0,0);
 				getatoms();
 				janitor_getmaxid(STRUCTURE_OBJECTTYPE_n);
 				edit_flexicopy(currentundostep,glob_n_multilist,glob_b_multilist,selection_currentselection,&tl_deltaback,tl_deltax,tl_deltay,0);
@@ -1093,7 +1112,6 @@ void issuedrag(int iposx,int iposy)
 			}
 			else
 			{
-				restoreundo(~0,1);
 				edit_flexicopy(currentundostep,glob_n_multilist,glob_b_multilist,selection_currentselection,&tl_deltaback,tl_deltax,tl_deltay,1);
 			}
 			break;

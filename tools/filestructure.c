@@ -193,6 +193,7 @@ int main(int argc,char * * argv)
 		{
 			case 0x203c: strcpy(properties_types[properties_count],"_i32");properties_type_nrs[properties_count]=7;break;//an ENUM with two possibilities
 			case 0xe7: strcpy(properties_types[properties_count],"_i8");properties_type_nrs[properties_count]=5;break;//8 bit enum
+			case 0x2153: strcpy(properties_types[properties_count],"colortable");properties_type_nrs[properties_count]=0;break;//8 bit enum
 			default:
 			printf("Something went wrong defining %s - unknown symbol 0x%04X! ",name,tlbackvalue);exit(1);
 		}
@@ -237,7 +238,7 @@ int main(int argc,char * * argv)
 	}
 	for (int ilv1=0;ilv1<properties_count;ilv1++)
 	{
-		fprintf(outfile,"        %s %s;\n",properties_types[ilv1],properties[ilv1]);
+		fprintf(outfile,"        %s %s;\n",(properties_type_nrs[ilv1]!=0)?properties_types[ilv1]:"//",properties[ilv1]);
 	}
 	
 	fprintf(outfile,"        static AUTOSTRUCT_cstyle_vtable INTERNAL_cstyle_vtable;\n	AUTOSTRUCT_GET_ROUTINE(contents,%i)\n        AUTOSTRUCT_PROPERTY_ROUTINE(%i)\n        %s%s_instance();\n        ~%s%s_instance(){}\n};\nAUTOSTRUCT_cstyle_vtable %s%s_instance::INTERNAL_cstyle_vtable={%s%s_instance::properties,%i,%s%s_instance::contents,%i};\nsuperconstellation %s%s_instance::contents[]={\n",contents_count,properties_count,datablockstring,name,datablockstring,name,datablockstring,name,datablockstring,name,properties_count,datablockstring,name,contents_count,datablockstring,name);
@@ -285,7 +286,7 @@ int __attribute__((sysv_abi))CDXMLWRITE_ENUM_%s(char * input,void * output)\n{\n
 		}
 		else
 		{
-			fprintf(thisfile,"{\"%s\",offsetof(%s%s_instance,%s),CDXMLREAD_%s,CDXMLWRITE_%s,CDXMLREAD_BIN_%s},\n",properties[ilv1],datablockstring,name,properties[ilv1],properties_types[ilv1],properties_types[ilv1],properties_types[ilv1]);
+			fprintf(thisfile,"{\"%s\",offsetof(%s%s_instance,%s),CDXMLREAD_%s,CDXMLWRITE_%s,CDXMLREAD_BIN_%s},\n",properties[ilv1],datablockstring,name,properties[ilv1],(properties_type_nrs[ilv1]!=0)?properties_types[ilv1]:"_i32",(properties_type_nrs[ilv1]!=0)?properties_types[ilv1]:"_i32",properties_types[ilv1]);
 		}
 	}
 	fprintf(outfile,"};\n");

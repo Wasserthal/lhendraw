@@ -106,6 +106,8 @@ int AUTOSTRUCT_Numberofproperty(const char * name,superconstellation * iinput,in
 #define AUTOSTRUCT_EXISTS_SET_NAME(AUTOSTRUCT_VARIABLE,AUTOSTRUCT_ELEMENT_NAME) ((*((*AUTOSTRUCT_VARIABLE).getINTERNALPropertyexistflags()))|=(1<<AUTOSTRUCT_Numberofproperty(# AUTOSTRUCT_ELEMENT_NAME,(*AUTOSTRUCT_VARIABLE).properties,(*AUTOSTRUCT_VARIABLE).INTERNALPropertycount)))
 #define AUTOSTRUCT_EXISTS_CLEAR_NAME(AUTOSTRUCT_VARIABLE,AUTOSTRUCT_ELEMENT_NAME) ((*((*AUTOSTRUCT_VARIABLE).getINTERNALPropertyexistflags()))&=~(1<<AUTOSTRUCT_Numberofproperty(# AUTOSTRUCT_ELEMENT_NAME,(*AUTOSTRUCT_VARIABLE).properties,(*AUTOSTRUCT_VARIABLE).INTERNALPropertycount)))
 
+char LHENDRAW_loadmemoryoverflow=0;
+intl LHENDRAW_buffersize=1048576;
 char tagnamestring[stringlength+1];
 char parameterstring[bufferlength+1];
 char paramvaluestring[bufferlength+1];
@@ -189,12 +191,13 @@ template <class whatabout> class multilist : public basicmultilist
 	public:
 	whatabout * bufferlist;
 	multilistreference<whatabout> * dependants[bufferlistsize];
+	intl getmaxitems() {return LHENDRAW_buffersize;}
 	multilist()
 	{
 		filllevel=0;
 		ourcount=0;
 		maxid=0;
-		bufferlist=(whatabout*)malloc(sizeof(whatabout)*bufferlistsize);
+		bufferlist=(whatabout*)malloc(sizeof(whatabout)*getmaxitems());
 		itemsize=sizeof(whatabout);
 		pointer=bufferlist;
 		return;

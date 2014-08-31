@@ -417,8 +417,10 @@ int input_recursion(FILE * infile)
 	}
 	tagnamestring_length=strlen(tagnamestring);
 	entertag();
+	strcpy(parameterstring,"id");memcpy(paramvaluestring,(char*)&iid,4);
+	scoopparam_bin();
 	indent();
-	printf("you are in a %s",(*currentinstance).getName());
+	printf("you are in a %s\n",(*currentinstance).getName());
 	while (input_recursion(infile))
 	{
 	}

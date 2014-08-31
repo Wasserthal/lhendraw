@@ -209,6 +209,12 @@ int __attribute__((sysv_abi))CDXMLREAD_BIN_cdx_Buffered_String(char * input,void
 	return CDXMLREAD_cdx_Buffered_String(input,output);
 }
 
+
+int edit_readcolortablefrombuffer(char * input,void * output);
+int __attribute__((sysv_abi))CDXMLREAD_BIN_colortable(char * input,void * output)
+{
+	edit_readcolortablefrombuffer(input,output);
+}
 int __attribute__((sysv_abi))CDXMLWRITE__i32(char * input,void * output)
 {
 	fprintf((FILE*)output,"%i",*((_i32*)input));
@@ -487,10 +493,10 @@ int __attribute__((sysv_abi))CDXMLREAD_BIN_cdx_Rectangle(char * input,void * out
 	ilv1+=CDXMLREAD__i32(input+ilv1,&ileft);
 	ilv1+=CDXMLREAD__i32(input+ilv1,&ibottom);
 	ilv1+=CDXMLREAD__i32(input+ilv1,&iright);
-	wert.left=ileft/65535.0;
-	wert.top=itop/65535.0;
-	wert.right=iright/65535.0;
-	wert.bottom=ibottom/65535.0;
+	wert.left=ileft/65536.0;
+	wert.top=itop/65536.0;
+	wert.right=iright/65536.0;
+	wert.bottom=ibottom/65536.0;
 	*((cdx_Rectangle*)output)=wert;
 	return ilv1;
 }
@@ -539,8 +545,8 @@ int __attribute__((sysv_abi))CDXMLREAD_BIN_cdx_Point2D(char * input,void * outpu
 	cdx_Point2D wert;
 	ilv1=CDXMLREAD_BIN__i32(input+ilv1,&(iy));
 	ilv1+=CDXMLREAD_BIN__i32(input+ilv1,&(ix));
-	wert.y=iy/65535.0;
-	wert.x=ix/65535.0;
+	wert.y=iy/65536.0;
+	wert.x=ix/65536.0;
 	*((cdx_Point2D*)output)=wert;
 	return ilv1;
 }
@@ -552,9 +558,9 @@ int __attribute__((sysv_abi))CDXMLREAD_BIN_cdx_Point3D(char * input,void * outpu
 	ilv1=CDXMLREAD_BIN__i32(input,&(iz));
 	ilv1+=CDXMLREAD_BIN__i32(input+ilv1,&(iy));
 	ilv1+=CDXMLREAD_BIN__i32(input+ilv1,&(ix));
-	wert.z=iz/65535.0;
-	wert.y=iy/65535.0;
-	wert.x=ix/65535.0;
+	wert.z=iz/65536.0;
+	wert.y=iy/65536.0;
+	wert.x=ix/65536.0;
 	wert.active=1;
 	*((cdx_Point3D*)output)=wert;
 	return ilv1;
@@ -578,7 +584,7 @@ int __attribute__((sysv_abi))CDXMLREAD_BIN_cdx_Bezierpoints(char * input,void * 
 	int ilv1=2;
 	for (int ilv2=0;ilv2<count;ilv2++)
 	{
-		ilv1+=CDXMLREAD_BIN_cdx_Point2D(input+ilv1,((cdx_Bezierpoints*)input)->a+ilv2);
+		ilv1+=CDXMLREAD_BIN_cdx_Point2D(input+ilv1,((cdx_Bezierpoints*)output)->a+ilv2);
 	}
 	return ilv1;
 }

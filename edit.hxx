@@ -1435,6 +1435,7 @@ catalogized_command_funcdef(LOAD_TYPE)
 	strncpy(control_filename,parameter,511);control_filename[511]=0;
 	currentinstance=new(CAMBRIDGEPREFIX(Total_Document_instance));
 	FORCEEXTENSION
+	LHENDRAW_loadmemoryoverflow=0;
 	if (strcmp(value,".cdxml")==0)
 	{
 		input_fsm(infile);
@@ -2155,5 +2156,33 @@ int edit_flexicopy(int undostep_no,multilist<n_instance> * n_target,multilist<b_
 			}
 			i_fertig:;
 		}
+	}
+}
+int edit_readcolortablefrombuffer(char * input,void * output)
+{
+	int count=*(_i16*)input;
+	int ilv1=0;
+	_u16 value=0;
+	if (((glob_CAMBRIDGE_color_multilist)->filllevel+count)>glob_CAMBRIDGE_color_multilist->getmaxitems())
+	{
+		LHENDRAW_loadmemoryoverflow=1;
+		return 0;
+	}
+	glob_CAMBRIDGE_color_multilist->filllevel=count;
+	ilv1=2;
+	multilist<CAMBRIDGE_color_instance> * tl_CAMBRIDGE_color_multilist=retrievemultilist<CAMBRIDGE_color_instance>();
+	for (int ilv2=0;ilv2<count;ilv2++)
+	{
+		ADD_TO_MULTILISTREFERENCE(currentinstance,color);
+		value=*(_i16*)(input+ilv1);
+		ilv1+=2;
+		glob_CAMBRIDGE_color_multilist->bufferlist[ilv2].r=value/65536.0;
+		value=*(_i16*)(input+ilv1);
+		ilv1+=2;
+		glob_CAMBRIDGE_color_multilist->bufferlist[ilv2].g=value/65536.0;
+		value=*(_i16*)(input+ilv1);
+		ilv1+=2;
+		glob_CAMBRIDGE_color_multilist->bufferlist[ilv2].b=value/65536.0;
+		printf("%f,%f,%f\n",glob_CAMBRIDGE_color_multilist->bufferlist[ilv2].r,glob_CAMBRIDGE_color_multilist->bufferlist[ilv2].g,glob_CAMBRIDGE_color_multilist->bufferlist[ilv2].b);
 	}
 }

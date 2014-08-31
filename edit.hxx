@@ -2127,9 +2127,12 @@ int edit_flexicopy(int undostep_no,multilist<n_instance> * n_target,multilist<b_
 							placepoints_basic(((basic_instance*)(ibufferpos+isize*(tlmultilist->filllevel))),tl_x,tl_y,tl_z,0,ilv1);
 							((basic_instance_propertybuffer*)(ibufferpos+isize*(tlmultilist->filllevel)))->pos_in_buffer=(glob_contentbuffer+ilv1)->count;
 							char * tl_pos_in_old_buffer=undo_retrievecontentbuffer(undostep_no,ilv1)->buffer+((basic_instance_propertybuffer*)(ioldbufferpos+isize*ilv2))->pos_in_buffer;
-							memcpy((glob_contentbuffer+ilv1)->buffer+(glob_contentbuffer+ilv1)->count,tl_pos_in_old_buffer,*(_i32*)tl_pos_in_old_buffer);
-							*(((_i32*)((glob_contentbuffer+ilv1)->buffer+(glob_contentbuffer+ilv1)->count))+1)=tlmultilist->filllevel;
-							(glob_contentbuffer+ilv1)->count+=*(_i32*)tl_pos_in_old_buffer;//TODO: limit
+							if (*(_i32*)(tl_pos_in_old_buffer+4)==ilv2)
+							{
+								memcpy((glob_contentbuffer+ilv1)->buffer+(glob_contentbuffer+ilv1)->count,tl_pos_in_old_buffer,*(_i32*)tl_pos_in_old_buffer);
+								*(((_i32*)((glob_contentbuffer+ilv1)->buffer+(glob_contentbuffer+ilv1)->count))+1)=tlmultilist->filllevel;
+								(glob_contentbuffer+ilv1)->count+=*(_i32*)tl_pos_in_old_buffer;//TODO: limit
+							}
 							tlmultilist->filllevel++;
 						}
 					}

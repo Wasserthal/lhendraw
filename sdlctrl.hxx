@@ -1079,7 +1079,7 @@ void issuedrag(int iposx,int iposy)
 								n_instance * tl_n_instance=glob_n_multilist->bufferlist+ilv1;
 								if ((*tl_n_instance).exist)
 								{
-									if ((selection_currentselection[ilv1] & icompare)==0)
+									if (((selection_currentselection[ilv1] & icompare)==0) || (MODIFIER_KEYS.CTRL>0))
 									{
 										float idist=fsqr(tl_deltax+ix-(*tl_n_instance).xyz.x)+fsqr(tl_deltay+iy-(*tl_n_instance).xyz.y);
 										if (idist<100)

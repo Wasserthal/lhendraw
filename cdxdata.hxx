@@ -85,6 +85,10 @@ int __attribute__((sysv_abi))CDXMLREAD_cdx_String(char * input,void * output)
 	//HACK: strings can be in one piece only.
 	return 0;
 }
+int __attribute__((sysv_abi))CDXMLREAD_BIN_cdx_String(char * input,void * output)
+{
+	return CDXMLREAD_cdx_String(input,output);
+}
 
 int writefrombuffer(FILE * output,char * input)
 {
@@ -200,11 +204,30 @@ int __attribute__((sysv_abi))CDXMLREAD_cdx_Buffered_String(char * input,void * o
 	}
 	return 0;
 }
+int __attribute__((sysv_abi))CDXMLREAD_BIN_cdx_Buffered_String(char * input,void * output)
+{
+	return CDXMLREAD_cdx_Buffered_String(input,output);
+}
 
 int __attribute__((sysv_abi))CDXMLWRITE__i32(char * input,void * output)
 {
 	fprintf((FILE*)output,"%i",*((_i32*)input));
 	return 0;
+}
+//TODO: angular size*10, READ+WRITE BIN
+int __attribute__((sysv_abi))CDXMLREAD_BIN__i32(char * input,void * output)
+{
+	*((_i32*)output)=*((_i32*)input);
+	return 4;
+}
+int __attribute__((sysv_abi))CDXMLWRITE_BIN__x8(char * input,void * output)
+{
+	fwrite(input,1,1,(FILE*)output);
+	return 1;
+}
+int __attribute__((sysv_abi))CDXMLREAD_BIN__x8(char * input,void * output)
+{
+	*((_u8*)output)=*((_u8*)input);
 }
 int __attribute__((sysv_abi))CDXMLREAD__i32(char * input,void * output)
 {
@@ -231,6 +254,10 @@ int __attribute__((sysv_abi))CDXMLWRITE__i8(char * input,void * output)
 	fprintf((FILE*)output,"%hhi",*((_i32*)input));
 	return 0;
 }
+int __attribute__((sysv_abi))CDXMLREAD_BIN__i8(char * input,void * output)
+{
+	*((_i8*)output)=*((_i8*)input);
+}
 int __attribute__((sysv_abi))CDXMLREAD__i8(char * input,void * output)
 {
 	int ilv1;
@@ -252,6 +279,11 @@ int __attribute__((sysv_abi))CDXMLREAD__i8(char * input,void * output)
 	return ilv1;
 }
 
+int __attribute__((sysv_abi))CDXMLREAD_BIN_float(char * input,void * output)
+{
+	*(float*)output=*(double*)input;
+	return 0;
+}
 int __attribute__((sysv_abi))CDXMLWRITE_float(char * input,void * output)
 {
 	fprintf((FILE*)output,"%f",*((float*)input));
@@ -380,7 +412,7 @@ int __attribute__((sysv_abi))CDXMLWRITE_cdx_Bezierpoints(char * input,void * out
 	cdx_Bezierpoints * list=(cdx_Bezierpoints*)input;
 	for (int ilv1=0;ilv1<(*list).count;ilv1++)
 	{
-		fprintf((FILE*)output," %f ",*(((float*)input)+ilv1));
+		fprintf((FILE*)output," %f %f ",(((cdx_Bezierpoints*)input)->a+ilv1)->x,(((cdx_Bezierpoints*)input)->a+ilv1)->y);
 	}
 	return 0;
 }
@@ -403,6 +435,16 @@ int __attribute__((sysv_abi))CDXMLREAD_cdx_Bezierpoints(char * input,void * outp
 	return ilv1;
 }
 
+int __attribute__((sysv_abi))CDXMLREAD_BIN_cdx_Pointreferences(char * input,void * output)
+{
+	//TODO: Buffered!
+	cdx_Pointreferences * list=(cdx_Pointreferences*)output;
+	(*list).count=paramvaluestring_length/4;//Well this is just as hacky as the file format itself...
+	for (int ilv1=0;ilv1<(*list).count;ilv1++)
+	{
+		list->a[ilv1]=((_i32*)input)[ilv1];
+	}
+}
 int __attribute__((sysv_abi))CDXMLWRITE_cdx_Pointreferences(char * input,void * output)
 {
 	cdx_Pointreferences * list=(cdx_Pointreferences*)input;
@@ -414,6 +456,7 @@ int __attribute__((sysv_abi))CDXMLWRITE_cdx_Pointreferences(char * input,void * 
 }
 int __attribute__((sysv_abi))CDXMLREAD_cdx_Pointreferences(char * input,void * output)
 {
+	//TODO: Buffered!
 	int ilv1;
 	cdx_Pointreferences * list=(cdx_Pointreferences*)output;
 	char ended=0;
@@ -433,6 +476,23 @@ int __attribute__((sysv_abi))CDXMLWRITE_cdx_Rectangle(char * input,void * output
 	cdx_Rectangle * wert=(cdx_Rectangle*)input;
 	fprintf((FILE*)output," %f %f %f %f ",(*wert).left,(*wert).top,(*wert).right,(*wert).bottom);
 	return 0;
+}
+int __attribute__((sysv_abi))CDXMLREAD_BIN_cdx_Rectangle(char * input,void * output)
+{
+		
+	int ilv1;
+	cdx_Rectangle wert;
+	_i32 ileft,itop,iright,ibottom;
+	ilv1=CDXMLREAD__i32(input,&itop);
+	ilv1+=CDXMLREAD__i32(input+ilv1,&ileft);
+	ilv1+=CDXMLREAD__i32(input+ilv1,&ibottom);
+	ilv1+=CDXMLREAD__i32(input+ilv1,&iright);
+	wert.left=ileft/65535.0;
+	wert.top=itop/65535.0;
+	wert.right=iright/65535.0;
+	wert.bottom=ibottom/65535.0;
+	*((cdx_Rectangle*)output)=wert;
+	return ilv1;
 }
 int __attribute__((sysv_abi))CDXMLREAD_cdx_Rectangle(char * input,void * output)
 {
@@ -472,6 +532,33 @@ int __attribute__((sysv_abi))CDXMLWRITE_cdx_Point3D(char * input,void * output)
 	fprintf((FILE*)output," %f %f %f ",(*wert).x,(*wert).y,(*wert).z);
 	return 0;
 }
+int __attribute__((sysv_abi))CDXMLREAD_BIN_cdx_Point2D(char * input,void * output)
+{
+	int ilv1;
+	int ix,iy;
+	cdx_Point2D wert;
+	ilv1=CDXMLREAD_BIN__i32(input+ilv1,&(iy));
+	ilv1+=CDXMLREAD_BIN__i32(input+ilv1,&(ix));
+	wert.y=iy/65535.0;
+	wert.x=ix/65535.0;
+	*((cdx_Point2D*)output)=wert;
+	return ilv1;
+}
+int __attribute__((sysv_abi))CDXMLREAD_BIN_cdx_Point3D(char * input,void * output)
+{
+	int ilv1;
+	int ix,iy,iz;
+	cdx_Point3D wert;
+	ilv1=CDXMLREAD_BIN__i32(input,&(iz));
+	ilv1+=CDXMLREAD_BIN__i32(input+ilv1,&(iy));
+	ilv1+=CDXMLREAD_BIN__i32(input+ilv1,&(ix));
+	wert.z=iz/65535.0;
+	wert.y=iy/65535.0;
+	wert.x=ix/65535.0;
+	wert.active=1;
+	*((cdx_Point3D*)output)=wert;
+	return ilv1;
+}
 int __attribute__((sysv_abi))CDXMLREAD_cdx_Point3D(char * input,void * output)
 {
 		
@@ -484,11 +571,17 @@ int __attribute__((sysv_abi))CDXMLREAD_cdx_Point3D(char * input,void * output)
 	*((cdx_Point3D*)output)=wert;
 	return ilv1;
 }
-struct bienum
+int __attribute__((sysv_abi))CDXMLREAD_BIN_cdx_Bezierpoints(char * input,void * output)
 {
-	char name[40];
-	intl number;
-};
+	int count=*(_u16*)input;
+	int intermediate=0;
+	int ilv1=2;
+	for (int ilv2=0;ilv2<count;ilv2++)
+	{
+		ilv1+=CDXMLREAD_BIN_cdx_Point2D(input+ilv1,((cdx_Bezierpoints*)input)->a+ilv2);
+	}
+	return ilv1;
+}
 struct trienum
 {
 	char name[40];
@@ -524,7 +617,7 @@ int set_bienum(bienum * ibienum,FILE * output,intl imax,intl value)
 	}
 	return 0;
 };
-intl get_bienum(bienum * ibienum,char * input,intl count)
+intl get_bienum(bienum * ibienum,const char * input,intl count)
 {
 	intl ilv1;
 	for (ilv1=0;ilv1<count;ilv1++)
@@ -537,6 +630,17 @@ intl get_bienum(bienum * ibienum,char * input,intl count)
 	fprintf(stderr,"unknown mark %s in context",input);
 	return 0;
 };
+char * lookup_bienum(bienum * ibienum,intl imax,intl value)
+{
+	for (int ilv1=0;ilv1<imax;ilv1++)
+	{
+		if (ibienum[ilv1].number==(_u16)value)
+		{
+			return ibienum[ilv1].name;
+		}
+	}
+	return NULL;
+}
 int set_bienum_multi(bienum * ibienum,FILE * output,intl imax,intl value)
 {
 	for (int ilv1=0;ilv1<imax;ilv1++)
@@ -548,12 +652,12 @@ int set_bienum_multi(bienum * ibienum,FILE * output,intl imax,intl value)
 	}
 	return 0;
 };
-intl get_bienum_multi(bienum * ibienum,char * input,intl count)
+intl get_bienum_multi(bienum * ibienum,const char * input,intl count)
 {
 	intl ilv1;
 	intl wert=0;
 	char again;
-	char * currentpos=input;
+	char * currentpos=(char*)input;
 	char * tlbackvalue;
 	iback:
 	again=0;

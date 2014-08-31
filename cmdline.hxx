@@ -134,6 +134,7 @@ int executeparameter(const char which,int parameter,int posinparameter,int argc,
 				);
 				exit(0);
 				break;
+		case 'q' : exit(0);break;
 	}
 }
 

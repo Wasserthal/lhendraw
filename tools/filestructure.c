@@ -281,11 +281,11 @@ int __attribute__((sysv_abi))CDXMLWRITE_ENUM_%s(char * input,void * output)\n{\n
 		}
 		if ((properties_type_nrs[ilv1]==5) || (properties_type_nrs[ilv1]==4) || (properties_type_nrs[ilv1]==7))
 		{
-			fprintf(thisfile,"{\"%s\",offsetof(%s%s_instance,%s),CDXMLREAD_ENUM_%s,CDXMLWRITE_ENUM_%s}%s\n",properties[ilv1],datablockstring,name,properties[ilv1],properties[ilv1],properties[ilv1],",");
+			fprintf(thisfile,"{\"%s\",offsetof(%s%s_instance,%s),CDXMLREAD_ENUM_%s,CDXMLWRITE_ENUM_%s,CDXMLREAD_BIN__i32},\n",properties[ilv1],datablockstring,name,properties[ilv1],properties[ilv1],properties[ilv1]);
 		}
 		else
 		{
-			fprintf(thisfile,"{\"%s\",offsetof(%s%s_instance,%s),CDXMLREAD_%s,CDXMLWRITE_%s}%s\n",properties[ilv1],datablockstring,name,properties[ilv1],properties_types[ilv1],properties_types[ilv1],",");
+			fprintf(thisfile,"{\"%s\",offsetof(%s%s_instance,%s),CDXMLREAD_%s,CDXMLWRITE_%s,CDXMLREAD_BIN_%s},\n",properties[ilv1],datablockstring,name,properties[ilv1],properties_types[ilv1],properties_types[ilv1],properties_types[ilv1]);
 		}
 	}
 	fprintf(outfile,"};\n");

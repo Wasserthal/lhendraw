@@ -23,6 +23,7 @@ void entertag()
 //		printf("%s has no member named %s at %X!\n",currentinstance->getName(),tagnamestring,debugcounter);
 /*		printf("instead it got:");
 		printf("%s\n",page_instance::contents[5].name);*/
+		printf("%s vs. %s !\n",tagnamestring,currentinstance->getName());
 		nextinstance=new(gummydummy_instance);
 	}
 	(*nextinstance).master=currentinstance;
@@ -72,6 +73,28 @@ void scoopparam()
 	{
 		AUTOSTRUCT_EXISTS_SET((*currentinstance),iitemnumber);
 		thisfunc(paramvaluestring,((char*)currentinstance)+suboffset);
+	}
+	else
+	{
+//		fprintf(stderr,"%s has no parameter named %s\n",currentinstance->getName(),parameterstring);
+		return;
+	}
+	
+	return;
+}
+void scoopparam_bin()
+{
+	int iitemnumber;
+	CDXMLREAD_functype thisfunc;
+	if (strcmp(parameterstring,"PCTEXTcounter")==0)
+	{
+		fprintf(stderr,"Hacking attempt detected (PCSTRING)!");exit(1);
+	}
+	superconstellation * tl_superconstellation=getsuperconstellation_p(currentinstance->_,parameterstring,&iitemnumber);
+	if (tl_superconstellation!=NULL)
+	{
+		AUTOSTRUCT_EXISTS_SET((*currentinstance),iitemnumber);
+		tl_superconstellation->binreaddelegate(paramvaluestring,((char*)currentinstance)+tl_superconstellation->ref);
 	}
 	else
 	{
@@ -335,6 +358,85 @@ void input_fsm(FILE* infile)
 		fprintf(stderr,"Error: Premature End of File! You are still in a %s",(*currentinstance).getName());exit(1);
 	}
 }
+int debug_demonstratefsm_recursion_depth=0;
+void indent()
+{
+	for (int ilv1=0;ilv1<debug_demonstratefsm_recursion_depth;ilv1++)
+	{
+		printf("  ");
+	}
+}
+int input_recursion(FILE * infile)
+{
+	//TODO: cdx generic list
+	_i16 itype=0;
+	_i32 iid=0;
+	_i16 ilength=0;
+	debug_demonstratefsm_recursion_depth+=1;
+	fread(&itype,2,1,infile);
+	if (itype==0) {debug_demonstratefsm_recursion_depth-=1; return 0;}
+	if ((itype&0x8000)==0)
+	{
+		fread(&ilength,2,1,infile);
+		indent();
+		char * tl_name=lookup_bienum(CDXML_propertycodes_List,CDXML_propertycodes_ListSize,itype);
+		if (ilength<0) return 0;
+		if (tl_name)
+		{
+			strcpy(parameterstring,tl_name);
+			if (ilength>stringlength) {fprintf(stderr,"File overflow!");exit(1);}
+			fread(&paramvaluestring,ilength,1,infile);
+			for (int ilv1=ilength+1;ilv1<min(ilength+4,stringlength+1);ilv1++)
+			{
+				paramvaluestring[ilv1]=0;
+			}
+			scoopparam_bin();
+			printf("%s:%i:%llX\n",tl_name,ilength,*(_u64*)paramvaluestring);
+		}
+		else
+		{
+			fread(&paramvaluestring,ilength,1,infile);
+			printf("%04hX:%i:%llX\n",itype,ilength,*(_u64*)paramvaluestring);
+		}
+		debug_demonstratefsm_recursion_depth-=1;
+		return 1;
+	}
+	//From here, it is known to be an object
+	fread(&iid,4,1,infile);
+	indent();
+	char * tl_name=lookup_bienum(CDXML_objectcodes_List,CDXML_objectcodes_ListSize,itype);
+	if (tl_name)
+	{
+		strcpy(tagnamestring,tl_name);
+		printf("\e[31m%s:\e[0m%i\n",tl_name,iid);
+	}
+	else
+	{
+		strcpy(tagnamestring,"gummydummy");
+		printf("\e[31m%04hX:\e[0m%i\n",itype,iid);
+	}
+	tagnamestring_length=strlen(tagnamestring);
+	entertag();
+	indent();
+	printf("you are in a %s",(*currentinstance).getName());
+	while (input_recursion(infile))
+	{
+	}
+	if (tl_name)
+	{
+		exittag();
+	}
+	debug_demonstratefsm_recursion_depth-=1;
+	return 1;
+}
+void input_bin(FILE* infile)
+{
+	fseek(infile,12,SEEK_SET);
+	parameterstring_length=0;
+	paramvaluestring_length=0;
+	tagnamestring_length=0;
+	while (!input_recursion(infile));
+}
 long long fullu64=0xFFFFFFFFFFFFFFFF;
 void output_object(FILE * outfile,basic_instance * iinstance)
 {
@@ -396,6 +498,70 @@ void output_object(FILE * outfile,basic_instance * iinstance)
 	}
 	return;
 }
+void output_object_bin(FILE * outfile,basic_instance * iinstance)
+{
+	char hadhadcontent=0;
+	char haspctext=0;
+	char * PCTEXT_pointer;
+	intl dummy=0;
+	_i32 propertycount=(*iinstance)._->properties_count;
+	_i32 contentcount=(*iinstance)._->contents_count;
+	_u32 * ipointer=(*iinstance).getINTERNALPropertyexistflags();
+	_u32 existflags;
+	if (ipointer==NULL) existflags=*(_u32*)&fullu64; else existflags=*ipointer;
+	dummy=get_bienum(CDXML_objectcodes_List,(*iinstance).getName(),CDXML_objectcodes_ListSize);
+	fwrite(&dummy,2,1,outfile);
+	dummy=0;
+	fwrite(&dummy,4,1,outfile);
+	for (int ilv1=0;ilv1<propertycount;ilv1++)
+	{
+		if (existflags & (1<<ilv1))
+		{
+			int ipropertypos=(*iinstance)._->properties[ilv1].ref;
+			char * name=(*iinstance)._->properties[ilv1].name;
+			if (strcmp(name,"PCTEXT")==0)
+			{
+				haspctext=1;
+				PCTEXT_pointer=((char*)iinstance)+ipropertypos;
+			}
+			else
+			{
+				fprintf(outfile," %s=\"",name);
+				(*iinstance)._->properties[ilv1].writedelegate(((char*)iinstance)+ipropertypos,outfile);
+				fprintf(outfile,"\"\n");
+			}
+		}
+	}
+	if (haspctext)
+	{
+		fprintf(outfile,">");
+		writefrombuffer(outfile,*(char**)PCTEXT_pointer);
+	}
+	hadhadcontent=haspctext;
+	for (int ilv1=0;ilv1<contentcount;ilv1++)
+	{
+		basicmultilistreference * tlmultilistreference=*((basicmultilistreference**)(((char*)iinstance)+((*iinstance)._->contents[ilv1].ref)));
+		int tlcount=(*tlmultilistreference).count_in_it;
+		for (int ilv2=0;ilv2<tlcount;ilv2++)
+		{
+			if (hadhadcontent==0)
+			{
+				fprintf(outfile,">");
+				hadhadcontent=1;
+			}
+			output_object(outfile,(*tlmultilistreference)[ilv2]);
+		}
+	}
+	if (hadhadcontent)
+	{
+		fprintf(outfile,"</%s>",(*iinstance).getName());
+	}
+	else
+	{
+		fprintf(outfile,"/>");
+	}
+	return;
+}
 struct n_instance;
 extern multilist<n_instance> * glob_n_multilist;
 void output_fsm(FILE * outfile,int usage)
@@ -407,6 +573,19 @@ void output_fsm(FILE * outfile,int usage)
 			for (int ilv2=0;ilv2<multilistlist[ilv1].instance->filllevel;ilv2++)
 			{
 				output_object(outfile,&((*(multilistlist[ilv1].instance))[ilv2]));
+			}
+		}
+	}
+}
+void output_fsm_bin(FILE * outfile,int usage)
+{
+	for (int ilv1=0;ilv1<multilist_count;ilv1++)
+	{
+		if (multilistlist[ilv1].usage==usage)
+		{
+			for (int ilv2=0;ilv2<multilistlist[ilv1].instance->filllevel;ilv2++)
+			{
+				output_object_bin(outfile,&((*(multilistlist[ilv1].instance))[ilv2]));
 			}
 		}
 	}

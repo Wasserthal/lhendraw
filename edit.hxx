@@ -1,4 +1,22 @@
 //This unit does most processing of the internal data
+#define FORCEEXTENSION \
+{\
+	__label__ FORCEEXTENSION_finished;\
+	if (strcmp(value,"")==0)\
+	{\
+		value=parameter+strlen(parameter);\
+		while ((*value)!='.')\
+		{\
+			if (value==parameter)\
+			{\
+				value=constants_cdxstring;\
+				goto FORCEEXTENSION_finished;\
+			}\
+			value--;\
+		}\
+	}\
+	FORCEEXTENSION_finished:;\
+}
 #define LOCALMACROES\
 		LOCALMACRO_1(n)\
 		LOCALMACRO_1(b)\
@@ -1416,7 +1434,15 @@ catalogized_command_funcdef(LOAD_TYPE)
 	if (infile==NULL) return 0;
 	strncpy(control_filename,parameter,511);control_filename[511]=0;
 	currentinstance=new(CAMBRIDGEPREFIX(Total_Document_instance));
-	input_fsm(infile);
+	FORCEEXTENSION
+	if (strcmp(value,".cdxml")==0)
+	{
+		input_fsm(infile);
+	}
+	if (strcmp(value,".cdx")==0)
+	{
+		input_bin(infile);
+	}
 	fclose(infile);
 	CAMBRIDGECONV_maintointernal();
 	svg_findaround();
@@ -1831,7 +1857,8 @@ catalogized_command_funcdef(FILEDLG_FILE_SAVE)
 	if (DD)
 	{
 		sprintf(control_totalfilename,"%s/%s",control_currentdirectory,control_filenamehead);
-		retval=SAVE_TYPE(control_totalfilename,".cdxml");
+		retval=SAVE_TYPE(control_totalfilename,".cdxml");//TODO: insert selected type
+
 		if (retval>=1)
 		{
 			retval=1;
@@ -1848,7 +1875,7 @@ catalogized_command_funcdef(FILEDLG_FILE_LOAD)
 	if (DD)
 	{
 		sprintf(control_totalfilename,"%s/%s",control_currentdirectory,control_filenamehead);
-		retval=LOAD_TYPE(control_totalfilename,".cdxml");
+		retval=LOAD_TYPE(control_totalfilename,"");//TODO: insert selected type
 		if (retval>=1)
 		{
 			LHENDRAW_filedlgmode=0;

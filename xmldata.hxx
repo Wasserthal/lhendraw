@@ -12,6 +12,11 @@ struct edit_formatstruct
 	_u32 color;
 	_u8 face;
 }__attribute__((packed));
+struct bienum
+{
+	char name[40];
+	intl number;
+};
 #define REGISTER_content the_template.possible_contents.add
 void CDXMLREAD_basic(char * input,void * output);
 typedef int __attribute__((sysv_abi))(*CDXMLREAD_functype)(char * input,void * output);
@@ -25,14 +30,17 @@ typedef int __attribute__((sysv_abi))(*AUTOSTRUCT_GETSET_FUNCTYPE)(char state,in
 #define catalogized_command_funcdef(MACROPARAM) int __attribute__((sysv_abi))MACROPARAM(const char * parameter,const char * value)
 #define catalogized_command_iterated_funcdef(MACROPARAM) int __attribute__((sysv_abi))MACROPARAM(const char * parameter,const char * value,basicmultilist * imultilist,basic_instance * iinstance,int iindex)
 
-struct superconstellation
+//The name superconstellation arises because naming an airplane superconstellation sounds like rubbish in german.
+//Better use it for a datastructure whose members have little in common, because that is what superconstellation implies
+struct superconstellation//Information on a single content or property of an object
 {
 	char name[30];
-	int ref;
+	int ref;//relative position inside of the object, in bytes
+	//The following delegates apply to properties only
 	CDXMLREAD_functype delegate;
 	CDXMLREAD_functype writedelegate;
-/*	CDXMLREAD_functype binreaddelegate;
-	CDXMLREAD_functype binwritedelegate;*/
+	CDXMLREAD_functype binreaddelegate;
+//	CDXMLREAD_functype binwritedelegate;
 };
 struct AUTOSTRUCT_cstyle_vtable
 {
@@ -70,6 +78,18 @@ struct AUTOSTRUCT_cstyle_vtable
 		} \
 		return -1; \
 	}
+superconstellation * getsuperconstellation_p(AUTOSTRUCT_cstyle_vtable * ivtable,const char * name,int * posoutput)
+{
+	for (int ilv1=0;ilv1<ivtable->properties_count;ilv1++)
+	{
+		if (strcmp(name,ivtable->properties[ilv1].name)==0)
+		{
+			if (posoutput!=NULL){*posoutput=ilv1;}
+			return ivtable->properties+ilv1;
+		}
+	}
+	return NULL;
+}
 int AUTOSTRUCT_Numberofproperty(const char * name,superconstellation * iinput,int imax)
 {
 	for (int ilv1=0;ilv1<imax;ilv1++)

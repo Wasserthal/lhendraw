@@ -101,7 +101,6 @@ void scoopparam_bin()
 //		fprintf(stderr,"%s has no parameter named %s\n",currentinstance->getName(),parameterstring);
 		return;
 	}
-	
 	return;
 }
 
@@ -386,9 +385,14 @@ int input_recursion(FILE * infile)
 			strcpy(parameterstring,tl_name);
 			if (ilength>stringlength) {fprintf(stderr,"File overflow!");exit(1);}
 			fread(&paramvaluestring,ilength,1,infile);
-			for (int ilv1=ilength+1;ilv1<min(ilength+4,stringlength+1);ilv1++)
+			_u8 padding=0x00;
+			for (int ilv1=0;ilv1<sizeof(list_padlist)/sizeof(_i32);ilv1++)
 			{
-				paramvaluestring[ilv1]=0;
+				if (itype==list_padlist[ilv1]) padding=0xFF;
+			}
+			for (int ilv1=ilength;ilv1<min(ilength+4,stringlength+1);ilv1++)
+			{
+				paramvaluestring[ilv1]=padding;
 			}
 			scoopparam_bin();
 			printf("%s:%i:%llX\n",tl_name,ilength,*(_u64*)paramvaluestring);

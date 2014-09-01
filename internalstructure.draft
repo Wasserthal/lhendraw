@@ -1,9 +1,9 @@
 n;0 annotation 0 t 0 ExternalConnectionType ;c charge c protons 0 Element 0 id 0 color 3 xyz 0 Z c labelside ;
 b;;0 id 0 color 0 B 0 E 0 Z C Order ç Display ç Display2 ç DoublePosition ;
 t;s buffer ;0 id 0 Z 4 BoundingBox ! Justification ! LabelAlignment 0 color 3 xyz 0 IGOTYOU ;
-arrow;0 annotation ;0 color 3 Head3D 3 Tail3D 3 Center3D ! LineType 1 AngularSize 3 MajorAxisEnd3D 3 MinorAxisEnd3D ! ArrowheadType ! ArrowheadHead ! ArrowheadTail 0 Z c ArrowShaftSpacing ;
+arrow;0 annotation ;0 color 3 Head3D 3 Tail3D 3 Center3D ! LineType ¢ AngularSize 3 MajorAxisEnd3D 3 MinorAxisEnd3D # ArrowheadType # ArrowheadHead # ArrowheadTail 0 Z c ArrowShaftSpacing ;
 graphic;0 owner 0 annotation ;0 id 0 color 4 BoundingBox 0 Z ! GraphicType ! SymbolType ‼ OvalType ! RectangleType ! LineType ! BracketType 3 Center3D 3 MajorAxisEnd3D 3 MinorAxisEnd3D ;
-curve;;0 color 0 Z ! LineType ! ArrowheadType ! ArrowheadHead ! ArrowheadTail c ArrowShaftSpacing ~ CurvePoints 0 Closed ! FillType ;
+curve;;0 color 0 Z ! LineType # ArrowheadType # ArrowheadHead # ArrowheadTail c ArrowShaftSpacing ~ CurvePoints 0 Closed ! FillType ;
 moleculefill;;0 id 0 color 0 Z ;
 matrix;0 matrixpicture;0 Z ;
 spectrum;0 spectrumpicture;0 Z ;

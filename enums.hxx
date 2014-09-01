@@ -10,17 +10,17 @@ bienum CDXML_ArrowType[]={
 };
 int CDXML_ArrowType_max=sizeof(CDXML_ArrowType)/sizeof(CDXML_ArrowType[0]);
 bienum CDXML_ArrowheadHead[]={
-{{"None"},0},
-{{"Full"},1},
-{{"HalfLeft"},2},
-{{"HalfRight"},3},
+{{"None"},1},
+{{"Full"},2},
+{{"HalfLeft"},3},
+{{"HalfRight"},4},
 };
 int CDXML_ArrowheadHead_max=sizeof(CDXML_ArrowheadHead)/sizeof(CDXML_ArrowheadHead[0]);
 bienum CDXML_ArrowheadTail[]={
-{{"None"},0},
-{{"Full"},1},
-{{"HalfLeft"},2},
-{{"HalfRight"},3},
+{{"None"},1},
+{{"Full"},2},
+{{"HalfLeft"},3},
+{{"HalfRight"},4},
 };
 int CDXML_ArrowheadTail_max=sizeof(CDXML_ArrowheadTail)/sizeof(CDXML_ArrowheadTail[0]);
 bienum CDXML_Closed[]={//Unverified
@@ -29,9 +29,9 @@ bienum CDXML_Closed[]={//Unverified
 };
 int CDXML_Closed_max=sizeof(CDXML_Closed)/sizeof(CDXML_Closed[0]);
 bienum CDXML_ArrowheadType[]={
-{{"Solid"},0},//electron move,electronpair move, reaction, equillibrium, Resonance
-{{"Hollow"},1},//Children's traffic arrow. Neat to show atom movements.
-{{"Angle"},2},//Retrosynthetic
+{{"Solid"},1},//electron move,electronpair move, reaction, equillibrium, Resonance
+{{"Hollow"},2},//Children's traffic arrow. Neat to show atom movements.
+{{"Angle"},3},//Retrosynthetic
 };
 int CDXML_ArrowheadType_max=sizeof(CDXML_ArrowheadType)/sizeof(CDXML_ArrowheadType[0]);
 bienum CDXML_BracketType[]={

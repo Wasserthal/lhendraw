@@ -282,12 +282,23 @@ void CAMBRIDGECONV_text()
 }
 int CAMBRIDGECONV_represent(CAMBRIDGE_graphic_instance * tl_CAMBRIDGE_graphic_instance,int ino)
 {
-	
-	multilist<CAMBRIDGE_represent_instance> * tl_CAMBRIDGE_represent_multilist=retrievemultilist<CAMBRIDGE_represent_instance>();
-	CAMBRIDGE_represent_instance * tl_CAMBRIDGE_represent_instance=(*tl_CAMBRIDGE_represent_multilist).bufferlist+ino;
 	n_instance * i_n_instance;int n_index;
+	multilist<CAMBRIDGE_represent_instance> * tl_CAMBRIDGE_represent_multilist;
+	CAMBRIDGE_represent_instance * tl_CAMBRIDGE_represent_instance;
+	if (ino<0) 
+	{
+		i_n_instance=(n_instance*)(tl_CAMBRIDGE_graphic_instance->master);
+		if (strcmp((i_n_instance)->_->Name,"n_instance")!=0)
+		{
+			return 0;
+		}
+		goto itypeok;
+	}
+	tl_CAMBRIDGE_represent_multilist=retrievemultilist<CAMBRIDGE_represent_instance>();
+	tl_CAMBRIDGE_represent_instance=(*tl_CAMBRIDGE_represent_multilist).bufferlist+ino;
 	if (i_n_instance=(n_instance*)edit_locatebyid(STRUCTURE_OBJECTTYPE_n,(*tl_CAMBRIDGE_represent_instance).object,&n_index))
 	{
+		itypeok:;
 		TELESCOPE_aggressobject(glob_n_multilist,n_index);
 		Symbol_instance tl_Symbol_instance;
 		CAMBRIDGECONV_COLORCONV2(Symbol,graphic);
@@ -327,6 +338,10 @@ void CAMBRIDGECONV_graphic()
 				goto skip_because_superseded;
 			}
 		}
+		if (AUTOSTRUCT_EXISTS(CAMBRIDGE_graphic_instance,(*tl_CAMBRIDGE_graphic_instance),represent))
+		{
+			if (CAMBRIDGECONV_represent(tl_CAMBRIDGE_graphic_instance,-1)>0) goto skip_because_superseded;
+		}
 		tl_graphic_instance=graphic_instance();
 		CAMBRIDGECONV_COLORCONV(graphic);
 		CAMBRIDGECONV_EXISTSTHEN(graphic,BoundingBox);
@@ -363,6 +378,7 @@ void CAMBRIDGECONV_arrow()
 		CAMBRIDGECONV_EXISTSTHEN(arrow,AngularSize);
 		CAMBRIDGECONV_EXISTSTHEN(arrow,MajorAxisEnd3D);
 		CAMBRIDGECONV_EXISTSTHEN(arrow,MinorAxisEnd3D);
+		tl_arrow_instance.ArrowheadType=1;
 		CAMBRIDGECONV_EXISTSTHEN(arrow,ArrowheadType);
 		CAMBRIDGECONV_EXISTSTHEN(arrow,ArrowheadHead);
 		CAMBRIDGECONV_EXISTSTHEN(arrow,ArrowheadTail);

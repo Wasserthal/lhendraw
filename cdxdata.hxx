@@ -5,6 +5,7 @@
 /* This unit contains the readers for all datatypes that are no xml tags */
 extern int getbufferfromstructure(basicmultilist * input,TELESCOPE_buffer * * bufferptr);
 extern basic_instance * currentinstance;
+#define arcfloat float
 struct cdx_enum
 {
 	int a;
@@ -27,6 +28,10 @@ inline void clear_cdx_Point3D(cdx_Point3D & input)
 {
 	input.x=0;input.y=0;input.z=0;
 	input.active=0;
+}
+inline void clear_arcfloat(arcfloat & ifloat)
+{
+	ifloat=0;
 }
 
 struct cdx_Rectangle
@@ -234,6 +239,7 @@ int __attribute__((sysv_abi))CDXMLWRITE_BIN__x8(char * input,void * output)
 int __attribute__((sysv_abi))CDXMLREAD_BIN__x8(char * input,void * output)
 {
 	*((_u8*)output)=*((_u8*)input);
+	return 1;
 }
 int __attribute__((sysv_abi))CDXMLREAD__i32(char * input,void * output)
 {
@@ -343,6 +349,18 @@ int __attribute__((sysv_abi))CDXMLREAD_float(char * input,void * output)
 	}
 	*((float*)output)=negative ? -wert:wert;
 	return ilv1;
+}
+int __attribute__((sysv_abi))CDXMLREAD_arcfloat(char * input,void * output)
+{
+	return CDXMLREAD_float(input,output);
+}
+int __attribute__((sysv_abi))CDXMLWRITE_arcfloat(char * input,void * output)
+{
+	return CDXMLWRITE_float(input,output);
+}
+int __attribute__((sysv_abi))CDXMLREAD_BIN_arcfloat(char * input,void * output)
+{
+	*(float*)output=(*(_i32*)input)/10.0;
 }
 
 int __attribute__((sysv_abi))CDXMLWRITE__x8(char * input,void * output)
@@ -541,9 +559,9 @@ int __attribute__((sysv_abi))CDXMLWRITE_cdx_Point3D(char * input,void * output)
 int __attribute__((sysv_abi))CDXMLREAD_BIN_cdx_Point2D(char * input,void * output)
 {
 	int ilv1;
-	int ix,iy;
+	_i32 ix,iy;
 	cdx_Point2D wert;
-	ilv1=CDXMLREAD_BIN__i32(input+ilv1,&(iy));
+	ilv1=CDXMLREAD_BIN__i32(input,&(iy));
 	ilv1+=CDXMLREAD_BIN__i32(input+ilv1,&(ix));
 	wert.y=iy/65536.0;
 	wert.x=ix/65536.0;
@@ -553,14 +571,15 @@ int __attribute__((sysv_abi))CDXMLREAD_BIN_cdx_Point2D(char * input,void * outpu
 int __attribute__((sysv_abi))CDXMLREAD_BIN_cdx_Point3D(char * input,void * output)
 {
 	int ilv1;
-	int ix,iy,iz;
+	_i32 ix,iy,iz;
 	cdx_Point3D wert;
-	ilv1=CDXMLREAD_BIN__i32(input,&(iz));
+	ilv1=CDXMLREAD_BIN__i32(input,&(ix));
 	ilv1+=CDXMLREAD_BIN__i32(input+ilv1,&(iy));
-	ilv1+=CDXMLREAD_BIN__i32(input+ilv1,&(ix));
+	ilv1+=CDXMLREAD_BIN__i32(input+ilv1,&(iz));
 	wert.z=iz/65536.0;
 	wert.y=iy/65536.0;
 	wert.x=ix/65536.0;
+	printf("3D: x%f,y%f,z%f\n",wert.x,wert.y,wert.z);
 	wert.active=1;
 	*((cdx_Point3D*)output)=wert;
 	return ilv1;

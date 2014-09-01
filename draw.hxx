@@ -735,17 +735,17 @@ void drawarrheads(cdx_Rectangle iBBX,float langle,float cangle,float otherlangle
 		tlcangle=(tlarrowside==-1) ? othercangle : cangle;
 		switch (tlarrowHead)
 		{
-			case 0 :
+			case 1 :
 			{
-				if (currentArrowHeadType==1)
+				if (currentArrowHeadType==2)
 				{
 					expressline(tlArrowTopx+tllinedist*cos(tlcangle),tlArrowTopy+tllinedist*sin(tlcangle),tlArrowTopx-tllinedist*cos(tlcangle),tlArrowTopy-tllinedist*sin(tlcangle));
 				}
 				break;
 			}
-			case 1 : 
+			case 2 :
 			{
-				if (currentArrowHeadType==0)
+				if (currentArrowHeadType==1)
 				{
 					stylegenestring(2);
 					expresstetrangle(tlArrowTopx,tlArrowTopy,
@@ -753,7 +753,7 @@ tlArrowTopx+cos(tllangle)*arrowheadlength+cos(tlcangle)*arrowthickness,tlArrowTo
 tlArrowTopx+cos(tllangle)*arrowheadlength-cos(tlcangle)*arrowthickness,tlArrowTopy+sin(tllangle)*arrowheadlength-sin(tlcangle)*arrowthickness,
 tlArrowTopx,tlArrowTopy);
 				}
-				if ((currentArrowHeadType==2) || (currentArrowHeadType==1))
+				if ((currentArrowHeadType==3) || (currentArrowHeadType==2))
 				{
 					expressline(tlArrowTopx,tlArrowTopy,
 tlArrowTopx+cos(tllangle)*tllinedist*2+cos(tlcangle)*tllinedist*2,tlArrowTopy+sin(tllangle)*tllinedist*2+sin(tlcangle)*tllinedist*2);
@@ -761,7 +761,7 @@ tlArrowTopx+cos(tllangle)*tllinedist*2+cos(tlcangle)*tllinedist*2,tlArrowTopy+si
 tlArrowTopx+cos(tllangle)*tllinedist*2-cos(tlcangle)*tllinedist*2,tlArrowTopy+sin(tllangle)*tllinedist*2-sin(tlcangle)*tllinedist*2);
 
 				}
-				if (currentArrowHeadType==1)
+				if (currentArrowHeadType==2)
 				{
 					expressline(tlArrowTopx+cos(tllangle)*tllinedist*2+cos(tlcangle)*tllinedist,tlArrowTopy+sin(tllangle)*tllinedist*2+sin(tlcangle)*tllinedist,
 tlArrowTopx+cos(tllangle)*tllinedist*2+cos(tlcangle)*tllinedist*2,tlArrowTopy+sin(tllangle)*tllinedist*2+sin(tlcangle)*tllinedist*2);
@@ -770,14 +770,14 @@ tlArrowTopx+cos(tllangle)*tllinedist*2-cos(tlcangle)*tllinedist*2,tlArrowTopy+si
 				}
 				break;
 			}
-			case 3 :
+			case 4 :
 			{
 				tlcangle=tlcangle+Pi;
 			}
-			case 2 :
+			case 3 :
 			{
 				stylegenestring(2);
-				if (currentArrowHeadType==0)
+				if (currentArrowHeadType==1)
 				{
 					expresstetrangle(tlArrowTopx+tllinedist*cos(tlcangle),tlArrowTopy+tllinedist*sin(tlcangle),
 tlArrowTopx+cos(tllangle)*arrowheadlength+(arrowthickness+tllinedist)*cos(tlcangle),tlArrowTopy+sin(tllangle)*arrowheadlength+(arrowthickness+tllinedist)*sin(tlcangle),
@@ -1288,9 +1288,9 @@ void svg_controlprocedure(bool irestriction=0,bool hatches=0)
 	}
 	else
 	{
-		currentArrowHeadType=0;
-		currentArrowHeadTail=0;
-		currentArrowHeadHead=0;
+		currentArrowHeadType=1;
+		currentArrowHeadTail=1;
+		currentArrowHeadHead=1;
 		tllinedist=0;
 		tllefttan=0;
 		tlrighttan=0;
@@ -1327,9 +1327,9 @@ void svg_controlprocedure(bool irestriction=0,bool hatches=0)
 	currentLineType=(*i_graphic_instance).LineType;
 	get_colorstring(colornr);
 	ellipsoid.reset();
-	currentArrowHeadType=0;
-	currentArrowHeadTail=0;
-	currentArrowHeadHead=0;
+	currentArrowHeadType=1;
+	currentArrowHeadTail=1;
+	currentArrowHeadHead=1;
 	tllinedist=0;
 	tllefttan=0;
 	tlrighttan=0;
@@ -1367,8 +1367,6 @@ void svg_controlprocedure(bool irestriction=0,bool hatches=0)
 		currentLineType=0x100;
 	}*/
 	svg_graphic_arrow_shunt:
-	if (currentArrowHeadType==1) {if (currentArrowHeadHead&1){tllefttan2=2;}if (currentArrowHeadHead&2){tlrighttan2=2;}if (currentArrowHeadTail&1){tllefttan=2;}if (currentArrowHeadTail&2){tlrighttan=2;}}
-	if (currentArrowHeadType==2) {if (currentArrowHeadHead&1){tllefttan2=1;}if (currentArrowHeadHead&2){tlrighttan2=1;}if (currentArrowHeadTail&1){tllefttan=1;}if (currentArrowHeadTail&2){tlrighttan=1;}}
 	if (tlGraphicType==1)
 	{
 		stylegenestring(stylefromline(currentLineType));
@@ -1464,7 +1462,7 @@ void svg_controlprocedure(bool irestriction=0,bool hatches=0)
 				}
 			}
 		}
-		else 
+		else
 		{
 			expressarc(iBBX.right,iBBX.bottom,tlradius,tlradius,tlangle,tlangle+((tlAngularSize/180.0)*Pi));
 			stillacircle:
@@ -1628,7 +1626,7 @@ void svg_controlprocedure(bool irestriction=0,bool hatches=0)
 		tllinedist=4;
 		currentLineType|=0x100;
 	}
-	if (currentArrowHeadType & 3)
+	if (currentArrowHeadType & 2)
 	{
 		tllinedist=8;
 		currentLineType|=0x100;

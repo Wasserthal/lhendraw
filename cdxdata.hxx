@@ -216,6 +216,11 @@ int __attribute__((sysv_abi))CDXMLREAD_BIN_cdx_Buffered_String(char * input,void
 
 
 int edit_readcolortablefrombuffer(char * input,void * output);
+int edit_readrepresentfrombuffer(char * input,void * output);
+int __attribute__((sysv_abi))CDXMLREAD_BIN_represent(char * input,void * output)
+{
+	edit_readrepresentfrombuffer(input,output);
+}
 int __attribute__((sysv_abi))CDXMLREAD_BIN_colortable(char * input,void * output)
 {
 	edit_readcolortablefrombuffer(input,output);
@@ -507,10 +512,10 @@ int __attribute__((sysv_abi))CDXMLREAD_BIN_cdx_Rectangle(char * input,void * out
 	int ilv1;
 	cdx_Rectangle wert;
 	_i32 ileft,itop,iright,ibottom;
-	ilv1=CDXMLREAD__i32(input,&itop);
-	ilv1+=CDXMLREAD__i32(input+ilv1,&ileft);
-	ilv1+=CDXMLREAD__i32(input+ilv1,&ibottom);
-	ilv1+=CDXMLREAD__i32(input+ilv1,&iright);
+	ilv1=CDXMLREAD_BIN__i32(input,&itop);
+	ilv1+=CDXMLREAD_BIN__i32(input+ilv1,&ileft);
+	ilv1+=CDXMLREAD_BIN__i32(input+ilv1,&ibottom);
+	ilv1+=CDXMLREAD_BIN__i32(input+ilv1,&iright);
 	wert.left=ileft/65536.0;
 	wert.top=itop/65536.0;
 	wert.right=iright/65536.0;

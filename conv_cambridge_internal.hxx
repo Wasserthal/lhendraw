@@ -280,9 +280,9 @@ void CAMBRIDGECONV_text()
 		if (atommode) edit_interpretaselementwithimplicithydrogens(glob_n_multilist,(*tl_CAMBRIDGE_t_instance).relN);
 	}
 }
-int CAMBRIDGECONV_represent(CAMBRIDGE_graphic_instance * tl_CAMBRIDGE_graphic_instance,int ino)
+int CAMBRIDGECONV_represent(CAMBRIDGE_graphic_instance * tl_CAMBRIDGE_graphic_instance,int ino,_i32 i_n_id=0)
 {
-	n_instance * i_n_instance;int n_index;
+	n_instance * i_n_instance;int n_index;int n_id;
 	multilist<CAMBRIDGE_represent_instance> * tl_CAMBRIDGE_represent_multilist;
 	CAMBRIDGE_represent_instance * tl_CAMBRIDGE_represent_instance;
 	if (ino<0) 
@@ -292,13 +292,15 @@ int CAMBRIDGECONV_represent(CAMBRIDGE_graphic_instance * tl_CAMBRIDGE_graphic_in
 		{
 			return 0;
 		}
+		n_id=i_n_id;
 		goto itypeok;
 	}
 	tl_CAMBRIDGE_represent_multilist=retrievemultilist<CAMBRIDGE_represent_instance>();
 	tl_CAMBRIDGE_represent_instance=(*tl_CAMBRIDGE_represent_multilist).bufferlist+ino;
-	if (i_n_instance=(n_instance*)edit_locatebyid(STRUCTURE_OBJECTTYPE_n,(*tl_CAMBRIDGE_represent_instance).object,&n_index))
+	n_id=(*tl_CAMBRIDGE_represent_instance).object;
+	itypeok:;
+	if (i_n_instance=(n_instance*)edit_locatebyid(STRUCTURE_OBJECTTYPE_n,n_id,&n_index))
 	{
-		itypeok:;
 		TELESCOPE_aggressobject(glob_n_multilist,n_index);
 		Symbol_instance tl_Symbol_instance;
 		CAMBRIDGECONV_COLORCONV2(Symbol,graphic);
@@ -338,10 +340,10 @@ void CAMBRIDGECONV_graphic()
 				goto skip_because_superseded;
 			}
 		}
-		if (AUTOSTRUCT_EXISTS(CAMBRIDGE_graphic_instance,(*tl_CAMBRIDGE_graphic_instance),represent))
+/*		if (AUTOSTRUCT_EXISTS(CAMBRIDGE_graphic_instance,(*tl_CAMBRIDGE_graphic_instance),represent))
 		{
-			if (CAMBRIDGECONV_represent(tl_CAMBRIDGE_graphic_instance,-1)>0) goto skip_because_superseded;
-		}
+			if (CAMBRIDGECONV_represent(tl_CAMBRIDGE_graphic_instance,-1,(*tl_CAMBRIDGE_graphic_instance).represent)>0) goto skip_because_superseded;
+		}*/
 		tl_graphic_instance=graphic_instance();
 		CAMBRIDGECONV_COLORCONV(graphic);
 		CAMBRIDGECONV_EXISTSTHEN(graphic,BoundingBox);

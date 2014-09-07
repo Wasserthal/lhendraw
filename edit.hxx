@@ -2158,6 +2158,12 @@ int edit_flexicopy(int undostep_no,multilist<n_instance> * n_target,multilist<b_
 		}
 	}
 }
+int edit_readrepresentfrombuffer(char * input,void * output)
+{
+	ADD_TO_MULTILISTREFERENCE(currentinstance,represent);
+	tl_CAMBRIDGE_represent_instance->object=*(_i32*)input;
+	tl_CAMBRIDGE_represent_instance->attribute=*(_i16*)(input+4);
+}
 int edit_readcolortablefrombuffer(char * input,void * output)
 {
 	int count=*(_i16*)input;
@@ -2176,13 +2182,13 @@ int edit_readcolortablefrombuffer(char * input,void * output)
 		ADD_TO_MULTILISTREFERENCE(currentinstance,color);
 		value=*(_i16*)(input+ilv1);
 		ilv1+=2;
-		glob_CAMBRIDGE_color_multilist->bufferlist[ilv2].r=value/65536.0;
+		tl_CAMBRIDGE_color_instance->r=value/65536.0;
 		value=*(_i16*)(input+ilv1);
 		ilv1+=2;
-		glob_CAMBRIDGE_color_multilist->bufferlist[ilv2].g=value/65536.0;
+		tl_CAMBRIDGE_color_instance->g=value/65536.0;
 		value=*(_i16*)(input+ilv1);
 		ilv1+=2;
-		glob_CAMBRIDGE_color_multilist->bufferlist[ilv2].b=value/65536.0;
+		tl_CAMBRIDGE_color_instance->b=value/65536.0;
 		printf("%f,%f,%f\n",glob_CAMBRIDGE_color_multilist->bufferlist[ilv2].r,glob_CAMBRIDGE_color_multilist->bufferlist[ilv2].g,glob_CAMBRIDGE_color_multilist->bufferlist[ilv2].b);
 	}
 }

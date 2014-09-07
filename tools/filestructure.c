@@ -169,6 +169,7 @@ int main(int argc,char * * argv)
 		case '~' : strcpy(properties_types[properties_count],"cdx_Bezierpoints");properties_type_nrs[properties_count]=6;break;
 		case 'T' : strcpy(properties_types[properties_count],"cdx_Pointreferences");properties_type_nrs[properties_count]=6;break;
 		case '!' : strcpy(properties_types[properties_count],"_i32");properties_type_nrs[properties_count]=5;break;//an ENUM
+		case ':' : strcpy(properties_types[properties_count],"represent");properties_type_nrs[properties_count]=0;break;//8 bit enum
 		case '\\' : 
 		;
 		int thisnamelength=0;

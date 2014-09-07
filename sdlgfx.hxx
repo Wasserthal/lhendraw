@@ -700,11 +700,11 @@ void expressarc_enhanced(float centerx,float centery,float radiusx,float radiusy
 	int isteps=radiusx*Pi*2;
 	if (startangle>endangle)
 	{
-/*		float swapangle;
+		float swapangle;
 		swapangle=startangle;
 		startangle=endangle;
-		endangle=swapangle;*/
-		endangle+=2*Pi;
+		endangle=swapangle;
+//		endangle+=2*Pi;
 	}
 	if (radiusy>radiusx)
 	{

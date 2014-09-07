@@ -57,6 +57,16 @@ void get_selection_pivot()
 	edit_pivot.y/=edit_pivot_counter;
 	edit_pivot.z/=edit_pivot_counter;
 }
+void applytransform_single(float matrix[3][3],cdx_Point3D * input,cdx_Point3D * output,cdx_Point3D * pivot)//input and output may be the same
+{
+	cdx_Point3D xyz;
+	xyz.x=input->x-pivot->x;
+	xyz.y=input->y-pivot->y;
+	xyz.z=input->z-pivot->z;
+	output->x=xyz.x*matrix[0][0]+xyz.y*matrix[1][0]+xyz.z*matrix[2][0]+pivot->x;
+	output->y=xyz.x*matrix[0][1]+xyz.y*matrix[1][1]+xyz.z*matrix[2][1]+pivot->y;
+	output->z=xyz.x*matrix[0][2]+xyz.y*matrix[1][2]+xyz.z*matrix[2][2]+pivot->z;
+}
 void applytransform(float matrix[3][3])
 {
 	intl ioffset;

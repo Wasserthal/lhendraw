@@ -34,6 +34,7 @@ struct drawproperties_
 	_i32 ring_element_count;
 	_i32 ring_unsaturation;
 };
+void applytransform_single(float matrix[3][3],cdx_Point3D * input,cdx_Point3D * output,cdx_Point3D * pivot);
 _small edit_current5bondcarbon=0;
 drawproperties_ control_drawproperties={1,0,4,0,constants_Element_implicitcarbon,6,1};
 int control_hot[32]={-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,};
@@ -606,18 +607,21 @@ inline int placepoints(graphic_instance * iinstance,float ix,float iy,float iz,i
 	{
 		(*iinstance).Center3D.x=ix;
 		(*iinstance).Center3D.y=iy;
+		(*iinstance).Center3D.z=iz;
 		return 1;
 	}
 	if (inumber==-4)
 	{
 		(*iinstance).MajorAxisEnd3D.x=ix;
 		(*iinstance).MajorAxisEnd3D.y=iy;
+		(*iinstance).MajorAxisEnd3D.z=iz;
 		return 1;
 	}
 	if (inumber==-5)
 	{
 		(*iinstance).MinorAxisEnd3D.x=ix;
 		(*iinstance).MinorAxisEnd3D.y=iy;
+		(*iinstance).MinorAxisEnd3D.z=iz;
 		return 1;
 	}
 	if ((inumber==1) || (inumber==-1))
@@ -688,16 +692,58 @@ inline int placepoints(arrow_instance * iinstance,float ix,float iy,float iz,int
 	tl_z-=iz;
 	if (inumber==1)
 	{
-		(*iinstance).Head3D.x-=tl_x;
-		(*iinstance).Head3D.y-=tl_y;
-		(*iinstance).Head3D.z-=tl_z;
+		float newangle=getangle(ix-(*iinstance).Tail3D.x,iy-(*iinstance).Tail3D.y);
+		float newdist=sqrt(fsqr(ix-(*iinstance).Tail3D.x)+fsqr(iy-(*iinstance).Tail3D.y));
+		float oldangle=getangle((*iinstance).Head3D.x-(*iinstance).Tail3D.x,(*iinstance).Head3D.y-(*iinstance).Tail3D.y);
+		float olddist=sqrt(fsqr((*iinstance).Head3D.x-(*iinstance).Tail3D.x)+fsqr((*iinstance).Head3D.y-(*iinstance).Tail3D.y));
+		float tl_matrix[3][3];
+		if (olddist<0.0001) olddist=0.0001;
+		tl_matrix[0][0]=(newdist/olddist)*cos(newangle-oldangle);
+		tl_matrix[0][1]=(newdist/olddist)*sin(newangle-oldangle);
+		tl_matrix[0][2]=0;
+		tl_matrix[1][0]=-(newdist/olddist)*sin(newangle-oldangle);
+		tl_matrix[1][1]=(newdist/olddist)*cos(newangle-oldangle);
+		tl_matrix[1][2]=0;
+		tl_matrix[2][0]=0;
+		tl_matrix[2][1]=0;
+		tl_matrix[2][2]=1;
+		cdx_Point3D tl_old=iinstance->Head3D;
+		cdx_Point3D tl_new;
+		cdx_Point3D tl_piv=iinstance->Tail3D;
+		for (int ilv1=-1;ilv1>=-5;ilv1--)
+		{
+			retrievepoints(iinstance,&(tl_old.x),&(tl_old.y),&(tl_old.z),ilv1);
+			applytransform_single(tl_matrix,&tl_old,&tl_new,&tl_piv);
+			placepoints(iinstance,tl_new.x,tl_new.y,tl_new.z,ilv1);
+		}
 		return 1;
 	}
 	if (inumber==2)
 	{
-		(*iinstance).Tail3D.x-=tl_x;
-		(*iinstance).Tail3D.y-=tl_y;
-		(*iinstance).Tail3D.z-=tl_z;
+		float newangle=getangle(ix-(*iinstance).Head3D.x,iy-(*iinstance).Head3D.y);
+		float newdist=sqrt(fsqr(ix-(*iinstance).Head3D.x)+fsqr(iy-(*iinstance).Head3D.y));
+		float oldangle=getangle((*iinstance).Tail3D.x-(*iinstance).Head3D.x,(*iinstance).Tail3D.y-(*iinstance).Head3D.y);
+		float olddist=sqrt(fsqr((*iinstance).Tail3D.x-(*iinstance).Head3D.x)+fsqr((*iinstance).Tail3D.y-(*iinstance).Head3D.y));
+		float tl_matrix[3][3];
+		if (olddist<0.0001) olddist=0.0001;
+		tl_matrix[0][0]=(newdist/olddist)*cos(newangle-oldangle);
+		tl_matrix[0][1]=(newdist/olddist)*sin(newangle-oldangle);
+		tl_matrix[0][2]=0;
+		tl_matrix[1][0]=-(newdist/olddist)*sin(newangle-oldangle);
+		tl_matrix[1][1]=(newdist/olddist)*cos(newangle-oldangle);
+		tl_matrix[1][2]=0;
+		tl_matrix[2][0]=0;
+		tl_matrix[2][1]=0;
+		tl_matrix[2][2]=1;
+		cdx_Point3D tl_old=iinstance->Tail3D;
+		cdx_Point3D tl_new;
+		cdx_Point3D tl_piv=iinstance->Head3D;
+		for (int ilv1=-1;ilv1>=-5;ilv1--)
+		{
+			retrievepoints(iinstance,&(tl_old.x),&(tl_old.y),&(tl_old.z),ilv1);
+			applytransform_single(tl_matrix,&tl_old,&tl_new,&tl_piv);
+			placepoints(iinstance,tl_new.x,tl_new.y,tl_new.z,ilv1);
+		}
 		return 1;
 	}
 	(*iinstance).Head3D.x-=tl_x;

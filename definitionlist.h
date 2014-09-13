@@ -91,9 +91,7 @@ bienum CDXML_objectcodes_List[]={
 {"b",0x8005},
 {"t",0x8006},
 {"s",0xDEADBEEF},
-{"colortable",0xDEADBEEF},
 {"color",0xDEADBEEF},
-{"fonttable",0xDEADBEEF},
 {"font",0xDEADBEEF},
 {"arrow",0x8021},
 {"graphic",0x8007},
@@ -102,6 +100,8 @@ bienum CDXML_objectcodes_List[]={
 {"LENHACK_ANNOTATION",0},
 {"moleculefill",0},
 {"EmbeddedObject",0x8009},
+{"ReactionScheme",0x800D},
+{"ReactionStep",0x800E},
 {"Spectrum",0x8010},
 {"TLCPlate",0x8023},
 {"TLCLane",0x8024},
@@ -114,6 +114,7 @@ bienum CDXML_propertycodes_List[]={
 {"Warning",0x10},
 {"SupersededBy",0x13},
 {"represent",0xE},
+{"fonttable",0x100},
 {"p",0x200},
 {"xyz",0x201},
 {"BoundingBox",0x204},
@@ -174,3 +175,12 @@ bienum CDXML_propertycodes_List[]={
 };
 int CDXML_propertycodes_ListSize=sizeof(CDXML_propertycodes_List)/sizeof(CDXML_propertycodes_List[0]);
 _i32 list_padlist[]={0xA21,0x421};
+char list_win_1258[][4]={
+"€","\x20","‚","ƒ","„","…","†","‡","ˆ","‰","\x20","‹","Œ","\x20","\x20","\x20"
+,"\x20","‘","’","“","”","•","–","—","˜","™","\x20","›","œ","\x20","\x20","Ÿ"
+,"\x2F","¡","¢","£","¤","¥","¦","§","¨","©","ª","«","¬","\xAD","®","¯"
+,"°","±","²","³","´","µ","¶","·","¸","¹","º","»","¼","½","¾","¿"
+,"À","Á","Â","Ă","Ä","Å","Æ","Ç","È","É","Ê","Ë","̀","Í","Î","Ï"
+,"Đ","Ñ","̉","Ó","Ô","Ơ","Ö","×","Ø","Ù","Ú","Û","Ü","Ư","̃","ß"
+,"à","á","â","ă","ä","å","æ","ç","è","é","ê","ë","́","í","î","ï"
+,"đ","ñ","̣","ó","ô","ơ","ö","÷","ø","ù","ú","û","ü","ư","₫","ÿ"};

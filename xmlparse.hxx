@@ -25,6 +25,7 @@ void entertag()
 		printf("%s\n",page_instance::contents[5].name);*/
 		printf("%s vs. %s !\n",tagnamestring,currentinstance->getName());
 		nextinstance=new(gummydummy_instance);
+		nextinstance->_=NULL;
 	}
 	(*nextinstance).master=currentinstance;
 	currentinstance=nextinstance;
@@ -90,6 +91,7 @@ void scoopparam_bin()
 	{
 		fprintf(stderr,"Hacking attempt detected (PCSTRING)!");exit(1);
 	}
+	if (currentinstance->_==NULL) return;
 	superconstellation * tl_superconstellation=getsuperconstellation_p(currentinstance->_,parameterstring,&iitemnumber);
 	if (tl_superconstellation!=NULL)
 	{
@@ -370,37 +372,38 @@ int input_recursion(FILE * infile)
 	//TODO: cdx generic list
 	_i16 itype=0;
 	_i32 iid=0;
-	_i16 ilength=0;
+	paramvaluestring_length=0;
 	debug_demonstratefsm_recursion_depth+=1;
 	fread(&itype,2,1,infile);
 	if (itype==0) {debug_demonstratefsm_recursion_depth-=1; return 0;}
 	if ((itype&0x8000)==0)
 	{
-		fread(&ilength,2,1,infile);
+		paramvaluestring_length=0;
+		fread(&paramvaluestring_length,2,1,infile);//ENDIAN
 		indent();
 		char * tl_name=lookup_bienum(CDXML_propertycodes_List,CDXML_propertycodes_ListSize,itype);
-		if (ilength<0) return 0;
+		if (paramvaluestring_length<0) return 0;
 		if (tl_name)
 		{
 			strcpy(parameterstring,tl_name);
-			if (ilength>stringlength) {fprintf(stderr,"File overflow!");exit(1);}
-			fread(&paramvaluestring,ilength,1,infile);
+			if (paramvaluestring_length>stringlength) {fprintf(stderr,"File overflow!");exit(1);}
+			fread(&paramvaluestring,paramvaluestring_length,1,infile);
 			_u8 padding=0x00;
 			for (int ilv1=0;ilv1<sizeof(list_padlist)/sizeof(_i32);ilv1++)
 			{
-				if (itype==list_padlist[ilv1]) padding=0xFF;
+				if (itype==list_padlist[ilv1]) if (paramvaluestring[paramvaluestring_length-1] & 0x80) padding=0xFF;
 			}
-			for (int ilv1=ilength;ilv1<min(ilength+4,stringlength+1);ilv1++)
+			for (int ilv1=paramvaluestring_length;ilv1<min(paramvaluestring_length+4,stringlength+1);ilv1++)
 			{
 				paramvaluestring[ilv1]=padding;
 			}
 			scoopparam_bin();
-			printf("%s:%i:%llX\n",tl_name,ilength,*(_u64*)paramvaluestring);
+			printf("%s:%i:%llX\n",tl_name,(int)paramvaluestring_length,*(_u64*)paramvaluestring);
 		}
 		else
 		{
-			fread(&paramvaluestring,ilength,1,infile);
-			printf("%04hX:%i:%llX\n",itype,ilength,*(_u64*)paramvaluestring);
+			fread(&paramvaluestring,paramvaluestring_length,1,infile);
+			printf("%04hX:%i:%llX\n",itype,(int)paramvaluestring_length,*(_u64*)paramvaluestring);
 		}
 		debug_demonstratefsm_recursion_depth-=1;
 		return 1;
@@ -428,10 +431,7 @@ int input_recursion(FILE * infile)
 	while (input_recursion(infile))
 	{
 	}
-	if (tl_name)
-	{
-		exittag();
-	}
+	exittag();
 	debug_demonstratefsm_recursion_depth-=1;
 	return 1;
 }
@@ -506,10 +506,9 @@ void output_object(FILE * outfile,basic_instance * iinstance)
 }
 void output_object_bin(FILE * outfile,basic_instance * iinstance)
 {
-	char hadhadcontent=0;
-	char haspctext=0;
 	char * PCTEXT_pointer;
 	intl dummy=0;
+	int * idatapointer;
 	_i32 propertycount=(*iinstance)._->properties_count;
 	_i32 contentcount=(*iinstance)._->contents_count;
 	_u32 * ipointer=(*iinstance).getINTERNALPropertyexistflags();
@@ -518,54 +517,29 @@ void output_object_bin(FILE * outfile,basic_instance * iinstance)
 	dummy=get_bienum(CDXML_objectcodes_List,(*iinstance).getName(),CDXML_objectcodes_ListSize);
 	fwrite(&dummy,2,1,outfile);
 	dummy=0;
-	fwrite(&dummy,4,1,outfile);
+	idatapointer=(int*)&dummy;
+	getsuperconstellation_p(iinstance->_,"id",idatapointer);
+	fwrite(idatapointer,4,1,outfile);
 	for (int ilv1=0;ilv1<propertycount;ilv1++)
 	{
 		if (existflags & (1<<ilv1))
 		{
 			int ipropertypos=(*iinstance)._->properties[ilv1].ref;
 			char * name=(*iinstance)._->properties[ilv1].name;
-			if (strcmp(name,"PCTEXT")==0)
-			{
-				haspctext=1;
-				PCTEXT_pointer=((char*)iinstance)+ipropertypos;
-			}
-			else
-			{
-				fprintf(outfile," %s=\"",name);
-				(*iinstance)._->properties[ilv1].writedelegate(((char*)iinstance)+ipropertypos,outfile);
-				fprintf(outfile,"\"\n");
-			}
+			(*iinstance)._->properties[ilv1].binwritedelegate(((char*)iinstance)+ipropertypos,outfile);
 		}
 	}
-	if (haspctext)
-	{
-		fprintf(outfile,">");
-		writefrombuffer(outfile,*(char**)PCTEXT_pointer);
-	}
-	hadhadcontent=haspctext;
 	for (int ilv1=0;ilv1<contentcount;ilv1++)
 	{
 		basicmultilistreference * tlmultilistreference=*((basicmultilistreference**)(((char*)iinstance)+((*iinstance)._->contents[ilv1].ref)));
 		int tlcount=(*tlmultilistreference).count_in_it;
 		for (int ilv2=0;ilv2<tlcount;ilv2++)
 		{
-			if (hadhadcontent==0)
-			{
-				fprintf(outfile,">");
-				hadhadcontent=1;
-			}
-			output_object(outfile,(*tlmultilistreference)[ilv2]);
+			output_object_bin(outfile,(*tlmultilistreference)[ilv2]);
 		}
 	}
-	if (hadhadcontent)
-	{
-		fprintf(outfile,"</%s>",(*iinstance).getName());
-	}
-	else
-	{
-		fprintf(outfile,"/>");
-	}
+	dummy=0;
+	fwrite(&dummy,2,1,outfile);
 	return;
 }
 struct n_instance;

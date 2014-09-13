@@ -40,7 +40,7 @@ struct superconstellation//Information on a single content or property of an obj
 	CDXMLREAD_functype delegate;
 	CDXMLREAD_functype writedelegate;
 	CDXMLREAD_functype binreaddelegate;
-//	CDXMLREAD_functype binwritedelegate;
+	CDXMLREAD_functype binwritedelegate;
 };
 struct AUTOSTRUCT_cstyle_vtable
 {

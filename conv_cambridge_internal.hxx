@@ -57,6 +57,7 @@ if (AUTOSTRUCT_EXISTS(CAMBRIDGE_ ## MACROPARAM_TYPE ## _instance,(*tl_CAMBRIDGE_
 int edit_interpretaselementwithimplicithydrogens(multilist<n_instance> * imultilist,int inumber);
 CAMBRIDGE_font_instance * getfont(_small iid)
 {
+	static CAMBRIDGE_font_instance defaultfont;
 	for (int ilv1=0;ilv1<(*glob_CAMBRIDGE_font_multilist).filllevel;ilv1++)
 	{
 		if (((*glob_CAMBRIDGE_font_multilist).bufferlist[ilv1]).id==iid)
@@ -64,6 +65,7 @@ CAMBRIDGE_font_instance * getfont(_small iid)
 			return &((*glob_CAMBRIDGE_font_multilist).bufferlist[ilv1]);
 		}
 	}
+	return &defaultfont;
 	return NULL;
 }
 void CAMBRIDGECONV_atom()
@@ -238,6 +240,10 @@ void CAMBRIDGECONV_text()
 		for (int ilv2=(*((*tl_CAMBRIDGE_t_instance).s)).start_in_it;ilv2<(*((*tl_CAMBRIDGE_t_instance).s)).start_in_it+(*((*tl_CAMBRIDGE_t_instance).s)).count_in_it;ilv2++)
 		{
 			CAMBRIDGE_s_instance * tl_CAMBRIDGE_s_instance=(*tl_CAMBRIDGE_s_multilist).bufferlist+ilv2;
+			if ((*tl_CAMBRIDGE_s_instance).PCTEXT.a==NULL)
+			{
+				goto s_element_was_empty;
+			}
 			tl_s_instance.font=(*tl_CAMBRIDGE_s_instance).font;
 			tl_s_instance.face=(*tl_CAMBRIDGE_s_instance).face;
 			tl_s_instance.size=(*tl_CAMBRIDGE_s_instance).size;
@@ -276,6 +282,7 @@ void CAMBRIDGECONV_text()
 				TELESCOPE_add(TELESCOPE_ELEMENTTYPE_s,(*tl_CAMBRIDGE_s_instance).PCTEXT.a,tl_s_instance.length-sizeof(s_instance));
 			}
 			*((s_instance*)TELESCOPE_getproperty())=tl_s_instance;
+			s_element_was_empty:;
 		}
 		if (atommode) edit_interpretaselementwithimplicithydrogens(glob_n_multilist,(*tl_CAMBRIDGE_t_instance).relN);
 	}

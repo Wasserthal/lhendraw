@@ -169,7 +169,7 @@ int main(int argc,char * * argv)
 		case '~' : strcpy(properties_types[properties_count],"cdx_Bezierpoints");properties_type_nrs[properties_count]=6;break;
 		case 'T' : strcpy(properties_types[properties_count],"cdx_Pointreferences");properties_type_nrs[properties_count]=6;break;
 		case '!' : strcpy(properties_types[properties_count],"_i32");properties_type_nrs[properties_count]=5;break;//an ENUM
-		case ':' : strcpy(properties_types[properties_count],"represent");properties_type_nrs[properties_count]=0;break;//8 bit enum
+		case ':' : strcpy(properties_types[properties_count],":");properties_type_nrs[properties_count]=0;break;//8 bit enum
 		case '\\' : 
 		;
 		int thisnamelength=0;
@@ -194,7 +194,6 @@ int main(int argc,char * * argv)
 		{
 			case 0x203c: strcpy(properties_types[properties_count],"_i32");properties_type_nrs[properties_count]=7;break;//an ENUM with two possibilities
 			case 0xe7: strcpy(properties_types[properties_count],"_i8");properties_type_nrs[properties_count]=5;break;//8 bit enum
-			case 0x2153: strcpy(properties_types[properties_count],"colortable");properties_type_nrs[properties_count]=0;break;//8 bit enum
 			case 0xA2: strcpy(properties_types[properties_count],"arcfloat");properties_type_nrs[properties_count]=2;break;//bin as Integer
 			default:
 			printf("Something went wrong defining %s - unknown symbol 0x%04X! ",name,tlbackvalue);exit(1);
@@ -219,6 +218,10 @@ int main(int argc,char * * argv)
 	{
 		properties_length[properties_count]++;
 		goto symbolback3;
+	}
+	if (strcmp(properties_types[properties_count],":")==0)
+	{
+		strcpy(properties_types[properties_count],properties[properties_count]);
 	}
 	properties[properties_count][properties_length[properties_count]]=0;
 	properties_count++;
@@ -284,11 +287,11 @@ int __attribute__((sysv_abi))CDXMLWRITE_ENUM_%s(char * input,void * output)\n{\n
 		}
 		if ((properties_type_nrs[ilv1]==5) || (properties_type_nrs[ilv1]==4) || (properties_type_nrs[ilv1]==7))
 		{
-			fprintf(thisfile,"{\"%s\",offsetof(%s%s_instance,%s),CDXMLREAD_ENUM_%s,CDXMLWRITE_ENUM_%s,CDXMLREAD_BIN__i32},\n",properties[ilv1],datablockstring,name,properties[ilv1],properties[ilv1],properties[ilv1]);
+			fprintf(thisfile,"{\"%s\",offsetof(%s%s_instance,%s),CDXMLREAD_ENUM_%s,CDXMLWRITE_ENUM_%s,CDXMLREAD_BIN__i32,CDXMLWRITE_BIN__i16},\n",properties[ilv1],datablockstring,name,properties[ilv1],properties[ilv1],properties[ilv1]);
 		}
 		else
 		{
-			fprintf(thisfile,"{\"%s\",offsetof(%s%s_instance,%s),CDXMLREAD_%s,CDXMLWRITE_%s,CDXMLREAD_BIN_%s},\n",properties[ilv1],datablockstring,name,properties[ilv1],(properties_type_nrs[ilv1]!=0)?properties_types[ilv1]:"_i32",(properties_type_nrs[ilv1]!=0)?properties_types[ilv1]:"_i32",properties_types[ilv1]);
+			fprintf(thisfile,"{\"%s\",offsetof(%s%s_instance,%s),CDXMLREAD_%s,CDXMLWRITE_%s,CDXMLREAD_BIN_%s,CDXMLWRITE_BIN_%s},\n",properties[ilv1],datablockstring,name,properties[ilv1],(properties_type_nrs[ilv1]!=0)?properties_types[ilv1]:"_i32",(properties_type_nrs[ilv1]!=0)?properties_types[ilv1]:"_i32",properties_types[ilv1],properties_types[ilv1]);
 		}
 	}
 	fprintf(outfile,"};\n");

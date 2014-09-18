@@ -114,6 +114,10 @@ void exittag()
 	{
 		delete(lastinstance);
 	}
+	if (strcmp(currentinstance->getName(),"Total_Document")==0)
+	{
+		currentinstance=NULL;
+	}
 };
 
 void input_fsm(FILE* infile)
@@ -350,6 +354,7 @@ void input_fsm(FILE* infile)
 		default:
 		fprintf(stderr,"Error: Internal error!Invalid fsmint!!!!:%llX",fsmint);exit(1);
 	}
+	if (currentinstance==NULL) return;
 	if (!feof(infile))
 	{
 		goto iback;
@@ -504,21 +509,39 @@ void output_object(FILE * outfile,basic_instance * iinstance)
 	}
 	return;
 }
-void output_object_bin(FILE * outfile,basic_instance * iinstance)
+int output_object_bin(FILE * outfile,basic_instance * iinstance)
 {
 	char * PCTEXT_pointer;
 	intl dummy=0;
-	int * idatapointer;
+	char * idatapointer;
+	superconstellation * isuperconstellation;
 	_i32 propertycount=(*iinstance)._->properties_count;
 	_i32 contentcount=(*iinstance)._->contents_count;
 	_u32 * ipointer=(*iinstance).getINTERNALPropertyexistflags();
 	_u32 existflags;
 	if (ipointer==NULL) existflags=*(_u32*)&fullu64; else existflags=*ipointer;
 	dummy=get_bienum(CDXML_objectcodes_List,(*iinstance).getName(),CDXML_objectcodes_ListSize);
+	if (dummy==0)
+	{
+		basic_instance * imaster=(*iinstance).master;
+		isuperconstellation=getsuperconstellation_p(imaster->_,(*iinstance).getName(),NULL);
+		if (isuperconstellation) 
+		{
+			idatapointer=((char*)imaster)+isuperconstellation->ref;
+			dummy=get_bienum(CDXML_propertycodes_List,(*iinstance).getName(),CDXML_propertycodes_ListSize);
+			fwrite(&dummy,2,1,outfile);
+			isuperconstellation->binwritedelegate(idatapointer,outfile);
+		}
+		return 0;
+	}
 	fwrite(&dummy,2,1,outfile);
 	dummy=0;
-	idatapointer=(int*)&dummy;
-	getsuperconstellation_p(iinstance->_,"id",idatapointer);
+	idatapointer=(char*)&dummy;
+	isuperconstellation=getsuperconstellation_p(iinstance->_,"id",NULL);
+	if (isuperconstellation) 
+	{
+		idatapointer=((char*)iinstance)+isuperconstellation->ref;
+	}
 	fwrite(idatapointer,4,1,outfile);
 	for (int ilv1=0;ilv1<propertycount;ilv1++)
 	{
@@ -526,7 +549,31 @@ void output_object_bin(FILE * outfile,basic_instance * iinstance)
 		{
 			int ipropertypos=(*iinstance)._->properties[ilv1].ref;
 			char * name=(*iinstance)._->properties[ilv1].name;
+			for (int ilv1=0;ilv1<CDXML_propertycodes_ListSize;ilv1++)
+			{
+				if (strcmp(name,CDXML_propertycodes_List[ilv1].name)==0)
+				{
+					dummy=CDXML_propertycodes_List[ilv1].number;
+					fwrite(&dummy,2,1,outfile);
+					goto idone;
+				}
+			}
+			if (strcmp(name,"PCTEXT")==0)
+			{
+				goto ignore_item;
+			}
+			if (strcmp(name,"id")==0)
+			{
+				goto ignore_item;
+			}
+			if (strcmp(name,"IGOTYOU")==0)
+			{
+				goto ignore_item;
+			}
+			printf("Unknown number of Element named %s\n",name);goto ignore_item;
+			idone:;
 			(*iinstance)._->properties[ilv1].binwritedelegate(((char*)iinstance)+ipropertypos,outfile);
+			ignore_item:;
 		}
 	}
 	for (int ilv1=0;ilv1<contentcount;ilv1++)
@@ -535,12 +582,13 @@ void output_object_bin(FILE * outfile,basic_instance * iinstance)
 		int tlcount=(*tlmultilistreference).count_in_it;
 		for (int ilv2=0;ilv2<tlcount;ilv2++)
 		{
-			output_object_bin(outfile,(*tlmultilistreference)[ilv2]);
+			if (output_object_bin(outfile,(*tlmultilistreference)[ilv2])==0) goto ioneforall;
 		}
+		ioneforall:;
 	}
 	dummy=0;
 	fwrite(&dummy,2,1,outfile);
-	return;
+	return 1;
 }
 struct n_instance;
 extern multilist<n_instance> * glob_n_multilist;

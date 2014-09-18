@@ -1222,11 +1222,15 @@ void svg_controlprocedure(bool irestriction=0,bool hatches=0)
 			i_bond_sum=getbondsum(index_in_buffer);
 			last.color=(*i_n_instance).color;
 			TELESCOPE_aggressobject(glob_n_multilist,index_in_buffer);
-			tl_format=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_s_f);
-			if (tl_format)
+			tlbackval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_s_f);
+			if (tlbackval)
 			{
 				tl_format=(*((s_f_instance*)TELESCOPE_getproperty())).valids;
 				tl_formatpointer=(edit_formatstruct*)TELESCOPE_getproperty_contents();
+			}
+			else
+			{
+				tl_format=0;
 			}
 			express_txinit(0/*TODO: reverse*/,(*i_n_instance).xyz.x,(*i_n_instance).xyz.y,atomfontheight);
 			for (int ilv1=0;ilv1<6;ilv1++)

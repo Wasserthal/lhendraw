@@ -27,9 +27,11 @@ char * getparameter(int parameter,int ioffset,char * commandout_1,const char * c
 		{
 			ichar3=NULL;
 			ichar=iarg+1;
+			parameter_filetype=iarg;
 			ichar2=strchr(iarg,'=');
 			if (ichar2)
 			{
+				*ichar2=0;
 				iarg=ichar2+1;
 			}
 			else

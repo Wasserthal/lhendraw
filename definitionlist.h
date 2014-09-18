@@ -90,7 +90,6 @@ bienum CDXML_objectcodes_List[]={
 {"n",0x8004},
 {"b",0x8005},
 {"t",0x8006},
-{"s",0xDEADBEEF},
 {"color",0xDEADBEEF},
 {"font",0xDEADBEEF},
 {"arrow",0x8021},
@@ -131,7 +130,7 @@ bienum CDXML_propertycodes_List[]={
 {"NumHydrogens",0x42B},
 {"s",0x700},
 
-{"NodeElement",0x402},
+{"Element",0x402},
 
 {"Order",0x600},
 {"Display",0x601},
@@ -148,6 +147,7 @@ bienum CDXML_propertycodes_List[]={
 {"RectangleType",0xA03},
 {"OvalType",0xA04},
 {"OrbitalType",0xA05},
+{"BracketType",0xA07},
 {"SymbolType",0xA07},
 {"CurveType",0xA08},
 {"HeadSize",0xA20},
@@ -157,6 +157,7 @@ bienum CDXML_propertycodes_List[]={
 {"ArrowheadType",0xA2F},
 {"ArrowheadCenterSize",0xA30},
 {"ArrowheadWidth",0xA31},
+{"ArrowShaftSpacing",0xA33},
 {"ArrowheadHead",0xA35},
 {"ArrowheadTail",0xA36},
 {"FillType",0xA37},

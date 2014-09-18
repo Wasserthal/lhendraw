@@ -239,12 +239,16 @@ int __attribute__((sysv_abi))CDXMLWRITE_BIN_cdx_Buffered_String(char * input,voi
 }
 
 
-int edit_readcolortablefrombuffer(char * input,void * output);
-int edit_readrepresentfrombuffer(char * input,void * output);
-int edit_readsfrombuffer(char * input,void * output);
+int edit_readcolortablefrombuffer(char * input);
+int edit_writecolortabletobuffer(char * input,void * output);
+int edit_readfonttablefrombuffer(char * input);
+int edit_writefonttabletobuffer(char * input,void * output);
+int edit_readrepresentfrombuffer(char * input);
+int edit_readsfrombuffer(char * input);
+int edit_writestobuffer(char * input,void * output);
 int __attribute__((sysv_abi))CDXMLREAD_BIN_represent(char * input,void * output)
 {
-	edit_readrepresentfrombuffer(input,output);
+	edit_readrepresentfrombuffer(input);
 }
 int __attribute__((sysv_abi))CDXMLWRITE_BIN_represent(char * input,void * output)
 {
@@ -254,23 +258,29 @@ int __attribute__((sysv_abi))CDXMLWRITE_BIN_represent(char * input,void * output
 }
 int __attribute__((sysv_abi))CDXMLREAD_BIN_colortable(char * input,void * output)
 {
-	edit_readcolortablefrombuffer(input,output);
+	edit_readcolortablefrombuffer(input);
 }
 int __attribute__((sysv_abi))CDXMLWRITE_BIN_colortable(char * input,void * output)
 {
-	static int length=0x00;//TODO
-	fwrite(&length,2,1,(FILE*)output);
+	edit_writecolortabletobuffer(input,output);
+}
+int __attribute__((sysv_abi))CDXMLREAD_BIN_fonttable(char * input,void * output)
+{
+	//TODO Don't commit before!
+	edit_readfonttablefrombuffer(input);
+}
+int __attribute__((sysv_abi))CDXMLWRITE_BIN_fonttable(char * input,void * output)
+{
+	edit_writefonttabletobuffer(input,output);
 	//TODO Don't commit before!
 }
 int __attribute__((sysv_abi))CDXMLREAD_BIN_s(char * input,void * output)
 {
-	edit_readsfrombuffer(input,output);
+	edit_readsfrombuffer(input);
 }
 int __attribute__((sysv_abi))CDXMLWRITE_BIN_s(char * input,void * output)
 {
-	static int length=0x00;//TODO
-	fwrite(&length,2,1,(FILE*)output);
-	//TODO Don't commit before!
+	edit_writestobuffer(input,output);
 }
 int __attribute__((sysv_abi))CDXMLWRITE__i32(char * input,void * output)
 {
@@ -449,7 +459,7 @@ int __attribute__((sysv_abi))CDXMLWRITE_BIN_arcfloat(char * input,void * output)
 	_i16 wert=(*(float*)input)*10.0;
 	int length=2;
 	fwrite(&length,2,1,(FILE*)output);
-	fwrite(input,2,1,(FILE*)output);
+	fwrite(&wert,2,1,(FILE*)output);
 	return 2;
 }
 int __attribute__((sysv_abi))CDXMLREAD_BIN_arcfloat(char * input,void * output)
@@ -831,7 +841,6 @@ intl get_bienum(bienum * ibienum,const char * input,intl count)
 			return ibienum[ilv1].number;
 		}
 	}
-	fprintf(stderr,"unknown mark %s in context",input);
 	return 0;
 };
 char * lookup_bienum(bienum * ibienum,intl imax,intl value)

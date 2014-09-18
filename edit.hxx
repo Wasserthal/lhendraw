@@ -1421,39 +1421,50 @@ for (int ilv1=0;ilv1<(*glob_CAMBRIDGE_color_multilist).filllevel;ilv1++)
 fprintf(ifile,"%s","</colortable><fonttable>\n"
 "<font id=\"1\" charset=\"windows-1258\" name=\"Arial\"/>\n"
 "<font id=\"2\" charset=\"Unknown\" name=\"Symbol\"/>\n"
+"<font id=\"3\" charset=\"iso-10646\" name=\"Arial\"/>\n"
 "</fonttable>");
 	}
 	if (strcmp(value,".cdx")==0)
 	{
+		fprintf(ifile,"VCjD\1\2\3\4");
+		_u16 iu16=0;
+		for (int ilv1=0;ilv1<5;ilv1++)fwrite(&iu16,2,1,ifile);
 		printf("SAVING CDX\n");
 	}
-	janitor_biasids(3);
+	janitor_biasids(4);
 	//TODO: all subobjects of page must get filllevel=0 before add!
-	CAMBRIDGE_page_instance i_CAMBRIDGE_page_instance=CAMBRIDGE_page_instance();
-	i_CAMBRIDGE_page_instance.id=0;AUTOSTRUCT_EXISTS_SET_NAME(&i_CAMBRIDGE_page_instance,id);
-	i_CAMBRIDGE_page_instance.BoundingBox.left=0;AUTOSTRUCT_EXISTS_SET_NAME(&i_CAMBRIDGE_page_instance,BoundingBox);
-	i_CAMBRIDGE_page_instance.BoundingBox.top=0;
-	i_CAMBRIDGE_page_instance.BoundingBox.right=28346.46;
-	i_CAMBRIDGE_page_instance.BoundingBox.bottom=28346.46;
-	i_CAMBRIDGE_page_instance.Width=28346.46;AUTOSTRUCT_EXISTS_SET_NAME(&i_CAMBRIDGE_page_instance,Width);
-	i_CAMBRIDGE_page_instance.Height=28346.46;AUTOSTRUCT_EXISTS_SET_NAME(&i_CAMBRIDGE_page_instance,Height);
-	i_CAMBRIDGE_page_instance.HeaderPosition=36;AUTOSTRUCT_EXISTS_SET_NAME(&i_CAMBRIDGE_page_instance,HeaderPosition);
-	i_CAMBRIDGE_page_instance.FooterPosition=36;AUTOSTRUCT_EXISTS_SET_NAME(&i_CAMBRIDGE_page_instance,FooterPosition);
-	i_CAMBRIDGE_page_instance.PageOverlap=0;AUTOSTRUCT_EXISTS_SET_NAME(&i_CAMBRIDGE_page_instance,PageOverlap);
-	i_CAMBRIDGE_page_instance.PrintTrimMarks=1;AUTOSTRUCT_EXISTS_SET_NAME(&i_CAMBRIDGE_page_instance,PrintTrimMarks);
-	i_CAMBRIDGE_page_instance.HeightPages=37;AUTOSTRUCT_EXISTS_SET_NAME(&i_CAMBRIDGE_page_instance,HeightPages);
-	i_CAMBRIDGE_page_instance.WidthPages=48;AUTOSTRUCT_EXISTS_SET_NAME(&i_CAMBRIDGE_page_instance,WidthPages);
-	i_CAMBRIDGE_page_instance.DrawingSpace=1;AUTOSTRUCT_EXISTS_SET_NAME(&i_CAMBRIDGE_page_instance,DrawingSpace);
-	(*glob_CAMBRIDGE_page_multilist).ADD(&i_CAMBRIDGE_page_instance);
-	CONVCAMBRIDGE_internaltomain(&i_CAMBRIDGE_page_instance);
+	glob_CAMBRIDGE_CDXML_multilist->filllevel=0;
+	CAMBRIDGE_CDXML_instance i_CAMBRIDGE_CDXML_instance=CAMBRIDGE_CDXML_instance();
+	(*glob_CAMBRIDGE_CDXML_multilist).ADD(&i_CAMBRIDGE_CDXML_instance);
+	glob_CAMBRIDGE_page_multilist->filllevel=0;
+	ADD_TO_MULTILISTREFERENCE(&i_CAMBRIDGE_CDXML_instance,page);
+	tl_CAMBRIDGE_page_instance->id=0;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_page_instance,id);
+	tl_CAMBRIDGE_page_instance->BoundingBox.left=0;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_page_instance,BoundingBox);
+	tl_CAMBRIDGE_page_instance->BoundingBox.top=0;
+	tl_CAMBRIDGE_page_instance->BoundingBox.right=28346.46;
+	tl_CAMBRIDGE_page_instance->BoundingBox.bottom=28346.46;
+	tl_CAMBRIDGE_page_instance->Width=28346.46;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_page_instance,Width);
+	tl_CAMBRIDGE_page_instance->Height=28346.46;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_page_instance,Height);
+	tl_CAMBRIDGE_page_instance->HeaderPosition=36;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_page_instance,HeaderPosition);
+	tl_CAMBRIDGE_page_instance->FooterPosition=36;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_page_instance,FooterPosition);
+	tl_CAMBRIDGE_page_instance->PageOverlap=0;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_page_instance,PageOverlap);
+	tl_CAMBRIDGE_page_instance->PrintTrimMarks=1;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_page_instance,PrintTrimMarks);
+	tl_CAMBRIDGE_page_instance->HeightPages=37;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_page_instance,HeightPages);
+	tl_CAMBRIDGE_page_instance->WidthPages=48;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_page_instance,WidthPages);
+	tl_CAMBRIDGE_page_instance->DrawingSpace=1;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_page_instance,DrawingSpace);
+	CONVCAMBRIDGE_internaltomain(tl_CAMBRIDGE_page_instance);
 	if (strcmp(value,".cdxml")==0)
 	{
-		output_object(ifile,&i_CAMBRIDGE_page_instance);
+		output_object(ifile,tl_CAMBRIDGE_page_instance);
 		fprintf(ifile,"</CDXML>");
 	}
 	if (strcmp(value,".cdx")==0)
 	{
-		output_object_bin(ifile,&i_CAMBRIDGE_page_instance);
+		AUTOSTRUCT_EXISTS_SET_NAME((&i_CAMBRIDGE_CDXML_instance),colortable);
+		AUTOSTRUCT_EXISTS_SET_NAME((&i_CAMBRIDGE_CDXML_instance),fonttable);
+		output_object_bin(ifile,&i_CAMBRIDGE_CDXML_instance);
+		_u16 iu16=0;
+		fwrite(&iu16,2,1,ifile);
 	}
 	fclose(ifile);
 	return 1;
@@ -2219,13 +2230,13 @@ int edit_flexicopy(int undostep_no,multilist<n_instance> * n_target,multilist<b_
 		}
 	}
 }
-int edit_readrepresentfrombuffer(char * input,void * output)
+int edit_readrepresentfrombuffer(char * input)
 {
 	ADD_TO_MULTILISTREFERENCE(currentinstance,represent);
 	tl_CAMBRIDGE_represent_instance->object=*(_i32*)input;
 	tl_CAMBRIDGE_represent_instance->attribute=*(_i16*)(input+4);
 }
-int edit_readcolortablefrombuffer(char * input,void * output)
+int edit_readcolortablefrombuffer(char * input)
 {
 	int count=*(_i16*)input;
 	int ilv1=0;
@@ -2235,7 +2246,6 @@ int edit_readcolortablefrombuffer(char * input,void * output)
 		LHENDRAW_loadmemoryoverflow=1;
 		return 0;
 	}
-	glob_CAMBRIDGE_color_multilist->filllevel=count;
 	ilv1=2;
 	multilist<CAMBRIDGE_color_instance> * tl_CAMBRIDGE_color_multilist=retrievemultilist<CAMBRIDGE_color_instance>();
 	for (int ilv2=0;ilv2<count;ilv2++)
@@ -2243,17 +2253,33 @@ int edit_readcolortablefrombuffer(char * input,void * output)
 		ADD_TO_MULTILISTREFERENCE(currentinstance,color);
 		value=*(_i16*)(input+ilv1);
 		ilv1+=2;
-		tl_CAMBRIDGE_color_instance->r=value/65536.0;
+		tl_CAMBRIDGE_color_instance->r=value/65535.0;
 		value=*(_i16*)(input+ilv1);
 		ilv1+=2;
-		tl_CAMBRIDGE_color_instance->g=value/65536.0;
+		tl_CAMBRIDGE_color_instance->g=value/65535.0;
 		value=*(_i16*)(input+ilv1);
 		ilv1+=2;
-		tl_CAMBRIDGE_color_instance->b=value/65536.0;
-		printf("%f,%f,%f\n",glob_CAMBRIDGE_color_multilist->bufferlist[ilv2].r,glob_CAMBRIDGE_color_multilist->bufferlist[ilv2].g,glob_CAMBRIDGE_color_multilist->bufferlist[ilv2].b);
+		tl_CAMBRIDGE_color_instance->b=value/65535.0;
 	}
 }
-int edit_readsfrombuffer(char * input,void * output)
+int edit_writecolortabletobuffer(char * input,void * output)
+{
+	static int length=glob_CAMBRIDGE_color_multilist->filllevel*6+2;
+	fwrite(&length,2,1,(FILE*)output);
+	length=glob_CAMBRIDGE_color_multilist->filllevel;
+	fwrite(&length,2,1,(FILE*)output);
+	for (int ilv1=0;ilv1<length;ilv1++)
+	{
+		_u16 dummy=65535.0*glob_CAMBRIDGE_color_multilist->bufferlist[ilv1].r;
+		fwrite(&dummy,2,1,(FILE*)output);
+		dummy=65535.0*glob_CAMBRIDGE_color_multilist->bufferlist[ilv1].g;
+		fwrite(&dummy,2,1,(FILE*)output);
+		dummy=65535.0*glob_CAMBRIDGE_color_multilist->bufferlist[ilv1].b;
+		fwrite(&dummy,2,1,(FILE*)output);
+	}
+	return glob_CAMBRIDGE_color_multilist->filllevel*6+4;
+}
+int edit_readsfrombuffer(char * input)
 {
 	_i16 icount;
 	int ilv1=0;
@@ -2342,4 +2368,136 @@ int edit_readsfrombuffer(char * input,void * output)
 	currentpos=icurrentstylerun2.startpos;
 	goto iback;
 	
+}
+void edit_printtranslate(FILE * output,const char * text)
+{
+	int cursor=0;
+	char ihv1=0;
+	iback:;
+	if (text[cursor]==0) return;
+	if (text[cursor] & 0x80)
+	{
+		for (int ilv1=0;ilv1<0x80;ilv1++)
+		{
+			if (strncmp(list_win_1258[ilv1],text+cursor,strlen(list_win_1258[ilv1]))==0)
+			{
+				cursor+=strlen(list_win_1258[ilv1]);
+				ihv1=ilv1+0x80;
+				fwrite(&ihv1,1,1,output);
+				goto ifound;
+			}
+		}
+		ihv1='?';
+		fwrite(&ihv1,1,1,output);
+		cursor++;
+		ifound:;
+	}
+	else
+	{
+		fwrite(text+cursor,1,1,output);
+		cursor++;
+	}
+	goto iback;
+}
+int edit_writestobuffer(char * input,void * output)
+{
+	static int length=0x00;
+	basicmultilistreference * tl_basicmultilistreference=*((basicmultilistreference**)input);
+	tl_basicmultilistreference->count_in_it;
+	size_t fseekstart=ftell((FILE*)output);//writes EMPTY length
+	size_t fseekcur;
+	int icursor=0;
+	fwrite(&length,2,1,(FILE*)output);
+	length=tl_basicmultilistreference->count_in_it;//length in styleruns
+	fwrite(&length,2,1,(FILE*)output);
+	fseekcur=fseekstart+4+sizeof(cdx_Stylerun)*length;
+	length=fseekcur-fseekstart-2;
+	for (int ilv1=tl_basicmultilistreference->start_in_it;ilv1<tl_basicmultilistreference->start_in_it+tl_basicmultilistreference->count_in_it;ilv1++)
+	{
+		cdx_Stylerun tl_stylerun;
+		fseek((FILE*)output,4+(ilv1-tl_basicmultilistreference->start_in_it)*sizeof(cdx_Stylerun)+fseekstart,SEEK_SET);
+		CAMBRIDGE_s_instance * tl_CAMBRIDGE_s_instance=glob_CAMBRIDGE_s_multilist->bufferlist+ilv1;
+		tl_stylerun.startpos=icursor;
+		tl_stylerun.color=tl_CAMBRIDGE_s_instance->color;
+		tl_stylerun.font=tl_CAMBRIDGE_s_instance->font;
+		tl_stylerun.face=tl_CAMBRIDGE_s_instance->face;
+		tl_stylerun.size=tl_CAMBRIDGE_s_instance->size;
+		fwrite(&tl_stylerun,sizeof(cdx_Stylerun),1,(FILE*)output);
+		fseek((FILE*)output,fseekcur,SEEK_SET);
+		edit_printtranslate((FILE*)output,tl_CAMBRIDGE_s_instance->PCTEXT.a);
+		fseekcur=ftell((FILE*)output);
+	}
+	fwrite("",1,1,(FILE*)output);//TODO: is this necessary?
+	fseekcur++;//TODO: is this necessary?
+	length=fseekcur-fseekstart-2;
+	fseek((FILE*)output,fseekstart,SEEK_SET);
+	fwrite(&length,2,1,(FILE*)output);
+	fseek((FILE*)output,fseekcur,SEEK_SET);
+}
+int edit_writefonttabletobuffer(char * input,void * output)
+{
+	_i16 ilhv1=27;
+	fwrite(&ilhv1,2,1,(FILE*)output);
+	ilhv1=1;//WINDOWS
+	fwrite(&ilhv1,2,1,(FILE*)output);
+	ilhv1=2;//count
+	fwrite(&ilhv1,2,1,(FILE*)output);
+	ilhv1=1;//id1
+	fwrite(&ilhv1,2,1,(FILE*)output);
+	ilhv1=1258;
+	fwrite(&ilhv1,2,1,(FILE*)output);
+	ilhv1=5;
+	fwrite(&ilhv1,2,1,(FILE*)output);
+	fprintf((FILE*)output,"Arial");
+	ilhv1=2;//id2
+	fwrite(&ilhv1,2,1,(FILE*)output);
+	ilhv1=0;
+	fwrite(&ilhv1,2,1,(FILE*)output);
+	ilhv1=6;
+	fwrite(&ilhv1,2,1,(FILE*)output);
+	fprintf((FILE*)output,"Symbol");
+}
+int edit_readfonttablefrombuffer(char * input)
+{
+	int ilength=0;
+	int icounter=0;
+	int ilv2;
+	_i16 ilhv1;
+	glob_CAMBRIDGE_font_multilist->filllevel=0;
+	//skipping windowsness
+	memcpy(&ilength,input+2,2);//ENDIAN
+	icounter=4;
+	if (((glob_CAMBRIDGE_font_multilist)->filllevel+ilength)>glob_CAMBRIDGE_font_multilist->getmaxitems())
+	{
+		LHENDRAW_loadmemoryoverflow=1;
+		return 0;
+	}
+	for (int ilv1=0;ilv1<ilength;ilv1++)
+	{
+		ADD_TO_MULTILISTREFERENCE(currentinstance,font);
+		memcpy(&ilhv1,input+icounter,2);//ENDIAN
+		tl_CAMBRIDGE_font_instance->id=ilhv1;
+		icounter+=2;
+		memcpy(&ilhv1,input+icounter,2);//ENDIAN
+		tl_CAMBRIDGE_font_instance->charset=ilhv1;
+		icounter+=2;
+		memcpy(&ilhv1,input+icounter,2);
+		icounter+=2;
+		if (ilhv1>stringlength) {icounter+=ilhv1;}
+		else
+		{
+			for (ilv2=0;ilv2<ilhv1;)
+			{
+				memcpy((tl_CAMBRIDGE_font_instance->name.a+ilv2),input+icounter,1);
+				icounter++;
+				ilv2++;
+				if (icounter>paramvaluestring_length) goto idone;
+			}
+			idone:;
+			tl_CAMBRIDGE_font_instance->name.a[ilv2]=0;
+			printf("%s\n",tl_CAMBRIDGE_font_instance->name.a);
+		}
+		if (icounter>paramvaluestring_length) return 0;
+	}
+	return 0;
 }

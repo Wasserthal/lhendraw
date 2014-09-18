@@ -1,5 +1,5 @@
 Total_Document;CDXML ;;
-CDXML;colortable page fonttable LENHACK_ANNOTATION annotation color ;4 BoundingBox s Comment : colortable 1 BondLength ;
+CDXML;colortable page fonttable LENHACK_ANNOTATION annotation color font ;4 BoundingBox s Comment : colortable : fonttable 1 BondLength ;
 page;group fragment t graphic arrow curve annotation ;0 id 4 BoundingBox 1 Width 1 Height 1 HeaderPosition 1 FooterPosition 1 PageOverlap ! PrintTrimMarks 0 HeightPages 0 WidthPages ! DrawingSpace ;
 group;annotation group fragment t graphic arrow curve ;;
 fragment;annotation n b t graphic arrow curve ;4 BoundingBox ;
@@ -10,7 +10,7 @@ s;;0 color 0 font 0 face 1 size 0 PCTEXTcounter S PCTEXT ;
 colortable;color ;;
 color;;1 r 1 g 1 b ;
 fonttable;font ;;
-font;;0 id s name ;
+font;;0 id s name ! charset ;
 arrow;annotation ;4 BoundingBox 0 color 3 Head3D 3 Tail3D 3 Center3D ! GraphicType ! LineType ¢ AngularSize 3 MajorAxisEnd3D 3 MinorAxisEnd3D # ArrowheadType # ArrowheadHead # ArrowheadTail 0 Z 1 ArrowShaftSpacing ;
 line;annotation ;0 id 0 color 0 SupersededBy 4 BoundingBox 0 Z ! ArrowType ! LineType ;
 graphic;represent annotation ;0 id 0 color 0 SupersededBy 4 BoundingBox 0 Z ! GraphicType ! ArrowType ! SymbolType 1 AngularSize ‼ OvalType ! RectangleType ! LineType ! BracketType 3 Center3D 3 MajorAxisEnd3D 3 MinorAxisEnd3D : represent ;

@@ -260,7 +260,7 @@ void CAMBRIDGECONV_text()
 				{
 					tl_char1[0]=(*tl_CAMBRIDGE_s_instance).PCTEXT.a[ilv1];
 					tl_text=tl_char1;
-					tl_text=get_list_greeklist((*tl_CAMBRIDGE_s_instance).PCTEXT.a+ilv1);
+					tl_text=get_list_greeklist(tl_char1);
 					if (tl_text==0)
 					{
 						tl_text=tl_char1;

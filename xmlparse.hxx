@@ -391,7 +391,7 @@ int input_recursion(FILE * infile)
 		if (tl_name)
 		{
 			strcpy(parameterstring,tl_name);
-			if (paramvaluestring_length>stringlength) {fprintf(stderr,"File overflow!");exit(1);}
+			if (paramvaluestring_length>stringlength) {fprintf(stderr,"File overflow!");*(char*)0=0;exit(1);}
 			fread(&paramvaluestring,paramvaluestring_length,1,infile);
 			_u8 padding=0x00;
 			for (int ilv1=0;ilv1<sizeof(list_padlist)/sizeof(_i32);ilv1++)

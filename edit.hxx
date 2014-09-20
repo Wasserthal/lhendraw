@@ -2229,12 +2229,33 @@ int edit_flexicopy(int undostep_no,multilist<n_instance> * n_target,multilist<b_
 			i_fertig:;
 		}
 	}
+	return 0;
 }
 int edit_readrepresentfrombuffer(char * input)
 {
 	ADD_TO_MULTILISTREFERENCE(currentinstance,represent);
 	tl_CAMBRIDGE_represent_instance->object=*(_i32*)input;
 	tl_CAMBRIDGE_represent_instance->attribute=*(_i16*)(input+4);
+	return 0;
+}
+int edit_writerepresenttobuffer(char * input,void * output)
+{
+	basicmultilistreference * tl_basicmultilistreference=*((basicmultilistreference**)input);
+	tl_basicmultilistreference->count_in_it;
+	for (int ilv1=tl_basicmultilistreference->start_in_it;ilv1<tl_basicmultilistreference->start_in_it+tl_basicmultilistreference->count_in_it;ilv1++)
+	{
+		_i16 length=0x06;
+		fwrite(&length,2,1,(FILE*)output);
+		CAMBRIDGE_represent_instance * tl_CAMBRIDGE_represent_instance=glob_CAMBRIDGE_represent_multilist->bufferlist+ilv1;
+		fwrite(&tl_CAMBRIDGE_represent_instance->object,4,1,(FILE*)output);
+		fwrite(&tl_CAMBRIDGE_represent_instance->attribute,2,1,(FILE*)output);
+		if (ilv1<tl_basicmultilistreference->start_in_it+tl_basicmultilistreference->count_in_it-1)
+		{
+			length=0xE;//Because here, multiple instances are written as multiple ones, so we need a new header
+			fwrite(&length,2,1,(FILE*)output);
+		}
+	}
+	return 0;
 }
 int edit_readcolortablefrombuffer(char * input)
 {
@@ -2261,6 +2282,7 @@ int edit_readcolortablefrombuffer(char * input)
 		ilv1+=2;
 		tl_CAMBRIDGE_color_instance->b=value/65535.0;
 	}
+	return 0;
 }
 int edit_writecolortabletobuffer(char * input,void * output)
 {
@@ -2277,7 +2299,7 @@ int edit_writecolortabletobuffer(char * input,void * output)
 		dummy=65535.0*glob_CAMBRIDGE_color_multilist->bufferlist[ilv1].b;
 		fwrite(&dummy,2,1,(FILE*)output);
 	}
-	return glob_CAMBRIDGE_color_multilist->filllevel*6+4;
+	return 0;
 }
 int edit_readsfrombuffer(char * input)
 {
@@ -2320,7 +2342,7 @@ int edit_readsfrombuffer(char * input)
 	for (int ilv1=0;ilv1<icount;ilv1++)
 	{
 		memcpy(&icurrentstylerun2,input+istartpos+sizeof(cdx_Stylerun)*ilv1,sizeof(cdx_Stylerun));
-		if (icurrentstylerun2.startpos>icurrentstylerun2.startpos)
+		if (icurrentstylerun2.startpos>icurrentstylerun.startpos)
 		{
 			if (icurrentstylerun2.startpos<bestval)
 			{
@@ -2367,14 +2389,62 @@ int edit_readsfrombuffer(char * input)
 	currentinstance=lastcurrentinstance;
 	currentpos=icurrentstylerun2.startpos;
 	goto iback;
-	
+	return 0;
 }
-void edit_printtranslate(FILE * output,const char * text)
+int edit_printtranslate(FILE * output,const char * text,int * icursor)
 {
-	int cursor=0;
+	int i_starttype=0;
+	int i_currenttype=0;
+	int begincursor=(*icursor);
 	char ihv1=0;
 	iback:;
-	if (text[cursor]==0) return;
+	if (text[(*icursor)]==0) {return 0;};
+	if (text[(*icursor)] & 0x80)
+	{
+		for (int ilv1=0;ilv1<0x80;ilv1++)
+		{
+			if (strncmp(list_win_1258[ilv1],text+(*icursor),strlen(list_win_1258[ilv1]))==0)
+			{
+				if (i_starttype==0) {i_starttype=1;}else{if ((i_currenttype)!=1){return 1;}}
+				i_currenttype=1;
+				(*icursor)+=strlen(list_win_1258[ilv1]);
+				ihv1=ilv1+0x80;
+				fwrite(&ihv1,1,1,output);
+				goto ifound;
+			}
+		}
+		for (int ilv1=0;ilv1<list_greeklist_size;ilv1++)
+		{
+			if (strncmp(list_greeklist[ilv1].output,text+(*icursor),strlen(list_greeklist[ilv1].output))==0)
+			{
+				if (i_starttype==0) {i_starttype=2;}else{if ((i_currenttype)!=2){return 1;}}
+				i_currenttype=2;
+				(*icursor)+=strlen(list_greeklist[ilv1].output);
+				fprintf(output,"%s",list_greeklist[ilv1].input);
+				goto ifound;
+			}
+		}
+		ihv1='?';
+		fwrite(&ihv1,1,1,output);
+		(*icursor)++;
+		ifound:;
+	}
+	else
+	{
+		fwrite(text+(*icursor),1,1,output);
+		(*icursor)++;
+	}
+	goto iback;
+	return 0;
+}
+void edit_printtest(char * text,int * i_elementcount,int * tl_starttype,int * length)
+{
+	int cursor=0;
+	int i_currenttype=0;
+	char ihv1=0;
+	*tl_starttype=0;
+	iback:;
+	if (text[cursor]==0) {return;};
 	if (text[cursor] & 0x80)
 	{
 		for (int ilv1=0;ilv1<0x80;ilv1++)
@@ -2382,57 +2452,84 @@ void edit_printtranslate(FILE * output,const char * text)
 			if (strncmp(list_win_1258[ilv1],text+cursor,strlen(list_win_1258[ilv1]))==0)
 			{
 				cursor+=strlen(list_win_1258[ilv1]);
-				ihv1=ilv1+0x80;
-				fwrite(&ihv1,1,1,output);
+				(*length)+=1;
+				if ((*tl_starttype)==0) {(*tl_starttype)=1;}else{if ((i_currenttype)!=1){(*i_elementcount)+=1;}}
+				i_currenttype=1;
+				goto ifound;
+			}
+		}
+		for (int ilv1=0;ilv1<list_greeklist_size;ilv1++)
+		{
+			if (strncmp(list_greeklist[ilv1].output,text+cursor,strlen(list_greeklist[ilv1].output))==0)
+			{
+				cursor+=strlen(list_greeklist[ilv1].output);
+				(*length)+=strlen(list_greeklist[ilv1].input);
+				if ((*tl_starttype)==0) {(*tl_starttype)=2;}else{if ((i_currenttype)!=2){(*i_elementcount)+=1;}}
+				i_currenttype=2;
 				goto ifound;
 			}
 		}
 		ihv1='?';
-		fwrite(&ihv1,1,1,output);
 		cursor++;
+		length++;
 		ifound:;
 	}
 	else
 	{
-		fwrite(text+cursor,1,1,output);
 		cursor++;
 	}
 	goto iback;
 }
 int edit_writestobuffer(char * input,void * output)
 {
+	int segcount=0;
+	int textlength=0;
 	static int length=0x00;
 	basicmultilistreference * tl_basicmultilistreference=*((basicmultilistreference**)input);
 	tl_basicmultilistreference->count_in_it;
+	for (int ilv1=tl_basicmultilistreference->start_in_it;ilv1<tl_basicmultilistreference->start_in_it+tl_basicmultilistreference->count_in_it;ilv1++)
+	{
+		int tl_count=1;
+		int tl_starttype=0;
+		CAMBRIDGE_s_instance * tl_CAMBRIDGE_s_instance=glob_CAMBRIDGE_s_multilist->bufferlist+ilv1;
+		edit_printtest(tl_CAMBRIDGE_s_instance->PCTEXT.a,&tl_count,&tl_starttype,&textlength);
+		if (tl_starttype!=0)
+		{
+			tl_CAMBRIDGE_s_instance->font=tl_starttype;
+		}
+		segcount+=tl_count;
+	}
 	size_t fseekstart=ftell((FILE*)output);//writes EMPTY length
 	size_t fseekcur;
 	int icursor=0;
 	fwrite(&length,2,1,(FILE*)output);
 	length=tl_basicmultilistreference->count_in_it;//length in styleruns
 	fwrite(&length,2,1,(FILE*)output);
-	fseekcur=fseekstart+4+sizeof(cdx_Stylerun)*length;
+	fseekcur=fseekstart+4+sizeof(cdx_Stylerun)*segcount;
 	length=fseekcur-fseekstart-2;
 	for (int ilv1=tl_basicmultilistreference->start_in_it;ilv1<tl_basicmultilistreference->start_in_it+tl_basicmultilistreference->count_in_it;ilv1++)
 	{
 		cdx_Stylerun tl_stylerun;
-		fseek((FILE*)output,4+(ilv1-tl_basicmultilistreference->start_in_it)*sizeof(cdx_Stylerun)+fseekstart,SEEK_SET);
+		int subcursor=0;
+		iagain:;
+		fseek((FILE*)output,4+(icursor)*sizeof(cdx_Stylerun)+fseekstart,SEEK_SET);
+		icursor++;
 		CAMBRIDGE_s_instance * tl_CAMBRIDGE_s_instance=glob_CAMBRIDGE_s_multilist->bufferlist+ilv1;
-		tl_stylerun.startpos=icursor;
+		tl_stylerun.startpos=fseekcur-(4+(segcount)*sizeof(cdx_Stylerun)+fseekstart);
 		tl_stylerun.color=tl_CAMBRIDGE_s_instance->color;
 		tl_stylerun.font=tl_CAMBRIDGE_s_instance->font;
 		tl_stylerun.face=tl_CAMBRIDGE_s_instance->face;
 		tl_stylerun.size=tl_CAMBRIDGE_s_instance->size;
 		fwrite(&tl_stylerun,sizeof(cdx_Stylerun),1,(FILE*)output);
 		fseek((FILE*)output,fseekcur,SEEK_SET);
-		edit_printtranslate((FILE*)output,tl_CAMBRIDGE_s_instance->PCTEXT.a);
+		if (edit_printtranslate((FILE*)output,tl_CAMBRIDGE_s_instance->PCTEXT.a,&subcursor)){goto iagain;}
 		fseekcur=ftell((FILE*)output);
 	}
-	fwrite("",1,1,(FILE*)output);//TODO: is this necessary?
-	fseekcur++;//TODO: is this necessary?
 	length=fseekcur-fseekstart-2;
 	fseek((FILE*)output,fseekstart,SEEK_SET);
 	fwrite(&length,2,1,(FILE*)output);
 	fseek((FILE*)output,fseekcur,SEEK_SET);
+	return 0;
 }
 int edit_writefonttabletobuffer(char * input,void * output)
 {
@@ -2456,6 +2553,7 @@ int edit_writefonttabletobuffer(char * input,void * output)
 	ilhv1=6;
 	fwrite(&ilhv1,2,1,(FILE*)output);
 	fprintf((FILE*)output,"Symbol");
+	return 0;
 }
 int edit_readfonttablefrombuffer(char * input)
 {
@@ -2495,7 +2593,6 @@ int edit_readfonttablefrombuffer(char * input)
 			}
 			idone:;
 			tl_CAMBRIDGE_font_instance->name.a[ilv2]=0;
-			printf("%s\n",tl_CAMBRIDGE_font_instance->name.a);
 		}
 		if (icounter>paramvaluestring_length) return 0;
 	}

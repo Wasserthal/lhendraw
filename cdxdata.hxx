@@ -244,43 +244,40 @@ int edit_writecolortabletobuffer(char * input,void * output);
 int edit_readfonttablefrombuffer(char * input);
 int edit_writefonttabletobuffer(char * input,void * output);
 int edit_readrepresentfrombuffer(char * input);
+int edit_writerepresenttobuffer(char * input,void * output);
 int edit_readsfrombuffer(char * input);
 int edit_writestobuffer(char * input,void * output);
 int __attribute__((sysv_abi))CDXMLREAD_BIN_represent(char * input,void * output)
 {
-	edit_readrepresentfrombuffer(input);
+	return edit_readrepresentfrombuffer(input);
 }
 int __attribute__((sysv_abi))CDXMLWRITE_BIN_represent(char * input,void * output)
 {
-	static int length=0x00;//TODO
-	fwrite(&length,2,1,(FILE*)output);
-	//TODO Don't commit before!
+	return edit_writerepresenttobuffer(input,output);
 }
 int __attribute__((sysv_abi))CDXMLREAD_BIN_colortable(char * input,void * output)
 {
-	edit_readcolortablefrombuffer(input);
+	return edit_readcolortablefrombuffer(input);
 }
 int __attribute__((sysv_abi))CDXMLWRITE_BIN_colortable(char * input,void * output)
 {
-	edit_writecolortabletobuffer(input,output);
+	return edit_writecolortabletobuffer(input,output);
 }
 int __attribute__((sysv_abi))CDXMLREAD_BIN_fonttable(char * input,void * output)
 {
-	//TODO Don't commit before!
-	edit_readfonttablefrombuffer(input);
+	return edit_readfonttablefrombuffer(input);
 }
 int __attribute__((sysv_abi))CDXMLWRITE_BIN_fonttable(char * input,void * output)
 {
-	edit_writefonttabletobuffer(input,output);
-	//TODO Don't commit before!
+	return edit_writefonttabletobuffer(input,output);
 }
 int __attribute__((sysv_abi))CDXMLREAD_BIN_s(char * input,void * output)
 {
-	edit_readsfrombuffer(input);
+	return edit_readsfrombuffer(input);
 }
 int __attribute__((sysv_abi))CDXMLWRITE_BIN_s(char * input,void * output)
 {
-	edit_writestobuffer(input,output);
+	return edit_writestobuffer(input,output);
 }
 int __attribute__((sysv_abi))CDXMLWRITE__i32(char * input,void * output)
 {

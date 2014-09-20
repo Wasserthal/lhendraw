@@ -147,7 +147,7 @@ bienum CDXML_propertycodes_List[]={
 {"RectangleType",0xA03},
 {"OvalType",0xA04},
 {"OrbitalType",0xA05},
-{"BracketType",0xA07},
+{"BracketType",0xA06},
 {"SymbolType",0xA07},
 {"CurveType",0xA08},
 {"HeadSize",0xA20},

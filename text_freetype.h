@@ -126,6 +126,7 @@ int utf8encompass(const char * string,int * position,int * length)
 	if ((string[*position]& 0x80)==0)
 	{
 		start++;
+		if (string[*position]==0) {(*length)=1;return 0;}
 		goto ifound;
 	}
 	if ((((_u8*)string)[*position]&0xC0)==0x80)

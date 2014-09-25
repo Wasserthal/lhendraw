@@ -391,8 +391,8 @@ int input_recursion(FILE * infile)
 		if (tl_name)
 		{
 			strcpy(parameterstring,tl_name);
-			if (paramvaluestring_length>stringlength) {fprintf(stderr,"File overflow!");*(char*)0=0;exit(1);}
-			fread(&paramvaluestring,paramvaluestring_length,1,infile);
+			if (paramvaluestring_length>LHENDRAW_buffersize) {fprintf(stderr,"File overflow!");*(char*)0=0;exit(1);}
+			fread(paramvaluestring,paramvaluestring_length,1,infile);
 			_u8 padding=0x00;
 			for (int ilv1=0;ilv1<sizeof(list_padlist)/sizeof(_i32);ilv1++)
 			{
@@ -407,7 +407,7 @@ int input_recursion(FILE * infile)
 		}
 		else
 		{
-			fread(&paramvaluestring,paramvaluestring_length,1,infile);
+			fread(paramvaluestring,paramvaluestring_length,1,infile);
 			printf("%04hX:%i:%llX\n",itype,(int)paramvaluestring_length,*(_u64*)paramvaluestring);
 		}
 		debug_demonstratefsm_recursion_depth-=1;

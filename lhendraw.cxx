@@ -66,6 +66,7 @@ int clockid=0;
 
 #include "sdlgfx.hxx"
 #include "parsecdxml_variables.hxx"
+#include "memory.hxx"
 #include "conv_config_internalconfig.hxx"
 #include "selection.hxx"
 #include "conv_cambridge_internal.hxx"
@@ -137,6 +138,9 @@ int main(int argc,char * * argv)
 	signal(SIGSYS,&Signal);
 	signal(SIGPIPE,&Signal);
 #endif
+	memory_alloc(&tagnamestring);
+	memory_alloc(&parameterstring);
+	memory_alloc(&paramvaluestring);
 	clock_getcpuclockid(getpid(),&clockid);
 	multilist_count=sizeof(multilistlist)/sizeof(multilistlist_);
 	for (int ilv1=0;ilv1<multilist_count;ilv1++)

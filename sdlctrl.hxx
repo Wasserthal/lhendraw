@@ -767,7 +767,7 @@ int issueclick(int iposx,int iposy)
 							TELESCOPE_aggressobject(glob_t_multilist,ilv1);
 							tl_backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_s);
 							if (tl_backval==0) {control_mousestate=0;return 0;}
-							iOK:
+							iOK_t:
 							TELESCOPE_insertintoproperties_offset((char*)"\uE000",3,-1);
 							control_mousestate=0x40;return 0;
 						}
@@ -776,22 +776,122 @@ int issueclick(int iposx,int iposy)
 			}
 			else
 			{
-				i_t_instance=edit_summontext(&tl_t_nr);
-				if (i_t_instance)
+				if (selection_clickselection_found & (1<<STRUCTURE_OBJECTTYPE_n))
 				{
-					(*i_t_instance).xyz.x=control_coorsx;
-					(*i_t_instance).xyz.y=control_coorsy;
-					(*i_t_instance).xyz.z=0;
-					TELESCOPE_aggressobject(glob_t_multilist,tl_t_nr);
-					TELESCOPE_add(TELESCOPE_ELEMENTTYPE_s,"",1);
-					s_instance * tl_s_instance=(s_instance*)TELESCOPE_getproperty();
-					(*tl_s_instance).color=control_drawproperties.color;
-					(*tl_s_instance).font=1;
-					(*tl_s_instance).face=0;
-					(*tl_s_instance).size=12;
-					control_textedit_type=STRUCTURE_OBJECTTYPE_t;
-					control_textedit_index=tl_t_nr;
-					goto iOK;
+					for (ilv1=0;ilv1<glob_n_multilist->filllevel;ilv1++)
+					{
+						if (selection_clickselection[ilv1] & (1<<STRUCTURE_OBJECTTYPE_n))
+						{
+							if (glob_n_multilist->bufferlist[ilv1].exist)
+							{
+								n_instance * tl_n_instance=glob_n_multilist->bufferlist+ilv1;
+								control_textedit_type=STRUCTURE_OBJECTTYPE_n;
+								control_textedit_index=ilv1;
+								TELESCOPE_aggressobject(glob_n_multilist,ilv1);
+								if (tl_n_instance->Element!=-1)
+								{
+									float i_bond_sum=0;
+									for (int ilv2=0;ilv2<atom_actual_node[ilv1].bondcount;ilv2++)
+									{
+										i_bond_sum+=(*glob_b_multilist).bufferlist[atom_actual_node[ilv1].bonds[ilv2]].Order/16.0;
+									}
+									if (fmod(i_bond_sum,1.0)>0.4)
+									{
+										i_bond_sum=trunc(i_bond_sum)+1;
+									}
+									char istring[10];
+									char tl_fill;
+									char imatch;
+									char tl_format=0;
+									int tl_Element=tl_n_instance->Element;
+									s_instance * tl_s_instance;
+									s_f_instance * tl_s_f_instance;
+									edit_formatstruct * tl_formatpointer;
+									edit_formatstruct iformatstruct;
+									edit_formatstruct * currentformatpointer=&iformatstruct;
+									iformatstruct.color=(*tl_n_instance).color;
+									iformatstruct.face=0x60;
+									tl_backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_s_f);
+									if (tl_backval)
+									{
+										tl_format=(*(s_f_instance*)TELESCOPE_getproperty()).valids;
+										tl_formatpointer=(edit_formatstruct*)TELESCOPE_getproperty_contents();
+									}
+									for (int ilv1=0;ilv1<6;ilv1++)
+									{
+										if (tl_s_f_instance)
+										{
+											tl_fill=0;
+											for (int ilv2=0;ilv2<=ilv1;ilv2++)
+											{
+												imatch=1<<ilv2;
+												if (tl_format & imatch)
+												{
+													currentformatpointer=tl_formatpointer+tl_fill;
+													tl_fill++;
+												}
+											}
+										}
+										switch (ilv1)
+										{
+											case 0 : if (element[tl_Element].name[0]==0) {ilv1=2;goto i_t_fertig;}sprintf(istring,"%c",element[tl_Element].name[0]);break;
+											case 1 : if (element[tl_Element].name[1]==0) {ilv1=2;goto i_t_fertig;}sprintf(istring,"%c",element[tl_Element].name[1]);break;
+											case 2 : if (element[tl_Element].name[2]==0) {ilv1=2;goto i_t_fertig;}sprintf(istring,"%c",element[tl_Element].name[2]);break;
+											case 3 : sprintf(istring,"%s",((*tl_n_instance).protons-(int)i_bond_sum<=0)?"":"H");break;
+											case 4 : if ((*tl_n_instance).protons-(int)i_bond_sum>1) sprintf(istring,"%i",(*tl_n_instance).protons-(int)i_bond_sum); else istring[0]=0;break;
+											case 5 :
+											if ((*tl_n_instance).charge<0) {sprintf(istring,"%i-",-(*tl_n_instance).charge);break;}
+											if ((*tl_n_instance).charge>0) {sprintf(istring,"%i+",(*tl_n_instance).charge);break;}
+											if ((*tl_n_instance).charge==0) {istring[0]=0;break;}
+										}
+										TELESCOPE_add(TELESCOPE_ELEMENTTYPE_s,istring,strlen(istring)+1);
+										tl_s_instance=(s_instance*)TELESCOPE_getproperty();
+										tl_s_instance->color=currentformatpointer->color;
+										tl_s_instance->font=1;
+										tl_s_instance->face=currentformatpointer->face;
+										tl_s_instance->size=12;
+										i_t_fertig:;
+									}
+									TELESCOPE_aggressobject(glob_n_multilist,ilv1);
+									tl_backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_s_f);
+									while (tl_backval)
+									{
+										TELESCOPE_clear_item();
+										tl_backval=TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_s_f);
+
+									}
+									TELESCOPE_aggressobject(glob_n_multilist,ilv1);
+									tl_n_instance->Element=-1;
+								}
+								tl_backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_s);
+								if (tl_backval==0) {tl_backval=TELESCOPE_add(TELESCOPE_ELEMENTTYPE_s,"",1);}
+								if (tl_backval==0) {control_mousestate=0;return 0;}
+								TELESCOPE_insertintoproperties_offset((char*)"\uE000",3,-1);
+								glob_n_multilist->bufferlist[ilv1].Element=-1;
+								control_mousestate=0x40;return 0;
+							}
+						}
+					}
+				}
+				else
+				{
+					i_t_instance=edit_summontext(&tl_t_nr);
+					if (i_t_instance)
+					{
+						(*i_t_instance).xyz.x=control_coorsx;
+						(*i_t_instance).xyz.y=control_coorsy;
+						(*i_t_instance).xyz.z=0;
+						TELESCOPE_aggressobject(glob_t_multilist,tl_t_nr);
+						TELESCOPE_add(TELESCOPE_ELEMENTTYPE_s,"",1);
+						s_instance * tl_s_instance=(s_instance*)TELESCOPE_getproperty();
+						(*tl_s_instance).color=control_drawproperties.color;
+						(*tl_s_instance).font=1;
+						(*tl_s_instance).face=0;
+						(*tl_s_instance).size=12;
+						control_textedit_type=STRUCTURE_OBJECTTYPE_t;
+						control_textedit_index=tl_t_nr;
+						goto iOK_t;
+					}
 				}
 			}
 			control_mousestate=0;return 0;
@@ -1179,8 +1279,8 @@ void issuedrag(int iposx,int iposy)
 				(*tl_arrow).MinorAxisEnd3D.x=(*tl_arrow).Center3D.x-(control_coorsy-(*tl_arrow).Center3D.y);
 				(*tl_arrow).MinorAxisEnd3D.y=(*tl_arrow).Center3D.y+(control_coorsx-(*tl_arrow).Center3D.x);
 				(*tl_arrow).MinorAxisEnd3D.z=0;
-				(*tl_arrow).ArrowheadType=0;
-				(*tl_arrow).ArrowheadHead=1;
+				(*tl_arrow).ArrowheadType=1;
+				(*tl_arrow).ArrowheadHead=2;
 				(*tl_arrow).ArrowheadTail=0;
 				(*tl_arrow).ArrowShaftSpacing=0;
 				(*tl_arrow).Z=0;//TODO: pretty urgent
@@ -2278,6 +2378,11 @@ void control_normal()
 						if (control_aggresstextcursor())
 						{
 							TELESCOPE_shrink(control_textedit_cursor,3);
+							if (control_textedit_type==STRUCTURE_OBJECTTYPE_n)
+							{
+								edit_interpretaselementwithimplicithydrogens(glob_n_multilist,control_textedit_index);
+								edit_bondsum(control_textedit_index,1);
+							}
 						}
 						control_mousestate=0;
 						break;
@@ -2314,25 +2419,41 @@ void control_normal()
 						{
 							textedit_left();
 							control_textedit_cursor+=3;
-							utf8encompass((char*)TELESCOPE_getproperty_contents(),&control_textedit_cursor,&tl_length);
-							TELESCOPE_shrink(control_textedit_cursor,tl_length);
+							if (utf8encompass((char*)TELESCOPE_getproperty_contents(),&control_textedit_cursor,&tl_length)>0)
+							{
+								TELESCOPE_shrink(control_textedit_cursor,tl_length);
+							}
 						}
 						break;
 						case SDLK_DELETE:
 						if (control_aggresstextcursor())
 						{
 							control_textedit_cursor+=3;
-							utf8encompass((char*)TELESCOPE_getproperty_contents(),&control_textedit_cursor,&tl_length);
-							TELESCOPE_shrink(control_textedit_cursor,tl_length);
+							if (utf8encompass((char*)TELESCOPE_getproperty_contents(),&control_textedit_cursor,&tl_length)>0)
+							{
+								TELESCOPE_shrink(control_textedit_cursor,tl_length);
+							}
 						}
 						break;
 						case SDLK_RETURN:
 						if (control_aggresstextcursor())
 						{
-							TELESCOPE_insertintoproperties_offset("\n",1,control_textedit_cursor);
+							if (control_textedit_type==STRUCTURE_OBJECTTYPE_n)
+							{
+								TELESCOPE_shrink(control_textedit_cursor,3);
+								control_mousestate=0;
+							}
+							else
+							{
+								TELESCOPE_insertintoproperties_offset("\n",1,control_textedit_cursor);
+							}
+						}
+						else
+						{
+							control_mousestate=0;
 						}
 						break;
-						default:
+						default:;
 						char * tl_unicode;
 						if (control_aggresstextcursor())
 						{

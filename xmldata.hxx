@@ -108,9 +108,9 @@ int AUTOSTRUCT_Numberofproperty(const char * name,superconstellation * iinput,in
 
 char LHENDRAW_loadmemoryoverflow=0;
 intl LHENDRAW_buffersize=1048576;
-char tagnamestring[stringlength+1];
-char parameterstring[bufferlength+1];
-char paramvaluestring[bufferlength+1];
+char * tagnamestring;
+char * parameterstring;
+char * paramvaluestring;
 intl tagnamestring_length;
 intl parameterstring_length;
 intl paramvaluestring_length;

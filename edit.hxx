@@ -33,10 +33,13 @@ struct drawproperties_
 	_i32 Element;
 	_i32 ring_element_count;
 	_i32 ring_unsaturation;
+	int ARROW_subtool;//0:draw 1: Skip 2: Situp
+	int CHARGE_subtool;//0:Substitute charges 1: del 2: draw plainly
+	int SELECTION_subtool;//0:Rectangular 1: round
 };
 void applytransform_single(float matrix[3][3],cdx_Point3D * input,cdx_Point3D * output,cdx_Point3D * pivot);
 _small edit_current5bondcarbon=0;
-drawproperties_ control_drawproperties={1,0,4,0,constants_Element_implicitcarbon,6,1};
+drawproperties_ control_drawproperties={1,0,4,0,constants_Element_implicitcarbon,6,1,0,0,0};
 int control_hot[32]={-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,};
 //Copies a set of atoms and bonds from one buffer to another. Can take atoms from ANY other buffer
 char * undo_retrievebuffer(intl start,intl list);
@@ -1479,24 +1482,33 @@ catalogized_command_funcdef(LOAD_INTO_SEARCHBUF)
 {
 	printf("TODO***stub\n");
 }
+int edit_bondsum(int nr,int dir)
+{
+	float i_bond_sum=0;
+	n_instance * tl_n_instance=(*glob_n_multilist).bufferlist+nr;
+	if ((*tl_n_instance).exist)
+	{
+		for (int ilv2=0;ilv2<atom_actual_node[nr].bondcount;ilv2++)
+		{
+			i_bond_sum+=(*glob_b_multilist).bufferlist[atom_actual_node[nr].bonds[ilv2]].Order/16.0;
+		}
+	}
+	if (fmod(i_bond_sum,1.0)>0.4)
+	{
+		i_bond_sum=trunc(i_bond_sum)+1;
+	}
+	switch (dir)
+	{
+		case 0: return i_bond_sum;
+		case 1: (*tl_n_instance).protons+=i_bond_sum;return 1;
+		case 2: (*tl_n_instance).protons-=i_bond_sum;return 1;
+	}
+}
 void edit_add_deltahydrogens()
 {
 	for (int ilv1=0;ilv1<(*glob_n_multilist).filllevel;ilv1++)
 	{
-		float i_bond_sum=0;
-		n_instance * tl_n_instance=(*glob_n_multilist).bufferlist+ilv1;
-		if ((*tl_n_instance).exist)
-		{
-			for (int ilv2=0;ilv2<atom_actual_node[ilv1].bondcount;ilv2++)
-			{
-				i_bond_sum+=(*glob_b_multilist).bufferlist[atom_actual_node[ilv1].bonds[ilv2]].Order/16.0;
-			}
-		}
-		if (fmod(i_bond_sum,1.0)>0.4)
-		{
-			i_bond_sum=trunc(i_bond_sum)+1;
-		}
-		(*tl_n_instance).protons+=i_bond_sum;
+		edit_bondsum(ilv1,1);
 	}
 }
 catalogized_command_funcdef(LOAD_TYPE)
@@ -1630,7 +1642,7 @@ void processatomsymbol(int * fsm,char * pointer,s_instance * format)
 	if ((*fsm)==6) return;
 	if (pointer==NULL)
 	{
-		(*fsm)=6;
+		(*fsm)=7;
 		return;
 	}
 	iback:
@@ -1668,14 +1680,14 @@ void processatomsymbol(int * fsm,char * pointer,s_instance * format)
 			pointer++;
 			goto iback;
 		}
-		(*fsm)=6;
+		(*fsm)=7;
 		return;
 	}
 	if ((*fsm)==1)
 	{
 		if (ihv1=='H')
 		{
-			(*fsm)=3;
+			(*fsm)=4;
 			edit_scoop_valids|=1<<3;
 			edit_scoop_formats[3]=*format;
 			edit_scoop_numhydrogens=1;
@@ -1691,14 +1703,14 @@ void processatomsymbol(int * fsm,char * pointer,s_instance * format)
 			pointer++;
 			goto iback;
 		}
-		(*fsm)=6;
+		(*fsm)=7;
 		return;
 	}
 	if ((*fsm)==2)
 	{
 		if (ihv1=='H')//Some idea: would this be wise to do for fluorine?
 		{
-			(*fsm)=3;
+			(*fsm)=4;
 			edit_scoop_valids|=1<<3;
 			edit_scoop_formats[3]=*format;
 			edit_scoop_numhydrogens=1;
@@ -1707,47 +1719,61 @@ void processatomsymbol(int * fsm,char * pointer,s_instance * format)
 		}
 		if ((ihv1>='a') && (ihv1<='z'))
 		{
-			edit_scoop_atomstring[1]=ihv1;//Overwrites
+			edit_scoop_atomstring[2]=ihv1;//Overwrites
 			edit_scoop_valids|=1<<2;
 			edit_scoop_formats[2]=*format;
-			(*fsm)=2;
+			(*fsm)=3;
 			pointer++;
 			goto iback;
 		}
-		(*fsm)=6;
+		(*fsm)=7;
 		return;
 	}
 	if ((*fsm)==3)
 	{
-		if ((ihv1>='0') && (ihv1<='9'))
+		if (ihv1=='H')//Some idea: would this be wise to do for fluorine?
 		{
-			edit_scoop_numhydrogens=ihv1-'0';
-			edit_scoop_valids|=1<<4;
-			edit_scoop_formats[4]=*format;
 			(*fsm)=4;
+			edit_scoop_valids|=1<<3;
+			edit_scoop_formats[3]=*format;
+			edit_scoop_numhydrogens=1;
 			pointer++;
 			goto iback;
 		}
-		(*fsm)=6;
+		(*fsm)=7;
 		return;
 	}
 	if ((*fsm)==4)
 	{
 		if ((ihv1>='0') && (ihv1<='9'))
 		{
-			edit_scoop_numhydrogens=(edit_scoop_numhydrogens*10)+ihv1-'0';
+			edit_scoop_numhydrogens=ihv1-'0';
 			edit_scoop_valids|=1<<4;
 			edit_scoop_formats[4]=*format;
-			(*fsm)=4;
+			(*fsm)=5;
 			pointer++;
 			goto iback;
 		}
-		(*fsm)=6;
+		(*fsm)=7;
 		return;
 	}
 	if ((*fsm)==5)
 	{
-		(*fsm)=6;
+		if ((ihv1>='0') && (ihv1<='9'))
+		{
+			edit_scoop_numhydrogens=(edit_scoop_numhydrogens*10)+ihv1-'0';
+			edit_scoop_valids|=1<<4;
+			edit_scoop_formats[4]=*format;
+			(*fsm)=5;
+			pointer++;
+			goto iback;
+		}
+		(*fsm)=7;
+		return;
+	}
+	if ((*fsm)==6)
+	{
+		(*fsm)=7;
 		return;
 	}
 	return;
@@ -1779,7 +1805,7 @@ int edit_interpretaselementwithimplicithydrogens(multilist<n_instance> * imultil
 		processatomsymbol(&fsm,ipointer,(s_instance*)TELESCOPE_getproperty());
 		if (((*(s_instance*)TELESCOPE_getproperty()).face & 0x60)!=0x60)
 		{
-			fsm=6;
+			fsm=7;
 		}
 		i_backval=TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_s);
 		if (i_backval)
@@ -1788,7 +1814,7 @@ int edit_interpretaselementwithimplicithydrogens(multilist<n_instance> * imultil
 			goto iback;
 		}
 	}
-	if (fsm==6)
+	if (fsm==7)
 	{
 		return 0;
 	}
@@ -1826,8 +1852,9 @@ int edit_interpretaselementwithimplicithydrogens(multilist<n_instance> * imultil
 		{
 			edit_scoop_packedformats[fill].color=edit_scoop_formats[ilv1].color;
 			edit_scoop_packedformats[fill].face=edit_scoop_formats[ilv1].face;
+			fill++;
 		}
-		cursor<<1;
+		cursor=cursor<<1;
 	}
 	TELESCOPE_add(TELESCOPE_ELEMENTTYPE_s_f,(char*)&edit_scoop_packedformats,fill*sizeof(edit_formatstruct));
 	(*(s_f_instance*)TELESCOPE_getproperty()).valids=edit_scoop_valids;
@@ -2369,6 +2396,7 @@ int edit_readsfrombuffer(char * input)
 		_u8 ihv1=input[2+sizeof(cdx_Stylerun)*icount+ilv1];
 		if ((ihv1 & 0x80)==0)
 		{
+			if (ihv1==0xD) ihv1=0xA;
 			parameterstring[parameterstring_length++]=ihv1;
 		}
 		else
@@ -2431,8 +2459,10 @@ int edit_printtranslate(FILE * output,const char * text,int * icursor)
 	}
 	else
 	{
+		if (text[(*icursor)]==0xA) {fprintf(output,"\xD");goto wasalinebreak;}
 		fwrite(text+(*icursor),1,1,output);
 		(*icursor)++;
+		wasalinebreak:;
 	}
 	goto iback;
 	return 0;

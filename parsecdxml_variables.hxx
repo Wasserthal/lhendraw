@@ -361,6 +361,7 @@ int TELESCOPE_searchthroughobject_next(int tag)
 		if (TELESCOPE_tempvar.inside_TELESCOPE_element)
 		{
 			ilength=(*((TELESCOPE*)((*TELESCOPE_tempvar.buffer).buffer+TELESCOPE_tempvar.pos))).length;
+			if (TELESCOPE_tempvar.subpos>=ilength) {return 0;}
 			TELESCOPE_element * iTELESCOPE_element=(TELESCOPE_element*)((*(TELESCOPE_tempvar.buffer)).buffer+TELESCOPE_tempvar.pos+TELESCOPE_tempvar.subpos);
 			TELESCOPE_tempvar.subpos+=(*iTELESCOPE_element).length;
 			TELESCOPE_tempvar.subpos2=TELESCOPE_tempvar.subpos;
@@ -549,7 +550,7 @@ int TELESCOPE_clear()//clears all elements of that object
 		(*((TELESCOPE*)(((*(TELESCOPE_tempvar.buffer)).buffer)+TELESCOPE_tempvar.pos))).owner=-1;
 	}
 }
-int TELESCOPE_clear_item()
+int TELESCOPE_clear_item()//clears one item. leaves the cursor system at its position, so the next item is automatically aimed at.
 {
 	int ilength;
 	ilength=(*((TELESCOPE_element*)(((*(TELESCOPE_tempvar.buffer)).buffer)+TELESCOPE_tempvar.pos+TELESCOPE_tempvar.subpos))).length;

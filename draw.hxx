@@ -1201,6 +1201,7 @@ void svg_controlprocedure(bool irestriction=0,bool hatches=0)
 		if (tlElement==-1)
 		{
 			sortback=atom_actual_node[index_in_buffer].labelside;
+			if ((control_mousestate & 0x40) && (control_textedit_index==index_in_buffer)) sortback=0;
 			express_txinit(sortback,((*glob_n_multilist).bufferlist)[index_in_buffer].xyz.x,((*glob_n_multilist).bufferlist)[index_in_buffer].xyz.y,atomfontheight);
 			TELESCOPE_aggressobject(glob_n_multilist,index_in_buffer);
 			goto n_to_t_shunt;

@@ -1500,7 +1500,7 @@ int edit_bondsum(int nr,int dir)
 	switch (dir)
 	{
 		case 0: return i_bond_sum;
-		case 1: (*tl_n_instance).protons+=i_bond_sum;return 1;
+		case 1: (*tl_n_instance).protons+=i_bond_sum;if ((*tl_n_instance).Element==constants_Element_implicitcarbon) {(*tl_n_instance).protons=4-abs((*tl_n_instance).charge);} return 1;
 		case 2: (*tl_n_instance).protons-=i_bond_sum;return 1;
 	}
 }
@@ -1863,6 +1863,116 @@ int edit_interpretaselementwithimplicithydrogens(multilist<n_instance> * imultil
 	(*imultilist).bufferlist[inumber].protons=edit_scoop_numhydrogens;
 	(*imultilist).bufferlist[inumber].color=edit_scoop_formats[0].color;
 	return 1;
+}
+#define L_SEPARATE \
+{\
+	printf("%s",current_s_string+ilv1);\
+	if (ilv1!=0)\
+	{\
+		itelescope->connect&=~1;\
+		TELESCOPE_split(ilv1,"",1);\
+		((s_instance*)TELESCOPE_getproperty())->connect=1;\
+		ilv1=0;\
+		itelescope=(s_instance*)TELESCOPE_getproperty();\
+		current_s_string=(char*)TELESCOPE_getproperty_contents();\
+		ilength=min(strlen(current_s_string),TELESCOPE_getproperty_contentlength());\
+	}\
+	else\
+	{\
+		if (ilasttelescope!=NULL)\
+		{\
+			ilasttelescope->connect&=~1;\
+		}\
+	}\
+}
+char edit_resortstring(basicmultilist * imultilist,int iinstance) // resorts chemical text to be right-aligned
+{
+	//Explanation of the connect attribute:
+	//0: means the next Element is not connected, and is set right to the next Element on right-aligned molecule labels
+	//1: means the next Element is right of the current Element even on right-aligned molecule labels, e.g. numbers
+	//0x4: means that this is a open-bracket. When right-aligned, the elements next to the corresponding 0x3 closing-bracket are drawn after it.
+	//it is drawn as the corresponding closing-bracket, then.
+	//0x3: a closing bracket with elements right to it. These Elements are not drawn in right-aligned molecule labels. It is then drawn as the corresponding opening-bracket.
+	//0x2: another closing bracket without elements right to it. It is then drawn as the corresponding opening-bracket.
+	int ilength;
+	int fsm=0;//0=done 1: Capital letter 2: little letter 3: number 4: plus/minus 5: Bracket
+	int ihv1;
+	int backval;
+	TELESCOPE_aggressobject(imultilist,iinstance);
+	s_instance *itelescope,*ilasttelescope;
+	ilasttelescope=NULL;
+	backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_s);
+	iback:;
+	itelescope=(s_instance*)TELESCOPE_getproperty();
+	if (backval<=0)
+	{
+		if (ilasttelescope!=NULL) ilasttelescope->connect&=~1;
+		return 1;
+	}
+	char * current_s_string=(char*)TELESCOPE_getproperty_contents();
+	ilength=min(strlen(current_s_string),TELESCOPE_getproperty_contentlength());
+	itelescope->connect=1;
+	for (int ilv1=0;ilv1<ilength;ilv1++)
+	{
+		ihv1=current_s_string[ilv1];
+		if (ihv1==' ') {goto feeble_aftermath;}
+		if (ihv1=='/') {goto feeble_aftermath;}
+		if (ihv1=='\\') {goto feeble_aftermath;}
+		if ((ihv1=='(') || (ihv1=='[') || (ihv1=='{'))
+		{
+			L_SEPARATE;
+			itelescope->connect=4;
+			fsm=0;
+		}
+		if ((ihv1==')') || (ihv1==']') || (ihv1=='}'))
+		{
+			L_SEPARATE;
+			itelescope->connect=3;
+			fsm=5;
+		}
+		if ((ihv1=='+') || (ihv1=='-'))
+		{
+			if (fsm==4) {goto feeble_aftermath;}
+			fsm=4;
+		}
+		if ((ihv1>='0') && (ihv1<='9'))
+		{
+			if ((fsm==1) || (fsm==2) || (fsm==3))
+			{
+			}
+			else
+			{
+				L_SEPARATE;
+			}
+			fsm=3;
+		}
+		if ((ihv1>='a') && (ihv1<='z'))
+		{
+			if ((fsm!=1) && (fsm!=2))
+			{
+				L_SEPARATE;
+			}
+			fsm=2;
+		}
+		if ((ihv1>='A') && (ihv1<='Z'))
+		{
+			L_SEPARATE;
+			fsm=1;
+		}
+	}
+	ilasttelescope=itelescope;
+	backval=TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_s);
+	goto iback;
+	return 1;
+	feeble_aftermath:
+	TELESCOPE_aggressobject(imultilist,iinstance);
+	backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_s);
+	while (backval!=0)
+	{
+		((s_instance*)TELESCOPE_getproperty())->connect=1;
+		backval=TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_s);
+	}
+	return 0;
 }
 int menu_itembyname(const char * name,int * menu=NULL,int * index=NULL);
 catalogized_command_funcdef(FILEDLG_DEVICE_SEL)

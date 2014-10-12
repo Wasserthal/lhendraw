@@ -496,101 +496,6 @@ char iswedgenr(_small input)
 	return 0;
 }
 
-char resortstring(char * input) //TODO: what about brackets?
-{
-	int ilength=strlen(input);
-	int fsm=0;//0=done 1: number 2: little letter 3: Capital letter 4: plus/minus
-	int start,end;
-	resortedstring[0]=0;
-	int resortedstringpos=0;
-	for (int ilv1=ilength-1;ilv1>=0;ilv1--)
-	{
-		if (input[ilv1]==' ') {return 0;}
-		if (input[ilv1]=='/') {return 0;}
-		if (input[ilv1]=='\\') {return 0;}
-		if ((input[ilv1]=='+') || (input[ilv1]=='-'))
-		{
-			if (fsm!=0)
-			{
-				for (int ilv2=start;ilv2<=end;ilv2++)
-				{
-					resortedstring[resortedstringpos++]=input[ilv2];
-				}
-			}
-			fsm=4;
-		}
-		if ((input[ilv1]>='0') && (input[ilv1]<='9'))
-		{
-			if ((fsm==1) || (fsm==4))
-			{
-				start=ilv1;
-			}
-			else
-			{
-				if (fsm==2)
-				{
-					for (int ilv2=start;ilv2<=end;ilv2++)
-					{
-						resortedstring[resortedstringpos++]=input[ilv2];
-					}
-				}
-				end=ilv1;
-				start=ilv1;
-				fsm=1;
-			}
-		}
-		if ((input[ilv1]>='a') && (input[ilv1]<='z'))
-		{
-			if ((fsm==2) || (fsm==1) || (fsm==4))
-			{
-				start=ilv1;
-				fsm=2;
-			}
-			else
-			{
-				if (fsm==1)//never executed -> obsolete
-				{
-					for (int ilv2=start;ilv2<=end;ilv2++)//write down numbers
-					{
-						resortedstring[resortedstringpos++]=input[ilv2];
-					}
-				}
-				end=ilv1;
-				start=ilv1;
-				fsm=2;
-			}
-		}
-		if ((input[ilv1]>='A') && (input[ilv1]<='Z'))
-		{
-			if ((fsm!=2) && (fsm!=1) && (fsm!=4))
-			{
-				if (fsm==1)//never executed _>obsolete
-				{
-					for (int ilv2=start;ilv2<=end;ilv2++)//write down numbers
-					{
-						resortedstring[resortedstringpos++]=input[ilv2];
-					}
-				}
-				end=ilv1;
-			}
-			start=ilv1;
-			fsm=0;
-			for (int ilv2=start;ilv2<=end;ilv2++)
-			{
-				resortedstring[resortedstringpos++]=input[ilv2];
-			}
-		}
-	}
-	if ((fsm==1) || (fsm==4))
-	{
-		for (int ilv2=start;ilv2<=end;ilv2++)//write remaining numbers
-		{
-			resortedstring[resortedstringpos++]=input[ilv2];
-		}
-	}
-	resortedstring[resortedstringpos]=0;
-	return 1;
-}
 
 #define outputstringlength 4096
 char geek_greek_string[outputstringlength];
@@ -1878,7 +1783,7 @@ tlposx+tlcos-tlsin,tlposy+tlsin+tlcos,tlposx+2*tlcos-tlsin,tlposy+2*tlsin+tlcos,
 			{
 				if ((*glob_t_multilist).bufferlist[index_in_buffer].Justification==-1)
 				{
-					string_resorted=resortstring(finalstring);
+					string_resorted=0;
 					if (string_resorted)
 					{
 						finalstring=resortedstring;
@@ -1890,6 +1795,18 @@ tlposx+tlcos-tlsin,tlposy+tlsin+tlcos,tlposx+2*tlcos-tlsin,tlposy+2*tlsin+tlcos,
 	if (colornr!=0)
 	{
 		get_colorstring(colornr);
+	}
+	if ((((*((s_instance*)TELESCOPE_getproperty())).connect & 0x6)!=0) && (sortback))
+	{
+		switch (finalstring[0])
+		{
+			case '(' : finalstring=(char*)")";break;
+			case ')' : finalstring=(char*)"(";break;
+			case '[' : finalstring=(char*)"]";break;
+			case ']' : finalstring=(char*)"[";break;
+			case '{' : finalstring=(char*)"}";break;
+			case '}' : finalstring=(char*)"{";break;
+		}
 	}
 	if (((*((s_instance*)TELESCOPE_getproperty())).face & 0x60)==0x60)
 	{
@@ -2095,14 +2012,35 @@ tlposx+tlcos-tlsin,tlposy+tlsin+tlcos,tlposx+2*tlcos-tlsin,tlposy+2*tlsin+tlcos,
 		colorstring,finalstring,(tlformlabeltype & 0x20)?"<tspan dy=\"-3\"/>":((tlformlabeltype & 0x40)?"<tspan dy=\"3\"/>":""));*/
 		printformatted(finalstring,iparms,((tlformlabeltype & 0x20) ? 1 : 0) | ((tlformlabeltype & 0x40) ? 4 : 0),0,strlen(finalstring));
 	}
-	if (sortback)
+/*	if (sortback)
 	{
 		text_rewind((unsigned char*)finalstring,strlen(finalstring));
-	}
+	}*/
+	char tl_connectmode;
+	trytofindthenextstartagain:
+	tl_connectmode=((((s_instance*)TELESCOPE_getproperty())->connect & 1)>0);
 	tlbackval=TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_s);
+	if (tlbackval==0) goto svg_text_finished;
+	if ((tl_connectmode) && (sortback))
+	{
+		goto svg_text_back;
+	}
 	if (sortback)
 	{
+		int tl_TELESCOPE_lastpos=TELESCOPE_tempvar.subpos;
+		int tl_TELESCOPE_lastpos2=TELESCOPE_tempvar.subpos2;
+		svg_text_sortback_back:
 		text_rewind(((unsigned char*)TELESCOPE_getproperty_contents()),strlen(((char*)TELESCOPE_getproperty_contents())));
+		tl_connectmode=((((s_instance*)TELESCOPE_getproperty())->connect & 1)>0);
+		int tl_sort_backval=TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_s);
+		if (tl_sort_backval==0) goto svg_text_sortback_finished;
+		if (tl_connectmode)
+		{
+			goto svg_text_sortback_back;
+		}
+		svg_text_sortback_finished:;
+		TELESCOPE_tempvar.subpos=tl_TELESCOPE_lastpos;
+		TELESCOPE_tempvar.subpos2=tl_TELESCOPE_lastpos2;
 	}
 	goto svg_text_back;
 	svg_text_finished:

@@ -447,8 +447,9 @@ int TELESCOPE_add(int tag,const char * iinput,int ilength)//Like insertintoprope
 	}
 	return 1;
 }
-int TELESCOPE_split(int ipos,char * iadditive_input,int ilength)
+int TELESCOPE_split(int ipos,const char * iadditive_input,int ilength)
 {
+	//should point to the second Element afterwards
 	int ilv1;
 	TELESCOPE_element * tl_Element=((TELESCOPE_element*)((*TELESCOPE_tempvar.buffer).buffer+TELESCOPE_tempvar.pos+TELESCOPE_tempvar.subpos));
 	int itype=(*tl_Element).type;
@@ -572,6 +573,10 @@ void * TELESCOPE_getproperty()//returns the pointer to the current content, and 
 void * TELESCOPE_getproperty_contents()//Like before, but returns the pointer to the end of the contained object, giving the buffer it holds.
 {
 	return (void*)((*TELESCOPE_tempvar.buffer).buffer+TELESCOPE_tempvar.pos+TELESCOPE_tempvar.subpos+TELESCOPE_ELEMENTTYPE_List[(*(TELESCOPE_element*)((*(TELESCOPE_tempvar.buffer)).buffer+TELESCOPE_tempvar.pos+TELESCOPE_tempvar.subpos)).type].size);
+}
+int TELESCOPE_getproperty_contentlength()//Like before, but returns the pointer to the end of the contained object, giving the buffer it holds.
+{
+	return ((TELESCOPE_element*)((*TELESCOPE_tempvar.buffer).buffer+TELESCOPE_tempvar.pos+TELESCOPE_tempvar.subpos))->length-TELESCOPE_ELEMENTTYPE_List[(*(TELESCOPE_element*)((*(TELESCOPE_tempvar.buffer)).buffer+TELESCOPE_tempvar.pos+TELESCOPE_tempvar.subpos)).type].size;
 }
 int initmemory()
 {

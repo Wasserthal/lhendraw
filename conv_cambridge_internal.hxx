@@ -83,7 +83,8 @@ void CAMBRIDGECONV_atom()
 		multilistreference<CAMBRIDGE_t_instance> * tl_CAMBRIDGE_t_multilistreference=(multilistreference<CAMBRIDGE_t_instance>*)((*tl_CAMBRIDGE_n_instance).t);
 		n_instance tl_n_instance;
 		tl_n_instance=n_instance();
-		tl_n_instance.Element=9;
+		tl_n_instance.Element=constants_Element_implicitcarbon;
+		tl_n_instance.protons=4;
 		if (AUTOSTRUCT_EXISTS(CAMBRIDGE_n_instance,(*tl_CAMBRIDGE_n_instance),Element))
 		{
 			tl_n_instance.Element=(*tl_CAMBRIDGE_n_instance).Element;
@@ -92,10 +93,11 @@ void CAMBRIDGECONV_atom()
 			{
 				(tl_n_instance).Element+=2;
 			}
-			if ((tl_n_instance).Element>9)
+			if ((tl_n_instance).Element>constants_Element_implicitcarbon)
 			{
 				(tl_n_instance).Element++;
 			}
+			tl_n_instance.protons=element[ilv1].protons=0;
 		}
 		CAMBRIDGECONV_COLORCONV(n);
 		(tl_n_instance).charge=(*tl_CAMBRIDGE_n_instance).Charge;
@@ -108,7 +110,10 @@ void CAMBRIDGECONV_atom()
 			(tl_n_instance).protons=0;
 			goto skip_because_text;
 		}
-		(tl_n_instance).protons=(*tl_CAMBRIDGE_n_instance).NumHydrogens;
+		if (AUTOSTRUCT_EXISTS(CAMBRIDGE_n_instance,(*tl_CAMBRIDGE_n_instance),NumHydrogens))
+		{
+			(tl_n_instance).protons=(*tl_CAMBRIDGE_n_instance).NumHydrogens;
+		}
 		tl_n_instance.Z=(*tl_CAMBRIDGE_n_instance).Z;
 		skip_because_text:;
 		if (AUTOSTRUCT_EXISTS(CAMBRIDGE_n_instance,(*tl_CAMBRIDGE_n_instance),p))

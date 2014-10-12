@@ -1,0 +1,22 @@
+menuitem pullout_toolspecific_ARROWS[]={
+{0,0,
+72,//Picture
+"SITUP",
+6,6,
+1,
+"Skip",
+"control_drawproperties.ARROW_subtool",
+"","",
+0xFFFF,
+},
+{1,0,
+59,//Picture
+"SITUP",
+6,6,
+2,
+"Skip",
+"control_drawproperties.ARROW_subtool",
+"","",
+0xFFFF,
+},
+};

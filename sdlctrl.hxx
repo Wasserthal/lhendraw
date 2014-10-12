@@ -817,7 +817,7 @@ int issueclick(int iposx,int iposy)
 										tl_format=(*(s_f_instance*)TELESCOPE_getproperty()).valids;
 										tl_formatpointer=(edit_formatstruct*)TELESCOPE_getproperty_contents();
 									}
-									for (int ilv1=0;ilv1<6;ilv1++)
+									for (int ilv1=0;ilv1<5;ilv1++)
 									{
 										if (tl_s_f_instance)
 										{
@@ -834,15 +834,11 @@ int issueclick(int iposx,int iposy)
 										}
 										switch (ilv1)
 										{
-											case 0 : if (element[tl_Element].name[0]==0) {ilv1=2;goto i_t_fertig;}sprintf(istring,"%c",element[tl_Element].name[0]);break;
+											case 0 : if (element[tl_Element].name[0]==0) {ilv1=2;sprintf(istring,"C");break;}sprintf(istring,"%c",element[tl_Element].name[0]);break;
 											case 1 : if (element[tl_Element].name[1]==0) {ilv1=2;goto i_t_fertig;}sprintf(istring,"%c",element[tl_Element].name[1]);break;
 											case 2 : if (element[tl_Element].name[2]==0) {ilv1=2;goto i_t_fertig;}sprintf(istring,"%c",element[tl_Element].name[2]);break;
 											case 3 : sprintf(istring,"%s",((*tl_n_instance).protons-(int)i_bond_sum<=0)?"":"H");break;
 											case 4 : if ((*tl_n_instance).protons-(int)i_bond_sum>1) sprintf(istring,"%i",(*tl_n_instance).protons-(int)i_bond_sum); else istring[0]=0;break;
-											case 5 :
-											if ((*tl_n_instance).charge<0) {sprintf(istring,"%i-",-(*tl_n_instance).charge);break;}
-											if ((*tl_n_instance).charge>0) {sprintf(istring,"%i+",(*tl_n_instance).charge);break;}
-											if ((*tl_n_instance).charge==0) {istring[0]=0;break;}
 										}
 										TELESCOPE_add(TELESCOPE_ELEMENTTYPE_s,istring,strlen(istring)+1);
 										tl_s_instance=(s_instance*)TELESCOPE_getproperty();
@@ -2380,6 +2376,7 @@ void control_normal()
 							TELESCOPE_shrink(control_textedit_cursor,3);
 							if (control_textedit_type==STRUCTURE_OBJECTTYPE_n)
 							{
+								edit_resortstring(glob_n_multilist,control_textedit_index);
 								edit_interpretaselementwithimplicithydrogens(glob_n_multilist,control_textedit_index);
 								edit_bondsum(control_textedit_index,1);
 							}
@@ -2441,6 +2438,7 @@ void control_normal()
 							if (control_textedit_type==STRUCTURE_OBJECTTYPE_n)
 							{
 								TELESCOPE_shrink(control_textedit_cursor,3);
+								edit_resortstring(glob_n_multilist,control_textedit_index);
 								control_mousestate=0;
 							}
 							else

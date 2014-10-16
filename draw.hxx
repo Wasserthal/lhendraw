@@ -956,6 +956,17 @@ void svg_controlprocedure(bool irestriction=0,bool hatches=0)
 	void * tlcurrentinstance;
 	basicmultilist * tlcurrentmultilist;
 	char sortback;
+	char tl_connectmode,tl_connect;
+	int tl_bracketlevel;
+	int tl_posbeforebracket=0;
+	int tl_pos2beforebracket=0;
+	int tl_backvalbeforebracket=0;
+	char tl_bracketmode=0;
+	int tl_sort_bracketlevel;
+	int tl_posbeforesort_bracket=0;
+	int tl_pos2beforesort_bracket=0;
+	int tl_backvalbeforesort_bracket=0;
+	char tl_sort_bracketmode=0;
 	#ifdef LENNARD_HACK
 	char LENNARD_HACK_REPEATHOOK=0;
 	color_instance* tlcolorr;
@@ -1717,6 +1728,8 @@ tlposx+tlcos-tlsin,tlposy+tlsin+tlcos,tlposx+2*tlcos-tlsin,tlposy+2*tlsin+tlcos,
 	tlbackval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_s);
 	string_resorted=0;
 	ifsmat=0;//0: nothing //1: on a subscript number; 2: on text; 3: on a superscript
+	tl_bracketmode=0;
+	goto svg_text_introskip;
 	svg_text_back:
 	if (!tlbackval)
 	{
@@ -1810,6 +1823,7 @@ tlposx+tlcos-tlsin,tlposy+tlsin+tlcos,tlposx+2*tlcos-tlsin,tlposy+2*tlsin+tlcos,
 	}
 	if (((*((s_instance*)TELESCOPE_getproperty())).face & 0x60)==0x60)
 	{
+		//TODO: remove this, make format set by edit_resortstring.
 		int tlmax=strlen(finalstring);
 		int tlstart,tlend;
 		tlstart=0;tlend=0;
@@ -2016,32 +2030,162 @@ tlposx+tlcos-tlsin,tlposy+tlsin+tlcos,tlposx+2*tlcos-tlsin,tlposy+2*tlsin+tlcos,
 	{
 		text_rewind((unsigned char*)finalstring,strlen(finalstring));
 	}*/
-	char tl_connectmode;
-	trytofindthenextstartagain:
+	if ((tl_bracketmode==2) && (sortback)) goto tl_bracketmode_shortcut;
 	tl_connectmode=((((s_instance*)TELESCOPE_getproperty())->connect & 1)>0);
+	if ((sortback) && ((((s_instance*)TELESCOPE_getproperty())->connect & 2)>0))
+	{
+		while (tl_connectmode)
+		{
+			tlbackval=TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_s);
+			tl_connectmode=((((s_instance*)TELESCOPE_getproperty())->connect & 1)>0);
+			if (tlbackval==0) goto svg_text_finished;
+		}
+	}
+	if (tl_connectmode==0) ifsmat=0;
+	svg_text_retryafterbracket:;
 	tlbackval=TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_s);
-	if (tlbackval==0) goto svg_text_finished;
+	if (tlbackval==0) {if (tl_bracketmode==1) goto svg_text_bracket_finished; else goto svg_text_finished;}
 	if ((tl_connectmode) && (sortback))
 	{
 		goto svg_text_back;
 	}
+	if (tl_bracketmode==1) goto svg_text_bracket_finished;
 	if (sortback)
 	{
 		int tl_TELESCOPE_lastpos=TELESCOPE_tempvar.subpos;
 		int tl_TELESCOPE_lastpos2=TELESCOPE_tempvar.subpos2;
-		svg_text_sortback_back:
+		int tl_sort_backval;
+		tl_sort_bracketmode=0;
+		tl_connectmode=1;
+		tl_sort_backval=1;
+		goto svg_text_sort_introskip;
+		svg_text_sort_back:;
 		text_rewind(((unsigned char*)TELESCOPE_getproperty_contents()),strlen(((char*)TELESCOPE_getproperty_contents())));
+		if ((tl_sort_bracketmode==2) && (sortback)) goto tl_sort_bracketmode_shortcut;
 		tl_connectmode=((((s_instance*)TELESCOPE_getproperty())->connect & 1)>0);
-		int tl_sort_backval=TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_s);
+		if ((sortback) && ((((s_instance*)TELESCOPE_getproperty())->connect & 2)>0))
+		{
+			while (tl_connectmode)
+			{
+				tl_sort_backval=TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_s);
+				tl_connectmode=((((s_instance*)TELESCOPE_getproperty())->connect & 1)>0);
+				if (tl_sort_backval==0) goto svg_text_finished;
+			}
+		}
+		tl_sort_backval=TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_s);
+		if (tl_connectmode==0) goto svg_text_sortback_finished;
+		svg_text_sort_introskip:;
 		if (tl_sort_backval==0) goto svg_text_sortback_finished;
+		if (((sortback) && ((((s_instance*)TELESCOPE_getproperty())->connect & 4)>0)))//this routine manages jumps when numbers are telling the count of the sort_bracket's contents
+		{
+			tl_sort_bracketmode_shortcut:;
+			int tl_sort_bracket_backval;
+			tl_posbeforesort_bracket=TELESCOPE_tempvar.subpos;
+			tl_pos2beforesort_bracket=TELESCOPE_tempvar.subpos2;
+			tl_backvalbeforesort_bracket=tl_sort_backval;
+			tl_sort_bracketlevel=1;
+			svg_text_sort_bracket_back:;
+			tl_sort_bracket_backval=TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_s);
+			if (tl_sort_bracket_backval==0) goto svg_text_sort_bracket_finished;
+			tl_connect=((s_instance*)TELESCOPE_getproperty())->connect;
+			if ((tl_connect & 4)>0) {tl_sort_bracketlevel++;}
+			if ((tl_connect & 2)>0) {tl_sort_bracketlevel--;}
+			if (tl_sort_bracketlevel==0)
+			{
+				if ((tl_connect & 1)==0)
+				{
+					tl_sort_bracketmode=0;
+					tl_sort_backval=tl_backvalbeforesort_bracket;
+					TELESCOPE_tempvar.subpos=tl_posbeforesort_bracket;
+					TELESCOPE_tempvar.subpos2=tl_pos2beforesort_bracket;
+					tl_connectmode=0;
+					goto svg_text_sort_back;
+				}
+				if (tl_sort_bracketmode==2)
+				{
+					tl_sort_backval=TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_s);
+					if (tl_sort_backval==0) goto svg_text_sort_bracket_finished;
+					tl_sort_bracketmode=1;
+				}
+				else
+				{
+					tl_sort_backval=tl_backvalbeforesort_bracket;
+					TELESCOPE_tempvar.subpos=tl_posbeforesort_bracket;
+					TELESCOPE_tempvar.subpos2=tl_pos2beforesort_bracket;
+					tl_sort_bracketmode=2;
+				}
+				goto svg_text_sort_back;
+			}
+			goto svg_text_sort_bracket_back;
+			svg_text_sort_bracket_finished:;
+			tl_sort_bracketmode=0;
+			tl_sort_backval=tl_backvalbeforesort_bracket;
+			TELESCOPE_tempvar.subpos=tl_posbeforesort_bracket;
+			TELESCOPE_tempvar.subpos2=tl_pos2beforesort_bracket;
+			tl_connectmode=0;
+			goto svg_text_sortback_finished;
+		}
+		if (tl_sort_bracketmode>0) goto svg_text_sort_bracket_finished;
 		if (tl_connectmode)
 		{
-			goto svg_text_sortback_back;
+			goto svg_text_sort_back;
 		}
 		svg_text_sortback_finished:;
 		TELESCOPE_tempvar.subpos=tl_TELESCOPE_lastpos;
 		TELESCOPE_tempvar.subpos2=tl_TELESCOPE_lastpos2;
 	}
+	svg_text_introskip:;
+	if (((sortback) && ((((s_instance*)TELESCOPE_getproperty())->connect & 4)>0)))//this routine manages jumps when numbers are telling the count of the bracket's contents
+	{
+		tl_bracketmode_shortcut:;
+		int tl_bracket_backval;
+		tl_posbeforebracket=TELESCOPE_tempvar.subpos;
+		tl_pos2beforebracket=TELESCOPE_tempvar.subpos2;
+		tl_backvalbeforebracket=tlbackval;
+		tl_bracketlevel=1;
+		svg_text_bracket_back:;
+		tl_bracket_backval=TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_s);
+		if (tl_bracket_backval==0) goto svg_text_bracket_finished;
+		tl_connect=((s_instance*)TELESCOPE_getproperty())->connect;
+		if ((tl_connect & 4)>0) {tl_bracketlevel++;}
+		if ((tl_connect & 2)>0) {tl_bracketlevel--;}
+		if (tl_bracketlevel==0)
+		{
+			if ((tl_connect & 1)==0)
+			{
+				tl_bracketmode=0;
+				tlbackval=tl_backvalbeforebracket;
+				TELESCOPE_tempvar.subpos=tl_posbeforebracket;
+				TELESCOPE_tempvar.subpos2=tl_pos2beforebracket;
+				tl_connectmode=0;
+				goto svg_text_back;
+			}
+			if (tl_bracketmode==2)
+			{
+				tlbackval=TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_s);
+				if (tlbackval==0) goto svg_text_bracket_finished;
+				tl_bracketmode=1;
+			}
+			else
+			{
+				tlbackval=tl_backvalbeforebracket;
+				TELESCOPE_tempvar.subpos=tl_posbeforebracket;
+				TELESCOPE_tempvar.subpos2=tl_pos2beforebracket;
+				tl_bracketmode=2;
+				ifsmat=2;
+			}
+			goto svg_text_back;
+		}
+		goto svg_text_bracket_back;
+		svg_text_bracket_finished:;
+		tl_bracketmode=0;
+		tlbackval=tl_backvalbeforebracket;
+		TELESCOPE_tempvar.subpos=tl_posbeforebracket;
+		TELESCOPE_tempvar.subpos2=tl_pos2beforebracket;
+		tl_connectmode=0;
+		goto svg_text_retryafterbracket;
+	}
+	if (tl_bracketmode>0) goto svg_text_bracket_finished;
 	goto svg_text_back;
 	svg_text_finished:
 	express_text_tail();

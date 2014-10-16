@@ -1942,7 +1942,23 @@ char edit_resortstring(basicmultilist * imultilist,int iinstance) // resorts che
 			}
 			else
 			{
-				L_SEPARATE;
+				if (fsm==5)
+				{
+					if (ilv1!=0)
+					{
+						itelescope->connect|=1;
+						TELESCOPE_split(ilv1,"",1);
+						((s_instance*)TELESCOPE_getproperty())->connect=1;
+						ilv1=0;
+						itelescope=(s_instance*)TELESCOPE_getproperty();
+						current_s_string=(char*)TELESCOPE_getproperty_contents();
+						ilength=min(strlen(current_s_string),TELESCOPE_getproperty_contentlength());
+					}
+				}
+				else
+				{
+					L_SEPARATE;
+				}
 			}
 			fsm=3;
 		}

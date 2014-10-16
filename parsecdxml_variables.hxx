@@ -493,7 +493,6 @@ int TELESCOPE_split(int ipos,const char * iadditive_input,int ilength)
 		fprintf(stderr,"\\3");
 	}
 	(*(TELESCOPE*)((*TELESCOPE_tempvar.buffer).buffer+TELESCOPE_tempvar.pos)).length+=ideltaplus2;
-	printf("+%i;%lli---%s---\n",ideltaplus2,TELESCOPE_ELEMENTTYPE_List[itype].size,((char*)tl_Element)+TELESCOPE_ELEMENTTYPE_List[itype].size);
 	return 0;
 }
 int TELESCOPE_merge(int ipos,int ilength)

@@ -2426,6 +2426,17 @@ void control_normal()
 						if (control_aggresstextcursor())
 						{
 							control_textedit_cursor+=3;
+							while (control_textedit_cursor>=strlen((char*)TELESCOPE_getproperty_contents()))
+							{
+								if (TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_s)<=0)
+								{
+									goto control_textedit_KEY_abort;
+								}
+								else
+								{
+									control_textedit_cursor=0;
+								}
+							}
 							if (utf8encompass((char*)TELESCOPE_getproperty_contents(),&control_textedit_cursor,&tl_length)>0)
 							{
 								TELESCOPE_shrink(control_textedit_cursor,tl_length);
@@ -2459,6 +2470,7 @@ void control_normal()
 							TELESCOPE_insertintoproperties_offset(tl_unicode,strlen(tl_unicode),control_textedit_cursor);
 						}
 					}
+					control_textedit_KEY_abort:;
 				}
 				break;
 			}

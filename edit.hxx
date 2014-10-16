@@ -944,22 +944,67 @@ n_instance * snapatom_short(float iposx,float iposy,_small * iatomnr=NULL,int id
 	return NULL;
 }
 
-basic_instance * getclicked(int ino)
+basic_instance * getclicked(int imap,float clckx,float clcky,int * backtype=NULL,int * backindex=NULL)
 {
-	_u32 compare=1<<ino;
-	basicmultilist * tlmultilist=findmultilist(STRUCTURE_OBJECTTYPE_List[ino].name);
-	for (int ilv1=0;ilv1<(*tlmultilist).filllevel;ilv1++)
+	basic_instance * bestinstance=NULL;
+	float bestvalue=0x2000000000;
+	for (int ilv0=1;ilv0<STRUCTURE_OBJECTTYPE_ListSize;ilv0++)
 	{
-		if (selection_clickselection[ilv1] & compare)
+		int necessary=((imap & (1<<ilv0))>0)+(((imap & (1<<(ilv0+STRUCTURE_OBJECTTYPE_ListSize)))>0)*2);
+		if (necessary>0)
 		{
-			basic_instance * tlinstance=(basic_instance*)(((char*)(*tlmultilist).pointer)+STRUCTURE_OBJECTTYPE_List[ino].size*ilv1);
-			if ((*tlinstance).exist)
+			_u32 compare=1<<ilv0;
+			basicmultilist * tlmultilist=findmultilist(STRUCTURE_OBJECTTYPE_List[ilv0].name);
+			int internalpointcount=retrieveprops_basic(1,ilv0);
+			for (int ilv1=0;ilv1<(*tlmultilist).filllevel;ilv1++)
 			{
-				return tlinstance;
+				basic_instance * tlinstance=(basic_instance*)(((char*)(*tlmultilist).pointer)+STRUCTURE_OBJECTTYPE_List[ilv0].size*ilv1);
+				if ((*tlinstance).exist)
+				{
+					float ix,iy,iz;
+					if ((selection_clickselection[ilv1] & compare) && (necessary & 1))
+					{
+						retrievepoints_basic(tlinstance,&ix,&iy,&iz,0,ilv0);
+						if (fsqr(ix-clckx)+fsqr(iy-clcky)<fsqr(bestvalue))
+						{
+							bestinstance=tlinstance;
+							if (backtype!=NULL)
+							{
+								*backtype=ilv0;
+							}
+							if (backindex!=NULL)
+							{
+								*backindex=ilv1;
+							}
+							printf("OK");
+							bestvalue=fsqr(ix-clckx)+fsqr(iy-clcky);
+						}
+					}
+					for (int ilv2=0;ilv2<internalpointcount;ilv2++)
+					{
+						if ((selection_clickselection[ilv1*internalpointcount+ilv2] & (compare<<STRUCTURE_OBJECTTYPE_ListSize)) && (necessary & 2))
+						{
+							retrievepoints_basic(tlinstance,&ix,&iy,&iz,ilv2+1,ilv0);
+							if (fsqr(ix-clckx)+fsqr(iy-clcky)<fsqr(bestvalue))
+							{
+								bestinstance=tlinstance;
+								if (backtype!=NULL)
+								{
+									*backtype=ilv0+STRUCTURE_OBJECTTYPE_ListSize;
+								}
+								if (backindex!=NULL)
+								{
+									*backindex=ilv1*internalpointcount+ilv2;
+								}
+								bestvalue=fsqr(ix-clckx)+fsqr(iy-clcky);
+							}
+						}
+					}
+				}
 			}
 		}
 	}
-	return NULL;
+	return bestinstance;
 }
 
 
@@ -1289,7 +1334,7 @@ catalogized_command_funcdef(BLOT)
 	int issueshiftstart();
 	selection_clearselection(selection_clickselection);
 	clickfor(control_coorsx,control_coorsy,STRUCTURE_OBJECTTYPE_n,1000,1);
-	n_instance * iinstance=(n_instance*)getclicked(STRUCTURE_OBJECTTYPE_n);
+	n_instance * iinstance=(n_instance*)getclicked(STRUCTURE_OBJECTTYPE_n,control_coorsx,control_coorsy);
 	printf("|%i,%lli,%lli\n",(*glob_n_multilist).maxid,(*glob_n_multilist).filllevel,(*glob_b_multilist).filllevel);
 	if (iinstance)
 	{

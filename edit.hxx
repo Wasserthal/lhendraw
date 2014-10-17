@@ -204,6 +204,80 @@ basic_instance * gethot(int ino,int * nr=NULL)
 	}
 	return NULL;
 }
+int edit_endatom_count=0;
+int edit_endatom[2];
+int edit_singlepointselected=0;
+int edit_partner=0;
+int edit_judgepoint(int index)
+{
+	int icount=0;
+	n_instance * tl_n_instance=glob_n_multilist->bufferlist+index;
+	if (tl_n_instance->exist)
+	{
+		if ((selection_currentselection[index] & (1<<STRUCTURE_OBJECTTYPE_n))>0)
+		{
+			for (int ilv2=0;ilv2<atom_actual_node[index].bondcount;ilv2++)
+			{
+				if (selection_currentselection[atom_actual_node[index].bonds[ilv2]] & (1<<STRUCTURE_OBJECTTYPE_b))
+				{
+				}
+				else
+				{
+					edit_partner=getother(index,atom_actual_node[index].bonds[ilv2]);
+					icount++;
+				}
+			}
+		}
+	}
+	return icount;
+}
+void edit_judgeselection(int backindex)
+{
+	int edit_endatom_count=0;
+	for (int ilv1=1;ilv1<glob_n_multilist->filllevel;ilv1++)
+	{
+		n_instance * tl_n_instance=glob_n_multilist->bufferlist+ilv1;
+		if (tl_n_instance->exist)
+		{
+			if ((selection_currentselection[ilv1] & (1<<STRUCTURE_OBJECTTYPE_n))>0)
+			{
+				for (int ilv2=0;ilv2<atom_actual_node[ilv1].bondcount;ilv2++)
+				{
+					if (selection_currentselection[atom_actual_node[ilv1].bonds[ilv2]] & (1<<STRUCTURE_OBJECTTYPE_b))
+					{
+					}
+					else
+					{
+						if (edit_endatom_count<2)
+						{
+							edit_endatom[edit_endatom_count]=ilv1;
+							edit_endatom_count++;
+						}
+						goto instance_done;
+					}
+				}
+			}
+		}
+		instance_done:;
+	}
+	for (int ilv2=0;ilv2<edit_endatom_count;ilv2++)
+	{
+		if ((edit_endatom[ilv2]==backindex) || (backindex==-1))
+		{
+			if (backindex==-1)
+			{
+				if (edit_judgepoint(edit_endatom[ilv2])==1) edit_singlepointselected=1;
+			}
+			else
+			{
+				if (edit_judgepoint(backindex)==1)
+				{
+					edit_singlepointselected=1;
+				}
+			}
+		}
+	}
+}
 inline int retrieveprops_n(int what)
 {
 	if (what==1)
@@ -1334,7 +1408,7 @@ catalogized_command_funcdef(BLOT)
 	int issueshiftstart();
 	selection_clearselection(selection_clickselection);
 	clickfor(control_coorsx,control_coorsy,STRUCTURE_OBJECTTYPE_n,1000,1);
-	n_instance * iinstance=(n_instance*)getclicked(STRUCTURE_OBJECTTYPE_n,control_coorsx,control_coorsy);
+	n_instance * iinstance=(n_instance*)getclicked((1<<STRUCTURE_OBJECTTYPE_n),control_coorsx,control_coorsy);
 	printf("|%i,%lli,%lli\n",(*glob_n_multilist).maxid,(*glob_n_multilist).filllevel,(*glob_b_multilist).filllevel);
 	if (iinstance)
 	{

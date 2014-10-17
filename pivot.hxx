@@ -10,6 +10,15 @@ void get_selection_pivot()
 	char iAllofthem=0;
 	edit_pivot_counter=0;
 	edit_pivot.x=0;edit_pivot.y=0;edit_pivot.z=0;
+	edit_judgeselection(-1);
+	if (edit_singlepointselected)
+	{
+		float tl_startx,tl_starty,tl_startz;
+		if (retrievepoints_basic(glob_n_multilist->bufferlist+edit_partner,&edit_pivot.x,&edit_pivot.y,&edit_pivot.z,0,STRUCTURE_OBJECTTYPE_n)>0)
+		{
+			return;
+		}
+	}
 	for (int ilv1=0;ilv1<(*glob_n_multilist).filllevel;ilv1++)
 	{
 		n_instance * tl_n_instance=(*glob_n_multilist).bufferlist+ilv1;

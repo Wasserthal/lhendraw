@@ -51,7 +51,6 @@ int control_interactive=1;
 int control_saveuponexit=0;
 int control_GUI=1;
 int control_doubleclickenergy=0;
-char control_singlepointselected=0;
 basic_instance * control_manipulatedinstance;
 basic_instance * control_manipulatedinstance2;
 typedef struct control_toolinfo_
@@ -210,6 +209,7 @@ int interpretkey(int listnr=-1)
 	char careaboutshift=1;
 	_u32 hotties=0;
 	getatoms();
+	edit_singlepointselected=0;
 	if (listnr!=-1) {ilv1=listnr;goto interpreted;}
 	switch (control_Event.key.keysym.sym)
 	{
@@ -544,11 +544,11 @@ int issueclick(int iposx,int iposy)
 	{
 		fprintf(stderr,"Error! tool number out of range!\n");
 	}
+	edit_singlepointselected=0;
 	switch (control_tool)
 	{
 		case 2:
 		{
-			control_singlepointselected=0;
 			if (selection_clickselection_found)
 			{
 				if (MODIFIER_KEYS.ALT==0)
@@ -563,27 +563,31 @@ int issueclick(int iposx,int iposy)
 					control_manipulatedinstance=getclicked((1<<STRUCTURE_OBJECTTYPE_ListSize)-1,control_coorsx,control_coorsy,&backtype,&backindex);
 					if (control_manipulatedinstance!=NULL)
 					{
-						goto wantthem;
+						goto twopointselection_wantthem;
 					}
 					else
 					{
 						control_manipulatedinstance=getclicked(~1,control_coorsx,control_coorsy,&backtype,&backindex);
 						if (control_manipulatedinstance!=NULL)
 						{
-							goto wantthem;
+							goto twopointselection_wantthem;
 						}
 					}
 					return 0;
-					wantthem:;
+					twopointselection_wantthem:;
 					if (selection_currentselection[backindex] & (1<<backtype))
 					{
+						if (backtype==STRUCTURE_OBJECTTYPE_n)
+						{
+							edit_judgeselection(backindex);
+						}
 					}
 					else
 					{
 						selection_clearselection(selection_currentselection);
 						selection_currentselection_found=1<<backtype;
 						selection_currentselection[backindex]|=1<<backtype;
-						control_singlepointselected=1;
+						edit_singlepointselected=1;
 					}
 					return 0;
 				}
@@ -603,7 +607,7 @@ int issueclick(int iposx,int iposy)
 				control_startx=control_coorsx;
 				control_starty=control_coorsy;
 				control_usingmousebutton=control_lastmousebutton;
-				control_manipulatedinstance=getclicked(STRUCTURE_OBJECTTYPE_n,control_coorsx,control_coorsy);
+				control_manipulatedinstance=getclicked((1<<STRUCTURE_OBJECTTYPE_n),control_coorsx,control_coorsy);
 				selection_copyselection(selection_currentselection,selection_clickselection);
 				return 0;
 			}
@@ -621,8 +625,37 @@ int issueclick(int iposx,int iposy)
 					control_startx=control_coorsx;
 					control_starty=control_coorsy;
 					control_usingmousebutton=control_lastmousebutton;
-					control_manipulatedinstance=getclicked(STRUCTURE_OBJECTTYPE_n,control_coorsx,control_coorsy);
-					selection_ORselection(selection_currentselection,selection_clickselection);
+					control_manipulatedinstance=getclicked((1<<STRUCTURE_OBJECTTYPE_n),control_coorsx,control_coorsy);
+					int backtype,backindex;
+					control_manipulatedinstance=getclicked((1<<STRUCTURE_OBJECTTYPE_ListSize)-1,control_coorsx,control_coorsy,&backtype,&backindex);
+					if (control_manipulatedinstance!=NULL)
+					{
+						goto lasso_wantthem;
+					}
+					else
+					{
+						control_manipulatedinstance=getclicked(~1,control_coorsx,control_coorsy,&backtype,&backindex);
+						if (control_manipulatedinstance!=NULL)
+						{
+							goto lasso_wantthem;
+						}
+					}
+					return 0;
+					lasso_wantthem:;
+					if (selection_currentselection[backindex] & (1<<backtype))
+					{
+						if (backtype==STRUCTURE_OBJECTTYPE_n)
+						{
+							edit_judgeselection(backindex);
+						}
+					}
+					else
+					{
+						selection_clearselection(selection_currentselection);
+						selection_currentselection_found=1<<backtype;
+						selection_currentselection[backindex]|=1<<backtype;
+						edit_singlepointselected=1;
+					}
 					return 0;
 				}
 			}
@@ -643,7 +676,7 @@ int issueclick(int iposx,int iposy)
 		}
 		case 4:
 		{
-			control_manipulatedinstance=getclicked(STRUCTURE_OBJECTTYPE_n,control_coorsx,control_coorsy);
+			control_manipulatedinstance=getclicked((1<<STRUCTURE_OBJECTTYPE_n),control_coorsx,control_coorsy);
 			selection_copyselection(selection_currentselection,selection_clickselection);
 			control_startx=control_coorsx;
 			control_starty=control_coorsy;
@@ -707,7 +740,7 @@ int issueclick(int iposx,int iposy)
 			{
 				if (selection_clickselection_found & (1<<STRUCTURE_OBJECTTYPE_b))
 				{
-					tlbond=(b_instance*)getclicked(STRUCTURE_OBJECTTYPE_b,control_coorsx,control_coorsy);
+					tlbond=(b_instance*)getclicked((1<<STRUCTURE_OBJECTTYPE_b),control_coorsx,control_coorsy);
 					if ((control_drawproperties.bond_multiplicity==1) && (control_drawproperties.bond_Display1==0) && ((*tlbond).Display==0))
 					{
 						(*tlbond).Order&=0xF0;
@@ -1181,6 +1214,13 @@ void issuedrag(int iposx,int iposy)
 			float tl_deltax=control_coorsx-control_startx;
 			float tl_deltay=control_coorsy-control_starty;
 			restoreundo(~0,((MODIFIER_KEYS.CTRL) || (MODIFIER_KEYS.ALT))?0:1);
+			if (edit_singlepointselected==1)
+			{
+				if (MODIFIER_KEYS.ALT==0)
+				{
+					goto skip_snapping;
+				}
+			}
 			if (MODIFIER_KEYS.ALT)
 			{
 				float bestdist=4000000000000;
@@ -1225,6 +1265,7 @@ void issuedrag(int iposx,int iposy)
 					tl_deltay=tl_best_deltay;
 				}
 			}
+			skip_snapping:;
 			if (MODIFIER_KEYS.CTRL)
 			{
 				getatoms();
@@ -1381,6 +1422,7 @@ void issuerelease()
 	int ioffset;
 	char * ibufferpos;
 	int internalpointcount;
+	edit_singlepointselected=0;
 	if (control_mousestate==2)
 	{
 		tlwhichtool=control_keycombotool;

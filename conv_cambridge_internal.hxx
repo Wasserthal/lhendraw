@@ -228,6 +228,11 @@ void CAMBRIDGECONV_text()
 		}
 		tl_t_instance=t_instance();
 		CAMBRIDGECONV_COLORCONV(t)
+		if (AUTOSTRUCT_EXISTS(CAMBRIDGE_t_instance,(*tl_CAMBRIDGE_t_instance),BoundingBox))
+		{
+			tl_t_instance.xyz.x=(*tl_CAMBRIDGE_t_instance).BoundingBox.left;
+			tl_t_instance.xyz.y=(*tl_CAMBRIDGE_t_instance).BoundingBox.top;
+		}
 		CAMBRIDGECONV_EXISTSTHEN(t,xyz);
 		if (AUTOSTRUCT_EXISTS(CAMBRIDGE_t_instance,(*tl_CAMBRIDGE_t_instance),p))
 		{

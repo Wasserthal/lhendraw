@@ -2109,6 +2109,52 @@ char edit_resortstring(basicmultilist * imultilist,int iinstance) // resorts che
 	}
 	return 0;
 }
+int edit_textlength(multilist<t_instance> * imultilist,int iindex)
+{
+	int tl_backval;
+	if (TELESCOPE_aggressobject(imultilist,iindex))
+	{
+		t_instance * tl_t_instance=imultilist->bufferlist+iindex;
+		if (tl_t_instance->exist)
+		{
+			int maxwidth=0;
+			int currentwidth=0;
+			int height=0;
+			int backcount=0;
+			char * istring;
+			int istring_length;
+			tl_backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_s);
+			iback:;
+			if (tl_backval==0) goto evaluate;
+			istring=(char*)TELESCOPE_getproperty_contents();
+			istring_length=strlen(istring);
+			for (int ilv1=0;ilv1<istring_length;ilv1+=backcount)
+			{
+				if (istring[ilv1]==10)
+				{
+					backcount=1;
+					currentwidth=0;
+					height++;
+				}
+				else
+				{
+					fontpixinf_ * ifontpixinf=&fontpixinf[indexfromunicode(utf8resolve((unsigned char*)istring + ilv1,&backcount))];
+					currentwidth+=(*ifontpixinf).deltax;
+					if (currentwidth>maxwidth) maxwidth=currentwidth;
+				}
+			}
+			tl_backval=TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_s);
+			goto iback;
+			evaluate:;
+			tl_t_instance->BoundingBox.left=tl_t_instance->xyz.x-4;
+			tl_t_instance->BoundingBox.top=tl_t_instance->xyz.y-6;
+			tl_t_instance->BoundingBox.right=tl_t_instance->xyz.x+maxwidth;
+			tl_t_instance->BoundingBox.bottom=tl_t_instance->xyz.y+(height)*16+8;
+			return 1;
+		}
+	}
+	return 0;
+}
 int menu_itembyname(const char * name,int * menu=NULL,int * index=NULL);
 catalogized_command_funcdef(FILEDLG_DEVICE_SEL)
 {

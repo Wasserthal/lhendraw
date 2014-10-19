@@ -29,9 +29,9 @@ float control_coorsy=0;
 int control_mousex,control_mousey;
 char control_reticle=1;
 char control_dragged=0;
-char control_textedit_type=0;
-char control_textedit_index=0;
-char control_textedit_telescope=0;
+int control_textedit_type=0;
+int control_textedit_index=0;
+int control_textedit_telescope=0;
 int control_textedit_cursor=0;
 char control_lastmousebutton=0;
 char control_usingmousebutton=0;
@@ -2447,6 +2447,10 @@ void control_normal()
 								edit_resortstring(glob_n_multilist,control_textedit_index);
 								edit_interpretaselementwithimplicithydrogens(glob_n_multilist,control_textedit_index);
 								edit_bondsum(control_textedit_index,1);
+							}
+							if (control_textedit_type==STRUCTURE_OBJECTTYPE_t)
+							{
+								edit_textlength(glob_t_multilist,control_textedit_index);
 							}
 						}
 						control_mousestate=0;

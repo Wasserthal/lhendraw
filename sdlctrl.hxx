@@ -13,10 +13,10 @@ int control_firstmenux,control_firstmenuy;
 int control_lastmenux,control_lastmenuy;
 int control_mousestate=0;//0: inactive; 0x1: from tool, mouseclick; 0x2: from special tool, keyboard 0x4: on menu, dragging 0x8: on button_function dependent menu, popup 0x10 popup-menu or PSE, multiple levels 0x20 dragging menuitem 0x40: text editing
 int control_toolaction=0;//1: move 2: move selection 3: tool specific
-int control_tool=2;//1: Hand 2: 2coordinate Selection 3: Lasso, no matter which 4: Shift tool 5: Magnifying glass 6: Element draw 7: chemdraw draw 8: eraser 9: Arrows 10: attributes 11: text tool 12: bezier 13: image 14: spectrum 15: tlc plate/gel plate 16: graphic 17: aromatic ring tool
+int control_tool=2;//1: Hand 2: 2coordinate Selection 3: Lasso, no matter which 4: Shift tool 5: Magnifying glass 6: Element draw 7: chemdraw draw 8: eraser 9: Arrows 10: attributes 11: text tool 12: bezier 13: image 14: spectrum 15: tlc plate/gel plate 16: graphic 17: aromatic ring tool 18: Arrow_skip 19: Arrow_situp
 int control_menumode=0;//1: shliderhorz, 2: slidervert 3: colorchooser
 AUTOSTRUCT_PULLOUTLISTING_ * control_menuitem=NULL;
-#define control_toolcount 18
+#define control_toolcount 20
 clickabilitymatrix_ clickabilitymatrixes[control_toolcount];
 int control_keycombotool=0;//as above, but only valid if (mousestate & 2)
 SDLKey control_toolstartkeysym;
@@ -540,7 +540,7 @@ int issueclick(int iposx,int iposy)
 	control_dragged=0;
 	control_id=-1;
 	clickforthem();
-	if (control_tool>control_toolcount)
+	if (control_tool>=control_toolcount)
 	{
 		fprintf(stderr,"Error! tool number out of range!\n");
 	}
@@ -726,6 +726,7 @@ int issueclick(int iposx,int iposy)
 			{
 				selection_clearselection(selection_currentselection);selection_currentselection_found=0;
 				OPEN_PSE("","");
+				control_mousestate=0;
 				return 0;
 			}
 			break;
@@ -1057,6 +1058,19 @@ int issueclick(int iposx,int iposy)
 			}
 			return 0;
 		}
+		case 18:
+		{
+			if (selection_clickselection_found & (1<<STRUCTURE_OBJECTTYPE_arrow))
+			{
+				control_manipulatedinstance=getclicked(1<<STRUCTURE_OBJECTTYPE_arrow,control_coorsx,control_coorsy);
+			}
+			else
+			{
+				control_mousestate=0;
+				return 0;
+			}
+			break;
+		}
 	}
 	ifertig:;
 	control_mousestate=1;
@@ -1363,6 +1377,40 @@ void issuedrag(int iposx,int iposy)
 		case 0x10000:
 		{
 			interpretkey(control_lastinterpret);
+			break;
+		}
+		case 18:
+		{
+			float sx,sy,zx,zy;
+			float mx,my,mz,dx,dy;
+			float tl_height;
+			retrievepoints_basic(control_manipulatedinstance,&sx,&sy,NULL,1,STRUCTURE_OBJECTTYPE_arrow);
+			retrievepoints_basic(control_manipulatedinstance,&zx,&zy,NULL,2,STRUCTURE_OBJECTTYPE_arrow);
+			float tl_length=sqrt(fsqr(zx-sx)+fsqr(zy-sy));
+			retrievepoints_basic(control_manipulatedinstance,&mx,&my,&mz,0,STRUCTURE_OBJECTTYPE_arrow);
+			float tl_angle=getangle(zx-sx,zy-sy);
+			tl_angle+=Pi/2;
+			dx=cos(tl_angle);dy=sin(tl_angle);
+			tl_height=dx*(control_coorsx-mx)+dy*(control_coorsy-my);
+			if (fabs(tl_height)<5)
+			{
+				(*(arrow_instance*)control_manipulatedinstance).AngularSize=0;
+			}
+			else
+			{
+				float aimangle=2*atan(2*tl_height/tl_length);
+				(*(arrow_instance*)control_manipulatedinstance).AngularSize=-2*aimangle/Pi*180;
+				float tl_radius=tl_length*0.5/sin(aimangle);//tl_radius signed to push center to either side of arrow
+				(*(arrow_instance*)control_manipulatedinstance).Center3D.x=mx-cos(tl_angle)*tl_radius*cos(aimangle);
+				(*(arrow_instance*)control_manipulatedinstance).Center3D.y=my-sin(tl_angle)*tl_radius*cos(aimangle);
+				(*(arrow_instance*)control_manipulatedinstance).Center3D.z=0;
+				(*(arrow_instance*)control_manipulatedinstance).MinorAxisEnd3D.x=(*(arrow_instance*)control_manipulatedinstance).Center3D.x+cos(tl_angle)*tl_radius;
+				(*(arrow_instance*)control_manipulatedinstance).MinorAxisEnd3D.y=(*(arrow_instance*)control_manipulatedinstance).Center3D.y+sin(tl_angle)*tl_radius;
+				(*(arrow_instance*)control_manipulatedinstance).MinorAxisEnd3D.z=0;
+				(*(arrow_instance*)control_manipulatedinstance).MajorAxisEnd3D.x=(*(arrow_instance*)control_manipulatedinstance).Center3D.x+sin(tl_angle)*tl_radius;
+				(*(arrow_instance*)control_manipulatedinstance).MajorAxisEnd3D.y=(*(arrow_instance*)control_manipulatedinstance).Center3D.y-cos(tl_angle)*tl_radius;
+				(*(arrow_instance*)control_manipulatedinstance).MajorAxisEnd3D.z=0;
+			}
 			break;
 		}
 	}

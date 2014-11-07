@@ -551,17 +551,56 @@ void menu_itemwadethrough(int * inumber,int * menu,int * index,char direction)
 int sdl_commonmenucommon()
 {
 	char tlstring[60];
+	char tlstring2[60];
 	menu_list_count=0;
 	addmenu("toolbox",0);
 	for (int ilv1=0;ilv1<AUTOSTRUCT_PULLOUTLISTING_toolbox_Size;ilv1++)
 	{
-		if (AUTOSTRUCT_PULLOUTLISTING_toolbox[ilv1].toolnr==control_tool)
+		if (AUTOSTRUCT_PULLOUTLISTING_toolbox[ilv1].lmbmode==1)
 		{
-			snprintf(tlstring,60,"toolspecific_%s",AUTOSTRUCT_PULLOUTLISTING_toolbox[ilv1].name);
+			int length=strlen(AUTOSTRUCT_PULLOUTLISTING_toolbox[ilv1].name);
+			int cut=strchr(AUTOSTRUCT_PULLOUTLISTING_toolbox[ilv1].name,' ')-AUTOSTRUCT_PULLOUTLISTING_toolbox[ilv1].name; 
+			if (cut<length)length=cut;
+			snprintf(tlstring,60,"toolspecific_%.*s",length,AUTOSTRUCT_PULLOUTLISTING_toolbox[ilv1].name);
 			tlstring[59]=0;
-			addmenu(tlstring,0,gfx_screensizex-160,128);
+			if (AUTOSTRUCT_PULLOUTLISTING_toolbox[ilv1].toolnr==control_tool)
+			{
+				addmenu(tlstring,0,gfx_screensizex-160,128);
+				goto iknowwhichsubmenu;
+			}
+			else
+			{
+				structenum * tl_structenum=searchreflectedstruct(tlstring);
+				if (tl_structenum)
+				{
+					AUTOSTRUCT_PULLOUTLISTING_ * tl_pulloutlisting=(AUTOSTRUCT_PULLOUTLISTING_*)(tl_structenum->pointer);
+					int tl_count=tl_structenum->count;
+					if (tl_structenum)
+					{
+						for (int ilv1=0;ilv1<tl_count;ilv1++)
+						{
+							if (tl_pulloutlisting[ilv1].lmbmode==1)
+							{
+								if (tl_pulloutlisting[ilv1].toolnr==control_tool)
+								{
+									int length2=strlen(tl_pulloutlisting[ilv1].name);
+									int cut2=strchr(tl_pulloutlisting[ilv1].name,' ')-tl_pulloutlisting[ilv1].name; 
+									if (cut2<length2) length2=cut2;
+									snprintf(tlstring2,60,"toolspecific_%.*s",length2,tl_pulloutlisting[ilv1].name);
+									tlstring2[59]=0;
+									goto iknowwhichsubmenu;
+								}
+							}
+						}
+					}
+				}
+			}
 		}
 	}
+	goto submenunotfound;
+	iknowwhichsubmenu:;
+	addmenu(tlstring,0,gfx_screensizex-160,128);
+	submenunotfound:;
 	if (control_mousestate & 8)
 	{
 		sprintf(tlstring,"submenu_%s",menu_matrixsubmenuvariable);

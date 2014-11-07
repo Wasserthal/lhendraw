@@ -1050,7 +1050,6 @@ basic_instance * getclicked(int imap,float clckx,float clcky,int * backtype=NULL
 							{
 								*backindex=ilv1;
 							}
-							printf("OK");
 							bestvalue=fsqr(ix-clckx)+fsqr(iy-clcky);
 						}
 					}

@@ -1,0 +1,18 @@
+ARROWS:
+
+Head at END of Major Axis.
+(graphic-as-arrow has usual head at START! (top-left of BoundingBox)
+Axes start from the center of the circle. If the arrow is straight, the center is in the Middle of the arrow.
+
+negative angle: CW(!)
+positive angle: CCW
+Shaft spacing !=0 => arrow is double-lined, no other attributes needed for that, and no other ones can accomplish that
+ArrowType: Selects type of arrow (head and tail). As said, that does not yet affect whether it is double-lined
+ArrowHeadHead: Head of arrow
+ArrowHeadTail: Tail of arrow
+Major/Minor axis: Major axis usually points positively-parallelic to start-end-axis, but not necessarily
+Minor axis usually points 90° clockwise to it. the ninety degrees are not necessary in the chemdraw format, otherwise the circle is sheared accordingly,
+but in lhendraw, the axes of a circular arrow MUST be perpendicular to each other, and the arrow gets transformed accordingly.
+The Minor axis should be clockwise to the Major axis.
+However, if it is not clockwise, and angularsize stays the same, the arrow is not flipped. Likewise, inverting the vector of the Major axis has no effect.
+The lhendraw controls, however, refer to the start-to-end axis, which is not necessarily parallelic to the Major or Minor axis.

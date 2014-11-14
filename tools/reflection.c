@@ -7,7 +7,7 @@ char buffer[1024];
 char namestring[40];
 char glob_started=0;
 int backval;
-int getline()
+int reflection_loadline()
 {
 	char ihv1;
 	char wasvalid=0;
@@ -52,7 +52,7 @@ int main(int argc,char ** argv)
 	for (int ilv1=1;ilv1<argc;ilv1++)
 	{
 		infile=fopen(argv[ilv1],"r");
-		while (getline())
+		while (reflection_loadline())
 		{
 			backval=sscanf(buffer,"catalogized_command_funcdef(%[A-Za-z0-9_])",namestring);
 			if (backval>0)

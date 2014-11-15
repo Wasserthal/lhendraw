@@ -1,13 +1,15 @@
 //Graphic routines. Callers of those should be in createsvg.hxx
-#define gfx_screensizex 1024
-#define gfx_screensizey 768
-#define gfx_canvassizex 704
-#define gfx_canvassizey 528
-#define gfx_canvasminx 160
-#define gfx_canvasminy 120
-#define gfx_canvasmaxx 864
-#define gfx_canvasmaxy 648
-#define gfx_depth 4
+int gfx_screensizex=1024;
+int gfx_screensizey=768;
+int gfx_canvassizex=704;
+int gfx_canvassizey=528;
+#define gfx_standardcanvassizex 704
+#define gfx_standardcanvassizey 528
+int gfx_canvasminx=160;
+int gfx_canvasminy=120;
+int gfx_canvasmaxx=864;
+int gfx_canvasmaxy=648;
+int gfx_depth=4;
 float SDL_scrollx=0,SDL_scrolly=0;
 float SDL_zoomx=1,SDL_zoomy=1;
 int SDL_txcursorx=0;int SDL_txcursory=0;
@@ -16,6 +18,50 @@ int SDL_old_txcursorx=0;int SDL_old_txcursory=0;
 _u32 * screen;
 _u32 * canvas;
 _u32 SDL_color;
+struct gfx_bufferset_
+{
+	int screensizex,screensizey,canvassizex,canvassizey,canvasminx,canvasminy,canvasmaxx,canvasmaxy;
+	_u32 *screen,*canvas;
+	float scrollx,scrolly,zoomx,zoomy;
+	int depth;
+};
+gfx_bufferset_ gfx_old_bufferset;
+void gfx_store_bufferset(gfx_bufferset_ * target)
+{
+	target->screensizex=gfx_screensizex;
+	target->screensizey=gfx_screensizey;
+	target->canvassizex=gfx_canvassizex;
+	target->canvassizey=gfx_canvassizey;
+	target->canvasminx=gfx_canvasminx;
+	target->canvasminy=gfx_canvasminy;
+	target->canvasmaxx=gfx_canvasmaxx;
+	target->canvasmaxy=gfx_canvasmaxy;
+	target->screen=screen;
+	target->canvas=canvas;
+	target->scrollx=SDL_scrollx;
+	target->scrolly=SDL_scrolly;
+	target->zoomx=SDL_zoomx;
+	target->zoomy=SDL_zoomy;
+	target->depth=gfx_depth;
+}
+void gfx_restore_bufferset(gfx_bufferset_ * target)
+{
+	gfx_screensizex=target->screensizex;
+	gfx_screensizey=target->screensizey;
+	gfx_canvassizex=target->canvassizex;
+	gfx_canvassizey=target->canvassizey;
+	gfx_canvasminx=target->canvasminx;
+	gfx_canvasminy=target->canvasminy;
+	gfx_canvasmaxx=target->canvasmaxx;
+	gfx_canvasmaxy=target->canvasmaxy;
+	screen=target->screen;
+	canvas=target->canvas;
+	SDL_scrollx=target->scrollx;
+	SDL_scrolly=target->scrolly;
+	SDL_zoomx=target->zoomx;
+	SDL_zoomy=target->zoomy;
+	gfx_depth=target->depth;
+}
 int SDL_linestyle;
 
 int get_colorstringv(int number)
@@ -882,7 +928,6 @@ void gfx_output()
 	counter1-=ts.tv_nsec+1000000000*ts.tv_sec;
 	clock_gettime(clockid,&ts);
 	counter1+=ts.tv_nsec+1000000000*ts.tv_sec;
-	screenclear(0xFFFFFF);
 	clock_gettime(clockid,&ts);
 	counter2-=ts.tv_nsec+1000000000*ts.tv_sec;
 	svg_findaround();

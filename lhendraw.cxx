@@ -165,27 +165,25 @@ int main(int argc,char * * argv)
 		SDL_EnableUNICODE(1);
 //		SDL_ShowCursor(0);
 		mainloop:
+		control_normal();
+		gfx_gfxstart();
+		screenclear(0xFFFFFF);
 		if (LHENDRAW_filedlgmode==0)
 		{
-			control_normal();
-			gfx_gfxstart();
 			gfx_output();
 			sdl_canvasframedraw();
 			sdl_commonmenudraw();
 			sdl_selectiondraw();
 			draw_reticle();
-			gfx_gfxstop();
 		}
 		else
 		{
 			control_filedlg();
-			gfx_gfxstart();
-			screenclear(0xFFFFFF);
 			sdl_filemenudraw();
 			sdl_menuframe();
 			draw_reticle();
-			gfx_gfxstop();
 		}
+		gfx_gfxstop();
 		usleep(1000);
 		control_doubleclickenergy-=1;
 		if (control_doubleclickenergy<0) control_doubleclickenergy=0;

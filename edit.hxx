@@ -2,8 +2,10 @@
 #define FORCEEXTENSION \
 {\
 	__label__ FORCEEXTENSION_finished;\
+	if (value==NULL) goto FORCEEXTENSION_YES;\
 	if (strcmp(value,"")==0)\
 	{\
+		FORCEEXTENSION_YES:;\
 		value=parameter+strlen(parameter);\
 		while ((*value)!='.')\
 		{\
@@ -1475,11 +1477,109 @@ void edit_scoopcolors(basic_instance * master)
 		}
 	}
 }
+int save_image(FILE * ifile,const char * value)
+{
+	float left,top,fwidth,fheight;
+	getcaptions(&fwidth,&fheight,&left,&top);
+	if ((fwidth<0) || (fheight<0))
+	{
+		left=0;top=0;fwidth=0;fheight=0;
+	}
+	left-=8;
+	top-=8;
+	fwidth+=16;
+	fheight+=16;
+	int width=fwidth;
+	int height=fheight;
+	gfx_bufferset_ target;
+	gfx_store_bufferset(&gfx_old_bufferset);
+	target.screensizex=width;
+	target.screensizey=height;
+	target.canvassizex=width;
+	target.canvassizey=height;
+	target.canvasminx=0;
+	target.canvasminy=0;
+	target.canvasmaxx=width;
+	target.canvasmaxy=height;
+	target.screen=(_u32*)malloc(4*width*height);
+	target.canvas=target.screen;
+	target.scrollx=left;
+	target.scrolly=top;
+	target.zoomx=1;
+	target.zoomy=1;
+	target.depth=4;
+	gfx_restore_bufferset(&target);
+	screenclear(0xFFFFFFFF);
+	gfx_output();
+	for (int ilv1=0;ilv1<4*width*height;ilv1++)
+	{
+		*(((_u8*)(screen+ilv1))+3)=0xFF-*(((_u8*)(screen+ilv1))+3);
+	}
+	_u32 iihv1;
+	int xtraheadersize=0;
+	if (control_export.bmp_compression==3)
+	{
+		xtraheadersize=16;
+	}
+	fprintf(ifile,"BM");
+	iihv1=14+40+xtraheadersize+(4*width*height);
+	fwrite(&iihv1,4,1,ifile);
+	iihv1=0;
+	fwrite(&iihv1,4,1,ifile);
+	iihv1=14+40+xtraheadersize;
+	fwrite(&iihv1,4,1,ifile);
+	//INFOSTRUCT
+	iihv1=40+xtraheadersize;
+	fwrite(&iihv1,4,1,ifile);
+	iihv1=width;
+	fwrite(&iihv1,4,1,ifile);
+	iihv1=-height;
+	fwrite(&iihv1,4,1,ifile);
+	iihv1=1;
+	fwrite(&iihv1,2,1,ifile);
+	iihv1=32;
+	fwrite(&iihv1,2,1,ifile);
+	iihv1=control_export.bmp_compression;
+	fwrite(&iihv1,4,1,ifile);
+	iihv1=4*width*height;
+	fwrite(&iihv1,4,1,ifile);
+	iihv1=4000;
+	fwrite(&iihv1,4,1,ifile);
+	iihv1=4000;
+	fwrite(&iihv1,4,1,ifile);
+	iihv1=0;
+	fwrite(&iihv1,4,1,ifile);
+	iihv1=0;
+	fwrite(&iihv1,4,1,ifile);
+	if (xtraheadersize>=12)
+	{
+		iihv1=0xFF0000;
+		fwrite(&iihv1,4,1,ifile);
+		iihv1=0xFF00;
+		fwrite(&iihv1,4,1,ifile);
+		iihv1=0xFF;
+		fwrite(&iihv1,4,1,ifile);
+	}
+	if (xtraheadersize>=16)
+	{
+		iihv1=0xFF000000;
+		fwrite(&iihv1,4,1,ifile);
+	}
+	fwrite(target.screen,4*width*height,1,ifile);
+	free(target.screen);
+	fclose(ifile);
+	gfx_restore_bufferset(&gfx_old_bufferset);
+	return 1;
+}
 catalogized_command_funcdef(SAVE_TYPE)
 {
 	FILE * ifile=fopen(parameter,"w");
 	if (ifile==NULL) return 0;
 	FORCEEXTENSION
+	if (strcmp(value,".bmp")==0)
+	{
+		return save_image(ifile,value);
+	}
 	for (int ilv1=0;ilv1<multilist_count;ilv1++)
 	{
 		if (multilistlist[ilv1].usage==1)

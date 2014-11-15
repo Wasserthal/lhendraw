@@ -424,4 +424,5 @@ void CONVCAMBRIDGE_internaltomain(CAMBRIDGE_page_instance * master)
 	CONVCAMBRIDGE_arrow(master);
 	CONVCAMBRIDGE_graphic(master);
 	CONVCAMBRIDGE_Symbol(master);
+	//TODO: save selection only. Perhaps one could use Zlist for that purpose?
 }

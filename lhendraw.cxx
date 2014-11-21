@@ -83,7 +83,13 @@ int undo_trackredo(int variable);
 #include "sdlctrl.hxx"
 #include "menugfx.hxx"
 #include "filedlg.hxx"
+#define MACRO_DRAWPREFIX(content) gfx_ ## content
 #include "draw.hxx"
+#undef MACRO_DRAWPREFIX
+#include "svg.hxx"
+#define MACRO_DRAWPREFIX(content) svg_ ## content
+#include "draw.hxx"
+#undef MACRO_DRAWPREFIX
 //#include "hatch.hxx" //TODO SUBJECT HATCH needs the moleculefill buffer
 
 
@@ -165,11 +171,11 @@ int main(int argc,char * * argv)
 		SDL_EnableUNICODE(1);
 //		SDL_ShowCursor(0);
 		mainloop:
-		control_normal();
 		gfx_gfxstart();
 		screenclear(0xFFFFFF);
 		if (LHENDRAW_filedlgmode==0)
 		{
+			control_normal();
 			gfx_output();
 			sdl_canvasframedraw();
 			sdl_commonmenudraw();

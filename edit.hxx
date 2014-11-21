@@ -168,6 +168,165 @@ char getleftof(cdx_Point3D * istart,cdx_Point3D * iend,cdx_Point3D * ikink)
 	if (iresult==0) return 0;
 	return (diff1x*diff2y-diff1y*diff2x>0) ? 1 : 2;//then, it is right of=> return1, otherwise, it is left of=>return2;
 }
+void getatoms()//makes some preprocessing
+{
+	float theside,thelevel;
+	float tl_angle;
+	for (int ilv1=0;ilv1<bufferlistsize;ilv1++)
+	{
+		atom_actual_node[ilv1].bondcount=0;
+	}
+	for (int ilv1=0;ilv1<bufferlistsize;ilv1++)
+	{
+		text_actual_node[ilv1].owner=-1;
+	}
+	for (int ilv1=0;ilv1<(*glob_b_multilist).filllevel;ilv1++)//defines processable bonds
+	{
+		if ((*glob_b_multilist).bufferlist[ilv1].exist)
+		{
+			bond_actual_node[ilv1].cotanleft[0]=Pi/4;
+			bond_actual_node[ilv1].cotanleft[1]=Pi/4;
+			bond_actual_node[ilv1].cotanright[0]=Pi/4;
+			bond_actual_node[ilv1].cotanright[1]=Pi/4;
+			bond_actual_node[ilv1].xcotanleft[0]=Pi/2;
+			bond_actual_node[ilv1].xcotanleft[1]=Pi/2;
+			bond_actual_node[ilv1].xcotanright[0]=Pi/2;
+			bond_actual_node[ilv1].xcotanright[1]=Pi/2;
+			bond_actual_node[ilv1].numberleft[0]=-1;
+			bond_actual_node[ilv1].numberleft[1]=-1;
+			bond_actual_node[ilv1].numberright[0]=-1;
+			bond_actual_node[ilv1].numberright[1]=-1;
+			for (int ilv2=0;ilv2<(*glob_n_multilist).filllevel;ilv2++)
+			{
+				if (((*glob_n_multilist).bufferlist)[ilv2].exist)
+				{
+					if (((*glob_n_multilist).bufferlist)[ilv2].id==((*glob_b_multilist).bufferlist)[ilv1].E)
+					{
+						bond_actual_node[ilv1].end=ilv2;
+						atom_actual_node[ilv2]+=ilv1;
+					}
+					if (((*glob_n_multilist).bufferlist)[ilv2].id==((*glob_b_multilist).bufferlist)[ilv1].B)
+					{
+						bond_actual_node[ilv1].start=ilv2;
+						atom_actual_node[ilv2]+=ilv1;
+					}
+				}
+			}
+		}
+	}
+	for (int ilv1=0;ilv1<(*glob_n_multilist).filllevel;ilv1++)//defines processable atoms
+	{
+		n_instance * tlatominstance=&((*glob_n_multilist).bufferlist[ilv1]);
+		theside=0;thelevel=0;
+		for (int ilv2=0;ilv2<atom_actual_node[ilv1].bondcount;ilv2++)
+		{
+			_small partner=getother(ilv1,(atom_actual_node[ilv1]).bonds[ilv2]);
+			
+			tl_angle=getangle((*glob_n_multilist).bufferlist[partner].xyz.x-(*tlatominstance).xyz.x,(*glob_n_multilist).bufferlist[partner].xyz.y-(*tlatominstance).xyz.y);//TODO:not good at real-time!!!
+			theside+=cos(tl_angle);
+			thelevel+=sin(tl_angle);
+			angle_between[ilv2][ilv2]=tl_angle;
+			number_between[ilv2]=(atom_actual_node[ilv1]).bonds[ilv2];
+		}
+		atom_actual_node[ilv1].labelside=(theside>0.2);
+		for (int ilv2=0;ilv2<atom_actual_node[ilv1].bondcount;ilv2++)//TODO:not good at real-time!!!
+		{
+			float intermediate;
+			for (int ilv3=0;ilv3<atom_actual_node[ilv1].bondcount;ilv3++)
+			{
+				if (ilv3<ilv2)
+				{
+					intermediate=compangle(angle_between[ilv2][ilv2],angle_between[ilv3][ilv3]);
+					angle_between[ilv2][ilv3]=intermediate;
+					angle_between[ilv3][ilv2]=-intermediate;
+				}
+			}
+		}
+		for (int ilv2=0;ilv2<atom_actual_node[ilv1].bondcount;ilv2++)//checks how atoms behave towards bonds and text
+		{
+			bond_actual_node_ * i_bond_actual_node=&(bond_actual_node[atom_actual_node[ilv1].bonds[ilv2]]);
+			float tlleftest,tlrightest;
+			float tlxleftest,tlxrightest;
+			int tlleftnr,tlrightnr;
+			tlleftnr=-1;tlrightnr=-1;
+			tlleftest=Pi;tlrightest=-Pi;
+			tlxleftest=Pi;tlxrightest=-Pi;
+			for (int ilv3=0;ilv3<atom_actual_node[ilv1].bondcount;ilv3++)
+			{
+				if (ilv3!=ilv2)
+				{
+					float iangle=angle_between[ilv2][ilv3];
+					int adequate;
+					adequate=1;
+					if (fabs(iangle)<Pi/6){adequate=0;}
+					if (fabs(iangle)>5*Pi/6){adequate=0;}
+					if (iangle>0) if (iangle<tlleftest) {if (adequate){tlleftest=iangle;tlleftnr=number_between[ilv3];}if (iangle<tlxleftest){tlxleftest=iangle;tlleftnr=number_between[ilv3];}}
+					if (iangle<0) if (iangle>tlrightest){if (adequate){tlrightest=iangle;tlrightnr=number_between[ilv3];}if (iangle>tlxrightest){tlxrightest=iangle;tlrightnr=number_between[ilv3];}}
+					notfound:
+					;
+				}
+			}
+			//if the atom is a start atom, the bond has to be treated backwards
+			if (tlleftnr!=-1)
+			{
+				(*i_bond_actual_node).numberleft[(*i_bond_actual_node).start==ilv1]=tlleftnr;
+			}
+			if (tlrightnr!=-1)
+			{
+				(*i_bond_actual_node).numberright[(*i_bond_actual_node).start==ilv1]=tlrightnr;
+			}
+			if (tlleftest<Pi)
+			{
+				(*i_bond_actual_node).cotanleft[(*i_bond_actual_node).start==ilv1]=tlleftest;
+			}
+			if (tlrightest>-Pi)
+			{
+				(*i_bond_actual_node).cotanright[(*i_bond_actual_node).start==ilv1]=-tlrightest;
+			}
+			if (tlxleftest<Pi/2)
+			{
+				(*i_bond_actual_node).xcotanleft[(*i_bond_actual_node).start==ilv1]=tlxleftest;
+			}
+			if (tlxrightest>-Pi/2)
+			{
+				(*i_bond_actual_node).xcotanright[(*i_bond_actual_node).start==ilv1]=-tlxrightest;
+			}
+		}
+	}
+	for (int ilv1=0;ilv1<(*glob_b_multilist).filllevel;ilv1++)//refines undefined double bonds
+	{
+		b_instance * currentbondinstance=&((*glob_b_multilist).bufferlist[ilv1]);
+		int i_side_orvariable;
+		int i_side_orvariable2;
+		i_side_orvariable=0;
+		i_side_orvariable2=0;
+		if (((*currentbondinstance).DoublePosition & 0x100)==0)
+		{
+			for (int ilv2=0;ilv2<atom_actual_node[bond_actual_node[ilv1].start].bondcount;ilv2++)//or operation
+			{
+				i_side_orvariable|=getleftof(&((*glob_n_multilist).bufferlist[bond_actual_node[ilv1].start].xyz),&((*glob_n_multilist).bufferlist[bond_actual_node[ilv1].end].xyz),&((*glob_n_multilist).bufferlist[getother((bond_actual_node[ilv1].start),atom_actual_node[bond_actual_node[ilv1].start].bonds[ilv2])].xyz));
+			}
+			if (i_side_orvariable==3)
+			{
+				i_side_orvariable=0;
+			}
+			for (int ilv2=0;ilv2<atom_actual_node[bond_actual_node[ilv1].end].bondcount;ilv2++)//or operation
+			{
+				i_side_orvariable2|=getleftof(&((*glob_n_multilist).bufferlist[bond_actual_node[ilv1].start].xyz),&((*glob_n_multilist).bufferlist[bond_actual_node[ilv1].end].xyz),&((*glob_n_multilist).bufferlist[getother((bond_actual_node[ilv1].end),atom_actual_node[bond_actual_node[ilv1].end].bonds[ilv2])].xyz));
+			}
+			if (i_side_orvariable2==3)
+			{
+				i_side_orvariable2=0;
+			}
+			i_side_orvariable|=i_side_orvariable2;
+			if (i_side_orvariable==3)
+			{
+				i_side_orvariable=2;
+			}
+			(*currentbondinstance).DoublePosition=i_side_orvariable;
+		}
+	}
+}
 
 
 
@@ -1694,6 +1853,7 @@ int save_image(FILE * ifile,const char * value)
 	gfx_restore_bufferset(&gfx_old_bufferset);
 	return 1;
 }
+int svg_main(FILE * ifile);
 catalogized_command_funcdef(SAVE_TYPE)
 {
 	FILE * ifile=fopen(parameter,"w+");
@@ -1702,6 +1862,10 @@ catalogized_command_funcdef(SAVE_TYPE)
 	if ((strcmp(value,".bmp")==0) || (strcmp(value,".png")==0))
 	{
 		return save_image(ifile,value);
+	}
+	if (strcmp(value,".svg")==0)
+	{
+		return svg_main(ifile);
 	}
 	for (int ilv1=0;ilv1<multilist_count;ilv1++)
 	{

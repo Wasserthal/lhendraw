@@ -64,17 +64,17 @@ void gfx_restore_bufferset(gfx_bufferset_ * target)
 }
 int SDL_linestyle;
 
-int get_colorstringv(int number)
+int gfx_get_colorstringv(int number)
 {
 	SDL_color=number;
 	return 0;
 }
-void express_txinit(char ialignment,float iposx,float iposy,float iatomfontheight)
+void gfx_express_txinit(char ialignment,float iposx,float iposy,float iatomfontheight)
 {
 	SDL_txcursorx=(iposx-SDL_scrollx)*SDL_zoomx-3;SDL_txcursory=(iposy-SDL_scrolly)*SDL_zoomy+4;
 	SDL_old_txcursorx=SDL_txcursorx;SDL_old_txcursory=SDL_txcursory;
 }
-inline void express_text_tail()
+inline void gfx_express_text_tail()
 {
 }
 inline void putpixel(int iposx,int iposy)
@@ -87,12 +87,12 @@ inline void putpixel(int iposx,int iposy)
 		}
 	}
 }
-inline void stylegenestring(int flags,unsigned int fillcolor=0) //1: stroke 2: fill 4: bold 8: dashed
+inline void gfx_stylegenestring(int flags,unsigned int fillcolor=0) //1: stroke 2: fill 4: bold 8: dashed
 {
 	SDL_linestyle=flags;
 }
 
-void expressbeziertrack(cdx_Bezierpoints * ipoints)
+void gfx_expressbeziertrack(cdx_Bezierpoints * ipoints)
 {
 	float ishare;
 	float iminusshare;
@@ -114,7 +114,7 @@ void expressbeziertrack(cdx_Bezierpoints * ipoints)
 		}
 	}
 }
-void expressxbezier(int icount,...)
+void gfx_expressxbezier(int icount,...)
 {
 	cdx_Bezierpoints tlpoints;
 	tlpoints.count=icount;
@@ -128,10 +128,10 @@ void expressxbezier(int icount,...)
 		tlpoints.a[ilv1].y=(va_arg(i_valist,double)-SDL_scrolly)*SDL_zoomy;
 	}
 	va_end(i_valist);
-	expressbeziertrack(&tlpoints);
+	gfx_expressbeziertrack(&tlpoints);
 }
 
-void expressbezier(float x1,float y1,float x2,float y2,float x3,float y3,float x4,float y4)
+void gfx_expressbezier(float x1,float y1,float x2,float y2,float x3,float y3,float x4,float y4)
 {
 	float ishare;
 	float iminusshare;
@@ -159,7 +159,7 @@ void expressbezier(float x1,float y1,float x2,float y2,float x3,float y3,float x
 	}
 }
 
-void expressline(float ileft,float itop,float iright,float ibottom)
+void gfx_expressline(float ileft,float itop,float iright,float ibottom)
 {
 	int x=(ileft-SDL_scrollx)*SDL_zoomx;
 	int y=(itop-SDL_scrolly)*SDL_zoomy;
@@ -371,7 +371,7 @@ int gfx_gfxstop()
 	SDL_UpdateRect(video,0,0,gfx_screensizex,gfx_screensizey);
 }
 
-int expresstriangle(float ifx1,float ify1,float ifx2,float ify2,float ifx3,float ify3)
+int gfx_expresstriangle(float ifx1,float ify1,float ifx2,float ify2,float ifx3,float ify3)
 {
 	int ibrakelist_bks[256];
 	int ibrakelist_pps[256];//1: end 2: start 0: unknown 0x4: other than 8 0x8: other than 0x4 0x10: deaf(horz)
@@ -490,7 +490,7 @@ int expresstriangle(float ifx1,float ify1,float ifx2,float ify2,float ifx3,float
 	}
 }
 
-int expresstetrangle(float ifx1,float ify1,float ifx2,float ify2,float ifx3,float ify3,float ifx4,float ify4)
+int gfx_expresstetrangle(float ifx1,float ify1,float ifx2,float ify2,float ifx3,float ify3,float ifx4,float ify4)
 {
 	int ibrakelist_bks[256];
 	int ibrakelist_pps[256];//1: end 2: start 0: unknown 0x4: other than 8 0x8: other than 0x4 0x10: deaf(horz)
@@ -626,6 +626,7 @@ int expresstetrangle(float ifx1,float ify1,float ifx2,float ify2,float ifx3,floa
 		ilinefertig:
 		;
 	}
+	return 1;
 }
 
 struct inficorn
@@ -638,7 +639,7 @@ struct inficorn
 	int pps;//not necessarily in the same order as the other part of the structures!
 };
 
-int expressinfinityangle(inficorn * iworkarray,int count)
+int gfx_expressinfinityangle(inficorn * iworkarray,int count)
 {
 	intl iminx,imaxx,iminy,imaxy;
 	intl ibrakelist_count;
@@ -719,9 +720,10 @@ int expressinfinityangle(inficorn * iworkarray,int count)
 		ilinefertig:
 		;
 	}
+	return 1;
 }
 
-void expressspinellipse(float ix,float iy,float radiusx,float radiusy, float axangle)
+void gfx_expressspinellipse(float ix,float iy,float radiusx,float radiusy, float axangle)
 {
 	ix=(ix-SDL_scrollx)*SDL_zoomx;
 	iy=(iy-SDL_scrolly)*SDL_zoomy;
@@ -737,7 +739,7 @@ void expressspinellipse(float ix,float iy,float radiusx,float radiusy, float axa
 		putpixel(ix+tlsaxx*radiusx*cos(tlangle)-tlsaxy*radiusy*sin(tlangle),iy+tlsaxy*radiusx*cos(tlangle)+tlsaxx*radiusy*sin(tlangle));
 	}
 }
-void expressarc_enhanced(float centerx,float centery,float radiusx,float radiusy,float startangle,float endangle,float tiltangle)
+void gfx_expressarc_enhanced(float centerx,float centery,float radiusx,float radiusy,float startangle,float endangle,float tiltangle)
 {
 	centerx=(centerx-SDL_scrollx)*SDL_zoomx;
 	centery=(centery-SDL_scrolly)*SDL_zoomy;
@@ -763,11 +765,11 @@ void expressarc_enhanced(float centerx,float centery,float radiusx,float radiusy
 		putpixel(centerx+tlsaxx*radiusx*cos(tlangle)-tlsaxy*radiusy*sin(tlangle),centery+tlsaxy*radiusx*cos(tlangle)+tlsaxx*radiusy*sin(tlangle));
 	}
 }
-inline void expressarc(float centerx,float centery,float radiusx,float radiusy,float startangle,float endangle)
+inline void gfx_expressarc(float centerx,float centery,float radiusx,float radiusy,float startangle,float endangle)
 {
-	expressarc_enhanced(centerx,centery,radiusx,radiusy,startangle,endangle,0);
+	gfx_expressarc_enhanced(centerx,centery,radiusx,radiusy,startangle,endangle,0);
 }
-void expressbow(float ileft,float itop,float iright,float ibottom,float irelradius)
+void gfx_expressbow(float ileft,float itop,float iright,float ibottom,float irelradius)
 {
 	float dx=iright-ileft;
 	float dy=ibottom-itop;
@@ -776,9 +778,9 @@ void expressbow(float ileft,float itop,float iright,float ibottom,float irelradi
 	float tangle=asin(0.5/irelradius);
 	float tangent=0.5/tan(tangle);
 	float tldist=sqrt(fsqr(iright-ileft)+fsqr(ibottom-itop));
-	expressarc((iright+ileft)/2+tangent*cos(angle)*tldist,(ibottom+itop)/2+tangent*sin(angle)*tldist,irelradius*tldist,irelradius*tldist,fmod(angle-tangle+Pi,Pi*2),fmod(angle+tangle+Pi,Pi*2));
+	gfx_expressarc((iright+ileft)/2+tangent*cos(angle)*tldist,(ibottom+itop)/2+tangent*sin(angle)*tldist,irelradius*tldist,irelradius*tldist,fmod(angle-tangle+Pi,Pi*2),fmod(angle+tangle+Pi,Pi*2));
 }
-void expressellipse(float centerx,float centery,float radiusx,float radiusy)
+void gfx_expressellipse(float centerx,float centery,float radiusx,float radiusy)
 {
 	centerx=(centerx-SDL_scrollx)*SDL_zoomx;
 	centery=(centery-SDL_scrolly)*SDL_zoomy;
@@ -796,7 +798,7 @@ void expressellipse(float centerx,float centery,float radiusx,float radiusy)
 	}
 }
 
-void expresshexangle(float ix1,float iy1,float ix2,float iy2,float ix3,float iy3,float ix4,float iy4,float ix5,float iy5,float ix6,float iy6)
+void gfx_expresshexangle(float ix1,float iy1,float ix2,float iy2,float ix3,float iy3,float ix4,float iy4,float ix5,float iy5,float ix6,float iy6)
 {
 	inficorn tlinficorn[6];
 	tlinficorn[0].x=ix1;
@@ -811,9 +813,9 @@ void expresshexangle(float ix1,float iy1,float ix2,float iy2,float ix3,float iy3
 	tlinficorn[3].y=iy4;
 	tlinficorn[4].y=iy5;
 	tlinficorn[5].y=iy6;
-	expressinfinityangle(tlinficorn,6);
+	gfx_expressinfinityangle(tlinficorn,6);
 }
-void text_rewind(unsigned char * windtext,int length)
+void gfx_text_rewind(unsigned char * windtext,int length)
 {
 	int ilv4;
 	int backcount;
@@ -870,7 +872,7 @@ void text_print_bitmap(int * posx,int * posy,fontpixinf_ * ifontpixinf)
 		icanvas+=icanvasskip;
 	}
 }
-void printformatted(const char * iinput,const char * parms,int imode,int start,int end)
+void gfx_printformatted(const char * iinput,const char * parms,int imode,int start,int end)
 {
 	int ilv4=start;
 	char linebreak;
@@ -920,8 +922,7 @@ void sdl_outit()
 }
 void svg_findaround();
 void getatoms();
-void svg_controlprocedure(bool irestriction,bool hatches);
-void svg_main(const char * filename);
+void gfx_controlprocedure(bool irestriction,bool hatches);
 void gfx_output()
 {
 	clock_gettime(clockid,&ts);
@@ -945,8 +946,8 @@ void gfx_output()
 	counter4+=ts.tv_nsec+1000000000*ts.tv_sec;
 	clock_gettime(clockid,&ts);
 	counter5-=ts.tv_nsec+1000000000*ts.tv_sec;
-	svg_controlprocedure(0,1);
-	svg_controlprocedure(0,0);
+	gfx_controlprocedure(0,1);
+	gfx_controlprocedure(0,0);
 	clock_gettime(clockid,&ts);
 	counter5+=ts.tv_nsec+1000000000*ts.tv_sec;
 	clock_gettime(clockid,&ts);

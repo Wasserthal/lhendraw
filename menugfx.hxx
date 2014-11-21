@@ -752,10 +752,10 @@ int sdl_selectiondraw()
 	{
 		if ((control_tool==2) || (control_tool==5))
 		{
-			expressline(selection_frame.startx,selection_frame.starty,selection_frame.endx,selection_frame.starty);
-			expressline(selection_frame.startx,selection_frame.starty,selection_frame.startx,selection_frame.endy);
-			expressline(selection_frame.startx,selection_frame.endy,selection_frame.endx,selection_frame.endy);
-			expressline(selection_frame.endx,selection_frame.starty,selection_frame.endx,selection_frame.endy);
+			gfx_expressline(selection_frame.startx,selection_frame.starty,selection_frame.endx,selection_frame.starty);
+			gfx_expressline(selection_frame.startx,selection_frame.starty,selection_frame.startx,selection_frame.endy);
+			gfx_expressline(selection_frame.startx,selection_frame.endy,selection_frame.endx,selection_frame.endy);
+			gfx_expressline(selection_frame.endx,selection_frame.starty,selection_frame.endx,selection_frame.endy);
 		}
 		if (control_tool==3)
 		{

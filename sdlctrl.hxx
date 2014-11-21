@@ -19,7 +19,7 @@ AUTOSTRUCT_PULLOUTLISTING_ * control_menuitem=NULL;
 #define control_toolcount 20
 clickabilitymatrix_ clickabilitymatrixes[control_toolcount];
 int control_keycombotool=0;//as above, but only valid if (mousestate & 2)
-SDLKey control_toolstartkeysym;
+_i32 control_toolstartkeysym;
 int control_lastinterpret=-1;
 int control_posx=0;
 int control_posy=0;
@@ -245,7 +245,7 @@ int interpretkey(int listnr=-1)
 		case SDLK_9: keystring[0]='9';break;
 		default:;
 		careaboutshift=0;
-		_u16 ihv1=(control_Event.key.keysym.unicode);
+		_u16 ihv1=getunicode(&control_Event);
 		if ((ihv1>=1) && (ihv1<=26))
 		{
 			ihv1+=0x60;
@@ -2419,7 +2419,9 @@ void control_normal()
 					{
 						if (idirection==1)
 						{
+							#ifndef SDL2
 							SDL_WM_ToggleFullScreen(video);
+							#endif
 						}
 						break;
 					}
@@ -2586,7 +2588,7 @@ void control_normal()
 						char * tl_unicode;
 						if (control_aggresstextcursor())
 						{
-							utf8encode(control_Event.key.keysym.unicode,&tl_unicode);
+							utf8encode(getunicode(&control_Event),&tl_unicode);
 							TELESCOPE_insertintoproperties_offset(tl_unicode,strlen(tl_unicode),control_textedit_cursor);
 						}
 					}
@@ -2613,9 +2615,11 @@ void control_normal()
 	iloopendlabel:;
 	if (LHENDRAW_leave==1)
 	{
+		#ifndef SDL2
 		if (video->flags & SDL_FULLSCREEN)
 		{
 			SDL_WM_ToggleFullScreen(video);
 		}
+		#endif
 	}
 }

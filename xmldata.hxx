@@ -204,8 +204,7 @@ template <class whatabout> class multilist : public basicmultilist
 	}
 	void * ADD(whatabout * iwhatabout)//without dependants, use item buffer instead
 	{
-		bufferlist[filllevel]=*iwhatabout;
-		bufferlist[filllevel]._vptr=(*iwhatabout)._vptr;
+		memcpy(bufferlist+filllevel,iwhatabout,sizeof(whatabout));
 		filllevel++;
 	}
 	void * REMOVE(intl index)//without dependants, use item buffer instead

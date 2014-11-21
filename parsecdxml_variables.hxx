@@ -26,6 +26,10 @@ float glob_subpoint_clickradius=50;
 #else
 #define constants_Directoryslash '\\'
 #endif
+#ifdef SDL2
+#define SDLK_LSUPER SDLK_LGUI
+#define SDLK_RSUPER SDLK_RGUI
+#endif
 char constants_cdxstring[]=".cdx";
 typedef _u32 resources_button_[32][32];
 resources_button_ * resources_bitmap_buttons;

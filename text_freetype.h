@@ -1,7 +1,9 @@
 //This unit accesses freetype
 
+#ifndef WITHOUT_FREETYPE
 #include <ft2build.h>
 #include FT_FREETYPE_H
+#endif
 
 //TODO: append the same prefix as in createsvg.hxx here!
 char fontpixbuffer[1000000];
@@ -16,24 +18,6 @@ typedef struct fontpixinf_
 } fontpixinf_;
 int fontpixinf_count;
 fontpixinf_ fontpixinf[10000];
-void fontpixinf_add(FT_GlyphSlot islot,int iunicode)
-{
-	int length=((*islot).bitmap).width;
-	fontpixinf[fontpixinf_count].sizex=((*islot).bitmap).width;
-	length*=((*islot).bitmap).rows;
-	fontpixinf[fontpixinf_count].sizey=((*islot).bitmap).rows;
-	fontpixinf[fontpixinf_count].deltax=(*islot).advance.x>>6;
-	fontpixinf[fontpixinf_count].deltay=(*islot).advance.y>>6;
-	fontpixinf[fontpixinf_count].pivotx=(*islot).bitmap_left;
-	fontpixinf[fontpixinf_count].pivoty=-(*islot).bitmap_top;
-	fontpixinf[fontpixinf_count].memstart=fontpixbuffer_count+fontpixbuffer;
-	fontpixinf[fontpixinf_count].unicode=iunicode;
-	for (int ilv1=0;ilv1<length;ilv1++)
-	{
-		fontpixbuffer[fontpixbuffer_count++]=(*islot).bitmap.buffer[ilv1];
-	}
-	fontpixinf_count++;
-}
 _i32 utf8resolve(_u8 * input,_i32 * backcount)
 {
 	intl icounter;
@@ -186,6 +170,25 @@ int indexfromunicode(int input)//Weighed approximation
 	}
 	return 0;
 }
+#ifndef WITHOUT_FREETYPE
+void fontpixinf_add(FT_GlyphSlot islot,int iunicode)
+{
+	int length=((*islot).bitmap).width;
+	fontpixinf[fontpixinf_count].sizex=((*islot).bitmap).width;
+	length*=((*islot).bitmap).rows;
+	fontpixinf[fontpixinf_count].sizey=((*islot).bitmap).rows;
+	fontpixinf[fontpixinf_count].deltax=(*islot).advance.x>>6;
+	fontpixinf[fontpixinf_count].deltay=(*islot).advance.y>>6;
+	fontpixinf[fontpixinf_count].pivotx=(*islot).bitmap_left;
+	fontpixinf[fontpixinf_count].pivoty=-(*islot).bitmap_top;
+	fontpixinf[fontpixinf_count].memstart=fontpixbuffer_count+fontpixbuffer;
+	fontpixinf[fontpixinf_count].unicode=iunicode;
+	for (int ilv1=0;ilv1<length;ilv1++)
+	{
+		fontpixbuffer[fontpixbuffer_count++]=(*islot).bitmap.buffer[ilv1];
+	}
+	fontpixinf_count++;
+}
 void putpixel(int iposx,int iposy);
 	
 int text_init(char * filename)
@@ -213,3 +216,17 @@ int text_init(char * filename)
 	}
 	return 0;
 }
+#else
+int text_load(FILE * ifile)
+{
+	fread(&fontpixinf_count,4,1,ifile);
+	fread(&fontpixbuffer_count,4,1,ifile);
+	fread(fontpixinf,sizeof(fontpixinf_),fontpixinf_count,ifile);
+	fread(fontpixinf,sizeof(char),fontpixbuffer_count,ifile);
+	for (int ilv1=0;ilv1<fontpixinf_count;ilv1++)
+	{
+		fontpixinf[ilv1].memstart=+fontpixbuffer;
+	}
+	fclose(ifile);
+}
+#endif

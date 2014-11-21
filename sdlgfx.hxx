@@ -333,6 +333,9 @@ void gfx_expressline(float ileft,float itop,float iright,float ibottom)
 	return;
 }
 SDL_Surface *video;
+#ifdef SDL2
+SDL_Window *window;
+#endif
 
 void screenclear(_u32 icolor)
 {
@@ -343,10 +346,15 @@ void screenclear(_u32 icolor)
 }
 int gfx()
 {
-	video = SDL_SetVideoMode(gfx_screensizex, gfx_screensizey, 32, SDL_SWSURFACE);
+	#ifdef SDL2
+	window=SDL_CreateWindow("Lhendraw",0,0,1024,768,0);
+	video=SDL_GetWindowSurface(window);
+	#else
+	video=SDL_SetVideoMode(gfx_screensizex,gfx_screensizey,32,SDL_SWSURFACE);
+	#endif
 	if ( video == NULL ) 
 	{
-		fprintf(stderr, "Ich konnte kein Fenster mit der Auflösung 1024*768 öffnen: %s\n", SDL_GetError());
+		fprintf(stderr,"Ich konnte kein Fenster mit der Auflösung 1024*768 öffnen: %s\n",SDL_GetError());
 		exit(1);
 	}
 }
@@ -368,7 +376,11 @@ int gfx_gfxstop()
 	{
 		SDL_UnlockSurface(video);
 	}
+	#ifdef SDL2
+	SDL_UpdateWindowSurface(window);
+	#else
 	SDL_UpdateRect(video,0,0,gfx_screensizex,gfx_screensizey);
+	#endif
 }
 
 int gfx_expresstriangle(float ifx1,float ify1,float ifx2,float ify2,float ifx3,float ify3)
@@ -925,33 +937,43 @@ void getatoms();
 void gfx_controlprocedure(bool irestriction,bool hatches);
 void gfx_output()
 {
+	#ifndef NODEBUG
 	clock_gettime(clockid,&ts);
 	counter1-=ts.tv_nsec+1000000000*ts.tv_sec;
 	clock_gettime(clockid,&ts);
 	counter1+=ts.tv_nsec+1000000000*ts.tv_sec;
 	clock_gettime(clockid,&ts);
 	counter2-=ts.tv_nsec+1000000000*ts.tv_sec;
+	#endif
 	svg_findaround();
+	#ifndef NODEBUG
 	clock_gettime(clockid,&ts);
 	counter2+=ts.tv_nsec+1000000000*ts.tv_sec;
 	clock_gettime(clockid,&ts);
 	counter3-=ts.tv_nsec+1000000000*ts.tv_sec;
+	#endif
 	getatoms();
+	#ifndef NODEBUG
 	clock_gettime(clockid,&ts);
 	counter3+=ts.tv_nsec+1000000000*ts.tv_sec;
 	clock_gettime(clockid,&ts);
 	counter4-=ts.tv_nsec+1000000000*ts.tv_sec;
+	#endif
 	initZlist();
+	#ifndef NODEBUG
 	clock_gettime(clockid,&ts);
 	counter4+=ts.tv_nsec+1000000000*ts.tv_sec;
 	clock_gettime(clockid,&ts);
 	counter5-=ts.tv_nsec+1000000000*ts.tv_sec;
+	#endif
 	gfx_controlprocedure(0,1);
 	gfx_controlprocedure(0,0);
+	#ifndef NODEBUG
 	clock_gettime(clockid,&ts);
 	counter5+=ts.tv_nsec+1000000000*ts.tv_sec;
 	clock_gettime(clockid,&ts);
 	counter1-=ts.tv_nsec+1000000000*ts.tv_sec;
 	clock_gettime(clockid,&ts);
 	counter1+=ts.tv_nsec+1000000000*ts.tv_sec;
+	#endif
 }

@@ -55,6 +55,7 @@ superconstellation_directory AUTOSTRUCTURE_ctype_directory[]{
 };
 #include "text_freetype.h"
 
+#ifndef NODEBUG
 #include <time.h>
 struct timespec ts;
 long long counter1=0;
@@ -63,6 +64,7 @@ long long counter3=0;
 long long counter4=0;
 long long counter5=0;
 int clockid=0;
+#endif
 
 #include "sdlgfx.hxx"
 #include "parsecdxml_variables.hxx"
@@ -118,7 +120,9 @@ structenum * searchreflectedstruct(const char * input)
 }
 void test_routine()
 {
+	#ifndef NODEBUG
 	printf("ggg:%llX---%llX\n",(long long)&(((*glob_CAMBRIDGE_t_multilist).bufferlist[7])._vptr),(long long)(((*glob_CAMBRIDGE_t_multilist).bufferlist[7])._vptr));
+	#endif
 }
 #ifndef NODEBUG
 const char *progname=NULL;
@@ -134,6 +138,7 @@ void Signal(int signum)
 	fprintf(stderr,"FILE crashes:%s\n",control_filename);exit(1);
 }
 #endif
+#define SDL_main main
 int main(int argc,char * * argv)
 {
 #ifndef NODEBUG
@@ -147,7 +152,9 @@ int main(int argc,char * * argv)
 	memory_alloc(&tagnamestring);
 	memory_alloc(&parameterstring);
 	memory_alloc(&paramvaluestring);
+	#ifndef NODEBUG
 	clock_getcpuclockid(getpid(),&clockid);
+	#endif
 	multilist_count=sizeof(multilistlist)/sizeof(multilistlist_);
 	for (int ilv1=0;ilv1<multilist_count;ilv1++)
 	{
@@ -168,7 +175,9 @@ int main(int argc,char * * argv)
 	{
 		svg_findaround();
 		sdl_init();
+#ifndef SDL2
 		SDL_EnableUNICODE(1);
+#endif
 //		SDL_ShowCursor(0);
 		mainloop:
 		gfx_gfxstart();
@@ -196,6 +205,8 @@ int main(int argc,char * * argv)
 		if (!LHENDRAW_leave) goto mainloop;
 		sdl_outit();
 		
+		#ifndef NODEBUG
 		printf("Time consumption:\nInit:%llX\nfindaround:%llX\ngetatoms:%llX\ninitZlist:%llX\ndrawing:%llX\n",counter1,counter2,counter3,counter4,counter5);
+		#endif
 	}
 }

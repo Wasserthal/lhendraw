@@ -130,7 +130,9 @@ int control_filedlg()
 					{
 						if (idirection==1)
 						{
+							#ifndef SDL2
 							SDL_WM_ToggleFullScreen(video);
+							#endif
 						}
 						break;
 					}
@@ -289,7 +291,7 @@ int control_filedlg()
 								}
 								default:
 								{
-									_u16 ihv1=(control_Event.key.keysym.unicode);
+									_u16 ihv1=(getunicode(&control_Event));
 									if (control_menutexteditcursor<=strlen(((char*)(tl_pulloutlisting->variable))))
 									{
 										for (int ilv1=strlen(((char*)(tl_pulloutlisting->variable)));ilv1>=control_menutexteditcursor;ilv1--)

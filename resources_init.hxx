@@ -67,10 +67,18 @@ void resources_init(char * iargv0)
 	resource_file=criticalfilename(iargv0,idirectorystring,"/hotkeys.xml");
 	config_init(resource_file);
 	fclose(resource_file);
+	#ifndef WITHOUT_FREETYPE
 	resource_file=criticalfilename(iargv0,idirectorystring,"/LiberationMono-Regular.ttf");
 	if (resource_file)
 	{
 		fclose(resource_file);
 		text_init(idirectorystring);
 	}
+	#else
+	resource_file=criticalfilename(iargv0,idirectorystring,"/LiberationMono-Regular.bin");
+	if (resource_file)
+	{
+		text_load(resource_file);
+	}
+	#endif
 }

@@ -2,24 +2,24 @@
 //Intended to be included several times for different graphics outputs
 
 
-int MACRO_DRAWPREFIX(get_colorstring)(int number)
+void MACRO_DRAWPREFIX(get_colorstring)(int number)
 {
 	#ifdef LENNARD_HACK
 	if (LENNARD_HACK_colormode==1)
 	{
 		strcpy(colorstring,"FFFFFF");
-		return 0;
+		return;
 	}
 	if (LENNARD_HACK_colormode==2)
 	{
 		strcpy(colorstring,"000000");
-		return 0;
+		return;
 	}
 	#endif
 	MACRO_DRAWPREFIX(get_colorstringv)(number);
 }
 
-inline int MACRO_DRAWPREFIX(get_colorstring_passive)(int number)
+inline void MACRO_DRAWPREFIX(get_colorstring_passive)(int number)
 {
 	if (number!=0)
 	{

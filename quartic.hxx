@@ -47,7 +47,7 @@ double little_q(double a,double b,double c,double d)
 {
 	return (b*b*b-4*a*b*c+8*a*a*d)/(8*a*a*a);
 }
-int calculatecrossing(double a, double b, double iS, double ilittle_p, double ilittle_q,double *backval1,double *backval2,double *backval3,double *backval4)
+void calculatecrossing(double a, double b, double iS, double ilittle_p, double ilittle_q,double *backval1,double *backval2,double *backval3,double *backval4)
 {
 	double discriminant;
 	discriminant=-4*iS*iS-2*ilittle_p+(ilittle_q/iS);
@@ -117,4 +117,5 @@ int QUARTIC_quartic(double a,double b,double c,double d,double e,double * backva
 	}
 	double ilittle_q=little_q(a,b,c,d);
 	calculatecrossing(a,b,iS,ilittle_p,ilittle_q,backval1,backval2,backval3,backval4);
+	return 0;
 }

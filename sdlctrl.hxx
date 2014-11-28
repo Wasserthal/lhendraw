@@ -84,7 +84,7 @@ typedef struct MODIFIER_KEYS_
 	char DOWN;
 }MODIFIER_KEYS_;
 MODIFIER_KEYS_ MODIFIER_KEYS={0,0,0,0};
-int CONTROL_ZOOMIN(float ifactor,char i_direction)
+void CONTROL_ZOOMIN(float ifactor,char i_direction)
 {
 	if (i_direction==1)
 	{
@@ -187,7 +187,7 @@ void checkupinconsistencies()
 	}
 	selection_recheck(selection_currentselection,&selection_currentselection_found);
 }
-int issueshiftstart()
+void issueshiftstart()
 {
 	control_posx=control_mousex-gfx_canvasminx;
 	control_posy=control_mousey-gfx_canvasminy;
@@ -365,8 +365,10 @@ int interpretkey(int listnr=-1)
 			}
 		}
 	}
+	return 0;
 	commanderledigt:;
 	checkupinconsistencies();
+	return 1;
 }
 #endif
 void clickforthem()
@@ -1960,7 +1962,7 @@ int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int
 	}
 	return 0;
 }
-int sdl_commonmenucommon();
+void sdl_commonmenucommon();
 int issuepseclick(int x,int y,int ibutton)
 {
 	for (int ilv1=0;ilv1<sizeof(element)/sizeof(element_);ilv1++)

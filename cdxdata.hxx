@@ -125,6 +125,7 @@ int writefrombuffer(FILE * output,char * input)
 		fprintf(output,"%c",input[ilv1]);
 		ifertig:;
 	}
+	return 0;
 }
 int copytobuffer(TELESCOPE_buffer * ibuffer,char * input)//TODO: what if string is longer than 2147483647 bytes?
 {
@@ -181,8 +182,7 @@ int copytobuffer(TELESCOPE_buffer * ibuffer,char * input)//TODO: what if string 
 }
 int __attribute__((sysv_abi))CDXMLWRITE_cdx_Buffered_String(char * input,void * output)
 {
-	writefrombuffer((FILE*)output,*(char**)input);
-	return 0;
+	return writefrombuffer((FILE*)output,*(char**)input);
 }
 int __attribute__((sysv_abi))CDXMLREAD_cdx_Buffered_String(char * input,void * output)
 {
@@ -349,12 +349,14 @@ int __attribute__((sysv_abi))CDXMLWRITE__i8(char * input,void * output)
 int __attribute__((sysv_abi))CDXMLREAD_BIN__i8(char * input,void * output)
 {
 	*((_i8*)output)=*((_i8*)input);
+	return 0;
 }
 int __attribute__((sysv_abi))CDXMLWRITE_BIN__i8(char * input,void * output)
 {
 	static int length=1;
 	fwrite(&length,2,1,(FILE*)output);
 	fwrite(input,1,1,(FILE*)output);
+	return 0;
 }
 int __attribute__((sysv_abi))CDXMLREAD__i8(char * input,void * output)
 {
@@ -462,11 +464,13 @@ int __attribute__((sysv_abi))CDXMLWRITE_BIN_arcfloat(char * input,void * output)
 int __attribute__((sysv_abi))CDXMLREAD_BIN_arcfloat(char * input,void * output)
 {
 	*(float*)output=(*(_i32*)input)/10.0;
+	return 0;
 }
 
 int __attribute__((sysv_abi))CDXMLWRITE__x8(char * input,void * output)
 {
 	fprintf((FILE*)output,"%hhX.%hhX",(*((unsigned char *) input))/16,(*((unsigned char *) input))%16);//TODO: div16
+	return 0;
 }
 int __attribute__((sysv_abi))CDXMLREAD__x8(char * input,void * output)
 {
@@ -569,6 +573,7 @@ int __attribute__((sysv_abi))CDXMLREAD_BIN_cdx_Pointreferences(char * input,void
 	{
 		list->a[ilv1]=((_i32*)input)[ilv1];
 	}
+	return 0;
 }
 int __attribute__((sysv_abi))CDXMLWRITE_BIN_cdx_Pointreferences(char * input,void * output)
 {

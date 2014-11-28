@@ -69,7 +69,7 @@ char * getparameter(int parameter,int ioffset,char * commandout_1,const char * c
 	}
 	return iarg;
 }
-int executeparameter(const char which,int parameter,int posinparameter,int argc,char ** argv)
+void executeparameter(const char which,int parameter,int posinparameter,int argc,char ** argv)
 {
 	posinparameter++;
 	switch(which)

@@ -355,4 +355,5 @@ int control_filedlg()
 			goto keyshunt;
 		}
 	}
+	return 0;
 }

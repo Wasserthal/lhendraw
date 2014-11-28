@@ -158,12 +158,6 @@ int getbufferfromstructure(basicmultilist * input,TELESCOPE_buffer * * bufferptr
 	}
 	return 0;
 }
-int enumerate_contents()
-{
-}
-char * next_content()
-{
-}
 char TELESCOPE_verify_objectpresent()
 {
 	if (TELESCOPE_tempvar.pos<(*(TELESCOPE_tempvar.buffer)).count)
@@ -557,6 +551,7 @@ int TELESCOPE_clear()//clears all elements of that object
 	{
 		(*((TELESCOPE*)(((*(TELESCOPE_tempvar.buffer)).buffer)+TELESCOPE_tempvar.pos))).owner=-1;
 	}
+	return 1;
 }
 int TELESCOPE_clear_item()//clears one item. leaves the cursor system at its position, so the next item is automatically aimed at.
 {
@@ -572,6 +567,7 @@ int TELESCOPE_clear_item()//clears one item. leaves the cursor system at its pos
 		(*((basic_instance_propertybuffer*)(((char*)((*(TELESCOPE_tempvar.multilist)).pointer))+(TELESCOPE_tempvar.objectsize*ilv1)))).pos_in_buffer-=ilength;
 	}
 	(*(TELESCOPE_tempvar.buffer)).count-=ilength;
+	return 1;
 }
 void * TELESCOPE_getproperty()//returns the pointer to the current content, and it should be named TELESCOPE_getcontent
 {
@@ -593,4 +589,6 @@ int initmemory()
 	filestructure_curve_buffer.buffer=(char*)malloc(LHENDRAW_buffersize);
 	filestructure_curve_buffer.max=LHENDRAW_buffersize;
 	filestructure_curve_buffer.count=0;
+	if ((filestructure_text_buffer.buffer!=NULL) && (filestructure_curve_buffer.buffer!=NULL)) return 1;
+	return -1;
 }

@@ -262,9 +262,9 @@ int main(int argc,char * * argv)
 			if (register_enum(properties[ilv1]))
 			{
 				fprintf(outfile,"#ifndef FUNCTIONDEFINED_AUTOMATICALLY_CDXMLREAD_ENUM_%s\n#define FUNCTIONDEFINED_AUTOMATICALLY_CDXMLREAD_ENUM_%s\nint __attribute__((sysv_abi))CDXMLREAD_ENUM_%s(char * input,void * output)\n{\n        \
-	*((_i32 *)output)=get_bienum%s(CDXML_%s,input,CDXML_%s_max);\n}\n\
+	*((_i32 *)output)=get_bienum%s(CDXML_%s,input,CDXML_%s_max);\n	return 0;\n}\n\
 int __attribute__((sysv_abi))CDXMLWRITE_ENUM_%s(char * input,void * output)\n{\n        \
-	set_bienum%s(CDXML_%s,(FILE*)output,CDXML_%s_max,*((_i32 *)input));\n}\n#endif\n",properties[ilv1],properties[ilv1],properties[ilv1],(properties_type_nrs[ilv1]==7)?"_multi":"",properties[ilv1],properties[ilv1],properties[ilv1],(properties_type_nrs[ilv1]==7)?"_multi":"",properties[ilv1],properties[ilv1]);
+	return set_bienum%s(CDXML_%s,(FILE*)output,CDXML_%s_max,*((_i32 *)input));\n}\n#endif\n",properties[ilv1],properties[ilv1],properties[ilv1],(properties_type_nrs[ilv1]==7)?"_multi":"",properties[ilv1],properties[ilv1],properties[ilv1],(properties_type_nrs[ilv1]==7)?"_multi":"",properties[ilv1],properties[ilv1]);
 			}
 		}
 	}

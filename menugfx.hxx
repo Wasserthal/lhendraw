@@ -279,6 +279,7 @@ int sdl_textmenudraw(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int count,int xpos=0,
 		}
 		printmenutext(ilisting[ilv1].x*192+xpos,ilisting[ilv1].y*16+ypos,ilisting[ilv1].name,NULL,0,0,strlen(ilisting[ilv1].name));
 	}
+	return 1;
 }
 int sdl_textbuttonmenudraw(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int count,int xpos=0,int ypos=0)
 {
@@ -325,6 +326,7 @@ int sdl_textbuttonmenudraw(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int count,int x
 		}
 		printmenutext(left,top,ilisting[ilv1].name,NULL,0,0,strlen(ilisting[ilv1].name));
 	}
+	return 1;
 }
 int sdl_listmenudraw(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int count,int xpos=0,int ypos=0,int item=-1)
 {
@@ -466,7 +468,7 @@ int sdl_buttonmenudraw(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int count,int xpos=
 		
 	return 1;
 }
-int sdl_canvasframedraw()
+void sdl_canvasframedraw()
 {
 	for (int ilv1=gfx_canvasminx;ilv1<gfx_canvasmaxx;ilv1++)
 	{
@@ -502,7 +504,7 @@ int addmenu(const char * name,int type,int alignx=0,int aligny=0)
 	return 0;
 }
 extern int control_tool;
-int sdl_filemenucommon()
+void sdl_filemenucommon()
 {
 	menu_list_count=0;
 	if (control_filemenu_mode==0) addmenu("filedlg_buttons_load",4);
@@ -525,6 +527,7 @@ int menu_itembyname(const char * name,int * menu,int * index)
 			inumber++;
 		}
 	}
+	return -1;
 }
 void menu_itemwadethrough(int * inumber,int * menu,int * index,char direction)
 {
@@ -548,7 +551,7 @@ void menu_itemwadethrough(int * inumber,int * menu,int * index,char direction)
 	if (endmode==2) (*inumber)=i_c_number-1;
 	return;
 }
-int sdl_commonmenucommon()
+void sdl_commonmenucommon()
 {
 	char tlstring[60];
 	char tlstring2[60];
@@ -615,7 +618,7 @@ int sdl_commonmenucommon()
 		menu_list_count++;
 	}
 }
-int sdl_psedraw(int istartx,int istarty)
+void sdl_psedraw(int istartx,int istarty)
 {
 	for (int ilv1=0;ilv1<sizeof(element)/sizeof(element_);ilv1++)
 	{
@@ -671,6 +674,7 @@ int sdl_menudraw()
 			sdl_textbuttonmenudraw((AUTOSTRUCT_PULLOUTLISTING_*)menu_list[ilv1].what.pointer,menu_list[ilv1].what.count,menu_list[ilv1].alignx,menu_list[ilv1].aligny);
 		}
 	}
+	return 0;
 }
 void menuframeline(int x,int y,int maxx,int maxy)
 {
@@ -697,12 +701,12 @@ void sdl_menuframe()
 	menuframeline((*ilisting).x,(*ilisting).y,(*ilisting).maxx,(*ilisting).maxy);
 	return;
 }
-int sdl_commonmenudraw()
+void sdl_commonmenudraw()
 {
 	sdl_commonmenucommon();
 	sdl_menudraw();
 }
-int sdl_filemenudraw()
+void sdl_filemenudraw()
 {
 	sdl_filemenucommon();
 	sdl_menudraw();
@@ -827,4 +831,5 @@ int sdl_selectiondraw()
 							goto iback2;
 						}
 					}
+	return 0;
 }

@@ -357,6 +357,7 @@ int gfx()
 		fprintf(stderr,"Ich konnte kein Fenster mit der Auflösung 1024*768 öffnen: %s\n",SDL_GetError());
 		exit(1);
 	}
+	return 1;
 }
 int gfx_gfxstart()
 {
@@ -364,13 +365,14 @@ int gfx_gfxstart()
 	{
 		if ( SDL_LockSurface(video) < 0 ) 
 		{
-			return(1);
+			return(-1);
 		}
 	}
 	screen=(unsigned int*)(*video).pixels;//You know, that is a pointer to a n byte structure, n=colordepth
 	canvas=screen+gfx_canvasminx+gfx_screensizex*gfx_canvasminy;
+	return 1;
 }
-int gfx_gfxstop()
+void gfx_gfxstop()
 {
 	if ( SDL_MUSTLOCK(video) ) 
 	{
@@ -383,7 +385,7 @@ int gfx_gfxstop()
 	#endif
 }
 
-int gfx_expresstriangle(float ifx1,float ify1,float ifx2,float ify2,float ifx3,float ify3)
+void gfx_expresstriangle(float ifx1,float ify1,float ifx2,float ify2,float ifx3,float ify3)
 {
 	int ibrakelist_bks[256];
 	int ibrakelist_pps[256];//1: end 2: start 0: unknown 0x4: other than 8 0x8: other than 0x4 0x10: deaf(horz)
@@ -422,8 +424,8 @@ int gfx_expresstriangle(float ifx1,float ify1,float ifx2,float ify2,float ifx3,f
 	if (imaxx>gfx_canvassizex)imaxx=gfx_canvassizex;
 	if (iminy<0)iminy=0;
 	if (imaxy>gfx_canvassizey)imaxy=gfx_canvassizey;
-	if (imaxx<iminx){return 0;}
-	if (imaxy<iminy){return 0;}
+	if (imaxx<iminx){return;}
+	if (imaxy<iminy){return;}
 	{
 		int tlvert;
 		tlvert=(iy2-iy1);

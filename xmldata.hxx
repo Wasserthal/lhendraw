@@ -154,7 +154,7 @@ class basicmultilistreference
 	intl start_in_it;
 	intl count_in_it;
 	intl mynumber;
-	virtual void * addnew(){};
+	virtual void * addnew(){return 0;};
 	basic_instance * operator [](int ino)
 	{
 		return (basic_instance*)(((char*)((*instances).pointer))+(ino+start_in_it)*((*instances).itemsize));
@@ -178,7 +178,7 @@ struct basic_instance
 	virtual _u32 * getINTERNALPropertyexistflags(){return NULL;}
 	AUTOSTRUCT_cstyle_vtable * _;
 	basic_instance * master;
-	virtual int hit(float ix,float iy){};
+	virtual int hit(float ix,float iy){return 0;};
 /*	int & operator [] (O_int which)///TODO: enum NEEDED for each datatype
 	{
 		return *(int*)(((char*)this)+(*(((int*)_)+which)));
@@ -204,12 +204,21 @@ template <class whatabout> class multilist : public basicmultilist
 		pointer=bufferlist;
 		return;
 	}
-	void * ADD(whatabout * iwhatabout)//without dependants, use item buffer instead
+	int ADD(whatabout * iwhatabout)//without dependants, use item buffer instead
 	{
-		memcpy(bufferlist+filllevel,iwhatabout,sizeof(whatabout));
-		filllevel++;
+		if (filllevel<getmaxitems())
+		{
+			memcpy(bufferlist+filllevel,iwhatabout,sizeof(whatabout));
+			filllevel++;
+			return 1;
+		}
+		else
+		{
+			fprintf(stderr,"Programming error: overflow on internal multilist");exit(1);
+			return -1;
+		}
 	}
-	void * REMOVE(intl index)//without dependants, use item buffer instead
+	void REMOVE(intl index)//without dependants, use item buffer instead
 	{
 		bufferlist[index].exist=0;
 	}
@@ -307,11 +316,6 @@ template <class whatabout> multilist<whatabout> * registermultilist(const char *
 template <class whatabout> class multilistreference : public basicmultilistreference
 {
 	public:
-	void * add(whatabout input)
-	{
-		(*((multilist<whatabout>*)instances)).insert(input,start_in_it+count_in_it,mynumber);
-		count_in_it++;
-	}
 	void * addnew()
 	{
 		whatabout tempwert=whatabout();

@@ -97,9 +97,6 @@ char deletefromZlist(int listnr, int nr)
 	}
 	return -1;
 }
-multi_objref_ sortlist()
-{
-}
 //function instead of macro - good for debugging
 /*unsigned int * janitor_getZ(multi_objref_ & MACROPARAM)
 {
@@ -233,7 +230,7 @@ void reenumerate()
 	}
 }
 
-multi_objref_ initZlist()
+void initZlist()
 {
 	char iZorderbroken=0;
 	for (int ilv1=0;ilv1<bufferlistsize*multilistZcount;ilv1++)

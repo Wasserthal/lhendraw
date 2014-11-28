@@ -121,7 +121,7 @@ int edit_getnewZ()
 	janitor_maxZ+=1;
 	return janitor_maxZ;
 }
-int janitor_biasids(int i_bias)
+void janitor_biasids(int i_bias)
 {
 	janitor_id_list[0]=i_bias;
 	for (int ilv1=1;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
@@ -219,15 +219,6 @@ void getatoms()//makes some preprocessing
 			if ((diagnose_foundstart ==0) | (diagnose_foundend==0))
 			{
 				fprintf(stderr,"ERR:no start/end found!\n");exit(1);
-			}
-			printf("Bond%i S:%i E:%i (%i,%i)\n",ilv1,bond_actual_node[ilv1].start,bond_actual_node[ilv1].end,((*glob_b_multilist).bufferlist)[ilv1].B,((*glob_b_multilist).bufferlist)[ilv1].E);
-			for (int ilv2=0;ilv2<atom_actual_node[bond_actual_node[ilv1].start].bondcount;ilv2++)
-			{
-				printf("Atom start:%i (%i)\n",atom_actual_node[bond_actual_node[ilv1].start].bonds[ilv2],glob_n_multilist->bufferlist[bond_actual_node[ilv1].start].id);
-			}
-			for (int ilv2=0;ilv2<atom_actual_node[bond_actual_node[ilv1].end].bondcount;ilv2++)
-			{
-				printf("Atom end:%i (%i)\n",atom_actual_node[bond_actual_node[ilv1].end].bonds[ilv2],glob_n_multilist->bufferlist[bond_actual_node[ilv1].end].id);
 			}
 		}
 	}
@@ -1541,6 +1532,7 @@ catalogized_command_iterated_funcdef(LABELTEXT)
 catalogized_command_iterated_funcdef(LASTLABELTEXT)
 {
 	LABELTEXT(parameter,element[control_drawproperties.Element].name,imultilist,iinstance,iindex);
+	return 1;
 }
 catalogized_command_iterated_funcdef(SETITEMVARIABLE)
 {
@@ -1774,6 +1766,7 @@ int save_png(gfx_bufferset_ & target,FILE * ifile,_i32 width,_i32 height)
 		fwrite(&iihv1,4,1,ifile);
 	}
 	fwrite("\x00\x00\x00\x00IEND\xae\x42\x60\x82",12,1,ifile);
+	return 1;
 }
 void save_bmp(gfx_bufferset_ & target,FILE * ifile,_i32 width,_i32 height)
 {
@@ -2006,6 +1999,7 @@ catalogized_command_funcdef(SAVEAS)
 catalogized_command_funcdef(LOAD_INTO_SEARCHBUF)
 {
 	printf("TODO***stub\n");
+	return 1;
 }
 int edit_bondsum(int nr,int dir)
 {
@@ -2028,6 +2022,7 @@ int edit_bondsum(int nr,int dir)
 		case 1: (*tl_n_instance).protons+=i_bond_sum;if ((*tl_n_instance).Element==constants_Element_implicitcarbon) {(*tl_n_instance).protons=4-abs((*tl_n_instance).charge);} return 1;
 		case 2: (*tl_n_instance).protons-=i_bond_sum;return 1;
 	}
+	return 0;
 }
 void edit_add_deltahydrogens()
 {
@@ -2151,6 +2146,7 @@ catalogized_command_funcdef(ONETOONE)
 catalogized_command_funcdef(TOGGLETEXTATTRIBUTE)
 {
 	printf("TODO***stub\n");
+	return 1;
 }
 catalogized_command_funcdef(SEARCH)
 {
@@ -2706,6 +2702,7 @@ catalogized_command_funcdef(SET_ALL_ITEMS)//TODO: works for _i32 only, right now
 			}
 		}
 	}
+	return 1;
 }
 catalogized_command_funcdef(OPTIONS)
 {
@@ -2819,6 +2816,7 @@ catalogized_command_funcdef(CLEANUP)
 		}
 	}*/
 	if ((changed) && (count<1000000)) goto iback;
+	return 1;
 }
 int edit_flexicopy(int undostep_no,multilist<n_instance> * n_target,multilist<b_instance> * b_target,selection_ iselection,intl * i_deltaback,float dx,float dy,char overwrite)
 {

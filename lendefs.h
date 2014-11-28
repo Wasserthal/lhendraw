@@ -5,7 +5,7 @@ void test_routine();
 #define stringlength 512
 #endif
 #define bufferlength 512
-#define bufferlistsize 4096
+#define bufferlistsize 8192
 #define multilistlistlength 512
 #define _u64 unsigned long long
 #define _i64 signed long long

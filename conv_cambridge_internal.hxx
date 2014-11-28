@@ -97,7 +97,7 @@ void CAMBRIDGECONV_atom()
 			{
 				(tl_n_instance).Element++;
 			}
-			tl_n_instance.protons=element[ilv1].protons=0;
+			tl_n_instance.protons=0;
 		}
 		CAMBRIDGECONV_COLORCONV(n);
 		(tl_n_instance).charge=(*tl_CAMBRIDGE_n_instance).Charge;

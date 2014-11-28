@@ -1,3 +1,18 @@
+//This is the unit which processes undo'es. The undoes are stored in a Fifo buffer. Fifo in the sense: oldest items are more probably discarded.
+//Among a TOTAL undo buffer, which indexes the aaftermentioned buffers, following buffers are used:
+//For each undostep and each multilist, a buffer item for its contents
+//If that multilist-item has contents, a contentbuffer holding its contents.
+//Needed for buffers:
+
+//undoes:
+//The total undo list!
+//All undo buffers!
+//All undo contentbuffers!
+
+//CAMBRIDGE type multilists' "dependants" information (adjust bufferlistsize dynamically accordingly)
+//Selections. Make them always as large so the desired count of items fits in them.
+//(Should be trivial, as long as one index is smaller than the smallest object)
+
 struct undo_undostep_
 {
 	undo_singlebuffer handles[sizeof(STRUCTURE_OBJECTTYPE_List)/sizeof(trienum)];

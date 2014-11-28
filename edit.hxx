@@ -2038,6 +2038,10 @@ catalogized_command_funcdef(LOAD_TYPE)
 	svg_findaround();
 	getatoms();
 	edit_add_deltahydrogens();
+	for (int ilv1=0;ilv1<multilist_count;ilv1++)
+	{
+		if (multilistlist[ilv1].instance->filllevel>=multilistlist[ilv1].instance->getmaxitems()) fprintf(stderr,"Multilist overflow! %s\n",multilistlist[ilv1].name);
+	}
 	return 1;
 }
 catalogized_command_funcdef(LOADAS)

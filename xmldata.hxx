@@ -135,6 +135,7 @@ class basicmultilist
 	_u32 maxid;
 	void * pointer;
 	basicmultilist(){pointer=NULL;itemsize=0;};
+	virtual intl getmaxitems() {return 0;}
 	inline basic_instance & operator[](int ino)
 	{
 		return *((basic_instance*)(((char*)pointer)+(ino*itemsize)));
@@ -190,8 +191,9 @@ template <class whatabout> class multilist : public basicmultilist
 {
 	public:
 	whatabout * bufferlist;
+	//TODO: split off the non-contentbuffer "CAMBRIDGE" items-multilist as new data type, carrying the dependants, so this large variable is not stored in the undo steps. Turn it into an own buffer later!
 	multilistreference<whatabout> * dependants[bufferlistsize];
-	intl getmaxitems() {return LHENDRAW_buffersize;}
+	intl getmaxitems() {return LHENDRAW_buffersize/sizeof(whatabout);}
 	multilist()
 	{
 		filllevel=0;
@@ -213,6 +215,7 @@ template <class whatabout> class multilist : public basicmultilist
 	}
 	void * insert(whatabout input,intl position,intl mynumber)//position must be given to allow later refills
 	{
+		//TODO: check what's going on here!
 		for (int ilv1=filllevel;ilv1>position;ilv1--)
 		{
 			for (int ilv2=0;ilv2<sizeof(bufferlist[0]);ilv2++)//Thats why oop sucks!
@@ -242,7 +245,14 @@ template <class whatabout> class multilist : public basicmultilist
 	{
 		(*input).start_in_it=filllevel;
 		(*input).count_in_it=0;
-		dependants[ourcount]=input;
+		if (ourcount<bufferlistsize)
+		{
+			dependants[ourcount]=input;
+		}
+		else
+		{//TODO: Prevent memory overflow, better: 
+			fprintf(stderr,"Memory overflow on multilistreference_creation\n");exit(1);
+		}
 		return ourcount++;
 	}
 	virtual int getproperties(const char * name,CDXMLREAD_functype * delegateoutput)
@@ -363,7 +373,11 @@ struct undo_singlebuffer
 		if (suboffset!=-1)\
 		{\
 			nextinstance_list=*(basicmultilistreference**)(((char*)WHOM)+suboffset);\
-			tl_CAMBRIDGE_ ## WHAT ## _instance=(CAMBRIDGE_ ## WHAT ## _instance*)nextinstance_list->addnew();\
+			tl_CAMBRIDGE_ ## WHAT ## _instance=(CAMBRIDGE_ ## WHAT ## _instance*)(nextinstance_list->addnew());\
+			(*tl_CAMBRIDGE_ ## WHAT ## _instance).master=WHOM;\
 		}\
-		(*tl_CAMBRIDGE_ ## WHAT ## _instance).master=WHOM;\
+		else\
+		{\
+			fprintf(stderr,"programming error! " #WHAT " is no Element of this " #WHOM ", at address%p!\n",WHOM);exit(1);\
+		}\
 	}

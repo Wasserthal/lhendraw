@@ -257,7 +257,7 @@ template <class whatabout> class multilist : public basicmultilist
 	}
 	virtual int getproperties(const char * name,CDXMLREAD_functype * delegateoutput)
 	{
-		(*((whatabout*)0)).whatabout::getproperties(name,delegateoutput);
+		return (*((whatabout*)0)).whatabout::getproperties(name,delegateoutput);
 	}
 	~multilist()
 	{

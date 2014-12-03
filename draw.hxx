@@ -409,7 +409,7 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,bool hatches)
 				{
 					MACRO_DRAWPREFIX(text_rewind)((unsigned char*)istring,strlen(istring));
 				}
-				MACRO_DRAWPREFIX(printformatted)(istring,0,(1*(actual==4)) | (3*(ilv1==5)),0,strlen(istring));
+				MACRO_DRAWPREFIX(printformatted)(istring,"",(1*(actual==4)) | (4*(ilv1==5)),0,strlen(istring));
 			}
 			MACRO_DRAWPREFIX(express_text_tail)();
 		}

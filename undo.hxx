@@ -9,9 +9,6 @@
 //All undo buffers!
 //All undo contentbuffers!
 
-//CAMBRIDGE type multilists' "dependants" information (adjust bufferlistsize dynamically accordingly)
-//Selections. Make them always as large so the desired count of items fits in them.
-//(Should be trivial, as long as one index is smaller than the smallest object)
 
 struct undo_undostep_
 {

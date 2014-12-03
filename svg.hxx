@@ -1,3 +1,4 @@
+char svg_text_buffer[1048576];
 int svg_get_colorstringv(int number)
 {
 	sprintf(colorstring,"%06X",number);
@@ -155,6 +156,10 @@ void svg_printformatted(const char * iinput,const char * parms,int imode,int sta
 	{
 		fprintf(outfile,"<tspan dy=\"-%f\" %s font-size=\"%f\" style=\"fill:#%s\">",currentsetfontsize/6.0,parms,currentsetfontsize*0.77777,colorstring);
 	}
+	if ((imode>4) || (imode<0) || (imode==3))
+	{
+		fprintf(stderr,"Programming error! Format string unknown!\n");exit(1);
+	}
 	for (;ilv4<end;ilv4++)
 	{
 		if (iinput[ilv4]==10)
@@ -163,17 +168,29 @@ void svg_printformatted(const char * iinput,const char * parms,int imode,int sta
 			linebreak=1;
 			goto skipfornow;
 		}
+		for (int ilv2=0;ilv2<sizeof(list_xml)/sizeof(list_bookstavecode);ilv2++)
+		{
+			if (iinput[ilv4]==list_xml[ilv2].unicode[0])
+			{
+				fprintf(outfile,"&%s;",list_xml[ilv2].name);
+				goto ifertig;
+			}
+		}
 		fprintf(outfile,"%c",iinput[ilv4]);
+		ifertig:;
 	}
 	skipfornow:
-	fprintf(outfile,"</tspan>");
-	if (imode==1)
+	if (ilv4>=end)
 	{
-		fprintf(outfile,"<tspan %s dy=\"-%f\">&#8288;</tspan>",parms,currentsetfontsize/6.0);
-	}
-	if (imode==4)
-	{
-		fprintf(outfile,"<tspan %s dy=\"%f\">&#8288;</tspan>",parms,currentsetfontsize/6.0);
+		fprintf(outfile,"</tspan>");
+		if (imode==1)
+		{
+			fprintf(outfile,"<tspan %s dy=\"-%f\">&#8288;</tspan>",parms,currentsetfontsize/6.0);
+		}
+		if (imode==4)
+		{
+			fprintf(outfile,"<tspan %s dy=\"%f\">&#8288;</tspan>",parms,currentsetfontsize/6.0);
+		}
 	}
 	fprintf(outfile,"\n");
 	if (linebreak) {fprintf(outfile,"<tspan dy=\"%f\" x=\"0\">&#8288;</tspan>",20.0/18.0*currentsetfontsize);if (ilv4<end) goto thatwasatemporaryskip;}//a line break;

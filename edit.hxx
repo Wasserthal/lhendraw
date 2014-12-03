@@ -3108,7 +3108,7 @@ int edit_readsfrombuffer(char * input)
 	ADD_TO_MULTILISTREFERENCE(currentinstance,s);
 	tl_CAMBRIDGE_s_instance->font=icurrentstylerun.font;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_s_instance,font);
 	tl_CAMBRIDGE_s_instance->face=icurrentstylerun.face;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_s_instance,face);
-	tl_CAMBRIDGE_s_instance->size=icurrentstylerun.size;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_s_instance,size);
+	tl_CAMBRIDGE_s_instance->size=icurrentstylerun.size/20;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_s_instance,size);
 	tl_CAMBRIDGE_s_instance->color=icurrentstylerun.color;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_s_instance,color);
 	currentinstance=tl_CAMBRIDGE_s_instance;
 	concludepctext();
@@ -3247,7 +3247,7 @@ int edit_writestobuffer(char * input,void * output)
 		tl_stylerun.color=tl_CAMBRIDGE_s_instance->color;
 		tl_stylerun.font=tl_CAMBRIDGE_s_instance->font;
 		tl_stylerun.face=tl_CAMBRIDGE_s_instance->face;
-		tl_stylerun.size=tl_CAMBRIDGE_s_instance->size;
+		tl_stylerun.size=tl_CAMBRIDGE_s_instance->size*20;
 		fwrite(&tl_stylerun,sizeof(cdx_Stylerun),1,(FILE*)output);
 		fseek((FILE*)output,fseekcur,SEEK_SET);
 		if (edit_printtranslate((FILE*)output,tl_CAMBRIDGE_s_instance->PCTEXT.a,&subcursor)){goto iagain;}

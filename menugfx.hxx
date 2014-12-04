@@ -307,7 +307,7 @@ int sdl_textbuttonmenudraw(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int count,int x
 			}
 			else
 			{
-				yco==11;
+				yco=11;
 			}
 			for (int ilv2=0;ilv2<right-left;ilv2++)
 			{

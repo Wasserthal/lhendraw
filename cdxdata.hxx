@@ -343,7 +343,7 @@ int __attribute__((sysv_abi))CDXMLREAD__i32(char * input,void * output)
 }
 int __attribute__((sysv_abi))CDXMLWRITE__i8(char * input,void * output)
 {
-	fprintf((FILE*)output,"%hhi",*((_i32*)input));
+	fprintf((FILE*)output,"%hhi",*((_i8*)input));
 	return 0;
 }
 int __attribute__((sysv_abi))CDXMLREAD_BIN__i8(char * input,void * output)
@@ -469,7 +469,7 @@ int __attribute__((sysv_abi))CDXMLREAD_BIN_arcfloat(char * input,void * output)
 
 int __attribute__((sysv_abi))CDXMLWRITE__x8(char * input,void * output)
 {
-	fprintf((FILE*)output,"%hhX.%hhX",(*((unsigned char *) input))/16,(*((unsigned char *) input))%16);//TODO: div16
+	fprintf((FILE*)output,"%hhX.%hhX",(char)((*((unsigned char *) input))/16),(char)((*((unsigned char *) input))%16));
 	return 0;
 }
 int __attribute__((sysv_abi))CDXMLREAD__x8(char * input,void * output)
@@ -553,6 +553,7 @@ int __attribute__((sysv_abi))CDXMLREAD_cdx_Bezierpoints(char * input,void * outp
 	(*list).count=0;
 	ilv1=0;
 	iback:
+	if (ilv1>=bezierpointmax-1) {(*list).count=ilv1;return ilv1;}
 	ilv1+=CDXMLREAD_float(input+ilv1,&((*list).a[(*list).count].x));
 	while(spaciatic(input[ilv1])) ilv1++;
 	if (input[ilv1]==0) return ilv1;
@@ -569,6 +570,8 @@ int __attribute__((sysv_abi))CDXMLREAD_BIN_cdx_Pointreferences(char * input,void
 	//TODO: Buffered!
 	cdx_Pointreferences * list=(cdx_Pointreferences*)output;
 	(*list).count=paramvaluestring_length/4;//Well this is just as hacky as the file format itself...
+	//TODO: Buffered_overflow_check!
+	if ((*list).count>=bezierpointmax) {(*list).count=0;return -1;}
 	for (int ilv1=0;ilv1<(*list).count;ilv1++)
 	{
 		list->a[ilv1]=((_i32*)input)[ilv1];
@@ -578,7 +581,6 @@ int __attribute__((sysv_abi))CDXMLREAD_BIN_cdx_Pointreferences(char * input,void
 int __attribute__((sysv_abi))CDXMLWRITE_BIN_cdx_Pointreferences(char * input,void * output)
 {
 	//TODO: Buffered!
-	//TODO: overflow check!
 	cdx_Pointreferences * list=(cdx_Pointreferences*)input;
 	(*list).count=paramvaluestring_length/4;//Well this is just as hacky as the file format itself...
 	int length=(*list).count*4;
@@ -607,6 +609,7 @@ int __attribute__((sysv_abi))CDXMLREAD_cdx_Pointreferences(char * input,void * o
 	(*list).count=0;
 	ilv1=0;
 	iback:
+	if (ilv1>=bezierpointmax-1) {(*list).count=ilv1;return ilv1;}
 	ilv1+=CDXMLREAD__i32(input+ilv1,&((*list).a[(*list).count]));
 	while(spaciatic(input[ilv1])) ilv1++;
 	if (input[ilv1]==0) ended=1;
@@ -776,6 +779,8 @@ int __attribute__((sysv_abi))CDXMLREAD_cdx_Point3D(char * input,void * output)
 int __attribute__((sysv_abi))CDXMLREAD_BIN_cdx_Bezierpoints(char * input,void * output)
 {
 	int count=*(_u16*)input;
+	(*((cdx_Bezierpoints*)output)).count=count;
+	if (count>=bezierpointmax) {(*((cdx_Bezierpoints*)output)).count=0;return -1;}
 	int intermediate=0;
 	int ilv1=2;
 	for (int ilv2=0;ilv2<count;ilv2++)

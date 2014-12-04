@@ -40,6 +40,7 @@ int reflection_loadline()
 		}
 		loopdone:;
 	}
+	return 1;
 }
 int main(int argc,char ** argv)
 {

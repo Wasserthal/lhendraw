@@ -158,7 +158,8 @@ int slayundo()
 	if (currentundostep<=1) return -1;
 	for (int ilv1=1;ilv1<sizeof(STRUCTURE_OBJECTTYPE_List)/sizeof(trienum);ilv1++)
 	{
-		if (tl_multilist=findmultilist(STRUCTURE_OBJECTTYPE_List[ilv1].name))
+		tl_multilist=findmultilist(STRUCTURE_OBJECTTYPE_List[ilv1].name);
+		if (tl_multilist)
 		{
 			if (undosteps[1].handles[ilv1].buffer!=0)
 			{
@@ -220,7 +221,8 @@ int storeundo(_u32 flags)
 	}
 	for (int ilv1=1;ilv1<sizeof(STRUCTURE_OBJECTTYPE_List)/sizeof(trienum);ilv1++)
 	{
-		if (tl_multilist=findmultilist(STRUCTURE_OBJECTTYPE_List[ilv1].name))
+		tl_multilist=findmultilist(STRUCTURE_OBJECTTYPE_List[ilv1].name);
+		if (tl_multilist)
 		{
 			if (flags & (1<<ilv1))
 			{
@@ -268,7 +270,8 @@ int restoreundo(_u32 flags,_u32 orderflags/*bit0: restore count only*/)//doesn't
 //	printf("\e[34m%i\e[0m\n",currentundostep);
 	for (int ilv1=1;ilv1<sizeof(STRUCTURE_OBJECTTYPE_List)/sizeof(trienum);ilv1++)
 	{
-		if (tl_multilist=findmultilist(STRUCTURE_OBJECTTYPE_List[ilv1].name))
+		tl_multilist=findmultilist(STRUCTURE_OBJECTTYPE_List[ilv1].name);
+		if (tl_multilist)
 		{
 			if (flags & (1<<ilv1))
 			{

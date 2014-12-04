@@ -1419,7 +1419,8 @@ int edit_errichten(int startatom)
 	tlangle=edit_get_atom_best_free_side(startatom);
 	float posx=(*tlatom).xyz.x+constants_bondlength*cos(tlangle);
 	float posy=(*tlatom).xyz.y+constants_bondlength*sin(tlangle);
-	if (tlatom2=snapatom_short(posx,posy,&atomnr2,10))
+	tlatom2=snapatom_short(posx,posy,&atomnr2,10);
+	if (tlatom2)
 	{
 	}
 	else
@@ -1575,9 +1576,10 @@ catalogized_command_funcdef(CHUP)
 	checkupinconsistencies();
 	return 1;
 }
+void	issueshiftstart();
 catalogized_command_funcdef(BLOT)
 {
-	int issueshiftstart();
+	issueshiftstart();
 	selection_clearselection(selection_clickselection);
 	clickfor(control_coorsx,control_coorsy,STRUCTURE_OBJECTTYPE_n,1000,1);
 	n_instance * iinstance=(n_instance*)getclicked((1<<STRUCTURE_OBJECTTYPE_n),control_coorsx,control_coorsy);
@@ -2966,8 +2968,8 @@ int edit_readrepresentfrombuffer(char * input)
 int edit_writerepresenttobuffer(char * input,void * output)
 {
 	basicmultilistreference * tl_basicmultilistreference=*((basicmultilistreference**)input);
-	tl_basicmultilistreference->count_in_it;
-	for (int ilv1=tl_basicmultilistreference->start_in_it;ilv1<tl_basicmultilistreference->start_in_it+tl_basicmultilistreference->count_in_it;ilv1++)
+	int tl_max=tl_basicmultilistreference->start_in_it+tl_basicmultilistreference->count_in_it;
+	for (int ilv1=tl_basicmultilistreference->start_in_it;ilv1<tl_max;ilv1++)
 	{
 		_i16 length=0x06;
 		fwrite(&length,2,1,(FILE*)output);
@@ -3214,8 +3216,8 @@ int edit_writestobuffer(char * input,void * output)
 	int textlength=0;
 	static int length=0x00;
 	basicmultilistreference * tl_basicmultilistreference=*((basicmultilistreference**)input);
-	tl_basicmultilistreference->count_in_it;
-	for (int ilv1=tl_basicmultilistreference->start_in_it;ilv1<tl_basicmultilistreference->start_in_it+tl_basicmultilistreference->count_in_it;ilv1++)
+	int tl_max=tl_basicmultilistreference->start_in_it+tl_basicmultilistreference->count_in_it;
+	for (int ilv1=tl_basicmultilistreference->start_in_it;ilv1<tl_max;ilv1++)
 	{
 		int tl_count=1;
 		int tl_starttype=0;

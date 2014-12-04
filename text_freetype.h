@@ -47,7 +47,7 @@ _i32 utf8resolve(_u8 * input,_i32 * backcount)
 				followers++;
 				ihv1=ihv1<<1;
 			}
-			currentunicode=ihv1>>followers+1;
+			currentunicode=ihv1>>(followers+1);
 			icounter++;
 			for (_i32 ilv2=0;ilv2<followers;ilv2++)
 			{
@@ -228,5 +228,7 @@ int text_load(FILE * ifile)
 		fontpixinf[ilv1].memstart=+fontpixbuffer;
 	}
 	fclose(ifile);
+	//TODO: clear return value?
+	return 1;
 }
 #endif

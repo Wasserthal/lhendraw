@@ -478,13 +478,40 @@ char emptystring[1]="";
 char semicolonstring[2]=";";
 int stylefromline(int input) {return 1|((input & 1)?8:0)|((input & 2)?4:0);}
 int stylefromrectangle(int input) {return 1|((input & 0x10)?8:0)|((input & 0x20)?4:0)|((input & 0x8)?2:0);}
+typedef struct MODIFIER_KEYS_
+{
+	char CTRL;
+	char ALT;
+	char SHIFT;
+	char SUPER;
+	char LEFT;
+	char RIGHT;
+	char UP;
+	char DOWN;
+}MODIFIER_KEYS_;
+MODIFIER_KEYS_ MODIFIER_KEYS={0,0,0,0,0,0,0,0};
 #ifdef SDL2
 _u16 getunicode(SDL_Event * input)
 {
-	return SDL_GetKeyName(input->key.keysym.sym)[0];
+	char ihv1=SDL_GetKeyName(input->key.keysym.sym)[0];
+	if (strlen(SDL_GetKeyName(input->key.keysym.sym))==1)
+	{
+		if ((ihv1>='A') && (ihv1<='Z'))
+		{
+			if (MODIFIER_KEYS.SHIFT)
+			{
+				return ihv1;
+			}
+			else
+			{
+				return ihv1+0x20;
+			}
+		}
+	}
+	return 0;
 }
-#define SDL_BUTTON_WHEELUP 99999
-#define SDL_BUTTON_WHEELDOWN 99998
+#define SDL_BUTTON_WHEELUP 4
+#define SDL_BUTTON_WHEELDOWN 5
 #else
 _u16 getunicode(SDL_Event * input)
 {

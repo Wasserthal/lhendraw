@@ -72,18 +72,6 @@ control_toolinfo_ control_toolinfo[]=
 	{(_u32)~0,7,-1},//eraser
 	{(_u32)~0,0,0},//Arrow
 };
-typedef struct MODIFIER_KEYS_
-{
-	char CTRL;
-	char ALT;
-	char SHIFT;
-	char SUPER;
-	char LEFT;
-	char RIGHT;
-	char UP;
-	char DOWN;
-}MODIFIER_KEYS_;
-MODIFIER_KEYS_ MODIFIER_KEYS={0,0,0,0};
 void CONTROL_ZOOMIN(float ifactor,char i_direction)
 {
 	if (i_direction==1)
@@ -2251,8 +2239,25 @@ void control_normal()
 				}
 				break;
 			}
+			#ifdef SDL2
+			case SDL_MOUSEWHEEL:
+			{
+				if (control_Event.wheel.y-control_Event.wheel.x!=0)
+				{
+					control_Event.button.type=SDL_MOUSEBUTTONDOWN;
+					control_Event.button.button=(control_Event.wheel.y-control_Event.wheel.x>0)?SDL_BUTTON_WHEELUP:SDL_BUTTON_WHEELDOWN;
+					control_Event.button.state=SDL_PRESSED;
+					control_Event.button.clicks=1;
+					control_Event.button.x=control_mousex;
+					control_Event.button.y=control_mousey;
+					goto SDL_MOUSEBUTTONDOWN_FROM_MOUSEWHEEL;
+				}
+				break;
+			}
+			#endif
 			case SDL_MOUSEBUTTONDOWN:
 			{
+				SDL_MOUSEBUTTONDOWN_FROM_MOUSEWHEEL:;
 				if ((control_mousestate & (~0x18))==0)
 				{
 					if ((control_mousestate & (24)) || (control_Event.button.x<gfx_canvasminx) || (control_Event.button.y<gfx_canvasminy) || (control_Event.button.x>=gfx_canvasmaxx) || (control_Event.button.y>=gfx_canvasmaxy))
@@ -2312,7 +2317,7 @@ void control_normal()
 					{
 						idirection=-1;
 					}
-					case SDL_BUTTON_WHEELDOWN://FALLTHROUGH
+					case SDL_BUTTON_WHEELDOWN:
 					{
 						control_doubleclickenergy=0;
 						if (MODIFIER_KEYS.CTRL)

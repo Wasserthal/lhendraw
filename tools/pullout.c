@@ -117,7 +117,7 @@ void domenu(menuitem * input,int count,char * name)
 }
 
 
-void main(int argc,char ** argv)
+int main(int argc,char ** argv)
 {
 	stringfile=fopen("./generated/pullout_stringfile.hxx","w+");
 	structfile=fopen("./generated/pullout_structfile.hxx","w+");

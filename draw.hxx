@@ -373,7 +373,7 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,bool hatches)
 			{
 				tl_format=0;
 			}
-			MACRO_DRAWPREFIX(express_txinit)(0/*TODO: reverse*/,(*i_n_instance).xyz.x,(*i_n_instance).xyz.y,atomfontheight);
+			MACRO_DRAWPREFIX(express_txinit)(atom_actual_node[index_in_buffer].labelside,(*i_n_instance).xyz.x,(*i_n_instance).xyz.y,atomfontheight);
 			for (int ilv1=0;ilv1<6;ilv1++)
 			{
 				int actual=ilv1;

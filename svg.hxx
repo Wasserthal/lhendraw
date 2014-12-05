@@ -1,4 +1,6 @@
-char svg_text_buffer[1048576];
+#define svg_text_buffer_max 1048576
+char svg_text_buffer[svg_text_buffer_max+1];
+int svg_text_buffer_count=0;
 int svg_get_colorstringv(int number)
 {
 	sprintf(colorstring,"%06X",number);
@@ -138,6 +140,20 @@ void svg_expressxbezier(int icount,...)
 //	%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f 
 	fprintf(outfile,"\" %s />",stylestring);
 }
+int svg_outstring(const char * iinput,...)
+{
+	va_list arglist;
+	va_start(arglist,iinput);
+	vsnprintf(svg_text_buffer+svg_text_buffer_count,svg_text_buffer_max-svg_text_buffer_count,iinput,arglist);
+	va_end(arglist);
+	svg_text_buffer[svg_text_buffer_max]=0;
+	svg_text_buffer_count+=strlen(svg_text_buffer+svg_text_buffer_count);
+	if (svg_text_buffer_count>=svg_text_buffer_max)
+	{
+		return -1;
+	}
+	return 1;
+}
 void svg_printformatted(const char * iinput,const char * parms,int imode,int start,int end)
 {
 	int ilv4=start;
@@ -146,15 +162,15 @@ void svg_printformatted(const char * iinput,const char * parms,int imode,int sta
 	linebreak=0;
 	if (imode==1)
 	{
-		fprintf(outfile,"<tspan dy=\"+%f\" %s font-size=\"%f\" style=\"fill:#%s\">",currentsetfontsize/6.0,parms,currentsetfontsize*0.77777,colorstring);
+		svg_outstring("<tspan dy=\"+%f\" %s font-size=\"%f\" style=\"fill:#%s\">",currentsetfontsize/6.0,parms,currentsetfontsize*0.77777,colorstring);
 	}
 	if ((imode==2) || (imode==0))
 	{
-		fprintf(outfile,"<tspan %s font-size=\"%f\" style=\"fill:#%s\">",parms,currentsetfontsize,colorstring);
+		svg_outstring("<tspan %s font-size=\"%f\" style=\"fill:#%s\">",parms,currentsetfontsize,colorstring);
 	}
 	if (imode==4)
 	{
-		fprintf(outfile,"<tspan dy=\"-%f\" %s font-size=\"%f\" style=\"fill:#%s\">",currentsetfontsize/6.0,parms,currentsetfontsize*0.77777,colorstring);
+		svg_outstring("<tspan dy=\"-%f\" %s font-size=\"%f\" style=\"fill:#%s\">",currentsetfontsize/6.0,parms,currentsetfontsize*0.77777,colorstring);
 	}
 	if ((imode>4) || (imode<0) || (imode==3))
 	{
@@ -172,35 +188,48 @@ void svg_printformatted(const char * iinput,const char * parms,int imode,int sta
 		{
 			if (iinput[ilv4]==list_xml[ilv2].unicode[0])
 			{
-				fprintf(outfile,"&%s;",list_xml[ilv2].name);
+				svg_outstring("&%s;",list_xml[ilv2].name);
 				goto ifertig;
 			}
 		}
-		fprintf(outfile,"%c",iinput[ilv4]);
+		svg_outstring("%c",iinput[ilv4]);
 		ifertig:;
 	}
 	skipfornow:
 	if (ilv4>=end)
 	{
-		fprintf(outfile,"</tspan>");
+		svg_outstring("</tspan>");
 		if (imode==1)
 		{
-			fprintf(outfile,"<tspan %s dy=\"-%f\">&#8288;</tspan>",parms,currentsetfontsize/6.0);
+			svg_outstring("<tspan %s dy=\"-%f\">&#8288;</tspan>",parms,currentsetfontsize/6.0);
 		}
 		if (imode==4)
 		{
-			fprintf(outfile,"<tspan %s dy=\"%f\">&#8288;</tspan>",parms,currentsetfontsize/6.0);
+			svg_outstring("<tspan %s dy=\"%f\">&#8288;</tspan>",parms,currentsetfontsize/6.0);
 		}
 	}
-	fprintf(outfile,"\n");
-	if (linebreak) {fprintf(outfile,"<tspan dy=\"%f\" x=\"0\">&#8288;</tspan>",20.0/18.0*currentsetfontsize);if (ilv4<end) goto thatwasatemporaryskip;}//a line break;
+	svg_outstring("\n");
+	if (linebreak) {svg_outstring("<tspan dy=\"%f\" x=\"0\">&#8288;</tspan>",20.0/18.0*currentsetfontsize);if (ilv4<end) goto thatwasatemporaryskip;}//a line break;
 }
 void svg_express_txinit(char ialignment,float iposx,float iposy,float iatomfontheight)
 {
+	svg_text_buffer_count=0;
+	svg_text_buffer[0]=0;
 	fprintf(outfile,"<text fill=\"%s\" %s stroke=\"none\" transform=\"translate(%f,%f)\" font-size=\"%f\">",colorstring,(ialignment) ? "text-anchor=\"end\" text-align=\"end\"" : "",iposx+SVG_currentshiftx,iposy+SVG_currentshifty,iatomfontheight);
 }
 void svg_express_text_tail()
 {
+	char finished=0;
+	for (int ilv1=svg_text_buffer_count;(ilv1>=0 && (finished==0));)
+	{
+		ilv1--;
+		if (ilv1<0) {finished=1; goto only_one_more_time;}
+		if (svg_text_buffer[ilv1]==0)
+		{
+			only_one_more_time:;
+			fprintf(outfile,"%s",svg_text_buffer+ilv1+1);
+		}
+	}
 	fprintf(outfile,"</text>\n");
 }
 void svg_head(FILE * ifile,float width,float height)
@@ -217,8 +246,15 @@ void svg_tail()
 	fprintf(outfile,"</svg>");
 	fclose(outfile);
 }
-void svg_text_rewind(const _u8 * sizestring,int length)
+int svg_text_rewind(const _u8 * sizestring,int length)
 {
+	if (svg_text_buffer_count>=svg_text_buffer_max-1)
+	{
+		return -1;
+	}
+	*(svg_text_buffer+svg_text_buffer_count)=0;
+	svg_text_buffer_count++;
+	return 1;
 }
 void svg_controlprocedure(bool irestriction,bool hatches);
 int svg_main(FILE * ifile)

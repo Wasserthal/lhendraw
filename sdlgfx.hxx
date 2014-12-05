@@ -829,7 +829,7 @@ void gfx_expresshexangle(float ix1,float iy1,float ix2,float iy2,float ix3,float
 	tlinficorn[5].y=iy6;
 	gfx_expressinfinityangle(tlinficorn,6);
 }
-void gfx_text_rewind(unsigned char * windtext,int length)
+int gfx_text_rewind(unsigned char * windtext,int length)
 {
 	int ilv4;
 	int backcount;
@@ -843,6 +843,7 @@ void gfx_text_rewind(unsigned char * windtext,int length)
 		SDL_old_txcursorx=SDL_txcursorx;
 		SDL_old_txcursory=SDL_txcursory;
 	}
+	return 1;
 }
 void text_print_bitmap(int * posx,int * posy,fontpixinf_ * ifontpixinf)
 {

@@ -348,7 +348,26 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,bool hatches)
 		}
 		if (tlElement==constants_Element_implicitcarbon)
 		{
-			MACRO_DRAWPREFIX(expresscdxcircle)((*i_n_instance).xyz.x,(*i_n_instance).xyz.y,2);
+			#ifndef DEBUG
+			if (atom_actual_node[index_in_buffer].bondcount==2)
+			{
+				if (glob_b_multilist->bufferlist[atom_actual_node[index_in_buffer].bonds[0]].Order==glob_b_multilist->bufferlist[atom_actual_node[index_in_buffer].bonds[1]].Order)
+				{
+					n_instance * aux_n_instance1=glob_n_multilist->bufferlist+getother(index_in_buffer,atom_actual_node[index_in_buffer].bonds[0]);
+					n_instance * aux_n_instance2=glob_n_multilist->bufferlist+getother(index_in_buffer,atom_actual_node[index_in_buffer].bonds[1]);
+					float tl_auxangle=getangle(aux_n_instance2->xyz.x-i_n_instance->xyz.x,aux_n_instance2->xyz.y-i_n_instance->xyz.y)-
+					getangle(i_n_instance->xyz.x-aux_n_instance1->xyz.x,i_n_instance->xyz.y-aux_n_instance1->xyz.y);
+					while (tl_auxangle<=-Pi) tl_auxangle+=2*Pi;
+					while (tl_auxangle>=Pi) tl_auxangle-=2*Pi;
+					if (fabs(tl_auxangle)<0.1)
+					{
+			#endif
+						MACRO_DRAWPREFIX(expresscdxcircle)((*i_n_instance).xyz.x,(*i_n_instance).xyz.y,2);
+			#ifndef DEBUG
+					}
+				}
+			}
+			#endif
 		}
 		else
 		{

@@ -133,6 +133,8 @@ void checkupinconsistencies()
 			{
 				if ((*tl_n_instance).Element==constants_Element_implicitcarbon)
 				{
+					TELESCOPE_aggressobject(glob_n_multilist,ilv1);
+					TELESCOPE_clear();
 					(*tl_n_instance).exist=0;
 				}
 			}
@@ -140,7 +142,7 @@ void checkupinconsistencies()
 			{
 				if ((*tl_n_instance).Element==constants_Element_implicitcarbon)
 				{
-					(*tl_n_instance).protons=4;
+					(*tl_n_instance).protons=4-abs((*tl_n_instance).charge);
 				}
 			}
 		}
@@ -160,6 +162,9 @@ void checkupinconsistencies()
 						int murasame=getother(bond_actual_node[ilv2].start,thisbond);
 						if (masamune==murasame)
 						{
+							//would be nice to add the properties of both bonds, but may cause invalid property combinations
+							TELESCOPE_aggressobject(glob_b_multilist,ilv2);
+							TELESCOPE_clear();
 							(*glob_b_multilist).bufferlist[thisbond].exist=0;
 							(*glob_b_multilist).bufferlist[ilv2].Order&=0xF0;
 							(*glob_b_multilist).bufferlist[ilv2].Order+=16;
@@ -435,9 +440,10 @@ catalogized_command_funcdef(ISSUEDELETE)
 					{
 						TELESCOPE_aggressobject(tlmultilist,ilv2);
 						TELESCOPE_clear();
-						if (ilv1==1) if ((*((n_instance*)(ibufferpos+isize*ilv2))).Element!=constants_Element_implicitcarbon)
+						if (ilv1==1) if (((*((n_instance*)(ibufferpos+isize*ilv2))).Element!=constants_Element_implicitcarbon) || ((*((n_instance*)(ibufferpos+isize*ilv2))).charge!=0))
 						{
 							(*((n_instance*)(ibufferpos+isize*ilv2))).Element=constants_Element_implicitcarbon;
+							(*((n_instance*)(ibufferpos+isize*ilv2))).charge=0;
 							goto i_delete_skip;
 						}
 						(*((basic_instance*)(ibufferpos+isize*ilv2))).exist=0;
@@ -461,9 +467,10 @@ catalogized_command_funcdef(ISSUEDELETE)
 				{
 					TELESCOPE_aggressobject(glob_n_multilist,control_hot[STRUCTURE_OBJECTTYPE_n]);
 					TELESCOPE_clear();
-					if ((*((n_instance*)(ibufferpos+isize*control_hot[STRUCTURE_OBJECTTYPE_n]))).Element!=constants_Element_implicitcarbon)
+					if (((*((n_instance*)(ibufferpos+isize*control_hot[STRUCTURE_OBJECTTYPE_n]))).Element!=constants_Element_implicitcarbon) || ((*((n_instance*)(ibufferpos+isize*control_hot[STRUCTURE_OBJECTTYPE_n]))).charge!=0))
 					{
 						(*((n_instance*)(ibufferpos+isize*control_hot[STRUCTURE_OBJECTTYPE_n]))).Element=constants_Element_implicitcarbon;
+						(*((n_instance*)(ibufferpos+isize*control_hot[STRUCTURE_OBJECTTYPE_n]))).charge=0;
 						goto i_delete_hot_skip;
 					}
 					(*((basic_instance*)(ibufferpos+isize*control_hot[STRUCTURE_OBJECTTYPE_n]))).exist=0;
@@ -667,7 +674,11 @@ int issueclick(int iposx,int iposy)
 		case 4:
 		{
 			control_manipulatedinstance=getclicked((1<<STRUCTURE_OBJECTTYPE_n),control_coorsx,control_coorsy);
-			selection_copyselection(selection_currentselection,selection_clickselection);
+			if (selection_currentselection_found==0)
+			{
+				selection_copyselection(selection_currentselection,selection_clickselection);
+				selection_currentselection_found=selection_clickselection_found;
+			}
 			control_startx=control_coorsx;
 			control_starty=control_coorsy;
 			break;
@@ -1552,6 +1563,7 @@ void issuerelease()
 			{
 				int follower=0;
 				icompare=1<<ilv1;
+				internalpointcount=retrieveprops_basic(1,ilv1);
 				int isize= STRUCTURE_OBJECTTYPE_List[ilv1].size;
 				basicmultilist * tlmultilist=findmultilist(STRUCTURE_OBJECTTYPE_List[ilv1].name);
 				if (tlmultilist==NULL) goto i_control3_fertig;

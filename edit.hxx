@@ -1345,8 +1345,26 @@ int atom_addsymbol(int inr,int itype)
 {
 	switch (itype)
 	{
-		case 2: case 4: case 8: (*glob_n_multilist).bufferlist[inr].charge+=1;break;
-		case 3: case 5: case 9: (*glob_n_multilist).bufferlist[inr].charge-=1;break;
+		case 2: case 4: case 8:
+		if ((*glob_n_multilist).bufferlist[inr].charge<0)
+		{
+			TELESCOPE_aggressobject(glob_n_multilist,inr);
+			(*glob_n_multilist).bufferlist[inr].charge=0;
+			TELESCOPE_clear();
+			return 1;
+		}
+		(*glob_n_multilist).bufferlist[inr].charge+=1;
+		break;
+		case 3: case 5: case 9:
+		if ((*glob_n_multilist).bufferlist[inr].charge>0)
+		{
+			TELESCOPE_aggressobject(glob_n_multilist,inr);
+			(*glob_n_multilist).bufferlist[inr].charge=0;
+			TELESCOPE_clear();
+			return 1;
+		}
+		(*glob_n_multilist).bufferlist[inr].charge-=1;
+		break;
 	}
 	TELESCOPE_aggressobject(glob_n_multilist,inr);
 	Symbol_instance tl_Symbol_instance;

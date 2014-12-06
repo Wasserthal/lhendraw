@@ -342,7 +342,7 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,bool hatches)
 		{
 			sortback=atom_actual_node[index_in_buffer].labelside;
 			if ((control_mousestate & 0x40) && (control_textedit_index==index_in_buffer)) sortback=0;
-			MACRO_DRAWPREFIX(express_txinit)(sortback,((*glob_n_multilist).bufferlist)[index_in_buffer].xyz.x,((*glob_n_multilist).bufferlist)[index_in_buffer].xyz.y,atomfontheight);
+			MACRO_DRAWPREFIX(express_txinit)(2 | sortback,((*glob_n_multilist).bufferlist)[index_in_buffer].xyz.x,((*glob_n_multilist).bufferlist)[index_in_buffer].xyz.y,atomfontheight);
 			TELESCOPE_aggressobject(glob_n_multilist,index_in_buffer);
 			goto n_to_t_shunt;
 		}
@@ -373,7 +373,7 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,bool hatches)
 			{
 				tl_format=0;
 			}
-			MACRO_DRAWPREFIX(express_txinit)(atom_actual_node[index_in_buffer].labelside,(*i_n_instance).xyz.x,(*i_n_instance).xyz.y,atomfontheight);
+			MACRO_DRAWPREFIX(express_txinit)(2 | atom_actual_node[index_in_buffer].labelside,(*i_n_instance).xyz.x,(*i_n_instance).xyz.y,atomfontheight);
 			for (int ilv1=0;ilv1<6;ilv1++)
 			{
 				int actual=ilv1;

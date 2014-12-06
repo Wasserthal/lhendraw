@@ -162,7 +162,7 @@ void svg_printformatted(const char * iinput,const char * parms,int imode,int sta
 	linebreak=0;
 	if (imode==1)
 	{
-		svg_outstring("<tspan dy=\"+%f\" %s font-size=\"%f\" style=\"fill:#%s\">",currentsetfontsize/6.0,parms,currentsetfontsize*0.77777,colorstring);
+		svg_outstring("<tspan dy=\"+%f\" %s font-size=\"%f\" style=\"fill:#%s\">&#8202;",currentsetfontsize/6.0,parms,currentsetfontsize*0.77777,colorstring);
 	}
 	if ((imode==2) || (imode==0))
 	{
@@ -170,7 +170,7 @@ void svg_printformatted(const char * iinput,const char * parms,int imode,int sta
 	}
 	if (imode==4)
 	{
-		svg_outstring("<tspan dy=\"-%f\" %s font-size=\"%f\" style=\"fill:#%s\">",currentsetfontsize/6.0,parms,currentsetfontsize*0.77777,colorstring);
+		svg_outstring("<tspan dy=\"-%f\" %s font-size=\"%f\" style=\"fill:#%s\">&#8202;",currentsetfontsize/6.0,parms,currentsetfontsize*0.77777,colorstring);
 	}
 	if ((imode>4) || (imode<0) || (imode==3))
 	{
@@ -201,21 +201,27 @@ void svg_printformatted(const char * iinput,const char * parms,int imode,int sta
 		svg_outstring("</tspan>");
 		if (imode==1)
 		{
-			svg_outstring("<tspan %s dy=\"-%f\">&#8288;</tspan>",parms,currentsetfontsize/6.0);
+			svg_outstring("<tspan %s dy=\"-%f\">&#8202;</tspan>",parms,currentsetfontsize/6.0);
 		}
 		if (imode==4)
 		{
-			svg_outstring("<tspan %s dy=\"%f\">&#8288;</tspan>",parms,currentsetfontsize/6.0);
+			svg_outstring("<tspan %s dy=\"%f\">&#8202;</tspan>",parms,currentsetfontsize/6.0);
 		}
 	}
 	svg_outstring("\n");
-	if (linebreak) {svg_outstring("<tspan dy=\"%f\" x=\"0\">&#8288;</tspan>",20.0/18.0*currentsetfontsize);if (ilv4<end) goto thatwasatemporaryskip;}//a line break;
+	if (linebreak) {svg_outstring("<tspan dy=\"%f\" x=\"0\">&#8202;</tspan>",20.0/18.0*currentsetfontsize);if (ilv4<end) goto thatwasatemporaryskip;}//a line break;
 }
 void svg_express_txinit(char ialignment,float iposx,float iposy,float iatomfontheight)
 {
 	svg_text_buffer_count=0;
 	svg_text_buffer[0]=0;
-	fprintf(outfile,"<text fill=\"%s\" %s stroke=\"none\" transform=\"translate(%f,%f)\" font-size=\"%f\">",colorstring,(ialignment) ? "text-anchor=\"end\" text-align=\"end\"" : "",iposx+SVG_currentshiftx,iposy+SVG_currentshifty,iatomfontheight);
+	iatomfontheight=12;
+	if (ialignment & 2)//For atoms only
+	{
+		iposx+=(ialignment & 1)?((iatomfontheight*3)/4):(-(iatomfontheight*3)/4);
+		iposy+=iatomfontheight/2;
+	}
+	fprintf(outfile,"<text fill=\"%s\" %s stroke=\"none\" transform=\"translate(%f,%f)\" font-size=\"%f\">",colorstring,(ialignment & 1) ? "text-anchor=\"end\" text-align=\"end\"" : "",iposx+SVG_currentshiftx,iposy+SVG_currentshifty,iatomfontheight);
 }
 void svg_express_text_tail()
 {

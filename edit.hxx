@@ -1202,6 +1202,7 @@ basic_instance * getclicked(int imap,float clckx,float clcky,int * backtype=NULL
 			_u32 compare=1<<ilv0;
 			basicmultilist * tlmultilist=findmultilist(STRUCTURE_OBJECTTYPE_List[ilv0].name);
 			int internalpointcount=retrieveprops_basic(1,ilv0);
+			//TODO: what if internalpointcount<0?
 			for (int ilv1=0;ilv1<(*tlmultilist).filllevel;ilv1++)
 			{
 				basic_instance * tlinstance=(basic_instance*)(((char*)(*tlmultilist).pointer)+STRUCTURE_OBJECTTYPE_List[ilv0].size*ilv1);

@@ -785,22 +785,59 @@ int issueclick(int iposx,int iposy)
 		}
 		case 10:
 		{
-			if (selection_clickselection_found & (1<<STRUCTURE_OBJECTTYPE_n))
+			if (control_lastmousebutton==SDL_BUTTON_RIGHT)
 			{
-				if (MODIFIER_KEYS.ALT==0)
+				int icompare=(1<<(STRUCTURE_OBJECTTYPE_n+STRUCTURE_OBJECTTYPE_ListSize));
+				if (selection_clickselection_found & icompare)
 				{
+					int follower3=0;
 					for (int ilv2=0;ilv2<(*glob_n_multilist).filllevel;ilv2++)
 					{
 						if (selection_clickselection[ilv2] & (1<<STRUCTURE_OBJECTTYPE_n))
 						{
 							if ((*glob_n_multilist)[ilv2].exist)
 							{
-								if (atom_addsymbol(ilv2,control_drawproperties.attribute_tool)>=0)
+								TELESCOPE_aggressobject(glob_n_multilist,ilv2);
+								int tl_backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_Symbol);
+								while (tl_backval)
 								{
-									//TELESCOPE_measure(TELESCOPE_ELEMENTTYPE_Symbol,glob_contentbuffer+STRUCTURE_OBJECTTYPE_n);
-									control_manipulatedinstance=(basic_instance*)TELESCOPE_getproperty();
-									control_manipulatedinstance2=(basic_instance*)(glob_n_multilist->bufferlist+ilv2);
-									goto ifertig;
+									//TODO: follower3 overflow
+									//TODO: use getclicked, THEN follower 3 overflow check!
+									if (selection_clickselection[follower3] & icompare)
+									{
+										//getclicked won't work here, because we need the mother, too.
+										control_manipulatedinstance=(basic_instance*)TELESCOPE_getproperty();
+										control_manipulatedinstance2=(basic_instance*)(glob_n_multilist->bufferlist+ilv2);
+										goto ifertig;
+									}
+									tl_backval=TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_Symbol);
+									follower3++;
+								}
+							}
+						}
+					}
+					goto ifertig;
+				}
+			}
+			else
+			{
+				if (selection_clickselection_found & (1<<STRUCTURE_OBJECTTYPE_n))
+				{
+					if (MODIFIER_KEYS.ALT==0)
+					{
+						for (int ilv2=0;ilv2<(*glob_n_multilist).filllevel;ilv2++)
+						{
+							if (selection_clickselection[ilv2] & (1<<STRUCTURE_OBJECTTYPE_n))
+							{
+								if ((*glob_n_multilist)[ilv2].exist)
+								{
+									if (atom_addsymbol(ilv2,control_drawproperties.attribute_tool)>=0)
+									{
+										//TELESCOPE_measure(TELESCOPE_ELEMENTTYPE_Symbol,glob_contentbuffer+STRUCTURE_OBJECTTYPE_n);
+										control_manipulatedinstance=(basic_instance*)TELESCOPE_getproperty();
+										control_manipulatedinstance2=(basic_instance*)(glob_n_multilist->bufferlist+ilv2);
+										goto ifertig;
+									}
 								}
 							}
 						}

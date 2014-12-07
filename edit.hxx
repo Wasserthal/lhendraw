@@ -39,6 +39,7 @@ struct drawproperties_
 	int CHARGE_subtool;//0:Substitute charges 1: del 2: draw plainly
 	int SELECTION_subtool;//0:Rectangular 1: round
 };
+structenum * searchreflectedstruct(const char * input);
 void applytransform_single(float matrix[3][3],cdx_Point3D * input,cdx_Point3D * output,cdx_Point3D * pivot);
 _small edit_current5bondcarbon=0;
 drawproperties_ control_drawproperties={1,0,4,0,constants_Element_implicitcarbon,6,1,0,0,0};

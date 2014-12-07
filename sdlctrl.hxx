@@ -1805,7 +1805,39 @@ int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int
 			{
 				switch ((*ipulloutlisting).lmbmode)
 				{
-					case 1: clickabilitymatrix_tooldependent[control_tool]=selection_clickabilitymatrix;control_tool=(*ipulloutlisting).toolnr;selection_clickabilitymatrix=clickabilitymatrix_tooldependent[control_tool];break;
+					case 1: 
+					clickabilitymatrix_tooldependent[control_tool]=selection_clickabilitymatrix;
+					if (control_tool==(*ipulloutlisting).toolnr)
+					{
+						char istring[100];
+						for (int ilv1=0;ilv1<100;ilv1++)
+						{
+							char ihv1;
+							ihv1=(*ipulloutlisting).name[ilv1];
+							if ((ihv1==0) || (ihv1==0x20))
+							{
+								istring[ilv1]=0;
+								goto LMB1_finished;
+							}
+							else
+							{
+								istring[ilv1]=ihv1;
+							}
+						}
+						LMB1_finished:;
+						structenum * tl_structenum=searchreflectedstruct("toolbox");
+						for (int ilv1=0;ilv1<tl_structenum->count;ilv1++)
+						{
+							if (strcmp((((AUTOSTRUCT_PULLOUTLISTING_*)(tl_structenum->pointer))+ilv1)->name,istring)==0)
+							{
+								control_tool=(((AUTOSTRUCT_PULLOUTLISTING_*)(tl_structenum->pointer))+ilv1)->toolnr;
+							}
+						}
+						break;
+					}
+					control_tool=(*ipulloutlisting).toolnr;
+					selection_clickabilitymatrix=clickabilitymatrix_tooldependent[control_tool];
+					break;
 					case 2: *((char*)(*ipulloutlisting).variable)^=1;break;
 					case 3: 
 					{

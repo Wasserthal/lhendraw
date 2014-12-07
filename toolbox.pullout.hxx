@@ -94,7 +94,7 @@ menuitem pullout_toolbox[]={
 },
 {0,4,
 4,//Picture
-"ARROWS",
+"ARROW",
 1,0,
 9,
 "click-draw draw arrow\n"

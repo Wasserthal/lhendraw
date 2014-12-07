@@ -1,4 +1,4 @@
-menuitem pullout_toolspecific_ARROWS[]={
+menuitem pullout_toolspecific_ARROW[]={
 {0,0,
 72,//Picture
 "ARROW SKIP",

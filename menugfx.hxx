@@ -487,7 +487,6 @@ void sdl_canvasframedraw()
 		screen[(gfx_screensizex*ilv1)+gfx_canvasmaxx]=0;
 	}
 }
-structenum * searchreflectedstruct(const char * input);
 int addmenu(const char * name,int type,int alignx=0,int aligny=0)
 {
 	structenum * tlstructenum;

@@ -483,12 +483,13 @@ void gfx_expresstriangle(float ifx1,float ify1,float ifx2,float ify2,float ifx3,
 		char tlonness;
 		tlonness=0;
 		int tlbrakesthrough=0;
+		if (ibrakelist_count==0) goto ilinefertig;
 		for (int ilv2=iminx;ilv2<=imaxx;ilv2++)
 		{
 			while (ibrakelist_bks[tlbrakesthrough]<ilv2)
 			{
 				tlbrakesthrough++;
-				if (tlbrakesthrough==ibrakelist_count)
+				if (tlbrakesthrough>=ibrakelist_count)
 				{
 					goto ilinefertig;
 				}
@@ -498,9 +499,9 @@ void gfx_expresstriangle(float ifx1,float ify1,float ifx2,float ify2,float ifx3,
 			{
 				canvas[gfx_screensizex*(ilv1)+ilv2]=SDL_color;
 			}
-			ilinefertig:
-			;
 		}
+		ilinefertig:
+		;
 	}
 }
 
@@ -621,12 +622,13 @@ int gfx_expresstetrangle(float ifx1,float ify1,float ifx2,float ify2,float ifx3,
 		char tlonness;
 		tlonness=0;
 		int tlbrakesthrough=0;
+		if (ibrakelist_count==0) goto ilinefertig;
 		for (int ilv2=iminx;ilv2<=imaxx;ilv2++)
 		{
 			while (ibrakelist_bks[tlbrakesthrough]<ilv2)
 			{
 				tlbrakesthrough++;
-				if (tlbrakesthrough==ibrakelist_count)
+				if (tlbrakesthrough>=ibrakelist_count)
 				{
 					goto ilinefertig;
 				}
@@ -715,12 +717,13 @@ int gfx_expressinfinityangle(inficorn * iworkarray,int count)
 		char tlonness;
 		tlonness=0;
 		int tlbrakesthrough=0;
+		if (ibrakelist_count==0) goto ilinefertig;
 		for (int ilv2=iminx;ilv2<=imaxx;ilv2++)
 		{
 			while (iworkarray[tlbrakesthrough].bks<ilv2)
 			{
 				tlbrakesthrough++;
-				if (tlbrakesthrough==ibrakelist_count)
+				if (tlbrakesthrough>=ibrakelist_count)
 				{
 					goto ilinefertig;
 				}

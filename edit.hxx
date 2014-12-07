@@ -490,6 +490,7 @@ inline int retrieveprops_t(int what)
 {
 	return 0;
 }
+//ANY retrievepoints on an object with a negative prop count must keep it's telescope-element set to read the corresponding item
 inline int retrievepoints(n_instance * iinstance,float * ix,float * iy,float * iz,int inumber)
 {
 	if (inumber>0)
@@ -1190,10 +1191,11 @@ n_instance * snapatom_short(float iposx,float iposy,_small * iatomnr=NULL,int id
 	return NULL;
 }
 
-basic_instance * getclicked(int imap,float clckx,float clcky,int * backtype=NULL,int * backindex=NULL)
+basic_instance * getclicked(int imap,float clckx,float clcky,int * backtype=NULL,int * backindex=NULL,basic_instance ** backsub=NULL)
 {
 	basic_instance * bestinstance=NULL;
 	float bestvalue=0x2000000000;
+	float thisvalue;
 	for (int ilv0=1;ilv0<STRUCTURE_OBJECTTYPE_ListSize;ilv0++)
 	{
 		int necessary=((imap & (1<<ilv0))>0)+(((imap & (1<<(ilv0+STRUCTURE_OBJECTTYPE_ListSize)))>0)*2);
@@ -1202,7 +1204,7 @@ basic_instance * getclicked(int imap,float clckx,float clcky,int * backtype=NULL
 			_u32 compare=1<<ilv0;
 			basicmultilist * tlmultilist=findmultilist(STRUCTURE_OBJECTTYPE_List[ilv0].name);
 			int internalpointcount=retrieveprops_basic(1,ilv0);
-			//TODO: what if internalpointcount<0?
+			int follower3=0;
 			for (int ilv1=0;ilv1<(*tlmultilist).filllevel;ilv1++)
 			{
 				basic_instance * tlinstance=(basic_instance*)(((char*)(*tlmultilist).pointer)+STRUCTURE_OBJECTTYPE_List[ilv0].size*ilv1);
@@ -1212,7 +1214,8 @@ basic_instance * getclicked(int imap,float clckx,float clcky,int * backtype=NULL
 					if ((selection_clickselection[ilv1] & compare) && (necessary & 1))
 					{
 						retrievepoints_basic(tlinstance,&ix,&iy,&iz,0,ilv0);
-						if (fsqr(ix-clckx)+fsqr(iy-clcky)<fsqr(bestvalue))
+						thisvalue=fsqr(ix-clckx)+fsqr(iy-clcky);
+						if (thisvalue<bestvalue)
 						{
 							bestinstance=tlinstance;
 							if (backtype!=NULL)
@@ -1223,27 +1226,66 @@ basic_instance * getclicked(int imap,float clckx,float clcky,int * backtype=NULL
 							{
 								*backindex=ilv1;
 							}
-							bestvalue=fsqr(ix-clckx)+fsqr(iy-clcky);
+							bestvalue=thisvalue;
 						}
 					}
-					for (int ilv2=0;ilv2<internalpointcount;ilv2++)
+					if (internalpointcount>=0)
 					{
-						if ((selection_clickselection[ilv1*internalpointcount+ilv2] & (compare<<STRUCTURE_OBJECTTYPE_ListSize)) && (necessary & 2))
+						for (int ilv2=0;ilv2<internalpointcount;ilv2++)
 						{
-							retrievepoints_basic(tlinstance,&ix,&iy,&iz,ilv2+1,ilv0);
-							if (fsqr(ix-clckx)+fsqr(iy-clcky)<fsqr(bestvalue))
+							if ((selection_clickselection[ilv1*internalpointcount+ilv2] & (compare<<STRUCTURE_OBJECTTYPE_ListSize)) && (necessary & 2))
 							{
-								bestinstance=tlinstance;
-								if (backtype!=NULL)
+								retrievepoints_basic(tlinstance,&ix,&iy,&iz,ilv2+1,ilv0);
+								thisvalue=fsqr(ix-clckx)+fsqr(iy-clcky);
+								if (thisvalue<bestvalue)
 								{
-									*backtype=ilv0+STRUCTURE_OBJECTTYPE_ListSize;
+									bestinstance=tlinstance;
+									if (backtype!=NULL)
+									{
+										*backtype=ilv0+STRUCTURE_OBJECTTYPE_ListSize;
+									}
+									if (backindex!=NULL)
+									{
+										*backindex=ilv1*internalpointcount+ilv2;
+									}
+									bestvalue=thisvalue;
 								}
-								if (backindex!=NULL)
-								{
-									*backindex=ilv1*internalpointcount+ilv2;
-								}
-								bestvalue=fsqr(ix-clckx)+fsqr(iy-clcky);
 							}
+						}
+					}
+					else
+					{
+						TELESCOPE_aggressobject(glob_n_multilist,ilv1);
+						int tl_backval;
+						int ilv2=0;
+						tl_backval=retrievepoints_basic(tlinstance,&ix,&iy,&iz,ilv2+1,ilv0);
+						while (tl_backval)
+						{
+							//TODO: follower3 overflow
+							if (selection_clickselection[follower3] & (compare<<STRUCTURE_OBJECTTYPE_ListSize))
+							{
+								thisvalue=fsqr(ix-clckx)+fsqr(iy-clcky);
+								if (thisvalue<bestvalue)
+								{
+									bestinstance=(basic_instance*)(glob_n_multilist->bufferlist+ilv1);
+									if (backtype!=NULL)
+									{
+										*backtype=ilv0+STRUCTURE_OBJECTTYPE_ListSize;
+									}
+									if (backindex!=NULL)
+									{
+										*backindex=follower3;
+									}
+									if (backsub!=NULL)
+									{
+										*backsub=(basic_instance*)TELESCOPE_getproperty();//Note that TELESCOPE_tempval gets set by retrievepoints_basic!
+									}
+									bestvalue=thisvalue;
+								}
+							}
+							follower3++;
+							ilv2++;
+							tl_backval=retrievepoints_basic(tlinstance,&ix,&iy,&iz,ilv2+1,ilv0);
 						}
 					}
 				}

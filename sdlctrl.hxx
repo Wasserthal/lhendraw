@@ -790,33 +790,8 @@ int issueclick(int iposx,int iposy)
 				int icompare=(1<<(STRUCTURE_OBJECTTYPE_n+STRUCTURE_OBJECTTYPE_ListSize));
 				if (selection_clickselection_found & icompare)
 				{
-					int follower3=0;
-					for (int ilv2=0;ilv2<(*glob_n_multilist).filllevel;ilv2++)
-					{
-						if (selection_clickselection[ilv2] & (1<<STRUCTURE_OBJECTTYPE_n))
-						{
-							if ((*glob_n_multilist)[ilv2].exist)
-							{
-								TELESCOPE_aggressobject(glob_n_multilist,ilv2);
-								int tl_backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_Symbol);
-								while (tl_backval)
-								{
-									//TODO: follower3 overflow
-									//TODO: use getclicked, THEN follower 3 overflow check!
-									if (selection_clickselection[follower3] & icompare)
-									{
-										//getclicked won't work here, because we need the mother, too.
-										control_manipulatedinstance=(basic_instance*)TELESCOPE_getproperty();
-										control_manipulatedinstance2=(basic_instance*)(glob_n_multilist->bufferlist+ilv2);
-										goto ifertig;
-									}
-									tl_backval=TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_Symbol);
-									follower3++;
-								}
-							}
-						}
-					}
-					goto ifertig;
+					control_manipulatedinstance2=getclicked(icompare,control_coorsx,control_coorsy,NULL,NULL,&control_manipulatedinstance);
+					if (control_manipulatedinstance2!=NULL) goto ifertig;
 				}
 			}
 			else

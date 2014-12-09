@@ -385,292 +385,27 @@ void gfx_gfxstop()
 	#endif
 }
 
-void gfx_expresstriangle(float ifx1,float ify1,float ifx2,float ify2,float ifx3,float ify3)
-{
-	int ibrakelist_bks[256];
-	int ibrakelist_pps[256];//1: end 2: start 0: unknown 0x4: other than 8 0x8: other than 0x4 0x10: deaf(horz)
-	intl ibrakelist_count;
-	intl ix1;
-	intl iy1;
-	intl ix2;
-	intl iy2;
-	intl ix3;
-	intl iy3;
-	ix1=(ifx1-SDL_scrollx)*SDL_zoomx;
-	iy1=(ify1-SDL_scrolly)*SDL_zoomy;
-	ix2=(ifx2-SDL_scrollx)*SDL_zoomx;
-	iy2=(ify2-SDL_scrolly)*SDL_zoomy;
-	ix3=(ifx3-SDL_scrollx)*SDL_zoomx;
-	iy3=(ify3-SDL_scrolly)*SDL_zoomy;
-	intl iminx,imaxx,iminy,imaxy;
-	iminx=10000;
-	iminy=10000;
-	imaxx=-10000;
-	imaxy=-10000;
-	float m1,m2,m3;
-	if (iminx>ix1)iminx=ix1;
-	if (iminx>ix2)iminx=ix2;
-	if (iminx>ix3)iminx=ix3;
-	if (iminy>iy1)iminy=iy1;
-	if (iminy>iy2)iminy=iy2;
-	if (iminy>iy3)iminy=iy3;
-	if (imaxx<ix1)imaxx=ix1;
-	if (imaxx<ix2)imaxx=ix2;
-	if (imaxx<ix3)imaxx=ix3;
-	if (imaxy<iy1)imaxy=iy1;
-	if (imaxy<iy2)imaxy=iy2;
-	if (imaxy<iy3)imaxy=iy3;
-	if (iminx<0)iminx=0;
-	if (imaxx>gfx_canvassizex)imaxx=gfx_canvassizex;
-	if (iminy<0)iminy=0;
-	if (imaxy>gfx_canvassizey)imaxy=gfx_canvassizey;
-	if (imaxx<iminx){return;}
-	if (imaxy<iminy){return;}
-	{
-		int tlvert;
-		tlvert=(iy2-iy1);
-		if (abs(tlvert)>=1)
-		m1=(float(ix2)-ix1)/tlvert;
-	}
-	{
-		int tlvert;
-		tlvert=(iy3-iy2);
-		if (abs(tlvert)>=1)
-		m2=(float(ix3)-ix2)/tlvert;
-	}
-	{
-		int tlvert;
-		tlvert=(iy1-iy3);
-		if (abs(tlvert)>=1)
-		m3=(float(ix1)-ix3)/tlvert;
-	}
-	for (int ilv1=iminy;ilv1<=imaxy;ilv1++)
-	{
-		ibrakelist_count=0;
-		if (((iy1<ilv1) && (iy2>=ilv1)) || ((iy2<ilv1) && (iy1>=ilv1)))
-		{
-			ibrakelist_pps[ibrakelist_count]=(iy2>iy1)?4:8;
-			ibrakelist_bks[ibrakelist_count++]=m1*(ilv1-iy1)+ix1;
-		}
-		if (((iy2<ilv1) && (iy3>=ilv1)) || ((iy3<ilv1) && (iy2>=ilv1)))
-		{
-			ibrakelist_pps[ibrakelist_count]=(iy3>iy2)?4:8;
-			ibrakelist_bks[ibrakelist_count++]=m2*(ilv1-iy2)+ix2;
-		}
-		if (((iy3<ilv1) && (iy1>=ilv1)) || ((iy1<ilv1) && (iy3>=ilv1)))
-		{
-			ibrakelist_pps[ibrakelist_count]=(iy1>iy3)?4:8;
-			ibrakelist_bks[ibrakelist_count++]=m3*(ilv1-iy3)+ix3;
-		}
-		char tlchanged;
-		tlsortback:
-		tlchanged=0;
-		for (int ilv2=0;ilv2<ibrakelist_count;ilv2++)
-		{
-			for (int ilv3=ilv2+1;ilv3<ibrakelist_count;ilv3++)
-			{
-				if (ibrakelist_bks[ilv2]>ibrakelist_bks[ilv3])
-				{
-					float temp=ibrakelist_bks[ilv2];
-					ibrakelist_bks[ilv2]=ibrakelist_bks[ilv3];
-					ibrakelist_bks[ilv3]=temp;
-					tlchanged=1;
-				}
-			}
-		}
-		if (tlchanged) goto tlsortback;
-		char sideness=(ibrakelist_bks[0]==4)?1:2;
-		char tlonness;
-		tlonness=0;
-		int tlbrakesthrough=0;
-		if (ibrakelist_count==0) goto ilinefertig;
-		for (int ilv2=iminx;ilv2<=imaxx;ilv2++)
-		{
-			while (ibrakelist_bks[tlbrakesthrough]<ilv2)
-			{
-				tlbrakesthrough++;
-				if (tlbrakesthrough>=ibrakelist_count)
-				{
-					goto ilinefertig;
-				}
-				tlonness=((ibrakelist_pps[tlbrakesthrough-1]&4) && (sideness&1)) || ((ibrakelist_pps[tlbrakesthrough-1]&8) && (sideness&2));
-			}
-			if (tlonness)
-			{
-				canvas[gfx_screensizex*(ilv1)+ilv2]=SDL_color;
-			}
-		}
-		ilinefertig:
-		;
-	}
-}
 
-int gfx_expresstetrangle(float ifx1,float ify1,float ifx2,float ify2,float ifx3,float ify3,float ifx4,float ify4)
-{
-	int ibrakelist_bks[256];
-	int ibrakelist_pps[256];//1: end 2: start 0: unknown 0x4: other than 8 0x8: other than 0x4 0x10: deaf(horz)
-	intl ibrakelist_count;
-	intl ix1;
-	intl iy1;
-	intl ix2;
-	intl iy2;
-	intl ix3;
-	intl iy3;
-	intl ix4;
-	intl iy4;
-	ix1=(ifx1-SDL_scrollx)*SDL_zoomx;
-	iy1=(ify1-SDL_scrolly)*SDL_zoomy;
-	ix2=(ifx2-SDL_scrollx)*SDL_zoomx;
-	iy2=(ify2-SDL_scrolly)*SDL_zoomy;
-	ix3=(ifx3-SDL_scrollx)*SDL_zoomx;
-	iy3=(ify3-SDL_scrolly)*SDL_zoomy;
-	ix4=(ifx4-SDL_scrollx)*SDL_zoomx;
-	iy4=(ify4-SDL_scrolly)*SDL_zoomy;
-	intl iminx,imaxx,iminy,imaxy;
-	iminx=10000;
-	iminy=10000;
-	imaxx=-10000;
-	imaxy=-10000;
-	float m1,m2,m3,m4;
-	if (iminx>ix1)iminx=ix1;
-	if (iminx>ix2)iminx=ix2;
-	if (iminx>ix3)iminx=ix3;
-	if (iminx>ix4)iminx=ix4;
-	if (iminy>iy1)iminy=iy1;
-	if (iminy>iy2)iminy=iy2;
-	if (iminy>iy3)iminy=iy3;
-	if (iminy>iy4)iminy=iy4;
-	if (imaxx<ix1)imaxx=ix1;
-	if (imaxx<ix2)imaxx=ix2;
-	if (imaxx<ix3)imaxx=ix3;
-	if (imaxx<ix4)imaxx=ix4;
-	if (imaxy<iy1)imaxy=iy1;
-	if (imaxy<iy2)imaxy=iy2;
-	if (imaxy<iy3)imaxy=iy3;
-	if (imaxy<iy4)imaxy=iy4;
-	if (iminx<0)iminx=0;
-	if (imaxx>gfx_canvassizex)imaxx=gfx_canvassizex;
-	if (iminy<0)iminy=0;
-	if (imaxy>gfx_canvassizey)imaxy=gfx_canvassizey;
-	if (imaxx<iminx){return 0;}
-	if (imaxy<iminy){return 0;}
-	{
-		int tlvert;
-		tlvert=(iy2-iy1);
-		if (abs(tlvert)>=1)
-		m1=(float(ix2)-ix1)/tlvert;
-	}
-	{
-		int tlvert;
-		tlvert=(iy3-iy2);
-		if (abs(tlvert)>=1)
-		m2=(float(ix3)-ix2)/tlvert;
-	}
-	{
-		int tlvert;
-		tlvert=(iy4-iy3);
-		if (abs(tlvert)>=1)
-		m3=(float(ix4)-ix3)/tlvert;
-	}
-	{
-		int tlvert;
-		tlvert=(iy1-iy4);
-		if (abs(tlvert)>=1)
-		m4=(float(ix1)-ix4)/tlvert;
-	}
-	for (int ilv1=iminy;ilv1<=imaxy;ilv1++)
-	{
-		ibrakelist_count=0;
-		if (((iy1<ilv1) && (iy2>=ilv1)) || ((iy2<ilv1) && (iy1>=ilv1)))
-		{
-			ibrakelist_pps[ibrakelist_count]=(iy2>iy1)?4:8;
-			ibrakelist_bks[ibrakelist_count++]=m1*(ilv1-iy1)+ix1;
-		}
-		if (((iy2<ilv1) && (iy3>=ilv1)) || ((iy3<ilv1) && (iy2>=ilv1)))
-		{
-			ibrakelist_pps[ibrakelist_count]=(iy3>iy2)?4:8;
-			ibrakelist_bks[ibrakelist_count++]=m2*(ilv1-iy2)+ix2;
-		}
-		if (((iy3<ilv1) && (iy4>=ilv1)) || ((iy4<ilv1) && (iy3>=ilv1)))
-		{
-			ibrakelist_pps[ibrakelist_count]=(iy4>iy3)?4:8;
-			ibrakelist_bks[ibrakelist_count++]=m3*(ilv1-iy3)+ix3;
-		}
-		if (((iy4<ilv1) && (iy1>=ilv1)) || ((iy1<ilv1) && (iy4>=ilv1)))
-		{
-			ibrakelist_pps[ibrakelist_count]=(iy1>iy4)?4:8;
-			ibrakelist_bks[ibrakelist_count++]=m4*(ilv1-iy4)+ix4;
-		}
-		char tlchanged;
-		tlsortback:
-		tlchanged=0;
-		for (int ilv2=0;ilv2<ibrakelist_count;ilv2++)
-		{
-			for (int ilv3=ilv2+1;ilv3<ibrakelist_count;ilv3++)
-			{
-				if (ibrakelist_bks[ilv2]>ibrakelist_bks[ilv3])
-				{
-					float temp=ibrakelist_bks[ilv2];
-					ibrakelist_bks[ilv2]=ibrakelist_bks[ilv3];
-					ibrakelist_bks[ilv3]=temp;
-					tlchanged=1;
-				}
-			}
-		}
-		if (tlchanged) goto tlsortback;
-		char sideness=(ibrakelist_pps[0]==4)?1:2;
-		char tlonness;
-		tlonness=0;
-		int tlbrakesthrough=0;
-		if (ibrakelist_count==0) goto ilinefertig;
-		for (int ilv2=iminx;ilv2<=imaxx;ilv2++)
-		{
-			while (ibrakelist_bks[tlbrakesthrough]<ilv2)
-			{
-				tlbrakesthrough++;
-				if (tlbrakesthrough>=ibrakelist_count)
-				{
-					goto ilinefertig;
-				}
-				tlonness=((ibrakelist_pps[tlbrakesthrough-1]&4) && (sideness&1)) || ((ibrakelist_pps[tlbrakesthrough-1]&8) && (sideness&2));
-			}
-			if (tlonness)
-			{
-				canvas[gfx_screensizex*(ilv1)+ilv2]=SDL_color;
-			}
-		}
-		ilinefertig:
-		;
-	}
-	return 1;
-}
+int gfx_bks[bezierpointmax];//Worst case, every curve making an s
+float gfx_type;//1: line 3: cubic bezier 0x100: bezier part, order depending on the last preceding
+float gfx_m[bezierpointmax];//Only for polygons
+int ibrakelist_count;
 
-struct inficorn
-{
-	float x,y;
-	float m;
-	int ix,iy;
-	float type;//1: line 3: cubic bezier 0x100: bezier part, order depending on the last preceding
-	int bks;//not necessarily in the same order as the other part of the structures!
-	int pps;//not necessarily in the same order as the other part of the structures!
-};
-
-int gfx_expressinfinityangle(inficorn * iworkarray,int count)
+int gfx_expressinfinityangle(int count)
 {
 	intl iminx,imaxx,iminy,imaxy;
-	intl ibrakelist_count;
 	iminx=10000;
 	iminy=10000;
 	imaxx=-10000;
 	imaxy=-10000;
 	for (int ilv1=0;ilv1<count;ilv1++)
 	{
-		iworkarray[ilv1].ix=(iworkarray[ilv1].x-SDL_scrollx)*SDL_zoomx;
-		iworkarray[ilv1].iy=(iworkarray[ilv1].y-SDL_scrolly)*SDL_zoomy;
-		if (iminx>iworkarray[ilv1].ix)iminx=iworkarray[ilv1].ix;
-		if (iminy>iworkarray[ilv1].iy)iminy=iworkarray[ilv1].iy;
-		if (imaxx<iworkarray[ilv1].ix)imaxx=iworkarray[ilv1].ix;
-		if (imaxy<iworkarray[ilv1].iy)imaxy=iworkarray[ilv1].iy;
+		LHENDRAW_inficorn[ilv1].ix=(LHENDRAW_inficorn[ilv1].x-SDL_scrollx)*SDL_zoomx;
+		LHENDRAW_inficorn[ilv1].iy=(LHENDRAW_inficorn[ilv1].y-SDL_scrolly)*SDL_zoomy;
+		if (iminx>LHENDRAW_inficorn[ilv1].ix)iminx=LHENDRAW_inficorn[ilv1].ix;
+		if (iminy>LHENDRAW_inficorn[ilv1].iy)iminy=LHENDRAW_inficorn[ilv1].iy;
+		if (imaxx<LHENDRAW_inficorn[ilv1].ix)imaxx=LHENDRAW_inficorn[ilv1].ix;
+		if (imaxy<LHENDRAW_inficorn[ilv1].iy)imaxy=LHENDRAW_inficorn[ilv1].iy;
 	}
 	if (iminx<0)iminx=0;
 	if (imaxx>gfx_canvassizex)imaxx=gfx_canvassizex;
@@ -681,19 +416,19 @@ int gfx_expressinfinityangle(inficorn * iworkarray,int count)
 	for (int ilv1=0;ilv1<count;ilv1++)
 	{
 		int tlvert;
-		tlvert=(iworkarray[(ilv1+1)%count].iy-iworkarray[ilv1].iy);
+		tlvert=(LHENDRAW_inficorn[(ilv1+1)%count].iy-LHENDRAW_inficorn[ilv1].iy);
 		if (abs(tlvert)>=1)
-		iworkarray[ilv1].m=(float(iworkarray[(ilv1+1)%count].ix)-iworkarray[ilv1].ix)/tlvert;
+		gfx_m[ilv1]=
+		(float(LHENDRAW_inficorn[(ilv1+1)%count].ix)-LHENDRAW_inficorn[ilv1].ix)/tlvert;
 	}
 	for (int ilv1=iminy;ilv1<=imaxy;ilv1++)
 	{
 		ibrakelist_count=0;
 		for (int ilv2=0;ilv2<count;ilv2++)
 		{
-			if (((iworkarray[ilv2].iy<ilv1) && (iworkarray[(ilv2+1)%count].iy>=ilv1)) || ((iworkarray[(ilv2+1)%count].iy<ilv1) && (iworkarray[ilv2].iy>=ilv1)))
+			if (((LHENDRAW_inficorn[ilv2].iy<ilv1) && (LHENDRAW_inficorn[(ilv2+1)%count].iy>=ilv1)) || ((LHENDRAW_inficorn[(ilv2+1)%count].iy<ilv1) && (LHENDRAW_inficorn[ilv2].iy>=ilv1)))
 			{
-				iworkarray[ibrakelist_count].pps=(iworkarray[(ilv2+1)%count].iy>iworkarray[ilv2].iy)?4:8;
-				iworkarray[ibrakelist_count++].bks=iworkarray[ilv2].m*(ilv1-iworkarray[ilv2].iy)+iworkarray[ilv2].ix;
+				gfx_bks[ibrakelist_count++]=gfx_m[ilv2]*(ilv1-LHENDRAW_inficorn[ilv2].iy)+LHENDRAW_inficorn[ilv2].ix;
 			}
 		}
 		char tlchanged;
@@ -703,31 +438,30 @@ int gfx_expressinfinityangle(inficorn * iworkarray,int count)
 		{
 			for (int ilv3=ilv2+1;ilv3<ibrakelist_count;ilv3++)
 			{
-				if (iworkarray[ilv2].bks>iworkarray[ilv3].bks)
+				if (gfx_bks[ilv2]>gfx_bks[ilv3])
 				{
-					float temp=iworkarray[ilv2].bks;
-					iworkarray[ilv2].bks=iworkarray[ilv3].bks;
-					iworkarray[ilv3].bks=temp;
+					float temp=gfx_bks[ilv2];
+					gfx_bks[ilv2]=gfx_bks[ilv3];
+					gfx_bks[ilv3]=temp;
 					tlchanged=1;
 				}
 			}
 		}
 		if (tlchanged) goto tlsortback;
-		char sideness=(iworkarray[0].pps==4)?1:2;
 		char tlonness;
 		tlonness=0;
 		int tlbrakesthrough=0;
 		if (ibrakelist_count==0) goto ilinefertig;
 		for (int ilv2=iminx;ilv2<=imaxx;ilv2++)
 		{
-			while (iworkarray[tlbrakesthrough].bks<ilv2)
+			while (gfx_bks[tlbrakesthrough]<ilv2)
 			{
 				tlbrakesthrough++;
 				if (tlbrakesthrough>=ibrakelist_count)
 				{
 					goto ilinefertig;
 				}
-				tlonness=((iworkarray[tlbrakesthrough-1].pps&4) && (sideness&1)) || ((iworkarray[tlbrakesthrough-1].pps&8) && (sideness&2));
+				tlonness=tlbrakesthrough & 1;
 			}
 			if (tlonness)
 			{
@@ -815,23 +549,6 @@ void gfx_expressellipse(float centerx,float centery,float radiusx,float radiusy)
 	}
 }
 
-void gfx_expresshexangle(float ix1,float iy1,float ix2,float iy2,float ix3,float iy3,float ix4,float iy4,float ix5,float iy5,float ix6,float iy6)
-{
-	inficorn tlinficorn[6];
-	tlinficorn[0].x=ix1;
-	tlinficorn[1].x=ix2;
-	tlinficorn[2].x=ix3;
-	tlinficorn[3].x=ix4;
-	tlinficorn[4].x=ix5;
-	tlinficorn[5].x=ix6;
-	tlinficorn[0].y=iy1;
-	tlinficorn[1].y=iy2;
-	tlinficorn[2].y=iy3;
-	tlinficorn[3].y=iy4;
-	tlinficorn[4].y=iy5;
-	tlinficorn[5].y=iy6;
-	gfx_expressinfinityangle(tlinficorn,6);
-}
 int gfx_text_rewind(unsigned char * windtext,int length)
 {
 	int ilv4;

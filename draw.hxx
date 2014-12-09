@@ -46,6 +46,45 @@ void MACRO_DRAWPREFIX(expresshashangle)(float langle,float cangle,float ix1,floa
 		MACRO_DRAWPREFIX(expressline)(ix1*(1-share)+ix2*share+cos(cangle)*share2,iy1*(1-share)+iy2*share+sin(langle)*share2,ix1*(1-share)+ix2*share-cos(cangle)*share2,iy1*(1-share)+iy2*share-sin(cangle)*share2);
 	}
 }
+void MACRO_DRAWPREFIX(expresstriangle)(float ifx1,float ify1,float ifx2,float ify2,float ifx3,float ify3)
+{
+	LHENDRAW_inficorn[0].x=ifx1;
+	LHENDRAW_inficorn[1].x=ifx2;
+	LHENDRAW_inficorn[2].x=ifx3;
+	LHENDRAW_inficorn[0].y=ify1;
+	LHENDRAW_inficorn[1].y=ify2;
+	LHENDRAW_inficorn[2].y=ify3;
+	MACRO_DRAWPREFIX(expressinfinityangle)(3);
+}
+
+void MACRO_DRAWPREFIX(expresstetrangle)(float ifx1,float ify1,float ifx2,float ify2,float ifx3,float ify3,float ifx4,float ify4)
+{
+	LHENDRAW_inficorn[0].x=ifx1;
+	LHENDRAW_inficorn[1].x=ifx2;
+	LHENDRAW_inficorn[2].x=ifx3;
+	LHENDRAW_inficorn[3].x=ifx4;
+	LHENDRAW_inficorn[0].y=ify1;
+	LHENDRAW_inficorn[1].y=ify2;
+	LHENDRAW_inficorn[2].y=ify3;
+	LHENDRAW_inficorn[3].y=ify4;
+	MACRO_DRAWPREFIX(expressinfinityangle)(4);
+}
+void MACRO_DRAWPREFIX(expresshexangle)(float ifx1,float ify1,float ifx2,float ify2,float ifx3,float ify3,float ifx4,float ify4,float ifx5,float ify5,float ifx6,float ify6)
+{
+	LHENDRAW_inficorn[0].x=ifx1;
+	LHENDRAW_inficorn[1].x=ifx2;
+	LHENDRAW_inficorn[2].x=ifx3;
+	LHENDRAW_inficorn[3].x=ifx4;
+	LHENDRAW_inficorn[4].x=ifx5;
+	LHENDRAW_inficorn[5].x=ifx6;
+	LHENDRAW_inficorn[0].y=ify1;
+	LHENDRAW_inficorn[1].y=ify2;
+	LHENDRAW_inficorn[2].y=ify3;
+	LHENDRAW_inficorn[3].y=ify4;
+	LHENDRAW_inficorn[4].y=ify5;
+	LHENDRAW_inficorn[5].y=ify6;
+	MACRO_DRAWPREFIX(expressinfinityangle)(6);
+}
 
 void MACRO_DRAWPREFIX(drawarrheads)(cdx_Rectangle iBBX,float langle,float cangle,float otherlangle,float othercangle,int currentArrowHeadType,int currentArrowHeadTail,int currentArrowHeadHead,float tllinedist)
 {
@@ -72,10 +111,10 @@ void MACRO_DRAWPREFIX(drawarrheads)(cdx_Rectangle iBBX,float langle,float cangle
 				if (currentArrowHeadType==1)
 				{
 					MACRO_DRAWPREFIX(stylegenestring)(2);
-					MACRO_DRAWPREFIX(expresstetrangle)(tlArrowTopx,tlArrowTopy,
+					MACRO_DRAWPREFIX(expresstriangle)(tlArrowTopx,tlArrowTopy,
 tlArrowTopx+cos(tllangle)*arrowheadlength+cos(tlcangle)*arrowthickness,tlArrowTopy+sin(tllangle)*arrowheadlength+sin(tlcangle)*arrowthickness,
-tlArrowTopx+cos(tllangle)*arrowheadlength-cos(tlcangle)*arrowthickness,tlArrowTopy+sin(tllangle)*arrowheadlength-sin(tlcangle)*arrowthickness,
-tlArrowTopx,tlArrowTopy);
+tlArrowTopx+cos(tllangle)*arrowheadlength-cos(tlcangle)*arrowthickness,tlArrowTopy+sin(tllangle)*arrowheadlength-sin(tlcangle)*arrowthickness
+);
 				}
 				if ((currentArrowHeadType==3) || (currentArrowHeadType==2))
 				{
@@ -103,10 +142,9 @@ tlArrowTopx+cos(tllangle)*tllinedist*2-cos(tlcangle)*tllinedist*2,tlArrowTopy+si
 				MACRO_DRAWPREFIX(stylegenestring)(2);
 				if (currentArrowHeadType==1)
 				{
-					MACRO_DRAWPREFIX(expresstetrangle)(tlArrowTopx+tllinedist*cos(tlcangle),tlArrowTopy+tllinedist*sin(tlcangle),
+					MACRO_DRAWPREFIX(expresstriangle)(tlArrowTopx+tllinedist*cos(tlcangle),tlArrowTopy+tllinedist*sin(tlcangle),
 tlArrowTopx+cos(tllangle)*arrowheadlength+(arrowthickness+tllinedist)*cos(tlcangle),tlArrowTopy+sin(tllangle)*arrowheadlength+(arrowthickness+tllinedist)*sin(tlcangle),
-tlArrowTopx+cos(tllangle)*arrowheadlength+tllinedist*cos(tlcangle),tlArrowTopy+sin(tllangle)*arrowheadlength+tllinedist*sin(tlcangle),
-tlArrowTopx+tllinedist*cos(tlcangle),tlArrowTopy+tllinedist*sin(tlcangle));
+tlArrowTopx+cos(tllangle)*arrowheadlength+tllinedist*cos(tlcangle),tlArrowTopy+sin(tllangle)*arrowheadlength+tllinedist*sin(tlcangle));
 				}
 				break;
 			}

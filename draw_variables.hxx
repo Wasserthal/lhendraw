@@ -2,6 +2,13 @@
 //Includes some help routines also.
 //TODO:Includes the document data which is converted from cdxml, which belongs into another unit.
 
+struct inficorn_
+{
+	float x,y;
+	int ix,iy;
+};
+inficorn_ LHENDRAW_inficorn[bezierpointmax];
+
 #ifdef LENNARD_HACK
 char LENNARD_HACK_dokilltext;
 char LENNARD_HACK_colormode;

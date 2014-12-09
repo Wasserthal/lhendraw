@@ -80,17 +80,14 @@ void svg_expressellipse(float ix,float iy,float irx,float iry)
 {
 	fprintf(outfile,"<ellipse cx=\"%f\" cy=\"%f\" rx=\"%f\" ry=\"%f\" %s/>\n",ix+SVG_currentshiftx,iy+SVG_currentshifty,irx,iry,stylestring);
 }
-void svg_expresstetrangle(float ix1,float iy1,float ix2,float iy2,float ix3,float iy3,float ix4,float iy4)
+void svg_expressinfinityangle(int count)
 {
-	fprintf(outfile,"<path d=\"M %f %f L %f %f L %f %f L %f %f z \" %s/>\n",
-	ix1+SVG_currentshiftx,iy1+SVG_currentshifty,ix2+SVG_currentshiftx,iy2+SVG_currentshifty,ix3+SVG_currentshiftx,iy3+SVG_currentshifty,ix4+SVG_currentshiftx,iy4+SVG_currentshifty,
-	stylestring);
-}
-void svg_expresshexangle(float ix1,float iy1,float ix2,float iy2,float ix3,float iy3,float ix4,float iy4,float ix5,float iy5,float ix6,float iy6)
-{
-	fprintf(outfile,"<path d=\"M %f %f L %f %f L %f %f L %f %f L %f %f L %f %f z \" %s/>\n",
-	ix1+SVG_currentshiftx,iy1+SVG_currentshifty,ix2+SVG_currentshiftx,iy2+SVG_currentshifty,ix3+SVG_currentshiftx,iy3+SVG_currentshifty,ix4+SVG_currentshiftx,iy4+SVG_currentshifty,ix5+SVG_currentshiftx,iy5+SVG_currentshifty,ix6+SVG_currentshiftx,iy6+SVG_currentshifty,
-stylestring);
+	fprintf(outfile,"<path d=\"M");
+	for (int ilv1=0;ilv1<count;ilv1++)
+	{
+		fprintf(outfile," %f %f %c",LHENDRAW_inficorn[ilv1].x+SVG_currentshiftx,LHENDRAW_inficorn[ilv1].y+SVG_currentshifty,(ilv1==count-1)?'z':'L');
+	}
+	fprintf(outfile," \" %s/>",stylestring);
 }
 void svg_expressarc(float centerx,float centery,float radiusx,float radiusy,float startangle,float endangle)
 {

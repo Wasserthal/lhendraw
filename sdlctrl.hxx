@@ -2444,6 +2444,16 @@ void control_normal()
 				}
 				break;
 			}
+			#ifdef SDL2
+			case SDL_TEXTINPUT:
+			{
+				if (control_aggresstextcursor())
+				{
+					TELESCOPE_insertintoproperties_offset(control_Event.text.text,strlen(control_Event.text.text),control_textedit_cursor);
+				}
+				break;
+			}
+			#endif
 			case SDL_KEYUP:
 			{
 				if (control_Event.key.keysym.sym==control_toolstartkeysym)
@@ -2658,13 +2668,16 @@ void control_normal()
 							control_mousestate=0;
 						}
 						break;
+						#ifndef SDL2
 						default:;
 						char * tl_unicode;
 						if (control_aggresstextcursor())
 						{
+							unicodeinput:;
 							utf8encode(getunicode(&control_Event),&tl_unicode);
 							TELESCOPE_insertintoproperties_offset(tl_unicode,strlen(tl_unicode),control_textedit_cursor);
 						}
+						#endif
 					}
 					control_textedit_KEY_abort:;
 				}

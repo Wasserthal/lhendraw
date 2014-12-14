@@ -26,3 +26,5 @@ Error codes:
 -23: internal memory organisation failure - list of variable-size-elements damaged
 -30: could not open directory
 -31: could not create directory
+-40: illegal user input
+-41: missing user input

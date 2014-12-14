@@ -379,12 +379,14 @@ int input_recursion(FILE * infile)
 	_i32 iid=0;
 	paramvaluestring_length=0;
 	debug_demonstratefsm_recursion_depth+=1;
-	fread(&itype,2,1,infile);
+	int backval=fread(&itype,2,1,infile);
+	if (backval<1) return -7;
 	if (itype==0) {debug_demonstratefsm_recursion_depth-=1; return 0;}
 	if ((itype&0x8000)==0)
 	{
 		paramvaluestring_length=0;
-		fread(&paramvaluestring_length,2,1,infile);//ENDIAN
+		backval=fread(&paramvaluestring_length,2,1,infile);//ENDIAN
+		if (backval<1) return -7;
 		indent();
 		char * tl_name=lookup_bienum(CDXML_propertycodes_List,CDXML_propertycodes_ListSize,itype);
 		if (paramvaluestring_length<0) return 0;
@@ -392,7 +394,8 @@ int input_recursion(FILE * infile)
 		{
 			strcpy(parameterstring,tl_name);
 			if (paramvaluestring_length>LHENDRAW_buffersize) {fprintf(stderr,"File overflow!");exit(1);}
-			fread(paramvaluestring,paramvaluestring_length,1,infile);
+			backval=fread(paramvaluestring,1,paramvaluestring_length,infile);
+			if (backval<paramvaluestring_length) return -7;
 			_u8 padding=0x00;
 			for (int ilv1=0;ilv1<sizeof(list_padlist)/sizeof(_i32);ilv1++)
 			{
@@ -407,14 +410,16 @@ int input_recursion(FILE * infile)
 		}
 		else
 		{
-			fread(paramvaluestring,paramvaluestring_length,1,infile);
+			backval=fread(paramvaluestring,1,paramvaluestring_length,infile);
+			if (backval<paramvaluestring_length) return -7;
 			printf("%04hX:%i:%llX\n",itype,(int)paramvaluestring_length,*(_u64*)paramvaluestring);
 		}
 		debug_demonstratefsm_recursion_depth-=1;
 		return 1;
 	}
 	//From here, it is known to be an object
-	fread(&iid,4,1,infile);
+	backval=fread(&iid,4,1,infile);
+	if (backval<1) return -7;
 	indent();
 	char * tl_name=lookup_bienum(CDXML_objectcodes_List,CDXML_objectcodes_ListSize,itype);
 	if (tl_name)
@@ -433,8 +438,11 @@ int input_recursion(FILE * infile)
 	scoopparam_bin();
 	indent();
 	printf("you are in a %s\n",(*currentinstance).getName());
-	while (input_recursion(infile))
+	backval=1;
+	while (backval>0)
 	{
+		backval=input_recursion(infile);
+		if (backval<0) {exittag();return backval;}
 	}
 	exittag();
 	debug_demonstratefsm_recursion_depth-=1;
@@ -446,7 +454,7 @@ void input_bin(FILE* infile)
 	parameterstring_length=0;
 	paramvaluestring_length=0;
 	tagnamestring_length=0;
-	while (!input_recursion(infile));
+	while (input_recursion(infile)==0){};
 }
 long long fullu64=0xFFFFFFFFFFFFFFFF;
 void output_object(FILE * outfile,basic_instance * iinstance)

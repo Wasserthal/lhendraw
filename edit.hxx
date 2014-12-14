@@ -2101,16 +2101,21 @@ catalogized_command_funcdef(LOAD_TYPE)
 	infile=fopen(parameter,"r");
 	if (infile==NULL) return 0;
 	strncpy(control_filename,parameter,511);control_filename[511]=0;
-	currentinstance=new(CAMBRIDGEPREFIX(Total_Document_instance));
+	currentinstance=new(CAMBRIDGEPREFIX(Total_Document_instance));//TODO mem: leaks
 	FORCEEXTENSION
 	LHENDRAW_loadmemoryoverflow=0;
 	if (strcmp(value,".cdxml")==0)
 	{
 		input_fsm(infile);
 	}
-	if (strcmp(value,".cdx")==0)
+	else if (strcmp(value,".cdx")==0)
 	{
 		input_bin(infile);
+	}
+	else
+	{
+		fclose(infile);
+		return 0;
 	}
 	fclose(infile);
 	CAMBRIDGECONV_maintointernal();
@@ -2712,6 +2717,10 @@ catalogized_command_funcdef(FILEDLG_FILE_HEAD)
 char control_totalfilename[stringlength+stringlength+2];
 catalogized_command_funcdef(FILEDLG_FILE_SAVE)
 {
+	if (strcmp(control_filenamehead,"")==0)
+	{
+		return -41;
+	}
 	DIR * DD=opendir(control_currentdirectory);
 	char retval=-30;
 	if (DD)
@@ -2730,6 +2739,10 @@ catalogized_command_funcdef(FILEDLG_FILE_SAVE)
 }
 catalogized_command_funcdef(FILEDLG_FILE_LOAD)
 {
+	if (strcmp(control_filenamehead,"")==0)
+	{
+		return -41;
+	}
 	DIR * DD=opendir(control_currentdirectory);
 	char retval=-30;
 	if (DD)

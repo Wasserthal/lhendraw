@@ -21,7 +21,7 @@ if (AUTOSTRUCT_EXISTS(CAMBRIDGE_ ## MACROPARAM_TYPE ## _instance,(*tl_CAMBRIDGE_
 		if (tlcolor==-1) {tl_ ## MACROPARAM_TYPE ## _instance.color=0xFFFFFF; goto color_fertig; }\
 		if (tlcolor<(*glob_CAMBRIDGE_color_multilist).filllevel)\
 		{\
-			tl_ ## MACROPARAM_TYPE ## _instance.color=((_u8)(((*glob_CAMBRIDGE_color_multilist).bufferlist)[tlcolor].r*255)*65536)|((_u8)(((*glob_CAMBRIDGE_color_multilist).bufferlist)[tlcolor].g*255)*256)|((_u8)(((*glob_CAMBRIDGE_color_multilist).bufferlist)[tlcolor].b*255));\
+			tl_ ## MACROPARAM_TYPE ## _instance.color=((_u8)(((*glob_CAMBRIDGE_color_multilist))[tlcolor].r*255)*65536)|((_u8)(((*glob_CAMBRIDGE_color_multilist))[tlcolor].g*255)*256)|((_u8)(((*glob_CAMBRIDGE_color_multilist))[tlcolor].b*255));\
 		}\
 		else\
 		{\
@@ -44,7 +44,7 @@ if (AUTOSTRUCT_EXISTS(CAMBRIDGE_ ## MACROPARAM_TYPE ## _instance,(*tl_CAMBRIDGE_
 		if (tlcolor==-1) {tl_ ## MACROPARAM_TYPE ## _instance.color=0xFFFFFF; goto color_fertig; }\
 		if (tlcolor<(*glob_CAMBRIDGE_color_multilist).filllevel)\
 		{\
-			tl_ ## MACROPARAM_TYPE ## _instance.color=((_u8)(((*glob_CAMBRIDGE_color_multilist).bufferlist)[tlcolor].r*255)*65536)|((_u8)(((*glob_CAMBRIDGE_color_multilist).bufferlist)[tlcolor].g*255)*256)|((_u8)(((*glob_CAMBRIDGE_color_multilist).bufferlist)[tlcolor].b*255));\
+			tl_ ## MACROPARAM_TYPE ## _instance.color=((_u8)(((*glob_CAMBRIDGE_color_multilist))[tlcolor].r*255)*65536)|((_u8)(((*glob_CAMBRIDGE_color_multilist))[tlcolor].g*255)*256)|((_u8)(((*glob_CAMBRIDGE_color_multilist))[tlcolor].b*255));\
 		}\
 		else\
 		{\
@@ -63,9 +63,9 @@ CAMBRIDGE_font_instance * getfont(_small iid)
 	static CAMBRIDGE_font_instance defaultfont;
 	for (int ilv1=0;ilv1<(*glob_CAMBRIDGE_font_multilist).filllevel;ilv1++)
 	{
-		if (((*glob_CAMBRIDGE_font_multilist).bufferlist[ilv1]).id==iid)
+		if (((*glob_CAMBRIDGE_font_multilist)[ilv1]).id==iid)
 		{
-			return &((*glob_CAMBRIDGE_font_multilist).bufferlist[ilv1]);
+			return ((*glob_CAMBRIDGE_font_multilist).bufferlist()+ilv1);
 		}
 	}
 	return &defaultfont;
@@ -79,7 +79,7 @@ void CAMBRIDGECONV_atom()
 	for (int ilv1=0;ilv1<(*tl_CAMBRIDGE_n_multilist).filllevel;ilv1++)
 	{
 		int ihv1;
-		CAMBRIDGE_n_instance * tl_CAMBRIDGE_n_instance=(*tl_CAMBRIDGE_n_multilist).bufferlist+ilv1;
+		CAMBRIDGE_n_instance * tl_CAMBRIDGE_n_instance=(*tl_CAMBRIDGE_n_multilist).bufferlist()+ilv1;
 		multilistreference<CAMBRIDGE_t_instance> * tl_CAMBRIDGE_t_multilistreference=(multilistreference<CAMBRIDGE_t_instance>*)((*tl_CAMBRIDGE_n_instance).t);
 		n_instance tl_n_instance;
 		tl_n_instance=n_instance();
@@ -103,10 +103,10 @@ void CAMBRIDGECONV_atom()
 		(tl_n_instance).charge=(*tl_CAMBRIDGE_n_instance).Charge;
 		for (int ilv2=(*tl_CAMBRIDGE_t_multilistreference).start_in_it;ilv2<(*tl_CAMBRIDGE_t_multilistreference).start_in_it+(*tl_CAMBRIDGE_t_multilistreference).count_in_it;ilv2++)
 		{
-			(*glob_CAMBRIDGE_t_multilist).bufferlist[ilv2].relN=(*glob_n_multilist).filllevel;
+			(*glob_CAMBRIDGE_t_multilist)[ilv2].relN=(*glob_n_multilist).filllevel;
 			tl_n_instance.Element=-1;
-			tl_n_instance.Z=(*glob_CAMBRIDGE_t_multilist).bufferlist[ilv2].Z;
-			(*tl_CAMBRIDGE_n_instance).color=(*glob_CAMBRIDGE_t_multilist).bufferlist[ilv2].color;
+			tl_n_instance.Z=(*glob_CAMBRIDGE_t_multilist)[ilv2].Z;
+			(*tl_CAMBRIDGE_n_instance).color=(*glob_CAMBRIDGE_t_multilist)[ilv2].color;
 			(tl_n_instance).protons=0;
 			goto skip_because_text;
 		}
@@ -139,7 +139,7 @@ void CAMBRIDGECONV_bond()
 	(*tl_b_multilist).filllevel=0;
 	for (int ilv1=0;ilv1<(*tl_CAMBRIDGE_b_multilist).filllevel;ilv1++)
 	{
-		CAMBRIDGE_b_instance * tl_CAMBRIDGE_b_instance=(*tl_CAMBRIDGE_b_multilist).bufferlist+ilv1;
+		CAMBRIDGE_b_instance * tl_CAMBRIDGE_b_instance=(*tl_CAMBRIDGE_b_multilist).bufferlist()+ilv1;
 		b_instance tl_b_instance;
 		tl_b_instance=b_instance();
 		CAMBRIDGECONV_COLORCONV(b);
@@ -215,7 +215,7 @@ void CAMBRIDGECONV_text()
 	for (int ilv1=0;ilv1<(*tl_CAMBRIDGE_t_multilist).filllevel;ilv1++)
 	{
 		atommode=0;
-		CAMBRIDGE_t_instance * tl_CAMBRIDGE_t_instance=(*tl_CAMBRIDGE_t_multilist).bufferlist+ilv1;
+		CAMBRIDGE_t_instance * tl_CAMBRIDGE_t_instance=(*tl_CAMBRIDGE_t_multilist).bufferlist()+ilv1;
 		if ((*tl_CAMBRIDGE_t_instance).master!=NULL)
 		{
 			if (strcmp(((*tl_CAMBRIDGE_t_instance).master)->getName(),"n")==0)
@@ -252,7 +252,7 @@ void CAMBRIDGECONV_text()
 		i_n_only:;
 		for (int ilv2=(*((*tl_CAMBRIDGE_t_instance).s)).start_in_it;ilv2<(*((*tl_CAMBRIDGE_t_instance).s)).start_in_it+(*((*tl_CAMBRIDGE_t_instance).s)).count_in_it;ilv2++)
 		{
-			CAMBRIDGE_s_instance * tl_CAMBRIDGE_s_instance=(*tl_CAMBRIDGE_s_multilist).bufferlist+ilv2;
+			CAMBRIDGE_s_instance * tl_CAMBRIDGE_s_instance=(*tl_CAMBRIDGE_s_multilist).bufferlist()+ilv2;
 			if ((*tl_CAMBRIDGE_s_instance).PCTEXT.a==NULL)
 			{
 				goto s_element_was_empty;
@@ -307,7 +307,7 @@ int CAMBRIDGECONV_represent(CAMBRIDGE_graphic_instance * tl_CAMBRIDGE_graphic_in
 	CAMBRIDGE_represent_instance * tl_CAMBRIDGE_represent_instance;
 	if (ino<0) return 0;
 	tl_CAMBRIDGE_represent_multilist=retrievemultilist<CAMBRIDGE_represent_instance>();
-	tl_CAMBRIDGE_represent_instance=(*tl_CAMBRIDGE_represent_multilist).bufferlist+ino;
+	tl_CAMBRIDGE_represent_instance=(*tl_CAMBRIDGE_represent_multilist).bufferlist()+ino;
 	i_n_instance=(n_instance*)edit_locatebyid(STRUCTURE_OBJECTTYPE_n,(*tl_CAMBRIDGE_represent_instance).object,&n_index);
 	if (i_n_instance)
 	{
@@ -337,7 +337,7 @@ void CAMBRIDGECONV_graphic()
 	(*tl_graphic_multilist).filllevel=0;
 	for (int ilv1=0;ilv1<(*tl_CAMBRIDGE_graphic_multilist).filllevel;ilv1++)
 	{
-		CAMBRIDGE_graphic_instance * tl_CAMBRIDGE_graphic_instance=(*tl_CAMBRIDGE_graphic_multilist).bufferlist+ilv1;
+		CAMBRIDGE_graphic_instance * tl_CAMBRIDGE_graphic_instance=(*tl_CAMBRIDGE_graphic_multilist).bufferlist()+ilv1;
 		graphic_instance tl_graphic_instance;
 		if (tl_CAMBRIDGE_graphic_instance->SupersededBy!=0)
 		{
@@ -375,7 +375,7 @@ void CAMBRIDGECONV_arrow()
 	(*tl_arrow_multilist).filllevel=0;
 	for (int ilv1=0;ilv1<(*tl_CAMBRIDGE_arrow_multilist).filllevel;ilv1++)
 	{
-		CAMBRIDGE_arrow_instance * tl_CAMBRIDGE_arrow_instance=(*tl_CAMBRIDGE_arrow_multilist).bufferlist+ilv1;
+		CAMBRIDGE_arrow_instance * tl_CAMBRIDGE_arrow_instance=(*tl_CAMBRIDGE_arrow_multilist).bufferlist()+ilv1;
 		arrow_instance tl_arrow_instance;
 		tl_arrow_instance=arrow_instance();
 		CAMBRIDGECONV_COLORCONV(arrow);

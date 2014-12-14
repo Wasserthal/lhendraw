@@ -70,13 +70,13 @@ void getframes()
 	int iframenr;
 	for (int ilv1=0;ilv1<(*glob_graphic_multilist).filllevel;ilv1++)
 	{
-		if ((*glob_graphic_multilist).bufferlist[ilv1].GraphicType==3)
+		if ((*glob_graphic_multilist)[ilv1].GraphicType==3)
 		{
-			multilistreference<annotation_instance> * tlannotationmultilistreference=dynamic_cast<multilistreference<annotation_instance>*>((*glob_graphic_multilist).bufferlist[ilv1].annotation);
+			multilistreference<annotation_instance> * tlannotationmultilistreference=dynamic_cast<multilistreference<annotation_instance>*>((*glob_graphic_multilist)[ilv1].annotation);
 			isfound=0;
 			for (int ilv2=0;ilv2<(*tlannotationmultilistreference).count_in_it;ilv2++)
 			{
-				annotation_instance * tlannotation=&((*glob_annotation_multilist).bufferlist[(*tlannotationmultilistreference).start_in_it+ilv2]);
+				annotation_instance * tlannotation=&((*glob_annotation_multilist)[(*tlannotationmultilistreference).start_in_it+ilv2]);
 				if (strcmp((*tlannotation).Keyword.a,"Name")==0)
 				{
 					if ((strncmp((*tlannotation).Content.a,"Frame",5))==0)
@@ -92,7 +92,7 @@ void getframes()
 			}
 			if (isfound==1)
 			{
-				cdx_Rectangle * iBBX=&(((*glob_graphic_multilist).bufferlist[ilv1]).BoundingBox);
+				cdx_Rectangle * iBBX=&(((*glob_graphic_multilist)[ilv1]).BoundingBox);
 				canonicalizeboundingbox(iBBX);
 				addframe(*iBBX,iframenr);
 			}
@@ -122,7 +122,7 @@ void scanfortext(FILE * fileforthatpurpose,float x,float y,float x2,float y2)
 		tlbestval=2000000000;
 		for (int ilv2=0;ilv2<(*glob_t_multilist).filllevel;ilv2++)
 		{
-			t_instance * tl_t_instance=&((*glob_t_multilist).bufferlist[ilv2]);
+			t_instance * tl_t_instance=&((*glob_t_multilist)[ilv2]);
 			if (text_actual_node[ilv2].owner==-1)
 			{
 				if ((*tl_t_instance).IGOTYOU==0)
@@ -144,12 +144,12 @@ void scanfortext(FILE * fileforthatpurpose,float x,float y,float x2,float y2)
 		}
 		if (tlbestnr!=-1)
 		{
-			t_instance *tl_t_instance=&((*glob_t_multilist).bufferlist[tlbestnr]);
+			t_instance *tl_t_instance=&((*glob_t_multilist)[tlbestnr]);
 			(*tl_t_instance).IGOTYOU=1;
 			multilistreference<s_instance> * tl_s_multilistreference=dynamic_cast<multilistreference<s_instance>*>((*tl_t_instance).s);
 			for (int ilv3=(*tl_s_multilistreference).start_in_it;ilv3<(*tl_s_multilistreference).start_in_it+(*tl_s_multilistreference).count_in_it;ilv3++)
 			{
-				fprintf(fileforthatpurpose,"%s",(*glob_s_multilist).bufferlist[ilv3].PCTEXT.a);
+				fprintf(fileforthatpurpose,"%s",(*glob_s_multilist)[ilv3].PCTEXT.a);
 			}
 		}
 	}
@@ -376,7 +376,7 @@ void Lennard_hatch()
 	stylegenestring(1);
 	for (ilv1=0;ilv1<(*glob_graphic_multilist).filllevel;ilv1++)
 	{
-		graphic_instance * i_graphic_instance=(*glob_graphic_multilist).bufferlist+ilv1;
+		graphic_instance * i_graphic_instance=(*glob_graphic_multilist).bufferlist()+ilv1;
 		if (((*i_graphic_instance).GraphicType==4) || ((*i_graphic_instance).GraphicType==5))
 		{
 			if ((*i_graphic_instance).OvalType==3)
@@ -391,7 +391,7 @@ void Lennard_hatch()
 						HATCH_atom_count=0;
 						for (int ilv2=0;ilv2<(*glob_n_multilist).filllevel;ilv2++)
 						{
-							n_instance * i_n_instance=(*glob_n_multilist).bufferlist+ilv2;
+							n_instance * i_n_instance=(*glob_n_multilist).bufferlist()+ilv2;
 							if (sqr((*i_n_instance).p.x-(*i_graphic_instance).BoundingBox.right)+
 		sqr((*i_n_instance).p.y-(*i_graphic_instance).BoundingBox.bottom)<tlradiussqr+600)
 							{
@@ -423,7 +423,7 @@ void svg_main2(const char * filename,int count,char * * args)
 	char tlKLUDGEdontenumerate=0;
 	for (int ilv1=0;ilv1<(*glob_annotation_multilist).filllevel;ilv1++)// a Kludge
 	{
-		annotation_instance * tlannotation=&((*glob_annotation_multilist).bufferlist[ilv1]);
+		annotation_instance * tlannotation=&((*glob_annotation_multilist)[ilv1]);
 		if (strncmp((*tlannotation).Content.a,"unnumbered",10)==0)
 		{
 			tlKLUDGEdontenumerate=1;

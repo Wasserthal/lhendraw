@@ -233,7 +233,7 @@ void reenumerate()
 void initZlist()
 {
 	char iZorderbroken=0;
-	for (int ilv1=0;ilv1<bufferlistsize*multilistZcount;ilv1++)
+	for (int ilv1=0;ilv1<bufferlistsize*multilistZcount;ilv1++)//TODO: find actual count, for example, by summing up all filllevels... 
 	{
 		objectZorderlist[ilv1].nr=-1;objectZorderlist[ilv1].listnr=-1;
 /*		objectZorderlist[ilv1].last=ilv1-1;objectZorderlist[ilv1].next=ilv1+1;*/
@@ -256,7 +256,7 @@ void initZlist()
 				{
 					multi_objref_ imulti_objref={ilv1,ilv2};
 					int tlthisZ=*janitor_getZ(imulti_objref);
-					if (!insertinZlist(tlthisZ, (*thismultilist).index,ilv2))
+					if (!insertinZlist(tlthisZ, (*thismultilist).index,ilv2))//TODO: ... or here,find a patteern which always works, as calculating it from the numbering offset, somehow...
 					{
 						if (somewhereinZlist((*thismultilist).index,ilv2))
 						{

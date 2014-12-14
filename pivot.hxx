@@ -14,14 +14,14 @@ void get_selection_pivot()
 	if (edit_singlepointselected)
 	{
 		float tl_startx,tl_starty,tl_startz;
-		if (retrievepoints_basic(glob_n_multilist->bufferlist+edit_partner,&edit_pivot.x,&edit_pivot.y,&edit_pivot.z,0,STRUCTURE_OBJECTTYPE_n)>0)
+		if (retrievepoints_basic(glob_n_multilist->bufferlist()+edit_partner,&edit_pivot.x,&edit_pivot.y,&edit_pivot.z,0,STRUCTURE_OBJECTTYPE_n)>0)
 		{
 			return;
 		}
 	}
 	for (int ilv1=0;ilv1<(*glob_n_multilist).filllevel;ilv1++)
 	{
-		n_instance * tl_n_instance=(*glob_n_multilist).bufferlist+ilv1;
+		n_instance * tl_n_instance=(*glob_n_multilist).bufferlist()+ilv1;
 		if ((*tl_n_instance).exist)
 		{
 			if (selection_currentselection[ilv1]&(1<<STRUCTURE_OBJECTTYPE_n))
@@ -87,7 +87,7 @@ void applytransform(float matrix[3][3])
 	char iAllofthem=0;
 	for (int ilv1=0;ilv1<(*glob_n_multilist).filllevel;ilv1++)
 	{
-		n_instance * tl_n_instance=(*glob_n_multilist).bufferlist+ilv1;
+		n_instance * tl_n_instance=(*glob_n_multilist).bufferlist()+ilv1;
 		if ((*tl_n_instance).exist)
 		{
 			if (selection_currentselection[ilv1]&(1<<STRUCTURE_OBJECTTYPE_n))

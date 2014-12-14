@@ -6,13 +6,13 @@ char helpstring[]="Usage\n"
 "By the way, many atoms can be made when hovering over a carbon and pressing a letter key.\n"
 "The Element corresponding to that letter will appear.\n"
 "If thats not enough, just press two keys quickly after each other and you can enter text.\n"
-"TODO: when drawing, anything must become unselected."
 "To select things, you can either use the \n"
 "\n\e9  or \e6  tool.\n\n"
 "To undo, click \e1 , to undo an undo, click \e0 .\n\n"
 "Arrows can be drawn with the \e4  tool.\n\n"
 "You draw from start to end.\n"
-"If you want to bend them, drag the middle handle in arrow mode.\n";
+"If you want to bend them, use the arrow -\"Skipping\" tool \e72 .\n"
+"which can be selected from arrows mode.";
 void printmenutext(int posx,int posy,const char * iinput,const char * parms,int imode,int start,int end,char symbolmode=0);
 void control_help()
 {

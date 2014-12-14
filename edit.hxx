@@ -52,7 +52,7 @@ int getbondsum(intl inumber)
 	float i_bond_sum=0;
 	for (int ilv2=0;ilv2<atom_actual_node[inumber].bondcount;ilv2++)
 	{
-		i_bond_sum+=(*glob_b_multilist).bufferlist[atom_actual_node[inumber].bonds[ilv2]].Order/16.0;
+		i_bond_sum+=(*glob_b_multilist)[atom_actual_node[inumber].bonds[ilv2]].Order/16.0;
 	}
 	if (fmod(i_bond_sum,1.0)>0.4)
 	{
@@ -183,7 +183,7 @@ void getatoms()//makes some preprocessing
 	}
 	for (int ilv1=0;ilv1<(*glob_b_multilist).filllevel;ilv1++)//defines processable bonds
 	{
-		if ((*glob_b_multilist).bufferlist[ilv1].exist)
+		if ((*glob_b_multilist)[ilv1].exist)
 		{
 			bond_actual_node[ilv1].cotanleft[0]=Pi/4;
 			bond_actual_node[ilv1].cotanleft[1]=Pi/4;
@@ -201,15 +201,15 @@ void getatoms()//makes some preprocessing
 			diagnose_foundstart=0;diagnose_foundend=0;
 			for (int ilv2=0;ilv2<(*glob_n_multilist).filllevel;ilv2++)
 			{
-				if (((*glob_n_multilist).bufferlist)[ilv2].exist)
+				if (((*glob_n_multilist))[ilv2].exist)
 				{
-					if (((*glob_n_multilist).bufferlist)[ilv2].id==((*glob_b_multilist).bufferlist)[ilv1].E)
+					if (((*glob_n_multilist))[ilv2].id==((*glob_b_multilist))[ilv1].E)
 					{
 						bond_actual_node[ilv1].end=ilv2;
 						atom_actual_node[ilv2]+=ilv1;
 						diagnose_foundstart=1;
 					}
-					if (((*glob_n_multilist).bufferlist)[ilv2].id==((*glob_b_multilist).bufferlist)[ilv1].B)
+					if (((*glob_n_multilist))[ilv2].id==((*glob_b_multilist))[ilv1].B)
 					{
 						bond_actual_node[ilv1].start=ilv2;
 						atom_actual_node[ilv2]+=ilv1;
@@ -225,7 +225,7 @@ void getatoms()//makes some preprocessing
 	}
 	for (int ilv1=0;ilv1<(*glob_n_multilist).filllevel;ilv1++)//defines processable atoms
 	{
-		n_instance * tlatominstance=&((*glob_n_multilist).bufferlist[ilv1]);
+		n_instance * tlatominstance=&((*glob_n_multilist)[ilv1]);
 		if (tlatominstance->exist)
 		{
 			theside=0;thelevel=0;
@@ -233,7 +233,7 @@ void getatoms()//makes some preprocessing
 			{
 				_small partner=getother(ilv1,(atom_actual_node[ilv1]).bonds[ilv2]);
 				
-				tl_angle=getangle((*glob_n_multilist).bufferlist[partner].xyz.x-(*tlatominstance).xyz.x,(*glob_n_multilist).bufferlist[partner].xyz.y-(*tlatominstance).xyz.y);//TODO:not good at real-time!!!
+				tl_angle=getangle((*glob_n_multilist)[partner].xyz.x-(*tlatominstance).xyz.x,(*glob_n_multilist)[partner].xyz.y-(*tlatominstance).xyz.y);//TODO:not good at real-time!!!
 				theside+=cos(tl_angle);
 				thelevel+=sin(tl_angle);
 				angle_between[ilv2][ilv2]=tl_angle;
@@ -307,7 +307,7 @@ void getatoms()//makes some preprocessing
 	}
 	for (int ilv1=0;ilv1<(*glob_b_multilist).filllevel;ilv1++)//refines undefined double bonds
 	{
-		b_instance * currentbondinstance=&((*glob_b_multilist).bufferlist[ilv1]);
+		b_instance * currentbondinstance=&((*glob_b_multilist)[ilv1]);
 		int i_side_orvariable;
 		int i_side_orvariable2;
 		i_side_orvariable=0;
@@ -316,7 +316,7 @@ void getatoms()//makes some preprocessing
 		{
 			for (int ilv2=0;ilv2<atom_actual_node[bond_actual_node[ilv1].start].bondcount;ilv2++)//or operation
 			{
-				i_side_orvariable|=getleftof(&((*glob_n_multilist).bufferlist[bond_actual_node[ilv1].start].xyz),&((*glob_n_multilist).bufferlist[bond_actual_node[ilv1].end].xyz),&((*glob_n_multilist).bufferlist[getother((bond_actual_node[ilv1].start),atom_actual_node[bond_actual_node[ilv1].start].bonds[ilv2])].xyz));
+				i_side_orvariable|=getleftof(&((*glob_n_multilist)[bond_actual_node[ilv1].start].xyz),&((*glob_n_multilist)[bond_actual_node[ilv1].end].xyz),&((*glob_n_multilist)[getother((bond_actual_node[ilv1].start),atom_actual_node[bond_actual_node[ilv1].start].bonds[ilv2])].xyz));
 			}
 			if (i_side_orvariable==3)
 			{
@@ -324,7 +324,7 @@ void getatoms()//makes some preprocessing
 			}
 			for (int ilv2=0;ilv2<atom_actual_node[bond_actual_node[ilv1].end].bondcount;ilv2++)//or operation
 			{
-				i_side_orvariable2|=getleftof(&((*glob_n_multilist).bufferlist[bond_actual_node[ilv1].start].xyz),&((*glob_n_multilist).bufferlist[bond_actual_node[ilv1].end].xyz),&((*glob_n_multilist).bufferlist[getother((bond_actual_node[ilv1].end),atom_actual_node[bond_actual_node[ilv1].end].bonds[ilv2])].xyz));
+				i_side_orvariable2|=getleftof(&((*glob_n_multilist)[bond_actual_node[ilv1].start].xyz),&((*glob_n_multilist)[bond_actual_node[ilv1].end].xyz),&((*glob_n_multilist)[getother((bond_actual_node[ilv1].end),atom_actual_node[bond_actual_node[ilv1].end].bonds[ilv2])].xyz));
 			}
 			if (i_side_orvariable2==3)
 			{
@@ -384,7 +384,7 @@ int edit_partner=0;
 int edit_judgepoint(int index)
 {
 	int icount=0;
-	n_instance * tl_n_instance=glob_n_multilist->bufferlist+index;
+	n_instance * tl_n_instance=glob_n_multilist->bufferlist()+index;
 	if (tl_n_instance->exist)
 	{
 		if ((selection_currentselection[index] & (1<<STRUCTURE_OBJECTTYPE_n))>0)
@@ -409,7 +409,7 @@ void edit_judgeselection(int backindex)
 	int edit_endatom_count=0;
 	for (int ilv1=1;ilv1<glob_n_multilist->filllevel;ilv1++)
 	{
-		n_instance * tl_n_instance=glob_n_multilist->bufferlist+ilv1;
+		n_instance * tl_n_instance=glob_n_multilist->bufferlist()+ilv1;
 		if (tl_n_instance->exist)
 		{
 			if ((selection_currentselection[ilv1] & (1<<STRUCTURE_OBJECTTYPE_n))>0)
@@ -498,7 +498,7 @@ inline int retrievepoints(n_instance * iinstance,float * ix,float * iy,float * i
 	{
 		int tl_backval=0;
 		int ilv1=0;
-		tl_backval=TELESCOPE_aggressobject(glob_n_multilist,iinstance-glob_n_multilist->bufferlist);
+		tl_backval=TELESCOPE_aggressobject(glob_n_multilist,iinstance-glob_n_multilist->bufferlist());
 		tl_backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_Symbol);
 		iback:;
 		if (tl_backval>0)
@@ -531,7 +531,7 @@ inline int retrievepoints(b_instance * iinstance,float * ix,float * iy,float * i
 	n_instance *iinstance2=NULL;
 	for (int ilv1=0;ilv1<(*glob_n_multilist).filllevel;ilv1++)
 	{
-		n_instance * tlinstance=&((*glob_n_multilist).bufferlist[ilv1]);
+		n_instance * tlinstance=&((*glob_n_multilist)[ilv1]);
 		if ((*tlinstance).exist)
 		{
 			if ((*tlinstance).id==(*iinstance).B)
@@ -671,11 +671,11 @@ int hit(n_instance * iinstance,float ix,float iy,int ino)
 		if (idistance<glob_clickradius)
 		{
 			if (idistance<glob_subpoint_clickradius) return 1;
-			int inr=(((_iXX)iinstance)-((_iXX)(glob_n_multilist->bufferlist)))/sizeof(n_instance);
+			int inr=(((_iXX)iinstance)-((_iXX)(glob_n_multilist->bufferlist())))/sizeof(n_instance);
 			int tl_bondcount=atom_actual_node[inr].bondcount;
 			for (int ilv1=0;ilv1<tl_bondcount;ilv1++)
 			{
-				n_instance * iinstance2=(glob_n_multilist->bufferlist)+getother(inr,atom_actual_node[inr].bonds[ilv1]);
+				n_instance * iinstance2=(glob_n_multilist->bufferlist())+getother(inr,atom_actual_node[inr].bonds[ilv1]);
 				float main_angle=getangle((*iinstance2).xyz.x-(*iinstance).xyz.x,(*iinstance2).xyz.y-(*iinstance).xyz.y);
 				float tl_angle;
 				tl_angle=getangle(ix-(*iinstance).xyz.x,iy-(*iinstance).xyz.y);
@@ -702,7 +702,7 @@ int hit(b_instance * iinstance,float ix,float iy,int ino)
 	if (ino!=0) return -1;
 	for (int ilv1=0;ilv1<(*glob_n_multilist).filllevel;ilv1++)
 	{
-		n_instance * tlinstance=&((*glob_n_multilist).bufferlist[ilv1]);
+		n_instance * tlinstance=&((*glob_n_multilist)[ilv1]);
 		if ((*tlinstance).exist)
 		{
 			if ((*tlinstance).id==(*iinstance).B)
@@ -788,7 +788,7 @@ inline int placepoints(n_instance * iinstance,float ix,float iy,float iz,int inu
 	int ilv1=0;
 	if (inumber>0)
 	{
-		tl_backval=TELESCOPE_aggressobject(glob_n_multilist,iinstance-glob_n_multilist->bufferlist);
+		tl_backval=TELESCOPE_aggressobject(glob_n_multilist,iinstance-glob_n_multilist->bufferlist());
 		tl_backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_Symbol);
 		iback:;
 		if (tl_backval>0)
@@ -825,7 +825,7 @@ inline int placepoints(b_instance * iinstance,float ix,float iy,float iz,int inu
 	n_instance *iinstance2=NULL;
 	for (int ilv1=0;ilv1<(*glob_n_multilist).filllevel;ilv1++)
 	{
-		n_instance * tlinstance=&((*glob_n_multilist).bufferlist[ilv1]);
+		n_instance * tlinstance=&((*glob_n_multilist)[ilv1]);
 		if ((*tlinstance).exist)
 		{
 			if ((*tlinstance).id==(*iinstance).B)
@@ -1053,7 +1053,7 @@ template <class thisinstance> inline _u32 clickfor_template(float posx,float pos
 	internalpointcount=retrieveprops_basic(1,objecttype);
 	for (int ilv1=0;ilv1<(*imultilist).filllevel;ilv1++)
 	{
-		thisinstance * tlinstance=&((*imultilist).bufferlist[ilv1]);
+		thisinstance * tlinstance=&((*imultilist)[ilv1]);
 		if ((*tlinstance).exist)
 		{
 			if (mode & 1) if (hit(tlinstance,posx,posy,0)>0)
@@ -1141,7 +1141,7 @@ void edit_joinatom(n_instance * iinstance1,n_instance * iinstance2,int index2)
 	int oldid=(*iinstance2).id;
 	for (int ilv1=0;ilv1<glob_b_multilist->filllevel;ilv1++)
 	{
-		b_instance * tl_b_instance=(*glob_b_multilist).bufferlist+ilv1;
+		b_instance * tl_b_instance=(*glob_b_multilist).bufferlist()+ilv1;
 		if (tl_b_instance->exist)
 		{
 			if (tl_b_instance->B==oldid) tl_b_instance->B=id;
@@ -1158,7 +1158,7 @@ n_instance * snapatom(float posx,float posy,_small * iatomnr=NULL)
 	n_instance * bestatom=NULL;
 	for (int ilv1=0;ilv1<(*glob_n_multilist).filllevel;ilv1++)
 	{
-		n_instance * tlatom=&((*glob_n_multilist).bufferlist[ilv1]);
+		n_instance * tlatom=&((*glob_n_multilist)[ilv1]);
 		if ((*tlatom).exist)
 		{
 			if (selection_clickselection[ilv1] & (1<<STRUCTURE_OBJECTTYPE_n))
@@ -1179,7 +1179,7 @@ n_instance * snapatom_short(float iposx,float iposy,_small * iatomnr=NULL,int id
 {
 	for (_small ilv1=0;ilv1<(*glob_n_multilist).filllevel;ilv1++)
 	{
-		n_instance * tlatom=&((*glob_n_multilist).bufferlist[ilv1]);
+		n_instance * tlatom=&((*glob_n_multilist)[ilv1]);
 		if ((*tlatom).exist)
 		{
 			if ((sqr(iposx-(*tlatom).xyz.x)+sqr(iposy-(*tlatom).xyz.y))<idistance)
@@ -1268,7 +1268,7 @@ basic_instance * getclicked(int imap,float clckx,float clcky,int * backtype=NULL
 								thisvalue=fsqr(ix-clckx)+fsqr(iy-clcky);
 								if (thisvalue<bestvalue)
 								{
-									bestinstance=(basic_instance*)(glob_n_multilist->bufferlist+ilv1);
+									bestinstance=(basic_instance*)(glob_n_multilist->bufferlist()+ilv1);
 									if (backtype!=NULL)
 									{
 										*backtype=ilv0+STRUCTURE_OBJECTTYPE_ListSize;
@@ -1305,7 +1305,7 @@ n_instance * edit_summonatom(int * inr=NULL)
 		n_instance * tlinstance;
 		if (janitor_getmaxid(STRUCTURE_OBJECTTYPE_n)<0) return NULL;
 		tl_nr=(*glob_n_multilist).filllevel;
-		tlinstance=new(&((*glob_n_multilist).bufferlist[tl_nr])) n_instance;
+		tlinstance=new(&((*glob_n_multilist)[tl_nr])) n_instance;
 		(*tlinstance).Element=constants_Element_implicitcarbon;
 		(*tlinstance).color=control_drawproperties.color;
 		(*tlinstance).charge=0;
@@ -1330,7 +1330,7 @@ arrow_instance * edit_summonarrow(int * inr=NULL)
 		int tl_nr=-1;
 		arrow_instance * tlinstance;
 		tl_nr=(*glob_arrow_multilist).filllevel;
-		tlinstance=new(&((*glob_arrow_multilist).bufferlist[tl_nr])) arrow_instance;
+		tlinstance=new(&((*glob_arrow_multilist)[tl_nr])) arrow_instance;
 		selection_currentselection[tl_nr]&=(~(1<<STRUCTURE_OBJECTTYPE_arrow));
 		(*tlinstance).color=control_drawproperties.color;
 		((*glob_arrow_multilist).filllevel)++;
@@ -1347,7 +1347,7 @@ b_instance * edit_summonbond(int i_id_begin,int i_id_end,int i_nr_begin,int i_nr
 	if ((*glob_b_multilist).filllevel<bufferlistsize)
 	{
 		b_instance * tlinstance;
-		tlinstance=new(&((*glob_b_multilist).bufferlist[(*glob_b_multilist).filllevel])) b_instance;
+		tlinstance=new(&((*glob_b_multilist)[(*glob_b_multilist).filllevel])) b_instance;
 		selection_currentselection[(*glob_b_multilist).filllevel]&=(~(1<<STRUCTURE_OBJECTTYPE_b));
 		(*tlinstance).B=i_id_begin;
 		(*tlinstance).E=i_id_end;
@@ -1373,7 +1373,7 @@ t_instance * edit_summontext(int * inr=NULL)
 		int tl_nr=-1;
 		t_instance * tlinstance;
 		tl_nr=(*glob_t_multilist).filllevel;
-		tlinstance=new(&((*glob_t_multilist).bufferlist[tl_nr])) t_instance;
+		tlinstance=new(&((*glob_t_multilist)[tl_nr])) t_instance;
 		(*tlinstance).color=control_drawproperties.color;
 		selection_currentselection[tl_nr]&=(~(1<<STRUCTURE_OBJECTTYPE_t));
 		((*glob_t_multilist).filllevel)++;
@@ -1390,24 +1390,24 @@ int atom_addsymbol(int inr,int itype)
 	switch (itype)
 	{
 		case 2: case 4: case 8:
-		if ((*glob_n_multilist).bufferlist[inr].charge<0)
+		if ((*glob_n_multilist)[inr].charge<0)
 		{
 			TELESCOPE_aggressobject(glob_n_multilist,inr);
-			(*glob_n_multilist).bufferlist[inr].charge=0;
+			(*glob_n_multilist)[inr].charge=0;
 			TELESCOPE_clear();
 			return 1;
 		}
-		(*glob_n_multilist).bufferlist[inr].charge+=1;
+		(*glob_n_multilist)[inr].charge+=1;
 		break;
 		case 3: case 5: case 9:
-		if ((*glob_n_multilist).bufferlist[inr].charge>0)
+		if ((*glob_n_multilist)[inr].charge>0)
 		{
 			TELESCOPE_aggressobject(glob_n_multilist,inr);
-			(*glob_n_multilist).bufferlist[inr].charge=0;
+			(*glob_n_multilist)[inr].charge=0;
 			TELESCOPE_clear();
 			return 1;
 		}
-		(*glob_n_multilist).bufferlist[inr].charge-=1;
+		(*glob_n_multilist)[inr].charge-=1;
 		break;
 	}
 	TELESCOPE_aggressobject(glob_n_multilist,inr);
@@ -1437,12 +1437,12 @@ float edit_get_atom_best_free_side(int atomnr)
 			int atomnr2b=getother(atomnr,atom_actual_node[atomnr].bonds[ilv0]);
 			for (int ilv2=0;ilv2<2;ilv2++)
 			{
-				angle=fmod(0.5*(getangle((*glob_n_multilist).bufferlist[atomnr2].xyz.x-(*glob_n_multilist).bufferlist[atomnr].xyz.x,(*glob_n_multilist).bufferlist[atomnr2].xyz.y-(*glob_n_multilist).bufferlist[atomnr].xyz.y)+getangle((*glob_n_multilist).bufferlist[atomnr2b].xyz.x-(*glob_n_multilist).bufferlist[atomnr].xyz.x,(*glob_n_multilist).bufferlist[atomnr2b].xyz.y-(*glob_n_multilist).bufferlist[atomnr].xyz.y))+constants_angular_distance*(ilv2?1:-1)+4*Pi,2*Pi);
+				angle=fmod(0.5*(getangle((*glob_n_multilist)[atomnr2].xyz.x-(*glob_n_multilist)[atomnr].xyz.x,(*glob_n_multilist)[atomnr2].xyz.y-(*glob_n_multilist)[atomnr].xyz.y)+getangle((*glob_n_multilist)[atomnr2b].xyz.x-(*glob_n_multilist)[atomnr].xyz.x,(*glob_n_multilist)[atomnr2b].xyz.y-(*glob_n_multilist)[atomnr].xyz.y))+constants_angular_distance*(ilv2?1:-1)+4*Pi,2*Pi);
 				float worst=2*Pi;int worstnr=-1;
 				for (int ilv3=0;ilv3<atom_actual_node[atomnr].bondcount;ilv3++)
 				{
 					int atomnr3=getother(atomnr,atom_actual_node[atomnr].bonds[ilv3]);
-					float angle2=fmod(getangle((*glob_n_multilist).bufferlist[atomnr3].xyz.x-(*glob_n_multilist).bufferlist[atomnr].xyz.x,(*glob_n_multilist).bufferlist[atomnr3].xyz.y-(*glob_n_multilist).bufferlist[atomnr].xyz.y)-angle+4*Pi,2*Pi);
+					float angle2=fmod(getangle((*glob_n_multilist)[atomnr3].xyz.x-(*glob_n_multilist)[atomnr].xyz.x,(*glob_n_multilist)[atomnr3].xyz.y-(*glob_n_multilist)[atomnr].xyz.y)-angle+4*Pi,2*Pi);
 					if (angle2>Pi)
 					{
 						angle2-=2*Pi;
@@ -1472,7 +1472,7 @@ float edit_get_atom_best_free_side(int atomnr)
 int edit_errichten(int startatom)
 {
 	int atomnr2=-1;
-	n_instance * tlatom=&((*glob_n_multilist).bufferlist[startatom]);
+	n_instance * tlatom=&((*glob_n_multilist)[startatom]);
 	if (tlatom==0) {return -1;}
 	n_instance * tlatom2;
 	b_instance * tlbond;
@@ -1515,7 +1515,7 @@ catalogized_command_funcdef(SPROUT2)
 		{
 			if (selection_currentselection[ilv1] & (1<<STRUCTURE_OBJECTTYPE_n))
 			{
-				if ((*glob_n_multilist).bufferlist[ilv1].exist)
+				if ((*glob_n_multilist)[ilv1].exist)
 				{ 
 					counter++;
 					edit_errichten(ilv1);
@@ -1668,9 +1668,9 @@ void edit_scoopcolors(basic_instance * master)
 		g=(ilv1>>1)%2;
 		b=(ilv1>>2)%2;
 		if (b) {r^=1;g^=r;r^=g;}else{r^=g;}
-		(*glob_CAMBRIDGE_color_multilist).bufferlist[(ilv1+1)%8].b=b;
-		(*glob_CAMBRIDGE_color_multilist).bufferlist[(ilv1+1)%8].g=g;
-		(*glob_CAMBRIDGE_color_multilist).bufferlist[(ilv1+1)%8].r=r;
+		(*glob_CAMBRIDGE_color_multilist)[(ilv1+1)%8].b=b;
+		(*glob_CAMBRIDGE_color_multilist)[(ilv1+1)%8].g=g;
+		(*glob_CAMBRIDGE_color_multilist)[(ilv1+1)%8].r=r;
 	}
 	basicmultilist * tl_multilist;
 	for (ilv1=1;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
@@ -2000,7 +2000,7 @@ catalogized_command_funcdef(SAVE_TYPE)
 "><colortable>\n");
 for (int ilv1=0;ilv1<(*glob_CAMBRIDGE_color_multilist).filllevel;ilv1++)
 {
-	fprintf(ifile," <color r=\"%f\" g=\"%f\" b=\"%f\"/>\n",(*glob_CAMBRIDGE_color_multilist).bufferlist[ilv1].r,(*glob_CAMBRIDGE_color_multilist).bufferlist[ilv1].g,(*glob_CAMBRIDGE_color_multilist).bufferlist[ilv1].b);
+	fprintf(ifile," <color r=\"%f\" g=\"%f\" b=\"%f\"/>\n",(*glob_CAMBRIDGE_color_multilist)[ilv1].r,(*glob_CAMBRIDGE_color_multilist)[ilv1].g,(*glob_CAMBRIDGE_color_multilist)[ilv1].b);
 }
 
 fprintf(ifile,"%s","</colortable><fonttable>\n"
@@ -2068,12 +2068,12 @@ catalogized_command_funcdef(LOAD_INTO_SEARCHBUF)
 int edit_bondsum(int nr,int dir)
 {
 	float i_bond_sum=0;
-	n_instance * tl_n_instance=(*glob_n_multilist).bufferlist+nr;
+	n_instance * tl_n_instance=(*glob_n_multilist).bufferlist()+nr;
 	if ((*tl_n_instance).exist)
 	{
 		for (int ilv2=0;ilv2<atom_actual_node[nr].bondcount;ilv2++)
 		{
-			i_bond_sum+=(*glob_b_multilist).bufferlist[atom_actual_node[nr].bonds[ilv2]].Order/16.0;
+			i_bond_sum+=(*glob_b_multilist)[atom_actual_node[nr].bonds[ilv2]].Order/16.0;
 		}
 	}
 	if (fmod(i_bond_sum,1.0)>0.4)
@@ -2384,7 +2384,7 @@ int edit_interpretaselementwithimplicithydrogens(multilist<n_instance> * imultil
 	else
 	{
 		edit_scoop_numhydrogens=4;
-		(*imultilist).bufferlist[inumber].Element=constants_Element_implicitcarbon;
+		(*imultilist)[inumber].Element=constants_Element_implicitcarbon;
 		goto yes_its_an_element;
 	}
 	iback:
@@ -2410,7 +2410,7 @@ int edit_interpretaselementwithimplicithydrogens(multilist<n_instance> * imultil
 	{
 		if (strcmp(edit_scoop_atomstring,element[ilv1].name)==0)
 		{
-			(*imultilist).bufferlist[inumber].Element=ilv1;
+			(*imultilist)[inumber].Element=ilv1;
 			goto yes_its_an_element;
 		}
 	}
@@ -2448,8 +2448,8 @@ int edit_interpretaselementwithimplicithydrogens(multilist<n_instance> * imultil
 	(*(s_f_instance*)TELESCOPE_getproperty()).valids=edit_scoop_valids;
 	(*(s_f_instance*)TELESCOPE_getproperty()).length=sizeof(s_f_instance)+fill*sizeof(edit_formatstruct);
 	(*(s_f_instance*)TELESCOPE_getproperty()).type=TELESCOPE_ELEMENTTYPE_s_f;
-	(*imultilist).bufferlist[inumber].protons=edit_scoop_numhydrogens;
-	(*imultilist).bufferlist[inumber].color=edit_scoop_formats[0].color;
+	(*imultilist)[inumber].protons=edit_scoop_numhydrogens;
+	(*imultilist)[inumber].color=edit_scoop_formats[0].color;
 	return 1;
 }
 #define L_SEPARATE \
@@ -2583,7 +2583,7 @@ int edit_textlength(multilist<t_instance> * imultilist,int iindex)
 	int tl_backval;
 	if (TELESCOPE_aggressobject(imultilist,iindex))
 	{
-		t_instance * tl_t_instance=imultilist->bufferlist+iindex;
+		t_instance * tl_t_instance=imultilist->bufferlist()+iindex;
 		if (tl_t_instance->exist)
 		{
 			int maxwidth=0;
@@ -2779,7 +2779,7 @@ catalogized_command_funcdef(WARN_HYPERC)
 	iback:;
 	for (int ilv1=edit_current5bondcarbon;ilv1<glob_n_multilist->filllevel;ilv1++)
 	{
-		n_instance * tl_n_instance=glob_n_multilist->bufferlist+ilv1;
+		n_instance * tl_n_instance=glob_n_multilist->bufferlist()+ilv1;
 		if (tl_n_instance->exist==0) continue;
 		if ((tl_n_instance->Element!=constants_Element_implicitcarbon) && (tl_n_instance->Element!=constants_Element_implicitcarbon+1)) continue;
 		int i_bond_sum;
@@ -2809,9 +2809,9 @@ catalogized_command_funcdef(CLEANUP)
 	{
 		if (selection_currentselection[ilv1] & icompare)
 		{
-			b_instance * iinstance=(*glob_b_multilist).bufferlist+ilv1;
-			n_instance * iinstance1=glob_n_multilist->bufferlist+bond_actual_node[ilv1].start;
-			n_instance * iinstance2=glob_n_multilist->bufferlist+bond_actual_node[ilv1].end;
+			b_instance * iinstance=(*glob_b_multilist).bufferlist()+ilv1;
+			n_instance * iinstance1=glob_n_multilist->bufferlist()+bond_actual_node[ilv1].start;
+			n_instance * iinstance2=glob_n_multilist->bufferlist()+bond_actual_node[ilv1].end;
 			float length=fsqr(iinstance2->xyz.x-iinstance1->xyz.x)+fsqr(iinstance2->xyz.y-iinstance1->xyz.y);
 			float idirection=getangle(iinstance2->xyz.x-iinstance1->xyz.x,iinstance2->xyz.y-iinstance1->xyz.y);
 			if (length>=fsqr(constants_bondlength+0.02))
@@ -2837,15 +2837,15 @@ catalogized_command_funcdef(CLEANUP)
 	{
 		if (selection_currentselection[ilv1] & icompare)
 		{
-			n_instance * iinstance=(*glob_n_multilist).bufferlist+ilv1;
+			n_instance * iinstance=(*glob_n_multilist).bufferlist()+ilv1;
 			for (int ilv2=0;ilv2<atom_actual_node[ilv1].bondcount;ilv2++)
 			{
-//TODO: ignore bondorder-0 bonds				b_instance * i_b_instance1=glob_b_multilist->bufferlist+atom_actual_node[ilv1].bonds[ilv2];
-				n_instance * i_n_instance1=glob_n_multilist->bufferlist+getother(ilv1,atom_actual_node[ilv1].bonds[ilv2]);
+//TODO: ignore bondorder-0 bonds				b_instance * i_b_instance1=glob_b_multilist->bufferlist()+atom_actual_node[ilv1].bonds[ilv2];
+				n_instance * i_n_instance1=glob_n_multilist->bufferlist()+getother(ilv1,atom_actual_node[ilv1].bonds[ilv2]);
 				for (int ilv3=ilv2+1;ilv3<atom_actual_node[ilv1].bondcount;ilv3++)
 				{
-//					b_instance * iinstance2=glob_b_multilist->bufferlist+atom_actual_node[ilv1].bonds[ilv3];
-					n_instance * i_n_instance2=glob_n_multilist->bufferlist+getother(ilv1,atom_actual_node[ilv1].bonds[ilv3]);
+//					b_instance * iinstance2=glob_b_multilist->bufferlist()+atom_actual_node[ilv1].bonds[ilv3];
+					n_instance * i_n_instance2=glob_n_multilist->bufferlist()+getother(ilv1,atom_actual_node[ilv1].bonds[ilv3]);
 					float angle1=getangle(i_n_instance1->xyz.x-iinstance->xyz.x,i_n_instance1->xyz.y-iinstance->xyz.y);
 					float angle2=getangle(i_n_instance2->xyz.x-iinstance->xyz.x,i_n_instance2->xyz.y-iinstance->xyz.y);
 					float iangle=fmod(angle2-angle1+4*Pi,Pi/12);
@@ -2916,9 +2916,9 @@ int edit_flexicopy(int undostep_no,multilist<n_instance> * n_target,multilist<b_
 		{
 			if (iselection[ilv1] & icompare)
 			{
-				memcpy((n_target->bufferlist)+(ilv1),n_input+ilv1,sizeof(n_instance));
-				(n_target->bufferlist)[ilv1].xyz.x+=dx;
-				(n_target->bufferlist)[ilv1].xyz.y+=dy;
+				memcpy((n_target->bufferlist())+(ilv1),n_input+ilv1,sizeof(n_instance));
+				(n_target->bufferlist())[ilv1].xyz.x+=dx;
+				(n_target->bufferlist())[ilv1].xyz.y+=dy;
 			}
 		}
 	}
@@ -2928,10 +2928,10 @@ int edit_flexicopy(int undostep_no,multilist<n_instance> * n_target,multilist<b_
 		{
 			if (iselection[ilv1] & icompare)
 			{
-/*				memcpy((n_target->bufferlist)+(n_target->filllevel),n_input+ilv1,sizeof(n_instance));
-				(n_target->bufferlist)[n_target->filllevel].id+=(*i_deltaback);
-				(n_target->bufferlist)[n_target->filllevel].xyz.x+=dx;
-				(n_target->bufferlist)[n_target->filllevel].xyz.y+=dy;
+/*				memcpy((n_target->bufferlist())+(n_target->filllevel),n_input+ilv1,sizeof(n_instance));
+				(n_target->bufferlist())[n_target->filllevel].id+=(*i_deltaback);
+				(n_target->bufferlist())[n_target->filllevel].xyz.x+=dx;
+				(n_target->bufferlist())[n_target->filllevel].xyz.y+=dy;
 				n_target->filllevel++;*/
 			}
 		}
@@ -2942,9 +2942,9 @@ int edit_flexicopy(int undostep_no,multilist<n_instance> * n_target,multilist<b_
 			{
 				if ((iselection[bond_actual_node[ilv1].start] & (1<<STRUCTURE_OBJECTTYPE_n)) && (iselection[bond_actual_node[ilv1].end] & (1<<STRUCTURE_OBJECTTYPE_n)))
 				{
-					memcpy((b_target->bufferlist)+(b_target->filllevel),b_input+ilv1,sizeof(b_instance));
-					(b_target->bufferlist)[b_target->filllevel].B+=(*i_deltaback);
-					(b_target->bufferlist)[b_target->filllevel].E+=(*i_deltaback);
+					memcpy((b_target->bufferlist())+(b_target->filllevel),b_input+ilv1,sizeof(b_instance));
+					(b_target->bufferlist())[b_target->filllevel].B+=(*i_deltaback);
+					(b_target->bufferlist())[b_target->filllevel].E+=(*i_deltaback);
 					b_target->filllevel++;
 				}
 			}
@@ -3035,7 +3035,7 @@ int edit_writerepresenttobuffer(char * input,void * output)
 	{
 		_i16 length=0x06;
 		fwrite(&length,2,1,(FILE*)output);
-		CAMBRIDGE_represent_instance * tl_CAMBRIDGE_represent_instance=glob_CAMBRIDGE_represent_multilist->bufferlist+ilv1;
+		CAMBRIDGE_represent_instance * tl_CAMBRIDGE_represent_instance=glob_CAMBRIDGE_represent_multilist->bufferlist()+ilv1;
 		fwrite(&tl_CAMBRIDGE_represent_instance->object,4,1,(FILE*)output);
 		fwrite(&tl_CAMBRIDGE_represent_instance->attribute,2,1,(FILE*)output);
 		if (ilv1<tl_basicmultilistreference->start_in_it+tl_basicmultilistreference->count_in_it-1)
@@ -3081,11 +3081,11 @@ int edit_writecolortabletobuffer(char * input,void * output)
 	fwrite(&length,2,1,(FILE*)output);
 	for (int ilv1=0;ilv1<length;ilv1++)
 	{
-		_u16 dummy=65535.0*glob_CAMBRIDGE_color_multilist->bufferlist[ilv1].r;
+		_u16 dummy=65535.0*(*glob_CAMBRIDGE_color_multilist)[ilv1].r;
 		fwrite(&dummy,2,1,(FILE*)output);
-		dummy=65535.0*glob_CAMBRIDGE_color_multilist->bufferlist[ilv1].g;
+		dummy=65535.0*(*glob_CAMBRIDGE_color_multilist)[ilv1].g;
 		fwrite(&dummy,2,1,(FILE*)output);
-		dummy=65535.0*glob_CAMBRIDGE_color_multilist->bufferlist[ilv1].b;
+		dummy=65535.0*(*glob_CAMBRIDGE_color_multilist)[ilv1].b;
 		fwrite(&dummy,2,1,(FILE*)output);
 	}
 	return 0;
@@ -3283,7 +3283,7 @@ int edit_writestobuffer(char * input,void * output)
 	{
 		int tl_count=1;
 		int tl_starttype=0;
-		CAMBRIDGE_s_instance * tl_CAMBRIDGE_s_instance=glob_CAMBRIDGE_s_multilist->bufferlist+ilv1;
+		CAMBRIDGE_s_instance * tl_CAMBRIDGE_s_instance=glob_CAMBRIDGE_s_multilist->bufferlist()+ilv1;
 		edit_printtest(tl_CAMBRIDGE_s_instance->PCTEXT.a,&tl_count,&tl_starttype,&textlength);
 		if (tl_starttype!=0)
 		{
@@ -3306,7 +3306,7 @@ int edit_writestobuffer(char * input,void * output)
 		iagain:;
 		fseek((FILE*)output,4+(icursor)*sizeof(cdx_Stylerun)+fseekstart,SEEK_SET);
 		icursor++;
-		CAMBRIDGE_s_instance * tl_CAMBRIDGE_s_instance=glob_CAMBRIDGE_s_multilist->bufferlist+ilv1;
+		CAMBRIDGE_s_instance * tl_CAMBRIDGE_s_instance=glob_CAMBRIDGE_s_multilist->bufferlist()+ilv1;
 		tl_stylerun.startpos=fseekcur-(4+(segcount)*sizeof(cdx_Stylerun)+fseekstart);
 		tl_stylerun.color=tl_CAMBRIDGE_s_instance->color;
 		tl_stylerun.font=tl_CAMBRIDGE_s_instance->font;

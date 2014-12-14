@@ -121,7 +121,7 @@ structenum * searchreflectedstruct(const char * input)
 void test_routine()
 {
 	#ifndef NODEBUG
-	printf("ggg:%llX---%llX\n",(long long)&(((*glob_CAMBRIDGE_t_multilist).bufferlist[7])._vptr),(long long)(((*glob_CAMBRIDGE_t_multilist).bufferlist[7])._vptr));
+	printf("ggg:%llX---%llX\n",(long long)&(((*glob_CAMBRIDGE_t_multilist)[7])._vptr),(long long)(((*glob_CAMBRIDGE_t_multilist)[7])._vptr));
 	#endif
 }
 #ifndef NODEBUG
@@ -149,6 +149,7 @@ int main(int argc,char * * argv)
 	signal(SIGSYS,&Signal);
 	signal(SIGPIPE,&Signal);
 #endif
+	memory_init();
 	memory_alloc(&tagnamestring);
 	memory_alloc(&parameterstring);
 	memory_alloc(&paramvaluestring);

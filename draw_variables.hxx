@@ -114,7 +114,7 @@ void getcaptions(float * width,float * height,float * left,float * top)
 		if ((text_actual_node[ilv1].owner!=-1) || (LENNARD_HACK_dokilltext==0))
 		{
 		#endif
-		t_instance * i_t_instance=(t_instance*)&((*i_t_multilist).bufferlist[ilv1]);
+		t_instance * i_t_instance=(*i_t_multilist).bufferlist()+ilv1;
 		if ((*i_t_instance).BoundingBox.top>maxy)
 		{
 			maxy=(*i_t_instance).BoundingBox.top;
@@ -134,7 +134,7 @@ void getcaptions(float * width,float * height,float * left,float * top)
 	}
 	for (int ilv1=0;ilv1<(*i_n_multilist).filllevel;ilv1++)
 	{
-		i_n_instance=(*i_n_multilist).bufferlist+ilv1;
+		i_n_instance=(*i_n_multilist).bufferlist()+ilv1;
 		if ((*i_n_instance).xyz.x>maxx)
 		{
 			maxx=(*i_n_instance).xyz.x;
@@ -154,7 +154,7 @@ void getcaptions(float * width,float * height,float * left,float * top)
 	}
 	for (int ilv1=0;ilv1<(*i_graphic_multilist).filllevel;ilv1++)
 	{
-		i_graphic_instance=(*i_graphic_multilist).bufferlist+ilv1;
+		i_graphic_instance=(*i_graphic_multilist).bufferlist()+ilv1;
 		if ((*i_graphic_instance).BoundingBox.left>maxx)
 		{
 			maxx=(*i_graphic_instance).BoundingBox.left;

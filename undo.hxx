@@ -57,6 +57,8 @@ TELESCOPE_buffer * undo_retrievecontentbuffer(intl start,intl list)
 	iback:;
 	if ((wert=undosteps[current].handles[list].contentbuffer)!=NULL)
 	{
+		undosteps[current].handles[list].bufferhead.buffer=undosteps[current].handles[list].contentbuffer;
+		undosteps[current].handles[list].bufferhead.max=LHENDRAW_buffersize;
 		return &(undosteps[current].handles[list].bufferhead);
 	}
 	else
@@ -250,7 +252,11 @@ int storeundo(_u32 flags)
 				undosteps[undosteps_count].handles[ilv1].contentbuffer=NULL;
 			}
 			undosteps[undosteps_count].handles[ilv1].bufferhead.max=LHENDRAW_buffersize;
+			#ifndef NODEBUG
+			undosteps[undosteps_count].handles[ilv1].bufferhead.buffer=NULL;
+			#else
 			undosteps[undosteps_count].handles[ilv1].bufferhead.buffer=undosteps[undosteps_count].handles[ilv1].contentbuffer;
+			#endif
 		}
 	}
 	undosteps[undosteps_count].parent=currentundostep;
@@ -312,7 +318,11 @@ int restoreundo(_u32 flags,_u32 orderflags/*bit0: restore count only*/)//doesn't
 				glob_contentbuffer[ilv1].count=undosteps[currentundostep].handles[ilv1].bufferhead.count;
 			}
 			undosteps[currentundostep].handles[ilv1].bufferhead.max=LHENDRAW_buffersize;
+			#ifdef NODEBUG
+			undosteps[currentundostep].handles[ilv1].bufferhead.buffer=NULL;
+			#else
 			undosteps[currentundostep].handles[ilv1].bufferhead.buffer=undosteps[currentundostep].handles[ilv1].contentbuffer;
+			#endif
 		}
 	}
 	undo_undodirty=0;

@@ -133,7 +133,7 @@ class basicmultilist
 	int itemsize;
 	intl index;
 	_u32 maxid;
-	void * pointer;
+	char * pointer;
 	basicmultilist(){pointer=NULL;itemsize=0;};
 	virtual intl getmaxitems() {return 0;}
 	inline basic_instance & operator[](int ino)
@@ -190,25 +190,28 @@ struct basic_instance
 template <class whatabout> class multilist : public basicmultilist
 {
 	public:
-	whatabout * bufferlist;
+	inline whatabout * bufferlist(){return (whatabout*)pointer;}
 	//TODO: split off the non-contentbuffer "CAMBRIDGE" items-multilist as new data type, carrying the dependants, so this large variable is not stored in the undo steps. Turn it into an own buffer later!
-	multilistreference<whatabout> * dependants[bufferlistsize];
+	multilistreference<whatabout> * dependants[bufferlistsize];//needed to point to contained objects from another list, while still being able to move items in this mulitilist (this in the sense of this-pointer)
+	inline whatabout & operator[](int ino)
+	{
+		return *((whatabout*)(((char*)pointer)+(ino*itemsize)));
+	}
 	intl getmaxitems() {return LHENDRAW_buffersize/sizeof(whatabout);}
 	multilist()
 	{
 		filllevel=0;
 		ourcount=0;
 		maxid=0;
-		bufferlist=(whatabout*)malloc(sizeof(whatabout)*getmaxitems());
+		pointer=(char*)malloc(sizeof(whatabout)*getmaxitems());
 		itemsize=sizeof(whatabout);
-		pointer=bufferlist;
 		return;
 	}
 	int ADD(whatabout * iwhatabout)//without dependants, use item buffer instead
 	{
 		if (filllevel<getmaxitems())
 		{
-			memcpy(bufferlist+filllevel,iwhatabout,sizeof(whatabout));
+			memcpy(pointer+filllevel*sizeof(whatabout),iwhatabout,sizeof(whatabout));
 			filllevel++;
 			return 1;
 		}
@@ -220,24 +223,24 @@ template <class whatabout> class multilist : public basicmultilist
 	}
 	void REMOVE(intl index)//without dependants, use item buffer instead
 	{
-		bufferlist[index].exist=0;
+		bufferlist()[index].exist=0;
 	}
 	void * insert(whatabout input,intl position,intl mynumber)//position must be given to allow later refills
 	{
 		//TODO: check what's going on here!
 		for (int ilv1=filllevel;ilv1>position;ilv1--)
 		{
-			for (int ilv2=0;ilv2<sizeof(bufferlist[0]);ilv2++)//Thats why oop sucks!
+			for (int ilv2=0;ilv2<sizeof(bufferlist()[0]);ilv2++)//Thats why oop sucks!
 			{
-				*(((char*)(&(bufferlist[ilv1])))+ilv2)=*(((char*)(&(bufferlist[ilv1-1])))+ilv2);
+				*(((char*)(&(bufferlist()[ilv1])))+ilv2)=*(((char*)(&(bufferlist()[ilv1-1])))+ilv2);
 			}
 			for (int ilv2=0;ilv2<sizeof(whatabout::contents)/sizeof(superconstellation);ilv2++)
 			{
-				basicmultilistreference * tl_multilistreference=*(basicmultilistreference**)(((char*)(&(bufferlist[ilv1])))+whatabout::contents[ilv2].ref);
+				basicmultilistreference * tl_multilistreference=*(basicmultilistreference**)(((char*)(&(bufferlist()[ilv1])))+whatabout::contents[ilv2].ref);
 				for (int ilv3=(*tl_multilistreference).start_in_it;ilv3<(*tl_multilistreference).start_in_it+(*tl_multilistreference).count_in_it;ilv3++)
 				{
 					basic_instance * tl_basic_instance=(basic_instance*)(((char*)((*((*tl_multilistreference).instances)).pointer))+(*((*tl_multilistreference).instances)).itemsize*ilv3);
-					(*tl_basic_instance).master=(basic_instance*)(&(bufferlist[ilv1]));
+					(*tl_basic_instance).master=(basic_instance*)(&(bufferlist()[ilv1]));
 				}
 			}
 		}
@@ -245,10 +248,10 @@ template <class whatabout> class multilist : public basicmultilist
 		{
 			(*(dependants[ilv1])).start_in_it++;
 		}
-		bufferlist[position]=input;
-		(*(intl*)&(bufferlist[position]))=*(intl*)&input;//hack for bug in gcc: vtable index not copied to array //not TODO checked if it has to be intl
+		bufferlist()[position]=input;
+		(*(intl*)&(bufferlist()[position]))=*(intl*)&input;//hack for bug in gcc: vtable index not copied to array //not TODO checked if it has to be intl
 		filllevel++;
-		return &(bufferlist[position]);
+		return &(bufferlist()[position]);
 	}
 	intl getme(multilistreference<whatabout> * input)
 	{
@@ -270,7 +273,7 @@ template <class whatabout> class multilist : public basicmultilist
 	}
 	~multilist()
 	{
-		free(bufferlist);
+		free(pointer);
 	};
 };
 
@@ -364,7 +367,7 @@ struct undo_singlebuffer
 	char * buffer;//When==NULL, this buffer is empty, apply the buffer of the parent
 	char * contentbuffer;//NULL if no buffer.
 	char imultilist[sizeof(multilist<basic_instance>)];
-	TELESCOPE_buffer bufferhead;
+	TELESCOPE_buffer bufferhead;//Only for ease. the pointers in here are by no means important and need only be updated when this element, intended for formatted output of a structure, is output'ed
 };
 #define chararray char *
 //adds an object to its master

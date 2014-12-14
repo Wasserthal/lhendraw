@@ -69,16 +69,16 @@ int HATCH_add_atom(int inr)
 //Constraint: Actualnode has same start as actual conterpart start
 {
 	HATCH_atom_ * ihatchatom=&(HATCH_atom[HATCH_atom_count]);
-	n_instance *iinstance=&((*glob_n_multilist).bufferlist[inr]);
+	n_instance *iinstance=&((*glob_n_multilist)[inr]);
 	HATCH_atom[HATCH_atom_count].x=(*iinstance).p.x;
 	HATCH_atom[HATCH_atom_count].y=(*iinstance).p.y;
 	atom_actual_node_ * irelate=&(atom_actual_node[inr]);
 	(*ihatchatom).relate=(*iinstance).id;
 	(*ihatchatom).bond_count=0;
-	multilistreference<annotation_instance> * tlannotationmultilistreference=dynamic_cast<multilistreference<annotation_instance>*>((*glob_n_multilist).bufferlist[inr].annotation);
+	multilistreference<annotation_instance> * tlannotationmultilistreference=dynamic_cast<multilistreference<annotation_instance>*>((*glob_n_multilist)[inr].annotation);
 	for (int ilv2=0;ilv2<(*tlannotationmultilistreference).count_in_it;ilv2++)
 	{
-		annotation_instance * tlannotation=&((*glob_annotation_multilist).bufferlist[(*tlannotationmultilistreference).start_in_it+ilv2]);
+		annotation_instance * tlannotation=&((*glob_annotation_multilist)[(*tlannotationmultilistreference).start_in_it+ilv2]);
 		if (strcmp((*tlannotation).Keyword.a,"Name")==0)
 		{
 			if ((strcmp((*tlannotation).Content.a,"Dont"))==0)
@@ -97,7 +97,7 @@ int HATCH_add_atom(int inr)
 			{
 				for (int ilv2=0;ilv2<HATCH_atom_count;ilv2++)
 				{
-					if (HATCH_atom[ilv2].relate==(*glob_b_multilist).bufferlist[tlbondnr].E)//theoretically, I could use their inr...
+					if (HATCH_atom[ilv2].relate==(*glob_b_multilist)[tlbondnr].E)//theoretically, I could use their inr...
 					{
 						if (HATCH_add_bond(HATCH_atom_count,ilv2))
 						{
@@ -116,7 +116,7 @@ int HATCH_add_atom(int inr)
 			{
 				for (int ilv2=0;ilv2<HATCH_atom_count;ilv2++)
 				{
-					if (HATCH_atom[ilv2].relate==(*glob_b_multilist).bufferlist[tlbondnr].B)//theoretically, I could use their inr...
+					if (HATCH_atom[ilv2].relate==(*glob_b_multilist)[tlbondnr].B)//theoretically, I could use their inr...
 					{
 						if (HATCH_add_bond(HATCH_atom_count,ilv2))
 						{
@@ -314,7 +314,7 @@ int HATCH_followborder(char inverse,int starting,int next,_u32 maytouchrim,char 
 			HATCH_atom[currenthatchlist[currenthatchlist_count-1]].bondpassed[ilv2]=1;
 		}
 	}
-	moleculefill_instance * imoleculefill=&((*glob_moleculefill_multilist).bufferlist[(*glob_moleculefill_multilist).filllevel++]);
+	moleculefill_instance * imoleculefill=&((*glob_moleculefill_multilist)[(*glob_moleculefill_multilist).filllevel++]);
 	(*imoleculefill).Points.count=0;
 	(*imoleculefill).Points.a[(*imoleculefill).Points.count++]=HATCH_atom[starting].relate;
 	for (int ilv1=0;ilv1<currenthatchlist_count;ilv1++)
@@ -332,7 +332,7 @@ void Zdepthofhatches(int start)
 	{
 		float Average_z=0;
 		int z_counter=0;
-		moleculefill_instance * tlmoleculefill=&((*glob_moleculefill_multilist).bufferlist[ilv1]);
+		moleculefill_instance * tlmoleculefill=&((*glob_moleculefill_multilist)[ilv1]);
 		cdx_Rectangle iBoundingBox={2000000000,2000000000,-2000000000,-2000000000};
 		int debug_counter1;
 		debug_counter1=0;
@@ -353,7 +353,7 @@ void Zdepthofhatches(int start)
 			#endif
 			for (ilv3=0;ilv3<(*glob_n_multilist).filllevel;ilv3++)
 			{
-				if ((*glob_n_multilist).bufferlist[ilv3].id==iid)
+				if ((*glob_n_multilist)[ilv3].id==iid)
 				{
 					goto ifertig;
 				}
@@ -362,13 +362,13 @@ void Zdepthofhatches(int start)
 			ifertig:
 			;
 			{
-				float iposx=(*glob_n_multilist).bufferlist[ilv3].p.x;
-				float iposy=(*glob_n_multilist).bufferlist[ilv3].p.y;
+				float iposx=(*glob_n_multilist)[ilv3].p.x;
+				float iposy=(*glob_n_multilist)[ilv3].p.y;
 				if (iposx<iBoundingBox.left){iBoundingBox.left=iposx;}
 				if (iposx>iBoundingBox.right){iBoundingBox.right=iposx;}
 				if (iposy<iBoundingBox.top){iBoundingBox.top=iposy;}
 				if (iposy>iBoundingBox.bottom){iBoundingBox.bottom=iposy;}
-				Average_z+=((*glob_n_multilist).bufferlist[ilv3].Z);
+				Average_z+=((*glob_n_multilist)[ilv3].Z);
 				z_counter++;
 			}
 			dontputthispoint:
@@ -383,11 +383,11 @@ void Zdepthofhatches(int start)
 			int tid1=-1;int tid2=-1;
 			for (ilv3=0;ilv3<(*glob_n_multilist).filllevel;ilv3++)
 			{
-				if ((*glob_n_multilist).bufferlist[ilv3].id==iid1)
+				if ((*glob_n_multilist)[ilv3].id==iid1)
 				{
 					tid1=ilv3;
 				}
-				if ((*glob_n_multilist).bufferlist[ilv3].id==iid2)
+				if ((*glob_n_multilist)[ilv3].id==iid2)
 				{
 					tid2=ilv3;
 				}
@@ -400,14 +400,14 @@ void Zdepthofhatches(int start)
 			ifertig:
 			;
 			{
-				float iposx=(*glob_n_multilist).bufferlist[tid1].p.x;
-				float iposy=(*glob_n_multilist).bufferlist[tid1].p.y;
+				float iposx=(*glob_n_multilist)[tid1].p.x;
+				float iposy=(*glob_n_multilist)[tid1].p.y;
 				if (iposx<iBoundingBox.left){iBoundingBox.left=iposx;}
 				if (iposx>iBoundingBox.right){iBoundingBox.right=iposx;}
 				if (iposy<iBoundingBox.top){iBoundingBox.top=iposy;}
 				if (iposy>iBoundingBox.bottom){iBoundingBox.bottom=iposy;}
 				int ibond=get_bond_between(tid1,tid2);
-				Average_z+=((*glob_b_multilist).bufferlist[ibond].Z);
+				Average_z+=((*glob_b_multilist)[ibond].Z);
 				z_counter++;
 			}
 			dontputthispoint:
@@ -419,7 +419,7 @@ void Zdepthofhatches(int start)
 			int ilv3;
 			for (ilv3=0;ilv3<(*glob_n_multilist).filllevel;ilv3++)
 			{
-				if ((*glob_n_multilist).bufferlist[ilv3].id==iid)
+				if ((*glob_n_multilist)[ilv3].id==iid)
 				{
 					goto ifertig;
 				}
@@ -428,15 +428,15 @@ void Zdepthofhatches(int start)
 			ifertig:
 			;
 			{
-				float iposx=(*glob_n_multilist).bufferlist[ilv3].p.x;
-				float iposy=(*glob_n_multilist).bufferlist[ilv3].p.y;
+				float iposx=(*glob_n_multilist)[ilv3].p.x;
+				float iposy=(*glob_n_multilist)[ilv3].p.y;
 				if (iposx<iBoundingBox.left){iBoundingBox.left=iposx;}
 				if (iposx>iBoundingBox.right){iBoundingBox.right=iposx;}
 				if (iposy<iBoundingBox.top){iBoundingBox.top=iposy;}
 				if (iposy>iBoundingBox.bottom){iBoundingBox.bottom=iposy;}
 				for (int ilv4=0;ilv4<atom_actual_node[ilv3].bondcount;ilv4++)
 				{
-					Average_z+=((*glob_b_multilist).bufferlist[atom_actual_node[ilv3].bonds[ilv4]].Z);
+					Average_z+=((*glob_b_multilist)[atom_actual_node[ilv3].bonds[ilv4]].Z);
 					z_counter++;
 				}
 			}
@@ -460,7 +460,7 @@ void Zdepthoftwodifferenthatches(int start, int end,float hatchcenterx,float hat
 	char isides;
 	for (int ilv1=start;ilv1<end;ilv1++)
 	{
-		moleculefill_instance * tlmoleculefill=&((*glob_moleculefill_multilist).bufferlist[ilv1]);
+		moleculefill_instance * tlmoleculefill=&((*glob_moleculefill_multilist)[ilv1]);
 		cdx_Rectangle iBoundingBox={2000000000,2000000000,-2000000000,-2000000000};
 		iswitch=(*tlmoleculefill).clockwise;
 		for (int ilv2=0;ilv2<(*tlmoleculefill).Points.count;ilv2++)
@@ -469,7 +469,7 @@ void Zdepthoftwodifferenthatches(int start, int end,float hatchcenterx,float hat
 			int ilv3;
 			for (ilv3=0;ilv3<(*glob_n_multilist).filllevel;ilv3++)
 			{
-				if ((*glob_n_multilist).bufferlist[ilv3].id==iid)
+				if ((*glob_n_multilist)[ilv3].id==iid)
 				{
 					goto ifertig;
 				}
@@ -478,18 +478,18 @@ void Zdepthoftwodifferenthatches(int start, int end,float hatchcenterx,float hat
 			ifertig:
 			;
 			{
-				float iposx=(*glob_n_multilist).bufferlist[ilv3].p.x;
-				float iposy=(*glob_n_multilist).bufferlist[ilv3].p.y;
-				if ((*glob_n_multilist).bufferlist[ilv3].xyz.active)
+				float iposx=(*glob_n_multilist)[ilv3].p.x;
+				float iposy=(*glob_n_multilist)[ilv3].p.y;
+				if ((*glob_n_multilist)[ilv3].xyz.active)
 				{
 					A3dcorcount_M[iswitch]++;
-					Average_D_M[iswitch]+=(*glob_n_multilist).bufferlist[ilv3].xyz.z;
+					Average_D_M[iswitch]+=(*glob_n_multilist)[ilv3].xyz.z;
 				}
 				if (iposx<iBoundingBox.left){iBoundingBox.left=iposx;}
 				if (iposx>iBoundingBox.right){iBoundingBox.right=iposx;}
 				if (iposy<iBoundingBox.top){iBoundingBox.top=iposy;}
 				if (iposy>iBoundingBox.bottom){iBoundingBox.bottom=iposy;}
-				Average_z_M[iswitch]+=((*glob_n_multilist).bufferlist[ilv3].Z);
+				Average_z_M[iswitch]+=((*glob_n_multilist)[ilv3].Z);
 				zD_counter_M[iswitch]++;
 			}
 			dontputthispoint:
@@ -527,7 +527,7 @@ void Zdepthoftwodifferenthatches(int start, int end,float hatchcenterx,float hat
 	{
 		for (int ilv2=start;ilv2<=end;ilv2++)
 		{
-			moleculefill_instance * tlmoleculefill=&((*glob_moleculefill_multilist).bufferlist[ilv2]);
+			moleculefill_instance * tlmoleculefill=&((*glob_moleculefill_multilist)[ilv2]);
 			if (((isides==0) ^ (ilv1==1)) ^ ((*tlmoleculefill).clockwise))
 			{
 				float Average_x=0;
@@ -540,7 +540,7 @@ void Zdepthoftwodifferenthatches(int start, int end,float hatchcenterx,float hat
 					int ilv3;
 					for (ilv3=0;ilv3<(*glob_n_multilist).filllevel;ilv3++)
 					{
-						if ((*glob_n_multilist).bufferlist[ilv3].id==iid)
+						if ((*glob_n_multilist)[ilv3].id==iid)
 						{
 							goto ifertig2;
 						}
@@ -549,8 +549,8 @@ void Zdepthoftwodifferenthatches(int start, int end,float hatchcenterx,float hat
 					ifertig2:
 					;
 					{
-						Average_x+=(*glob_n_multilist).bufferlist[ilv3].p.x;
-						Average_y+=(*glob_n_multilist).bufferlist[ilv3].p.y;
+						Average_x+=(*glob_n_multilist)[ilv3].p.x;
+						Average_y+=(*glob_n_multilist)[ilv3].p.y;
 						z_counter++;
 					}
 					dontputthispoint2:
@@ -573,7 +573,7 @@ void displayhatches()
 {
 	for (int ilv1=0;ilv1<(*glob_moleculefill_multilist).filllevel;ilv1++)
 	{
-		moleculefill_instance * tlmoleculefill=&((*glob_moleculefill_multilist).bufferlist[ilv1]);
+		moleculefill_instance * tlmoleculefill=&((*glob_moleculefill_multilist)[ilv1]);
 		fprintf(outfile,"<path d=\" ");
 		for (int ilv2=0;ilv2<(*tlmoleculefill).Points.count;ilv2++)
 		{
@@ -581,7 +581,7 @@ void displayhatches()
 			int ilv3;
 			for (ilv3=0;ilv3<(*glob_n_multilist).filllevel;ilv3++)
 			{
-				if ((*glob_n_multilist).bufferlist[ilv3].id==iid)
+				if ((*glob_n_multilist)[ilv3].id==iid)
 				{
 					goto ifertig;
 				}
@@ -590,7 +590,7 @@ void displayhatches()
 			ifertig:
 			;
 			{
-				n_instance * i_n_instance=&((*glob_n_multilist).bufferlist[ilv3]);
+				n_instance * i_n_instance=&((*glob_n_multilist)[ilv3]);
 				
 				fprintf(outfile,"%c %f,%f ",(ilv2==0)?'M':'L',(*i_n_instance).p.x+SVG_currentshiftx,(*i_n_instance).p.y+SVG_currentshifty);
 			}

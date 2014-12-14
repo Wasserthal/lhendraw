@@ -91,7 +91,7 @@ void CONVCAMBRIDGE_atoms(CAMBRIDGE_fragment_instance * master,cdx_Rectangle * iB
 		if (selection_fragmentselection[ilv1] & icompare)
 		{
 			i_bond_sum=0;
-			n_instance * tl_n_instance=(*tl_n_multilist).bufferlist+ilv1;
+			n_instance * tl_n_instance=(*tl_n_multilist).bufferlist()+ilv1;
 			ADD_TO_MULTILISTREFERENCE(master,n);
 			CONVCAMBRIDGE_COLORCONV(n);
 			(*tl_CAMBRIDGE_n_instance).Charge=(*tl_n_instance).charge;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_n_instance,Charge);
@@ -119,7 +119,7 @@ CONVCAMBRIDGE_COLORCONV2(t,(*tl_n_instance).color);
 			{
 				for (int ilv2=0;ilv2<atom_actual_node[ilv1].bondcount;ilv2++)
 				{
-					i_bond_sum+=(*glob_b_multilist).bufferlist[atom_actual_node[ilv1].bonds[ilv2]].Order/16.0;
+					i_bond_sum+=(*glob_b_multilist)[atom_actual_node[ilv1].bonds[ilv2]].Order/16.0;
 				}
 				if (fmod(i_bond_sum,1.0)>0.4)
 				{
@@ -215,7 +215,7 @@ void CONVCAMBRIDGE_bonds(CAMBRIDGE_fragment_instance * master)
 	{
 		if (selection_fragmentselection[ilv1] & icompare)
 		{
-			b_instance * tl_b_instance=(*tl_b_multilist).bufferlist+ilv1;
+			b_instance * tl_b_instance=(*tl_b_multilist).bufferlist()+ilv1;
 			ADD_TO_MULTILISTREFERENCE(master,b);
 			CONVCAMBRIDGE_COLORCONV(b);
 			(*tl_CAMBRIDGE_b_instance).id=janitor_id_list[STRUCTURE_OBJECTTYPE_b-1]+(*tl_b_instance).id;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_b_instance,id);
@@ -255,7 +255,7 @@ void CONVCAMBRIDGE_text(CAMBRIDGE_page_instance * master)
 	multilist<t_instance> * tl_t_multilist=retrievemultilist<t_instance>();
 	for (int ilv1=0;ilv1<(*tl_t_multilist).filllevel;ilv1++)
 	{
-		t_instance * tl_t_instance=(*tl_t_multilist).bufferlist+ilv1;
+		t_instance * tl_t_instance=(*tl_t_multilist).bufferlist()+ilv1;
 		
 		ADD_TO_MULTILISTREFERENCE(master,t);
 		CONVCAMBRIDGE_COLORCONV(t);
@@ -311,7 +311,7 @@ void CONVCAMBRIDGE_arrow(CAMBRIDGE_page_instance * master)
 	multilist<arrow_instance> * tl_arrow_multilist=retrievemultilist<arrow_instance>();
 	for (int ilv1=0;ilv1<(*tl_arrow_multilist).filllevel;ilv1++)
 	{
-		arrow_instance * tl_arrow_instance=(*tl_arrow_multilist).bufferlist+ilv1;
+		arrow_instance * tl_arrow_instance=(*tl_arrow_multilist).bufferlist()+ilv1;
 		ADD_TO_MULTILISTREFERENCE(master,arrow);
 		CONVCAMBRIDGE_COLORCONV(arrow);
 		(*tl_CAMBRIDGE_arrow_instance).Head3D=(*tl_arrow_instance).Head3D;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_arrow_instance,Head3D);
@@ -334,7 +334,7 @@ void CONVCAMBRIDGE_graphic(CAMBRIDGE_page_instance * master)
 	multilist<graphic_instance> * tl_graphic_multilist=retrievemultilist<graphic_instance>();
 	for (int ilv1=0;ilv1<(*tl_graphic_multilist).filllevel;ilv1++)
 	{
-		graphic_instance * tl_graphic_instance=(*tl_graphic_multilist).bufferlist+ilv1;
+		graphic_instance * tl_graphic_instance=(*tl_graphic_multilist).bufferlist()+ilv1;
 		ADD_TO_MULTILISTREFERENCE(master,graphic);
 		CONVCAMBRIDGE_COLORCONV(graphic);
 		(*tl_CAMBRIDGE_graphic_instance).BoundingBox=(*tl_graphic_instance).BoundingBox;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_graphic_instance,BoundingBox);

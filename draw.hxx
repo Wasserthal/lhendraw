@@ -261,7 +261,7 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,bool hatches)
 			{
 				if (tlcurrentmultilist==glob_curve_multilist)
 				{
-					cdx_Bezierpoints * tlBez=&((*glob_curve_multilist).bufferlist[index_in_buffer].CurvePoints);
+					cdx_Bezierpoints * tlBez=&((*glob_curve_multilist)[index_in_buffer].CurvePoints);
 					for (int ilv2=1;ilv2<(*tlBez).count-1;ilv2+=3)
 					{
 						cdx_Point2D tlp2d=(*tlBez).a[ilv2];
@@ -285,7 +285,7 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,bool hatches)
 				{
 					if (tlcurrentmultilist==glob_b_multilist)
 					{
-						cdx_Point3D tlp3d=(*glob_n_multilist).bufferlist[bond_actual_node[index_in_buffer].start].xyz;
+						cdx_Point3D tlp3d=(*glob_n_multilist)[bond_actual_node[index_in_buffer].start].xyz;
 						if (tlp3d.x<SVG_currentbasex) {goto svg_main_loop;}
 						if (tlp3d.y<SVG_currentbasey) {goto svg_main_loop;}
 						if (tlp3d.x>SVG_currentfringex) {goto svg_main_loop;}
@@ -358,7 +358,7 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,bool hatches)
 	goto svg_main_end;
 	svg_main_n:
 	{
-		i_n_instance=(n_instance*)&((*glob_n_multilist).bufferlist[index_in_buffer]);
+		i_n_instance=(n_instance*)&((*glob_n_multilist)[index_in_buffer]);
 		int tlElement=((*i_n_instance).Element);
 		MACRO_DRAWPREFIX(stylegenestring)(3);
 		colornr=(*i_n_instance).color;
@@ -380,7 +380,7 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,bool hatches)
 		{
 			sortback=atom_actual_node[index_in_buffer].labelside;
 			if ((control_mousestate & 0x40) && (control_textedit_index==index_in_buffer)) sortback=0;
-			MACRO_DRAWPREFIX(express_txinit)(2 | sortback,((*glob_n_multilist).bufferlist)[index_in_buffer].xyz.x,((*glob_n_multilist).bufferlist)[index_in_buffer].xyz.y,atomfontheight);
+			MACRO_DRAWPREFIX(express_txinit)(2 | sortback,((*glob_n_multilist))[index_in_buffer].xyz.x,((*glob_n_multilist))[index_in_buffer].xyz.y,atomfontheight);
 			TELESCOPE_aggressobject(glob_n_multilist,index_in_buffer);
 			goto n_to_t_shunt;
 		}
@@ -389,10 +389,10 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,bool hatches)
 			#ifndef DEBUG
 			if (atom_actual_node[index_in_buffer].bondcount==2)
 			{
-				if (glob_b_multilist->bufferlist[atom_actual_node[index_in_buffer].bonds[0]].Order==glob_b_multilist->bufferlist[atom_actual_node[index_in_buffer].bonds[1]].Order)
+				if ((*glob_b_multilist)[atom_actual_node[index_in_buffer].bonds[0]].Order==(*glob_b_multilist)[atom_actual_node[index_in_buffer].bonds[1]].Order)
 				{
-					n_instance * aux_n_instance1=glob_n_multilist->bufferlist+getother(index_in_buffer,atom_actual_node[index_in_buffer].bonds[0]);
-					n_instance * aux_n_instance2=glob_n_multilist->bufferlist+getother(index_in_buffer,atom_actual_node[index_in_buffer].bonds[1]);
+					n_instance * aux_n_instance1=(*glob_n_multilist).bufferlist()+getother(index_in_buffer,atom_actual_node[index_in_buffer].bonds[0]);
+					n_instance * aux_n_instance2=(*glob_n_multilist).bufferlist()+getother(index_in_buffer,atom_actual_node[index_in_buffer].bonds[1]);
 					float tl_auxangle=getangle(aux_n_instance2->xyz.x-i_n_instance->xyz.x,aux_n_instance2->xyz.y-i_n_instance->xyz.y)-
 					getangle(i_n_instance->xyz.x-aux_n_instance1->xyz.x,i_n_instance->xyz.y-aux_n_instance1->xyz.y);
 					while (tl_auxangle<=-Pi) tl_auxangle+=2*Pi;
@@ -474,7 +474,7 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,bool hatches)
 	goto svg_main_loop;
 	svg_main_curve:
 	tllinedist=0;//TODO****
-	i_curve_instance=(curve_instance*)&((*glob_curve_multilist).bufferlist[index_in_buffer]);
+	i_curve_instance=(curve_instance*)&((*glob_curve_multilist)[index_in_buffer]);
 	colornr=(*i_curve_instance).color;
 	MACRO_DRAWPREFIX(get_colorstring)(colornr);
 	MACRO_DRAWPREFIX(stylegenestring)(1|(((*i_curve_instance).FillType & 1)?2:0)|(((*i_curve_instance).LineType & 2)?4:0));
@@ -521,7 +521,7 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,bool hatches)
 2. The lines/arc are drawn. if it was something else, the next two points are skipped. 
 3. Otherwise, the arrow angles are calculated
 4. And the arrows are drawn.*/
-	i_graphic_instance=&((*glob_graphic_multilist).bufferlist)[index_in_buffer];
+	i_graphic_instance=&((*glob_graphic_multilist))[index_in_buffer];
 	iBBX=(*i_graphic_instance).BoundingBox;
 	colornr=(*i_graphic_instance).color;
 	tlGraphicType=(*i_graphic_instance).GraphicType;
@@ -738,7 +738,7 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,bool hatches)
 		#ifdef LENNARD_HACK
 		if ((*((*i_graphic_instance).annotation)).count_in_it>0)
 		{
-			current_hack_annotation=((*glob_annotation_multilist).bufferlist[(*((*i_graphic_instance).annotation)).start_in_it].Content.a);
+			current_hack_annotation=((*glob_annotation_multilist)[(*((*i_graphic_instance).annotation)).start_in_it].Content.a);
 		}
 		else
 		{
@@ -809,7 +809,7 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,bool hatches)
 	;//always run over here. One might need this.
 	goto svg_main_loop;
 	svg_main_arrow:
-	i_arrow_instance=&((*glob_arrow_multilist).bufferlist)[index_in_buffer];
+	i_arrow_instance=&((*glob_arrow_multilist))[index_in_buffer];
 	colornr=(*i_arrow_instance).color;
 	MACRO_DRAWPREFIX(get_colorstring)(colornr);
 	currentArrowHeadType=(*i_arrow_instance).ArrowheadType;
@@ -865,13 +865,13 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,bool hatches)
 	goto svg_main_loop;
 	svg_main_b:
 	_small inr_E,inr_S;
-	i_b_instance=&(((*glob_b_multilist).bufferlist)[index_in_buffer]);
+	i_b_instance=&(((*glob_b_multilist))[index_in_buffer]);
 	colornr=(*i_b_instance).color;
 	MACRO_DRAWPREFIX(get_colorstring)(colornr);
 	inr_S=bond_actual_node[index_in_buffer].start;
 	inr_E=bond_actual_node[index_in_buffer].end;
-	startnode=((*glob_n_multilist).bufferlist)+inr_S;
-	endnode=((*glob_n_multilist).bufferlist)+inr_E;
+	startnode=((*glob_n_multilist).bufferlist())+inr_S;
+	endnode=((*glob_n_multilist).bufferlist())+inr_E;
 	ibonddist=0;ibonddist2=0;
 	if ((*i_b_instance).Order>16)
 	{
@@ -893,11 +893,11 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,bool hatches)
 	langle=getangle((*endnode).xyz.x-(*startnode).xyz.x,(*endnode).xyz.y-(*startnode).xyz.y);
 	cangle=langle+Pi/2;
 	calcdelta(&textdeltax,&textdeltay,(*endnode).xyz.x-(*startnode).xyz.x,(*endnode).xyz.y-(*startnode).xyz.y);
-	specialS=((*glob_n_multilist).bufferlist[inr_S].Element!=constants_Element_implicitcarbon);
-	specialE=((*glob_n_multilist).bufferlist[inr_E].Element!=constants_Element_implicitcarbon);
+	specialS=((*glob_n_multilist)[inr_S].Element!=constants_Element_implicitcarbon);
+	specialE=((*glob_n_multilist)[inr_E].Element!=constants_Element_implicitcarbon);
 	iBBX.left=(*startnode).xyz.x+textdeltax*specialS;
 	iBBX.top=(*startnode).xyz.y+textdeltay*specialS;
-	iDisplaytype1=((*glob_b_multilist).bufferlist[index_in_buffer].Display);
+	iDisplaytype1=((*glob_b_multilist)[index_in_buffer].Display);
 	iBBX.right=(*endnode).xyz.x-textdeltax*specialE;
 	iBBX.bottom=(*endnode).xyz.y-textdeltay*specialE;
 	if (iswedgenr(iDisplaytype1)>0)
@@ -957,7 +957,7 @@ iBBX.right+ibonddist2*cos(cangle)+ibonddist4*(cos(cangle)-(cos(langle)*tlrightta
 	}
 	if ((*i_b_instance).Order>16)
 	{
-		MACRO_DRAWPREFIX(stylegenestring)((((*glob_b_multilist).bufferlist[index_in_buffer].Display2==1)?8:0)|1);
+		MACRO_DRAWPREFIX(stylegenestring)((((*glob_b_multilist)[index_in_buffer].Display2==1)?8:0)|1);
 		MACRO_DRAWPREFIX(expressline)(iBBX.left+ibonddist*cos(cangle),iBBX.top+ibonddist*sin(cangle),iBBX.right+ibonddist*cos(cangle),iBBX.bottom+ibonddist*sin(cangle));
 		if ((*i_b_instance).Order>32)
 		{
@@ -996,13 +996,13 @@ tlposx+tlcos-tlsin,tlposy+tlsin+tlcos,tlposx+2*tlcos-tlsin,tlposy+2*tlsin+tlcos,
 		{
 			sortback=1;
 		}
-		colornr=(*glob_n_multilist).bufferlist[text_actual_node[index_in_buffer].owner].color;
+		colornr=(*glob_n_multilist)[text_actual_node[index_in_buffer].owner].color;
 		MACRO_DRAWPREFIX(get_colorstring)(colornr);
 	}
-	colornr=((*glob_t_multilist).bufferlist)[index_in_buffer].color;
+	colornr=((*glob_t_multilist))[index_in_buffer].color;
 	MACRO_DRAWPREFIX(get_colorstring_passive)(colornr);
 
-	MACRO_DRAWPREFIX(express_txinit)(((*glob_t_multilist).bufferlist[index_in_buffer].LabelAlignment==-1),((*glob_t_multilist).bufferlist)[index_in_buffer].xyz.x,((*glob_t_multilist).bufferlist)[index_in_buffer].xyz.y,atomfontheight);
+	MACRO_DRAWPREFIX(express_txinit)(((*glob_t_multilist)[index_in_buffer].LabelAlignment==-1),((*glob_t_multilist))[index_in_buffer].xyz.x,((*glob_t_multilist))[index_in_buffer].xyz.y,atomfontheight);
 	TELESCOPE_aggressobject(glob_t_multilist,index_in_buffer);
 	n_to_t_shunt:
 	int tlbackval;
@@ -1071,11 +1071,11 @@ tlposx+tlcos-tlsin,tlposy+tlsin+tlcos,tlposx+2*tlcos-tlsin,tlposy+2*tlsin+tlcos,
 	}
 	if (owner!=-1)
 	{
-/*		if ((*((*glob_t_multilist).bufferlist[index_in_buffer].s)).count_in_it==1)//TODO: check if it consists of exactly one element
+/*		if ((*((*glob_t_multilist)[index_in_buffer].s)).count_in_it==1)//TODO: check if it consists of exactly one element
 		{*/
-			if (((*glob_s_multilist).bufferlist[0].face & 0x60)==0x60)
+			if (((*glob_s_multilist)[0].face & 0x60)==0x60)
 			{
-				if ((*glob_t_multilist).bufferlist[index_in_buffer].Justification==-1)
+				if ((*glob_t_multilist)[index_in_buffer].Justification==-1)
 				{
 					string_resorted=0;
 					if (string_resorted)
@@ -1475,7 +1475,7 @@ tlposx+tlcos-tlsin,tlposy+tlsin+tlcos,tlposx+2*tlcos-tlsin,tlposy+2*tlsin+tlcos,
 	goto svg_main_loop;
 	svg_main_moleculefill:
 /*	{
-		moleculefill_instance * tlmoleculefill=&((*glob_moleculefill_multilist).bufferlist[index_in_buffer]);
+		moleculefill_instance * tlmoleculefill=&((*glob_moleculefill_multilist)[index_in_buffer]);
 		fprintf(outfile,"<path d=\" ");
 		for (int ilv2=0;ilv2<(*tlmoleculefill).Points.count;ilv2++)
 		{
@@ -1483,7 +1483,7 @@ tlposx+tlcos-tlsin,tlposy+tlsin+tlcos,tlposx+2*tlcos-tlsin,tlposy+2*tlsin+tlcos,
 			int ilv3;
 			for (ilv3=0;ilv3<(*glob_n_multilist).filllevel;ilv3++)
 			{
-				if ((*glob_n_multilist).bufferlist[ilv3].id==iid)
+				if ((*glob_n_multilist)[ilv3].id==iid)
 				{
 					goto ifertig;
 				}
@@ -1492,7 +1492,7 @@ tlposx+tlcos-tlsin,tlposy+tlsin+tlcos,tlposx+2*tlcos-tlsin,tlposy+2*tlsin+tlcos,
 			ifertig:
 			;
 			{
-				n_instance * i_n_instance=&((*glob_n_multilist).bufferlist[ilv3]);
+				n_instance * i_n_instance=&((*glob_n_multilist)[ilv3]);
 				
 				fprintf(outfile,"%c %f,%f ",(ilv2==0)?'M':'L',(*i_n_instance).xyz.x+SVG_currentshiftx,(*i_n_instance).xyz.y+SVG_currentshifty);
 			}

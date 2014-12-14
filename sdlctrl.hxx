@@ -92,19 +92,20 @@ void CONTROL_ZOOMIN(float ifactor,char i_direction)
 
 void checkupinconsistencies()
 {
+	return;
 /*	for (int ilv1=0;ilv1<(*glob_n_multilist).filllevel;ilv1++)
 	{
 		for (int ilv2=ilv1+1;ilv2<(*glob_n_multilist).filllevel;ilv2++)
 		{
-			if ((*glob_n_multilist).bufferlist[ilv1].id==(*glob_n_multilist).bufferlist[ilv2].id)
+			if ((*glob_n_multilist)[ilv1].id==(*glob_n_multilist)[ilv2].id)
 			{
-				printf("%i==%i;%i\n",ilv1,ilv2,(*glob_n_multilist).bufferlist[ilv1].id);
+				printf("%i==%i;%i\n",ilv1,ilv2,(*glob_n_multilist)[ilv1].id);
 			}
 		}
 	}*/
 	for (int ilv1=0;ilv1<(*glob_b_multilist).filllevel;ilv1++)//removes defective bonds
 	{
-		b_instance * tl_b_instance=&((*glob_b_multilist).bufferlist[ilv1]);
+		b_instance * tl_b_instance=&((*glob_b_multilist)[ilv1]);
 		if ((*tl_b_instance).exist)
 		{
 			if ((*tl_b_instance).B==(*tl_b_instance).E)//destroys bonds with beginning==end
@@ -126,7 +127,7 @@ void checkupinconsistencies()
 	getatoms();
 	for (int ilv1=0;ilv1<(*glob_n_multilist).filllevel;ilv1++)//deletes atoms that have neither a bond nor a label.
 	{
-		n_instance * tl_n_instance=&((*glob_n_multilist).bufferlist[ilv1]);
+		n_instance * tl_n_instance=&((*glob_n_multilist)[ilv1]);
 		if ((*tl_n_instance).exist)
 		{
 			if (atom_actual_node[ilv1].bondcount==0)
@@ -149,7 +150,7 @@ void checkupinconsistencies()
 	}
 	for (int ilv2=0;ilv2<(*glob_b_multilist).filllevel;ilv2++)//Adds bonds to each other. TODO: merge pasted form bonds to single bonds.
 	{
-		if ((*glob_b_multilist).bufferlist[ilv2].exist)
+		if ((*glob_b_multilist)[ilv2].exist)
 		{
 			int masamune=bond_actual_node[ilv2].end;
 			for (int ilv3=0;ilv3<atom_actual_node[bond_actual_node[ilv2].start].bondcount;ilv3++)
@@ -157,7 +158,7 @@ void checkupinconsistencies()
 				int thisbond=atom_actual_node[bond_actual_node[ilv2].start].bonds[ilv3];
 				if (thisbond!=ilv2)
 				{
-					if ((*glob_b_multilist).bufferlist[thisbond].exist)
+					if ((*glob_b_multilist)[thisbond].exist)
 					{
 						int murasame=getother(bond_actual_node[ilv2].start,thisbond);
 						if (masamune==murasame)
@@ -165,12 +166,12 @@ void checkupinconsistencies()
 							//would be nice to add the properties of both bonds, but may cause invalid property combinations
 							TELESCOPE_aggressobject(glob_b_multilist,ilv2);
 							TELESCOPE_clear();
-							(*glob_b_multilist).bufferlist[thisbond].exist=0;
-							(*glob_b_multilist).bufferlist[ilv2].Order&=0xF0;
-							(*glob_b_multilist).bufferlist[ilv2].Order+=16;
-							if ((*glob_b_multilist).bufferlist[ilv2].Order>64)
+							(*glob_b_multilist)[thisbond].exist=0;
+							(*glob_b_multilist)[ilv2].Order&=0xF0;
+							(*glob_b_multilist)[ilv2].Order+=16;
+							if ((*glob_b_multilist)[ilv2].Order>64)
 							{
-								(*glob_b_multilist).bufferlist[ilv2].Order=16;
+								(*glob_b_multilist)[ilv2].Order=16;
 							}
 						}
 					}
@@ -463,7 +464,7 @@ catalogized_command_funcdef(ISSUEDELETE)
 			{
 				ibufferpos=(char*)(*glob_n_multilist).pointer;
 				isize=STRUCTURE_OBJECTTYPE_List[STRUCTURE_OBJECTTYPE_n].size;
-				if ((*glob_n_multilist).bufferlist[control_hot[STRUCTURE_OBJECTTYPE_n]].exist)
+				if ((*glob_n_multilist)[control_hot[STRUCTURE_OBJECTTYPE_n]].exist)
 				{
 					TELESCOPE_aggressobject(glob_n_multilist,control_hot[STRUCTURE_OBJECTTYPE_n]);
 					TELESCOPE_clear();
@@ -703,7 +704,7 @@ int issueclick(int iposx,int iposy)
 						{
 							if ((*glob_n_multilist)[ilv2].exist)
 							{
-								tlatom=(*glob_n_multilist).bufferlist+ilv2;
+								tlatom=(*glob_n_multilist).bufferlist()+ilv2;
 								edit_setelement(control_drawproperties.Element,tlatom,ilv2);
 							}
 						}
@@ -742,6 +743,11 @@ int issueclick(int iposx,int iposy)
 			{
 				if (selection_clickselection_found & (1<<STRUCTURE_OBJECTTYPE_b))
 				{
+					if (selection_currentselection_found!=0)
+					{
+						selection_clearselection(selection_currentselection);
+						selection_currentselection_found=0;
+					}
 					tlbond=(b_instance*)getclicked((1<<STRUCTURE_OBJECTTYPE_b),control_coorsx,control_coorsy);
 					if ((control_drawproperties.bond_multiplicity==1) && (control_drawproperties.bond_Display1==0) && ((*tlbond).Display==0))
 					{
@@ -762,6 +768,11 @@ int issueclick(int iposx,int iposy)
 				}
 				else
 				{
+					if (selection_currentselection_found!=0)
+					{
+						selection_clearselection(selection_currentselection);
+						selection_currentselection_found=0;
+					}
 					if (selection_clickselection_found & (1<<STRUCTURE_OBJECTTYPE_n))
 					{
 						tlatom=snapatom(control_coorsx,control_coorsy);
@@ -810,7 +821,7 @@ int issueclick(int iposx,int iposy)
 									{
 										//TELESCOPE_measure(TELESCOPE_ELEMENTTYPE_Symbol,glob_contentbuffer+STRUCTURE_OBJECTTYPE_n);
 										control_manipulatedinstance=(basic_instance*)TELESCOPE_getproperty();
-										control_manipulatedinstance2=(basic_instance*)(glob_n_multilist->bufferlist+ilv2);
+										control_manipulatedinstance2=(basic_instance*)(glob_n_multilist->bufferlist()+ilv2);
 										goto ifertig;
 									}
 								}
@@ -833,7 +844,7 @@ int issueclick(int iposx,int iposy)
 				{
 					if (selection_clickselection[ilv1] & (1<<STRUCTURE_OBJECTTYPE_t))
 					{
-						if (glob_t_multilist->bufferlist[ilv1].exist)
+						if ((*glob_t_multilist)[ilv1].exist)
 						{
 							control_textedit_type=STRUCTURE_OBJECTTYPE_t;
 							control_textedit_index=ilv1;
@@ -855,9 +866,9 @@ int issueclick(int iposx,int iposy)
 					{
 						if (selection_clickselection[ilv1] & (1<<STRUCTURE_OBJECTTYPE_n))
 						{
-							if (glob_n_multilist->bufferlist[ilv1].exist)
+							if ((*glob_n_multilist)[ilv1].exist)
 							{
-								n_instance * tl_n_instance=glob_n_multilist->bufferlist+ilv1;
+								n_instance * tl_n_instance=glob_n_multilist->bufferlist()+ilv1;
 								control_textedit_type=STRUCTURE_OBJECTTYPE_n;
 								control_textedit_index=ilv1;
 								TELESCOPE_aggressobject(glob_n_multilist,ilv1);
@@ -866,7 +877,7 @@ int issueclick(int iposx,int iposy)
 									float i_bond_sum=0;
 									for (int ilv2=0;ilv2<atom_actual_node[ilv1].bondcount;ilv2++)
 									{
-										i_bond_sum+=(*glob_b_multilist).bufferlist[atom_actual_node[ilv1].bonds[ilv2]].Order/16.0;
+										i_bond_sum+=(*glob_b_multilist)[atom_actual_node[ilv1].bonds[ilv2]].Order/16.0;
 									}
 									if (fmod(i_bond_sum,1.0)>0.4)
 									{
@@ -936,7 +947,7 @@ int issueclick(int iposx,int iposy)
 								if (tl_backval==0) {tl_backval=TELESCOPE_add(TELESCOPE_ELEMENTTYPE_s,"",1);}
 								if (tl_backval==0) {control_mousestate=0;return 0;}
 								TELESCOPE_insertintoproperties_offset((char*)"\uE000",3,-1);
-								glob_n_multilist->bufferlist[ilv1].Element=-1;
+								(*glob_n_multilist)[ilv1].Element=-1;
 								control_mousestate=0x40;return 0;
 							}
 						}
@@ -987,10 +998,10 @@ int issueclick(int iposx,int iposy)
 					{
 						atomnr[0]=bond_actual_node[ilv1].start;
 						atomnr[1]=bond_actual_node[ilv1].end;
-						tl_atom[0]=(*glob_n_multilist).bufferlist+atomnr[0];
-						tl_atom[1]=(*glob_n_multilist).bufferlist+atomnr[1];
+						tl_atom[0]=(*glob_n_multilist).bufferlist()+atomnr[0];
+						tl_atom[1]=(*glob_n_multilist).bufferlist()+atomnr[1];
 						skipatoms=2;
-						retrievepoints((*glob_b_multilist).bufferlist+ilv1,&control_startx,&control_starty,&control_startz,0);
+						retrievepoints((*glob_b_multilist).bufferlist()+ilv1,&control_startx,&control_starty,&control_startz,0);
 						tl_angle=getangle(tl_atom[1]->xyz.x-tl_atom[0]->xyz.x,tl_atom[1]->xyz.y-tl_atom[0]->xyz.y);
 						float tl_mouseangle=getangle(control_coorsx-tl_atom[0]->xyz.x,control_coorsy-tl_atom[0]->xyz.y);
 						if (fmod((tl_mouseangle-tl_angle+4*Pi),(2*Pi))<Pi)
@@ -1258,14 +1269,14 @@ void issuedrag(int iposx,int iposy)
 				{
 					if (selection_currentselection[ilv0] & icompare)
 					{
-						n_instance * tl_first_instance=glob_n_multilist->bufferlist+ilv0;
+						n_instance * tl_first_instance=glob_n_multilist->bufferlist()+ilv0;
 						if (tl_first_instance->exist)
 						{
 							float ix=(*((n_instance*)tl_first_instance)).xyz.x;
 							float iy=(*((n_instance*)tl_first_instance)).xyz.y;
 							for (int ilv1=0;ilv1<glob_n_multilist->filllevel;ilv1++)
 							{
-								n_instance * tl_n_instance=glob_n_multilist->bufferlist+ilv1;
+								n_instance * tl_n_instance=glob_n_multilist->bufferlist()+ilv1;
 								if ((*tl_n_instance).exist)
 								{
 									if (((selection_currentselection[ilv1] & icompare)==0) || (MODIFIER_KEYS.CTRL>0))
@@ -1672,7 +1683,7 @@ void issuerelease()
 			{
 				if (selection_currentselection[ilv1] & (1<<STRUCTURE_OBJECTTYPE_n))
 				{
-					n_instance * iinstance=glob_n_multilist->bufferlist+ilv1;
+					n_instance * iinstance=glob_n_multilist->bufferlist()+ilv1;
 					if (iinstance->exist)
 					{
 						for (int ilv2=0;ilv2<glob_n_multilist->filllevel;ilv2++)
@@ -1682,7 +1693,7 @@ void issuerelease()
 //								if ((selection_currentselection[ilv2] & (1<<STRUCTURE_OBJECTTYPE_n))==0)
 //TODO: Lock only selection to unselected and CLEAN THIS MESS
 								{
-									n_instance * iinstance2=glob_n_multilist->bufferlist+ilv2;
+									n_instance * iinstance2=glob_n_multilist->bufferlist()+ilv2;
 									if (iinstance2->exist)
 									{
 										if (edit_atommatch(iinstance,iinstance2))
@@ -2026,9 +2037,9 @@ int issuepseclick(int x,int y,int ibutton)
 					{
 						if (selection_currentselection[ilv2] & icompare)
 						{
-							if (((*glob_n_multilist).bufferlist+ilv2)->exist)
+							if (((*glob_n_multilist).bufferlist()+ilv2)->exist)
 							{
-								edit_setelement(ilv1,(*glob_n_multilist).bufferlist+ilv2,ilv2);
+								edit_setelement(ilv1,(*glob_n_multilist).bufferlist()+ilv2,ilv2);
 								//It is by reason that uninterpreted text labels are not overwritten!
 							}
 						}

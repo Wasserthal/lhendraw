@@ -1798,7 +1798,6 @@ int save_png(gfx_bufferset_ & target,FILE * ifile,_i32 width,_i32 height)
 		ihv1=0;
 		process_adler(adler1,adler2,ihv1);
 		fwrite(&ihv1,1,1,ifile);
-		target.screen[ilv1*width+width-1]=0x7f2f9F33;
 		for (int ilv2=0;ilv2<width*4;ilv2++)
 		{
 			int diff=0;
@@ -1889,6 +1888,7 @@ void save_bmp(gfx_bufferset_ & target,FILE * ifile,_i32 width,_i32 height)
 int save_image(FILE * ifile,const char * value)
 {
 	float left,top,fwidth,fheight;
+	checkupinconsistencies();
 	getcaptions(&fwidth,&fheight,&left,&top);
 	if ((fwidth<0) || (fheight<0))
 	{
@@ -1920,11 +1920,18 @@ int save_image(FILE * ifile,const char * value)
 	gfx_restore_bufferset(&target);
 	screenclear(0xFFFFFFFF);
 	gfx_output();
-	for (int ilv1=0;ilv1<4*width*height;ilv1++)
+	for (int ilv1=0;ilv1<width*height;ilv1++)
 	{
 		*(((_u8*)(screen+ilv1))+3)=0xFF-*(((_u8*)(screen+ilv1))+3);
 	}
-	save_png(target,ifile,width,height);
+	if (strcmp(value,".png")==0)
+	{
+		save_png(target,ifile,width,height);
+	}
+	else
+	{
+		save_bmp(target,ifile,width,height);
+	}
 	free(target.screen);
 	fclose(ifile);
 	gfx_restore_bufferset(&gfx_old_bufferset);
@@ -2622,7 +2629,7 @@ int edit_textlength(multilist<t_instance> * imultilist,int iindex)
 			evaluate:;
 			tl_t_instance->BoundingBox.left=tl_t_instance->xyz.x-4;
 			tl_t_instance->BoundingBox.top=tl_t_instance->xyz.y-6;
-			tl_t_instance->BoundingBox.right=tl_t_instance->xyz.x+maxwidth;
+			tl_t_instance->BoundingBox.right=tl_t_instance->xyz.x+maxwidth+8;
 			tl_t_instance->BoundingBox.bottom=tl_t_instance->xyz.y+(height)*16+8;
 			return 1;
 		}

@@ -92,7 +92,13 @@ void CONTROL_ZOOMIN(float ifactor,char i_direction)
 
 void checkupinconsistencies()
 {
-	return;
+	for (int ilv1=0;ilv1<(*glob_t_multilist).filllevel;ilv1++)
+	{
+		if ((*glob_t_multilist)[ilv1].exist)
+		{
+			edit_textlength(glob_t_multilist,ilv1);
+		}
+	}
 /*	for (int ilv1=0;ilv1<(*glob_n_multilist).filllevel;ilv1++)
 	{
 		for (int ilv2=ilv1+1;ilv2<(*glob_n_multilist).filllevel;ilv2++)

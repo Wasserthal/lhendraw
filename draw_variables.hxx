@@ -110,23 +110,34 @@ void getcaptions(float * width,float * height,float * left,float * top)
 	multilist<t_instance> * i_t_multilist=retrievemultilist<t_instance>();
 	for (int ilv1=0;ilv1<(*i_t_multilist).filllevel;ilv1++)
 	{
+		if ((*i_t_multilist)[ilv1].exist)
+		{
 		#ifdef LENNARD_HACK
 		if ((text_actual_node[ilv1].owner!=-1) || (LENNARD_HACK_dokilltext==0))
 		{
 		#endif
 		t_instance * i_t_instance=(*i_t_multilist).bufferlist()+ilv1;
-		if ((*i_t_instance).BoundingBox.top>maxy)
+		if ((*i_t_instance).BoundingBox.top<miny)
 		{
-			maxy=(*i_t_instance).BoundingBox.top;
+			miny=(*i_t_instance).BoundingBox.top;
 		}
 		if ((*i_t_instance).BoundingBox.bottom>maxy)
 		{
 			maxy=(*i_t_instance).BoundingBox.bottom;
 		}
+		if ((*i_t_instance).BoundingBox.left<minx)
+		{
+			minx=(*i_t_instance).BoundingBox.left;
+		}
+		if ((*i_t_instance).BoundingBox.right>maxx)
+		{
+			maxx=(*i_t_instance).BoundingBox.right;
+		}
 		#ifdef LENNARD_HACK
 
 		}
 		#endif
+		}
 	}
 	for (int ilv1=0;ilv1<(*i_curve_multilist).filllevel;ilv1++)
 	{
@@ -134,6 +145,8 @@ void getcaptions(float * width,float * height,float * left,float * top)
 	}
 	for (int ilv1=0;ilv1<(*i_n_multilist).filllevel;ilv1++)
 	{
+		if ((*i_n_multilist)[ilv1].exist)
+		{
 		i_n_instance=(*i_n_multilist).bufferlist()+ilv1;
 		if ((*i_n_instance).xyz.x>maxx)
 		{
@@ -151,9 +164,12 @@ void getcaptions(float * width,float * height,float * left,float * top)
 		{
 			miny=(*i_n_instance).xyz.y;
 		}
+		}
 	}
 	for (int ilv1=0;ilv1<(*i_graphic_multilist).filllevel;ilv1++)
 	{
+		if ((*i_graphic_multilist)[ilv1].exist)
+		{
 		i_graphic_instance=(*i_graphic_multilist).bufferlist()+ilv1;
 		if ((*i_graphic_instance).BoundingBox.left>maxx)
 		{
@@ -186,6 +202,7 @@ void getcaptions(float * width,float * height,float * left,float * top)
 		if ((*i_graphic_instance).BoundingBox.bottom<miny)
 		{
 			miny=(*i_graphic_instance).BoundingBox.bottom;
+		}
 		}
 	}
 	(*width)=maxx;

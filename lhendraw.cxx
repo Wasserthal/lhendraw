@@ -138,7 +138,6 @@ void Signal(int signum)
 	fprintf(stderr,"FILE crashes:%s\n",control_filename);exit(1);
 }
 #endif
-#define SDL_main main
 int main(int argc,char * * argv)
 {
 #ifndef NODEBUG
@@ -210,4 +209,5 @@ int main(int argc,char * * argv)
 		printf("Time consumption:\nInit:%llX\nfindaround:%llX\ngetatoms:%llX\ninitZlist:%llX\ndrawing:%llX\n",counter1,counter2,counter3,counter4,counter5);
 		#endif
 	}
+	return 0;
 }

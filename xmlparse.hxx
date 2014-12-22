@@ -24,7 +24,7 @@ void entertag()
 /*		printf("instead it got:");
 		printf("%s\n",page_instance::contents[5].name);*/
 		printf("%s vs. %s !\n",tagnamestring,currentinstance->getName());
-		nextinstance=new(gummydummy_instance);
+		nextinstance=new(gummydummy_instance);//TODO mem: leaks
 		nextinstance->_=NULL;
 	}
 	(*nextinstance).master=currentinstance;

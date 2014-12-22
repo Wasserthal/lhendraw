@@ -37,6 +37,8 @@ LLLLLL H   H EEEEE N    N DDD   R  R A     A    W     W
 #include "./generated/structure.hxx"
 #include "./generated/configfilestructure.hxx"
 #include "./generated/cambridgestructure.hxx"
+#include "parsecdxml_variables.hxx"
+#include "memory.hxx"
 #include "janitor.hxx"
 #include "ellipeq.h"
 #include "quartic.hxx"
@@ -67,8 +69,6 @@ int clockid=0;
 #endif
 
 #include "sdlgfx.hxx"
-#include "parsecdxml_variables.hxx"
-#include "memory.hxx"
 #include "conv_config_internalconfig.hxx"
 #include "selection.hxx"
 #include "conv_cambridge_internal.hxx"

@@ -29,6 +29,7 @@ typedef struct multi_objref_
 }multi_objref_;
 #define multilistZcount 100//TODO: calculate properly
 multi_objref_ objectZorderlist[bufferlistsize*multilistZcount];
+int objectZorderlist_count;
 multi_objref_ sortarr2[2][bufferlistsize*multilistZcount];
 typedef struct multi_Z_geometry_
 {
@@ -56,7 +57,7 @@ The objects are dumbly listed. Then we do a merge sort.
 
 char somewhereinZlist(int listnr, int nr)
 {
-	for (int ilv1=0;ilv1<bufferlistsize*multilistZcount;ilv1++)
+	for (int ilv1=0;ilv1<objectZorderlist_count;ilv1++)
 	{
 		if (objectZorderlist[ilv1].listnr==-1)
 		{
@@ -69,7 +70,7 @@ char somewhereinZlist(int listnr, int nr)
 }
 char insertinZlist(int tlthisZ, int listnr, int nr)
 {
-	if ((tlthisZ<0) || (tlthisZ>=bufferlistsize*multilistZcount))
+	if ((tlthisZ<0) || (tlthisZ>=objectZorderlist_count))
 	{
 		return 0;
 	}
@@ -83,7 +84,7 @@ char insertinZlist(int tlthisZ, int listnr, int nr)
 }
 char deletefromZlist(int listnr, int nr)
 {
-	for (int ilv1=0;ilv1<bufferlistsize*multilistZcount;ilv1++)
+	for (int ilv1=0;ilv1<objectZorderlist_count;ilv1++)
 	{
 		if (objectZorderlist[ilv1].listnr==listnr)
 		{
@@ -195,13 +196,13 @@ void mergesortrecursion(int single,int max,char ibool)
 void mergesort()
 {
 	int ilv1;
-	for (ilv1=0;ilv1<bufferlistsize*multilistZcount;ilv1++)
+	for (ilv1=0;ilv1<objectZorderlist_count;ilv1++)
 	{
 		sortarr2[0][ilv1]=objectZorderlist[ilv1];
 	}
 	int t=1;int n=0;
 	int subt;
-	while (t<bufferlistsize*multilistZcount)
+	while (t<objectZorderlist_count)
 	{
 		t*=2;
 		n++;
@@ -209,10 +210,10 @@ void mergesort()
 	subt=1;
 	for (ilv1=0;ilv1<n;ilv1++)
 	{
-		mergesortrecursion(subt,bufferlistsize*multilistZcount, (ilv1 & 1));
+		mergesortrecursion(subt,objectZorderlist_count, (ilv1 & 1));
 		subt*=2;
 	}
-	for (int ilv2=0;ilv2<bufferlistsize*multilistZcount;ilv2++)
+	for (int ilv2=0;ilv2<objectZorderlist_count;ilv2++)
 	{
 		objectZorderlist[ilv2]=sortarr2[(ilv1 & 1)][ilv2];
 	}
@@ -220,12 +221,13 @@ void mergesort()
 
 void reenumerate()
 {
-	for (int ilv1=0;ilv1<bufferlistsize*multilistZcount;ilv1++)
+	for (int ilv1=0;ilv1<objectZorderlist_count;ilv1++)
 	{
 		int * pointer=(int*)janitor_getZ(objectZorderlist[ilv1]);
 		if (pointer!=&minusoneint)
 		{
 			*pointer=ilv1;
+			janitor_maxZ=ilv1;
 		}
 	}
 }
@@ -233,13 +235,19 @@ void reenumerate()
 void initZlist()
 {
 	char iZorderbroken=0;
-	for (int ilv1=0;ilv1<bufferlistsize*multilistZcount;ilv1++)//TODO: find actual count, for example, by summing up all filllevels... 
+	objectZorderlist_count=0;
+	for (int ilv1=1;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
+	{
+		objectZorderlist_count+=findmultilist(STRUCTURE_OBJECTTYPE_List[ilv1].name)->filllevel;
+	}
+	objectZorderlist_count*=2;
+	for (int ilv1=0;ilv1<objectZorderlist_count;ilv1++)//TODO: find actual count, for example, by summing up all filllevels... 
 	{
 		objectZorderlist[ilv1].nr=-1;objectZorderlist[ilv1].listnr=-1;
 /*		objectZorderlist[ilv1].last=ilv1-1;objectZorderlist[ilv1].next=ilv1+1;*/
 	}
 /*	objectZorderlist[0].last=-1;
-	objectZorderlist[bufferlistsize*multilistZcount-1].last=-1;*/
+	objectZorderlist[objectZorderlist_count-1].last=-1;*/
  	for (int ilv1=0;ilv1<multilist_count;ilv1++)
 	{
 		CDXMLREAD_functype thisfunc;
@@ -254,17 +262,23 @@ void initZlist()
 				multi_Z_geometry[ilv1].elementsize=(*thismultilist).itemsize;
 				for (int ilv2=0;ilv2<(*thismultilist).filllevel;ilv2++)
 				{
-					multi_objref_ imulti_objref={ilv1,ilv2};
-					int tlthisZ=*janitor_getZ(imulti_objref);
-					if (!insertinZlist(tlthisZ, (*thismultilist).index,ilv2))//TODO: ... or here,find a patteern which always works, as calculating it from the numbering offset, somehow...
+					if ((*thismultilist)[ilv2].exist)
 					{
-						if (somewhereinZlist((*thismultilist).index,ilv2))
+						multi_objref_ imulti_objref={ilv1,ilv2};
+						int tlthisZ=*janitor_getZ(imulti_objref);
+						if (!insertinZlist(tlthisZ, (*thismultilist).index,ilv2))//TODO: ... or here,find a patteern which always works, as calculating it from the numbering offset, somehow...
 						{
-							iZorderbroken=1;
-						}
-						else
-						{
-							fprintf(stderr,"memory overflow");
+							if (somewhereinZlist((*thismultilist).index,ilv2))
+							{
+								multi_objref_ _={ilv1,ilv2};
+								objectZorderlist[objectZorderlist_count++]=_;
+							printf("Zorderbroken:%i of %i #%i\n",tlthisZ,ilv1,ilv2);
+								iZorderbroken=1;
+							}
+							else
+							{
+								fprintf(stderr,"memory overflow");
+							}
 						}
 					}
 				}
@@ -293,11 +307,11 @@ catalogized_command_funcdef(REMEM)
 }
 catalogized_command_funcdef(MEMX2)
 {
-	return 1;
+	return memory_realloc_x2();
 }
 catalogized_command_funcdef(MEMD2)
 {
-	return 1;
+	return memory_realloc_d2();
 }
 #define WORKIFIX_REGISTERED_TRADEMARK_workthrough_variables\
 	_u32 icompare;\

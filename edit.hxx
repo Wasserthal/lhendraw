@@ -90,7 +90,7 @@ int janitor_getmaxid(_u32 ino)
 }
 int edit_getnewZ()
 {
-	if (janitor_maxZ>0) {janitor_maxZ++;return janitor_maxZ;}
+	if (janitor_maxZ>0) {janitor_maxZ++;printf("ret:%i\n",janitor_maxZ);return janitor_maxZ;}
 	janitor_maxZ=0;
 	_u32 icompare;
 	CDXMLREAD_functype dummy;
@@ -120,6 +120,7 @@ int edit_getnewZ()
 		hasnoZ:;
 	}
 	janitor_maxZ+=1;
+	printf("ret:%i\n",janitor_maxZ);
 	return janitor_maxZ;
 }
 void janitor_biasids(int i_bias)
@@ -1310,6 +1311,7 @@ n_instance * edit_summonatom(int * inr=NULL)
 		(*tlinstance).color=control_drawproperties.color;
 		(*tlinstance).charge=0;
 		(*tlinstance).protons=4;
+		(*tlinstance).Z=edit_getnewZ();
 		selection_currentselection[tl_nr]&=(~(1<<STRUCTURE_OBJECTTYPE_n));
 		atom_actual_node[tl_nr].bondcount=0;
 		((*glob_n_multilist).filllevel)++;
@@ -1355,6 +1357,7 @@ b_instance * edit_summonbond(int i_id_begin,int i_id_end,int i_nr_begin,int i_nr
 		(*tlinstance).Display2=0;
 		(*tlinstance).Order=0x10;
 		(*tlinstance).color=control_drawproperties.color;
+		(*tlinstance).Z=edit_getnewZ();
 		atom_actual_node[i_nr_begin]+=((*glob_b_multilist).filllevel);
 		atom_actual_node[i_nr_end]+=((*glob_b_multilist).filllevel);
 		bond_actual_node[(*glob_b_multilist).filllevel].start=i_nr_begin;
@@ -1493,7 +1496,7 @@ int edit_errichten(int startatom)
 			(*tlatom2).xyz.x=posx;
 			(*tlatom2).xyz.y=posy;
 			(*tlatom2).xyz.z=(*tlatom).xyz.z;
-			(*tlatom2).Z=(*tlatom).Z;
+			(*tlatom2).Z=(*tlatom).Z+1;
 		}
 	}
 	if ((tlatom) && (tlatom2))
@@ -1501,7 +1504,7 @@ int edit_errichten(int startatom)
 		tlbond=edit_summonbond((*tlatom).id,(*tlatom2).id,startatom,atomnr2);
 		if (tlbond)
 		{
-			(*tlbond).Z=(*tlatom).Z;
+			(*tlbond).Z=(*tlatom).Z+2;
 		}
 	}
 	return atomnr2;

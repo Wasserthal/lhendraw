@@ -307,7 +307,7 @@ int __attribute__((sysv_abi))CDXMLWRITE_ENUM_%s(char * input,void * output)\n{\n
 	{
 		for (int ilv1=0;ilv1<contents_count;ilv1++)
 		{
-			sprintf(helpbufferpos,"        %s=new(multilistreference<%s%s_instance>);\n%n",contents[ilv1],datablockstring,contents[ilv1],&helpbufferreturnvalue);
+			sprintf(helpbufferpos,"        %s=new(multilistreference<%s%s_instance>);\n%n",contents[ilv1],datablockstring,contents[ilv1],&helpbufferreturnvalue);//TODO mem: leaks
 			helpbufferpos+=helpbufferreturnvalue;
 			(*helpbufferpos)=0;
 		}
@@ -338,7 +338,7 @@ int __attribute__((sysv_abi))CDXMLWRITE_ENUM_%s(char * input,void * output)\n{\n
 	sprintf(helpbufferpos,"}\n%n",&helpbufferreturnvalue);
 	helpbufferpos+=helpbufferreturnvalue;
 	(*helpbufferpos)=0;
-	sprintf(helpbufferpos,"multilist<%s%s_instance> globstat_%s%s_multilist=multilist<%s%s_instance>();\n%n",datablockstring,name,datablockstring,name,datablockstring,name,&helpbufferreturnvalue);
+	sprintf(helpbufferpos,"multilist<%s%s_instance> globstat_%s%s_multilist=multilist<%s%s_instance>();\n%n",datablockstring,name,datablockstring,name,datablockstring,name,&helpbufferreturnvalue);//TODO mem: leaks
 	helpbufferpos+=helpbufferreturnvalue;
 	sprintf(helpbufferpos,"multilist<%s%s_instance> * glob_%s%s_multilist=&globstat_%s%s_multilist;\n%n",datablockstring,name,datablockstring,name,datablockstring,name,&helpbufferreturnvalue);
 	helpbufferpos+=helpbufferreturnvalue;

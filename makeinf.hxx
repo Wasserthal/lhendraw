@@ -285,7 +285,7 @@ void makeinf(const char * cdxname,const char * name)
 	else
 	{
 		infile=fopen(cdxname,"r+");
-		currentinstance=new(CAMBRIDGEPREFIX(Total_Document_instance));
+		currentinstance=new(CAMBRIDGEPREFIX(Total_Document_instance));//TODO mem: leaks
 		input_fsm(infile);
 		fclose(infile);
 		svg_findaround();

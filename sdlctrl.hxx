@@ -725,7 +725,6 @@ int issueclick(int iposx,int iposy)
 						(*tlatom).xyz.x=control_coorsx;
 						(*tlatom).xyz.y=control_coorsy;
 						(*tlatom).xyz.z=0;
-						(*tlatom).Z=edit_getnewZ();
 						edit_setelement(control_drawproperties.Element,tlatom,atomnr);
 					}
 				}
@@ -1049,7 +1048,6 @@ int issueclick(int iposx,int iposy)
 						(*tl_atom[ilv1]).xyz.x=tl_positionx;
 						(*tl_atom[ilv1]).xyz.y=tl_positiony;
 						(*tl_atom[ilv1]).xyz.z=control_startz;
-						(*tl_atom[ilv1]).Z=edit_getnewZ();
 					}
 					else
 					{
@@ -1189,7 +1187,6 @@ void issuedrag(int iposx,int iposy)
 					(*tlatom).xyz.x=control_startx;
 					(*tlatom).xyz.y=control_starty;
 					(*tlatom).xyz.z=0;
-					(*tlatom).Z=edit_getnewZ();
 				}
 			}
 			if (MODIFIER_KEYS.ALT==0)
@@ -1235,7 +1232,6 @@ void issuedrag(int iposx,int iposy)
 					(*tlatom2).xyz.x=control_coorsx;
 					(*tlatom2).xyz.y=control_coorsy;
 					(*tlatom2).xyz.z=(*tlatom).xyz.z;
-					(*tlatom2).Z=edit_getnewZ();
 				}
 			}
 			if ((tlatom) && (tlatom2))
@@ -1245,7 +1241,7 @@ void issuedrag(int iposx,int iposy)
 					tlbond=edit_summonbond((*tlatom).id,(*tlatom2).id,atomnr,atomnr2);
 					if (tlbond)
 					{
-						(*tlbond).Z=0;
+						(*tlbond).Z=(*tlatom2).Z;
 						(*tlbond).Order=control_drawproperties.bond_multiplicity<<4;
 					}
 				}
@@ -1767,7 +1763,6 @@ void issuerelease()
 						(*tl_atom).xyz.x=control_startx;
 						(*tl_atom).xyz.y=control_starty;
 						(*tl_atom).xyz.z=0;
-						(*tl_atom).Z=edit_getnewZ();
 						control_id=(*tl_atom).id;
 						goto madeitmyself1;
 					}

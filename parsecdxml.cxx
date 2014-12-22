@@ -47,7 +47,7 @@ int main(int argc, char * * argv)
 	{
 		fprintf(stderr,"CDXML Error! file %s not found!",argv[1]);exit(1);
 	}
-	currentinstance=new(CAMBRIDGEPREFIX(Total_Document_instance));
+	currentinstance=new(CAMBRIDGEPREFIX(Total_Document_instance));//TODO mem: leaks
 	input_fsm(infile);
 	fclose(infile);
 	if (argc<3)

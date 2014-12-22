@@ -9,7 +9,7 @@ TELESCOPE_buffer filestructure_text_buffer;
 TELESCOPE_buffer filestructure_curve_buffer;
 char LHENDRAW_filedlgmode=0;
 char LHENDRAW_leave=0;
-char janitor_maxZ=0;
+_i32 janitor_maxZ=0;
 _small LHENDRAW_maxbuttons=74;
 #define constants_bondlength 30
 #define constants_angular_distance 2.094395102

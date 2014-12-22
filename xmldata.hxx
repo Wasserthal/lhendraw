@@ -310,7 +310,7 @@ template <class whatabout> multilist<whatabout> * registermultilist(const char *
 			return (multilist<whatabout> *) multilistlist[ilv1].instance;
 		}
 	}
-	multilistlist[multilist_count].instance=new(multilist<whatabout>);
+	multilistlist[multilist_count].instance=new(multilist<whatabout>);//TODO mem: leaks
 	strcpy(multilistlist[multilist_count].name,thetypesname);
 	(*((multilistlist[multilist_count].instance))).index=multilist_count;
 	return (multilist<whatabout> *) multilistlist[multilist_count++].instance;

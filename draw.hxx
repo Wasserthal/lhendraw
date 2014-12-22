@@ -235,7 +235,7 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,bool hatches)
 	float LENNARD_HACK_svgcurrentshiftx;
 	float LENNARD_HACK_svgcurrentshifty;
 	#endif
-	for (ilv1=0;ilv1<bufferlistsize*multilistZcount;ilv1++)
+	for (ilv1=0;ilv1<objectZorderlist_count;ilv1++)
 	{
 		if (objectZorderlist[ilv1].listnr!=-1)
 		{

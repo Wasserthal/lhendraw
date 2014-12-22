@@ -72,7 +72,7 @@ int init_buffers()
 {
 	for (int ilv1=0;ilv1<sizeof(STRUCTURE_OBJECTTYPE_List)/sizeof(trienum);ilv1++)
 	{
-		glob_contentbuffer[ilv1].buffer=(char*)malloc(LHENDRAW_buffersize);
+		memory_alloc(&(glob_contentbuffer[ilv1].buffer));
 		glob_contentbuffer[ilv1].max=LHENDRAW_buffersize;
 		glob_contentbuffer[ilv1].count=0;
 	}
@@ -127,11 +127,11 @@ int slayredo()
 		{
 			if (undosteps[ilv1].handles[ilv3].buffer!=NULL)
 			{
-				free(undosteps[ilv1].handles[ilv3].buffer);
+				memory_free(undosteps[ilv1].handles[ilv3].buffer);
 			}
 			if (undosteps[ilv1].handles[ilv3].contentbuffer!=NULL)
 			{
-				free(undosteps[ilv1].handles[ilv3].contentbuffer);
+				memory_free(undosteps[ilv1].handles[ilv3].contentbuffer);
 			}
 		}
 		for (int ilv2=ilv1;ilv2<undosteps_count-1;ilv2++)
@@ -170,7 +170,7 @@ int slayundo()
 				{
 					((intl*)(undosteps[0].handles[ilv1].buffer))[ilv2]=((intl*)(undosteps[1].handles[ilv1].buffer))[ilv2];
 				}
-				free(undosteps[1].handles[ilv1].buffer);
+				memory_free(undosteps[1].handles[ilv1].buffer);
 				for (int ilv2=0;ilv2<sizeof(multilist<basic_instance>);ilv2++)
 				{
 					undosteps[0].handles[ilv1].imultilist[ilv2]=undosteps[1].handles[ilv1].imultilist[ilv2];
@@ -184,7 +184,7 @@ int slayundo()
 					((intl*)(undosteps[0].handles[ilv1].contentbuffer))[ilv2]=((intl*)(undosteps[1].handles[ilv1].contentbuffer))[ilv2];
 				}
 				undosteps[0].handles[ilv1].bufferhead=undosteps[1].handles[ilv1].bufferhead;
-				free(undosteps[1].handles[ilv1].contentbuffer);
+				memory_free(undosteps[1].handles[ilv1].contentbuffer);
 			}
 		}
 	}
@@ -228,8 +228,8 @@ int storeundo(_u32 flags)
 		{
 			if (flags & (1<<ilv1))
 			{
-				undosteps[undosteps_count].handles[ilv1].buffer=(char*)malloc(LHENDRAW_buffersize);
-				undosteps[undosteps_count].handles[ilv1].contentbuffer=(char*)malloc(LHENDRAW_buffersize);
+				memory_alloc(&(undosteps[undosteps_count].handles[ilv1].buffer));
+				memory_alloc(&(undosteps[undosteps_count].handles[ilv1].contentbuffer));
 				imax=min(LHENDRAW_buffersize,glob_contentbuffer[ilv1].count+sizeof(intl)-1)/sizeof(intl);
 				for (int ilv3=0;ilv3<imax;ilv3++)
 				{

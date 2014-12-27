@@ -217,7 +217,7 @@ int TELESCOPE_stretch_buffer(basicmultilist * imultilist,int ideltaplus,int ityp
 		ideltaplus2+=TELESCOPE_ELEMENTTYPE_List[itype].size;
 		enlengthen2=1;
 	}
-	if ((*ibuffer).count+ideltaplus2>(*ibuffer).max)
+	if ((*ibuffer).count+ideltaplus2>LHENDRAW_buffersize)
 	{
 		return -1;
 	}
@@ -319,7 +319,7 @@ int TELESCOPE_buffercheck(basicmultilist * imultilist)
 		{
 			fprintf(stderr,"TELESCOPE stupid length%i\n",ilength);exit(1);
 		}
-		if ((TELESCOPE_debugvar.pos+ilength)>(*(TELESCOPE_debugvar.buffer)).max)
+		if ((TELESCOPE_debugvar.pos+ilength)>LHENDRAW_buffersize)
 		{
 			fprintf(stderr,"TELESCOPE buffer seems overflown%i\n",ilength);exit(1);
 			return -21;
@@ -459,7 +459,7 @@ int TELESCOPE_split(int ipos,const char * iadditive_input,int ilength)
 	TELESCOPE_rushtoend();
 	int ideltaplus2=ilength+TELESCOPE_ELEMENTTYPE_List[itype].size;
 	int isecondlength=(*tl_Element).length-ipos-TELESCOPE_ELEMENTTYPE_List[itype].size;
-	if ((*(TELESCOPE_tempvar.buffer)).count+ideltaplus2>=(*(TELESCOPE_tempvar.buffer)).max) return -1;
+	if ((*(TELESCOPE_tempvar.buffer)).count+ideltaplus2>=LHENDRAW_buffersize) return -1;
 	for (ilv1=(*(TELESCOPE_tempvar.buffer)).count+ideltaplus2-1;ilv1>=TELESCOPE_tempvar.subpos+TELESCOPE_tempvar.pos+TELESCOPE_ELEMENTTYPE_List[itype].size+(*tl_Element).length-isecondlength;ilv1--)//stretches buffer and copies end
 	{
 		(*(TELESCOPE_tempvar.buffer)).buffer[ilv1]=(*(TELESCOPE_tempvar.buffer)).buffer[ilv1-ideltaplus2];
@@ -583,11 +583,9 @@ int TELESCOPE_getproperty_contentlength()//Like before, but returns the pointer 
 }
 int initmemory()
 {
-	filestructure_text_buffer.buffer=(char*)malloc(LHENDRAW_buffersize);
-	filestructure_text_buffer.max=LHENDRAW_buffersize;
+	memory_alloc(&(filestructure_text_buffer.buffer),1);
 	filestructure_text_buffer.count=0;
-	filestructure_curve_buffer.buffer=(char*)malloc(LHENDRAW_buffersize);
-	filestructure_curve_buffer.max=LHENDRAW_buffersize;
+	memory_alloc(&(filestructure_curve_buffer.buffer),1);
 	filestructure_curve_buffer.count=0;
 	if ((filestructure_text_buffer.buffer!=NULL) && (filestructure_curve_buffer.buffer!=NULL)) return 1;
 	return -1;

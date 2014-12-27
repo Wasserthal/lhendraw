@@ -4,14 +4,17 @@
 //(Should be trivial, as long as one index is smaller than the smallest object)
 
 //Buffers to care about:
-//The careabout buffer itself...
-//all current multilists
-//all current content multilists
-//sglgfx bezierpoints and max's etc. (!)...
-//actual_node (atoms and bonds)
-//z-order-list
-//ALL selection lists!
+//The careabout buffer itself...(0)
+//all immutable multilist's buffers (1)
+//all current multilists' buffers (2)
+//all mutable content multilists (3)
+//actual_node (atoms and bonds) (4)
+//z-order-list (5)
+//ALL selection lists! (6)
+//String buffers... (10)
+//sglgfx bezierpoints and max's etc. (!)...(11)
 //The buffers mentioned in "undo".......
+//main list(100), object buffer(102), content buffer(103)
 
 //What-to-do:
 //Allocate memory
@@ -30,17 +33,33 @@
 //Adjust max undo steps when told to care about that
 //Zero new memory in certain cases!
 //
+intl LHENDRAW_buffersize=1048576;
 struct memory_bufferstructure_
 {
 	char * baseaddress;
 	char ** baseaddressaddress;
 	int allocsize;
+	int type;//see above, which list corresponds to what.
 };
-memory_bufferstructure_ * memory_bufferstructure;
+memory_bufferstructure_ * memory_bufferstructure=NULL;
 int memory_bufferstructure_count=0;
 int memory_bufferstructure_max=0;
-void memory_alloc(char ** address)
+void memory_init()
 {
+	if (memory_bufferstructure!=NULL) return;
+	memory_bufferstructure_max=LHENDRAW_buffersize/sizeof(memory_bufferstructure_);
+	memory_bufferstructure=(memory_bufferstructure_*)malloc(LHENDRAW_buffersize);
+	memory_bufferstructure[0].baseaddress=(char*)memory_bufferstructure;
+	memory_bufferstructure[0].baseaddressaddress=(char**)&memory_bufferstructure;
+	memory_bufferstructure[0].allocsize=LHENDRAW_buffersize;
+	memory_bufferstructure_count=1;
+}
+void memory_alloc(char ** address,int itype)
+{
+	if (memory_bufferstructure==NULL)
+	{
+		memory_init();
+	}
 	if (memory_bufferstructure_count>=memory_bufferstructure_max-1)
 	{
 		fprintf(stderr,"Programming error! Not enough memspace for all structures!\n");exit(1);
@@ -48,6 +67,7 @@ void memory_alloc(char ** address)
 	(*address)=(char*)malloc(LHENDRAW_buffersize);
 	memory_bufferstructure[memory_bufferstructure_count].baseaddress=(*address);
 	memory_bufferstructure[memory_bufferstructure_count].baseaddressaddress=address;
+	memory_bufferstructure[memory_bufferstructure_count].type=itype;
 }
 void memory_areamoved(char * ibegin1,char * ibegin2,intl ilength)//can be called from outside to tell that data with baseaddresses has moved inside a buffer, or from memory if a memory is moved. Better name memory areas whether they contain memory addresses or not... (NO! too complicated).
 {
@@ -80,9 +100,12 @@ int memory_free(void * ibaseaddress)
 	//This would be a memory-double-free, or freeing of a not mapped memory block.
 	return 0;
 }
+intl undo_memory_needs();
 int memory_realloc_down(int newsize)
 {
 	char * oldaddress;
+	if (undo_memory_needs()>newsize) return 0;
+	if (memory_bufferstructure_count*sizeof(memory_bufferstructure_)>newsize) return 0;
 	for (int ilv1=0;ilv1<memory_bufferstructure_count;ilv1++)
 	{
 		if (memory_bufferstructure[ilv1].allocsize>newsize)
@@ -126,16 +149,6 @@ int memory_realloc_x2()
 }
 int memory_realloc_d2()
 {
-	if (LHENDRAW_buffersize<=4096)
-	return 0;
+	if (LHENDRAW_buffersize<=4096) return 0;
 	return memory_realloc_down(LHENDRAW_buffersize/2);
-}
-void memory_init()
-{
-	memory_bufferstructure_max=LHENDRAW_buffersize/sizeof(memory_bufferstructure_);
-	memory_bufferstructure=(memory_bufferstructure_*)malloc(LHENDRAW_buffersize);
-	memory_bufferstructure[0].baseaddress=(char*)memory_bufferstructure;
-	memory_bufferstructure[0].baseaddressaddress=(char**)&memory_bufferstructure;
-	memory_bufferstructure[0].allocsize=LHENDRAW_buffersize;
-	memory_bufferstructure_count=1;
 }

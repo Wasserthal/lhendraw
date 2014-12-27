@@ -1254,6 +1254,7 @@ void issuedrag(int iposx,int iposy)
 			float tl_deltax=control_coorsx-control_startx;
 			float tl_deltay=control_coorsy-control_starty;
 			restoreundo(~0,((MODIFIER_KEYS.CTRL) || (MODIFIER_KEYS.ALT))?0:1);
+			undo_undodirty=1;
 			if (edit_singlepointselected==1)
 			{
 				if (MODIFIER_KEYS.ALT==0)

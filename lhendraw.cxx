@@ -25,6 +25,7 @@ LLLLLL H   H EEEEE N    N DDD   R  R A     A    W     W
 #define CAMBRIDGEPREFIX2(content,content2) content ## _CAMBRIDGE_ ## content2
 #include "lendefs.h"
 #include "elements.hxx"
+#include "memory.hxx"
 #include "xmldata.hxx"
 #include "telescopic_list.hxx"
 #include "definitionlist.h"
@@ -38,7 +39,6 @@ LLLLLL H   H EEEEE N    N DDD   R  R A     A    W     W
 #include "./generated/configfilestructure.hxx"
 #include "./generated/cambridgestructure.hxx"
 #include "parsecdxml_variables.hxx"
-#include "memory.hxx"
 #include "janitor.hxx"
 #include "ellipeq.h"
 #include "quartic.hxx"
@@ -149,9 +149,9 @@ int main(int argc,char * * argv)
 	signal(SIGPIPE,&Signal);
 #endif
 	memory_init();
-	memory_alloc(&tagnamestring);
-	memory_alloc(&parameterstring);
-	memory_alloc(&paramvaluestring);
+	memory_alloc(&tagnamestring,10);
+	memory_alloc(&parameterstring,10);
+	memory_alloc(&paramvaluestring,10);
 	#ifndef NODEBUG
 	clock_getcpuclockid(getpid(),&clockid);
 	#endif

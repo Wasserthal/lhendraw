@@ -58,7 +58,7 @@ TELESCOPE_buffer * undo_retrievecontentbuffer(intl start,intl list)
 	if ((wert=undosteps[current].handles[list].contentbuffer)!=NULL)
 	{
 		undosteps[current].handles[list].bufferhead.buffer=undosteps[current].handles[list].contentbuffer;
-		undosteps[current].handles[list].bufferhead.max=LHENDRAW_buffersize;
+		//set buffer_max here when not using LHENDRAW_buffersize
 		return &(undosteps[current].handles[list].bufferhead);
 	}
 	else
@@ -72,8 +72,8 @@ int init_buffers()
 {
 	for (int ilv1=0;ilv1<sizeof(STRUCTURE_OBJECTTYPE_List)/sizeof(trienum);ilv1++)
 	{
-		memory_alloc(&(glob_contentbuffer[ilv1].buffer));
-		glob_contentbuffer[ilv1].max=LHENDRAW_buffersize;
+		memory_alloc(&(glob_contentbuffer[ilv1].buffer),3);
+		//set buffer_max here when not using LHENDRAW_buffersize
 		glob_contentbuffer[ilv1].count=0;
 	}
 	return 0;
@@ -207,9 +207,15 @@ int storeundo(_u32 flags)
 {
 	intl imax=0;
 	basicmultilist * tl_multilist;
-	if (undo_undodirty==0)
+	if (currentundostep!=-1)
 	{
-		currentundostep=undosteps[currentundostep].parent;
+		if (undo_undodirty==0)
+		{
+			if (undosteps[currentundostep].parent!=-1)
+			{
+				currentundostep=undosteps[currentundostep].parent;
+			}
+		}
 	}
 	if (undosteps_count>=constants_undostep_max)
 	{
@@ -228,8 +234,8 @@ int storeundo(_u32 flags)
 		{
 			if (flags & (1<<ilv1))
 			{
-				memory_alloc(&(undosteps[undosteps_count].handles[ilv1].buffer));
-				memory_alloc(&(undosteps[undosteps_count].handles[ilv1].contentbuffer));
+				memory_alloc(&(undosteps[undosteps_count].handles[ilv1].buffer),2);
+				memory_alloc(&(undosteps[undosteps_count].handles[ilv1].contentbuffer),3);
 				imax=min(LHENDRAW_buffersize,glob_contentbuffer[ilv1].count+sizeof(intl)-1)/sizeof(intl);
 				for (int ilv3=0;ilv3<imax;ilv3++)
 				{
@@ -251,7 +257,7 @@ int storeundo(_u32 flags)
 				undosteps[undosteps_count].handles[ilv1].buffer=NULL;
 				undosteps[undosteps_count].handles[ilv1].contentbuffer=NULL;
 			}
-			undosteps[undosteps_count].handles[ilv1].bufferhead.max=LHENDRAW_buffersize;
+			//set buffer_max here when not using LHENDRAW_buffersize
 			#ifndef NODEBUG
 			undosteps[undosteps_count].handles[ilv1].bufferhead.buffer=NULL;
 			#else
@@ -317,7 +323,7 @@ int restoreundo(_u32 flags,_u32 orderflags/*bit0: restore count only*/)//doesn't
 				count_only:;
 				glob_contentbuffer[ilv1].count=undosteps[currentundostep].handles[ilv1].bufferhead.count;
 			}
-			undosteps[currentundostep].handles[ilv1].bufferhead.max=LHENDRAW_buffersize;
+			//set buffer_max here when not using LHENDRAW_buffersize
 			#ifdef NODEBUG
 			undosteps[currentundostep].handles[ilv1].bufferhead.buffer=NULL;
 			#else
@@ -328,4 +334,48 @@ int restoreundo(_u32 flags,_u32 orderflags/*bit0: restore count only*/)//doesn't
 	undo_undodirty=0;
 	return 1;
 }
-
+intl undo_memory_needs()
+{
+	intl needs=0;
+	intl current=0;
+	basicmultilist * tl_multilist;
+	needs=constants_undostep_max*sizeof(undo_undostep_);//and if constants_undostep_max is increased, you must check if there is enough memory
+	for (int ilv1=0;ilv1<undosteps_count;ilv1++)
+	{
+		for (int ilv2=1;ilv2<STRUCTURE_OBJECTTYPE_ListSize;ilv2++)
+		{
+			tl_multilist=((basicmultilist*)&(undosteps[ilv1].handles[ilv2].imultilist));
+			current=(*tl_multilist).itemsize*(*tl_multilist).filllevel;
+			if (current>needs) needs=current;
+			current=(undosteps[ilv1].handles[ilv2].bufferhead.count);
+			if (current>needs) needs=current;
+		}
+	}
+	for (int ilv2=1;ilv2<STRUCTURE_OBJECTTYPE_ListSize;ilv2++)
+	{
+		tl_multilist=findmultilist(STRUCTURE_OBJECTTYPE_List[ilv1].name);
+		current=(*tl_multilist).itemsize*(*tl_multilist).filllevel;
+		if (current>needs) needs=current;
+		current=glob_contentbuffer[ilv2].count;
+		if (current>needs) needs=current;
+	}
+/*	for (int ilv1=0;ilv1<memory_bufferstructure_count;ilv1++)
+	{
+		intl current=0;
+		switch(memory_bufferstructure[ilv1].type)
+		{
+			case 0: 
+			current=memory_bufferstructure_count*sizeof(memory_bufferstructure_);
+			break;
+			case 1: 
+			//TODO urgent
+			break;
+			case 2: 
+//			current=(basicmultilist*)//How the fuck can I sync them ???? _._ °n°
+			//I guess, I better sync "backwards"
+			break;
+		}
+		if (current>needs) needs=current;
+	}*/
+	return needs;
+}

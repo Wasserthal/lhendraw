@@ -4,7 +4,6 @@
 struct TELESCOPE_buffer
 {
 	char * buffer;
-	intl max;
 	intl count;
 };
 struct edit_formatstruct
@@ -107,7 +106,6 @@ int AUTOSTRUCT_Numberofproperty(const char * name,superconstellation * iinput,in
 #define AUTOSTRUCT_EXISTS_CLEAR_NAME(AUTOSTRUCT_VARIABLE,AUTOSTRUCT_ELEMENT_NAME) ((*((*AUTOSTRUCT_VARIABLE).getINTERNALPropertyexistflags()))&=~(1<<AUTOSTRUCT_Numberofproperty(# AUTOSTRUCT_ELEMENT_NAME,(*AUTOSTRUCT_VARIABLE).properties,(*AUTOSTRUCT_VARIABLE).INTERNALPropertycount)))
 
 char LHENDRAW_loadmemoryoverflow=0;
-intl LHENDRAW_buffersize=1048576;
 char * tagnamestring;
 char * parameterstring;
 char * paramvaluestring;
@@ -192,7 +190,7 @@ template <class whatabout> class multilist : public basicmultilist
 	public:
 	inline whatabout * bufferlist(){return (whatabout*)pointer;}
 	//TODO: split off the non-contentbuffer "CAMBRIDGE" items-multilist as new data type, carrying the dependants, so this large variable is not stored in the undo steps. Turn it into an own buffer later!
-	multilistreference<whatabout> * dependants[bufferlistsize];//needed to point to contained objects from another list, while still being able to move items in this mulitilist (this in the sense of this-pointer)
+	multilistreference<whatabout> dependants[bufferlistsize];//needed to point to contained objects from another list, while still being able to move items in this mulitilist (this in the sense of this-pointer)
 	inline whatabout & operator[](int ino)
 	{
 		return *((whatabout*)(((char*)pointer)+(ino*itemsize)));
@@ -203,7 +201,7 @@ template <class whatabout> class multilist : public basicmultilist
 		filllevel=0;
 		ourcount=0;
 		maxid=0;
-		pointer=(char*)malloc(sizeof(whatabout)*getmaxitems());
+		memory_alloc(&pointer,2);
 		itemsize=sizeof(whatabout);
 		return;
 	}
@@ -230,10 +228,7 @@ template <class whatabout> class multilist : public basicmultilist
 		//TODO: check what's going on here!
 		for (int ilv1=filllevel;ilv1>position;ilv1--)
 		{
-			for (int ilv2=0;ilv2<sizeof(bufferlist()[0]);ilv2++)//Thats why oop sucks!
-			{
-				*(((char*)(&(bufferlist()[ilv1])))+ilv2)=*(((char*)(&(bufferlist()[ilv1-1])))+ilv2);
-			}
+			memcpy(bufferlist()+ilv1,bufferlist()+ilv1-1,sizeof(whatabout));//Thats why oop sucks!
 			for (int ilv2=0;ilv2<sizeof(whatabout::contents)/sizeof(superconstellation);ilv2++)
 			{
 				basicmultilistreference * tl_multilistreference=*(basicmultilistreference**)(((char*)(&(bufferlist()[ilv1])))+whatabout::contents[ilv2].ref);
@@ -246,26 +241,28 @@ template <class whatabout> class multilist : public basicmultilist
 		}
 		for (int ilv1=mynumber+1;ilv1<ourcount;ilv1++)
 		{
-			(*(dependants[ilv1])).start_in_it++;
+			dependants[ilv1].start_in_it++;
 		}
 		bufferlist()[position]=input;
 		(*(intl*)&(bufferlist()[position]))=*(intl*)&input;//hack for bug in gcc: vtable index not copied to array //not TODO checked if it has to be intl
 		filllevel++;
 		return &(bufferlist()[position]);
 	}
-	intl getme(multilistreference<whatabout> * input)
+	multilistreference<whatabout> * getme(multilistreference<whatabout> * input)
 	{
 		(*input).start_in_it=filllevel;
 		(*input).count_in_it=0;
 		if (ourcount<bufferlistsize)
 		{
-			dependants[ourcount]=input;
+			memcpy(dependants+ourcount,input,sizeof(multilistreference<whatabout>));
+			dependants[ourcount].mynumber=ourcount;
+			ourcount++;
 		}
 		else
 		{//TODO: Prevent memory overflow, better: 
 			fprintf(stderr,"Memory overflow on multilistreference_creation\n");exit(1);
 		}
-		return ourcount++;
+		return &(dependants[ourcount-1]);
 	}
 	virtual int getproperties(const char * name,CDXMLREAD_functype * delegateoutput)
 	{
@@ -326,10 +323,13 @@ template <class whatabout> class multilistreference : public basicmultilistrefer
 	}
 	multilistreference()
 	{
-		instances=(basicmultilist*)registermultilist<whatabout>(whatabout::INTERNALgetname());
-		/*multilistreference(backvalue);*/
-		mynumber=(*((multilist<whatabout>*)instances)).getme(this);
 	};
+	void * operator new(size_t dummy)
+	{
+		multilistreference<whatabout> me;
+		me.instances=(basicmultilist*)registermultilist<whatabout>(whatabout::INTERNALgetname());
+		return (*((multilist<whatabout>*)(me.instances))).getme(&me);
+	}
 	void multilistreferenx(multilist<whatabout> * input)//not used???
 	{
 		instances=(basicmultilist*)input;

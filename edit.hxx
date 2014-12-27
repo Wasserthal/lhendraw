@@ -1913,7 +1913,7 @@ int save_image(FILE * ifile,const char * value)
 	target.canvasminy=0;
 	target.canvasmaxx=width;
 	target.canvasmaxy=height;
-	target.screen=(_u32*)malloc(4*width*height);
+	target.screen=(_u32*)malloc(4*width*height);//intended TEMPORARY malloc
 	target.canvas=target.screen;
 	target.scrollx=left;
 	target.scrolly=top;

@@ -40,7 +40,7 @@ void bitmap_init(FILE * bitmapfile)
 	fread(&dummy,4,1,bitmapfile);
 	fread(&vsize,4,1,bitmapfile);
 	LHENDRAW_maxbuttons=vsize/32;
-	resources_bitmap_buttons=(resources_button_*)malloc(LHENDRAW_maxbuttons*sizeof(resources_button_));
+	resources_bitmap_buttons=(resources_button_*)malloc(LHENDRAW_maxbuttons*sizeof(resources_button_));//intended PERMANENT malloc
 	fseek(bitmapfile,ioffset,SEEK_SET);
 	for (int ilv1=(32*LHENDRAW_maxbuttons)-1;ilv1>=0;ilv1--)
 	{

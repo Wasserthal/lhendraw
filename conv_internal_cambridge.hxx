@@ -46,7 +46,7 @@ int CONVCAMBRIDGE_s_f(CAMBRIDGE_t_instance * master,edit_formatstruct * iformat,
 {
 	char * ibuffer2;
 	ibuffer2=filestructure_text_buffer.buffer+filestructure_text_buffer.count;
-	if (filestructure_text_buffer.count+strlen(ibuffer)+1>=filestructure_text_buffer.max)
+	if (filestructure_text_buffer.count+strlen(ibuffer)+1>=LHENDRAW_buffersize)
 	{
 		return -1;
 	}

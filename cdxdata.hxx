@@ -130,7 +130,7 @@ int writefrombuffer(FILE * output,char * input)
 int copytobuffer(TELESCOPE_buffer * ibuffer,char * input)//TODO: what if string is longer than 2147483647 bytes?
 {
 	int ilv2;
-	int maxlength=(*ibuffer).max-2;
+	int maxlength=LHENDRAW_buffersize-2;
 	int icount=(*ibuffer).count;
 	for (int ilv1=0;input[ilv1]!=0;ilv1++)
 	{

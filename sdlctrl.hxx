@@ -1058,10 +1058,24 @@ int issueclick(int iposx,int iposy)
 			}
 			for (int ilv1=0;ilv1<control_drawproperties.ring_element_count;ilv1++)
 			{
+				b_instance * tl_b_instance;
+				int tl_b_nr;
 				int end=(ilv1+1)%control_drawproperties.ring_element_count;
-				if (get_bond_between(atomnr[ilv1],atomnr[end])<0)
+				tl_b_nr=get_bond_between(atomnr[ilv1],atomnr[end]);
+				if (tl_b_nr<0)
 				{
-					b_instance * tl_b_instance=edit_summonbond(tl_atom[ilv1]->id,tl_atom[end]->id,atomnr[ilv1],atomnr[end]);
+					tl_b_instance=edit_summonbond(tl_atom[ilv1]->id,tl_atom[end]->id,atomnr[ilv1],atomnr[end]);
+				}
+			}
+			for (int ilv1=0;ilv1<control_drawproperties.ring_element_count;ilv1++)
+			{
+				b_instance * tl_b_instance;
+				int tl_b_nr;
+				int end=(ilv1+1)%control_drawproperties.ring_element_count;
+				tl_b_nr=get_bond_between(atomnr[ilv1],atomnr[end]);
+				if (tl_b_nr>=0)
+				{
+					tl_b_instance=glob_b_multilist->bufferlist()+tl_b_nr;
 					if ((((ilv1%2)==0) ^ (bond_shift)) && (control_drawproperties.ring_unsaturation))
 					{
 						if ((getbondsum(atomnr[ilv1])<4))

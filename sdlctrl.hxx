@@ -53,6 +53,31 @@ int control_GUI=1;
 int control_doubleclickenergy=0;
 basic_instance * control_manipulatedinstance;
 basic_instance * control_manipulatedinstance2;
+#define KEYDEPENDENTSELECTION \
+{\
+	__label__ tl_found;\
+	if (MODIFIER_KEYS.SHIFT)\
+	{\
+		if (MODIFIER_KEYS.CTRL)\
+		{\
+			selection_ANDselection(selection_currentselection,selection_clickselection);\
+		}\
+		else\
+		{\
+			selection_XORselection(selection_currentselection,selection_clickselection);\
+		}\
+		selection_recheck(selection_currentselection,&selection_currentselection_found);\
+		goto tl_found;\
+	}\
+	if (MODIFIER_KEYS.CTRL)\
+	{\
+		selection_ORselection(selection_currentselection,selection_clickselection);\
+		goto tl_found;\
+	}\
+	selection_copyselection(selection_currentselection,selection_clickselection);\
+	selection_currentselection_found=selection_clickselection_found;\
+	tl_found:;\
+}
 typedef struct control_toolinfo_
 {
 	_u32 undoes;//for BOTH mouse buttons, unless using other tool
@@ -564,6 +589,7 @@ int issueclick(int iposx,int iposy)
 					control_starty=control_coorsy;
 					control_usingmousebutton=control_lastmousebutton;
 					int backtype,backindex;
+					control_manipulatedinstance=getclicked((1<<STRUCTURE_OBJECTTYPE_n),control_coorsx,control_coorsy);
 					control_manipulatedinstance=getclicked((1<<STRUCTURE_OBJECTTYPE_ListSize)-1,control_coorsx,control_coorsy,&backtype,&backindex);
 					if (control_manipulatedinstance!=NULL)
 					{
@@ -571,7 +597,7 @@ int issueclick(int iposx,int iposy)
 					}
 					else
 					{
-						control_manipulatedinstance=getclicked(~1,control_coorsx,control_coorsy,&backtype,&backindex);
+						control_manipulatedinstance=getclicked(~0,control_coorsx,control_coorsy,&backtype,&backindex);
 						if (control_manipulatedinstance!=NULL)
 						{
 							goto twopointselection_wantthem;
@@ -579,20 +605,26 @@ int issueclick(int iposx,int iposy)
 					}
 					return 0;
 					twopointselection_wantthem:;
-					if (selection_currentselection[backindex] & (1<<backtype))
+					if ((MODIFIER_KEYS.CTRL==0) && (MODIFIER_KEYS.SHIFT==0))
 					{
-						if (backtype==STRUCTURE_OBJECTTYPE_n)
+						if (selection_currentselection[backindex] & (1<<backtype))
 						{
-							edit_judgeselection(backindex);
+							if (backtype==STRUCTURE_OBJECTTYPE_n)
+							{
+								return 0;
+							}
+						}
+						else
+						{
+							selection_clearselection(selection_currentselection);
+							selection_currentselection_found=1<<backtype;
+							selection_currentselection[backindex]|=1<<backtype;
+							edit_singlepointselected=1;
 						}
 					}
-					else
-					{
-						selection_clearselection(selection_currentselection);
-						selection_currentselection_found=1<<backtype;
-						selection_currentselection[backindex]|=1<<backtype;
-						edit_singlepointselected=1;
-					}
+					KEYDEPENDENTSELECTION;
+					edit_judgeselection(backindex);
+					control_mousestate=0;
 					return 0;
 				}
 			}
@@ -629,8 +661,8 @@ int issueclick(int iposx,int iposy)
 					control_startx=control_coorsx;
 					control_starty=control_coorsy;
 					control_usingmousebutton=control_lastmousebutton;
-					control_manipulatedinstance=getclicked((1<<STRUCTURE_OBJECTTYPE_n),control_coorsx,control_coorsy);
 					int backtype,backindex;
+					control_manipulatedinstance=getclicked((1<<STRUCTURE_OBJECTTYPE_n),control_coorsx,control_coorsy);
 					control_manipulatedinstance=getclicked((1<<STRUCTURE_OBJECTTYPE_ListSize)-1,control_coorsx,control_coorsy,&backtype,&backindex);
 					if (control_manipulatedinstance!=NULL)
 					{
@@ -638,7 +670,7 @@ int issueclick(int iposx,int iposy)
 					}
 					else
 					{
-						control_manipulatedinstance=getclicked(~1,control_coorsx,control_coorsy,&backtype,&backindex);
+						control_manipulatedinstance=getclicked(~0,control_coorsx,control_coorsy,&backtype,&backindex);
 						if (control_manipulatedinstance!=NULL)
 						{
 							goto lasso_wantthem;
@@ -646,20 +678,26 @@ int issueclick(int iposx,int iposy)
 					}
 					return 0;
 					lasso_wantthem:;
-					if (selection_currentselection[backindex] & (1<<backtype))
+					if ((MODIFIER_KEYS.CTRL==0) && (MODIFIER_KEYS.SHIFT==0))
 					{
-						if (backtype==STRUCTURE_OBJECTTYPE_n)
+						if (selection_currentselection[backindex] & (1<<backtype))
 						{
-							edit_judgeselection(backindex);
+							if (backtype==STRUCTURE_OBJECTTYPE_n)
+							{
+								return 0;
+							}
+						}
+						else
+						{
+							selection_clearselection(selection_currentselection);
+							selection_currentselection_found=1<<backtype;
+							selection_currentselection[backindex]|=1<<backtype;
+							edit_singlepointselected=1;
 						}
 					}
-					else
-					{
-						selection_clearselection(selection_currentselection);
-						selection_currentselection_found=1<<backtype;
-						selection_currentselection[backindex]|=1<<backtype;
-						edit_singlepointselected=1;
-					}
+					KEYDEPENDENTSELECTION;
+					edit_judgeselection(backindex);
+					control_mousestate=0;
 					return 0;
 				}
 			}
@@ -1477,31 +1515,6 @@ int rectifyselectionframe()
 		selection_frame.endy=tlswap;
 	}
 	return 1;
-}
-#define KEYDEPENDENTSELECTION \
-{\
-	__label__ tl_found;\
-	if (MODIFIER_KEYS.SHIFT)\
-	{\
-		if (MODIFIER_KEYS.CTRL)\
-		{\
-			selection_ANDselection(selection_currentselection,selection_clickselection);\
-		}\
-		else\
-		{\
-			selection_XORselection(selection_currentselection,selection_clickselection);\
-		}\
-		selection_recheck(selection_currentselection,&selection_currentselection_found);\
-		break;\
-	}\
-	if (MODIFIER_KEYS.CTRL)\
-	{\
-		selection_ORselection(selection_currentselection,selection_clickselection);\
-		break;\
-	}\
-	selection_copyselection(selection_currentselection,selection_clickselection);\
-	selection_currentselection_found=selection_clickselection_found;\
-	tl_found:;\
 }
 void issuerelease()
 {

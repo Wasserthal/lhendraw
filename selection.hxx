@@ -277,6 +277,9 @@ void select_fragment_by_atom(int start)
 				{
 					int tlbondnr=atom_actual_node[ilv1_wine].bonds[ilv2];
 					int tlatomnr=getother(ilv1_wine,tlbondnr);
+					selection_fragmentselection[tlbondnr]|=icompare_b;
+					selection_clickselection[tlbondnr]|=icompare_b;
+					selection_fragmentselection_found|=icompare_b;
 					if ((*glob_n_multilist)[tlatomnr].exist)
 					{
 						if ((selection_fragmentselection[tlatomnr] & icompare_n)==0)
@@ -284,11 +287,8 @@ void select_fragment_by_atom(int start)
 							if ((selection_clickselection[tlatomnr] & icompare_n)==0)
 							{
 								selection_fragmentselection[tlatomnr]|=icompare_n;
-								selection_fragmentselection[tlbondnr]|=icompare_b;
 								selection_clickselection[tlatomnr]|=icompare_n;
-								selection_clickselection[tlbondnr]|=icompare_b;
 								selection_fragmentselection_found|=icompare_n;
-								selection_fragmentselection_found|=icompare_b;
 								ichanged=1;
 							}
 						}

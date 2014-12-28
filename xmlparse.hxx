@@ -5,6 +5,7 @@ basic_instance * currentinstance;
 #ifdef DEBUG
 intl debugcounter=0;
 #endif
+int scrunity=0;
 
 void entertag()
 {
@@ -17,6 +18,7 @@ void entertag()
 	{
 		nextinstance_list=*(basicmultilistreference**)(((char*)currentinstance)+suboffset);
 		nextinstance=(basic_instance*)nextinstance_list->addnew();
+		(*nextinstance).master=currentinstance;
 	}
 	else
 	{
@@ -24,10 +26,17 @@ void entertag()
 /*		printf("instead it got:");
 		printf("%s\n",page_instance::contents[5].name);*/
 		printf("%s vs. %s !\n",tagnamestring,currentinstance->getName());
-		nextinstance=new(gummydummy_instance);//TODO mem: leaks
-		nextinstance->_=NULL;
+		if (strcmp(currentinstance->getName(),"gummydummy")==0)
+		{
+			scrunity++;
+		}
+		else
+		{
+			gummydummy_instance.master=currentinstance;
+			scrunity=1;
+		}
+		nextinstance=&gummydummy_instance;
 	}
-	(*nextinstance).master=currentinstance;
 	currentinstance=nextinstance;
 };
 
@@ -109,10 +118,15 @@ void scoopparam_bin()
 void exittag()
 {
 	basic_instance * lastinstance=currentinstance;
-	currentinstance=(*currentinstance).master;
 	if (strcmp(lastinstance->getName(),"gummydummy")==0)
 	{
-		delete(lastinstance);
+		scrunity--;
+		if (scrunity==0) goto exittag_master;
+	}
+	else
+	{
+		exittag_master:
+		currentinstance=(*currentinstance).master;
 	}
 	if (strcmp(currentinstance->getName(),"Total_Document")==0)
 	{

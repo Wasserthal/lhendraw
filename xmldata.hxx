@@ -356,12 +356,21 @@ struct basic_instance_propertybuffer:basic_instance
 //1. Objects dependent on variables initalized out of code area
 //3. Offsetof with inherited objects.
 //4. Initialization of static list members in order to obtain self-reflecting code.
-struct gummydummy_instance: basic_instance
+AUTOSTRUCT_cstyle_vtable gummydummy_instance_vtable={NULL,0,NULL,0,(char*)"CAMBRIDGE_gummydummy",(char*)"gummydummy"};
+struct gummydummy_instance_: basic_instance
 {
+	public:
 	const char * getName(){static char name[]="gummydummy"; return(char*)&name;}
 	int getcontents(char * name){return -1;}
 	int getproperties(const char * name,CDXMLREAD_functype * delegateoutput,int * posoutput){return -1;}
-};
+	gummydummy_instance_()
+	{
+		_=&gummydummy_instance_vtable;
+	}
+	~gummydummy_instance_()
+	{
+	}
+} gummydummy_instance;
 struct undo_singlebuffer
 {
 	char * buffer;//When==NULL, this buffer is empty, apply the buffer of the parent

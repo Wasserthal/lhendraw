@@ -405,7 +405,7 @@ int edit_judgepoint(int index)
 	}
 	return icount;
 }
-void edit_judgeselection(int backindex)
+void edit_judgeselection(int backindex)//determines what type of pivot the current selection has
 {
 	int edit_endatom_count=0;
 	for (int ilv1=1;ilv1<glob_n_multilist->filllevel;ilv1++)

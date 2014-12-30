@@ -1139,10 +1139,14 @@ int issueclick(int iposx,int iposy)
 			return 0;
 		}
 		case 18:
+		//fallthrough
+		case 19:
 		{
+			//fallthrough
 			if (selection_clickselection_found & (1<<STRUCTURE_OBJECTTYPE_arrow))
 			{
 				control_manipulatedinstance=getclicked(1<<STRUCTURE_OBJECTTYPE_arrow,control_coorsx,control_coorsy);
+				printf("%f\n",(*(arrow_instance*)control_manipulatedinstance).AngularSize);
 			}
 			else
 			{
@@ -1489,6 +1493,56 @@ void issuedrag(int iposx,int iposy)
 				(*(arrow_instance*)control_manipulatedinstance).MajorAxisEnd3D.x=(*(arrow_instance*)control_manipulatedinstance).Center3D.x+sin(tl_angle)*tl_radius;
 				(*(arrow_instance*)control_manipulatedinstance).MajorAxisEnd3D.y=(*(arrow_instance*)control_manipulatedinstance).Center3D.y-cos(tl_angle)*tl_radius;
 				(*(arrow_instance*)control_manipulatedinstance).MajorAxisEnd3D.z=0;
+			}
+			break;
+		}
+		case 19:
+		{
+			char whichofthem;
+			float sx,sy,zx,zy;
+			float mx,my,mz,dx,dy;
+			float tl_height;
+			float tl_angle1,tl_angle2;
+			retrievepoints_basic(control_manipulatedinstance,&sx,&sy,NULL,1,STRUCTURE_OBJECTTYPE_arrow);
+			retrievepoints_basic(control_manipulatedinstance,&zx,&zy,NULL,2,STRUCTURE_OBJECTTYPE_arrow);
+			retrievepoints_basic(control_manipulatedinstance,&mx,&my,&mz,-3,STRUCTURE_OBJECTTYPE_arrow);
+			whichofthem=((sx-control_coorsx)*(sx-control_coorsx)+(sy-control_coorsy)*(sy-control_coorsy)>(zx-control_coorsx)*(zx-control_coorsx)+(zy-control_coorsy)*(zy-control_coorsy));
+			if ((*(arrow_instance*)control_manipulatedinstance).AngularSize==0)
+			{
+				retrievepoints_basic(control_manipulatedinstance,&mx,&my,&mz,0,STRUCTURE_OBJECTTYPE_arrow);
+				float tl_angle=getangle(zx-sx,zy-sy);
+			}
+			else
+			{
+				char angularside=(*(arrow_instance*)control_manipulatedinstance).AngularSize>0;
+				retrievepoints_basic(control_manipulatedinstance,&mx,&my,&mz,-3,STRUCTURE_OBJECTTYPE_arrow);
+				ellipsoid.create((*(arrow_instance*)control_manipulatedinstance).Center3D,(*(arrow_instance*)control_manipulatedinstance).MajorAxisEnd3D,(*(arrow_instance*)control_manipulatedinstance).MinorAxisEnd3D);
+				ellipsoid.fill(control_coorsx-mx,control_coorsy-my);
+				tl_angle2=ellipsoid.internalangle;
+				if (whichofthem)
+				{
+					ellipsoid.fill(sx-mx,sy-my);
+				}
+				else
+				{
+					ellipsoid.fill(zx-mx,zy-my);
+				}
+				tl_angle1=ellipsoid.internalangle;
+				float cosinus_x=(*(arrow_instance*)control_manipulatedinstance).MajorAxisEnd3D.x-mx;
+				float cosinus_y=(*(arrow_instance*)control_manipulatedinstance).MajorAxisEnd3D.y-my;
+				float sinus_x=(*(arrow_instance*)control_manipulatedinstance).MinorAxisEnd3D.x-mx;
+				float sinus_y=(*(arrow_instance*)control_manipulatedinstance).MinorAxisEnd3D.y-my;
+				(*(arrow_instance*)control_manipulatedinstance).AngularSize=((angularside^whichofthem)?fmod((tl_angle2-tl_angle1+2*Pi),(2*Pi)):-fmod((tl_angle1-tl_angle2+2*Pi),(2*Pi)))*(whichofthem?-1:1);
+				if (whichofthem)
+				{
+					(*(arrow_instance*)control_manipulatedinstance).Tail3D.x=mx+sin(tl_angle2)*sinus_x+cos(tl_angle2)*cosinus_x;
+					(*(arrow_instance*)control_manipulatedinstance).Tail3D.y=my+sin(tl_angle2)*sinus_y+cos(tl_angle2)*cosinus_y;
+				}
+				else
+				{
+					(*(arrow_instance*)control_manipulatedinstance).Head3D.x=mx+sin(tl_angle2)*sinus_x+cos(tl_angle2)*cosinus_x;
+					(*(arrow_instance*)control_manipulatedinstance).Head3D.y=my+sin(tl_angle2)*sinus_y+cos(tl_angle2)*cosinus_y;
+				}
 			}
 			break;
 		}

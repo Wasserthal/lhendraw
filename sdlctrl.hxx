@@ -559,6 +559,7 @@ int control_aggresstextcursor()
 int issueclick(int iposx,int iposy)
 {
 	int ibackval;
+	int icompare;
 	n_instance * tlatom;
 	b_instance * tlbond;
 	control_posx=iposx;
@@ -841,7 +842,7 @@ int issueclick(int iposx,int iposy)
 		{
 			if (control_lastmousebutton==SDL_BUTTON_RIGHT)
 			{
-				int icompare=(1<<(STRUCTURE_OBJECTTYPE_n+STRUCTURE_OBJECTTYPE_ListSize));
+				icompare=(1<<(STRUCTURE_OBJECTTYPE_n+STRUCTURE_OBJECTTYPE_ListSize));
 				if (selection_clickselection_found & icompare)
 				{
 					control_manipulatedinstance2=getclicked(icompare,control_coorsx,control_coorsy,NULL,NULL,&control_manipulatedinstance);
@@ -1143,9 +1144,10 @@ int issueclick(int iposx,int iposy)
 		case 19:
 		{
 			//fallthrough
-			if (selection_clickselection_found & (1<<STRUCTURE_OBJECTTYPE_arrow))
+			icompare=(1<<STRUCTURE_OBJECTTYPE_arrow)+(1<<(STRUCTURE_OBJECTTYPE_arrow+STRUCTURE_OBJECTTYPE_ListSize));
+			if (selection_clickselection_found & icompare)
 			{
-				control_manipulatedinstance=getclicked(1<<STRUCTURE_OBJECTTYPE_arrow,control_coorsx,control_coorsy);
+				control_manipulatedinstance=getclicked(icompare,control_coorsx,control_coorsy);
 				printf("%f\n",(*(arrow_instance*)control_manipulatedinstance).AngularSize);
 			}
 			else
@@ -1511,6 +1513,18 @@ void issuedrag(int iposx,int iposy)
 			{
 				retrievepoints_basic(control_manipulatedinstance,&mx,&my,&mz,0,STRUCTURE_OBJECTTYPE_arrow);
 				float tl_angle=getangle(zx-sx,zy-sy);
+				if (whichofthem==0)
+				{
+					float distance=sqrt((zx-control_coorsx)*(zx-control_coorsx)+(zy-control_coorsy)*(zy-control_coorsy));
+					(*(arrow_instance*)control_manipulatedinstance).Head3D.x=zx-cos(tl_angle)*distance;
+					(*(arrow_instance*)control_manipulatedinstance).Head3D.y=zy-sin(tl_angle)*distance;
+				}
+				else
+				{
+					float distance=sqrt((sx-control_coorsx)*(sx-control_coorsx)+(sy-control_coorsy)*(sy-control_coorsy));
+					(*(arrow_instance*)control_manipulatedinstance).Tail3D.x=sx+cos(tl_angle)*distance;
+					(*(arrow_instance*)control_manipulatedinstance).Tail3D.y=sy+sin(tl_angle)*distance;
+				}
 			}
 			else
 			{

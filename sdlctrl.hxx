@@ -579,9 +579,9 @@ int issueclick(int iposx,int iposy)
 	{
 		case 2:
 		{
-			if (selection_clickselection_found)
+			if (control_lastmousebutton==SDL_BUTTON_LEFT)
 			{
-				if (MODIFIER_KEYS.ALT==0)
+				if ((selection_clickselection_found) && (MODIFIER_KEYS.ALT==0))
 				{
 					control_mousestate=2;
 					control_toolstartkeysym=SDLK_UNKNOWN;
@@ -628,9 +628,6 @@ int issueclick(int iposx,int iposy)
 					control_mousestate=0;
 					return 0;
 				}
-			}
-			if (control_lastmousebutton==SDL_BUTTON_LEFT)
-			{
 				selection_frame.startx=control_coorsx;
 				selection_frame.starty=control_coorsy;
 				selection_frame.endx=control_coorsx;
@@ -644,17 +641,20 @@ int issueclick(int iposx,int iposy)
 				control_startx=control_coorsx;
 				control_starty=control_coorsy;
 				control_usingmousebutton=control_lastmousebutton;
-				control_manipulatedinstance=getclicked((1<<STRUCTURE_OBJECTTYPE_n),control_coorsx,control_coorsy);
-				selection_copyselection(selection_currentselection,selection_clickselection);
+				if ((selection_currentselection_found==0) && (selection_clickselection_found!=0))
+				{
+					control_manipulatedinstance=getclicked((1<<STRUCTURE_OBJECTTYPE_n),control_coorsx,control_coorsy);
+					selection_copyselection(selection_currentselection,selection_clickselection);
+				}
 				return 0;
 			}
 			break;
 		}
 		case 3:
 		{
-			if (selection_clickselection_found)
+			if (control_lastmousebutton==SDL_BUTTON_LEFT)
 			{
-				if (MODIFIER_KEYS.ALT==0)
+				if ((selection_clickselection_found) && (MODIFIER_KEYS.ALT==0))
 				{
 					control_mousestate=2;
 					control_toolstartkeysym=SDLK_UNKNOWN;

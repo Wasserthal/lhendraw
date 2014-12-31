@@ -2350,11 +2350,6 @@ void control_normal()
 				control_doubleclickenergy=0;
 				control_mousex=control_Event.motion.x;
 				control_mousey=control_Event.motion.y;
-				if (control_mousestate & 0x20)
-				{
-					sdl_commonmenucommon();
-					issuemenudrag(control_Event.motion.x,control_Event.motion.y);
-				}
 
 				if (SDL_PollEvent(&control_Event2))
 				{
@@ -2366,6 +2361,12 @@ void control_normal()
 					{
 						irepeat=1;//TODO: due the now changed event,, this issues MOUSEMOTION's with illegal coordinates.
 					}
+				}
+				if (control_mousestate & 0x20)
+				{
+					sdl_commonmenucommon();
+					idontrepeat=1;
+					issuemenudrag(control_Event.motion.x,control_Event.motion.y);
 				}
 				if ((control_mousestate & (~2))==0)
 				{

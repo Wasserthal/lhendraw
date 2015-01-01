@@ -479,15 +479,48 @@ void gfx_expressspinellipse(float ix,float iy,float radiusx,float radiusy, float
 	ix=(ix-SDL_scrollx)*SDL_zoomx;
 	iy=(iy-SDL_scrolly)*SDL_zoomy;
 	int isteps=radiusx*Pi*2;
-	if (radiusy>radiusx)
-	{
-		isteps=radiusy*Pi*2;
-	}
 	float tlsaxx=cos(axangle);float tlsaxy=sin(axangle);
-	for (int ilv1=0;ilv1<isteps;ilv1++)
+	if (SDL_linestyle & 2)
 	{
-		float tlangle=(ilv1/float(isteps))*2*Pi;
-		putpixel(ix+tlsaxx*radiusx*cos(tlangle)-tlsaxy*radiusy*sin(tlangle),iy+tlsaxy*radiusx*cos(tlangle)+tlsaxx*radiusy*sin(tlangle));
+		if (fabs(tlsaxx)<0.00001)
+		{
+			float swap=radiusx;
+			radiusx=radiusy;
+			radiusy=swap;
+			tlsaxx=1;tlsaxy=0;
+		}
+		while (axangle>Pi) axangle-=Pi;
+		while (axangle<-Pi) axangle+=Pi;
+		for (int ilv1=max(iy-max(radiusx,radiusy),0);ilv1<=min(iy+max(radiusx,radiusy),gfx_canvassizey);ilv1++)
+		{
+			float t=((ilv1-iy)/fabs(tlsaxx)/radiusy);
+			float m=-((tlsaxy*radiusx)/tlsaxx)/radiusy;
+			float tlangle=(ilv1/float(isteps))*2*Pi;
+			float radicand=4*t*t*m*m-4*(1+m*m)*(t*t-1);
+			if (radicand<=0) continue;
+			radicand=sqrt(radicand);
+			int leftsperre=ix+(-2*t*m-radicand)/2/(1+m*m)*(sqrt(1*radiusx*radiusx+m*m*radiusy*radiusy))-(ilv1-iy)*tlsaxy/tlsaxx;
+			int rightsperre=ix+(-2*t*m+radicand)/2/(1+m*m)*(sqrt(1*radiusx*radiusx+m*m*radiusy*radiusy))-(ilv1-iy)*tlsaxy/tlsaxx;
+			for (int ilv2=max(ix-max(radiusx,radiusy),0);ilv2<=min(ix+max(radiusx,radiusy),gfx_canvassizex);ilv2++)
+			{
+				if ((ilv2>=leftsperre) && (ilv2<=rightsperre))
+				{
+					putpixel(ilv2,ilv1);
+				}
+			}
+		}
+	}
+	else
+	{
+		if (radiusy>radiusx)
+		{
+			isteps=radiusy*Pi*2;
+		}
+		for (int ilv1=0;ilv1<isteps;ilv1++)
+		{
+			float tlangle=(ilv1/float(isteps))*2*Pi;
+			putpixel(ix+tlsaxx*radiusx*cos(tlangle)-tlsaxy*radiusy*sin(tlangle),iy+tlsaxy*radiusx*cos(tlangle)+tlsaxx*radiusy*sin(tlangle));
+		}
 	}
 }
 void gfx_expressarc_enhanced(float centerx,float centery,float radiusx,float radiusy,float startangle,float endangle,float tiltangle)
@@ -537,15 +570,32 @@ void gfx_expressellipse(float centerx,float centery,float radiusx,float radiusy)
 	centery=(centery-SDL_scrolly)*SDL_zoomy;
 	radiusx*=SDL_zoomx;
 	radiusy*=SDL_zoomy;
-	int isteps=radiusx*Pi*2;
-	if (radiusy>radiusx)
+	if (SDL_linestyle & 2)
 	{
-		isteps=radiusy*Pi*2;
+		for (int ilv1=max(0,centery-radiusy);ilv1<=min(centery+radiusy,gfx_canvassizey);ilv1++)
+		{
+			float radicand=1-(ilv1-centery)*(ilv1-centery)/radiusy/radiusy;
+			if (radicand<=0) continue;
+			radicand=sqrt(radicand)*radiusx;
+			int rightborder=min(gfx_canvassizex,centerx+radicand);
+			for (int ilv2=max(0,centerx-radicand);ilv2<rightborder;ilv2++)
+			{
+				putpixel(ilv2,ilv1);
+			}
+		}
 	}
-	for (int ilv1=0;ilv1<isteps;ilv1++)
+	else
 	{
-		float tlangle=(ilv1/float(isteps))*2*Pi;
-		putpixel(centerx+radiusx*cos(tlangle),centery+radiusy*sin(tlangle));
+		int isteps=radiusx*Pi*2;
+		if (radiusy>radiusx)
+		{
+			isteps=radiusy*Pi*2;
+		}
+		for (int ilv1=0;ilv1<isteps;ilv1++)
+		{
+			float tlangle=(ilv1/float(isteps))*2*Pi;
+			putpixel(centerx+radiusx*cos(tlangle),centery+radiusy*sin(tlangle));
+		}
 	}
 }
 

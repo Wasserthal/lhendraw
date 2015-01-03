@@ -103,7 +103,7 @@ void CONVCAMBRIDGE_atoms(CAMBRIDGE_fragment_instance * master,cdx_Rectangle * iB
 ADD_TO_MULTILISTREFERENCE(tl_CAMBRIDGE_n_instance,t);
 TELESCOPE_aggressobject(tl_n_multilist,ilv1);
 backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_s);
-while (backval)
+while (backval>0)
 {
 	s_instance * nd_s_instance=(s_instance*)TELESCOPE_getproperty();
 	CONVCAMBRIDGE_s(tl_CAMBRIDGE_t_instance,(s_instance*)TELESCOPE_getproperty(),(char*)TELESCOPE_getproperty_contents());
@@ -261,7 +261,7 @@ void CONVCAMBRIDGE_text(CAMBRIDGE_page_instance * master)
 		CONVCAMBRIDGE_COLORCONV(t);
 		TELESCOPE_aggressobject(tl_t_multilist,ilv1);
 		backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_s);
-		while (backval)
+		while (backval>0)
 		{
 			s_instance * nd_s_instance=(s_instance*)TELESCOPE_getproperty();
 			CONVCAMBRIDGE_s(tl_CAMBRIDGE_t_instance,(s_instance*)TELESCOPE_getproperty(),(char*)TELESCOPE_getproperty_contents());
@@ -383,7 +383,7 @@ void CONVCAMBRIDGE_Symbol(CAMBRIDGE_page_instance * master)
 		{
 			TELESCOPE_aggressobject(tl_multilist,ilv2);
 			backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_Symbol);
-			while (backval)
+			while (backval>0)
 			{
 				Symbol_instance * tl_Symbol_instance=(Symbol_instance*)TELESCOPE_getproperty();
 				ADD_TO_MULTILISTREFERENCE(master,graphic);

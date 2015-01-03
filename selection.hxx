@@ -1,5 +1,5 @@
 #define selection_max 20000
-typedef int selection_[selection_max];//a 32bit int gives selection masks for 32 layers. TODO: make this grow to the current buffer size.
+typedef selection_datatype selection_[selection_max];//a 32bit int gives selection masks for 32 layers. TODO: make this grow to the current buffer size.
 selection_ selection_currentselection;//The ordinary selection, more precisely the current state of it.
 _u32 selection_currentselection_found;
 selection_ selection_clickselection;//All elements caught with the current click, or another likewise action of the mouse.

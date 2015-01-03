@@ -176,12 +176,14 @@ void LENNARD_HACK_killtext()
 
 void MACRO_DRAWPREFIX(draw_Symbol)(int SymbolType)
 {
+	float tl_angle;
 	MACRO_DRAWPREFIX(stylegenestring)(1);
 	switch(SymbolType)
 	{
 		case 4 : strcpy(colorstring2,"FFFFFF");goto charge;break;
 		case 5 : strcpy(colorstring2,"FFFFFF");goto charge;break;
 		case 1 : strcpy(colorstring2,colorstring);goto radical;break;
+		case 0 : strcpy(colorstring2,colorstring);goto lonepair;break;
 		case 6 : strcpy(colorstring2,colorstring);goto dagger;break;
 		case 7 : strcpy(colorstring2,colorstring);goto dagger2;break;
 		default:
@@ -199,6 +201,12 @@ void MACRO_DRAWPREFIX(draw_Symbol)(int SymbolType)
 	radical:
 	MACRO_DRAWPREFIX(stylegenestring)(3);
 	MACRO_DRAWPREFIX(expressellipse)(iBBX.left,iBBX.top,4,4);
+	return;
+	lonepair:
+	MACRO_DRAWPREFIX(stylegenestring)(3);
+	tl_angle=getangle(iBBX.left-iBBX.right,iBBX.top-iBBX.bottom);
+	MACRO_DRAWPREFIX(expressellipse)(iBBX.left+sin(tl_angle)*5,iBBX.top-cos(tl_angle)*5,4,4);
+	MACRO_DRAWPREFIX(expressellipse)(iBBX.left-sin(tl_angle)*5,iBBX.top+cos(tl_angle)*5,4,4);
 	return;
 	dagger2:
 	MACRO_DRAWPREFIX(expressline)(iBBX.left-5,iBBX.top+10,iBBX.right+5,iBBX.top+10);
@@ -372,10 +380,14 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,bool hatches)
 			Symbol_instance * tl_Symbol_instance=(Symbol_instance*)TELESCOPE_getproperty();
 			iBBX.left=i_n_instance->xyz.x+tl_Symbol_instance->dxyz.x;
 			iBBX.top=i_n_instance->xyz.y+tl_Symbol_instance->dxyz.y;
+			iBBX.right=i_n_instance->xyz.x;
+			iBBX.bottom=i_n_instance->xyz.y;
+			MACRO_DRAWPREFIX(get_colorstring)((*tl_Symbol_instance).color);
 			MACRO_DRAWPREFIX(draw_Symbol)(tl_Symbol_instance->SymbolType);
 			tlbackval=TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_Symbol);
 			goto n_Symbol_loop;
 		}
+		MACRO_DRAWPREFIX(get_colorstring)(colornr);
 		if (tlElement==-1)
 		{
 			sortback=atom_actual_node[index_in_buffer].labelside;

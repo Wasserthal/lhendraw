@@ -11,6 +11,7 @@ char LHENDRAW_filedlgmode=0;
 char LHENDRAW_leave=0;
 _i32 janitor_maxZ=0;
 _small LHENDRAW_maxbuttons=74;
+typedef _u32 selection_datatype;
 #define constants_bondlength 30
 #define constants_angular_distance 2.094395102
 #define constants_clickradius 225
@@ -274,7 +275,7 @@ int TELESCOPE_aggressobject(basicmultilist * imultilist,int objectpos)
 	TELESCOPE_tempvar.pos=(*((basic_instance_propertybuffer*)(((char*)((*imultilist).pointer))+(TELESCOPE_tempvar.objectsize*TELESCOPE_tempvar.objectpos)))).pos_in_buffer;
 	return TELESCOPE_verify_objectpresent();
 }
-int TELESCOPE_searchthroughobject(int tag)
+int TELESCOPE_searchthroughobject_multi(_u32 tag)
 {
 	int ilength;
 	if (TELESCOPE_verify_objectpresent())
@@ -285,7 +286,7 @@ int TELESCOPE_searchthroughobject(int tag)
 		while (TELESCOPE_tempvar.subpos<ilength)
 		{
 			TELESCOPE_element * iTELESCOPE_element=(TELESCOPE_element*)((*(TELESCOPE_tempvar.buffer)).buffer+TELESCOPE_tempvar.pos+TELESCOPE_tempvar.subpos);
-			if (tag==(*iTELESCOPE_element).type) {TELESCOPE_tempvar.inside_TELESCOPE_element=1;TELESCOPE_tempvar.subpos2=TELESCOPE_tempvar.subpos2=0;return 1;};
+			if (tag & (1<<(*iTELESCOPE_element).type)) {TELESCOPE_tempvar.inside_TELESCOPE_element=1;TELESCOPE_tempvar.subpos2=TELESCOPE_tempvar.subpos2=0;return 1;};
 			TELESCOPE_tempvar.subpos+=(*iTELESCOPE_element).length;
 			TELESCOPE_tempvar.subpos2=TELESCOPE_tempvar.subpos;
 		}
@@ -354,7 +355,7 @@ int TELESCOPE_buffercheck(basicmultilist * imultilist)
 	}
 	return 0;
 }
-int TELESCOPE_searchthroughobject_next(int tag)
+int TELESCOPE_searchthroughobject_next_multi(_u32 tag)
 {
 	int ilength;
 	int oldsubpos=TELESCOPE_tempvar.subpos;
@@ -370,7 +371,7 @@ int TELESCOPE_searchthroughobject_next(int tag)
 			while (TELESCOPE_tempvar.subpos<ilength)
 			{
 				TELESCOPE_element * iTELESCOPE_element=(TELESCOPE_element*)((*(TELESCOPE_tempvar.buffer)).buffer+TELESCOPE_tempvar.pos+TELESCOPE_tempvar.subpos);
-				if (tag==(*iTELESCOPE_element).type) {TELESCOPE_tempvar.inside_TELESCOPE_element=1;TELESCOPE_tempvar.subpos2=TELESCOPE_tempvar.subpos;return 1;};
+				if (tag & (1<<(*iTELESCOPE_element).type)) {TELESCOPE_tempvar.inside_TELESCOPE_element=1;TELESCOPE_tempvar.subpos2=TELESCOPE_tempvar.subpos;return 1;};
 				TELESCOPE_tempvar.subpos+=(*iTELESCOPE_element).length;
 				TELESCOPE_tempvar.subpos2=TELESCOPE_tempvar.subpos;
 			}
@@ -382,6 +383,14 @@ int TELESCOPE_searchthroughobject_next(int tag)
 	TELESCOPE_tempvar.subpos=0;
 	TELESCOPE_tempvar.subpos2=0;
 	return 0;
+}
+int TELESCOPE_searchthroughobject(int tag)
+{
+	return TELESCOPE_searchthroughobject_multi(1<<tag);
+}
+int TELESCOPE_searchthroughobject_next(int tag)
+{
+	return TELESCOPE_searchthroughobject_next_multi(1<<tag);
 }
 void TELESCOPE_rushtoend()
 {

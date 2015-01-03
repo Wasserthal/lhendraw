@@ -2586,7 +2586,7 @@ char edit_resortstring(basicmultilist * imultilist,int iinstance) // resorts che
 	feeble_aftermath:
 	TELESCOPE_aggressobject(imultilist,iinstance);
 	backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_s);
-	while (backval!=0)
+	while (backval>0)
 	{
 		((s_instance*)TELESCOPE_getproperty())->connect=1;
 		backval=TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_s);
@@ -2771,10 +2771,15 @@ catalogized_command_funcdef(SET_ALL_ITEMS)//TODO: works for _i32 only, right now
 {
 	intl suboffset=0;
 	CDXMLREAD_functype dummy;
+	_u32 iwert=atoi(value);
 	for (int ilv1=1;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
 	{
 		basicmultilist * tl_multilist=findmultilist(STRUCTURE_OBJECTTYPE_List[ilv1].name);
 		suboffset=(*tl_multilist).getproperties(parameter,&dummy);
+		if (suboffset<0)
+		{
+			continue;
+		}
 		_u32  icompare=(1<<ilv1);
 		int tl_size=(*tl_multilist).itemsize;
 		int ifilllevel=(*tl_multilist).filllevel;//separately, so it doesn't grow while executing the loop
@@ -2784,7 +2789,85 @@ catalogized_command_funcdef(SET_ALL_ITEMS)//TODO: works for _i32 only, right now
 			{
 				if ((*tl_multilist)[ilv2].exist)
 				{
-					*((_i32*)(((char*)(&((*tl_multilist)[ilv2])))+suboffset))=atoi(value);
+					*((_i32*)(((char*)(&((*tl_multilist)[ilv2])))+suboffset))=iwert;
+				}
+			}
+		}
+	}
+	for (int ilv1=1;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
+	{
+		int follower3=0;
+		basicmultilist * tl_multilist=findmultilist(STRUCTURE_OBJECTTYPE_List[ilv1].name);
+		char * ibufferpos=(*tl_multilist).pointer;
+		int tl_size=(*tl_multilist).itemsize;
+		_u32  icompare=(1<<(ilv1+STRUCTURE_OBJECTTYPE_ListSize));
+		for (int ilv2=0;ilv2<(*tl_multilist).filllevel;ilv2++)
+		{
+			if ((*((basic_instance*)(ibufferpos+tl_size*ilv2))).exist)
+			{
+				float tlpx,tlpy;
+				int ilv3=1;
+				while (retrievepoints_basic(((basic_instance*)(ibufferpos+tl_size*ilv2)),&tlpx,&tlpy,NULL,ilv3,ilv1)>0)
+				{
+					if (selection_currentselection[follower3] & icompare)
+					{
+						switch ((*((TELESCOPE_element*)TELESCOPE_getproperty())).type)
+						{
+							case TELESCOPE_ELEMENTTYPE_Symbol:
+							((Symbol_instance*)TELESCOPE_getproperty())->color=iwert;
+							break;
+						}
+					}
+					ilv3++;
+					follower3++;
+					if (follower3>=(LHENDRAW_buffersize/sizeof(selection_datatype)))
+					{
+						goto ioverflow;
+					}
+				}
+				ioverflow:;
+			}
+		}
+	}
+	for (int ilv1=1;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
+	{
+		basicmultilist * tl_multilist=findmultilist(STRUCTURE_OBJECTTYPE_List[ilv1].name);
+		_u32  icompare=(1<<ilv1);
+		int tl_size=(*tl_multilist).itemsize;
+		for (int ilv2=0;ilv2<(*tl_multilist).filllevel;ilv2++)
+		{
+			if (selection_currentselection[ilv2] & icompare)
+			{
+				if ((*(basic_instance*)((*tl_multilist).pointer+(*tl_multilist).itemsize*ilv2)).exist)
+				{
+					TELESCOPE_aggressobject(tl_multilist,ilv2);
+					int tl_backval=TELESCOPE_searchthroughobject_multi((1<<TELESCOPE_ELEMENTTYPE_s) | (1<<TELESCOPE_ELEMENTTYPE_s_f));
+					while (tl_backval>0)
+					{
+						switch ((*((TELESCOPE_element*)TELESCOPE_getproperty())).type)
+						{
+							case TELESCOPE_ELEMENTTYPE_s:
+							((s_instance*)TELESCOPE_getproperty())->color=iwert;
+							break;
+							case TELESCOPE_ELEMENTTYPE_s_f:
+							int ivalids=((s_f_instance*)TELESCOPE_getproperty())->valids;
+							int dist=0;
+							int map=1;
+							edit_formatstruct * tl_formatstruct=(edit_formatstruct*)TELESCOPE_getproperty_contents();
+							for (int ilv1=0;ilv1<6;ilv1++)
+							{
+								if ((ivalids & map))
+								{
+									tl_formatstruct[dist].color=iwert;
+									dist++;
+								}
+								map=map<<1;
+							}
+							ifertig:;
+							break;
+						}
+						tl_backval=TELESCOPE_searchthroughobject_next_multi((1<<TELESCOPE_ELEMENTTYPE_s) | (1<<TELESCOPE_ELEMENTTYPE_s_f));
+					}
 				}
 			}
 		}

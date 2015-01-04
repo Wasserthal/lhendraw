@@ -642,6 +642,7 @@ void sdl_psedraw(int istartx,int istarty)
 			screen[bordery*gfx_screensizex+ilv2]=bordercolor;
 			screen[(bordery+47)*gfx_screensizex+ilv2]=bordercolor;
 		}
+		SDL_color=0;
 		printmenutext(istartx+element[ilv1].PSEX*32+10,istarty+element[ilv1].PSEY*48+24,element[ilv1].name,NULL,0,0,strlen(element[ilv1].name));
 	}
 }

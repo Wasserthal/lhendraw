@@ -2668,6 +2668,8 @@ void control_normal()
 				if ((control_mousestate==0x40) && (idirection==1))
 				{
 					int tl_length;
+					char tl_alternate=0;
+					int tl_counter=0;
 					switch (control_Event.key.keysym.sym)
 					{
 						case SDLK_ESCAPE:
@@ -2699,20 +2701,51 @@ void control_normal()
 							textedit_right();
 						}
 						break;
-						case SDLK_HOME:
+						case SDLK_DOWN:
+						tl_alternate=3;
+						tl_counter=0;
+						goto iTEXT_HOME_RESTART;//searches for a BEGINNING of the line, first!
+						case SDLK_UP:
+						tl_alternate=2;
+						tl_counter=0;
+						//FALLTHROUGH
+						case SDLK_HOME://FALLTHROUGH:
 						{
+							iTEXT_HOME_RESTART:;
 							if (control_aggresstextcursor())
 							{
-								while (textedit_left()>0){}
+								while (textedit_left()>0){if (((char*)TELESCOPE_getproperty_contents())[control_textedit_cursor+3]=='\n') {textedit_right();goto iTEXT_HOME_END;}if (tl_alternate>=2)tl_counter++;}
+							}
+							iTEXT_HOME_END:;
+							if (tl_alternate==2) {tl_alternate=1;textedit_left();goto iTEXT_HOME_RESTART;}
+							if (tl_alternate==3) {tl_alternate=2;goto iTEXT_END_RESTART;}//and then, forward
+							if (tl_alternate)
+							{
+								for (int ilv1=0;ilv1<tl_counter;ilv1++)
+								{
+									textedit_right();
+									if (((char*)TELESCOPE_getproperty_contents())[control_textedit_cursor+3]=='\n') {goto iTEXT_END_done;}
+								}
 							}
 						}
 						break;
 						case SDLK_END:
 						{
+							iTEXT_END_RESTART:;
 							if (control_aggresstextcursor())
 							{
-								while (textedit_right()>0){}
+								while (textedit_right()>0){if (((char*)TELESCOPE_getproperty_contents())[control_textedit_cursor+3]=='\n') {goto iTEXT_END_END;}}
 							}
+							iTEXT_END_END:;
+							if (tl_alternate)
+							{
+								for (int ilv1=0;ilv1<tl_counter+1;ilv1++)
+								{
+									textedit_right();
+									if (((char*)TELESCOPE_getproperty_contents())[control_textedit_cursor+3]=='\n') {goto iTEXT_END_done;}
+								}
+							}
+							iTEXT_END_done:;
 						}
 						break;
 						case SDLK_BACKSPACE:

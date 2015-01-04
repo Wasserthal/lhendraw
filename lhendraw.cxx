@@ -177,6 +177,7 @@ int main(int argc,char * * argv)
 		sdl_init();
 #ifndef SDL2
 		SDL_EnableUNICODE(1);
+		SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY,SDL_DEFAULT_REPEAT_INTERVAL);
 #endif
 //		SDL_ShowCursor(0);
 		mainloop:

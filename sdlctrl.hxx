@@ -793,6 +793,15 @@ int issueclick(int iposx,int iposy)
 						selection_currentselection_found=0;
 					}
 					tlbond=(b_instance*)getclicked((1<<STRUCTURE_OBJECTTYPE_b),control_coorsx,control_coorsy);
+					if (tlbond==NULL) {control_mousestate=0;return 0;}
+					if (control_lastmousebutton==SDL_BUTTON_RIGHT)
+					{
+						control_drawproperties.bond_multiplicity=(*tlbond).Order>>4;
+						control_drawproperties.bond_Display1=(*tlbond).Display;
+						control_drawproperties.color=(*tlbond).color;
+						control_mousestate=0;
+						return 0;
+					}
 					if ((control_drawproperties.bond_multiplicity==1) && (control_drawproperties.bond_Display1==0) && ((*tlbond).Display==0))
 					{
 						(*tlbond).Order&=0xF0;
@@ -804,8 +813,17 @@ int issueclick(int iposx,int iposy)
 					}
 					else
 					{
-						(*tlbond).Order=control_drawproperties.bond_multiplicity<<4;
-						(*tlbond).Display=control_drawproperties.bond_Display1;
+						if (((*tlbond).Display==control_drawproperties.bond_Display1) && ((*tlbond).Order==control_drawproperties.bond_multiplicity<<4))
+						{
+							int tl_swap=(*tlbond).B;
+							(*tlbond).B=(*tlbond).E;
+							(*tlbond).E=tl_swap;
+						}
+						else
+						{
+							(*tlbond).Order=control_drawproperties.bond_multiplicity<<4;
+							(*tlbond).Display=control_drawproperties.bond_Display1;
+						}
 					}
 					control_mousestate=0;
 					return 0;

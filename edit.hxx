@@ -1505,6 +1505,7 @@ int edit_errichten(int startatom)
 		if (tlbond)
 		{
 			(*tlbond).Z=(*tlatom).Z+2;
+			(*tlbond).Order=control_drawproperties.bond_multiplicity<<4;
 		}
 	}
 	return atomnr2;

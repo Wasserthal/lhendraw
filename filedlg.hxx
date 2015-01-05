@@ -19,7 +19,8 @@ int control_filedlg()
 			int tl_counter=0;
 			int tl_precounter=0;
 			int goodline=1;
-			for (int ilv2=0;ilv2<63;ilv2++)
+			ihv1=0;
+			while (ihv1!=10)
 			{
 				int backval=fread(&ihv1,1,1,tl_POSIXFILE);
 				if (backval==0) { goto i_POSIX_done;}
@@ -38,11 +39,10 @@ int control_filedlg()
 				}
 				else if (tl_mode==1)
 				{
-					if (ihv1==10) {control_devicememory_buffer[control_devicememory.count][tl_counter]=0;goto i_POSIX_linedone;}
+					if (ihv1==10) {goto i_POSIX_linedone;}
 					if (ihv1==' ')
 					{
 						tl_mode=2;
-						control_devicememory_buffer[control_devicememory.count][tl_counter]=0;
 					}
 					else
 					{
@@ -50,13 +50,14 @@ int control_filedlg()
 						tl_counter++;
 					}
 				}
-				else if (tl_mode==2)
+				if (tl_counter>63)
 				{
-					if (ihv1==10) {goto i_POSIX_linedone;}
+					goodline=0;
+					tl_mode=2;
 				}
 			}
 			i_POSIX_linedone:;
-			if (goodline) control_devicememory.count++;
+			if (goodline) {control_devicememory_buffer[control_devicememory.count][tl_counter]=0;control_devicememory.count++;}
 		}
 		i_POSIX_done:;
 		fclose(tl_POSIXFILE);

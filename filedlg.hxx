@@ -1,13 +1,21 @@
 _u8 filedlg_devstring[]="/dev/";
 catalogized_command_funcdef(CANCEL)
 {
-	LHENDRAW_filedlgmode=0;
+	if (LHENDRAW_warndlgmode)
+	{
+		LHENDRAW_userdecision=0;
+		LHENDRAW_warndlgmode=0;
+	}
+	else
+	{
+		LHENDRAW_filedlgmode=0;
+	}
 	return 1;
 }
-int control_filedlg()
+void control_filedlg_datastorages()
 {
-	_u8 ihv1;
 	#ifndef NOPOSIX
+	_u8 ihv1;
 	FILE * tl_POSIXFILE=fopen("/proc/mounts","r");
 	control_devicememory_buffer[0][0]='/';control_devicememory_buffer[0][1]=0;
 	control_devicememory.count=1;
@@ -63,14 +71,13 @@ int control_filedlg()
 		fclose(tl_POSIXFILE);
 	}
 	#endif
+}
+void control_filedlg()
+{
 	char idirection=1;
-	char polled=0;
 	control_lastmousebutton=0;
-	if (control_doubleclickenergy>0) control_doubleclickenergy--;
 	while ( SDL_PollEvent(&control_Event) ) 
 	{
-		keyshunt:;
-		polled=1;
 		char irepeat=0;
 		char idontrepeat=0;
 		char idirection=1;
@@ -86,7 +93,6 @@ int control_filedlg()
 			{
 				if ((control_mousestate & (~0x18))==0)
 				{
-					sdl_filemenucommon();
 					issuemenuclicks(control_Event.button.x,control_Event.button.y,control_Event.button.button);
 					break;
 				}
@@ -111,6 +117,9 @@ int control_filedlg()
 				break;
 			}
 			#endif
+			case SDL_QUIT:
+			CANCEL(NULL,NULL);
+			break;
 			case SDL_KEYUP:
 			{
 				idirection=0;
@@ -118,7 +127,6 @@ int control_filedlg()
 			}
 			case SDL_KEYDOWN://FALLTRHOUGH
 			{
-				control_doubleclickenergy=25;//in this menu, dblclickenergy relates to keyboard timer 1!
 				switch (control_Event.key.keysym.sym)
 				{
 					case SDLK_RCTRL:
@@ -158,7 +166,10 @@ int control_filedlg()
 					}
 					case SDLK_ESCAPE:
 					{
-						LHENDRAW_filedlgmode=0;
+						if (idirection==1)
+						{
+							CANCEL(NULL,NULL);
+						}
 						break;
 					}
 					default:
@@ -339,43 +350,29 @@ int control_filedlg()
 					}
 					keyprocessed:;
 				}
-				switch (control_Event.key.keysym.sym)
-				{
-					case SDLK_LEFT:
-					{
-						MODIFIER_KEYS.LEFT=idirection;
-						break;
-					}
-					case SDLK_RIGHT:
-					{
-						MODIFIER_KEYS.RIGHT=idirection;
-						break;
-					}
-					case SDLK_UP:
-					{
-						MODIFIER_KEYS.UP=idirection;
-						break;
-					}
-					case SDLK_DOWN:
-					{
-						MODIFIER_KEYS.DOWN=idirection;
-						break;
-					}
-				}
 				break;
 			}
 		}
 	}
-	if ((control_doubleclickenergy==0) && (polled==0))
+}
+int warndlg_loop(const char*warning)
+{
+	LHENDRAW_warndlgmode=1;
+	menu_selectedmenuelement=1;
+	while (LHENDRAW_warndlgmode)
 	{
-		if (MODIFIER_KEYS.UP || MODIFIER_KEYS.DOWN || MODIFIER_KEYS.LEFT || MODIFIER_KEYS.RIGHT)
-		{
-			control_Event.type=SDL_KEYDOWN;
-			control_Event.key.state=SDL_PRESSED;
-			control_Event.key.keysym.sym=MODIFIER_KEYS.LEFT?SDLK_LEFT:(MODIFIER_KEYS.RIGHT?SDLK_RIGHT:(MODIFIER_KEYS.UP?SDLK_UP:(MODIFIER_KEYS.DOWN?SDLK_DOWN:SDLK_UNKNOWN)));
-			control_doubleclickenergy=1;
-			goto keyshunt;
-		}
+		control_filedlg();
+		gfx_gfxstart();
+		screenclear(0xFFFFFF);
+		printmenutext(0,0,warning,strlen(warning),1);
+		sdl_warndlgcommon();
+		sdl_menudraw();
+		sdl_menuframe();
+		draw_reticle();
+		gfx_gfxstop();
+		usleep(1000);
+		control_doubleclickenergy-=1;
+		if (control_doubleclickenergy<0) control_doubleclickenergy=0;
 	}
-	return 0;
+	return LHENDRAW_userdecision;
 }

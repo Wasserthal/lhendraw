@@ -8,7 +8,11 @@
 TELESCOPE_buffer filestructure_text_buffer;
 TELESCOPE_buffer filestructure_curve_buffer;
 char LHENDRAW_filedlgmode=0;
+char LHENDRAW_warndlgmode=0;
+int LHENDRAW_userdecision=0;
 char LHENDRAW_leave=0;
+const char * LHENDRAW_warning=NULL;
+int warndlg_loop(const char*warning);
 _i32 janitor_maxZ=0;
 _small LHENDRAW_maxbuttons=74;
 typedef _u32 selection_datatype;

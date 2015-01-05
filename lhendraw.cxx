@@ -181,23 +181,30 @@ int main(int argc,char * * argv)
 #endif
 //		SDL_ShowCursor(0);
 		mainloop:
-		gfx_gfxstart();
-		screenclear(0xFFFFFF);
-		if (LHENDRAW_filedlgmode==0)
+		switch (LHENDRAW_filedlgmode)
 		{
+		case 0:
 			control_normal();
+			gfx_gfxstart();
+			screenclear(0xFFFFFF);
 			gfx_output();
 			sdl_canvasframedraw();
-			sdl_commonmenudraw();
+			sdl_commonmenucommon();
+			sdl_menudraw();
 			sdl_selectiondraw();
 			draw_reticle();
-		}
-		else
-		{
+		break;
+		case 1:
+			control_filedlg_datastorages();
+			sdl_filemenucommon();
 			control_filedlg();
-			sdl_filemenudraw();
+			gfx_gfxstart();
+			screenclear(0xFFFFFF);
+			sdl_filemenucommon();
+			sdl_menudraw();
 			sdl_menuframe();
 			draw_reticle();
+		break;
 		}
 		gfx_gfxstop();
 		usleep(1000);

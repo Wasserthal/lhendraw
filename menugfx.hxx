@@ -78,9 +78,9 @@ void sdl_buttondraw(int posx,int posy,int number)
 	}
 	return;
 }
-void printmenutext(int posx,int posy,const char * iinput,const char * parms,int imode,int start,int end,char symbolmode)
+void printmenutext(int posx,int posy,const char * iinput,int end,char symbolmode)
 {
-	int ilv4=start;
+	int ilv4=0;
 	char linebreak;
 	int iposx=posx;
 	int iposy=posy;
@@ -277,7 +277,7 @@ int sdl_textmenudraw(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int count,int xpos=0,
 			default:
 			SDL_color=0x000000;
 		}
-		printmenutext(ilisting[ilv1].x*192+xpos,ilisting[ilv1].y*16+ypos,ilisting[ilv1].name,NULL,0,0,strlen(ilisting[ilv1].name));
+		printmenutext(ilisting[ilv1].x*192+xpos,ilisting[ilv1].y*16+ypos,ilisting[ilv1].name,strlen(ilisting[ilv1].name));
 	}
 	return 1;
 }
@@ -324,7 +324,7 @@ int sdl_textbuttonmenudraw(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int count,int x
 				screen[gfx_screensizex*(top+ilv1)+left+ilv2]=*(ibutton+yco*32+xco);
 			}
 		}
-		printmenutext(left,top,ilisting[ilv1].name,NULL,0,0,strlen(ilisting[ilv1].name));
+		printmenutext(left,top,ilisting[ilv1].name,strlen(ilisting[ilv1].name));
 	}
 	return 1;
 }
@@ -365,7 +365,7 @@ int sdl_listmenudraw(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int count,int xpos=0,
 					if (tl_number<istructenum.count)
 					{
 						char * tl_pointer=((char*)(istructenum.pointer))+istructenum.size*tl_number;
-						printmenutext(ilisting[ilv1].x+xpos,(ilisting[ilv1].y+ilv2*16)+ypos,tl_pointer,NULL,0,0,min(strlen(tl_pointer),(ilisting[ilv1].maxx-ilisting[ilv1].x)/8));
+						printmenutext(ilisting[ilv1].x+xpos,(ilisting[ilv1].y+ilv2*16)+ypos,tl_pointer,min(strlen(tl_pointer),(ilisting[ilv1].maxx-ilisting[ilv1].x)/8));
 					}
 				}
 				break;
@@ -406,7 +406,7 @@ int sdl_listmenudraw(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int count,int xpos=0,
 					iscreen+=gfx_screensizex-ilisting[ilv1].maxx+ilisting[ilv1].x;
 				}
 				tl_pointer=(char*)(ilisting[ilv1].variable);
-				printmenutext(ilisting[ilv1].x+xpos,(ilisting[ilv1].y)+ypos,tl_pointer,NULL,0,0,min(strlen(tl_pointer),(ilisting[ilv1].maxx-ilisting[ilv1].x)/8));
+				printmenutext(ilisting[ilv1].x+xpos,(ilisting[ilv1].y)+ypos,tl_pointer,min(strlen(tl_pointer),(ilisting[ilv1].maxx-ilisting[ilv1].x)/8));
 				break;
 			}
 		}
@@ -503,6 +503,11 @@ int addmenu(const char * name,int type,int alignx=0,int aligny=0)
 	return 0;
 }
 extern int control_tool;
+void sdl_warndlgcommon()
+{
+	menu_list_count=0;
+	addmenu("warndlg",4);
+}
 void sdl_filemenucommon()
 {
 	menu_list_count=0;
@@ -650,7 +655,7 @@ void sdl_psedraw(int istartx,int istarty)
 			screen[(bordery+47)*gfx_screensizex+ilv2]=bordercolor;
 		}
 		SDL_color=0;
-		printmenutext(istartx+element[ilv1].PSEX*32+10,istarty+element[ilv1].PSEY*48+24,element[ilv1].name,NULL,0,0,strlen(element[ilv1].name));
+		printmenutext(istartx+element[ilv1].PSEX*32+10,istarty+element[ilv1].PSEY*48+24,element[ilv1].name,strlen(element[ilv1].name));
 	}
 }
 int sdl_menudraw()
@@ -707,16 +712,6 @@ void sdl_menuframe()
 	AUTOSTRUCT_PULLOUTLISTING_ * ilisting=(((AUTOSTRUCT_PULLOUTLISTING_*)(menu_list[menunr].what.pointer))+index);
 	menuframeline((*ilisting).x,(*ilisting).y,(*ilisting).maxx,(*ilisting).maxy);
 	return;
-}
-void sdl_commonmenudraw()
-{
-	sdl_commonmenucommon();
-	sdl_menudraw();
-}
-void sdl_filemenudraw()
-{
-	sdl_filemenucommon();
-	sdl_menudraw();
 }
 extern int control_hotatom;
 void draw_reticle()

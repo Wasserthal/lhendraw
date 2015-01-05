@@ -1,0 +1,24 @@
+menuitem pullout_warndlg[]={
+{100,300,
+33,//Picture
+"CONTINUE",
+3,0,
+0,
+"WARNING_OK",
+"",
+"WARNING_OK","",
+0x00FF00,
+164,332,
+},
+{200,300,
+33,//Picture
+"Abort",
+3,0,
+0,
+"CANCEL",
+"",
+"CANCEL","",
+0x00FF00,
+264,332,
+},
+};

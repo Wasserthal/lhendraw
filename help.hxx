@@ -13,7 +13,7 @@ char helpstring[]="Usage\n"
 "You draw from start to end.\n"
 "If you want to bend them, use the arrow -\"Skipping\" tool \e72 .\n"
 "which can be selected from arrows mode.";
-void printmenutext(int posx,int posy,const char * iinput,const char * parms,int imode,int start,int end,char symbolmode=0);
+void printmenutext(int posx,int posy,const char * iinput,int end,char symbolmode=0);
 void control_help()
 {
 	SDL_Event control_Event;
@@ -22,7 +22,7 @@ void control_help()
 	if (control_Event.type==SDL_KEYDOWN) return;
 	gfx_gfxstart();
 	screenclear(0xFFFFFF);
-	printmenutext(0,20,helpstring,0,0,0,sizeof(helpstring),1);
+	printmenutext(0,20,helpstring,sizeof(helpstring),1);
 	gfx_gfxstop();
 	goto iback;
 }

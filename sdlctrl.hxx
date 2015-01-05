@@ -2948,6 +2948,10 @@ void control_normal()
 	iloopendlabel:;
 	if (LHENDRAW_leave==1)
 	{
+		LHENDRAW_leave=warndlg_loop("Quit without saving?");
+	}
+	if (LHENDRAW_leave==1)
+	{
 		#ifndef SDL2
 		if (video->flags & SDL_FULLSCREEN)
 		{

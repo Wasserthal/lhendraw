@@ -2069,6 +2069,7 @@ catalogized_command_funcdef(SAVEAS)
 {
 	LHENDRAW_filedlgmode=1;
 	control_filemenu_mode=1;
+	menu_selectedmenuelement=0;
 	return 1;
 }
 catalogized_command_funcdef(LOAD_INTO_SEARCHBUF)
@@ -2143,11 +2144,18 @@ catalogized_command_funcdef(LOADAS)
 {
 	LHENDRAW_filedlgmode=1;
 	control_filemenu_mode=0;
+	menu_selectedmenuelement=0;
 	return 1;
 }
 catalogized_command_funcdef(SAVE)
 {
 	printf("TODO***stub\n");
+	return 1;
+}
+catalogized_command_funcdef(WARNING_OK)
+{
+	LHENDRAW_userdecision=1;
+	LHENDRAW_warndlgmode=0;
 	return 1;
 }
 catalogized_command_funcdef(UNDO)

@@ -180,31 +180,31 @@ void checkupinconsistencies()
 			}
 		}
 	}
-	for (int ilv2=0;ilv2<(*glob_b_multilist).filllevel;ilv2++)//Adds bonds to each other. TODO: merge pasted form bonds to single bonds.
+	for (int ilv2=0;ilv2<(*glob_b_multilist).filllevel;ilv2++)
 	{
 		if ((*glob_b_multilist)[ilv2].exist)
 		{
 			int masamune=bond_actual_node[ilv2].end;
-			for (int ilv3=0;ilv3<atom_actual_node[bond_actual_node[ilv2].start].bondcount;ilv3++)
+			int murasame=bond_actual_node[ilv2].start;
+			for (int ilv3=0;ilv3<atom_actual_node[murasame].bondcount;ilv3++)
 			{
-				int thisbond=atom_actual_node[bond_actual_node[ilv2].start].bonds[ilv3];
+				int thisbond=atom_actual_node[murasame].bonds[ilv3];
 				if (thisbond!=ilv2)
 				{
 					if ((*glob_b_multilist)[thisbond].exist)
 					{
-						int murasame=getother(bond_actual_node[ilv2].start,thisbond);
-						if (masamune==murasame)
+						if (masamune==getother(murasame,thisbond))
 						{
 							//would be nice to add the properties of both bonds, but may cause invalid property combinations
-							TELESCOPE_aggressobject(glob_b_multilist,ilv2);
+							TELESCOPE_aggressobject(glob_b_multilist,thisbond);
 							TELESCOPE_clear();
-							(*glob_b_multilist)[thisbond].exist=0;
-							(*glob_b_multilist)[ilv2].Order&=0xF0;
-							(*glob_b_multilist)[ilv2].Order+=16;
-							if ((*glob_b_multilist)[ilv2].Order>64)
+							if ((*glob_b_multilist)[ilv2].B!=(*glob_b_multilist)[thisbond].B)
 							{
-								(*glob_b_multilist)[ilv2].Order=16;
+								(*glob_b_multilist)[ilv2].B=(*glob_b_multilist)[thisbond].B;
+								(*glob_b_multilist)[ilv2].E=(*glob_b_multilist)[thisbond].E;
 							}
+							(*glob_b_multilist)[ilv2].Order=max((*glob_b_multilist)[ilv2].Order,(*glob_b_multilist)[thisbond].Order);
+							(*glob_b_multilist)[thisbond].exist=0;
 						}
 					}
 				}
@@ -1375,9 +1375,36 @@ void issuedrag(int iposx,int iposy)
 			{
 				if (tlatom!=tlatom2)
 				{
+					b_instance * oldbond=NULL;
+					for (int ilv1=0;ilv1<atom_actual_node[atomnr].bondcount;ilv1++)
+					{
+						int tl_bondnr1=atom_actual_node[atomnr].bonds[ilv1];
+						for (int ilv2=0;ilv2<atom_actual_node[atomnr2].bondcount;ilv2++)
+						{
+							if (tl_bondnr1==atom_actual_node[atomnr2].bonds[ilv2])
+							{
+								oldbond=&((*glob_b_multilist).bufferlist()[tl_bondnr1]);
+							}
+						}
+					}
 					tlbond=edit_summonbond((*tlatom).id,(*tlatom2).id,atomnr,atomnr2);
 					if (tlbond)
 					{
+						if (oldbond)
+						{
+							if ((control_drawproperties.bond_multiplicity==1) && ((*oldbond).color==control_drawproperties.color) && ((*oldbond).Display==control_drawproperties.bond_Display1) && ((atomnr==(*oldbond).B)||(strchr("\x10\x11\x12\x15\x18\x23\x24",(*oldbond).Display+0x10))))
+							{
+								(*tlbond).Order+=control_drawproperties.bond_multiplicity<<4;
+								if ((*tlbond).Order>64) (*tlbond).Order=64;
+							}
+							else
+							{
+								(*tlbond).Order=control_drawproperties.bond_multiplicity<<4;
+							}
+							(*tlbond).color=control_drawproperties.color;
+							(*tlbond).Display=control_drawproperties.bond_Display1;
+							goto ifertig;
+						}
 						(*tlbond).Z=(*tlatom2).Z;
 						(*tlbond).Order=control_drawproperties.bond_multiplicity<<4;
 					}
@@ -1390,6 +1417,10 @@ void issuedrag(int iposx,int iposy)
 			intl tl_deltaback=0;
 			float tl_deltax=control_coorsx-control_startx;
 			float tl_deltay=control_coorsy-control_starty;
+			if (MODIFIER_KEYS.SHIFT)
+			{
+				if (fabs(tl_deltax)>fabs(tl_deltay)) tl_deltay=0; else tl_deltax=0;
+			}
 			restoreundo(~0,((MODIFIER_KEYS.CTRL) || (MODIFIER_KEYS.ALT))?0:1);
 			undo_undodirty=1;
 			if (edit_singlepointselected==1)
@@ -1640,6 +1671,7 @@ void issuedrag(int iposx,int iposy)
 			break;
 		}
 	}
+	ifertig:;
 	control_posx=iposx;
 	control_posy=iposy;
 	//warning: there ARE in-function returns.
@@ -1886,6 +1918,7 @@ void issuerelease()
 					ifound:;
 				}
 			}
+			checkupinconsistencies();
 			break;
 		}
 		case 5:
@@ -1944,6 +1977,7 @@ void issuerelease()
 				}
 			}
 			checkupinconsistencies();
+			break;
 		}
 	}
 	control_mousestate=0;

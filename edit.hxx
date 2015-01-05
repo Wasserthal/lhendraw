@@ -2594,13 +2594,23 @@ char edit_resortstring(basicmultilist * imultilist,int iinstance) // resorts che
 	}
 	return 0;
 }
-int edit_textlength(multilist<t_instance> * imultilist,int iindex)
+int edit_textlength(basicmultilist * imultilist,int iindex,int deltax=0,int deltay=0,int * idistance=NULL)
 {
+	int lastlastbackcount,lastbackcount;
+	lastbackcount=0;
+	lastlastbackcount=0;
 	int tl_backval;
+	int itemsize=imultilist->itemsize;
 	if (TELESCOPE_aggressobject(imultilist,iindex))
 	{
-		t_instance * tl_t_instance=imultilist->bufferlist()+iindex;
-		if (tl_t_instance->exist)
+		CDXMLREAD_functype dummy;
+		basic_instance * tl_instance=(basic_instance*)(imultilist->pointer+iindex*itemsize);
+		int pointoffset=(*imultilist).getproperties("xyz",&dummy);
+		cdx_Point3D * xyz=(cdx_Point3D*)(((char*)tl_instance)+pointoffset);
+		deltax-=(*xyz).x;
+		deltay-=(*xyz).y;
+		int tl_boxoffset=(*imultilist).getproperties("BoundingBox",&dummy);
+		if (tl_instance->exist)
 		{
 			int maxwidth=0;
 			int currentwidth=0;
@@ -2625,17 +2635,32 @@ int edit_textlength(multilist<t_instance> * imultilist,int iindex)
 				{
 					fontpixinf_ * ifontpixinf=&fontpixinf[indexfromunicode(utf8resolve((unsigned char*)istring + ilv1,&backcount))];
 					currentwidth+=(*ifontpixinf).deltax;
+					if (idistance!=NULL)
+					{
+						if (deltay<height*16+8)
+						{
+							if ((deltax<currentwidth-3) || (deltay<(height*16)-8))
+							{
+								(*idistance)=ilv1;
+								return 1;
+							}
+						}
+					}
 					if (currentwidth>maxwidth) maxwidth=currentwidth;
 				}
 			}
 			tl_backval=TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_s);
 			goto iback;
 			evaluate:;
-			tl_t_instance->BoundingBox.left=tl_t_instance->xyz.x-4;
-			tl_t_instance->BoundingBox.top=tl_t_instance->xyz.y-6;
-			tl_t_instance->BoundingBox.right=tl_t_instance->xyz.x+maxwidth+8;
-			tl_t_instance->BoundingBox.bottom=tl_t_instance->xyz.y+(height)*16+8;
-			return 1;
+			if (tl_boxoffset!=-1)
+			{
+				cdx_Rectangle * iBBX=(cdx_Rectangle*)(((char*)tl_instance)+tl_boxoffset);
+				(*iBBX).left=(*xyz).x-4;
+				(*iBBX).top=(*xyz).y-6;
+				(*iBBX).right=(*xyz).x+maxwidth+8;
+				(*iBBX).bottom=(*xyz).y+(height)*16+8;
+			}
+			return 0;
 		}
 	}
 	return 0;

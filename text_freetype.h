@@ -57,8 +57,8 @@ _i32 utf8resolve(_u8 * input,_i32 * backcount)
 					return -20;
 				}
 				currentunicode=(currentunicode<<6)+(input[icounter] & 0x3F);
+				icounter++;
 			}
-			icounter++;
 		}
 	}
 	(*backcount)=icounter;
@@ -189,6 +189,24 @@ void fontpixinf_add(FT_GlyphSlot islot,int iunicode)
 	}
 	fontpixinf_count++;
 }
+void fontpixinf_empty()
+{
+	int length=8;
+	fontpixinf[fontpixinf_count].sizex=8;
+	length*=16;
+	fontpixinf[fontpixinf_count].sizey=16;
+	fontpixinf[fontpixinf_count].deltax=0;
+	fontpixinf[fontpixinf_count].deltay=0;
+	fontpixinf[fontpixinf_count].pivotx=0;
+	fontpixinf[fontpixinf_count].pivoty=-8;
+	fontpixinf[fontpixinf_count].memstart=fontpixbuffer_count+fontpixbuffer;
+	fontpixinf[fontpixinf_count].unicode=0;
+	for (int ilv1=0;ilv1<length;ilv1++)
+	{
+		fontpixbuffer[fontpixbuffer_count++]=(((ilv1>>2)&1) ^ ((ilv1>>5)&1))*0x80;
+	}
+	fontpixinf_count++;
+}
 void putpixel(int iposx,int iposy);
 	
 int text_init(char * filename)
@@ -204,6 +222,7 @@ int text_init(char * filename)
 	slot= (*face).glyph;
 	fontpixinf_count=0;
 	fontpixbuffer_count=0;
+	fontpixinf_empty();
 	for (int ilv1=0;ilv1<65535;ilv1++)
 	{
 		if (FT_Get_Char_Index(face,ilv1)!=0)

@@ -33,6 +33,7 @@ int control_textedit_type=0;
 int control_textedit_index=0;
 int control_textedit_telescope=0;
 int control_textedit_cursor=0;
+int control_textedit_selectmode=0;
 char control_lastmousebutton=0;
 char control_usingmousebutton=0;
 char control_clickforpriority=0;//0: frontmost 1: rearmost 2: nearest 3: nearest3d
@@ -530,8 +531,13 @@ _u32 upfrom(int input)
 	}
 	return wert;
 }
-int control_aggresstextcursor()
+char arbitrarycursorstring[4]="\uE000";
+int control_aggresstextcursor(const char * cursorname="\uE000")//searches the text cursor and places telescope_tempvar on it. must return 1 if present, and 0 if no cursor present
 {
+	if (cursorname==NULL)
+	{
+		cursorname=arbitrarycursorstring;
+	}
 	basicmultilist * tl_multilist=findmultilist(STRUCTURE_OBJECTTYPE_List[control_textedit_type].name);
 	if ((*tl_multilist)[control_textedit_index].exist)
 	{
@@ -542,7 +548,23 @@ int control_aggresstextcursor()
 		if (tl_backval)
 		{
 			char * tl_buffer=(char*)TELESCOPE_getproperty_contents();
-			control_textedit_cursor=(_iXX)strstr(tl_buffer,"\uE000");
+			control_textedit_cursor=(_uXX)strstr(tl_buffer,cursorname);
+			if (cursorname==arbitrarycursorstring)
+			{
+				arbitrarycursorstring[2]^=1;//try the other one, too...
+				_uXX control_textedit_cursor2=(_uXX)strstr(tl_buffer,cursorname);
+				if ((control_textedit_cursor2>0))
+				{
+					if (control_textedit_cursor>0)
+					{
+						control_textedit_cursor=min(control_textedit_cursor,control_textedit_cursor2);
+					}
+					else
+					{
+						control_textedit_cursor=control_textedit_cursor2;
+					}
+				}
+			}
 			if (control_textedit_cursor==0)
 			{
 				control_textedit_telescope++;
@@ -555,6 +577,38 @@ int control_aggresstextcursor()
 		return 0;
 	}
 	return 0;
+}
+void issuetextclick(int iposx,int iposy,const char * whichcursor="\uE000")
+{
+	control_posx=iposx;
+	control_posy=iposy;
+	control_coorsx=iposx/SDL_zoomx+SDL_scrollx;
+	control_coorsy=iposy/SDL_zoomy+SDL_scrolly;
+	int tl_t_nr;
+	int tl_backval;
+	int tl_size;
+	basicmultilist * tl_multilist=findmultilist(STRUCTURE_OBJECTTYPE_List[control_textedit_type].name);
+	if ((*tl_multilist)[control_textedit_index].exist)
+	{
+		if (control_aggresstextcursor(whichcursor))
+		{
+			TELESCOPE_shrink(control_textedit_cursor,3);
+		}
+		control_textedit_selectmode=(strcmp(whichcursor,"\uE001")==0);
+		int tl_distance=0;
+		control_mousestate=0x42;
+		if (edit_textlength(tl_multilist,control_textedit_index,control_coorsx,control_coorsy,&tl_distance)<=0)
+		{
+			TELESCOPE_aggressobject(tl_multilist,control_textedit_index);
+			tl_backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_s);
+			if (tl_backval==0) {control_mousestate=0;return;}
+/*			control_mousestate=0x40;
+			control_textedit_selectmode=0;*/
+			tl_distance=-1;
+		}
+		TELESCOPE_insertintoproperties_offset((char*)whichcursor,3,tl_distance);
+		return;
+	}
 }
 int issueclick(int iposx,int iposy)
 {
@@ -910,11 +964,15 @@ int issueclick(int iposx,int iposy)
 						{
 							control_textedit_type=STRUCTURE_OBJECTTYPE_t;
 							control_textedit_index=ilv1;
-							TELESCOPE_aggressobject(glob_t_multilist,ilv1);
-							tl_backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_s);
-							if (tl_backval==0) {control_mousestate=0;return 0;}
-							iOK_t:
-							TELESCOPE_insertintoproperties_offset((char*)"\uE000",3,-1);
+							control_textedit_selectmode=0;
+							int tl_distance=-1;
+							if (edit_textlength(glob_t_multilist,ilv1,control_coorsx,control_coorsy,&tl_distance)<=0)
+							{
+								TELESCOPE_aggressobject(glob_t_multilist,ilv1);
+								tl_backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_s);
+								if (tl_backval==0) {control_mousestate=0;return 0;}
+							}
+							TELESCOPE_insertintoproperties_offset((char*)"\uE000",3,tl_distance);
 							control_mousestate=0x40;return 0;
 						}
 					}
@@ -933,6 +991,7 @@ int issueclick(int iposx,int iposy)
 								n_instance * tl_n_instance=glob_n_multilist->bufferlist()+ilv1;
 								control_textedit_type=STRUCTURE_OBJECTTYPE_n;
 								control_textedit_index=ilv1;
+								control_textedit_selectmode=0;
 								TELESCOPE_aggressobject(glob_n_multilist,ilv1);
 								if (tl_n_instance->Element!=-1)
 								{
@@ -1032,7 +1091,9 @@ int issueclick(int iposx,int iposy)
 						(*tl_s_instance).size=12;
 						control_textedit_type=STRUCTURE_OBJECTTYPE_t;
 						control_textedit_index=tl_t_nr;
-						goto iOK_t;
+						control_textedit_selectmode=0;
+						TELESCOPE_insertintoproperties_offset((char*)"\uE000",3,-1);
+						control_mousestate=0x40;return 0;
 					}
 				}
 			}
@@ -2380,6 +2441,11 @@ void control_normal()
 						irepeat=1;//TODO: due the now changed event,, this issues MOUSEMOTION's with illegal coordinates.
 					}
 				}
+				if (control_mousestate==0x42)
+				{
+					issuetextclick(control_Event.button.x-gfx_canvasminx, control_Event.button.y-gfx_canvasminy,"\uE001");
+					break;
+				}
 				if (control_mousestate & 0x20)
 				{
 					sdl_commonmenucommon();
@@ -2494,6 +2560,13 @@ void control_normal()
 						{
 							issueclick(control_Event.button.x-gfx_canvasminx, control_Event.button.y-gfx_canvasminy);
 						}
+						else
+						{
+							if (control_mousestate==0x40)
+							{
+								issuetextclick(control_Event.button.x-gfx_canvasminx, control_Event.button.y-gfx_canvasminy,"\uE000");
+							}
+						}
 						break;
 					}
 					case SDL_BUTTON_WHEELUP:
@@ -2537,6 +2610,23 @@ void control_normal()
 					}
 					case SDL_BUTTON_LEFT:
 					{
+						if (control_mousestate==0x42)
+						{
+							issuetextclick(control_Event.motion.x-gfx_canvasminx, control_Event.motion.y-gfx_canvasminy,"\uE001");
+							control_aggresstextcursor(arbitrarycursorstring);
+							{
+								char * currenttextpointer=((char*)TELESCOPE_getproperty_contents())+control_textedit_cursor+3;
+								if ((strncmp(currenttextpointer,"\uE001",3)==0) || (strncmp(currenttextpointer,"\uE000",3)==0))
+								{
+									if (control_aggresstextcursor("\uE001"))
+									{
+										TELESCOPE_shrink(control_textedit_cursor,3);
+										control_textedit_selectmode=0;
+									}
+								}
+							}
+							control_mousestate=0x40;
+						}
 						control_lastmousebutton=SDL_BUTTON_LEFT;
 						dragshunt:
 						if ((control_mousestate==1) || ((control_mousestate==2) && (control_toolstartkeysym==SDLK_UNKNOWN)))
@@ -2694,6 +2784,10 @@ void control_normal()
 						if (control_aggresstextcursor())
 						{
 							TELESCOPE_shrink(control_textedit_cursor,3);
+							if (control_aggresstextcursor("\uE001"))
+							{
+								TELESCOPE_shrink(control_textedit_cursor,3);
+							}
 							if (control_textedit_type==STRUCTURE_OBJECTTYPE_n)
 							{
 								edit_resortstring(glob_n_multilist,control_textedit_index);
@@ -2741,18 +2835,17 @@ void control_normal()
 							{
 								for (int ilv1=0;ilv1<tl_counter;ilv1++)
 								{
-									textedit_right();
 									if (((char*)TELESCOPE_getproperty_contents())[control_textedit_cursor+3]=='\n') {goto iTEXT_END_done;}
+									textedit_right();
 								}
 							}
 						}
 						break;
 						case SDLK_END:
 						{
-							iTEXT_END_RESTART:;
 							if (control_aggresstextcursor())
 							{
-								while (textedit_right()>0){if (((char*)TELESCOPE_getproperty_contents())[control_textedit_cursor+3]=='\n') {goto iTEXT_END_END;}}
+								while (textedit_right()>0){iTEXT_END_RESTART:;if (((char*)TELESCOPE_getproperty_contents())[control_textedit_cursor+3]=='\n') {goto iTEXT_END_END;}}
 							}
 							iTEXT_END_END:;
 							if (tl_alternate)
@@ -2804,6 +2897,10 @@ void control_normal()
 							if (control_textedit_type==STRUCTURE_OBJECTTYPE_n)
 							{
 								TELESCOPE_shrink(control_textedit_cursor,3);
+								if (control_aggresstextcursor("\uE001"))
+								{
+									TELESCOPE_shrink(control_textedit_cursor,3);
+								}
 								edit_resortstring(glob_n_multilist,control_textedit_index);
 								control_mousestate=0;
 							}

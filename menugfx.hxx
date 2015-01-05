@@ -555,7 +555,14 @@ void sdl_commonmenucommon()
 	char tlstring[60];
 	char tlstring2[60];
 	menu_list_count=0;
-	addmenu("toolbox",0);
+	if (control_mousestate & 0x40)
+	{
+		addmenu("texttoolbox",0);
+	}
+	else
+	{
+		addmenu("toolbox",0);
+	}
 	for (int ilv1=0;ilv1<AUTOSTRUCT_PULLOUTLISTING_toolbox_Size;ilv1++)
 	{
 		if (AUTOSTRUCT_PULLOUTLISTING_toolbox[ilv1].lmbmode==1)

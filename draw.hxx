@@ -392,6 +392,7 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,bool hatches)
 		{
 			sortback=atom_actual_node[index_in_buffer].labelside;
 			if ((control_mousestate & 0x40) && (control_textedit_index==index_in_buffer)) sortback=0;
+			gfx_txselectmode=(((control_mousestate & 0x40)>0) && (control_textedit_selectmode==1) && (control_textedit_type==STRUCTURE_OBJECTTYPE_n) && (control_textedit_index==index_in_buffer));
 			MACRO_DRAWPREFIX(express_txinit)(2 | sortback,((*glob_n_multilist))[index_in_buffer].xyz.x,((*glob_n_multilist))[index_in_buffer].xyz.y,atomfontheight);
 			TELESCOPE_aggressobject(glob_n_multilist,index_in_buffer);
 			goto n_to_t_shunt;
@@ -1014,6 +1015,7 @@ tlposx+tlcos-tlsin,tlposy+tlsin+tlcos,tlposx+2*tlcos-tlsin,tlposy+2*tlsin+tlcos,
 	colornr=((*glob_t_multilist))[index_in_buffer].color;
 	MACRO_DRAWPREFIX(get_colorstring_passive)(colornr);
 
+	gfx_txselectmode=(((control_mousestate & 0x40)>0) && (control_textedit_selectmode==1) && (control_textedit_type==STRUCTURE_OBJECTTYPE_t) && (control_textedit_index==index_in_buffer));
 	MACRO_DRAWPREFIX(express_txinit)(((*glob_t_multilist)[index_in_buffer].LabelAlignment==-1),((*glob_t_multilist))[index_in_buffer].xyz.x,((*glob_t_multilist))[index_in_buffer].xyz.y,atomfontheight);
 	TELESCOPE_aggressobject(glob_t_multilist,index_in_buffer);
 	n_to_t_shunt:

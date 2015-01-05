@@ -18,6 +18,7 @@ int SDL_old_txcursorx=0;int SDL_old_txcursory=0;
 _u32 * screen;
 _u32 * canvas;
 _u32 SDL_color;
+_u8 gfx_txselectmode=0;//bit0: text to draw is selected /bit1: currently drawing between the selection positions
 struct gfx_bufferset_
 {
 	int screensizex,screensizey,canvassizex,canvassizey,canvasminx,canvasminy,canvasmaxx,canvasmaxy;
@@ -76,6 +77,7 @@ void gfx_express_txinit(char ialignment,float iposx,float iposy,float iatomfonth
 }
 inline void gfx_express_text_tail()
 {
+	gfx_txselectmode=0;
 }
 inline void putpixel(int iposx,int iposy)
 {
@@ -92,6 +94,34 @@ inline void gfx_stylegenestring(int flags,unsigned int fillcolor=0) //1: stroke 
 	SDL_linestyle=flags;
 }
 
+void gfx_expressfillrectangle(int startx,int starty,int endx,int endy,_u32 color)
+{
+	if (endx<startx)
+	{
+		int swap=endx;
+		endx=startx;
+		startx=swap;
+	}
+	if (endy<starty)
+	{
+		int swap=endy;
+		endy=starty;
+		starty=swap;
+	}
+	startx=max(startx,0);
+	endx=min(endx,gfx_canvassizex);
+	starty=max(starty,0);
+	endy=min(endy,gfx_canvassizey);
+	for (int ilv1=starty;ilv1<endy;ilv1++)
+	{
+		_u32 * pointer=canvas+ilv1*gfx_screensizex+startx;
+		int count=endx-startx;
+		for (int ilv2=0;ilv2<count;ilv2++)
+		{
+			*(pointer++)=color;
+		}
+	}
+}
 void gfx_expressbeziertrack(cdx_Bezierpoints * ipoints)
 {
 	float ishare;
@@ -633,6 +663,10 @@ void text_print_bitmap(int * posx,int * posy,fontpixinf_ * ifontpixinf)
 	if (maxx>=gfx_canvassizex) maxx=gfx_canvassizex-1;
 	if (maxy>=gfx_canvassizey) maxy=gfx_canvassizey-1;
 	skip-=maxx-scanx;
+	if (gfx_txselectmode & 2)
+	{
+		gfx_expressfillrectangle(*posx,(*posy)-12,(*posx)+(*ifontpixinf).deltax,(*posy)+4,(SDL_color+0xC0C0) & 0xFFFFFF);
+	}
 	(*posx)+=(*ifontpixinf).deltax;
 	(*posy)+=(*ifontpixinf).deltay;
 	if ((scanx>=maxx) || (scany>=maxy))
@@ -648,7 +682,6 @@ void text_print_bitmap(int * posx,int * posy,fontpixinf_ * ifontpixinf)
 			if (*(mempos) & 0x80)
 			{
 				*(icanvas)=SDL_color;
-			//	putpixel(ilv2,ilv1);
 			}
 			icanvas++;
 			mempos++;
@@ -668,8 +701,12 @@ void gfx_printformatted(const char * iinput,const char * parms,int imode,int sta
 	_i32 backcount=0;
 	for (;ilv4<end;ilv4+=backcount)
 	{
-		if ((iinput[ilv4]=='\xee') && (iinput[ilv4+1]=='\x80') && (iinput[ilv4+2]=='\x80'))
+		if ((iinput[ilv4]=='\xee') && (iinput[ilv4+1]=='\x80') && (((_u8)(iinput[ilv4+2] & 0xFE))==(_u8)'\x80'))
 		{
+			if (gfx_txselectmode & 1)
+			{
+				gfx_txselectmode^=2;
+			}
 			ilv4+=3;
 			for (int ilv5=0;ilv5<16;ilv5++)
 			{
@@ -688,7 +725,6 @@ void gfx_printformatted(const char * iinput,const char * parms,int imode,int sta
 		SDL_txcursory+=i_offsy;
 		text_print_bitmap(&SDL_txcursorx,&SDL_txcursory,&fontpixinf[indexfromunicode(utf8resolve((unsigned char*)iinput + ilv4,&backcount))]);
 		SDL_txcursory-=i_offsy;
-//		print_bitmap(&SDL_txcursorx,&SDL_txcursory,&fontpixinf[indexfromunicode(((unsigned char)iinput[ilv4]))]);
 	}
 	skipfornow:
 	if (linebreak) {SDL_txcursory+=16;SDL_txcursorx=SDL_old_txcursorx;goto thatwasatemporaryskip;}//a line break;

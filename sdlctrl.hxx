@@ -2034,8 +2034,6 @@ void issuerelease()
 int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int posy,int button,int pixeloriginposx,int pixeloriginposy,int starthitnr=-1)
 {
 	int ihitnr=0;
-	if (pixeloriginposx<0){pixeloriginposx+=gfx_screensizex;posx+=}
-	if (pixeloriginposy<0){pixeloriginposy+=gfx_screensizey;}
 	AUTOSTRUCT_PULLOUTLISTING_ * ipulloutlisting=NULL;
 	if (starthitnr!=-1)
 	{
@@ -2321,14 +2319,15 @@ int issuepseclick(int x,int y,int ibutton)
 	}
 	return 0;
 }
+int menu_unbound(int invalue,char xy);
 int issuerectclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int iposx,int iposy,int ibutton)
 {
 	int ihitnr=0;
 	AUTOSTRUCT_PULLOUTLISTING_ * ipulloutlisting=NULL;
 	for (int ilv1=0;ilv1<icount;ilv1++)
 	{
-		if ((ilisting[ilv1].x<=iposx) && (ilisting[ilv1].y<=iposy) &&
-		(ilisting[ilv1].maxx>iposx) && (ilisting[ilv1].maxy>iposy))
+		if ((menu_unbound(ilisting[ilv1].x,0)<=iposx) && (menu_unbound(ilisting[ilv1].y,1)<=iposy) &&
+		(menu_unbound(ilisting[ilv1].maxx,0)>iposx) && (menu_unbound(ilisting[ilv1].maxy,1)>iposy))
 		{
 			ipulloutlisting=&(ilisting[ilv1]);
 			ihitnr=ilv1;
@@ -2345,15 +2344,19 @@ void issuemenuclicks(int iposx,int iposy,int ibutton)
 	int tlsuccess=0;
 	for (int ilv1=menu_list_count-1;ilv1>=0;ilv1--)
 	{
-		if (((iposx-menu_list[ilv1].alignx)>=0) && ((iposy-menu_list[ilv1].aligny)>=0))
+		int tl_alignx=menu_list[ilv1].alignx;
+		int tl_aligny=menu_list[ilv1].aligny;
+		if (tl_alignx<0) tl_alignx+=gfx_screensizex;
+		if (tl_aligny<0) tl_aligny+=gfx_screensizey;
+		if (((iposx-tl_alignx)>=0) && ((iposy-tl_aligny)>=0))
 		{
 			switch (menu_list[ilv1].type)
 			{
-				case 0:tlsuccess|=issuemenuclick((AUTOSTRUCT_PULLOUTLISTING_*)menu_list[ilv1].what.pointer,menu_list[ilv1].what.count,(iposx-menu_list[ilv1].alignx)/32,(iposy-menu_list[ilv1].aligny)/32,ibutton,iposx,iposy);break;
-				case 1:tlsuccess|=issuemenuclick((AUTOSTRUCT_PULLOUTLISTING_*)menu_list[ilv1].what.pointer,menu_list[ilv1].what.count,(iposx-menu_list[ilv1].alignx)/192,(iposy-menu_list[ilv1].aligny)/16,ibutton,iposx,iposy);break;
-				case 2: tlsuccess|=issuepseclick((iposx-menu_list[ilv1].alignx)/32,(iposy-menu_list[ilv1].aligny)/48,ibutton);break;
-				case 3: tlsuccess|=issuerectclick((AUTOSTRUCT_PULLOUTLISTING_*)menu_list[ilv1].what.pointer,menu_list[ilv1].what.count,iposx-menu_list[ilv1].alignx,iposy-menu_list[ilv1].aligny,ibutton);break;
-				case 4: tlsuccess|=issuerectclick((AUTOSTRUCT_PULLOUTLISTING_*)menu_list[ilv1].what.pointer,menu_list[ilv1].what.count,iposx-menu_list[ilv1].alignx,iposy-menu_list[ilv1].aligny,ibutton);break;
+				case 0:tlsuccess|=issuemenuclick((AUTOSTRUCT_PULLOUTLISTING_*)menu_list[ilv1].what.pointer,menu_list[ilv1].what.count,(iposx-tl_alignx)/32,(iposy-tl_aligny)/32,ibutton,iposx,iposy);break;
+				case 1:tlsuccess|=issuemenuclick((AUTOSTRUCT_PULLOUTLISTING_*)menu_list[ilv1].what.pointer,menu_list[ilv1].what.count,(iposx-tl_alignx)/192,(iposy-tl_aligny)/16,ibutton,iposx,iposy);break;
+				case 2: tlsuccess|=issuepseclick((iposx-tl_alignx)/32,(iposy-tl_aligny)/48,ibutton);break;
+				case 3: tlsuccess|=issuerectclick((AUTOSTRUCT_PULLOUTLISTING_*)menu_list[ilv1].what.pointer,menu_list[ilv1].what.count,iposx-tl_alignx,iposy-tl_aligny,ibutton);break;
+				case 4: tlsuccess|=issuerectclick((AUTOSTRUCT_PULLOUTLISTING_*)menu_list[ilv1].what.pointer,menu_list[ilv1].what.count,iposx-tl_alignx,iposy-tl_aligny,ibutton);break;
 			}
 		}
 		if (tlsuccess)
@@ -2364,8 +2367,7 @@ void issuemenuclicks(int iposx,int iposy,int ibutton)
 	ifertig:
 	if (tlsuccess==0)
 	{
-		//TODO what about control_mousestate=16 (ordinary popup)
-		if (control_mousestate & 8)
+		if (control_mousestate & 24)
 		{
 			control_mousestate=control_mousestate & (~8);
 		}
@@ -3033,7 +3035,7 @@ void control_normal()
 	iloopendlabel:;
 	if (LHENDRAW_leave==1)
 	{
-		LHENDRAW_leave=warndlg_loop("\n\n  Quit without saving?");
+		LHENDRAW_leave=userwarning("\n\n  Quit without saving?");
 	}
 	if (LHENDRAW_leave==1)
 	{

@@ -376,3 +376,34 @@ int warndlg_loop(const char*warning)
 	}
 	return LHENDRAW_userdecision;
 }
+int keywarning(const char*warning)
+{
+	char ihv1;
+	printf("\n");
+	while ((*(warning))!=0)
+	{
+		if ((*warning)=='\n') goto ifertig;
+		if ((*warning)=='\e') {while ((*warning)!=' ') warning++; goto ifertig;}
+		printf("%c",(*warning));
+		ifertig:;
+		warning++;
+	}
+	printf("\n");
+	while (fread(&ihv1,1,1,stdin)>0)
+	{
+		if ((ihv1=='y') || (ihv1=='Y'))
+		{
+			return 1;
+		}
+		if ((ihv1=='n') || (ihv1=='N'))
+		{
+			return 0;
+		}
+	}
+	return 0;
+}
+int userwarning(const char*warning)
+{
+	if (control_force) return 1;
+	if (control_GUI) return (warndlg_loop(warning));else return(keywarning(warning));
+}

@@ -291,10 +291,10 @@ int sdl_textbuttonmenudraw(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int count,int x
 		y=ypos+ilisting[ilv1].y;
 		maxx=xpos+ilisting[ilv1].maxx;
 		maxy=ypos+ilisting[ilv1].maxy;
-		if (x<0){x+=gfx_screensizex;}
-		if (y<0){y+=gfx_screensizey;}
-		if (maxx<0){maxx+=gfx_screensizex;}
-		if (maxy<0){maxy+=gfx_screensizey;}
+		if (x<0) x+=gfx_screensizex;
+		if (y<0) y+=gfx_screensizey;
+		if (maxx<0) maxx+=gfx_screensizex;
+		if (maxy<0) maxy+=gfx_screensizey;
 		_u32 * ibutton=resources_bitmap_buttons[LHENDRAW_maxbuttons-34][0];
 		int xco,yco;
 		for (int ilv1=0;ilv1<32;ilv1++)
@@ -442,8 +442,8 @@ void sdl_colorpaldraw(int posx,int posy)
 }
 int sdl_buttonmenudraw(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int count,int xpos=0,int ypos=0)
 {
-	if (xpos<0){xpos+=gfx_screensizex;}
-	if (ypos<0){ypos+=gfx_screensizex;}
+	if (xpos<0) xpos+=gfx_screensizex;
+	if (ypos<0) ypos+=gfx_screensizex;
 	for (int ilv1=0;ilv1<count;ilv1++)
 	{
 		_u32 state=ilisting[ilv1].bgcolor;
@@ -492,6 +492,12 @@ void sdl_canvasframedraw()
 	{
 		screen[(gfx_screensizex*ilv1)+gfx_canvasmaxx]=0;
 	}
+}
+int menu_unbound(int invalue,char xy)
+{
+	int tl_boundsize=xy?gfx_screensizey:gfx_screensizex;
+	if (invalue<0) {return invalue+tl_boundsize;}
+	return invalue;
 }
 int addmenu(const char * name,int type,int alignx=0,int aligny=0)
 {
@@ -695,10 +701,10 @@ int sdl_menudraw()
 }
 void menuframeline(int x,int y,int maxx,int maxy)
 {
-	if (x<0){x+=gfx_screensizex;}
-	if (y<0){y+=gfx_screensizey;}
-	if (maxx<0){maxx+=gfx_screensizex;}
-	if (maxy<0){maxy+=gfx_screensizey;}
+	if (x<0) x+=gfx_screensizex;
+	if (y<0) y+=gfx_screensizey;
+	if (maxx<0) maxx+=gfx_screensizex;
+	if (maxy<0) maxy+=gfx_screensizey;
 	for (int ilv1=y;ilv1<maxy-1;ilv1++)
 	{
 		*((char*)&(screen[gfx_screensizex*ilv1+x]))=0x00;

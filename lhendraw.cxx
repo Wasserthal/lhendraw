@@ -44,7 +44,11 @@ LLLLLL H   H EEEEE N    N DDD   R  R A     A    W     W
 #include "quartic.hxx"
 #include <time.h>
 #include <SDL.h>
+#ifndef NOPOSIX
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <unistd.h>
+#endif
 #include "draw_variables.hxx"
 void automatic_init() {
 #include "./generated/initialization_lhendraw.hxx"
@@ -178,8 +182,8 @@ int main(int argc,char * * argv)
 #ifndef SDL2
 		SDL_EnableUNICODE(1);
 		SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY,SDL_DEFAULT_REPEAT_INTERVAL);
-#endif
 //		SDL_ShowCursor(0);
+#endif
 		mainloop:
 		switch (LHENDRAW_filedlgmode)
 		{

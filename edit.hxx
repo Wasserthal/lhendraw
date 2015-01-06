@@ -1977,6 +1977,13 @@ int save_image(FILE * ifile,const char * value)
 int svg_main(FILE * ifile);
 catalogized_command_funcdef(SAVE_TYPE)
 {
+	struct stat tl_buffer;
+	#ifndef NOPOSIX
+	if (stat(parameter,&tl_buffer)==0)
+	{
+		if (userwarning("File exists! Overwrite?\n")==0)return 0;
+	}
+	#endif
 	FILE * ifile=fopen(parameter,"w+");
 	if (ifile==NULL) return 0;
 	FORCEEXTENSION

@@ -2034,6 +2034,8 @@ void issuerelease()
 int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int posy,int button,int pixeloriginposx,int pixeloriginposy,int starthitnr=-1)
 {
 	int ihitnr=0;
+	if (pixeloriginposx<0){pixeloriginposx+=gfx_screensizex;posx+=}
+	if (pixeloriginposy<0){pixeloriginposy+=gfx_screensizey;}
 	AUTOSTRUCT_PULLOUTLISTING_ * ipulloutlisting=NULL;
 	if (starthitnr!=-1)
 	{
@@ -3031,7 +3033,7 @@ void control_normal()
 	iloopendlabel:;
 	if (LHENDRAW_leave==1)
 	{
-		LHENDRAW_leave=warndlg_loop("Quit without saving?");
+		LHENDRAW_leave=warndlg_loop("\n\n  Quit without saving?");
 	}
 	if (LHENDRAW_leave==1)
 	{

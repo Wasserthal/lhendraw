@@ -358,7 +358,7 @@ void control_filedlg()
 int warndlg_loop(const char*warning)
 {
 	LHENDRAW_warndlgmode=1;
-	menu_selectedmenuelement=1;
+	menu_selectedmenuelement=0;
 	while (LHENDRAW_warndlgmode)
 	{
 		control_filedlg();

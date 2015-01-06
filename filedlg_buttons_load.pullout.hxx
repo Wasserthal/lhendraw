@@ -1,5 +1,5 @@
 menuitem pullout_filedlg_buttons_load[]={
-{200,730,
+{200,-38,
 33,//Picture
 "Load",
 3,0,
@@ -8,9 +8,9 @@ menuitem pullout_filedlg_buttons_load[]={
 "",
 "FILEDLG_FILE_LOAD","",
 0x00FF00,
-264,762,
+264,-6,
 },
-{300,730,
+{300,-38,
 33,//Picture
 "Cancel",
 3,0,
@@ -19,6 +19,6 @@ menuitem pullout_filedlg_buttons_load[]={
 "",
 "CANCEL","",
 0x00FF00,
-364,762,
+364,-6,
 },
 };

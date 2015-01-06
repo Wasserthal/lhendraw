@@ -1,5 +1,5 @@
 menuitem pullout_filedlg_buttons_save[]={
-{100,730,
+{100,-38,
 33,//Picture
 "Save",
 3,0,
@@ -8,9 +8,9 @@ menuitem pullout_filedlg_buttons_save[]={
 "",
 "FILEDLG_FILE_SAVE","",
 0x00FF00,
-164,762,
+164,-6,
 },
-{300,730,
+{300,-38,
 33,//Picture
 "Cancel",
 3,0,
@@ -19,6 +19,6 @@ menuitem pullout_filedlg_buttons_save[]={
 "",
 "CANCEL","",
 0x00FF00,
-364,762,
+364,-6,
 },
 };

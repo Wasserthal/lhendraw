@@ -1,7 +1,7 @@
 menuitem pullout_warndlg[]={
 {100,300,
 33,//Picture
-"CONTINUE",
+"YES\nCONTINUE",
 3,0,
 0,
 "WARNING_OK",
@@ -12,7 +12,7 @@ menuitem pullout_warndlg[]={
 },
 {200,300,
 33,//Picture
-"Abort",
+"No,\nAbort",
 3,0,
 0,
 "CANCEL",

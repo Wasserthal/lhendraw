@@ -286,11 +286,15 @@ int sdl_textbuttonmenudraw(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int count,int x
 	SDL_color=0;
 	for (int ilv1=0;ilv1<count;ilv1++)
 	{
-		int left,top,right,bottom;
-		left=xpos+ilisting[ilv1].x;
-		top=ypos+ilisting[ilv1].y;
-		right=xpos+ilisting[ilv1].maxx;
-		bottom=ypos+ilisting[ilv1].maxy;
+		int x,y,maxx,maxy;
+		x=xpos+ilisting[ilv1].x;
+		y=ypos+ilisting[ilv1].y;
+		maxx=xpos+ilisting[ilv1].maxx;
+		maxy=ypos+ilisting[ilv1].maxy;
+		if (x<0){x+=gfx_screensizex;}
+		if (y<0){y+=gfx_screensizey;}
+		if (maxx<0){maxx+=gfx_screensizex;}
+		if (maxy<0){maxy+=gfx_screensizey;}
 		_u32 * ibutton=resources_bitmap_buttons[LHENDRAW_maxbuttons-34][0];
 		int xco,yco;
 		for (int ilv1=0;ilv1<32;ilv1++)
@@ -309,7 +313,7 @@ int sdl_textbuttonmenudraw(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int count,int x
 			{
 				yco=11;
 			}
-			for (int ilv2=0;ilv2<right-left;ilv2++)
+			for (int ilv2=0;ilv2<maxx-x;ilv2++)
 			{
 				if (ilv2<8)
 				{
@@ -321,10 +325,10 @@ int sdl_textbuttonmenudraw(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int count,int x
 					xco=ilv2-(gfx_canvassizex-8);
 					if (xco<4) xco=4;
 				}
-				screen[gfx_screensizex*(top+ilv1)+left+ilv2]=*(ibutton+yco*32+xco);
+				screen[gfx_screensizex*(y+ilv1)+x+ilv2]=*(ibutton+yco*32+xco);
 			}
 		}
-		printmenutext(left,top,ilisting[ilv1].name,strlen(ilisting[ilv1].name));
+		printmenutext(x,y,ilisting[ilv1].name,strlen(ilisting[ilv1].name),1);
 	}
 	return 1;
 }
@@ -438,6 +442,8 @@ void sdl_colorpaldraw(int posx,int posy)
 }
 int sdl_buttonmenudraw(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int count,int xpos=0,int ypos=0)
 {
+	if (xpos<0){xpos+=gfx_screensizex;}
+	if (ypos<0){ypos+=gfx_screensizex;}
 	for (int ilv1=0;ilv1<count;ilv1++)
 	{
 		_u32 state=ilisting[ilv1].bgcolor;
@@ -579,7 +585,6 @@ void sdl_commonmenucommon()
 			tlstring[59]=0;
 			if (AUTOSTRUCT_PULLOUTLISTING_toolbox[ilv1].toolnr==control_tool)
 			{
-				addmenu(tlstring,0,gfx_screensizex-160,128);
 				goto iknowwhichsubmenu;
 			}
 			else
@@ -613,7 +618,7 @@ void sdl_commonmenucommon()
 	}
 	goto submenunotfound;
 	iknowwhichsubmenu:;
-	addmenu(tlstring,0,gfx_screensizex-160,128);
+	addmenu(tlstring,0,-160,128);
 	submenunotfound:;
 	if (control_mousestate & 8)
 	{
@@ -690,6 +695,10 @@ int sdl_menudraw()
 }
 void menuframeline(int x,int y,int maxx,int maxy)
 {
+	if (x<0){x+=gfx_screensizex;}
+	if (y<0){y+=gfx_screensizey;}
+	if (maxx<0){maxx+=gfx_screensizex;}
+	if (maxy<0){maxy+=gfx_screensizey;}
 	for (int ilv1=y;ilv1<maxy-1;ilv1++)
 	{
 		*((char*)&(screen[gfx_screensizex*ilv1+x]))=0x00;

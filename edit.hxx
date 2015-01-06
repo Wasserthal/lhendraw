@@ -1354,6 +1354,7 @@ b_instance * edit_summonbond(int i_id_begin,int i_id_end,int i_nr_begin,int i_nr
 		(*tlinstance).B=i_id_begin;
 		(*tlinstance).E=i_id_end;
 		(*tlinstance).Display=control_drawproperties.bond_Display1;
+		(*tlinstance).DoublePosition=0;
 		(*tlinstance).Display2=0;
 		(*tlinstance).Order=0x10;
 		(*tlinstance).color=control_drawproperties.color;
@@ -1617,6 +1618,24 @@ catalogized_command_iterated_funcdef(SETITEMVARIABLE)
 	}
 	return 0;
 }
+catalogized_command_iterated_funcdef(SWAPDOUBLEPOSITION)
+{
+	_i32 * idoubleposition=&((*(b_instance*)iinstance).DoublePosition);
+	if (((*(b_instance*)iinstance).Order<24) || ((*(b_instance*)iinstance).Order>=48))
+	{
+		(*(b_instance*)iinstance).Order=32;
+		return 1;
+	}
+	if ((*idoubleposition)<0x100)
+	{
+		*idoubleposition=0x100;
+	}
+	else
+	{
+		*idoubleposition=((((*idoubleposition)-0x100)+1)%3)+0x100;
+	}
+	return 1;
+}
 catalogized_command_funcdef(FILE_NEW)
 {
 	for (int ilv1=1;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
@@ -1653,6 +1672,20 @@ catalogized_command_funcdef(BLOT)
 	if (iinstance)
 	{
 		printf("%f,%f,%i\n",(*iinstance).xyz.x,(*iinstance).xyz.y,(*iinstance).id);
+	}
+	return 1;
+}
+catalogized_command_funcdef(BONDDATA)
+{
+	for (int ilv2=0;ilv2<glob_b_multilist->filllevel;ilv2++)
+	{
+		if (glob_b_multilist->bufferlist()[ilv2].exist)
+		{
+			if (selection_currentselection[ilv2] & (1<<STRUCTURE_OBJECTTYPE_b))
+			{
+				printf("%i;%i\n",glob_b_multilist->bufferlist()[ilv2].B,glob_b_multilist->bufferlist()[ilv2].E);
+			}
+		}
 	}
 	return 1;
 }

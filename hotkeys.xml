@@ -82,7 +82,7 @@
 <Hotkey key="r" command="SETITEMVARIABLE" variable="Doubleposition" value="Right"/>
 <Hotkey key="c" command="SETITEMVARIABLE" variable="Doubleposition" value="Center"/>
 <Hotkey key="1" command="SETITEMVARIABLE" variable="Order" value="1.0"/>
-<Hotkey key="2" command="SETITEMVARIABLE" variable="Order" value="2.0"/>
+<Hotkey key="2" command="SWAPDOUBLEPOSITION" variable="" value=""/>
 <Hotkey key="3" command="SETITEMVARIABLE" variable="Order" value="3.0"/>
 <Hotkey key="4" command="SETITEMVARIABLE" variable="Order" value="4.0"/>
 <Hotkey key="5" command="FUSERING" value="5"/>

@@ -186,6 +186,16 @@ void checkupinconsistencies()
 		{
 			int masamune=bond_actual_node[ilv2].end;
 			int murasame=bond_actual_node[ilv2].start;
+			if ((*glob_n_multilist)[masamune].exist==0)
+			{
+				(*glob_b_multilist)[ilv2].exist=0;
+				continue;
+			}
+			if ((*glob_n_multilist)[murasame].exist==0)
+			{
+				(*glob_b_multilist)[ilv2].exist=0;
+				continue;
+			}
 			for (int ilv3=0;ilv3<atom_actual_node[murasame].bondcount;ilv3++)
 			{
 				int thisbond=atom_actual_node[murasame].bonds[ilv3];
@@ -204,6 +214,13 @@ void checkupinconsistencies()
 								(*glob_b_multilist)[ilv2].E=(*glob_b_multilist)[thisbond].E;
 							}
 							(*glob_b_multilist)[ilv2].Order=max((*glob_b_multilist)[ilv2].Order,(*glob_b_multilist)[thisbond].Order);
+							(*glob_b_multilist)[ilv2].Display=(*glob_b_multilist)[thisbond].Display;
+							(*glob_b_multilist)[ilv2].color=(*glob_b_multilist)[thisbond].color;
+							(*glob_b_multilist)[ilv2].DoublePosition=(*glob_b_multilist)[thisbond].DoublePosition;
+							if (((*glob_b_multilist)[ilv2].Order & 0xF)>8)
+							{
+								if ((*glob_b_multilist)[ilv2].Display2==0) {(*glob_b_multilist)[ilv2].Display2=1;}
+							}
 							(*glob_b_multilist)[thisbond].exist=0;
 						}
 					}
@@ -867,16 +884,23 @@ int issueclick(int iposx,int iposy)
 					}
 					else
 					{
-						if (((*tlbond).Display==control_drawproperties.bond_Display1) && ((*tlbond).Order==control_drawproperties.bond_multiplicity<<4))
+						if ((control_drawproperties.bond_multiplicity==2) && (((*tlbond).Order==32)||((*tlbond).Order==24)))
 						{
-							int tl_swap=(*tlbond).B;
-							(*tlbond).B=(*tlbond).E;
-							(*tlbond).E=tl_swap;
+							SWAPDOUBLEPOSITION("","",glob_b_multilist,tlbond,0/*wrong, not important*/);
 						}
 						else
 						{
-							(*tlbond).Order=control_drawproperties.bond_multiplicity<<4;
-							(*tlbond).Display=control_drawproperties.bond_Display1;
+							if (((*tlbond).Display==control_drawproperties.bond_Display1) && ((*tlbond).Order==control_drawproperties.bond_multiplicity<<4))
+							{
+								int tl_swap=(*tlbond).B;
+								(*tlbond).B=(*tlbond).E;
+								(*tlbond).E=tl_swap;
+							}
+							else
+							{
+								(*tlbond).Order=control_drawproperties.bond_multiplicity<<4;
+								(*tlbond).Display=control_drawproperties.bond_Display1;
+							}
 						}
 					}
 					control_mousestate=0;
@@ -1303,7 +1327,7 @@ void issuedrag(int iposx,int iposy)
 		}
 		case 7:
 		{
-			restoreundo(~0,0);
+			restoreundo(~0,1);//during dynamic undo, one must be careful that actual_node info may contain ghost hints
 			undo_undodirty=1;
 			int atomnr=-1;
 			int atomnr2=-1;
@@ -1324,6 +1348,10 @@ void issuedrag(int iposx,int iposy)
 					(*tlatom).xyz.x=control_startx;
 					(*tlatom).xyz.y=control_starty;
 					(*tlatom).xyz.z=0;
+				}
+				else
+				{
+					//TODO: overflow
 				}
 			}
 			if (MODIFIER_KEYS.ALT==0)
@@ -1378,12 +1406,15 @@ void issuedrag(int iposx,int iposy)
 					b_instance * oldbond=NULL;
 					for (int ilv1=0;ilv1<atom_actual_node[atomnr].bondcount;ilv1++)
 					{
-						int tl_bondnr1=atom_actual_node[atomnr].bonds[ilv1];
-						for (int ilv2=0;ilv2<atom_actual_node[atomnr2].bondcount;ilv2++)
+						int tl_bondnr2=atom_actual_node[atomnr].bonds[ilv1];
+						if (((*glob_b_multilist)[tl_bondnr2].exist) && (tl_bondnr2<(*glob_b_multilist).filllevel))
 						{
-							if (tl_bondnr1==atom_actual_node[atomnr2].bonds[ilv2])
+							for (int ilv2=0;ilv2<atom_actual_node[atomnr2].bondcount;ilv2++)
 							{
-								oldbond=&((*glob_b_multilist).bufferlist()[tl_bondnr1]);
+								if (tl_bondnr2==atom_actual_node[atomnr2].bonds[ilv2])
+								{
+									oldbond=&((*glob_b_multilist).bufferlist()[tl_bondnr2]);
+								}
 							}
 						}
 					}
@@ -1392,13 +1423,30 @@ void issuedrag(int iposx,int iposy)
 					{
 						if (oldbond)
 						{
-							if ((control_drawproperties.bond_multiplicity==1) && ((*oldbond).color==control_drawproperties.color) && ((*oldbond).Display==control_drawproperties.bond_Display1) && ((atomnr==(*oldbond).B)||(strchr("\x10\x11\x12\x15\x18\x23\x24",(*oldbond).Display+0x10))))
+							if (((*oldbond).color==control_drawproperties.color) && ((*oldbond).Display==control_drawproperties.bond_Display1) && (((*tlatom).id==(*oldbond).B)||(strchr("\x10\x11\x12\x15\x18\x23\x24",(*oldbond).Display+0x10))))
 							{
-								(*tlbond).Order+=control_drawproperties.bond_multiplicity<<4;
-								if ((*tlbond).Order>64) (*tlbond).Order=64;
+								if (control_drawproperties.bond_multiplicity==1)
+								{
+									(*tlbond).Order+=control_drawproperties.bond_multiplicity<<4;
+									if ((*tlbond).Order>64) (*tlbond).Order=64;
+								}
+								else
+								{
+									if ((control_drawproperties.bond_multiplicity==2) && (((*oldbond).Order==32)||((*oldbond).Order==24)))
+									{
+										(*tlbond).DoublePosition=(*oldbond).DoublePosition;
+										(*tlbond).Order=(*oldbond).Order;
+										SWAPDOUBLEPOSITION("","",glob_b_multilist,tlbond,0/*wrong, not important*/);
+									}
+									else
+									{
+										goto issuedrag_7_bond_setbondorder;
+									}
+								}
 							}
 							else
 							{
+								issuedrag_7_bond_setbondorder:;
 								(*tlbond).Order=control_drawproperties.bond_multiplicity<<4;
 							}
 							(*tlbond).color=control_drawproperties.color;
@@ -2433,6 +2481,7 @@ void issuemenudrag(int posx,int posy,char ifinal=0)
 		case 0x103:
 		{
 			restoreundo(~0,0);
+			getatoms();
 			undo_undodirty=1;
 			diffx=posx-control_lastmenux;
 			diffy=posy-control_lastmenuy;

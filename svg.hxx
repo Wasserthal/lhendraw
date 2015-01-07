@@ -259,7 +259,7 @@ int svg_text_rewind(const _u8 * sizestring,int length)
 	svg_text_buffer_count++;
 	return 1;
 }
-void svg_controlprocedure(bool irestriction,bool hatches);
+void svg_controlprocedure(bool irestriction,char hatches);
 int svg_main(FILE * ifile)
 {
 	svg_findaround();

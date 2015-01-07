@@ -215,7 +215,7 @@ void MACRO_DRAWPREFIX(draw_Symbol)(int SymbolType)
 	MACRO_DRAWPREFIX(expressline)(iBBX.left-5,iBBX.top,iBBX.right+5,iBBX.top);
 	MACRO_DRAWPREFIX(expressline)(iBBX.left,iBBX.top-5,iBBX.right,iBBX.top+15);
 }
-void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,bool hatches)
+void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,char hatches)
 {
 	int ilv3,ilv4;
 	void * dummy;
@@ -261,7 +261,7 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,bool hatches)
 					}
 				}
 			}
-			if ((tlcurrentmultilist==glob_moleculefill_multilist) ^ (hatches==1))
+			if (((tlcurrentmultilist==glob_moleculefill_multilist) && (hatches==0)) || ((tlcurrentmultilist!=glob_moleculefill_multilist) && (hatches==1)))
 			{
 				goto svg_main_loop;
 			}
@@ -359,6 +359,10 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,bool hatches)
 		}
 		svg_main_loop:
 		;
+		if (hatches==2)
+		{
+			if (edit_checkclickpixels()) {selection_clickselection_found|=(selection_clickselection[index_in_buffer]|=(1<<(*(multilistlist[objectZorderlist[ilv1].listnr].instance)).numberinlist));}
+		}
 		#ifdef LENNARD_HACK
 		if (LENNARD_HACK_REPEATHOOK) goto LENNARD_HACK_REPEAT;
 		#endif

@@ -130,6 +130,7 @@ class basicmultilist
 	intl ourcount;
 	int itemsize;
 	intl index;
+	intl numberinlist;
 	_u32 maxid;
 	char * pointer;
 	basicmultilist(){pointer=NULL;itemsize=0;};
@@ -283,7 +284,7 @@ template <class whatabout> multilist<whatabout> * retrievemultilist()
 			return (multilist<whatabout> *) multilistlist[ilv1].instance;
 		}
 	}
-	return 0;
+	return NULL;
 }
 
 basicmultilist * findmultilist(const char * thetypesname)
@@ -295,7 +296,7 @@ basicmultilist * findmultilist(const char * thetypesname)
 			return multilistlist[ilv1].instance;
 		}
 	}
-	return 0;
+	return NULL;
 }
 
 template <class whatabout> multilist<whatabout> * registermultilist(const char * thetypesname)
@@ -307,6 +308,7 @@ template <class whatabout> multilist<whatabout> * registermultilist(const char *
 			return (multilist<whatabout> *) multilistlist[ilv1].instance;
 		}
 	}
+	exit(1);
 	multilistlist[multilist_count].instance=new(multilist<whatabout>);//TODO mem: leaks
 	strcpy(multilistlist[multilist_count].name,thetypesname);
 	(*((multilistlist[multilist_count].instance))).index=multilist_count;

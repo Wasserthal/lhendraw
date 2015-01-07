@@ -435,6 +435,7 @@ void clickforthem()
 	}
 	if (selection_clickabilitymatrix.mode==2)
 	{
+		edit_clickpixels(control_coorsx,control_coorsy);
 		for (int ilv1=1;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
 		{
 			if (selection_clickabilitymatrix.types2[1] & (1<<ilv1))

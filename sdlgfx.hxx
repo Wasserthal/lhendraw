@@ -743,8 +743,8 @@ void sdl_outit()
 }
 void svg_findaround();
 void getatoms();
-void gfx_controlprocedure(bool irestriction,bool hatches);
-void gfx_output()
+void gfx_controlprocedure(bool irestriction,char hatches);
+void gfx_output(int mode=0)
 {
 	#ifndef NODEBUG
 	clock_gettime(clockid,&ts);
@@ -775,8 +775,15 @@ void gfx_output()
 	clock_gettime(clockid,&ts);
 	counter5-=ts.tv_nsec+1000000000*ts.tv_sec;
 	#endif
-	gfx_controlprocedure(0,1);
-	gfx_controlprocedure(0,0);
+	if (mode)
+	{
+		gfx_controlprocedure(0,2);
+	}
+	else
+	{
+		gfx_controlprocedure(0,1);
+		gfx_controlprocedure(0,0);
+	}
 	#ifndef NODEBUG
 	clock_gettime(clockid,&ts);
 	counter5+=ts.tv_nsec+1000000000*ts.tv_sec;

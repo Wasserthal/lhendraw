@@ -164,6 +164,14 @@ int main(int argc,char * * argv)
 	{
 		multilistlist[ilv1].instance->index=ilv1;
 	}
+	for (int ilv1=1;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
+	{
+		basicmultilist * tl_multilist=findmultilist(STRUCTURE_OBJECTTYPE_List[ilv1].name);
+		if (tl_multilist)
+		{
+			(*tl_multilist).numberinlist=ilv1;
+		}
+	}
 	initmemory();
 	automatic_init();
 	resources_init(argv[0]);

@@ -452,6 +452,54 @@ void edit_judgeselection(int backindex)//determines what type of pivot the curre
 		}
 	}
 }
+int edit_checkclickpixels()
+{
+	for (int ilv1=1;ilv1<4;ilv1++)
+	{
+		if (canvas[ilv1]!=0xFFFFFFFF) goto iclear;
+		if (canvas[(ilv1)*5]!=0xFFFFFFFF) goto iclear;
+		if (canvas[ilv1+20]!=0xFFFFFFFF) goto iclear;
+		if (canvas[(ilv1)*5+4]!=0xFFFFFFFF) goto iclear;
+		for (int ilv2=1;ilv2<4;ilv2++)
+		{
+			if (canvas[ilv2*5+ilv1]!=0xFFFFFFFF) goto iclear;
+		}
+	}
+	return 0;
+	iclear:
+	for (int ilv1=0;ilv1<5;ilv1++)
+	{
+		for (int ilv2=0;ilv2<5;ilv2++)
+		{
+			canvas[ilv1*5+ilv2]=0xFFFFFFFF;
+		}
+	}
+	return 1;
+}
+void edit_clickpixels(int posx,int posy)
+{
+	gfx_bufferset_ target;
+	gfx_store_bufferset(&gfx_old_bufferset);
+	target.screensizex=5;
+	target.screensizey=5;
+	target.canvassizex=5;
+	target.canvassizey=5;
+	target.canvasminx=0;
+	target.canvasminy=0;
+	target.canvasmaxx=5;
+	target.canvasmaxy=5;
+	target.screen=screen;
+	target.canvas=target.screen;
+	target.scrollx=SDL_scrollx+(posx-2)/SDL_zoomx;
+	target.scrolly=SDL_scrolly+(posy-2)/SDL_zoomy;
+	target.zoomx=SDL_zoomx;
+	target.zoomy=SDL_zoomy;
+	target.depth=4;
+	gfx_restore_bufferset(&target);
+	screenclear(0xFFFFFFFF);
+	gfx_output(1);
+	gfx_restore_bufferset(&gfx_old_bufferset);
+}
 inline int retrieveprops_n(int what)
 {
 	if (what==1)

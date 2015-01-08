@@ -3149,6 +3149,22 @@ int edit_flexicopy(int undostep_no,multilist<n_instance> * n_target,multilist<b_
 				(n_target->bufferlist())[ilv1].xyz.y+=dy;
 			}
 		}
+		icompare=1<<STRUCTURE_OBJECTTYPE_b;
+		for (int ilv1=0;ilv1<b_max;ilv1++)
+		{
+			if (iselection[ilv1] & icompare)
+			{
+				int istart=bond_actual_node[ilv1].start;
+				int iend=bond_actual_node[ilv1].end;
+				if (((iselection[istart] & (1<<STRUCTURE_OBJECTTYPE_n))==0) && ((iselection[iend] & (1<<STRUCTURE_OBJECTTYPE_n))==0))
+				{
+					(n_target->bufferlist())[istart].xyz.x=(*(n_input+istart)).xyz.x+dx;
+					(n_target->bufferlist())[istart].xyz.y=(*(n_input+istart)).xyz.y+dy;
+					(n_target->bufferlist())[iend].xyz.x=(*(n_input+iend)).xyz.x+dx;
+					(n_target->bufferlist())[iend].xyz.y=(*(n_input+iend)).xyz.y+dy;
+				}
+			}
+		}
 	}
 	else
 	{
@@ -3175,6 +3191,22 @@ int edit_flexicopy(int undostep_no,multilist<n_instance> * n_target,multilist<b_
 					(b_target->bufferlist())[b_target->filllevel].E+=(*i_deltaback);
 					b_target->filllevel++;
 				}
+				else
+				{
+					if (iselection[bond_actual_node[ilv1].start] & (1<<STRUCTURE_OBJECTTYPE_n))
+					{
+						memcpy((b_target->bufferlist())+(b_target->filllevel),b_input+ilv1,sizeof(b_instance));
+						(b_target->bufferlist())[b_target->filllevel].B+=(*i_deltaback);
+						b_target->filllevel++;
+					}
+					if (iselection[bond_actual_node[ilv1].end] & (1<<STRUCTURE_OBJECTTYPE_n))
+					{
+						memcpy((b_target->bufferlist())+(b_target->filllevel),b_input+ilv1,sizeof(b_instance));
+						(b_target->bufferlist())[b_target->filllevel].E+=(*i_deltaback);
+						b_target->filllevel++;
+					}
+				}
+
 			}
 		}
 	}

@@ -682,7 +682,7 @@ int issueclick(int iposx,int iposy)
 					{
 						if (selection_currentselection[backindex] & (1<<backtype))
 						{
-							if (backtype==STRUCTURE_OBJECTTYPE_n)
+							if ((backtype==STRUCTURE_OBJECTTYPE_n) || (backtype=STRUCTURE_OBJECTTYPE_b))
 							{
 								return 0;
 							}
@@ -755,7 +755,7 @@ int issueclick(int iposx,int iposy)
 					{
 						if (selection_currentselection[backindex] & (1<<backtype))
 						{
-							if (backtype==STRUCTURE_OBJECTTYPE_n)
+							if ((backtype==STRUCTURE_OBJECTTYPE_n) || (backtype=STRUCTURE_OBJECTTYPE_b))
 							{
 								return 0;
 							}

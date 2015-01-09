@@ -680,20 +680,19 @@ int issueclick(int iposx,int iposy)
 					twopointselection_wantthem:;
 					if ((MODIFIER_KEYS.CTRL==0) && (MODIFIER_KEYS.SHIFT==0))
 					{
-						if (selection_currentselection[backindex] & (1<<backtype))
+						for (int ilv1=STRUCTURE_OBJECTTYPE_n;ilv1<=STRUCTURE_OBJECTTYPE_b;ilv1++)
 						{
-							if ((backtype==STRUCTURE_OBJECTTYPE_n) || (backtype=STRUCTURE_OBJECTTYPE_b))
+							int icompare=1<<ilv1;
+							for (int ilv2=0;ilv2<findmultilist(STRUCTURE_OBJECTTYPE_List[ilv1].name)->filllevel;ilv2++)
 							{
-								return 0;
+								if ((selection_currentselection[ilv2] & icompare) && (selection_clickselection[ilv2] & icompare)) return 0;
 							}
 						}
-						else
-						{
-							selection_clearselection(selection_currentselection);
-							selection_currentselection_found=1<<backtype;
-							selection_currentselection[backindex]|=1<<backtype;
-							edit_singlepointselected=1;
-						}
+						selection_clearselection(selection_currentselection);
+						selection_currentselection_found=1<<backtype;
+						selection_currentselection[backindex]|=1<<backtype;
+						edit_singlepointselected=1;
+						return 0;
 					}
 					KEYDEPENDENTSELECTION;
 					edit_judgeselection(backindex);
@@ -753,20 +752,19 @@ int issueclick(int iposx,int iposy)
 					lasso_wantthem:;
 					if ((MODIFIER_KEYS.CTRL==0) && (MODIFIER_KEYS.SHIFT==0))
 					{
-						if (selection_currentselection[backindex] & (1<<backtype))
+						for (int ilv1=STRUCTURE_OBJECTTYPE_n;ilv1<=STRUCTURE_OBJECTTYPE_b;ilv1++)
 						{
-							if ((backtype==STRUCTURE_OBJECTTYPE_n) || (backtype=STRUCTURE_OBJECTTYPE_b))
+							int icompare=1<<ilv1;
+							for (int ilv2=0;ilv2<findmultilist(STRUCTURE_OBJECTTYPE_List[ilv1].name)->filllevel;ilv2++)
 							{
-								return 0;
+								if ((selection_currentselection[ilv2] & icompare)==(selection_clickselection[ilv2] & icompare)) return 0;
 							}
 						}
-						else
-						{
-							selection_clearselection(selection_currentselection);
-							selection_currentselection_found=1<<backtype;
-							selection_currentselection[backindex]|=1<<backtype;
-							edit_singlepointselected=1;
-						}
+						selection_clearselection(selection_currentselection);
+						selection_currentselection_found=1<<backtype;
+						selection_currentselection[backindex]|=1<<backtype;
+						edit_singlepointselected=1;
+						return 0;
 					}
 					KEYDEPENDENTSELECTION;
 					edit_judgeselection(backindex);

@@ -366,6 +366,14 @@ SDL_Surface *video;
 #ifdef SDL2
 SDL_Window *window;
 #endif
+#ifndef NOCLIPBOARD
+Window gfx_Window;
+Display * gfx_Display;
+Atom clipboard_sseln = XA_PRIMARY;
+Atom clipboard_target = XA_STRING;
+char * LHENDRAW_clipboardbuffer=NULL;
+long unsigned int LHENDRAW_clipboardbuffer_count;
+#endif
 
 void screenclear(_u32 icolor)
 {
@@ -381,6 +389,12 @@ int gfx()
 	video=SDL_GetWindowSurface(window);
 	#else
 	video=SDL_SetVideoMode(gfx_screensizex,gfx_screensizey,32,SDL_SWSURFACE);
+	#endif
+	#ifndef NOCLIPBOARD
+	gfx_Display=XOpenDisplay(NULL);
+	clipboard_sseln=XA_CLIPBOARD(gfx_Display);
+	gfx_Window=XCreateSimpleWindow(gfx_Display,DefaultRootWindow(gfx_Display),0,0,1,1,0,0,0);
+	XSelectInput(gfx_Display,gfx_Window,PropertyChangeMask);
 	#endif
 	if ( video == NULL ) 
 	{

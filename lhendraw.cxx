@@ -21,6 +21,12 @@ LLLLLL H   H EEEEE N    N DDD   R  R A     A    W     W
 #include <string.h>
 #include <stdarg.h>
 #include <math.h>
+#ifndef NOPOSIX
+#include <X11/Xlib.h>
+#include <X11/Xatom.h>
+#include <X11/Xmu/Atoms.h>
+#include "xclib.h"
+#endif
 #define CAMBRIDGEPREFIX(content) CAMBRIDGE_ ## content
 #define CAMBRIDGEPREFIX2(content,content2) content ## _CAMBRIDGE_ ## content2
 #include "lendefs.h"

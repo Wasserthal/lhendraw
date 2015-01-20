@@ -193,9 +193,10 @@ void svg_printformatted(const char * iinput,const char * parms,int imode,int sta
 		ifertig:;
 	}
 	skipfornow:
+	if (linebreak) svg_outstring("\n");
+	svg_outstring("</tspan>");
 	if (ilv4>=end)
 	{
-		svg_outstring("</tspan>");
 		if (imode==1)
 		{
 			svg_outstring("<tspan %s dy=\"-%f\">&#8202;</tspan>",parms,currentsetfontsize/6.0);
@@ -205,7 +206,6 @@ void svg_printformatted(const char * iinput,const char * parms,int imode,int sta
 			svg_outstring("<tspan %s dy=\"%f\">&#8202;</tspan>",parms,currentsetfontsize/6.0);
 		}
 	}
-	svg_outstring("\n");
 	if (linebreak) {svg_outstring("<tspan dy=\"%f\" x=\"0\">&#8202;</tspan>",20.0/18.0*currentsetfontsize);if (ilv4<end) goto thatwasatemporaryskip;}//a line break;
 }
 void svg_express_txinit(char ialignment,float iposx,float iposy,float iatomfontheight)

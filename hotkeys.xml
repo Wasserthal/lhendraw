@@ -114,9 +114,9 @@
 <Hotkey key="F5" command="CHUP" variable="Z" value="False"/>
 <Hotkey modifiers="CTRL" key="z" command="UNDO" UNDO="False" />
 <Hotkey modifiers="CTRL" key="r" command="REDO" UNDO="False" />
-<Hotkey modifiers="CTRL" key="v" command="Paste"/>
-<Hotkey modifiers="CTRL" key="x" command="Cut"/>
-<Hotkey modifiers="CTRL" key="c" command="Copy" UNDO="False" />
+<Hotkey modifiers="CTRL" key="v" command="PASTE"/>
+<Hotkey modifiers="CTRL" key="x" command="CUT"/>
+<Hotkey modifiers="CTRL" key="c" command="COPY" UNDO="False" />
 <Hotkey modifiers="CTRL" key="e" command="TOOLMODE" value="9" UNDO="False" />
 <Hotkey modifiers="CTRL" key="s" command="SAVEAS" value="" UNDO="False" />
 <Hotkey modifiers="CTRL" key="a" command="SELECTALL" value="1"/>

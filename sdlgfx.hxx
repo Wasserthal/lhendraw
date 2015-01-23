@@ -746,7 +746,8 @@ void gfx_printformatted(const char * iinput,const char * parms,int imode,int sta
 
 void sdl_init()
 {
-	if ( SDL_Init(SDL_INIT_VIDEO) < 0 ) {
+	if (SDL_Init(SDL_INIT_VIDEO)<0)
+	{
 		fprintf(stderr, "SDL konnte nicht initialisiert werden: %s\n", SDL_GetError());
 		exit(1);
 	}

@@ -7,6 +7,7 @@
 //because that is the position where a TELESCOPE should be inserted for that object.
 TELESCOPE_buffer filestructure_text_buffer;
 TELESCOPE_buffer filestructure_curve_buffer;
+char LHENDRAW_clipboardmode=0;//0: no clipboardmode 1: lhendraw is providing a X11 clipboard content
 char LHENDRAW_filedlgmode=0;
 char LHENDRAW_warndlgmode=0;
 int LHENDRAW_userdecision=0;

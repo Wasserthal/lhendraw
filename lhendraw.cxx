@@ -25,7 +25,6 @@ LLLLLL H   H EEEEE N    N DDD   R  R A     A    W     W
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
 #include <X11/Xmu/Atoms.h>
-#include "xclib.h"
 #endif
 #define CAMBRIDGEPREFIX(content) CAMBRIDGE_ ## content
 #define CAMBRIDGEPREFIX2(content,content2) content ## _CAMBRIDGE_ ## content2
@@ -79,6 +78,7 @@ int clockid=0;
 #endif
 
 #include "sdlgfx.hxx"
+#include "clipboard.hxx"
 #include "conv_config_internalconfig.hxx"
 #include "selection.hxx"
 #include "conv_cambridge_internal.hxx"
@@ -199,6 +199,7 @@ int main(int argc,char * * argv)
 //		SDL_ShowCursor(0);
 #endif
 		mainloop:
+		service_clipboard();
 		switch (LHENDRAW_filedlgmode)
 		{
 		case 0:

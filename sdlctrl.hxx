@@ -2593,7 +2593,7 @@ void control_normal()
 			case SDL_MOUSEBUTTONDOWN:
 			{
 				SDL_MOUSEBUTTONDOWN_FROM_MOUSEWHEEL:;
-				if ((control_mousestate & (~0x18))==0)
+				if ((control_mousestate & (~0x58))==0)
 				{
 					if ((control_mousestate & (24)) || (control_Event.button.x<gfx_canvasminx) || (control_Event.button.y<gfx_canvasminy) || (control_Event.button.x>=gfx_canvasmaxx) || (control_Event.button.y>=gfx_canvasmaxy))
 					{

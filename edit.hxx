@@ -2023,66 +2023,62 @@ int save_image(FILE * ifile,const char * value)
 	return 1;
 }
 int svg_main(FILE * ifile);
-void clipboard_Copy(Window gfx_Window, const char *progname)
-{
-	XEvent evt;
-	XSetSelectionOwner(gfx_Display,clipboard_sseln,gfx_Window,CurrentTime);
-	pid_t pid;
-	pid=fork();
-	if (pid==0)//TODO: without fork
-	{
-		while (1)
-		{
-			printf("%s\n,%s\n",progname,LHENDRAW_clipboardbuffer);
-			while (1)
-			{
-				static _u32 clear=0;
-				static _u32 context=clipboard_XCLIB_XCIN_NONE;
-				static long _u32 sel_pos=0;
-				static Window gfx_Window;//Does this need to be a different variable?
-				static Atom pty;
-				int finished;
-				XNextEvent(gfx_Display,&evt);
-				finished=xcin(gfx_Display,&gfx_Window,evt,&pty,clipboard_target,(unsigned char*)LHENDRAW_clipboardbuffer,LHENDRAW_clipboardbuffer_count,&sel_pos,&context);
-				if (evt.type==SelectionClear) clear=1;//TODO
-				if ((context==clipboard_XCLIB_XCIN_NONE)&&clear) return;//TODO
-				if (finished) break;
-			}
-		}
-		exit(0);//TODO: await clipboard change
-	}
-}
-
-void clipboard_Paste(Window gfx_Window)
-{
-	Atom sel_type = None;
-	XEvent evt;
-	unsigned int context = clipboard_XCLIB_XCOUT_NONE;
-	while (1)
-	{
-	    if (context != clipboard_XCLIB_XCOUT_NONE)
-		XNextEvent(gfx_Display, &evt);
-		xcout(gfx_Display,gfx_Window,evt,clipboard_sseln,clipboard_target,&sel_type,(unsigned char**)&LHENDRAW_clipboardbuffer,&LHENDRAW_clipboardbuffer_count,&context);
-	    /* only continue if xcout() is doing something */
-	    if (context == clipboard_XCLIB_XCOUT_NONE)
-		break;
-	}
-	printf("%s\n",LHENDRAW_clipboardbuffer);//TODO: use up
-	free(LHENDRAW_clipboardbuffer);
-	return;
-}
 catalogized_command_funcdef(COPY)
 {
+	if (LHENDRAW_clipboardmode)
+	{
+		service_clipboard();
+		if (LHENDRAW_clipboardmode)
+		{
+			free(LHENDRAW_clipboardbuffer);
+		}
+	}
 	LHENDRAW_clipboardbuffer=(char*)malloc(100);
 	strcpy(LHENDRAW_clipboardbuffer,"Hose\n");
 	LHENDRAW_clipboardbuffer_count=strlen(LHENDRAW_clipboardbuffer);
-	clipboard_Copy(gfx_Window,"lhendraw");
+	#ifndef NOCLIPBOARD
+	XSetSelectionOwner(gfx_Display,clipboard_sseln,gfx_Window,CurrentTime);
+	LHENDRAW_clipboardmode=1;
+	#endif
 	return 1;
 }
+extern int control_aggresstextcursor(const char *);
+extern int control_textedit_cursor;
+extern int control_mousestate;
 catalogized_command_funcdef(PASTE)
 {
+	if (LHENDRAW_clipboardmode==1) goto loaded;
 	LHENDRAW_clipboardbuffer=NULL;
-	clipboard_Paste(gfx_Window);
+	#ifndef NOCLIPBOARD
+	{
+		Atom sel_type = None;
+		XEvent evt;
+		unsigned int context = clipboard_XCLIB_XCOUT_NONE;
+//		LHENDRAW_clipboardbuffer=(char *) XFetchBuffer(gfx_Display, (int *) &LHENDRAW_clipboardbuffer_count, 0);
+		while (1)
+		{
+			//TODO: what if clipboard is empty? Will XPending(gfx_Display) help?
+			if (context != clipboard_XCLIB_XCOUT_NONE) /*if (XPending(gfx_Display))*/ XNextEvent(gfx_Display, &evt);
+			xcout(gfx_Display,gfx_Window,evt,clipboard_sseln,clipboard_target,&sel_type,(unsigned char**)&LHENDRAW_clipboardbuffer,&LHENDRAW_clipboardbuffer_count,&context);
+			if (context == clipboard_XCLIB_XCOUT_NONE) break;
+		}
+	}
+	#endif
+	loaded:;
+	if (LHENDRAW_clipboardbuffer==NULL) return 1;
+	if (control_mousestate==0x40)
+	{
+		if (control_aggresstextcursor("\uE000"))
+		{
+			//TODO: check for text mode
+			if (LHENDRAW_clipboardbuffer[LHENDRAW_clipboardbuffer_count-1]==0) LHENDRAW_clipboardbuffer_count--;
+			//TODO: overflow check
+			TELESCOPE_insertintoproperties_offset(LHENDRAW_clipboardbuffer,LHENDRAW_clipboardbuffer_count,control_textedit_cursor);
+		}
+	}
+	if (LHENDRAW_clipboardmode==1) return 1;
+	free(LHENDRAW_clipboardbuffer);
+	LHENDRAW_clipboardmode=0;
 	return 1;
 }
 catalogized_command_funcdef(SAVE_TYPE)
@@ -2363,7 +2359,6 @@ catalogized_command_funcdef(TEST_SMASH)
 	TELESCOPE_split(atoi(value),&zero,1);
 	return 1;
 }
-extern int control_mousestate;
 catalogized_command_funcdef(OPEN_PSE)
 {
 	control_mousestate=0x10;

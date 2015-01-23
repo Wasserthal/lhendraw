@@ -21,7 +21,7 @@ LLLLLL H   H EEEEE N    N DDD   R  R A     A    W     W
 #include <string.h>
 #include <stdarg.h>
 #include <math.h>
-#ifndef NOPOSIX
+#ifndef NOCLIPBOARD
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
 #include <X11/Xmu/Atoms.h>

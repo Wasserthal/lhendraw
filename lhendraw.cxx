@@ -102,6 +102,10 @@ int undo_trackredo(int variable);
 #define MACRO_DRAWPREFIX(content) svg_ ## content
 #include "draw.hxx"
 #undef MACRO_DRAWPREFIX
+#include "ps.hxx"
+#define MACRO_DRAWPREFIX(content) ps_ ## content
+#include "draw.hxx"
+#undef MACRO_DRAWPREFIX
 //#include "hatch.hxx" //TODO SUBJECT HATCH needs the moleculefill buffer
 
 

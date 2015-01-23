@@ -2022,6 +2022,23 @@ int save_image(FILE * ifile,const char * value)
 	gfx_restore_bufferset(&gfx_old_bufferset);
 	return 1;
 }
+void ps_controlprocedure(bool irestriction,char hatches);
+int save_postscript(FILE * ifile,const char * value)
+{
+	outfile=ifile;
+	svg_findaround();
+	fprintf(ifile,"%s %f %f\n","%!PS-Adobe-3.0\x0A%%Pages: 1\x0A%%BoundingBox: 0 0 ",SVG_width-SVG_ileft,SVG_height-SVG_itop);
+	SVG_currentshiftx=-SVG_ileft;
+	SVG_currentshifty=-SVG_itop;
+	SVG_currentfringex=((unsigned int)-1)>>1;
+	SVG_currentfringey=((unsigned int)-1)>>1;
+	initZlist();
+	ps_controlprocedure(0,1);
+	ps_controlprocedure(0,0);
+	fprintf(ifile,"showpage\n");
+	fclose(ifile);
+	return 1;
+}
 int svg_main(FILE * ifile);
 catalogized_command_funcdef(COPY)
 {
@@ -2096,6 +2113,10 @@ catalogized_command_funcdef(SAVE_TYPE)
 	if ((strcmp(value,".bmp")==0) || (strcmp(value,".png")==0))
 	{
 		return save_image(ifile,value);
+	}
+	if ((strcmp(value,".ps")==0) || (strcmp(value,".eps")==0))
+	{
+		return save_postscript(ifile,value);
 	}
 	if (strcmp(value,".svg")==0)
 	{

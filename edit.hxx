@@ -2040,8 +2040,14 @@ int save_postscript(FILE * ifile,const char * value)
 	return 1;
 }
 int svg_main(FILE * ifile);
+extern int control_aggresstextcursor(const char * cursorstring);
+extern int control_textedit_selectmode;
+extern int control_mousestate;
+extern _uXX control_textedit_cursor;
+extern char arbitrarycursorstring[4];
 catalogized_command_funcdef(COPY)
 {
+	int control_textedit_cursor2;
 	if (LHENDRAW_clipboardmode)
 	{
 		service_clipboard();
@@ -2050,9 +2056,54 @@ catalogized_command_funcdef(COPY)
 			free(LHENDRAW_clipboardbuffer);
 		}
 	}
-	LHENDRAW_clipboardbuffer=(char*)malloc(100);
-	strcpy(LHENDRAW_clipboardbuffer,"Hose\n");
-	LHENDRAW_clipboardbuffer_count=strlen(LHENDRAW_clipboardbuffer);
+	if ((control_mousestate==0x40) && (control_textedit_selectmode))
+	{
+		if (control_aggresstextcursor(NULL))
+		{
+			control_textedit_cursor+=(_uXX)TELESCOPE_getproperty_contents();
+			control_textedit_cursor+=3;
+			int tl_length;
+			int tl_memsize=256;
+			LHENDRAW_clipboardbuffer=(char*)malloc(tl_memsize);
+			int elapsed=0;
+			int endfound=0;
+			tl_back:;
+			tl_length=strlen((char*)control_textedit_cursor);
+			control_textedit_cursor2=(_uXX)strstr((char*)control_textedit_cursor,arbitrarycursorstring);
+			if (control_textedit_cursor2==(_uXX)NULL)
+			{
+				arbitrarycursorstring[2]^=1;//try the other one, too...
+				control_textedit_cursor2=(_uXX)strstr((char*)control_textedit_cursor,arbitrarycursorstring);
+			}
+			if (control_textedit_cursor2!=(_uXX)NULL)
+			{
+				endfound=1;
+				tl_length=control_textedit_cursor2-control_textedit_cursor;
+			}
+			if (tl_length>=tl_memsize-elapsed-1)
+			{
+				LHENDRAW_clipboardbuffer=(char*)realloc(LHENDRAW_clipboardbuffer,tl_memsize*2);
+				tl_memsize*=2;
+			}
+			strncpy(LHENDRAW_clipboardbuffer+elapsed,(char*)control_textedit_cursor,tl_length);
+			elapsed+=tl_length;
+			if (!endfound)
+			{
+				if (TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_s))
+				{
+					 control_textedit_cursor=(_uXX)TELESCOPE_getproperty_contents();
+					 goto tl_back;
+				}
+			}
+			control_textedit_cursor-=(_uXX)TELESCOPE_getproperty_contents();
+			LHENDRAW_clipboardbuffer_count=elapsed;
+		}
+	}
+	else
+	{
+		LHENDRAW_clipboardmode=0;
+		return 0;
+	}
 	#ifndef NOCLIPBOARD
 	XSetSelectionOwner(gfx_Display,clipboard_sseln,gfx_Window,CurrentTime);
 	LHENDRAW_clipboardmode=1;
@@ -2060,8 +2111,6 @@ catalogized_command_funcdef(COPY)
 	return 1;
 }
 extern int control_aggresstextcursor(const char *);
-extern int control_textedit_cursor;
-extern int control_mousestate;
 catalogized_command_funcdef(PASTE)
 {
 	if (LHENDRAW_clipboardmode==1) goto loaded;
@@ -2088,7 +2137,16 @@ catalogized_command_funcdef(PASTE)
 		if (control_aggresstextcursor("\uE000"))
 		{
 			//TODO: check for text mode
-			if (LHENDRAW_clipboardbuffer[LHENDRAW_clipboardbuffer_count-1]==0) LHENDRAW_clipboardbuffer_count--;
+			for (int ilv1=0;ilv1<LHENDRAW_clipboardbuffer_count;ilv1++)
+			{
+				if (LHENDRAW_clipboardbuffer[ilv1]==0)
+				{
+					LHENDRAW_clipboardbuffer_count=ilv1;
+				}
+			}
+			//Not needed in this case. is it needed at all?
+			LHENDRAW_clipboardbuffer=(char*)realloc(LHENDRAW_clipboardbuffer,LHENDRAW_clipboardbuffer_count+1);
+			LHENDRAW_clipboardbuffer[LHENDRAW_clipboardbuffer_count]=0;
 			//TODO: overflow check
 			TELESCOPE_insertintoproperties_offset(LHENDRAW_clipboardbuffer,LHENDRAW_clipboardbuffer_count,control_textedit_cursor);
 		}

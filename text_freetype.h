@@ -94,7 +94,7 @@ int utf8encode(_u32 input,char ** outputbuffer)
 	*outputbuffer=(char*)(unicodeoutputbuffer+cursor);
 	return 7-cursor;
 }
-int utf8encompass(const char * string,int * position,int * length)
+int utf8encompass(const char * string,_uXX * position,int * length)
 {
 	int start=*position;
 	if ((((_u8*)string)[start]&0xC0)==0xC0)

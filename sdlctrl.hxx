@@ -32,7 +32,7 @@ char control_dragged=0;
 int control_textedit_type=0;
 int control_textedit_index=0;
 int control_textedit_telescope=0;
-int control_textedit_cursor=0;
+_uXX control_textedit_cursor=0;
 int control_textedit_selectmode=0;
 char control_lastmousebutton=0;
 char control_usingmousebutton=0;
@@ -571,9 +571,9 @@ int control_aggresstextcursor(const char * cursorname="\uE000")//searches the te
 			{
 				arbitrarycursorstring[2]^=1;//try the other one, too...
 				_uXX control_textedit_cursor2=(_uXX)strstr(tl_buffer,cursorname);
-				if ((control_textedit_cursor2>0))
+				if ((control_textedit_cursor2>(_uXX)NULL))
 				{
-					if (control_textedit_cursor>0)
+					if (control_textedit_cursor>(_uXX)NULL)
 					{
 						control_textedit_cursor=min(control_textedit_cursor,control_textedit_cursor2);
 					}
@@ -2612,7 +2612,7 @@ void control_normal()
 					}
 					case SDL_BUTTON_LEFT:
 					{
-						if ((control_doubleclickenergy>0) && ((control_tool==2) || (control_tool==3) || (control_tool==4)))
+						if (((control_mousestate & (~0x58))==0) && (control_doubleclickenergy>0) && ((control_tool==2) || (control_tool==3) || (control_tool==4)))
 						{
 							clickforthem();
 							selection_clearselection(selection_fragmentselection);
@@ -2642,15 +2642,19 @@ void control_normal()
 						control_lastmousebutton=SDL_BUTTON_LEFT;
 						control_doubleclickenergy=50;
 						clickshunt:
+						if (control_mousestate & 0x20)
+						{
+							control_usingmousebutton=control_lastmousebutton;
+						}
 						if (control_mousestate==0)
 						{
-							issueclick(control_Event.button.x-gfx_canvasminx, control_Event.button.y-gfx_canvasminy);
+							issueclick(control_Event.button.x-gfx_canvasminx,control_Event.button.y-gfx_canvasminy);
 						}
 						else
 						{
 							if (control_mousestate==0x40)
 							{
-								issuetextclick(control_Event.button.x-gfx_canvasminx, control_Event.button.y-gfx_canvasminy,"\uE000");
+								issuetextclick(control_Event.button.x-gfx_canvasminx,control_Event.button.y-gfx_canvasminy,"\uE000");
 							}
 						}
 						break;

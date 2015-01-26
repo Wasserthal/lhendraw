@@ -78,7 +78,9 @@ int clockid=0;
 #endif
 
 #include "sdlgfx.hxx"
+#ifndef NOCLIPBOARD
 #include "clipboard.hxx"
+#endif
 #include "conv_config_internalconfig.hxx"
 #include "selection.hxx"
 #include "conv_cambridge_internal.hxx"
@@ -203,7 +205,9 @@ int main(int argc,char * * argv)
 //		SDL_ShowCursor(0);
 #endif
 		mainloop:
+		#ifndef NOCLIPBOARD
 		service_clipboard();
+		#endif
 		switch (LHENDRAW_filedlgmode)
 		{
 		case 0:

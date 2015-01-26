@@ -2050,7 +2050,9 @@ catalogized_command_funcdef(COPY)
 	int control_textedit_cursor2;
 	if (LHENDRAW_clipboardmode)
 	{
+		#ifndef NOCLIPBOARD
 		service_clipboard();
+		#endif
 		if (LHENDRAW_clipboardmode)
 		{
 			free(LHENDRAW_clipboardbuffer);

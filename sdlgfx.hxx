@@ -372,9 +372,9 @@ Window gfx_Window;
 Display * gfx_Display;
 Atom clipboard_sseln = XA_PRIMARY;
 Atom clipboard_target = XA_STRING;
+#endif
 char * LHENDRAW_clipboardbuffer=NULL;
 long unsigned int LHENDRAW_clipboardbuffer_count;
-#endif
 
 void screenclear(_u32 icolor)
 {

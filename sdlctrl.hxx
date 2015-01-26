@@ -2380,7 +2380,7 @@ int textedit_left()
 	TELESCOPE_shrink(control_textedit_cursor,3);
 	iback:;
 	control_textedit_cursor-=1;
-	if (control_textedit_cursor<0)
+	if (((_iXX)control_textedit_cursor)<0)
 	{
 		control_textedit_cursor=0;
 		if (control_textedit_telescope>0)

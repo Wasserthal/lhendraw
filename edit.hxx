@@ -2026,7 +2026,9 @@ void ps_controlprocedure(bool irestriction,char hatches);
 int save_postscript(FILE * ifile,const char * value)
 {
 	outfile=ifile;
+	checkupinconsistencies();
 	svg_findaround();
+	getatoms();
 	fprintf(ifile,"%s %f %f\n","%!PS-Adobe-3.0\x0A%%Pages: 1\x0A%%BoundingBox: 0 0 ",SVG_width-SVG_ileft,SVG_height-SVG_itop);
 	SVG_currentshiftx=-SVG_ileft;
 	SVG_currentshifty=-SVG_itop;

@@ -5,10 +5,10 @@ void ps_express_text_tail()
 }
 void ps_express_txinit(char ialignment,float iposx,float iposy,float iatomfontheight)
 {
-	ps_txposx=iposx;
-	ps_txposy=SVG_height-iposy;
+	ps_txposx=iposx-4;
+	ps_txposy=SVG_height-iposy-4;
 	ps_fontsize=iatomfontheight;
-	fprintf(outfile,"\nnewpath\n %f %f moveto\n",ps_txposx,ps_txposy);
+	fprintf(outfile,"\nnewpath\n %f %f moveto\n0 0\n",ps_txposx,ps_txposy);
 }
 void ps_expressarc(float centerx,float centery,float radiusx,float radiusy,float startangle,float endangle)
 {
@@ -46,14 +46,20 @@ int ps_get_colorstringv(int number)
 }
 void ps_printformatted(const char * iinput,const char * parms,int imode,int start,int end)
 {
-	fprintf(outfile,"/Helvetica findfont\n12 scalefont\nsetfont\n \n(");
+	fprintf(outfile,"pop\n");
+	fprintf(outfile,"/Helvetica findfont\n12 scalefont\nsetfont\n(");
 	fwrite(iinput+start,1,end-start,outfile);
-	fprintf(outfile,") dup show stringwidth 0 rmoveto\n");
+	fprintf(outfile,") dup show stringwidth pop add 0\n");
 }
 void ps_stylegenestring(int flags,unsigned int fillcolor=0)
 {
 }
 int ps_text_rewind(const _u8 * sizestring,int length)
 {
+	fprintf(outfile,"exch 0 exch sub exch rmoveto\n");
+	fprintf(outfile,"(");
+	fwrite(sizestring,1,length,outfile);
+	fprintf(outfile,") stringwidth exch 0 exch sub exch rmoveto\n");
+	fprintf(outfile,"0 0\n");
 	return 0;
 }

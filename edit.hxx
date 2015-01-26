@@ -2297,6 +2297,13 @@ catalogized_command_funcdef(SAVEAS)
 	menu_selectedmenuelement=0;
 	return 1;
 }
+catalogized_command_funcdef(EXPORTAS)
+{
+	LHENDRAW_filedlgmode=1;
+	control_filemenu_mode=2;
+	menu_selectedmenuelement=0;
+	return 1;
+}
 catalogized_command_funcdef(LOAD_INTO_SEARCHBUF)
 {
 	printf("TODO***stub\n");
@@ -2995,6 +3002,30 @@ catalogized_command_funcdef(FILEDLG_FILE_SAVE)
 	{
 		sprintf(control_totalfilename,"%s/%s",control_currentdirectory,control_filenamehead);
 		retval=SAVE_TYPE(control_totalfilename,"");//TODO: insert selected type
+
+		if (retval>=1)
+		{
+			retval=1;
+			LHENDRAW_filedlgmode=0;
+		}
+		closedir(DD);
+	}
+	return retval;
+}
+catalogized_command_funcdef(FILEDLG_FILE_EXPORT)
+{
+	if (strcmp(control_filenamehead,"")==0)
+	{
+		return -41;
+	}
+	DIR * DD=opendir(control_currentdirectory);
+	char retval=-30;
+	if (DD)
+	{
+		sprintf(control_totalfilename,"%s/%s",control_currentdirectory,control_filenamehead);
+		control_save_selection=1;
+		retval=SAVE_TYPE(control_totalfilename,"");//TODO: insert selected type
+		control_save_selection=0;
 
 		if (retval>=1)
 		{

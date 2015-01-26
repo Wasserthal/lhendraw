@@ -255,6 +255,13 @@ void CONVCAMBRIDGE_text(CAMBRIDGE_page_instance * master)
 	multilist<t_instance> * tl_t_multilist=retrievemultilist<t_instance>();
 	for (int ilv1=0;ilv1<(*tl_t_multilist).filllevel;ilv1++)
 	{
+		if (control_save_selection)
+		{
+			if ((selection_currentselection[ilv1] & (1<<STRUCTURE_OBJECTTYPE_t))==0)
+			{
+				continue;
+			}
+		}
 		t_instance * tl_t_instance=(*tl_t_multilist).bufferlist()+ilv1;
 		
 		ADD_TO_MULTILISTREFERENCE(master,t);
@@ -293,6 +300,7 @@ void CONVCAMBRIDGE_fragments(CAMBRIDGE_page_instance * master)
 	if (iatomnr!=-1)
 	{
 		select_fragment_by_atom(iatomnr);
+		selection_ORselection(selection_currentselection,selection_fragmentselection);
 
 		ADD_TO_MULTILISTREFERENCE(master,fragment);
 		tl_CAMBRIDGE_fragment_instance->BoundingBox.left=32767;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_fragment_instance,BoundingBox);
@@ -311,6 +319,13 @@ void CONVCAMBRIDGE_arrow(CAMBRIDGE_page_instance * master)
 	multilist<arrow_instance> * tl_arrow_multilist=retrievemultilist<arrow_instance>();
 	for (int ilv1=0;ilv1<(*tl_arrow_multilist).filllevel;ilv1++)
 	{
+		if (control_save_selection)
+		{
+			if ((selection_currentselection[ilv1] & (1<<STRUCTURE_OBJECTTYPE_arrow))==0)
+			{
+				continue;
+			}
+		}
 		arrow_instance * tl_arrow_instance=(*tl_arrow_multilist).bufferlist()+ilv1;
 		ADD_TO_MULTILISTREFERENCE(master,arrow);
 		CONVCAMBRIDGE_COLORCONV(arrow);
@@ -334,6 +349,13 @@ void CONVCAMBRIDGE_graphic(CAMBRIDGE_page_instance * master)
 	multilist<graphic_instance> * tl_graphic_multilist=retrievemultilist<graphic_instance>();
 	for (int ilv1=0;ilv1<(*tl_graphic_multilist).filllevel;ilv1++)
 	{
+		if (control_save_selection)
+		{
+			if ((selection_currentselection[ilv1] & (1<<STRUCTURE_OBJECTTYPE_graphic))==0)
+			{
+				continue;
+			}
+		}
 		graphic_instance * tl_graphic_instance=(*tl_graphic_multilist).bufferlist()+ilv1;
 		ADD_TO_MULTILISTREFERENCE(master,graphic);
 		CONVCAMBRIDGE_COLORCONV(graphic);
@@ -381,6 +403,13 @@ void CONVCAMBRIDGE_Symbol(CAMBRIDGE_page_instance * master)
 		ifilllevel=(*tl_multilist).filllevel;
 		for (int ilv2=0;ilv2<ifilllevel;ilv2++)
 		{
+			if (control_save_selection)
+			{
+				if ((selection_currentselection[ilv2] & (1<<ilv1))==0)
+				{
+					continue;
+				}
+			}
 			TELESCOPE_aggressobject(tl_multilist,ilv2);
 			backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_Symbol);
 			while (backval>0)
@@ -424,5 +453,4 @@ void CONVCAMBRIDGE_internaltomain(CAMBRIDGE_page_instance * master)
 	CONVCAMBRIDGE_arrow(master);
 	CONVCAMBRIDGE_graphic(master);
 	CONVCAMBRIDGE_Symbol(master);
-	//TODO: save selection only. Perhaps one could use Zlist for that purpose?
 }

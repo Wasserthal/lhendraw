@@ -247,6 +247,13 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,char hatches)
 	{
 		if (objectZorderlist[ilv1].listnr!=-1)
 		{
+			if (control_save_selection)
+			{
+				if ((selection_currentselection[objectZorderlist[ilv1].nr] & (1<<(*(multilistlist[objectZorderlist[ilv1].listnr].instance)).numberinlist))==0)
+				{
+					goto svg_main_loop;
+				}
+			}
 			tlcurrentmultilist=multilistlist[objectZorderlist[ilv1].listnr].instance;
 			index_in_buffer=objectZorderlist[ilv1].nr;
 			tlcurrentinstance=((char*)((*tlcurrentmultilist).pointer))+((*tlcurrentmultilist).itemsize)*index_in_buffer;

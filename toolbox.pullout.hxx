@@ -167,6 +167,17 @@ menuitem pullout_toolbox[]={
 "LOADAS","",
 0x00FF00,
 },
+{2,1,
+93,//Picture
+"Save",
+3,0,
+0,
+"Export"
+"Enter new filename",
+"",
+"EXPORTAS","",
+0x00FF00,
+},
 {5,2,
 1,//Picture
 "Undo",

@@ -10,6 +10,7 @@ int gfx_canvasminy=120;
 int gfx_canvasmaxx=864;
 int gfx_canvasmaxy=648;
 int gfx_depth=4;
+int gfx_initialized=0;
 float SDL_scrollx=0,SDL_scrolly=0;
 float SDL_zoomx=1,SDL_zoomy=1;
 int SDL_txcursorx=0;int SDL_txcursory=0;
@@ -403,8 +404,22 @@ int gfx()
 	}
 	return 1;
 }
+void sdl_init()
+{
+	if (SDL_Init(SDL_INIT_VIDEO)<0)
+	{
+		fprintf(stderr, "SDL konnte nicht initialisiert werden: %s\n", SDL_GetError());
+		exit(1);
+	}
+	gfx();
+	gfx_initialized=1;
+}
 int gfx_gfxstart()
 {
+	if (gfx_initialized==0)
+	{
+		sdl_init();
+	}
 	if ( SDL_MUSTLOCK(video) ) 
 	{
 		if ( SDL_LockSurface(video) < 0 ) 
@@ -744,15 +759,6 @@ void gfx_printformatted(const char * iinput,const char * parms,int imode,int sta
 	if (linebreak) {SDL_txcursory+=16;SDL_txcursorx=SDL_old_txcursorx;goto thatwasatemporaryskip;}//a line break;
 }
 
-void sdl_init()
-{
-	if (SDL_Init(SDL_INIT_VIDEO)<0)
-	{
-		fprintf(stderr, "SDL konnte nicht initialisiert werden: %s\n", SDL_GetError());
-		exit(1);
-	}
-	gfx();
-}
 void sdl_outit()
 {
 }

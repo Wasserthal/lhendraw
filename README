@@ -8,4 +8,3 @@ but will nevertheless still provide the source code under AGPLv3.
 unimportant info, except for the professional user:
 Known bugs:
 - scaled, turned and scaled again circular arrows give graphical glitches.
-- slow, many internal routines have not been optimized yet.

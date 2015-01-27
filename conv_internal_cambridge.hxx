@@ -203,6 +203,25 @@ CONVCAMBRIDGE_COLORCONV2(t,(*tl_n_instance).color);
 				if ((*tl_CAMBRIDGE_n_instance).xyz.y>(*iBoundingBox).bottom){(*iBoundingBox).bottom=(*tl_CAMBRIDGE_n_instance).xyz.y;}
 			}
 		}
+		else
+		{
+			for (int ilv2=0;ilv2<atom_actual_node[ilv1].bondcount;ilv2++)
+			{
+				if (selection_currentselection[atom_actual_node[ilv1].bonds[ilv2]] & (1<<STRUCTURE_OBJECTTYPE_b))
+				{
+					n_instance * tl_n_instance=(*tl_n_multilist).bufferlist()+ilv1;
+					ADD_TO_MULTILISTREFERENCE(master,n);
+					CONVCAMBRIDGE_COLORCONV(n);
+(*tl_CAMBRIDGE_n_instance).p.x=(*tl_n_instance).xyz.x;//BACKWARDS COMPATIBILITY
+(*tl_CAMBRIDGE_n_instance).p.y=(*tl_n_instance).xyz.y;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_n_instance,p);//BACKWARDS COMPATIBILITY
+(*tl_CAMBRIDGE_n_instance).xyz=(*tl_n_instance).xyz;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_n_instance,xyz);
+(*tl_CAMBRIDGE_n_instance).Z=(*tl_n_instance).Z;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_n_instance,Z);
+(*tl_CAMBRIDGE_n_instance).id=janitor_id_list[STRUCTURE_OBJECTTYPE_n-1]+(*tl_n_instance).id;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_n_instance,id);
+					goto iatomfertig;
+				}
+			}
+		}
+		iatomfertig:;
 	}
 }
 
@@ -300,7 +319,7 @@ void CONVCAMBRIDGE_fragments(CAMBRIDGE_page_instance * master)
 	if (iatomnr!=-1)
 	{
 		select_fragment_by_atom(iatomnr);
-		selection_ORselection(selection_currentselection,selection_fragmentselection);
+		selection_ANDselection(selection_fragmentselection,selection_currentselection);
 
 		ADD_TO_MULTILISTREFERENCE(master,fragment);
 		tl_CAMBRIDGE_fragment_instance->BoundingBox.left=32767;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_fragment_instance,BoundingBox);

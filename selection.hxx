@@ -285,28 +285,11 @@ void select_fragment_by_atom(int start)
 				{
 					int tlbondnr=atom_actual_node[ilv1_wine].bonds[ilv2];
 					int tlatomnr=getother(ilv1_wine,tlbondnr);
-					if (control_save_selection)
-					{
-						if ((selection_currentselection[tlbondnr] & icompare_b)==0)
-						{
-							goto skipunselectedatom;
-						}
-					}
-					printf("bond:%i\n",tlbondnr);
 					selection_fragmentselection[tlbondnr]|=icompare_b;
 					selection_clickselection[tlbondnr]|=icompare_b;
 					selection_fragmentselection_found|=icompare_b;
 					if ((*glob_n_multilist)[tlatomnr].exist)
 					{
-						if (control_save_selection)
-						{
-							//TODO: add blind atoms for bond-ends!
-							//select sole bonds!
-							if ((selection_currentselection[tlatomnr] & (1<<STRUCTURE_OBJECTTYPE_n))==0)
-							{
-								goto skipunselectedatom;
-							}
-						}
 						if ((selection_fragmentselection[tlatomnr] & icompare_n)==0)
 						{
 							if ((selection_clickselection[tlatomnr] & icompare_n)==0)
@@ -330,13 +313,6 @@ void select_fragment_by_atom(int start)
 		b_instance * tl_b_instance=&((*glob_b_multilist)[ilv1]);
 		if ((*tl_b_instance).exist)
 		{
-			if (control_save_selection)
-			{
-				if ((selection_currentselection[ilv1] & icompare_b)==0)
-				{
-					goto skipunselectedbond;
-				}
-			}
 			if (selection_fragmentselection[bond_actual_node[ilv1].start] & icompare_n)
 			{
 				selection_fragmentselection[ilv1]|=icompare_b;

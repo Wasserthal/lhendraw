@@ -18,6 +18,7 @@ int userwarning(const char*warning);
 _i32 janitor_maxZ=0;
 _small LHENDRAW_maxbuttons=74;
 typedef _u32 selection_datatype;
+#define constants_buttonsize 32
 #define constants_bondlength 30
 #define constants_angular_distance 2.094395102
 #define constants_clickradius 225

@@ -8,7 +8,7 @@ menuitem pullout_filedlg_lists[]={
 "control_currentdirectory",
 "FILEDLG_FILE_PATH","",
 0xFF,
-1016,16,
+-8,16,
 },
 {0,0,
 0,//Picture
@@ -19,7 +19,7 @@ menuitem pullout_filedlg_lists[]={
 "control_devicememory",
 "FILEDLG_DEVICE_SEL","",
 0x00FF00,
-256,704,
+256,-64,
 },
 {256,16,
 0,//Picture
@@ -30,9 +30,9 @@ menuitem pullout_filedlg_lists[]={
 "control_filememory",
 "FILEDLG_FILE_SEL","",
 0xFFFFFF,
-1016,704,
+-8,-64,
 },
-{256,704,
+{256,-64,
 0,//Picture
 "FILEDLG_FILE_HEAD",
 0x301,0x301,
@@ -41,6 +41,6 @@ menuitem pullout_filedlg_lists[]={
 "control_filenamehead",
 "FILEDLG_FILE_HEAD","",
 0xFFFFFF,
-1016,720,
+-8,-48,
 },
 };

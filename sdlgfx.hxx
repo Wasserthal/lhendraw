@@ -1,14 +1,16 @@
 //Graphic routines. Callers of those should be in createsvg.hxx
-int gfx_screensizex=1024;
-int gfx_screensizey=768;
-int gfx_canvassizex=704;
-int gfx_canvassizey=528;
+#define gfx_STANDARDX 640
+#define gfx_STANDARDY 480
+int gfx_screensizex=gfx_STANDARDX;
+int gfx_screensizey=gfx_STANDARDY;
+int gfx_canvassizex=gfx_STANDARDX-320;
+int gfx_canvassizey=gfx_STANDARDY-240;
 #define gfx_standardcanvassizex 704
 #define gfx_standardcanvassizey 528
 int gfx_canvasminx=160;
 int gfx_canvasminy=120;
-int gfx_canvasmaxx=864;
-int gfx_canvasmaxy=648;
+int gfx_canvasmaxx=gfx_STANDARDX-160;
+int gfx_canvasmaxy=gfx_STANDARDY-120;
 int gfx_depth=4;
 int gfx_initialized=0;
 float SDL_scrollx=0,SDL_scrolly=0;
@@ -386,7 +388,7 @@ void screenclear(_u32 icolor)
 int gfx()
 {
 	#ifdef SDL2
-	window=SDL_CreateWindow("Lhendraw",0,0,1024,768,0);
+	window=SDL_CreateWindow("Lhendraw",0,0,gfx_STANDARDX,gfx_STANDARDY,0);
 	video=SDL_GetWindowSurface(window);
 	#else
 	video=SDL_SetVideoMode(gfx_screensizex,gfx_screensizey,32,SDL_SWSURFACE);
@@ -399,7 +401,7 @@ int gfx()
 	#endif
 	if ( video == NULL ) 
 	{
-		fprintf(stderr,"Ich konnte kein Fenster mit der Auflösung 1024*768 öffnen: %s\n",SDL_GetError());
+		fprintf(stderr,"Ich konnte kein Fenster mit der Auflösung %i*%i öffnen: %s\n",gfx_STANDARDX,gfx_STANDARDY,SDL_GetError());
 		exit(1);
 	}
 	return 1;

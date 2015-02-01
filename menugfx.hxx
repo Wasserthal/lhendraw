@@ -118,6 +118,8 @@ int sdl_toolboxitemdraw(int posx,int posy,int gfxno,_u32 state)
 {
 	_u32 * ibutton=resources_bitmap_buttons[0][0];
 	_u32 * ihgd=resources_bitmap_buttons[1][0];
+	if (posx<0) posx+=gfx_screensizex;
+	if (posy<0) posy+=gfx_screensizey;
 	int idelta=(state & 0xD)>>1;
 	for (int ilv2=0;ilv2<32-idelta;ilv2++)
 	{
@@ -154,6 +156,7 @@ int sdl_sliderdraw(int posx,int posy,int gfxno,int shift,int color)
 	_u32 * ibutton=resources_bitmap_buttons[LHENDRAW_maxbuttons-gfxno-1][0];
 	int xco,yco;
 	_u32 islider[8];
+	if (posy<0) posy+=gfx_screensizey;
 	if (shift>=0)
 	{
 		shift=shift%8;
@@ -337,14 +340,24 @@ int sdl_listmenudraw(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int count,int xpos=0,
 	int ilv2;
 	structenum istructenum;
 	int bgcolor=0;
+	int horzistart,vertistart;
+	int horziend,vertiend;
 	for (int ilv1=0;ilv1<count;ilv1++)
 	{
 		switch (ilisting[ilv1].lmbmode & 0xFF00)
 		{
 			case 0x200:
 			{
+				horziend=ilisting[ilv1].maxx;
+				vertiend=ilisting[ilv1].maxy;
+				horzistart=ilisting[ilv1].x;
+				vertistart=ilisting[ilv1].y;
+				if (horziend<0) horziend+=gfx_screensizex;
+				if (vertiend<0) vertiend+=gfx_screensizey;
+				if (horzistart<0) horzistart+=gfx_screensizex;
+				if (vertistart<0) vertistart+=gfx_screensizey;
 				istructenum=(*(structenum*)(ilisting[ilv1].variable));
-				for (ilv2=0;ilv2*16+ypos<ilisting[ilv1].maxy-ilisting[ilv1].y;ilv2++)
+				for (ilv2=0;ilv2*16+ypos<vertiend-vertistart;ilv2++)
 				{
 					int tl_number=ilv2+istructenum.scroll;
 					if (tl_number==istructenum.number)
@@ -355,34 +368,42 @@ int sdl_listmenudraw(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int count,int xpos=0,
 					{
 						bgcolor=0;
 					}
-					_u32 * iscreen=screen+((ypos+ilisting[ilv1].y+ilv2*16))*gfx_screensizex+xpos+ilisting[ilv1].x;
+					_u32 * iscreen=screen+((ypos+vertistart+ilv2*16))*gfx_screensizex+xpos+horzistart;
 					SDL_color=ilisting[ilv1].bgcolor;
 					for (int ilv3=0;ilv3<16;ilv3++)
 					{
-						for (int ilv4=ilisting[ilv1].x;ilv4<ilisting[ilv1].maxx;ilv4++)
+						for (int ilv4=horzistart;ilv4<horziend;ilv4++)
 						{
 							*(iscreen)=bgcolor;
 							iscreen++;
 						}
-						iscreen+=gfx_screensizex-ilisting[ilv1].maxx+ilisting[ilv1].x;
+						iscreen+=gfx_screensizex-horziend+horzistart;
 					}
 					if (tl_number<istructenum.count)
 					{
 						char * tl_pointer=((char*)(istructenum.pointer))+istructenum.size*tl_number;
-						printmenutext(ilisting[ilv1].x+xpos,(ilisting[ilv1].y+ilv2*16)+ypos,tl_pointer,min(strlen(tl_pointer),(ilisting[ilv1].maxx-ilisting[ilv1].x)/8));
+						printmenutext(horzistart+xpos,(vertistart+ilv2*16)+ypos,tl_pointer,min(strlen(tl_pointer),(horziend-horzistart)/8));
 					}
 				}
 				break;
 			}
 			case 0x300:
 			{
+				horziend=ilisting[ilv1].maxx;
+				vertiend=ilisting[ilv1].maxy;
+				horzistart=ilisting[ilv1].x;
+				vertistart=ilisting[ilv1].y;
+				if (horziend<0) horziend+=gfx_screensizex;
+				if (vertiend<0) vertiend+=gfx_screensizey;
+				if (horzistart<0) horzistart+=gfx_screensizex;
+				if (vertistart<0) vertistart+=gfx_screensizey;
 				char * tl_pointer=(char*)(ilisting[ilv1].variable);
 				int tl_counter;
-				_u32 * iscreen=screen+(ypos+ilisting[ilv1].y)*gfx_screensizex+xpos+ilisting[ilv1].x;
+				_u32 * iscreen=screen+(ypos+vertistart)*gfx_screensizex+xpos+horzistart;
 				SDL_color=ilisting[ilv1].bgcolor;
 				for (int ilv3=0;ilv3<16;ilv3++)
 				{
-					for (int ilv4=ilisting[ilv1].x,tl_counter=0;ilv4<ilisting[ilv1].maxx;ilv4+=8,tl_counter++)
+					for (int ilv4=horzistart,tl_counter=0;ilv4<horziend;ilv4+=8,tl_counter++)
 					{
 						if ((control_menutexteditcursor-control_menutextedithorziscroll*(item==ilv1)-tl_counter!=0) || (item!=ilv1))
 						{
@@ -407,10 +428,10 @@ int sdl_listmenudraw(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int count,int xpos=0,
 							*(iscreen++)=0x7F7FFF;
 						}
 					}
-					iscreen+=gfx_screensizex-ilisting[ilv1].maxx+ilisting[ilv1].x;
+					iscreen+=gfx_screensizex-horziend+horzistart;
 				}
 				tl_pointer=(char*)(ilisting[ilv1].variable);
-				printmenutext(ilisting[ilv1].x+xpos,(ilisting[ilv1].y)+ypos,tl_pointer,min(strlen(tl_pointer),(ilisting[ilv1].maxx-ilisting[ilv1].x)/8));
+				printmenutext(horzistart+xpos,(vertistart)+ypos,tl_pointer,min(strlen(tl_pointer),(horziend-horzistart)/8));
 				break;
 			}
 		}

@@ -269,7 +269,7 @@ menuitem pullout_toolbox[]={
 "","",
 0x0000FF,
 },
-{14,2,
+{11,1,
 34,//Picture
 "color",
 0x111,0x111,
@@ -309,7 +309,7 @@ menuitem pullout_toolbox[]={
 "SAVE","",
 0x00FF00,
 },
-{5,21,
+{5,-3,
 33,//Picture
 "turn",
 0x103,0x103,
@@ -319,7 +319,7 @@ menuitem pullout_toolbox[]={
 "PIVOT_TURNZ","",
 0x000000,
 },
-{5,22,
+{5,-2,
 33,//Picture
 "turn",
 0x103,0x103,
@@ -329,7 +329,7 @@ menuitem pullout_toolbox[]={
 "PIVOT_TURNY","",
 0x000008,
 },
-{5,23,
+{5,-1,
 33,//Picture
 "turn",
 0x103,0x103,
@@ -339,7 +339,7 @@ menuitem pullout_toolbox[]={
 "PIVOT_TURNX","",
 0x000010,
 },
-{20,0,
+{-4,0,
 51,//Picture
 "ReMem",
 3,0,
@@ -349,7 +349,7 @@ menuitem pullout_toolbox[]={
 "REMEM","",
 0x00FF00,
 },
-{18,0,
+{-6,0,
 50,//Picture
 "more mem",
 3,0,
@@ -359,7 +359,7 @@ menuitem pullout_toolbox[]={
 "MEMX2","",
 0x00FF00,
 },
-{19,0,
+{-5,0,
 49,//Picture
 "free mem",
 3,0,
@@ -379,7 +379,7 @@ menuitem pullout_toolbox[]={
 "UNDOTREE","",
 0x00FF00,
 },
-{22,0,
+{-2,0,
 45,//Picture
 "Help",
 3,0,
@@ -389,7 +389,7 @@ menuitem pullout_toolbox[]={
 "HELP","",
 0x00FF00,
 },
-{23,0,
+{-1,0,
 48,//Picture
 "Options",
 3,0,
@@ -399,7 +399,7 @@ menuitem pullout_toolbox[]={
 "OPTIONS","",
 0x00FF00,
 },
-{24,0,
+{-2,1,
 90,//Picture
 "COPY",
 3,0,
@@ -409,12 +409,12 @@ menuitem pullout_toolbox[]={
 "COPY","",
 0x00FF00,
 },
-{25,0,
+{-1,1,
 91,//Picture
 "PASTE",
 3,0,
 4,
-"copy to clipboard",
+"paste from clipboard",
 "",
 "PASTE","",
 0x00FF00,

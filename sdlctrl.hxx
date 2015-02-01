@@ -2032,6 +2032,8 @@ void issuerelease()
 }
 int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int posy,int button,int pixeloriginposx,int pixeloriginposy,int starthitnr=-1)
 {
+	int horzistart;
+	int vertistart;
 	int ihitnr=0;
 	AUTOSTRUCT_PULLOUTLISTING_ * ipulloutlisting=NULL;
 	if (starthitnr!=-1)
@@ -2042,20 +2044,24 @@ int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int
 	}
 	for (int ilv1=0;ilv1<icount;ilv1++)
 	{
-		if ((ilisting[ilv1].x==posx) && (ilisting[ilv1].y==posy))
+	}
+	for (int ilv1=0;ilv1<icount;ilv1++)
+	{
+		horzistart=ilisting[ilv1].x;
+		vertistart=ilisting[ilv1].y;
+		if (horzistart<0) horzistart+=gfx_screensizex/constants_buttonsize;
+		if (vertistart<0) vertistart+=gfx_screensizey/constants_buttonsize;
+		if ((horzistart==posx) && (vertistart==posy))
 		{
 			ipulloutlisting=&(ilisting[ilv1]);
 			ihitnr=ilv1;
 			goto ifound;
 		}
-	}
-	for (int ilv1=0;ilv1<icount;ilv1++)
-	{
 		if (ilisting[ilv1].lmbmode==0x103)
 		{
-			if (ilisting[ilv1].y==posy)
+			if (vertistart==posy)
 			{
-				if ((ilisting[ilv1].x<=posx) && (ilisting[ilv1].x+(gfx_canvassizex/32)>posx))
+				if ((horzistart<=posx) && (horzistart+(gfx_canvassizex/32)>posx))
 				{
 					ipulloutlisting=&(ilisting[ilv1]);
 					ihitnr=ilv1;

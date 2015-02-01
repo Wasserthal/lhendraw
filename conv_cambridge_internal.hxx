@@ -11,6 +11,11 @@ if (AUTOSTRUCT_EXISTS(CAMBRIDGE_ ## MACROPARAM_TYPE ## _instance,(*tl_CAMBRIDGE_
 {\
 	tl_ ## MACROPARAM_TYPE ## _instance.MACROPARAM_PARAM2=(*tl_CAMBRIDGE_ ## MACROPARAM_TYPE ## _instance).MACROPARAM_PARAM;\
 }
+#define CAMBRIDGECONV_FIXID(MACROPARAM_TYPE)\
+if (tl_ ## MACROPARAM_TYPE ## _instance.id!=0)\
+{\
+	tl_ ## MACROPARAM_TYPE ## _instance.id+=glob_ ## MACROPARAM_TYPE ## _multilist->maxid;\
+}
 #define CAMBRIDGECONV_COLORCONV(MACROPARAM_TYPE) \
 {\
 	__label__ color_fertig;\
@@ -75,7 +80,6 @@ void CAMBRIDGECONV_atom()
 {
 	multilist<CAMBRIDGE_n_instance> * tl_CAMBRIDGE_n_multilist=retrievemultilist<CAMBRIDGE_n_instance>();
 	multilist<n_instance> * tl_n_multilist=retrievemultilist<n_instance>();
-	(*tl_n_multilist).filllevel=0;
 	for (int ilv1=0;ilv1<(*tl_CAMBRIDGE_n_multilist).filllevel;ilv1++)
 	{
 		int ihv1;
@@ -128,6 +132,7 @@ void CAMBRIDGECONV_atom()
 		}
 		//TODO: ExternalConnectionType, and respecting this enumerated property in draw
 		tl_n_instance.id=(*tl_CAMBRIDGE_n_instance).id;
+		CAMBRIDGECONV_FIXID(n)
 		(*tl_n_multilist).ADD(&tl_n_instance);
 	}
 }
@@ -136,7 +141,6 @@ void CAMBRIDGECONV_bond()
 {
 	multilist<CAMBRIDGE_b_instance> * tl_CAMBRIDGE_b_multilist=retrievemultilist<CAMBRIDGE_b_instance>();
 	multilist<b_instance> * tl_b_multilist=retrievemultilist<b_instance>();
-	(*tl_b_multilist).filllevel=0;
 	for (int ilv1=0;ilv1<(*tl_CAMBRIDGE_b_multilist).filllevel;ilv1++)
 	{
 		CAMBRIDGE_b_instance * tl_CAMBRIDGE_b_instance=(*tl_CAMBRIDGE_b_multilist).bufferlist()+ilv1;
@@ -184,8 +188,9 @@ void CAMBRIDGECONV_bond()
 		}
 		tl_b_instance.Order=tl_outorder;
 		tl_b_instance.id=(*tl_CAMBRIDGE_b_instance).id;
-		tl_b_instance.B=(*tl_CAMBRIDGE_b_instance).B;
-		tl_b_instance.E=(*tl_CAMBRIDGE_b_instance).E;
+		CAMBRIDGECONV_FIXID(b)
+		tl_b_instance.B=(*tl_CAMBRIDGE_b_instance).B+glob_n_multilist->maxid;
+		tl_b_instance.E=(*tl_CAMBRIDGE_b_instance).E+glob_n_multilist->maxid;
 		if (AUTOSTRUCT_EXISTS(CAMBRIDGE_b_instance,(*tl_CAMBRIDGE_b_instance),Z))
 		{
 			tl_b_instance.Z=(*tl_CAMBRIDGE_b_instance).Z;
@@ -211,7 +216,6 @@ void CAMBRIDGECONV_text()
 	multilist<n_instance> * tl_n_multilist=retrievemultilist<n_instance>();
 	t_instance tl_t_instance;
 	s_instance tl_s_instance;
-	(*tl_t_multilist).filllevel=0;
 	for (int ilv1=0;ilv1<(*tl_CAMBRIDGE_t_multilist).filllevel;ilv1++)
 	{
 		atommode=0;
@@ -334,7 +338,6 @@ void CAMBRIDGECONV_graphic()
 {
 	multilist<CAMBRIDGE_graphic_instance> * tl_CAMBRIDGE_graphic_multilist=retrievemultilist<CAMBRIDGE_graphic_instance>();
 	multilist<graphic_instance> * tl_graphic_multilist=retrievemultilist<graphic_instance>();
-	(*tl_graphic_multilist).filllevel=0;
 	for (int ilv1=0;ilv1<(*tl_CAMBRIDGE_graphic_multilist).filllevel;ilv1++)
 	{
 		CAMBRIDGE_graphic_instance * tl_CAMBRIDGE_graphic_instance=(*tl_CAMBRIDGE_graphic_multilist).bufferlist()+ilv1;
@@ -363,6 +366,7 @@ void CAMBRIDGECONV_graphic()
 		CAMBRIDGECONV_EXISTSTHEN(graphic,MajorAxisEnd3D);
 		CAMBRIDGECONV_EXISTSTHEN(graphic,MinorAxisEnd3D);
 		CAMBRIDGECONV_EXISTSTHEN(graphic,id);//TODO: possibly not needed. Remove?
+		CAMBRIDGECONV_FIXID(graphic)
 		CAMBRIDGECONV_EXISTSTHEN(graphic,Z);
 		(*tl_graphic_multilist).ADD(&tl_graphic_instance);
 		skip_because_superseded:;
@@ -372,7 +376,6 @@ void CAMBRIDGECONV_arrow()
 {
 	multilist<CAMBRIDGE_arrow_instance> * tl_CAMBRIDGE_arrow_multilist=retrievemultilist<CAMBRIDGE_arrow_instance>();
 	multilist<arrow_instance> * tl_arrow_multilist=retrievemultilist<arrow_instance>();
-	(*tl_arrow_multilist).filllevel=0;
 	for (int ilv1=0;ilv1<(*tl_CAMBRIDGE_arrow_multilist).filllevel;ilv1++)
 	{
 		CAMBRIDGE_arrow_instance * tl_CAMBRIDGE_arrow_instance=(*tl_CAMBRIDGE_arrow_multilist).bufferlist()+ilv1;
@@ -397,12 +400,14 @@ void CAMBRIDGECONV_arrow()
 	}
 }
 
+extern int janitor_getmaxid(_u32 ino);
 void CAMBRIDGECONV_maintointernal()
 {
+	janitor_getmaxid(0);
 	CAMBRIDGECONV_atom();//atoms before text, or some atoms get no label.
 	CAMBRIDGECONV_bond();
 	CAMBRIDGECONV_text();
 	CAMBRIDGECONV_graphic();
 	CAMBRIDGECONV_arrow();
-	//TODO: LOAD additively. re-adjust id's for that purpose.
+	janitor_getmaxid(0);//You never know what must be done with them next.
 }

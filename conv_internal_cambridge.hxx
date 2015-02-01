@@ -88,6 +88,7 @@ void CONVCAMBRIDGE_atoms(CAMBRIDGE_fragment_instance * master,cdx_Rectangle * iB
 	multilist<CAMBRIDGE_t_instance> * tl_CAMBRIDGE_t_multilist=retrievemultilist<CAMBRIDGE_t_instance>();
 	for (int ilv1=0;ilv1<(*tl_n_multilist).filllevel;ilv1++)
 	{
+		if ((*tl_n_multilist).bufferlist()[ilv1].exist==0) continue;
 		if (selection_fragmentselection[ilv1] & icompare)
 		{
 			i_bond_sum=0;
@@ -205,19 +206,22 @@ CONVCAMBRIDGE_COLORCONV2(t,(*tl_n_instance).color);
 		}
 		else
 		{
-			for (int ilv2=0;ilv2<atom_actual_node[ilv1].bondcount;ilv2++)
+			if ((selection_clickselection[ilv1] & (1<<STRUCTURE_OBJECTTYPE_n))==0)
 			{
-				if (selection_currentselection[atom_actual_node[ilv1].bonds[ilv2]] & (1<<STRUCTURE_OBJECTTYPE_b))
+				for (int ilv2=0;ilv2<atom_actual_node[ilv1].bondcount;ilv2++)
 				{
-					n_instance * tl_n_instance=(*tl_n_multilist).bufferlist()+ilv1;
-					ADD_TO_MULTILISTREFERENCE(master,n);
-					CONVCAMBRIDGE_COLORCONV(n);
-(*tl_CAMBRIDGE_n_instance).p.x=(*tl_n_instance).xyz.x;//BACKWARDS COMPATIBILITY
-(*tl_CAMBRIDGE_n_instance).p.y=(*tl_n_instance).xyz.y;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_n_instance,p);//BACKWARDS COMPATIBILITY
-(*tl_CAMBRIDGE_n_instance).xyz=(*tl_n_instance).xyz;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_n_instance,xyz);
-(*tl_CAMBRIDGE_n_instance).Z=(*tl_n_instance).Z;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_n_instance,Z);
-(*tl_CAMBRIDGE_n_instance).id=janitor_id_list[STRUCTURE_OBJECTTYPE_n-1]+(*tl_n_instance).id;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_n_instance,id);
-					goto iatomfertig;
+					if (selection_fragmentselection[atom_actual_node[ilv1].bonds[ilv2]] & (1<<STRUCTURE_OBJECTTYPE_b))
+					{
+						n_instance * tl_n_instance=(*tl_n_multilist).bufferlist()+ilv1;
+						ADD_TO_MULTILISTREFERENCE(master,n);
+						CONVCAMBRIDGE_COLORCONV(n);
+	(*tl_CAMBRIDGE_n_instance).p.x=(*tl_n_instance).xyz.x;//BACKWARDS COMPATIBILITY
+	(*tl_CAMBRIDGE_n_instance).p.y=(*tl_n_instance).xyz.y;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_n_instance,p);//BACKWARDS COMPATIBILITY
+	(*tl_CAMBRIDGE_n_instance).xyz=(*tl_n_instance).xyz;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_n_instance,xyz);
+	(*tl_CAMBRIDGE_n_instance).Z=(*tl_n_instance).Z;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_n_instance,Z);
+	(*tl_CAMBRIDGE_n_instance).id=janitor_id_list[STRUCTURE_OBJECTTYPE_n-1]+(*tl_n_instance).id;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_n_instance,id);
+						goto iatomfertig;
+					}
 				}
 			}
 		}
@@ -312,14 +316,15 @@ void CONVCAMBRIDGE_fragments(CAMBRIDGE_page_instance * master)
 	multilist<CAMBRIDGE_fragment_instance> * tl_CAMBRIDGE_fragment_multilist=retrievemultilist<CAMBRIDGE_fragment_instance>();
 	selection_clearselection(selection_clickselection);
 	selection_clickselection_found=0;
-	iback:
+	ibackn:
 	selection_clearselection(selection_fragmentselection);
 	selection_fragmentselection_found=0;
 	iatomnr=findunfragmentedatom();
 	if (iatomnr!=-1)
 	{
+		ibackb:
 		select_fragment_by_atom(iatomnr);
-		selection_ANDselection(selection_fragmentselection,selection_currentselection);
+		if (control_save_selection) selection_ANDselection(selection_fragmentselection,selection_currentselection);
 
 		ADD_TO_MULTILISTREFERENCE(master,fragment);
 		tl_CAMBRIDGE_fragment_instance->BoundingBox.left=32767;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_fragment_instance,BoundingBox);
@@ -328,7 +333,15 @@ void CONVCAMBRIDGE_fragments(CAMBRIDGE_page_instance * master)
 		tl_CAMBRIDGE_fragment_instance->BoundingBox.bottom=0;
 		CONVCAMBRIDGE_atoms(tl_CAMBRIDGE_fragment_instance,&(tl_CAMBRIDGE_fragment_instance->BoundingBox));
 		CONVCAMBRIDGE_bonds(tl_CAMBRIDGE_fragment_instance);
-		goto iback;
+		goto ibackn;
+	}
+	selection_clearselection(selection_fragmentselection);
+	selection_fragmentselection_found=0;
+	int ibondnr=findunfragmentedbond();
+	if (ibondnr!=-1)
+	{
+		iatomnr=bond_actual_node[ibondnr].start;
+		goto ibackb;
 	}
 }
 

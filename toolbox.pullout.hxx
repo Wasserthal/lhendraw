@@ -169,13 +169,24 @@ menuitem pullout_toolbox[]={
 },
 {2,1,
 93,//Picture
-"Save",
+"Export",
 3,0,
 0,
 "Export"
 "Enter new filename",
 "",
 "EXPORTAS","",
+0x00FF00,
+},
+{3,1,
+95,//Picture
+"Import",
+3,0,
+0,
+"Import"
+"Enter new filename",
+"",
+"IMPORTAS","",
 0x00FF00,
 },
 {5,2,

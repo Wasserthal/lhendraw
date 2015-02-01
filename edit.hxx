@@ -63,6 +63,17 @@ int getbondsum(intl inumber)
 int janitor_getmaxid(_u32 ino)
 {
 	_u32 iid=0;
+	if (ino==0)
+	{
+		intl tl_sum=0;
+		for (int ilv1=1;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
+		{
+			intl tl_isum=0;
+			tl_isum=janitor_getmaxid(ilv1);
+			if (tl_isum>=0) tl_sum+=tl_isum;
+		}
+		return tl_sum;
+	}
 	WORKIFIX_REGISTERED_TRADEMARK_workthrough_variables
 	icompare=1<<ino;
 
@@ -2309,6 +2320,13 @@ catalogized_command_funcdef(EXPORTAS)
 	menu_selectedmenuelement=0;
 	return 1;
 }
+catalogized_command_funcdef(IMPORTAS)
+{
+	LHENDRAW_filedlgmode=1;
+	control_filemenu_mode=3;
+	menu_selectedmenuelement=0;
+	return 1;
+}
 catalogized_command_funcdef(LOAD_INTO_SEARCHBUF)
 {
 	printf("TODO***stub\n");
@@ -2337,9 +2355,9 @@ int edit_bondsum(int nr,int dir)
 	}
 	return 0;
 }
-void edit_add_deltahydrogens()
+void edit_add_deltahydrogens(_small ilastfilllevel)
 {
-	for (int ilv1=0;ilv1<(*glob_n_multilist).filllevel;ilv1++)
+	for (int ilv1=ilastfilllevel;ilv1<(*glob_n_multilist).filllevel;ilv1++)
 	{
 		edit_bondsum(ilv1,1);
 	}
@@ -2347,6 +2365,7 @@ void edit_add_deltahydrogens()
 catalogized_command_funcdef(LOAD_TYPE)
 {
 	FILE * infile;
+	_small tl_n_lastfilllevel;
 	infile=fopen(parameter,"r");
 	if (infile==NULL) return 0;
 	strncpy(control_filename,parameter,511);control_filename[511]=0;
@@ -2376,10 +2395,11 @@ catalogized_command_funcdef(LOAD_TYPE)
 		return 0;
 	}
 	fclose(infile);
+	tl_n_lastfilllevel=(*glob_n_multilist).filllevel;
 	CAMBRIDGECONV_maintointernal();
 	svg_findaround();
 	getatoms();
-	edit_add_deltahydrogens();
+	edit_add_deltahydrogens(tl_n_lastfilllevel);
 	for (int ilv1=0;ilv1<multilist_count;ilv1++)
 	{
 		if (multilistlist[ilv1].instance->filllevel>=multilistlist[ilv1].instance->getmaxitems()) fprintf(stderr,"Multilist overflow! %s\n",multilistlist[ilv1].name);
@@ -3062,6 +3082,26 @@ catalogized_command_funcdef(FILEDLG_FILE_LOAD)
 	{
 		sprintf(control_totalfilename,"%s/%s",control_currentdirectory,control_filenamehead);
 		FILE_NEW("","");
+		retval=LOAD_TYPE(control_totalfilename,"");//TODO: insert selected type
+		if (retval>=1)
+		{
+			LHENDRAW_filedlgmode=0;
+		}
+		closedir(DD);
+	}
+	return retval;
+}
+catalogized_command_funcdef(FILEDLG_FILE_IMPORT)
+{
+	if (strcmp(control_filenamehead,"")==0)
+	{
+		return -41;
+	}
+	DIR * DD=opendir(control_currentdirectory);
+	char retval=-30;
+	if (DD)
+	{
+		sprintf(control_totalfilename,"%s/%s",control_currentdirectory,control_filenamehead);
 		retval=LOAD_TYPE(control_totalfilename,"");//TODO: insert selected type
 		if (retval>=1)
 		{

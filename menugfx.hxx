@@ -526,6 +526,7 @@ void sdl_filemenucommon()
 	if (control_filemenu_mode==0) addmenu("filedlg_buttons_load",4);
 	if (control_filemenu_mode==1) addmenu("filedlg_buttons_save",4);
 	if (control_filemenu_mode==2) addmenu("filedlg_buttons_export",4);
+	if (control_filemenu_mode==3) addmenu("filedlg_buttons_import",4);
 	addmenu("filedlg_lists",3);
 }
 int menu_itembyname(const char * name,int * menu,int * index)

@@ -237,7 +237,7 @@ _small getother(_small inatom, _small inbond)
 	{
 		return (bond_actual_node[inbond].end);
 	}
-	fprintf(stderr,"Programmierfehler oder Datenfehler! bond %i hat start=%i, end=%i, aber soll ausgehen von %i!",inbond,bond_actual_node[inbond].start,bond_actual_node[inbond].end,inatom);exit(1);
+	fprintf(stderr,"Programmierfehler oder Datenfehler! bond %i hat start=%i, end=%i, soll aber ausgehen von %i (id=%i)!\n",inbond,bond_actual_node[inbond].start,bond_actual_node[inbond].end,inatom,glob_n_multilist->bufferlist()[inatom].id);exit(1);
 }
 int findunfragmentedatom()
 {
@@ -259,6 +259,29 @@ int findunfragmentedatom()
 			}
 		}
 		skipthisatom:;
+	}
+	return -1;
+}
+int findunfragmentedbond()
+{
+	_u32 icompare=1<<STRUCTURE_OBJECTTYPE_b;
+	for (int ilv1=0;ilv1<(*glob_b_multilist).filllevel;ilv1++)
+	{
+		if ((*glob_b_multilist)[ilv1].exist)
+		{
+			if (control_save_selection)
+			{
+				if ((selection_currentselection[ilv1] & icompare)==0)
+				{
+					goto skipthisbond;
+				}
+			}
+			if ((selection_clickselection[ilv1] & icompare)==0)
+			{
+				return ilv1;
+			}
+		}
+		skipthisbond:;
 	}
 	return -1;
 }
@@ -301,7 +324,6 @@ void select_fragment_by_atom(int start)
 							}
 						}
 					}
-					skipunselectedatom:;
 				}
 			}
 		}
@@ -315,13 +337,14 @@ void select_fragment_by_atom(int start)
 		{
 			if (selection_fragmentselection[bond_actual_node[ilv1].start] & icompare_n)
 			{
+				selection_clickselection[ilv1]|=icompare_b;
 				selection_fragmentselection[ilv1]|=icompare_b;
 			}
 			if (selection_fragmentselection[bond_actual_node[ilv1].end] & icompare_n)
 			{
+				selection_clickselection[ilv1]|=icompare_b;
 				selection_fragmentselection[ilv1]|=icompare_b;
 			}
 		}
-		skipunselectedbond:;
 	}
 }

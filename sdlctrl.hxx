@@ -1338,6 +1338,7 @@ void issuedrag(int iposx,int iposy)
 			if (control_id!=-1)
 			{
 				tlatom=(n_instance*)edit_locatebyid(STRUCTURE_OBJECTTYPE_n,control_id,&atomnr);
+				control_hot[STRUCTURE_OBJECTTYPE_n]=atomnr;
 			}
 			if (!tlatom)
 			{
@@ -1400,6 +1401,7 @@ void issuedrag(int iposx,int iposy)
 			}
 			if ((tlatom) && (tlatom2))
 			{
+				control_hot[STRUCTURE_OBJECTTYPE_n]=atomnr2;
 				if (tlatom!=tlatom2)
 				{
 					b_instance * oldbond=NULL;
@@ -2007,6 +2009,7 @@ void issuerelease()
 					madeitmyself1:
 					if (edit_locatebyid(STRUCTURE_OBJECTTYPE_n,control_id,&tlatom))
 					{
+						control_hot[STRUCTURE_OBJECTTYPE_n]=tlatom;
 						edit_errichten(tlatom);
 					}
 				}

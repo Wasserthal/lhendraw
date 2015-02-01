@@ -467,6 +467,7 @@ void CONVCAMBRIDGE_Symbol(CAMBRIDGE_page_instance * master)
 void CONVCAMBRIDGE_internaltomain(CAMBRIDGE_page_instance * master)
 {
 	filestructure_text_buffer.count=0;
+	filestructure_curve_buffer.count=0;
 	CONVCAMBRIDGE_fragments(master);
 	CONVCAMBRIDGE_text(master);
 	CONVCAMBRIDGE_arrow(master);

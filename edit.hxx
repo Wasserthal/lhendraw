@@ -174,7 +174,7 @@ void getatoms()//makes some preprocessing
 {
 	float theside,thelevel;
 	float tl_angle;
-	for (int ilv1=0;ilv1<bufferlistsize;ilv1++)
+	for (int ilv1=0;ilv1<bufferlistsize;ilv1++)//TODO: bufferlistsize is wrong
 	{
 		atom_actual_node[ilv1].bondcount=0;
 	}
@@ -1692,6 +1692,7 @@ catalogized_command_funcdef(FILE_NEW)
 		if (tlmultilist)
 		{
 			(*tlmultilist).filllevel=0;
+			glob_contentbuffer[ilv1].count=0;
 			//TODO: undo: buffer lists!
 		}
 	}
@@ -2349,9 +2350,18 @@ catalogized_command_funcdef(LOAD_TYPE)
 	infile=fopen(parameter,"r");
 	if (infile==NULL) return 0;
 	strncpy(control_filename,parameter,511);control_filename[511]=0;
-	currentinstance=new(CAMBRIDGEPREFIX(Total_Document_instance));//TODO mem: leaks
 	FORCEEXTENSION
 	LHENDRAW_loadmemoryoverflow=0;
+	filestructure_text_buffer.count=0;
+	filestructure_curve_buffer.count=0;
+	for (int ilv1=0;ilv1<multilist_count;ilv1++)
+	{
+		if (multilistlist[ilv1].usage==1)
+		{
+			multilistlist[ilv1].instance->reset();
+		}
+	}
+	currentinstance=new(CAMBRIDGEPREFIX(Total_Document_instance));//TODO mem: leaks
 	if (strcmp(value,".cdxml")==0)
 	{
 		input_fsm(infile);
@@ -3051,6 +3061,7 @@ catalogized_command_funcdef(FILEDLG_FILE_LOAD)
 	if (DD)
 	{
 		sprintf(control_totalfilename,"%s/%s",control_currentdirectory,control_filenamehead);
+		FILE_NEW("","");
 		retval=LOAD_TYPE(control_totalfilename,"");//TODO: insert selected type
 		if (retval>=1)
 		{

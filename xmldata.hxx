@@ -135,6 +135,13 @@ class basicmultilist
 	char * pointer;
 	basicmultilist(){pointer=NULL;itemsize=0;};
 	virtual intl getmaxitems() {return 0;}
+	void reset()
+	{
+		filllevel=0;
+		ourcount=0;
+		maxid=0;
+		//TODO: move buffer reset here, especially when dealing with more buffers
+	}
 	inline basic_instance & operator[](int ino)
 	{
 		return *((basic_instance*)(((char*)pointer)+(ino*itemsize)));

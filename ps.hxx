@@ -2,6 +2,7 @@ float ps_txposx,ps_txposy;
 float ps_fontsize;
 void ps_express_text_tail()
 {
+	fprintf(outfile,"pop pop\n");
 }
 void ps_express_txinit(char ialignment,float iposx,float iposy,float iatomfontheight)
 {
@@ -46,10 +47,41 @@ int ps_get_colorstringv(int number)
 }
 void ps_printformatted(const char * iinput,const char * parms,int imode,int start,int end)
 {
+	if (imode==1)
+	{
+		fprintf(outfile,"0 -6 rmoveto\n");
+	}
+	if (imode==4)
+	{
+		fprintf(outfile,"0 6 rmoveto\n");
+	}
 	fprintf(outfile,"pop\n");
 	fprintf(outfile,"/Helvetica findfont\n12 scalefont\nsetfont\n(");
-	fwrite(iinput+start,1,end-start,outfile);
+	for (int ilv1=start;ilv1<end;ilv1++)
+	{
+		char ihv1;
+		ihv1=iinput[ilv1];
+		if (strchr("\\)(	",ihv1)!=NULL)
+		{
+			fprintf(outfile,"\\%c",ihv1);goto ifertig;
+		}
+		if ((((_u8)ihv1) & 0xE0)==0xC0)
+		{
+			fprintf(outfile,"\\%03hho",(_u8)(((ihv1 & 0x3)<<6)|(iinput[ilv1+1] & 0x3F)));goto ifertig;
+		}
+		if ((((_u8)ihv1) & 0x80)!=0) goto ifertig;
+		fwrite(&ihv1,1,1,outfile);
+		ifertig:;
+	}
 	fprintf(outfile,") dup show stringwidth pop add 0\n");
+	if (imode==1)
+	{
+		fprintf(outfile,"0 6 rmoveto\n");
+	}
+	if (imode==4)
+	{
+		fprintf(outfile,"0 -6 rmoveto\n");
+	}
 }
 void ps_stylegenestring(int flags,unsigned int fillcolor=0)
 {

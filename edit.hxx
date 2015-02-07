@@ -43,7 +43,7 @@ structenum * searchreflectedstruct(const char * input);
 void applytransform_single(float matrix[3][3],cdx_Point3D * input,cdx_Point3D * output,cdx_Point3D * pivot);
 _small edit_current5bondcarbon=0;
 drawproperties_ control_drawproperties={1,0,4,0,constants_Element_implicitcarbon,6,1,0,0,0};
-int control_hot[32]={-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,};
+int control_hotatom=-1;
 //Copies a set of atoms and bonds from one buffer to another. Can take atoms from ANY other buffer
 char * undo_retrievebuffer(intl start,intl list);
 undo_singlebuffer * undo_retrievehandle(intl start,intl list);
@@ -370,24 +370,17 @@ int get_bond_between(int inatom1, int inatom2)
 	}
 	return -3;
 }
-basic_instance * gethot(int ino,int * nr=NULL)
+int gethot()
 {
-	basicmultilist * tl_multilist=findmultilist(STRUCTURE_OBJECTTYPE_List[ino].name);
-	if ((control_hot[ino]>=0) && (control_hot[ino]<(*tl_multilist).filllevel))
+	if ((control_hotatom>=0) && (control_hotatom<(*glob_n_multilist).filllevel))
 	{
-		if ((*(basic_instance*)(((char*)((*tl_multilist).pointer))+(control_hot[ino]*STRUCTURE_OBJECTTYPE_List[ino].size))).exist)
+		if ((*glob_n_multilist).bufferlist()[control_hotatom].exist)
 		{
-			if (nr!=NULL)
-			{
-				(*nr)=control_hot[ino];
-			}
+			return control_hotatom;
 		}
 	}
-	if (nr!=NULL)
-	{
-		*(nr)=-1;
-	}
-	return NULL;
+	control_hotatom=-1;
+	return -1;
 }
 int edit_endatom_count=0;
 int edit_endatom[2];
@@ -1492,43 +1485,43 @@ float edit_get_atom_best_free_side(int atomnr)
 //	atom_actual_node//Should I really rely on them? better leave them as they were. But then it wont work for NEW atoms...
 	float angle,angle2;
 	float best=0;int bestnr=-1;float bestvalue=0;
-	for (int ilv0=0;ilv0<atom_actual_node[atomnr].bondcount;ilv0++)
+	if (atom_actual_node[atomnr].bondcount>2)
 	{
-		for (int ilv1=ilv0;ilv1<atom_actual_node[atomnr].bondcount;ilv1++)
+		int atomnr2=getother(atomnr,atom_actual_node[atomnr].bonds[0]);
+		angle=fmod(getangle((*glob_n_multilist)[atomnr2].xyz.x-(*glob_n_multilist)[atomnr].xyz.x,(*glob_n_multilist)[atomnr2].xyz.y-(*glob_n_multilist)[atomnr].xyz.y)+5*Pi,2*Pi);
+		if (atom_actual_node[atomnr].bondcount>=6)
 		{
-			int atomnr2=getother(atomnr,atom_actual_node[atomnr].bonds[ilv1]);
-			int atomnr2b=getother(atomnr,atom_actual_node[atomnr].bonds[ilv0]);
-			for (int ilv2=0;ilv2<2;ilv2++)
-			{
-				angle=fmod(0.5*(getangle((*glob_n_multilist)[atomnr2].xyz.x-(*glob_n_multilist)[atomnr].xyz.x,(*glob_n_multilist)[atomnr2].xyz.y-(*glob_n_multilist)[atomnr].xyz.y)+getangle((*glob_n_multilist)[atomnr2b].xyz.x-(*glob_n_multilist)[atomnr].xyz.x,(*glob_n_multilist)[atomnr2b].xyz.y-(*glob_n_multilist)[atomnr].xyz.y))+constants_angular_distance*(ilv2?1:-1)+4*Pi,2*Pi);
-				float worst=2*Pi;int worstnr=-1;
-				for (int ilv3=0;ilv3<atom_actual_node[atomnr].bondcount;ilv3++)
-				{
-					int atomnr3=getother(atomnr,atom_actual_node[atomnr].bonds[ilv3]);
-					float angle2=fmod(getangle((*glob_n_multilist)[atomnr3].xyz.x-(*glob_n_multilist)[atomnr].xyz.x,(*glob_n_multilist)[atomnr3].xyz.y-(*glob_n_multilist)[atomnr].xyz.y)-angle+4*Pi,2*Pi);
-					if (angle2>Pi)
-					{
-						angle2-=2*Pi;
-					}
-					angle2=fabs(angle2);
-					if (angle2<worst)
-					{
-						worst=angle2;
-						worstnr=ilv3;
-					}
-				}
-				if (worst>best)
-				{
-					bestnr=worstnr;
-					bestvalue=angle;
-					best=worst;
-				}
-			}
+
 		}
+		return angle;
 	}
-	if (bestnr!=-1)
+	if (atom_actual_node[atomnr].bondcount==2)
 	{
-		return bestvalue;
+		int atomnr2=getother(atomnr,atom_actual_node[atomnr].bonds[atom_actual_node[atomnr].bondcount-2]);
+		int atomnr2b=getother(atomnr,atom_actual_node[atomnr].bonds[atom_actual_node[atomnr].bondcount-1]);
+		angle=fmod((2*getangle((*glob_n_multilist)[atomnr2].xyz.x-(*glob_n_multilist)[atomnr].xyz.x,(*glob_n_multilist)[atomnr2].xyz.y-(*glob_n_multilist)[atomnr].xyz.y))-getangle((*glob_n_multilist)[atomnr2b].xyz.x-(*glob_n_multilist)[atomnr].xyz.x,(*glob_n_multilist)[atomnr2b].xyz.y-(*glob_n_multilist)[atomnr].xyz.y)+4*Pi,2*Pi);
+		return angle;
+	}
+	if (atom_actual_node[atomnr].bondcount==1)
+	{
+		int atomnr2=getother(atomnr,atom_actual_node[atomnr].bonds[0]);
+		if (((control_drawproperties.bond_multiplicity>1) && (glob_b_multilist->bufferlist()[atom_actual_node[atomnr].bonds[0]].Order>24))||(control_drawproperties.bond_multiplicity>2)||(glob_b_multilist->bufferlist()[atom_actual_node[atomnr].bonds[0]].Order>40))
+		{
+			return fmod(getangle((*glob_n_multilist)[atomnr2].xyz.x-(*glob_n_multilist)[atomnr].xyz.x,(*glob_n_multilist)[atomnr2].xyz.y-(*glob_n_multilist)[atomnr].xyz.y)+5*Pi,2*Pi);
+		}
+		if (atom_actual_node[atomnr2].bondcount<=1) goto skipadverse;
+		{
+			int atomnr3=getother(atomnr2,atom_actual_node[atomnr2].bonds[0]);
+			if (atomnr3==atomnr)
+			{
+				atomnr3=getother(atomnr2,atom_actual_node[atomnr2].bonds[1]);
+			}
+			if (fmod(getangle((*glob_n_multilist)[atomnr3].xyz.x-(*glob_n_multilist)[atomnr2].xyz.x,(*glob_n_multilist)[atomnr3].xyz.y-(*glob_n_multilist)[atomnr2].xyz.y)-
+			getangle((*glob_n_multilist)[atomnr].xyz.x-(*glob_n_multilist)[atomnr2].xyz.x,(*glob_n_multilist)[atomnr].xyz.y-(*glob_n_multilist)[atomnr2].xyz.y)+4*Pi,2*Pi)>Pi)
+			return fmod(getangle((*glob_n_multilist)[atomnr2].xyz.x-(*glob_n_multilist)[atomnr].xyz.x,(*glob_n_multilist)[atomnr2].xyz.y-(*glob_n_multilist)[atomnr].xyz.y)-constants_angular_distance+6*Pi,2*Pi);
+		}
+		skipadverse:;
+		return fmod(getangle((*glob_n_multilist)[atomnr2].xyz.x-(*glob_n_multilist)[atomnr].xyz.x,(*glob_n_multilist)[atomnr2].xyz.y-(*glob_n_multilist)[atomnr].xyz.y)+constants_angular_distance+4*Pi,2*Pi);
 	}
 	return (Pi-constants_angular_distance)/2;
 }
@@ -1573,6 +1566,7 @@ int edit_errichten(int startatom)
 catalogized_command_funcdef(SPROUT2)
 {
 	int counter=0;
+	int sproutcount=atoi(value);
 	if (selection_currentselection_found & (1<<STRUCTURE_OBJECTTYPE_n))
 	{
 		for (int ilv1=0;ilv1<(*glob_n_multilist).filllevel;ilv1++)
@@ -1582,20 +1576,20 @@ catalogized_command_funcdef(SPROUT2)
 				if ((*glob_n_multilist)[ilv1].exist)
 				{ 
 					counter++;
-					edit_errichten(ilv1);
+					for (int ilv1=0;ilv1<sproutcount;ilv1++)
+					{
+						edit_errichten(ilv1);
+					}
 				}
 			}
 		}
 		return counter;
 	}
-	int tlatom;
-	gethot(STRUCTURE_OBJECTTYPE_n,&tlatom);
-	if (tlatom!=-1)
+	if (gethot()!=-1)
 	{
-		int sproutcount=atoi(value);
 		for (int ilv1=0;ilv1<sproutcount;ilv1++)
 		{
-			edit_errichten(ilv1);
+			edit_errichten(control_hotatom);
 		}
 		return 1;
 	}
@@ -1606,7 +1600,7 @@ catalogized_command_iterated_funcdef(SPROUT)
 	int found=0;
 	for (int ilv1=0;ilv1<atoi(value);ilv1++)
 	{
-		if ((control_hot[STRUCTURE_OBJECTTYPE_n]=edit_errichten(iindex))>=0) {getatoms();found++;}
+		if ((control_hotatom=edit_errichten(iindex))>=0) {getatoms();found++;}
 	}
 	return found;
 }

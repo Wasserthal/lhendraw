@@ -916,7 +916,16 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,char hatches)
 	}
 	langle=getangle((*endnode).xyz.x-(*startnode).xyz.x,(*endnode).xyz.y-(*startnode).xyz.y);
 	cangle=langle+Pi/2;
-	calcdelta(&textdeltax,&textdeltay,(*endnode).xyz.x-(*startnode).xyz.x,(*endnode).xyz.y-(*startnode).xyz.y);
+	if (hatches==2)
+	{
+		textdeltax=7;
+		textdeltay=7;
+		return;
+	}
+	else
+	{
+		calcdelta(&textdeltax,&textdeltay,(*endnode).xyz.x-(*startnode).xyz.x,(*endnode).xyz.y-(*startnode).xyz.y);
+	}
 	specialS=((*glob_n_multilist)[inr_S].Element!=constants_Element_implicitcarbon);
 	specialE=((*glob_n_multilist)[inr_E].Element!=constants_Element_implicitcarbon);
 	iBBX.left=(*startnode).xyz.x+textdeltax*specialS;

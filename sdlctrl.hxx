@@ -250,7 +250,7 @@ int interpretkey(int listnr=-1)
 	char erledigt=0;
 	char ihot=0;
 	char careaboutshift=1;
-	_u32 hotties=0;
+	_u32 i_selectedtypes=0;
 	getatoms();
 	edit_singlepointselected=0;
 	if (listnr!=-1) {ilv1=listnr;goto interpreted;}
@@ -318,30 +318,22 @@ int interpretkey(int listnr=-1)
 	}
 	ihot=0;
 	selection_recheck(selection_currentselection,&selection_currentselection_found);
-	hotties=selection_currentselection_found;
-	if (hotties==0)
+	i_selectedtypes=selection_currentselection_found;
+	if (i_selectedtypes==0)
 	{
-		for (ilv2=1;ilv2<STRUCTURE_OBJECTTYPE_ListSize;ilv2++)
+		if (gethot()!=-1)
 		{
-			if (control_hot[ilv2]!=-1)
-			{
-				basicmultilist * tl_multilist=findmultilist(STRUCTURE_OBJECTTYPE_List[ilv2].name);
-				int isize=STRUCTURE_OBJECTTYPE_List[ilv2].size;
-				if (control_hot[ilv2]>=(*tl_multilist).filllevel) {control_hot[ilv2]=-1;goto idontusethishot;}
-				if ((*(basic_instance*)(((char*)((*tl_multilist).pointer))+control_hot[ilv2]*isize)).exist==0) {control_hot[ilv2]=-1;goto idontusethishot;}
-				hotties|=1<<ilv2;
-				ihot=1;
-				idontusethishot:;
-			}
+			i_selectedtypes|=1<<STRUCTURE_OBJECTTYPE_n;
+			ihot=1;
 		}
 	}
 	modifierpattern=MODIFIER_KEYS.SHIFT*careaboutshift+MODIFIER_KEYS.CTRL*2+MODIFIER_KEYS.ALT*4+MODIFIER_KEYS.SUPER*8;
 	for (ilv1=0;ilv1<hotkeylist_count;ilv1++)
 	{
 		tltype=hotkeylist[ilv1].type;
-		if (((1<<(tltype & 0xFFFF)) & hotties) || ((tltype & 0xFFFF)==0))
+		if (((1<<(tltype & 0xFFFF)) & i_selectedtypes) || ((tltype & 0xFFFF)==0))
 		{
-			if (((hotties==0) || ((tltype & 0x10000)==0)) && ((hotties) || ((tltype & 0x20000)==0)))
+			if (((i_selectedtypes==0) || ((tltype & 0x10000)==0)) && ((i_selectedtypes) || ((tltype & 0x20000)==0)))
 			{
 				if (strcmp(keystring,hotkeylist[ilv1].key)==0)
 				{
@@ -392,9 +384,12 @@ int interpretkey(int listnr=-1)
 								}
 								else
 								{
-									ilv2=control_hot[tltype & 0xFFFF];
-									goto hotshunt;
-									hotbackshunt:;
+									if (tltype==STRUCTURE_OBJECTTYPE_n)
+									{
+										ilv2=control_hotatom;
+										goto hotshunt;
+										hotbackshunt:;
+									}
 								}
 							}
 						}
@@ -508,28 +503,28 @@ catalogized_command_funcdef(ISSUEDELETE)
 	}
 	else
 	{
-		if (control_hot[STRUCTURE_OBJECTTYPE_n]!=-1)
+		if (control_hotatom!=-1)
 		{
-			if (control_hot[STRUCTURE_OBJECTTYPE_n]<(*glob_n_multilist).filllevel)
+			if (control_hotatom<(*glob_n_multilist).filllevel)
 			{
 				ibufferpos=(char*)(*glob_n_multilist).pointer;
 				isize=STRUCTURE_OBJECTTYPE_List[STRUCTURE_OBJECTTYPE_n].size;
-				if ((*glob_n_multilist)[control_hot[STRUCTURE_OBJECTTYPE_n]].exist)
+				if ((*glob_n_multilist)[control_hotatom].exist)
 				{
-					TELESCOPE_aggressobject(glob_n_multilist,control_hot[STRUCTURE_OBJECTTYPE_n]);
+					TELESCOPE_aggressobject(glob_n_multilist,control_hotatom);
 					TELESCOPE_clear();
-					if (((*((n_instance*)(ibufferpos+isize*control_hot[STRUCTURE_OBJECTTYPE_n]))).Element!=constants_Element_implicitcarbon) || ((*((n_instance*)(ibufferpos+isize*control_hot[STRUCTURE_OBJECTTYPE_n]))).charge!=0))
+					if (((*((n_instance*)(ibufferpos+isize*control_hotatom))).Element!=constants_Element_implicitcarbon) || ((*((n_instance*)(ibufferpos+isize*control_hotatom))).charge!=0))
 					{
-						(*((n_instance*)(ibufferpos+isize*control_hot[STRUCTURE_OBJECTTYPE_n]))).Element=constants_Element_implicitcarbon;
-						(*((n_instance*)(ibufferpos+isize*control_hot[STRUCTURE_OBJECTTYPE_n]))).charge=0;
+						(*((n_instance*)(ibufferpos+isize*control_hotatom))).Element=constants_Element_implicitcarbon;
+						(*((n_instance*)(ibufferpos+isize*control_hotatom))).charge=0;
 						goto i_delete_hot_skip;
 					}
-					(*((basic_instance*)(ibufferpos+isize*control_hot[STRUCTURE_OBJECTTYPE_n]))).exist=0;
+					(*((basic_instance*)(ibufferpos+isize*control_hotatom))).exist=0;
 					i_delete_hot_skip:;
 					isuccessful=1;
 				}
 			}
-			control_hot[STRUCTURE_OBJECTTYPE_n]=-1;
+			control_hotatom=-1;
 		}
 	}
 	checkupinconsistencies();
@@ -1338,7 +1333,7 @@ void issuedrag(int iposx,int iposy)
 			if (control_id!=-1)
 			{
 				tlatom=(n_instance*)edit_locatebyid(STRUCTURE_OBJECTTYPE_n,control_id,&atomnr);
-				control_hot[STRUCTURE_OBJECTTYPE_n]=atomnr;
+				control_hotatom=atomnr;
 			}
 			if (!tlatom)
 			{
@@ -1401,7 +1396,7 @@ void issuedrag(int iposx,int iposy)
 			}
 			if ((tlatom) && (tlatom2))
 			{
-				control_hot[STRUCTURE_OBJECTTYPE_n]=atomnr2;
+				control_hotatom=atomnr2;
 				if (tlatom!=tlatom2)
 				{
 					b_instance * oldbond=NULL;
@@ -2009,7 +2004,7 @@ void issuerelease()
 					madeitmyself1:
 					if (edit_locatebyid(STRUCTURE_OBJECTTYPE_n,control_id,&tlatom))
 					{
-						control_hot[STRUCTURE_OBJECTTYPE_n]=tlatom;
+						control_hotatom=tlatom;
 						edit_errichten(tlatom);
 					}
 				}
@@ -2550,24 +2545,17 @@ void control_normal()
 				if ((control_mousestate & (~2))==0)
 				{
 					selection_clearselection(selection_clickselection);
-					for (int ilv0=0;ilv0<STRUCTURE_OBJECTTYPE_ListSize;ilv0++)
+					int ilv0=STRUCTURE_OBJECTTYPE_n;
+					_u32 tlfound=clickfor((control_Event.motion.x-gfx_canvasminx)/SDL_zoomx+SDL_scrollx,(control_Event.motion.y-gfx_canvasminy)/SDL_zoomy+SDL_scrolly,STRUCTURE_OBJECTTYPE_n,constants_clickradius,1)>0;
+					if (tlfound)
 					{
-						_u32 tlfound=clickfor((control_Event.motion.x-gfx_canvasminx)/SDL_zoomx+SDL_scrollx,(control_Event.motion.y-gfx_canvasminy)/SDL_zoomy+SDL_scrolly,ilv0,constants_clickradius,1)>0;
-						basicmultilist * tl_multilist=findmultilist(STRUCTURE_OBJECTTYPE_List[ilv0].name);
-						if (tlfound)
+						for (int ilv2=0;ilv2<(*glob_n_multilist).filllevel;ilv2++)
 						{
-							for (int ilv2=0;ilv2<(*tl_multilist).filllevel;ilv2++)
+							if (selection_clickselection[ilv2] & (1<<STRUCTURE_OBJECTTYPE_n))
 							{
-								if (selection_clickselection[ilv2] & (1<<ilv0))
+								if ((*glob_n_multilist)[ilv2].exist)
 								{
-									if ((*tl_multilist)[ilv2].exist)
-									{
-										for (int ilv1=0;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
-										{
-											control_hot[ilv1]=-1;
-										}
-										control_hot[ilv0]=ilv2;
-									}
+									control_hotatom=ilv2;
 								}
 							}
 						}

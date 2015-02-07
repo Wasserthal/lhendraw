@@ -860,11 +860,11 @@ int sdl_selectiondraw()
 	}
 		float tlpx,tlpy;
 		SDL_color=0x3F3F00;
-					if (control_hot[STRUCTURE_OBJECTTYPE_n]!=-1)
+					if (control_hotatom!=-1)
 					{
 					int ilv3=0;
 					iback2:
-						if (retrievepoints_basic(((basic_instance*)(((char*)(*glob_n_multilist).pointer)+sizeof(n_instance)*control_hot[STRUCTURE_OBJECTTYPE_n])),&tlpx,&tlpy,NULL,ilv3,STRUCTURE_OBJECTTYPE_n)>0)
+						if (retrievepoints_basic(((basic_instance*)(((char*)(*glob_n_multilist).pointer)+sizeof(n_instance)*control_hotatom)),&tlpx,&tlpy,NULL,ilv3,STRUCTURE_OBJECTTYPE_n)>0)
 						{
 							draw_drawmarkpoint((tlpx-SDL_scrollx)*SDL_zoomx-3+gfx_canvasminx,(tlpy-SDL_scrolly)*SDL_zoomy-3+gfx_canvasminy,47,4,0);
 							ilv3++;

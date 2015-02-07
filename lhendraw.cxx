@@ -190,8 +190,26 @@ int main(int argc,char * * argv)
 	init_buffers();
 	for (int ilv1=0;ilv1<control_toolcount;ilv1++)
 	{
-		clickabilitymatrix_tooldependent[ilv1]=selection_clickabilitymatrix;
+		control_clickabilitymatrixes[ilv1]=selection_clickabilitymatrix;
 	}
+	control_clickabilitymatrixes[7]=({clickabilitymatrix_ tl_clickabilitymatrix={2,0,0,
+	{0xFFFFFFFF,0x6,0x6,0x0,0x6,0x6,0x0,0xFFFFFFFF}};tl_clickabilitymatrix;});
+	control_clickabilitymatrixes[9]=({clickabilitymatrix_ tl_clickabilitymatrix={2,0,0,
+	{0xFFFFFFFF,0x70,0x70,0x70,0x70,0x70,0x70,0xFFFFFFFF}};tl_clickabilitymatrix;});
+	control_clickabilitymatrixes[10]=({clickabilitymatrix_ tl_clickabilitymatrix={2,0,0,
+	{0xFFFFFFFF,0x2,0x22,0x2,0x22,0x2,0x0,0xFFFFFFFF}};tl_clickabilitymatrix;});
+	control_clickabilitymatrixes[10]=({clickabilitymatrix_ tl_clickabilitymatrix={2,0,0,
+	{0xFFFFFFFF,0x2,0x22,0x2,0x22,0x2,0x0,0xFFFFFFFF}};tl_clickabilitymatrix;});
+	control_clickabilitymatrixes[11]=({clickabilitymatrix_ tl_clickabilitymatrix={2,0,0,
+	{0xFFFFFFFF,0xA,0xA,0x8,0xA,0xA,0x0,0xFFFFFFFF}};tl_clickabilitymatrix;});
+	control_clickabilitymatrixes[17]=({clickabilitymatrix_ tl_clickabilitymatrix={2,0,0,
+	{0xFFFFFFFF,0x6,0x6,0x0,0x6,0x6,0x0,0xFFFFFFFF}};tl_clickabilitymatrix;});
+	control_clickabilitymatrixes[6]=({clickabilitymatrix_ tl_clickabilitymatrix={2,0,0,
+	{0xFFFFFFFF,0x2,0x2,0x0,0x2,0x2,0x0,0xFFFFFFFF}};tl_clickabilitymatrix;});
+	control_clickabilitymatrixes[5]=({clickabilitymatrix_ tl_clickabilitymatrix={2,0,0,
+	{0xFFFFFFFF,0x0,0x0,0x0,0x0,0x0,0x0,0xFFFFFFFF}};tl_clickabilitymatrix;});
+	control_clickabilitymatrixes[1]=({clickabilitymatrix_ tl_clickabilitymatrix={2,0,0,
+	{0xFFFFFFFF,0x0,0x0,0x0,0x0,0x0,0x0,0xFFFFFFFF}};tl_clickabilitymatrix;});
 	conv_config_internalconfig();
 	FILE_NEW(NULL,NULL);
 	cmdline(argc,argv);

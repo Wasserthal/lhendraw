@@ -419,4 +419,14 @@ menuitem pullout_toolbox[]={
 "PASTE","",
 0x00FF00,
 },
+{-1,-2,
+5,//Picture
+"dump clickabilitymatrix",
+3,0,
+0,
+"dump clickabilitymatrix",
+"",
+"DUMPCLICKABMAT","",
+0x00FF00,
+},
 };

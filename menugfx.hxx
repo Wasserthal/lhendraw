@@ -116,11 +116,9 @@ void printmenutext(int posx,int posy,const char * iinput,int end,char symbolmode
 }
 int sdl_toolboxitemdraw(int posx,int posy,int gfxno,_u32 state)
 {
-	_u32 * ibutton=resources_bitmap_buttons[0][0];
-	_u32 * ihgd=resources_bitmap_buttons[1][0];
-	if (posx<0) posx+=gfx_screensizex;
-	if (posy<0) posy+=gfx_screensizey;
-	int idelta=(state & 0xD)>>1;
+	if (posx<0) posx+=(gfx_screensizex>>5)<<5;
+	if (posy<0) posy+=(gfx_screensizey>>5)<<5;
+	int idelta=(state & 0xE)>>1;
 	for (int ilv2=0;ilv2<32-idelta;ilv2++)
 	{
 		for (int ilv3=0;ilv3<32-idelta;ilv3++)
@@ -144,8 +142,8 @@ int sdl_toolboxitemdraw(int posx,int posy,int gfxno,_u32 state)
 		{
 			for (int ilv2=0;ilv2<32;ilv2++)
 			{
-				screen[gfx_screensizex*(posy+ilv1)+posx+ilv2]=resources_bitmap_buttons[LHENDRAW_maxbuttons-16][ilv1][ilv2];
-				screen[gfx_screensizex*(posy+ilv2)+posx+ilv1]=resources_bitmap_buttons[LHENDRAW_maxbuttons-16][ilv2][ilv1];
+				screen[gfx_screensizex*(posy+ilv1)+posx+ilv2]=(resources_bitmap_buttons[LHENDRAW_maxbuttons-16][ilv1][ilv2]==0xFF00FF00)?(state>>8):0;
+				screen[gfx_screensizex*(posy+ilv2)+posx+ilv1]=(resources_bitmap_buttons[LHENDRAW_maxbuttons-16][ilv2][ilv1]==0xFF00FF00)?(state>>8):0;
 			}
 		}
 	}
@@ -464,7 +462,7 @@ void sdl_colorpaldraw(int posx,int posy)
 int sdl_buttonmenudraw(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int count,int xpos=0,int ypos=0)
 {
 	if (xpos<0) xpos+=gfx_screensizex;
-	if (ypos<0) ypos+=gfx_screensizex;
+	if (ypos<0) ypos+=gfx_screensizey;
 	for (int ilv1=0;ilv1<count;ilv1++)
 	{
 		_u32 state=ilisting[ilv1].bgcolor;

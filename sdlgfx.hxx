@@ -1,6 +1,6 @@
 //Graphic routines. Callers of those should be in createsvg.hxx
-#define gfx_STANDARDX 640
-#define gfx_STANDARDY 480
+#define gfx_STANDARDX 800
+#define gfx_STANDARDY 600
 int gfx_screensizex=gfx_STANDARDX;
 int gfx_screensizey=gfx_STANDARDY;
 int gfx_canvassizex=gfx_STANDARDX-320;

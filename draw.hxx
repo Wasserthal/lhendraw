@@ -916,7 +916,7 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,char hatches)
 	}
 	langle=getangle((*endnode).xyz.x-(*startnode).xyz.x,(*endnode).xyz.y-(*startnode).xyz.y);
 	cangle=langle+Pi/2;
-	if (hatches==2)
+	if ((hatches==2) && ((selection_clickabilitymatrix.types2[0]|selection_clickabilitymatrix.types2[1]) & (1<<STRUCTURE_OBJECTTYPE_n)))
 	{
 		textdeltax=7;
 		textdeltay=7;

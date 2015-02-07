@@ -17,7 +17,6 @@ int control_tool=2;//1: Hand 2: 2coordinate Selection 3: Lasso, no matter which 
 int control_menumode=0;//1: shliderhorz, 2: slidervert 3: colorchooser
 AUTOSTRUCT_PULLOUTLISTING_ * control_menuitem=NULL;
 #define control_toolcount 20
-clickabilitymatrix_ clickabilitymatrixes[control_toolcount];
 int control_keycombotool=0;//as above, but only valid if (mousestate & 2)
 _i32 control_toolstartkeysym;
 int control_lastinterpret=-1;
@@ -41,7 +40,7 @@ char control_ambiguousity=0;
 float control_startx=0;
 float control_starty=0;
 int control_menudragint=0;
-clickabilitymatrix_ clickabilitymatrix_tooldependent[control_toolcount];
+clickabilitymatrix_ control_clickabilitymatrixes[control_toolcount];
 
 char control_filename[stringlength]="";
 char control_filetype[stringlength]=".cdx";
@@ -2078,7 +2077,8 @@ int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int
 				switch ((*ipulloutlisting).lmbmode)
 				{
 					case 1: 
-					clickabilitymatrix_tooldependent[control_tool]=selection_clickabilitymatrix;
+					selecttool:;
+					control_clickabilitymatrixes[control_tool]=selection_clickabilitymatrix;
 					if (control_tool==(*ipulloutlisting).toolnr)
 					{
 						char istring[100];
@@ -2103,12 +2103,13 @@ int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int
 							if (strcmp((((AUTOSTRUCT_PULLOUTLISTING_*)(tl_structenum->pointer))+ilv1)->name,istring)==0)
 							{
 								control_tool=(((AUTOSTRUCT_PULLOUTLISTING_*)(tl_structenum->pointer))+ilv1)->toolnr;
+								selection_clickabilitymatrix=control_clickabilitymatrixes[control_tool];
 							}
 						}
 						break;
 					}
 					control_tool=(*ipulloutlisting).toolnr;
-					selection_clickabilitymatrix=clickabilitymatrix_tooldependent[control_tool];
+					selection_clickabilitymatrix=control_clickabilitymatrixes[control_tool];
 					break;
 					case 2: *((char*)(*ipulloutlisting).variable)^=1;break;
 					case 3: 
@@ -2202,7 +2203,7 @@ int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int
 			{
 				switch ((*ipulloutlisting).rmbmode)
 				{
-					case 1: control_tool=(*ipulloutlisting).toolnr;break;
+					case 1: goto selecttool;break;
 					case 2: *((char*)(*ipulloutlisting).variable)&=~1;break;
 					case 3: (*ipulloutlisting).RMB_function("","");break;
 					case 4:
@@ -2307,10 +2308,24 @@ int issuepseclick(int x,int y,int ibutton)
 					}
 					return 1;
 				}
-				if (control_tool!=7)
+				if ((control_tool==7) && (control_hotatom!=-1))
 				{
-					control_tool=6;
+					if (control_hotatom>(*glob_n_multilist).filllevel)
+					{
+						if (((*glob_n_multilist).bufferlist()+control_hotatom)->exist)
+						{
+							edit_setelement(ilv1,(*glob_n_multilist).bufferlist()+control_hotatom,control_hotatom);
+							return 1;
+						}
+					}
 				}
+				control_tool=6;
+				selection_clickabilitymatrix=control_clickabilitymatrixes[control_tool];
+			}
+			else
+			{
+				control_tool=6;
+				selection_clickabilitymatrix=control_clickabilitymatrixes[control_tool];
 			}
 			return 1;
 		}
@@ -2541,26 +2556,6 @@ void control_normal()
 					sdl_commonmenucommon();
 					idontrepeat=1;
 					issuemenudrag(control_Event.motion.x,control_Event.motion.y);
-				}
-				if ((control_mousestate & (~2))==0)
-				{
-					selection_clearselection(selection_clickselection);
-					int ilv0=STRUCTURE_OBJECTTYPE_n;
-					_u32 tlfound=clickfor((control_Event.motion.x-gfx_canvasminx)/SDL_zoomx+SDL_scrollx,(control_Event.motion.y-gfx_canvasminy)/SDL_zoomy+SDL_scrolly,STRUCTURE_OBJECTTYPE_n,constants_clickradius,1)>0;
-					if (tlfound)
-					{
-						for (int ilv2=0;ilv2<(*glob_n_multilist).filllevel;ilv2++)
-						{
-							if (selection_clickselection[ilv2] & (1<<STRUCTURE_OBJECTTYPE_n))
-							{
-								if ((*glob_n_multilist)[ilv2].exist)
-								{
-									control_hotatom=ilv2;
-								}
-							}
-						}
-					}
-					idontrepeat=1;
 				}
 				if (control_mousestate & 3)
 				{
@@ -2824,12 +2819,45 @@ void control_normal()
 						{
 							if (control_mousestate==0)
 							{
+								selection_clearselection(selection_clickselection);
+								int ilv0=STRUCTURE_OBJECTTYPE_n;
+								_u32 tlfound=clickfor((control_mousex-gfx_canvasminx)/SDL_zoomx+SDL_scrollx,(control_mousey-gfx_canvasminy)/SDL_zoomy+SDL_scrolly,STRUCTURE_OBJECTTYPE_n,constants_clickradius,1)>0;
+								if (tlfound)
+								{
+									for (int ilv2=0;ilv2<(*glob_n_multilist).filllevel;ilv2++)
+									{
+										if (selection_clickselection[ilv2] & (1<<STRUCTURE_OBJECTTYPE_n))
+										{
+											if ((*glob_n_multilist)[ilv2].exist)
+											{
+												control_hotatom=ilv2;
+											}
+										}
+									}
+								}
+								idontrepeat=1;
 								issueshiftstart();
 								control_keycombotool=1;
 								control_mousestate=2;
 							}
 						}
 						break;
+					}
+					case SDLK_BACKSPACE:
+					{
+						if (idirection)
+						{
+							if (control_hotatom!=-1)
+							{
+								if (((*glob_n_multilist).bufferlist()+control_hotatom)->exist)
+								{
+									if (atom_actual_node[control_hotatom].bondcount>0)
+									{
+										control_hotatom=getother(control_hotatom,atom_actual_node[control_hotatom].bonds[0]);
+									}
+								}
+							}
+						}
 					}
 					case SDLK_LEFT:
 					{

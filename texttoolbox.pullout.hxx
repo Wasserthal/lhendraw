@@ -40,7 +40,7 @@ menuitem pullout_texttoolbox[]={
 "ONETOONE","",
 0xFFFF00,
 },
-{22,0,
+{-2,0,
 45,//Picture
 "Help",
 3,0,
@@ -50,7 +50,7 @@ menuitem pullout_texttoolbox[]={
 "HELP","",
 0x00FF00,
 },
-{23,0,
+{-1,0,
 48,//Picture
 "Options",
 3,0,
@@ -60,7 +60,7 @@ menuitem pullout_texttoolbox[]={
 "OPTIONS","",
 0x00FF00,
 },
-{24,0,
+{-2,1,
 90,//Picture
 "COPY",
 3,0,
@@ -70,7 +70,7 @@ menuitem pullout_texttoolbox[]={
 "COPY","",
 0x00FF00,
 },
-{25,0,
+{-1,1,
 91,//Picture
 "PASTE",
 3,0,

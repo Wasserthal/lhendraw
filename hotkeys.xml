@@ -119,8 +119,8 @@
 <Hotkey modifiers="CTRL" key="c" command="COPY" UNDO="False" />
 <Hotkey modifiers="CTRL" key="e" command="TOOLMODE" value="9" UNDO="False" />
 <Hotkey modifiers="CTRL" key="s" command="SAVEAS" value="" UNDO="False" />
-<Hotkey modifiers="CTRL" key="a" command="SELECTALL" value="1"/>
-<Hotkey modifiers="CTRL" key="A" command="SELECTALL" value="0"/>
+<Hotkey modifiers="CTRL" key="a" command="SELECTALL" value="1" UNDO="False" />
+<Hotkey modifiers="CTRL" key="A" command="SELECTALL" value="0" UNDO="False" />
 <Hotkey modifiers="CTRL" key="5" command="WARN_HYPERC" variable="" value=""/>
 <Hotkey modifiers="CTRL" key="K" command="CLEANUP" variable="" value=""/>
 </Hotkeys>

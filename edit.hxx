@@ -1546,6 +1546,7 @@ int edit_errichten(int startatom)
 		tlatom2=edit_summonatom(&atomnr2);
 		if (tlatom2)
 		{
+			control_hotatom=atomnr2;
 			(*tlatom2).xyz.x=posx;
 			(*tlatom2).xyz.y=posy;
 			(*tlatom2).xyz.z=(*tlatom).xyz.z;
@@ -3865,4 +3866,13 @@ int edit_readfonttablefrombuffer(char * input)
 		if (icounter>paramvaluestring_length) return 0;
 	}
 	return 0;
+}
+extern int control_tool;
+catalogized_command_funcdef(DUMPCLICKABMAT)
+{
+	FILE * clickabilitymatrixfile=fopen("./clickabilitymatrixlist.clickabilitymatrixtxt","a");
+	fprintf(clickabilitymatrixfile,"control_clickabilitymatrixes[%i]=({clickabilitymatrix_ tl_clickabilitymatrix={%i,%i,%i,\n"
+"{0x%X,0x%X,0x%X,0x%X,0x%X,0x%X,0x%X,0x%X}};tl_clickabilitymatrix;});\n",control_tool,selection_clickabilitymatrix.mode,selection_clickabilitymatrix.level0,selection_clickabilitymatrix.types1,selection_clickabilitymatrix.types2[0],selection_clickabilitymatrix.types2[1],selection_clickabilitymatrix.types2[2],selection_clickabilitymatrix.types2[3],selection_clickabilitymatrix.types2[4],selection_clickabilitymatrix.types2[5],selection_clickabilitymatrix.types2[6],selection_clickabilitymatrix.types2[7]);
+	fclose(clickabilitymatrixfile);
+	return 1;
 }

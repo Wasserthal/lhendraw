@@ -238,6 +238,41 @@ void issueshiftstart()
 	control_dragged=0;
 	control_toolstartkeysym=control_Event.key.keysym.sym;
 }
+void clickforthem()
+{
+	float iclickradius=constants_clickradius;
+	if (control_tool==8) iclickradius=2000;
+	selection_clearselection(selection_clickselection);
+	selection_clickselection_found=0;
+	if (selection_clickabilitymatrix.mode==1)
+	{
+		if (selection_clickabilitymatrix.types1 & 1)
+		{
+			selection_clickselection_found|=clickfor(control_coorsx,control_coorsy,STRUCTURE_OBJECTTYPE_n,iclickradius,1)<<STRUCTURE_OBJECTTYPE_n;
+			selection_clickselection_found|=clickfor(control_coorsx,control_coorsy,STRUCTURE_OBJECTTYPE_b,iclickradius,1)<<STRUCTURE_OBJECTTYPE_b;
+			for (int ilv1=0;ilv1<(*glob_n_multilist).filllevel;ilv1++)
+			{
+				
+			}
+//			selectwholestructure
+		}
+	}
+	if (selection_clickabilitymatrix.mode==2)
+	{
+		edit_clickpixels(control_coorsx,control_coorsy);
+		for (int ilv1=1;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
+		{
+			if (selection_clickabilitymatrix.types2[1] & (1<<ilv1))
+			{
+				selection_clickselection_found|=clickfor(control_coorsx,control_coorsy,ilv1,iclickradius,1);
+			}
+			if (selection_clickabilitymatrix.types2[2] & (1<<ilv1))
+			{
+				selection_clickselection_found|=clickfor(control_coorsx,control_coorsy,ilv1,iclickradius,2);
+			}
+		}
+	}
+}
 #ifdef GFXOUT_SDL
 int interpretkey(int listnr=-1)
 {
@@ -249,6 +284,8 @@ int interpretkey(int listnr=-1)
 	char erledigt=0;
 	char ihot=0;
 	char careaboutshift=1;
+	int ihot_list=0;
+	int ihot_instance=0;
 	_u32 i_selectedtypes=0;
 	getatoms();
 	edit_singlepointselected=0;
@@ -318,12 +355,33 @@ int interpretkey(int listnr=-1)
 	ihot=0;
 	selection_recheck(selection_currentselection,&selection_currentselection_found);
 	i_selectedtypes=selection_currentselection_found;
+	ihot_list=0;
+	ihot_instance=0;
 	if (i_selectedtypes==0)
 	{
-		if (gethot()!=-1)
+		int backtype,backindex;
+		control_posx=control_mousex-gfx_canvasminx;
+		control_posy=control_mousey-gfx_canvasminy;
+		control_coorsx=control_posx/SDL_zoomx+SDL_scrollx;
+		control_coorsy=control_posy/SDL_zoomy+SDL_scrolly;
+		clickforthem();
+		if (selection_clickselection_found)
 		{
-			i_selectedtypes|=1<<STRUCTURE_OBJECTTYPE_n;
-			ihot=1;
+			if (getclicked((1<<STRUCTURE_OBJECTTYPE_ListSize)-1,control_coorsx,control_coorsy,&ihot_list,&ihot_instance))
+			{
+				i_selectedtypes=1<<ihot_list;
+				ihot=1;
+			}
+		}
+		else
+		{
+			if (gethot()!=-1)
+			{
+				i_selectedtypes=1<<STRUCTURE_OBJECTTYPE_n;
+				ihot=1;
+				ihot_list=STRUCTURE_OBJECTTYPE_n;
+				ihot_instance=control_hotatom;
+			}
 		}
 	}
 	modifierpattern=MODIFIER_KEYS.SHIFT*careaboutshift+MODIFIER_KEYS.CTRL*2+MODIFIER_KEYS.ALT*4+MODIFIER_KEYS.SUPER*8;
@@ -383,9 +441,9 @@ int interpretkey(int listnr=-1)
 								}
 								else
 								{
-									if (tltype==STRUCTURE_OBJECTTYPE_n)
+									if (tltype==ihot_list)
 									{
-										ilv2=control_hotatom;
+										ilv2=ihot_instance;
 										goto hotshunt;
 										hotbackshunt:;
 									}
@@ -408,41 +466,6 @@ int interpretkey(int listnr=-1)
 	return 1;
 }
 #endif
-void clickforthem()
-{
-	float iclickradius=constants_clickradius;
-	if (control_tool==8) iclickradius=2000;
-	selection_clearselection(selection_clickselection);
-	selection_clickselection_found=0;
-	if (selection_clickabilitymatrix.mode==1)
-	{
-		if (selection_clickabilitymatrix.types1 & 1)
-		{
-			selection_clickselection_found|=clickfor(control_coorsx,control_coorsy,STRUCTURE_OBJECTTYPE_n,iclickradius,1)<<STRUCTURE_OBJECTTYPE_n;
-			selection_clickselection_found|=clickfor(control_coorsx,control_coorsy,STRUCTURE_OBJECTTYPE_b,iclickradius,1)<<STRUCTURE_OBJECTTYPE_b;
-			for (int ilv1=0;ilv1<(*glob_n_multilist).filllevel;ilv1++)
-			{
-				
-			}
-//			selectwholestructure
-		}
-	}
-	if (selection_clickabilitymatrix.mode==2)
-	{
-		edit_clickpixels(control_coorsx,control_coorsy);
-		for (int ilv1=1;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
-		{
-			if (selection_clickabilitymatrix.types2[1] & (1<<ilv1))
-			{
-				selection_clickselection_found|=clickfor(control_coorsx,control_coorsy,ilv1,iclickradius,1);
-			}
-			if (selection_clickabilitymatrix.types2[2] & (1<<ilv1))
-			{
-				selection_clickselection_found|=clickfor(control_coorsx,control_coorsy,ilv1,iclickradius,2);
-			}
-		}
-	}
-}
 catalogized_command_funcdef(HELP)
 {
 	control_help();
@@ -2534,6 +2557,7 @@ void control_normal()
 				control_doubleclickenergy=0;
 				control_mousex=control_Event.motion.x;
 				control_mousey=control_Event.motion.y;
+				control_hotatom=-1;
 
 				if (SDL_PollEvent(&control_Event2))
 				{

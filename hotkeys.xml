@@ -92,12 +92,15 @@
 <Hotkey key="9" command="FUSERING" value="9"/>
 <Hotkey key="0" command="FUSERING" value="10"/>
 <Hotkey key="d" command="SETITEMVARIABLE" variable="Display" value="Dashed"/>
-<Hotkey key="H" command="SETITEMVARIABLE" variable="Display" value="Hashed"/>
+<Hotkey modifiers="CTRL" key="h" command="SETITEMVARIABLE" variable="Display" value="Hashed"/>
 <Hotkey key="h" command="SETITEMVARIABLE" variable="Display" value="WedgedHashBegin"/>
+<Hotkey key="H" command="SETITEMVARIABLE" variable="Display" value="WedgedHashEnd"/>
 <Hotkey key="b" command="SETITEMVARIABLE" variable="Display" value="Bold"/>
 <Hotkey key="p" command="SETITEMVARIABLE" variable="Display" value="Plain"/>
 <Hotkey key="w" command="SETITEMVARIABLE" variable="Display" value="WedgeBegin"/>
+<Hotkey key="W" command="SETITEMVARIABLE" variable="Display" value="WedgeEnd"/>
 <Hotkey key="v" command="SETITEMVARIABLE" variable="Display" value="HollowWedgeBegin"/>
+<Hotkey key="V" command="SETITEMVARIABLE" variable="Display" value="HollowWedgeEnd"/>
 <Hotkey key="y" command="SETITEMVARIABLE" variable="Display" value="Wavy"/>
 <Hotkey key="B" command="SETITEMVARIABLE" variable="Display2" value="Bold" description="Lhendraw command"/>
 <Hotkey key="P" command="SETITEMVARIABLE" variable="Display2" value="Plain"/>

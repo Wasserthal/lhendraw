@@ -724,6 +724,7 @@ int hit(n_instance * iinstance,float ix,float iy,int ino)
 		if (idistance<glob_clickradius)
 		{
 			if (idistance<glob_subpoint_clickradius) return 1;
+			if ((selection_clickabilitymatrix.types2[2] & (1<<STRUCTURE_OBJECTTYPE_b))==0) return 1;
 			int inr=(((_iXX)iinstance)-((_iXX)(glob_n_multilist->bufferlist())))/sizeof(n_instance);
 			int tl_bondcount=atom_actual_node[inr].bondcount;
 			for (int ilv1=0;ilv1<tl_bondcount;ilv1++)
@@ -1088,6 +1089,16 @@ inline int placepoints(t_instance * iinstance,float ix,float iy,float iz,int inu
 }
 #define LOCALMACRO_1(whatabout) case STRUCTURE_OBJECTTYPE_ ## whatabout: return retrieveprops_ ## whatabout(what);break;
 int retrieveprops_basic(int what,int objecttype)
+{
+	switch (objecttype)
+	{
+		LOCALMACROES
+	}
+	return 0;
+}
+#undef LOCALMACRO_1
+#define LOCALMACRO_1(whatabout) case STRUCTURE_OBJECTTYPE_ ## whatabout: return hit((whatabout ## _instance*)iinstance,ix,iy,inumber);break;
+int edit_hit(basic_instance * iinstance,float ix,float iy,int inumber,int objecttype)
 {
 	switch (objecttype)
 	{

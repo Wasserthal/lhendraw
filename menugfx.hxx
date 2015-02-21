@@ -810,7 +810,13 @@ int sdl_selectiondraw()
 			}
 		}
 	}
-	for (int ilv1=0;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
+	int worstdistance=constants_clickradius;
+	int closestobject_list=-1;
+	int closestobject=-1;
+	int closestx,closesty;
+	float closest_mousex=(control_mousex/SDL_zoomx)+SDL_scrollx-gfx_canvasminx;
+	float closest_mousey=(control_mousey/SDL_zoomy)+SDL_scrolly-gfx_canvasminy;
+	for (int ilv1=1;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
 	{
 		int follower3=0;
 		icompare=1<<ilv1;
@@ -832,6 +838,20 @@ int sdl_selectiondraw()
 				{
 					if (((selection_clickabilitymatrix.types2[2] & (1<<ilv1)) && (ilv3!=0)) || ((selection_clickabilitymatrix.types2[1] & (1<<ilv1)) && (ilv3==0)))
 					{
+						int currentx=(tlpx-SDL_scrollx)*SDL_zoomx;
+						int currenty=(tlpy-SDL_scrolly)*SDL_zoomy;
+						int tl_distance=sqr(currentx-closest_mousex)+sqr(currenty-closest_mousey);
+						if (tl_distance<worstdistance)
+						{
+							if (edit_hit(((basic_instance*)(ibufferpos+isize*ilv2)),currentx,currenty,0,ilv1)>0)
+							{
+								closestobject_list=ilv1;
+								closestobject=ilv2;
+								worstdistance=tl_distance;
+								closestx=currentx;
+								closesty=currenty;
+							}
+						}
 						if ((((selection_currentselection[ilv2]) & icompare)>0) ^ (ilv3!=0))
 						{
 							draw_drawmarkpoint((tlpx-SDL_scrollx)*SDL_zoomx-3+gfx_canvasminx,(tlpy-SDL_scrolly)*SDL_zoomy-3+gfx_canvasminy,47,(ilv3!=0),0);
@@ -855,6 +875,10 @@ int sdl_selectiondraw()
 			}
 		}
 		i_fertig:;
+	}
+	if (closestobject_list!=-1)
+	{
+		draw_drawmarkpoint(closestx+gfx_canvasminx-3,closesty+gfx_canvasminy-3,47,5,0);
 	}
 		float tlpx,tlpy;
 		SDL_color=0x3F3F00;

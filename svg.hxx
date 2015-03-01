@@ -284,3 +284,28 @@ int svg_main(FILE * ifile)
 	return 1;
 }
 //TODO SUBJECT: TEXT ist completely broken now without a buffer to read it from.
+int __attribute__((warn_unused_result)) svg_expressgeometry_start(float left,float top,float right,float bottom)
+{
+	//TODO
+	return 0;
+}
+void svg_expressgeometry_begin(float x,float y)
+{
+	//TODO
+}
+void svg_expressgeometry_end()
+{
+	//TODO
+}
+void svg_expressgeometry_line(float x,float y)
+{
+	//TODO
+}
+void svg_expressgeometry_bezier2(float x1,float y1,float x2,float y2)
+{
+	//TODO
+}
+void svg_expressgeometry_backline()
+{
+	//TODO
+}

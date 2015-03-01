@@ -95,3 +95,28 @@ int ps_text_rewind(const _u8 * sizestring,int length)
 	fprintf(outfile,"0 0\n");
 	return 0;
 }
+int __attribute__((warn_unused_result)) ps_expressgeometry_start(float left,float top,float right,float bottom)
+{
+	//TODO
+	return 0;
+}
+void ps_expressgeometry_begin(float x,float y)
+{
+	//TODO
+}
+void ps_expressgeometry_end()
+{
+	//TODO
+}
+void ps_expressgeometry_line(float x,float y)
+{
+	//TODO
+}
+void ps_expressgeometry_bezier2(float x1,float y1,float x2,float y2)
+{
+	//TODO
+}
+void ps_expressgeometry_backline()
+{
+	//TODO
+}

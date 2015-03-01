@@ -597,12 +597,16 @@ int TELESCOPE_getproperty_contentlength()//Like before, but returns the pointer 
 {
 	return ((TELESCOPE_element*)((*TELESCOPE_tempvar.buffer).buffer+TELESCOPE_tempvar.pos+TELESCOPE_tempvar.subpos))->length-TELESCOPE_ELEMENTTYPE_List[(*(TELESCOPE_element*)((*(TELESCOPE_tempvar.buffer)).buffer+TELESCOPE_tempvar.pos+TELESCOPE_tempvar.subpos)).type].size;
 }
+extern char * gfx_linewisebuffer;
+extern char * selection_lassobuffer;
 int initmemory()
 {
 	memory_alloc(&(filestructure_text_buffer.buffer),1);
 	filestructure_text_buffer.count=0;
 	memory_alloc(&(filestructure_curve_buffer.buffer),1);
 	filestructure_curve_buffer.count=0;
+	memory_alloc(&(gfx_linewisebuffer),7);
+	memory_alloc(&(selection_lassobuffer),7);
 	if ((filestructure_text_buffer.buffer!=NULL) && (filestructure_curve_buffer.buffer!=NULL)) return 1;
 	return -1;
 }

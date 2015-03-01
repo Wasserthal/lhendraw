@@ -740,7 +740,39 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,char hatches)
 	{
 		//TODO SUBJECT make LENHACK Frame omissions in conversion, not in draw
 		MACRO_DRAWPREFIX(stylegenestring)(stylefromrectangle((*i_graphic_instance).RectangleType));
-		MACRO_DRAWPREFIX(expresstetrangle)(iBBX.left,iBBX.top,iBBX.right,iBBX.top,iBBX.right,iBBX.bottom,iBBX.left,iBBX.bottom);
+		float tl_corn=(*i_graphic_instance).CornerRadius;
+		if ((*i_graphic_instance).CornerRadius>0)
+		{
+			if (iBBX.left>iBBX.right)
+			{
+				float swap=iBBX.left;
+				iBBX.left=iBBX.right;
+				iBBX.right=swap;
+			}
+			if (iBBX.top>iBBX.bottom)
+			{
+				float swap=iBBX.top;
+				iBBX.top=iBBX.bottom;
+				iBBX.bottom=swap;
+			}
+			if (MACRO_DRAWPREFIX(expressgeometry_start)(iBBX.left,iBBX.top,iBBX.right,iBBX.bottom))
+			{
+				MACRO_DRAWPREFIX(expressgeometry_begin)(iBBX.left+tl_corn,iBBX.top);
+				MACRO_DRAWPREFIX(expressgeometry_line)(iBBX.right-tl_corn,iBBX.top);
+				MACRO_DRAWPREFIX(expressgeometry_bezier2)(iBBX.right,iBBX.top,iBBX.right,iBBX.top+tl_corn);
+				MACRO_DRAWPREFIX(expressgeometry_line)(iBBX.right,iBBX.bottom-tl_corn);
+				MACRO_DRAWPREFIX(expressgeometry_bezier2)(iBBX.right,iBBX.bottom,iBBX.right-tl_corn,iBBX.bottom);
+				MACRO_DRAWPREFIX(expressgeometry_line)(iBBX.left+tl_corn,iBBX.bottom);
+				MACRO_DRAWPREFIX(expressgeometry_bezier2)(iBBX.left,iBBX.bottom,iBBX.left,iBBX.bottom-tl_corn);
+				MACRO_DRAWPREFIX(expressgeometry_line)(iBBX.left,iBBX.top+tl_corn);
+				MACRO_DRAWPREFIX(expressgeometry_bezier2)(iBBX.left,iBBX.top,iBBX.left+tl_corn,iBBX.top);
+				MACRO_DRAWPREFIX(expressgeometry_end)();
+			}
+		}
+		else
+		{
+			MACRO_DRAWPREFIX(expresstetrangle)(iBBX.left,iBBX.top,iBBX.right,iBBX.top,iBBX.right,iBBX.bottom,iBBX.left,iBBX.bottom);
+		}
 	}
 	if ((*i_graphic_instance).GraphicType==4)
 	{

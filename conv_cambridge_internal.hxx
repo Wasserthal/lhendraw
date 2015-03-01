@@ -358,6 +358,7 @@ void CAMBRIDGECONV_graphic()
 		CAMBRIDGECONV_EXISTSTHEN(graphic,BoundingBox);
 		CAMBRIDGECONV_EXISTSTHEN(graphic,GraphicType);
 		CAMBRIDGECONV_EXISTSTHEN(graphic,SymbolType);
+		CAMBRIDGECONV_EXISTSTHEN(graphic,CornerRadius);
 		CAMBRIDGECONV_EXISTSTHEN(graphic,OvalType);
 		CAMBRIDGECONV_EXISTSTHEN(graphic,RectangleType);
 		CAMBRIDGECONV_EXISTSTHEN(graphic,LineType);

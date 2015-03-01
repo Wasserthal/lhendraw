@@ -450,7 +450,256 @@ void gfx_gfxstop()
 int gfx_bks[bezierpointmax];//Worst case, every curve making an s
 float gfx_type;//1: line 3: cubic bezier 0x100: bezier part, order depending on the last preceding
 float gfx_m[bezierpointmax];//Only for polygons
+char * gfx_linewisebuffer;
 int ibrakelist_count;
+
+struct gfx_geometry_
+{
+	char type;//0: at start 1: line drawn 2: loop closed
+	int startx,starty;
+	int currentx,currenty;
+	int left,right,top,bottom;
+	int lastdirection;//0: none, save to "firstdirection" 1: downward 2: upward
+	int firstdirection;
+};
+gfx_geometry_ gfx_geometry;
+
+int __attribute__((warn_unused_result)) gfx_expressgeometry_start(float left,float top,float right,float bottom)
+{
+	gfx_geometry.type=0;
+	gfx_geometry.left=(left-SDL_scrollx)*SDL_zoomx;
+	gfx_geometry.right=(right-SDL_scrollx)*SDL_zoomx;
+	gfx_geometry.top=(top-SDL_scrolly)*SDL_zoomy;
+	gfx_geometry.bottom=(bottom-SDL_scrolly)*SDL_zoomy;
+	if (fmod(bottom,1)!=0) gfx_geometry.bottom++;
+	if (fmod(right,1)!=0) gfx_geometry.right++;
+	if (gfx_geometry.right>gfx_canvassizex) {gfx_geometry.right=gfx_canvassizex; if (gfx_geometry.left>=gfx_canvassizex) return 0;}
+	if (gfx_geometry.bottom>gfx_canvassizey) {gfx_geometry.bottom=gfx_canvassizey; if (gfx_geometry.top>=gfx_canvassizey) return 0;}
+	if (gfx_geometry.left<0) {gfx_geometry.left=0; if (gfx_geometry.right<0) return 0;}
+	if (gfx_geometry.top<0) {gfx_geometry.top=0; if (gfx_geometry.bottom<0) return 0;}
+	for (int ilv1=gfx_geometry.top;ilv1<gfx_geometry.bottom;ilv1++)
+	{
+		char * tl_buffer=gfx_linewisebuffer+(ilv1*gfx_canvassizex);
+		for (int ilv2=gfx_geometry.left;ilv2<gfx_geometry.right;ilv2++)
+		{
+			canvas[gfx_screensizex*ilv1+ilv2]=0x00FF00;
+			tl_buffer[ilv2]=0;
+		}
+	}
+	return 1;
+}
+void gfx_expressgeometry_begin(float x,float y)
+{
+	gfx_geometry.type=1;
+	gfx_geometry.startx=(x-SDL_scrollx)*SDL_zoomx;
+	gfx_geometry.starty=(y-SDL_scrolly)*SDL_zoomy;
+	gfx_geometry.currentx=gfx_geometry.startx;
+	gfx_geometry.currenty=gfx_geometry.starty;
+	gfx_geometry.firstdirection=0;
+	gfx_geometry.lastdirection=0;
+}
+#define GFX_GEONEXT(MACROPARAM)\
+{\
+	gfx_geometry.lastdirection=(MACROPARAM);\
+	if (gfx_geometry.firstdirection==0) {gfx_geometry.firstdirection=(MACROPARAM);}\
+}
+void gfx_expressgeometry_neutro(int currentdirection,char halt=0)
+{
+	if (gfx_geometry.lastdirection!=currentdirection) return;
+	if ((gfx_geometry.currenty)<gfx_geometry.top) return;
+	if ((gfx_geometry.currenty)>=gfx_geometry.bottom) return;
+	if (gfx_geometry.currentx>=gfx_geometry.right) return;
+	int medix=gfx_geometry.currentx;
+	if (medix<gfx_geometry.left) medix=gfx_geometry.left;
+	gfx_linewisebuffer[gfx_geometry.currenty*gfx_canvassizex+medix]^=1;
+}
+void gfx_expressgeometry_end()
+{
+	if (gfx_geometry.type==1) gfx_expressgeometry_neutro(gfx_geometry.firstdirection,1);
+	for (int ilv1=gfx_geometry.top;ilv1<gfx_geometry.bottom;ilv1++)
+	{
+		char state=0;
+		for (int ilv2=gfx_geometry.left;ilv2<gfx_geometry.right;ilv2++)
+		{
+			state^=gfx_linewisebuffer[ilv1*gfx_canvassizex+ilv2];
+			if (state)
+			{
+				canvas[ilv1*gfx_screensizex+ilv2]=SDL_color;
+			}
+		}
+	}
+	gfx_geometry.type=2;
+}
+void gfx_expressgeometry_line(float x,float y)
+{
+	if (gfx_geometry.type!=1)
+	{
+		gfx_expressgeometry_begin(x,y);
+		return;
+	}
+	int ix=(x-SDL_scrollx)*SDL_zoomx;
+	int iy=(y-SDL_scrolly)*SDL_zoomy;
+	char swapped=0;
+	if (gfx_geometry.currenty>iy)
+	{
+		int swap=gfx_geometry.currenty;
+		gfx_expressgeometry_neutro(2);
+		gfx_geometry.currenty=iy;
+		iy=swap;
+		swap=gfx_geometry.currentx;
+		gfx_geometry.currentx=ix;
+		ix=swap;
+		swapped=1;
+	}
+	else
+	{
+		if (iy!=gfx_geometry.currenty)
+		gfx_expressgeometry_neutro(1);
+	}
+	if (iy!=gfx_geometry.currenty)
+	{
+		float m=(ix-gfx_geometry.currentx)/((float)(iy-gfx_geometry.currenty));
+		float t=gfx_geometry.currentx-(gfx_geometry.currenty*m);
+		for (int ilv1=gfx_geometry.currenty;ilv1<=iy;ilv1++)
+		{
+			int medix=(ilv1-gfx_geometry.currenty)*m+gfx_geometry.currentx;
+			if (medix<gfx_geometry.left) medix=gfx_geometry.left;
+			gfx_linewisebuffer[ilv1*gfx_canvassizex+medix]^=1;
+		}
+	}
+	if (iy!=gfx_geometry.currenty)
+	GFX_GEONEXT((3*swapped)^1);
+	if (!swapped)
+	{
+		gfx_geometry.currentx=ix;
+		gfx_geometry.currenty=iy;
+	}
+}
+void gfx_expressgeometry_bezier2(float x1,float y1,float x2,float y2)
+{
+	int startx=gfx_geometry.currentx;
+	int starty=gfx_geometry.currenty;
+	x2=(x2-SDL_scrollx)*SDL_zoomx;
+	y2=(y2-SDL_scrolly)*SDL_zoomy;
+	int x0=x2;
+	int y0=y2;
+	x1=(int)((x1-SDL_scrollx)*SDL_zoomx);
+	y1=(int)((y1-SDL_scrolly)*SDL_zoomy);
+	char swapped=0;
+	int lasty;//make sure it's smaller than the actual start in first place!
+	int endy;
+	float fragment;
+	float currentlevel;
+	float lastlevel;
+	int imediy;
+	char hasotherhalf;
+	if (starty>y0)
+	{
+		int swap=starty;
+		starty=y0;
+		y0=swap;
+		swap=startx;
+		startx=x0;
+		x0=swap;
+		swapped=1;
+	}
+	hasotherhalf=0;
+	iotherhalfback:;
+	if ((y1>=starty) && (y1<=y0))
+	{
+		gfx_expressgeometry_neutro((3*swapped)^1);
+		lasty=starty-1;
+		endy=y0;
+		fragment=0.45/(endy-starty);
+		currentlevel=0;
+		lastlevel=1+fragment;
+		imediy=0;
+		GFX_GEONEXT((3*swapped)^1);
+		if (gfx_geometry.lastdirection==2) gfx_geometry.lastdirection=2;
+	}
+	else
+	{
+		exit(1);
+		if (y1<starty)
+		{
+			if (hasotherhalf==1)
+			{
+				lasty=y1-1;
+				endy=starty;
+				fragment=-0.45/(starty-y1);
+				currentlevel=(starty-y1)/((y0-y1)+(starty-y1));
+				lastlevel=fragment;
+				imediy=0;
+				hasotherhalf=2;
+			}
+			else
+			{
+				gfx_expressgeometry_neutro(1);
+				lasty=y1-1;
+				endy=y0;
+				fragment=0.45/(endy-y1);
+				currentlevel=(starty-y1)/((y0-y1)+(starty-y1));
+				lastlevel=1+fragment;
+				imediy=0;
+				hasotherhalf=1;
+				GFX_GEONEXT(1);
+			}
+		}
+		else
+		{
+			if (hasotherhalf==1)
+			{
+				lasty=y0-1;
+				endy=y1;
+				fragment=-0.45/(y1-starty);
+				currentlevel=1;
+				lastlevel=(starty-y1)/((y0-y1)+(starty-y1))+fragment;
+				imediy=0;
+				hasotherhalf=2;
+			}
+			else
+			{
+				gfx_expressgeometry_neutro(2);
+				lasty=starty-1;
+				endy=y1;
+				fragment=0.45/(y1-starty);
+				currentlevel=0;
+				lastlevel=(starty-y1)/((y0-y1)+(starty-y1))+fragment;
+				imediy=0;
+				hasotherhalf=1;
+				GFX_GEONEXT(2);
+			}
+		}
+	}
+	do
+	{
+		float mediy=((starty+((y1-starty)*currentlevel))*(1-currentlevel))+((y1+(y0-y1)*currentlevel)*currentlevel);
+		imediy=mediy;
+		if (imediy>lasty)
+		{
+			lasty=imediy;
+			int medix=((startx+((x1-startx)*currentlevel))*(1-currentlevel))+((x1+(x0-x1)*currentlevel)*currentlevel);
+			if ((lasty>=0) && (lasty<gfx_canvassizey) && (medix<gfx_canvassizex))
+			{
+				if (medix<gfx_geometry.left) medix=gfx_geometry.left;
+				gfx_linewisebuffer[lasty*gfx_canvassizex+medix]^=1;
+			}
+		}
+		currentlevel+=fragment;
+	}
+	while ((((currentlevel<=lastlevel) && (hasotherhalf!=2)) || ((currentlevel>=lastlevel) && (hasotherhalf==2))) && (lasty<endy));
+	if (hasotherhalf==1) goto iotherhalfback;
+	gfx_geometry.currentx=x2;
+	gfx_geometry.currenty=y2;
+}
+void gfx_expressgeometry_backline()
+{
+	if (gfx_geometry.type==1)
+	{
+		gfx_expressgeometry_line(gfx_geometry.startx,gfx_geometry.starty);
+		gfx_geometry.type=2;
+	}
+}
 
 int gfx_expressinfinityangle(int count)
 {

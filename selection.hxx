@@ -86,8 +86,7 @@ typedef struct selection_frame_
 	float right,bottom;
 }selection_frame_;
 selection_frame_ selection_frame;
-char selection_lassobuffer[gfx_standardcanvassizex*gfx_standardcanvassizey];//The selection_lasso buffer corresponds to the pixels, not to the datastructure units!
-//TODO: allocate dynamically
+char * selection_lassobuffer;//The selection_lasso buffer corresponds to the pixels, not to the datastructure units!
 struct selection_lassoline_
 {
 	int items[40];

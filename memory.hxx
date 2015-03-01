@@ -11,6 +11,7 @@
 //actual_node (atoms and bonds) (4)
 //z-order-list (5)
 //ALL selection lists! (6)
+//linewise graphics calculation matrices (7)
 //String buffers... (10)
 //sglgfx bezierpoints and max's etc. (!)...(11)
 //The buffers mentioned in "undo".......

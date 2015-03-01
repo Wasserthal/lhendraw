@@ -13,7 +13,7 @@ fonttable;font ;;
 font;;0 id s name ! charset ;
 arrow;annotation ;4 BoundingBox 0 color 3 Head3D 3 Tail3D 3 Center3D ! GraphicType ! LineType ¢ AngularSize 3 MajorAxisEnd3D 3 MinorAxisEnd3D # ArrowheadType # ArrowheadHead # ArrowheadTail 0 Z 0 ArrowShaftSpacing ;
 line;annotation ;0 id 0 color 0 SupersededBy 4 BoundingBox 0 Z ! ArrowType ! LineType ;
-graphic;represent annotation ;0 id 0 color 0 SupersededBy 4 BoundingBox 0 Z ! GraphicType ! ArrowType ! SymbolType 1 AngularSize ‼ OvalType ! RectangleType ! LineType ! BracketType 3 Center3D 3 MajorAxisEnd3D 3 MinorAxisEnd3D : represent ;
+graphic;represent annotation ;0 id 0 color 0 SupersededBy 4 BoundingBox 0 Z ! GraphicType ! ArrowType ! SymbolType 1 AngularSize 1 CornerRadius ‼ OvalType ! RectangleType ! LineType ! BracketType 3 Center3D 3 MajorAxisEnd3D 3 MinorAxisEnd3D : represent ;
 represent;;! attribute 0 object ;
 annotation;;s Keyword S Content ;
 curve;;0 id 0 color 0 Z # ArrowheadType # ArrowheadHead # ArrowheadTail ~ CurvePoints ! FillType 0 CurveType ! Closed ;

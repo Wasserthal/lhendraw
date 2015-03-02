@@ -1258,6 +1258,7 @@ n_instance * snapatom_short(float iposx,float iposy,_small * iatomnr=NULL,int id
 
 basic_instance * getclicked(int imap,float clckx,float clcky,int * backtype=NULL,int * backindex=NULL,basic_instance ** backsub=NULL)
 {
+	printf("Cli%016x\n",imap);
 	basic_instance * bestinstance=NULL;
 	float bestvalue=0x2000000000;
 	float thisvalue;

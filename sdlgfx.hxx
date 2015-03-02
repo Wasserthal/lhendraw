@@ -482,7 +482,6 @@ int __attribute__((warn_unused_result)) gfx_expressgeometry_start(float left,flo
 		char * tl_buffer=gfx_linewisebuffer+(ilv1*gfx_canvassizex);
 		for (int ilv2=gfx_geometry.left;ilv2<gfx_geometry.right;ilv2++)
 		{
-			canvas[gfx_screensizex*ilv1+ilv2]=0x00FF00;
 			tl_buffer[ilv2]=0;
 		}
 	}
@@ -619,7 +618,6 @@ void gfx_expressgeometry_bezier2(float x1,float y1,float x2,float y2)
 	}
 	else
 	{
-		exit(1);
 		if (y1<starty)
 		{
 			if (hasotherhalf==1)

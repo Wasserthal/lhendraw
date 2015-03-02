@@ -154,7 +154,8 @@ int sdl_sliderdraw(int posx,int posy,int gfxno,int shift,int color)
 	_u32 * ibutton=resources_bitmap_buttons[LHENDRAW_maxbuttons-gfxno-1][0];
 	int xco,yco;
 	_u32 islider[8];
-	if (posy<0) posy+=gfx_screensizey;
+	if (posx<0) posx+=(gfx_screensizex>>5)<<5;
+	if (posy<0) posy+=(gfx_screensizey>>5)<<5;
 	if (shift>=0)
 	{
 		shift=shift%8;
@@ -461,8 +462,8 @@ void sdl_colorpaldraw(int posx,int posy)
 }
 int sdl_buttonmenudraw(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int count,int xpos=0,int ypos=0)
 {
-	if (xpos<0) xpos+=gfx_screensizex;
-	if (ypos<0) ypos+=gfx_screensizey;
+	if (xpos<0) xpos+=(gfx_screensizex>>5)<<5;
+	if (ypos<0) ypos+=(gfx_screensizey>>5)<<5;
 	for (int ilv1=0;ilv1<count;ilv1++)
 	{
 		_u32 state=ilisting[ilv1].bgcolor;

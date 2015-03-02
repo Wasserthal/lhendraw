@@ -679,14 +679,16 @@ int issueclick(int iposx,int iposy)
 					control_starty=control_coorsy;
 					control_usingmousebutton=control_lastmousebutton;
 					int backtype,backindex;
-					control_manipulatedinstance=getclicked((1<<STRUCTURE_OBJECTTYPE_n),control_coorsx,control_coorsy);
-					control_manipulatedinstance=getclicked((1<<STRUCTURE_OBJECTTYPE_ListSize)-1,control_coorsx,control_coorsy,&backtype,&backindex);
+					float backdistance=2000000000;
+					control_manipulatedinstance=getclicked((1<<STRUCTURE_OBJECTTYPE_ListSize)-1,control_coorsx,control_coorsy,&backtype,&backindex,NULL,&backdistance);
 					if (control_manipulatedinstance!=NULL)
 					{
+						if (backdistance*SDL_zoomx*SDL_zoomy>400) goto try_subpoint;
 						goto twopointselection_wantthem;
 					}
 					else
 					{
+						try_subpoint:;
 						control_manipulatedinstance=getclicked(~0,control_coorsx,control_coorsy,&backtype,&backindex);
 						if (control_manipulatedinstance!=NULL)
 						{

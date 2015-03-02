@@ -1256,9 +1256,8 @@ n_instance * snapatom_short(float iposx,float iposy,_small * iatomnr=NULL,int id
 	return NULL;
 }
 
-basic_instance * getclicked(int imap,float clckx,float clcky,int * backtype=NULL,int * backindex=NULL,basic_instance ** backsub=NULL)
+basic_instance * getclicked(int imap,float clckx,float clcky,int * backtype=NULL,int * backindex=NULL,basic_instance ** backsub=NULL,float * backvalue=NULL)
 {
-	printf("Cli%016x\n",imap);
 	basic_instance * bestinstance=NULL;
 	float bestvalue=0x2000000000;
 	float thisvalue;
@@ -1314,6 +1313,10 @@ basic_instance * getclicked(int imap,float clckx,float clcky,int * backtype=NULL
 									{
 										*backindex=ilv1*internalpointcount+ilv2;
 									}
+									if (backvalue!=NULL)
+									{
+										*backvalue=thisvalue;
+									}
 									bestvalue=thisvalue;
 								}
 							}
@@ -1345,6 +1348,10 @@ basic_instance * getclicked(int imap,float clckx,float clcky,int * backtype=NULL
 									if (backsub!=NULL)
 									{
 										*backsub=(basic_instance*)TELESCOPE_getproperty();//Note that TELESCOPE_tempval gets set by retrievepoints_basic!
+									}
+									if (backvalue!=NULL)
+									{
+										*backvalue=thisvalue;
 									}
 									bestvalue=thisvalue;
 								}

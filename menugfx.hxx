@@ -815,8 +815,8 @@ int sdl_selectiondraw()
 	int closestobject_list=-1;
 	int closestobject=-1;
 	int closestx,closesty;
-	float closest_mousex=(control_mousex/SDL_zoomx)+SDL_scrollx-gfx_canvasminx;
-	float closest_mousey=(control_mousey/SDL_zoomy)+SDL_scrolly-gfx_canvasminy;
+	float closest_mousex=control_mousex-gfx_canvasminx;
+	float closest_mousey=control_mousey-gfx_canvasminy;
 	for (int ilv1=1;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
 	{
 		int follower3=0;
@@ -844,7 +844,7 @@ int sdl_selectiondraw()
 						int tl_distance=sqr(currentx-closest_mousex)+sqr(currenty-closest_mousey);
 						if (tl_distance<worstdistance)
 						{
-							if (edit_hit(((basic_instance*)(ibufferpos+isize*ilv2)),currentx,currenty,0,ilv1)>0)
+							if (edit_hit(((basic_instance*)(ibufferpos+isize*ilv2)),tlpx,tlpy,0,ilv1)>0)
 							{
 								closestobject_list=ilv1;
 								closestobject=ilv2;

@@ -1,5 +1,8 @@
 float ps_txposx,ps_txposy;
 float ps_fontsize;
+_u32 ps_linestyle=0;
+float ps_currentx;
+float ps_currenty;
 void ps_express_text_tail()
 {
 	fprintf(outfile,"pop pop\n");
@@ -85,6 +88,7 @@ void ps_printformatted(const char * iinput,const char * parms,int imode,int star
 }
 void ps_stylegenestring(int flags,unsigned int fillcolor=0)
 {
+	ps_linestyle=flags;
 }
 int ps_text_rewind(const _u8 * sizestring,int length)
 {
@@ -97,24 +101,39 @@ int ps_text_rewind(const _u8 * sizestring,int length)
 }
 int __attribute__((warn_unused_result)) ps_expressgeometry_start(float left,float top,float right,float bottom)
 {
-	//TODO
-	return 0;
+	fprintf(outfile,"newpath\n");
+	return 1;
 }
 void ps_expressgeometry_begin(float x,float y)
 {
-	//TODO
+	fprintf(outfile,"%f %f moveto\n",x,SVG_height-y);
+	ps_currentx=x;
+	ps_currenty=y;
 }
 void ps_expressgeometry_end()
 {
-	//TODO
+	if (ps_linestyle & 2)
+	{
+		fprintf(outfile,"fill\n");
+	}
+	else
+	{
+		fprintf(outfile,"stroke\n");
+	}
 }
 void ps_expressgeometry_line(float x,float y)
 {
-	//TODO
+	fprintf(outfile,"%f %f lineto\n",x,SVG_height-y);
+	ps_currentx=x;
+	ps_currenty=y;
 }
 void ps_expressgeometry_bezier2(float x1,float y1,float x2,float y2)
 {
-	//TODO
+	float ax=(ps_currentx+2*x1)/3;
+	float ay=(ps_currenty+2*y1)/3;
+	float bx=(x2+2*x1)/3;
+	float by=(y2+2*y1)/3;
+	fprintf(outfile,"%f %f %f %f %f %f curveto\n",ax,SVG_height-ay,bx,SVG_height-by,x2,SVG_height-y2);
 }
 void ps_expressgeometry_backline()
 {

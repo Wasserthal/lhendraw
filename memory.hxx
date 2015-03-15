@@ -69,6 +69,8 @@ void memory_alloc(char ** address,int itype)
 	memory_bufferstructure[memory_bufferstructure_count].baseaddress=(*address);
 	memory_bufferstructure[memory_bufferstructure_count].baseaddressaddress=address;
 	memory_bufferstructure[memory_bufferstructure_count].type=itype;
+	memory_bufferstructure_count++;
+	printf("all:%p\n",*address);
 }
 void memory_areamoved(char * ibegin1,char * ibegin2,intl ilength)//can be called from outside to tell that data with baseaddresses has moved inside a buffer, or from memory if a memory is moved. Better name memory areas whether they contain memory addresses or not... (NO! too complicated).
 {
@@ -84,6 +86,7 @@ void memory_areamoved(char * ibegin1,char * ibegin2,intl ilength)//can be called
 }
 int memory_free(void * ibaseaddress)
 {
+	printf("fadd:%p\n",ibaseaddress);
 	for (int ilv1=0;ilv1<memory_bufferstructure_count;ilv1++)
 	{
 		if (memory_bufferstructure[ilv1].baseaddress==ibaseaddress)
@@ -92,13 +95,15 @@ int memory_free(void * ibaseaddress)
 			*(memory_bufferstructure[ilv1].baseaddressaddress)=NULL;
 			for (int ilv2=ilv1;ilv2<memory_bufferstructure_count-1;ilv2++)
 			{
-				memory_bufferstructure[ilv1]=memory_bufferstructure[ilv1+1];
+				memory_bufferstructure[ilv2]=memory_bufferstructure[ilv2+1];
 			}
 			memory_bufferstructure_count--;
 			return 1;
 		}
 	}
 	//This would be a memory-double-free, or freeing of a not mapped memory block.
+	fprintf(stderr,"DOUBLE FREE%p\n",ibaseaddress);
+	exit(1);
 	return 0;
 }
 intl undo_memory_needs();

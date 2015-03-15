@@ -127,10 +127,12 @@ int slayredo()
 		{
 			if (undosteps[ilv1].handles[ilv3].buffer!=NULL)
 			{
+				printf("Freeing_rindex:%i %p\n",ilv1,undosteps[ilv1].handles[ilv3].buffer);
 				memory_free(undosteps[ilv1].handles[ilv3].buffer);
 			}
 			if (undosteps[ilv1].handles[ilv3].contentbuffer!=NULL)
 			{
+				printf("Freeing_rbuffer:%i %p\n",ilv1,undosteps[ilv1].handles[ilv3].contentbuffer);
 				memory_free(undosteps[ilv1].handles[ilv3].contentbuffer);
 			}
 		}
@@ -138,6 +140,7 @@ int slayredo()
 		{
 			undosteps[ilv2]=undosteps[ilv2+1];
 		}
+		memory_areamoved((char*)&(undosteps[2]),(char*)&(undosteps[1]),sizeof(undosteps[0])*(undosteps_count-1-ilv1));
 		if (currentundostep>ilv1)
 		{
 			currentundostep--;
@@ -150,6 +153,7 @@ int slayredo()
 		return 1;
 		cantdeletethis:;
 	}
+	printf("Slayredo failed!\n");
 	return -1;
 }
 int slayundo()
@@ -165,11 +169,12 @@ int slayundo()
 		{
 			if (undosteps[1].handles[ilv1].buffer!=0)
 			{
-				imax=min(LHENDRAW_buffersize,(tl_multilist->itemsize*tl_multilist->filllevel+sizeof(intl)-1))/sizeof(intl);
+				imax=min(LHENDRAW_buffersize,(tl_multilist->itemsize*((basicmultilist*)(undosteps[1].handles[ilv1].imultilist))->filllevel+sizeof(intl)-1))/sizeof(intl);
 				for (int ilv2=1;ilv2<imax;ilv2++)
 				{
 					((intl*)(undosteps[0].handles[ilv1].buffer))[ilv2]=((intl*)(undosteps[1].handles[ilv1].buffer))[ilv2];
 				}
+				printf("Freeing_list:%i %p\n",ilv1,undosteps[1].handles[ilv1].buffer);
 				memory_free(undosteps[1].handles[ilv1].buffer);
 				for (int ilv2=0;ilv2<sizeof(multilist<basic_instance>);ilv2++)
 				{
@@ -178,12 +183,14 @@ int slayundo()
 			}
 			if (undosteps[1].handles[ilv1].contentbuffer!=0)
 			{
-				imax=min(LHENDRAW_buffersize,glob_contentbuffer[1].count+sizeof(intl)-1)/sizeof(intl);
+				imax=min(LHENDRAW_buffersize,undosteps[1].handles[ilv1].bufferhead.count+sizeof(intl)-1)/sizeof(intl);
 				for (int ilv2=1;ilv2<imax;ilv2++)
 				{
 					((intl*)(undosteps[0].handles[ilv1].contentbuffer))[ilv2]=((intl*)(undosteps[1].handles[ilv1].contentbuffer))[ilv2];
 				}
 				undosteps[0].handles[ilv1].bufferhead=undosteps[1].handles[ilv1].bufferhead;
+				undosteps[0].handles[ilv1].bufferhead.buffer=undosteps[0].handles[ilv1].contentbuffer;
+				printf("Freeing_buffer:%i %p\n",ilv1,undosteps[1].handles[ilv1].contentbuffer);
 				memory_free(undosteps[1].handles[ilv1].contentbuffer);
 			}
 		}
@@ -192,6 +199,7 @@ int slayundo()
 	{
 		undosteps[ilv2]=undosteps[ilv2+1];
 	}
+	memory_areamoved((char*)&(undosteps[2]),(char*)&(undosteps[1]),sizeof(undosteps[0])*(undosteps_count-2));
 	if (currentundostep>0)
 	{
 		currentundostep--;
@@ -205,6 +213,7 @@ int slayundo()
 }
 int storeundo(_u32 flags)
 {
+	if (undosteps_count==0) flags=~0;
 	intl imax=0;
 	basicmultilist * tl_multilist;
 	if (currentundostep!=-1)
@@ -267,13 +276,14 @@ int storeundo(_u32 flags)
 	}
 	undosteps[undosteps_count].parent=currentundostep;
 	currentundostep=undosteps_count;
-//	printf("\e[31m%i,%i\e[0m\n",currentundostep,undosteps_count);
+	printf("\e[31m%i,%i\e[0m\n",currentundostep,undosteps_count);
 	undosteps_count++;
 	undo_undodirty=1;
 	return 1;
 }
 int restoreundo(_u32 flags,_u32 orderflags/*bit0: restore count only*/)//doesn't discard the old undo state, loads ONLY
 {
+	printf("RESTORING:%i\n",currentundostep);
 	intl imax=0;
 	basicmultilist * tl_multilist;
 	if (currentundostep==-1) return -1;
@@ -290,10 +300,12 @@ int restoreundo(_u32 flags,_u32 orderflags/*bit0: restore count only*/)//doesn't
 				thatundostep=currentundostep;
 				if (orderflags & 1)
 				{
+					char * ipointer=(*tl_multilist).pointer;
 					for (int ilv2=0;ilv2<sizeof(multilist<basic_instance>);ilv2++)
 					{
 						((char*)(tl_multilist))[ilv2]=((char*)(undosteps[thatundostep].handles[ilv1].imultilist))[ilv2];
 					}
+					(*tl_multilist).pointer=ipointer;
 					goto count_only;
 				}
 				imax=min(LHENDRAW_buffersize,undosteps[currentundostep].handles[ilv1].bufferhead.count+sizeof(intl)-1)/sizeof(intl);
@@ -315,7 +327,7 @@ int restoreundo(_u32 flags,_u32 orderflags/*bit0: restore count only*/)//doesn't
 				{
 					((char*)(tl_multilist))[ilv2]=((char*)(undosteps[thatundostep].handles[ilv1].imultilist))[ilv2];
 				}
-				imax=min(LHENDRAW_buffersize,(tl_multilist->itemsize*tl_multilist->filllevel+sizeof(intl)-1))/sizeof(intl);
+				imax=min(LHENDRAW_buffersize,(tl_multilist->itemsize*((basicmultilist*)(undosteps[thatundostep].handles[ilv1].imultilist))->filllevel+sizeof(intl)-1))/sizeof(intl);
 				for (int ilv3=0;ilv3<imax;ilv3++)
 				{
 					((intl*)((*tl_multilist).pointer))[ilv3]=(tl_buffer)[ilv3];
@@ -378,4 +390,12 @@ intl undo_memory_needs()
 		if (current>needs) needs=current;
 	}*/
 	return needs;
+}
+void printundostats()
+{
+	printf("%i\n",glob_n_multilist->filllevel);
+	for (int ilv1=0;ilv1<constants_undostep_max;ilv1++)
+	{
+		printf("O%s%2i,l%p=%p,b%p=%p:%i\n",(ilv1==currentundostep)?"\e[32m:\e[0m":"\e[0m:",undosteps[ilv1].parent,undosteps[ilv1].handles[1].buffer,((basicmultilist*)(undosteps[ilv1].handles[1].imultilist))->pointer,undosteps[ilv1].handles[1].contentbuffer,undosteps[ilv1].handles[1].bufferhead.buffer,((basicmultilist*)(undosteps[ilv1].handles[1].imultilist))->filllevel);
+	}
 }

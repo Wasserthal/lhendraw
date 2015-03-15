@@ -545,13 +545,14 @@ inline int retrieveprops_t(int what)
 	return 0;
 }
 //ANY retrievepoints on an object with a negative prop count must keep it's telescope-element set to read the corresponding item
-inline int retrievepoints(n_instance * iinstance,float * ix,float * iy,float * iz,int inumber)
+inline int retrievepoints(n_instance * iinstance,float * ix,float * iy,float * iz,int inumber,basicmultilist * imultilist=NULL)
 {
 	if (inumber>0)
 	{
 		int tl_backval=0;
 		int ilv1=0;
-		tl_backval=TELESCOPE_aggressobject(glob_n_multilist,iinstance-glob_n_multilist->bufferlist());
+		if (imultilist==NULL) imultilist=glob_n_multilist;
+		tl_backval=TELESCOPE_aggressobject(imultilist,iinstance-((multilist<n_instance>*)imultilist)->bufferlist());
 		tl_backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_Symbol);
 		iback:;
 		if (tl_backval>0)
@@ -576,12 +577,13 @@ inline int retrievepoints(n_instance * iinstance,float * ix,float * iy,float * i
 	(*iz)=(*iinstance).xyz.z;
 	return 1;
 }
-inline int retrievepoints(b_instance * iinstance,float * ix,float * iy,float * iz,int inumber)
+inline int retrievepoints(b_instance * iinstance,float * ix,float * iy,float * iz,int inumber,basicmultilist * imultilist=NULL)
 {
 	if (inumber>0) return 0;
 	if (inumber<0) return 0;
 	n_instance *iinstance1=NULL;
 	n_instance *iinstance2=NULL;
+	if (imultilist!=NULL) return 0;//Not handled!(TODO?)
 	for (int ilv1=0;ilv1<(*glob_n_multilist).filllevel;ilv1++)
 	{
 		n_instance * tlinstance=&((*glob_n_multilist)[ilv1]);
@@ -604,7 +606,7 @@ inline int retrievepoints(b_instance * iinstance,float * ix,float * iy,float * i
 	(*iz)=((*iinstance1).xyz.z+(*iinstance2).xyz.z)*0.5;
 	return 1;
 }
-inline int retrievepoints(graphic_instance * iinstance,float * ix,float * iy,float * iz,int inumber)
+inline int retrievepoints(graphic_instance * iinstance,float * ix,float * iy,float * iz,int inumber,basicmultilist * imultilist=NULL)
 {
 	if (inumber>2) return 0;
 	if (inumber<-5) return 0;
@@ -648,7 +650,7 @@ inline int retrievepoints(graphic_instance * iinstance,float * ix,float * iy,flo
 	(*iz)=0;
 	return 1;
 }
-inline int retrievepoints(arrow_instance * iinstance,float * ix,float * iy,float * iz,int inumber)
+inline int retrievepoints(arrow_instance * iinstance,float * ix,float * iy,float * iz,int inumber,basicmultilist * imultilist=NULL)
 {
 	if (inumber>2) return 0;
 	if (inumber<-5) return 0;
@@ -706,7 +708,7 @@ inline int retrievepoints(arrow_instance * iinstance,float * ix,float * iy,float
 	(*iz)=((*iinstance).Head3D.z+(*iinstance).Tail3D.z)/2;
 	return 1;
 }
-inline int retrievepoints(t_instance * iinstance,float * ix,float * iy,float * iz,int inumber)
+inline int retrievepoints(t_instance * iinstance,float * ix,float * iy,float * iz,int inumber,basicmultilist * imultilist=NULL)
 {
 	if (inumber!=0) return 0;
 	(*ix)=iinstance->xyz.x;
@@ -836,13 +838,14 @@ int hit(t_instance * iinstance,float ix,float iy, int ino)
 	}
 	return 0;
 }
-inline int placepoints(n_instance * iinstance,float ix,float iy,float iz,int inumber)
+inline int placepoints(n_instance * iinstance,float ix,float iy,float iz,int inumber,basicmultilist * imultilist=NULL)
 {
 	int tl_backval;
 	int ilv1=0;
 	if (inumber>0)
 	{
-		tl_backval=TELESCOPE_aggressobject(glob_n_multilist,iinstance-glob_n_multilist->bufferlist());
+		if (imultilist==NULL) imultilist=glob_n_multilist;
+		tl_backval=TELESCOPE_aggressobject(imultilist,iinstance-((multilist<n_instance>*)imultilist)->bufferlist());
 		tl_backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_Symbol);
 		iback:;
 		if (tl_backval>0)
@@ -867,11 +870,12 @@ inline int placepoints(n_instance * iinstance,float ix,float iy,float iz,int inu
 	(*iinstance).xyz.z=iz;
 	return 1;
 }
-inline int placepoints(b_instance * iinstance,float ix,float iy,float iz,int inumber)
+inline int placepoints(b_instance * iinstance,float ix,float iy,float iz,int inumber,basicmultilist * imultilist=NULL)
 {
 	if (inumber>0) return 0;
 	if (inumber<0) return 0;
 	float tl_x,tl_y,tl_z;
+	if (imultilist!=NULL) return 0;//Not handled!(TODO?)
 	if (retrievepoints(iinstance,&tl_x,&tl_y,&tl_z,inumber)<=0) return 0;
 	tl_x-=ix;
 	tl_y-=iy;
@@ -904,7 +908,7 @@ inline int placepoints(b_instance * iinstance,float ix,float iy,float iz,int inu
 	(*iinstance2).xyz.z-=tl_z;
 	return 1;
 }
-inline int placepoints(graphic_instance * iinstance,float ix,float iy,float iz,int inumber)
+inline int placepoints(graphic_instance * iinstance,float ix,float iy,float iz,int inumber,basicmultilist * imultilist=NULL)
 {
 	if (inumber>2) return 0;
 	if (inumber<-5) return 0;
@@ -951,7 +955,7 @@ inline int placepoints(graphic_instance * iinstance,float ix,float iy,float iz,i
 	(*iinstance).BoundingBox.bottom-=tl_y;
 	return 1;
 }
-inline int placepoints(arrow_instance * iinstance,float ix,float iy,float iz,int inumber)
+inline int placepoints(arrow_instance * iinstance,float ix,float iy,float iz,int inumber,basicmultilist * imultilist=NULL)
 {
 	if (inumber>2) return 0;
 	if (inumber<-5) return 0;
@@ -1068,7 +1072,7 @@ inline int placepoints(arrow_instance * iinstance,float ix,float iy,float iz,int
 	(*iinstance).MinorAxisEnd3D.z-=tl_z;
 	return 1;
 }
-inline int placepoints(t_instance * iinstance,float ix,float iy,float iz,int inumber)
+inline int placepoints(t_instance * iinstance,float ix,float iy,float iz,int inumber,basicmultilist * imultilist=NULL)
 {
 	float tl_x,tl_y,tl_z;
 	if (retrievepoints(iinstance,&tl_x,&tl_y,&tl_z,inumber)>0)
@@ -1152,8 +1156,8 @@ template <class thisinstance> inline _u32 clickfor_template(float posx,float pos
 	return found;
 }
 
-#define LOCALMACRO_1(whatabout) case STRUCTURE_OBJECTTYPE_ ## whatabout: return retrievepoints((whatabout ## _instance*)iinstance,ix,iy,iz,inumber);break;
-int retrievepoints_basic(basic_instance * iinstance,float * ix,float * iy,float * iz,int inumber,int objecttype)
+#define LOCALMACRO_1(whatabout) case STRUCTURE_OBJECTTYPE_ ## whatabout: return retrievepoints((whatabout ## _instance*)iinstance,ix,iy,iz,inumber,imultilist);break;
+int retrievepoints_basic(basic_instance * iinstance,float * ix,float * iy,float * iz,int inumber,int objecttype,basicmultilist * imultilist=NULL)
 {
 	float tl_iz=0;
 	if (iz==NULL) iz=&tl_iz;
@@ -1164,8 +1168,8 @@ int retrievepoints_basic(basic_instance * iinstance,float * ix,float * iy,float 
 	return 0;
 }
 #undef LOCALMACRO_1
-#define LOCALMACRO_1(whatabout) case STRUCTURE_OBJECTTYPE_ ## whatabout: return placepoints((whatabout ## _instance*)iinstance,ix,iy,iz,inumber);break;
-int placepoints_basic(basic_instance * iinstance,float ix,float iy,float iz,int inumber,int objecttype)
+#define LOCALMACRO_1(whatabout) case STRUCTURE_OBJECTTYPE_ ## whatabout: return placepoints((whatabout ## _instance*)iinstance,ix,iy,iz,inumber,imultilist);break;
+int placepoints_basic(basic_instance * iinstance,float ix,float iy,float iz,int inumber,int objecttype,basicmultilist * imultilist=NULL)
 {
 	switch (objecttype)
 	{
@@ -3448,7 +3452,7 @@ int edit_flexicopy(int undostep_no,multilist<n_instance> * n_target,multilist<b_
 	}
 	for (int ilv1=1;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
 	{
-		if ((ilv1!=STRUCTURE_OBJECTTYPE_b))
+		if (ilv1!=STRUCTURE_OBJECTTYPE_b)
 		{
 			int follower=0;
 			icompare=1<<ilv1;
@@ -3500,7 +3504,7 @@ int edit_flexicopy(int undostep_no,multilist<n_instance> * n_target,multilist<b_
 						{
 							follower=ilv2*internalpointcount;
 						}
-						for (int ilv3=1;retrievepoints_basic((basic_instance*)(ioldbufferpos+isize*ilv2),&tl_x,&tl_y,&tl_z,ilv3,ilv1)>0;ilv3++)
+						for (int ilv3=1;retrievepoints_basic((basic_instance*)(ioldbufferpos+isize*ilv2),&tl_x,&tl_y,&tl_z,ilv3,ilv1,tloldmultilist/*must be retrieved by undo_retrievehandle to obtain correct pointer*/)>0;ilv3++)
 						{
 							if (selection_currentselection[follower] & (1<<(STRUCTURE_OBJECTTYPE_ListSize+ilv1)))
 							{

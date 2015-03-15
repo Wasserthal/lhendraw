@@ -2542,7 +2542,6 @@ void issuemenudrag(int posx,int posy,char ifinal=0)
 	control_lastmenux=posx;
 	control_lastmenuy=posy;
 }
-void printundostats();
 void control_normal()
 {
 	char idirection=1;
@@ -3077,7 +3076,6 @@ void control_normal()
 				break;
 			}
 		}
-		printundostats();
 		if (irepeat)
 		{
 			control_Event=control_Event2;

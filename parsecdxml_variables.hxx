@@ -156,24 +156,31 @@ int getbufferfromstructure(basicmultilist * input,TELESCOPE_buffer * * bufferptr
 			name=multilistlist[ilv1].name;
 		}
 	}
-	for (int ilv1=1;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
+	if (name!=NULL)
 	{
-		if (strcmp(name,STRUCTURE_OBJECTTYPE_List[ilv1].name)==0)
+		for (int ilv1=1;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
 		{
-			(*bufferptr)=glob_contentbuffer+ilv1;
-			return 1;
+			if (strcmp(name,STRUCTURE_OBJECTTYPE_List[ilv1].name)==0)
+			{
+				(*bufferptr)=glob_contentbuffer+ilv1;
+				return 1;
+			}
 		}
 	}
+	undo_getbufferfromstructure(input,bufferptr);
+	(*bufferptr)=NULL;
 	return 0;
 }
 char TELESCOPE_verify_objectpresent()
 {
+	if (TELESCOPE_tempvar.buffer==NULL) goto inull;
 	if (TELESCOPE_tempvar.pos<(*(TELESCOPE_tempvar.buffer)).count)
 	{
 		return ((*((TELESCOPE*)(((*(TELESCOPE_tempvar.buffer)).buffer)+TELESCOPE_tempvar.pos))).owner==TELESCOPE_tempvar.objectpos);
 	}
 	else
 	{
+		inull:;
 		TELESCOPE_tempvar.inside_TELESCOPE_element=0;
 		return 0;
 	}

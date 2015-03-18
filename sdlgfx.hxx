@@ -164,12 +164,33 @@ void gfx_expressxbezier(int icount,...)
 	gfx_expressbeziertrack(&tlpoints);
 }
 
+void gfx_expressbezier2(float x1,float y1,float x2,float y2,float x3,float y3)
+{
+	float ishare;
+	float iminusshare;
+	float ix,iy;
+	x1=((x1-SDL_scrollx)*SDL_zoomx);
+	x2=((x2-SDL_scrollx)*SDL_zoomx);
+	x3=((x3-SDL_scrollx)*SDL_zoomx);
+	y1=((y1-SDL_scrolly)*SDL_zoomy);
+	y2=((y2-SDL_scrolly)*SDL_zoomy);
+	y3=((y3-SDL_scrolly)*SDL_zoomy);
+	float stepsbecausex=2.2*max(max(x1,x2),x3)-min(min(x1,x2),x3);
+	float stepsbecausey=2.2*max(max(y1,y2),y3)-min(min(y1,y2),y3);
+	if (stepsbecausey>stepsbecausex) {stepsbecausex=stepsbecausey;}
+	for (float ilv2=0;ilv2<=stepsbecausex;ilv2++)
+	{
+		ishare=(float(ilv2)/stepsbecausex);
+		iminusshare=1-ishare;
+		ix=(x1+(x2-x1)*ishare)*iminusshare+(x2+(x3-x2)*ishare)*ishare;
+		iy=(y1+(y2-y1)*ishare)*iminusshare+(y2+(y3-y2)*ishare)*ishare;
+		putpixel(ix,iy);
+	}
+}
 void gfx_expressbezier(float x1,float y1,float x2,float y2,float x3,float y3,float x4,float y4)
 {
 	float ishare;
 	float iminusshare;
-	float stepsbecausex=2*(abs(x4-x1)+abs(x3-x2));
-	float stepsbecausey=2*(abs(y4-x1)+abs(y3-y2));
 	float ix,iy;
 	x1=((x1-SDL_scrollx)*SDL_zoomx);
 	x2=((x2-SDL_scrollx)*SDL_zoomx);
@@ -179,6 +200,8 @@ void gfx_expressbezier(float x1,float y1,float x2,float y2,float x3,float y3,flo
 	y2=((y2-SDL_scrolly)*SDL_zoomy);
 	y3=((y3-SDL_scrolly)*SDL_zoomy);
 	y4=((y4-SDL_scrolly)*SDL_zoomy);
+	float stepsbecausex=3.3*max(max(x1,x2),max(x3,x4))-min(min(x1,x2),min(x3,x4));
+	float stepsbecausey=3.3*max(max(y1,y2),max(y3,y4))-min(min(y1,y2),min(y3,y4));
 	if (stepsbecausey>stepsbecausex) {stepsbecausex=stepsbecausey;}
 	for (int ilv2=0;ilv2<stepsbecausex;ilv2++)
 	{
@@ -446,6 +469,7 @@ void gfx_gfxstop()
 	#endif
 }
 
+#define if_gfx_geo if ((SDL_linestyle & 2)==0)
 
 int gfx_bks[bezierpointmax];//Worst case, every curve making an s
 float gfx_type;//1: line 3: cubic bezier 0x100: bezier part, order depending on the last preceding
@@ -467,6 +491,7 @@ gfx_geometry_ gfx_geometry;
 int __attribute__((warn_unused_result)) gfx_expressgeometry_start(float left,float top,float right,float bottom)
 {
 	gfx_geometry.type=0;
+	if_gfx_geo return 1;
 	gfx_geometry.left=(left-SDL_scrollx)*SDL_zoomx;
 	gfx_geometry.right=(right-SDL_scrollx)*SDL_zoomx;
 	gfx_geometry.top=(top-SDL_scrolly)*SDL_zoomy;
@@ -490,6 +515,12 @@ int __attribute__((warn_unused_result)) gfx_expressgeometry_start(float left,flo
 void gfx_expressgeometry_begin(float x,float y)
 {
 	gfx_geometry.type=1;
+	if_gfx_geo
+	{
+		gfx_geometry.currentx=x;
+		gfx_geometry.currenty=y;
+		return;
+	}
 	gfx_geometry.startx=(x-SDL_scrollx)*SDL_zoomx;
 	gfx_geometry.starty=(y-SDL_scrolly)*SDL_zoomy;
 	gfx_geometry.currentx=gfx_geometry.startx;
@@ -504,6 +535,7 @@ void gfx_expressgeometry_begin(float x,float y)
 }
 void gfx_expressgeometry_neutro(int currentdirection,char halt=0)
 {
+	if_gfx_geo return;
 	if (gfx_geometry.lastdirection!=currentdirection) return;
 	if ((gfx_geometry.currenty)<gfx_geometry.top) return;
 	if ((gfx_geometry.currenty)>=gfx_geometry.bottom) return;
@@ -514,6 +546,7 @@ void gfx_expressgeometry_neutro(int currentdirection,char halt=0)
 }
 void gfx_expressgeometry_end()
 {
+	if_gfx_geo return;
 	if (gfx_geometry.type==1) gfx_expressgeometry_neutro(gfx_geometry.firstdirection,1);
 	for (int ilv1=gfx_geometry.top;ilv1<gfx_geometry.bottom;ilv1++)
 	{
@@ -534,6 +567,13 @@ void gfx_expressgeometry_line(float x,float y)
 	if (gfx_geometry.type!=1)
 	{
 		gfx_expressgeometry_begin(x,y);
+		return;
+	}
+	if_gfx_geo
+	{
+		gfx_expressline(gfx_geometry.currentx,gfx_geometry.currenty,x,y);
+		gfx_geometry.currentx=x;
+		gfx_geometry.currenty=y;
 		return;
 	}
 	int ix=(x-SDL_scrollx)*SDL_zoomx;
@@ -576,6 +616,13 @@ void gfx_expressgeometry_line(float x,float y)
 }
 void gfx_expressgeometry_bezier2(float x1,float y1,float x2,float y2)
 {
+	if_gfx_geo
+	{
+		gfx_expressbezier2(gfx_geometry.currentx,gfx_geometry.currenty,x1,y1,x2,y2);
+		gfx_geometry.currentx=x2;
+		gfx_geometry.currenty=y2;
+		return;
+	}
 	int startx=gfx_geometry.currentx;
 	int starty=gfx_geometry.currenty;
 	x2=(x2-SDL_scrollx)*SDL_zoomx;
@@ -694,6 +741,11 @@ void gfx_expressgeometry_backline()
 {
 	if (gfx_geometry.type==1)
 	{
+		if_gfx_geo
+		{
+			gfx_expressline(gfx_geometry.currentx,gfx_geometry.currenty,gfx_geometry.startx,gfx_geometry.starty);
+			return;
+		}
 		gfx_expressgeometry_line(gfx_geometry.startx,gfx_geometry.starty);
 		gfx_geometry.type=2;
 	}
@@ -702,6 +754,14 @@ void gfx_expressgeometry_backline()
 int gfx_expressinfinityangle(int count)
 {
 	intl iminx,imaxx,iminy,imaxy;
+	if_gfx_geo
+	{
+		for (int ilv1=0;ilv1<count;ilv1++)
+		{
+			gfx_expressline(LHENDRAW_inficorn[ilv1].x,LHENDRAW_inficorn[ilv1].y,LHENDRAW_inficorn[(ilv1+1)%count].x,LHENDRAW_inficorn[(ilv1+1)%count].y);
+		}
+		return 1;
+	}
 	iminx=10000;
 	iminy=10000;
 	imaxx=-10000;

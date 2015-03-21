@@ -2097,9 +2097,11 @@ int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int
 	{
 		switch(button)
 		{
+			int tl_mbmode;
 			case SDL_BUTTON_LEFT:
 			{
-				switch ((*ipulloutlisting).lmbmode)
+				tl_mbmode=((*ipulloutlisting).lmbmode);
+				switch (tl_mbmode)
 				{
 					case 1: 
 					selecttool:;
@@ -2207,26 +2209,15 @@ int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int
 					}
 					default:
 					{
-						idefault:;
-						if ((((*ipulloutlisting).lmbmode) & (~0xFF))==0x100)
-						{
-							storeundo(~0);
-							control_mousestate|=0x20;
-							control_firstmenux=pixeloriginposx;
-							control_firstmenuy=pixeloriginposy;
-							control_lastmenux=pixeloriginposx;
-							control_lastmenuy=pixeloriginposy;
-							control_usingmousebutton=button;
-							control_menuitem=ipulloutlisting;
-							control_menudragint=0;
-						}
+						goto idefault;
 					}
 				}
 				break;
 			}
 			case SDL_BUTTON_RIGHT:
 			{
-				switch ((*ipulloutlisting).rmbmode)
+				tl_mbmode=((*ipulloutlisting).rmbmode);
+				switch (tl_mbmode)
 				{
 					case 1: goto selecttool;break;
 					case 2: *((char*)(*ipulloutlisting).variable)&=~1;break;
@@ -2256,8 +2247,15 @@ int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int
 					}
 					default:
 					{
-						if ((((*ipulloutlisting).rmbmode) & (~0xFF))==0x100)
+						idefault:;
+						if ((tl_mbmode & (~0xFF))==0x100)
 						{
+							storeundo(~0);
+							if (tl_mbmode==0x111)
+							{
+								pixeloriginposx=(pixeloriginposx>>5)<<5;
+								pixeloriginposy=(pixeloriginposy>>5)<<5;
+							}
 							control_mousestate|=0x20;
 							control_firstmenux=pixeloriginposx;
 							control_firstmenuy=pixeloriginposy;
@@ -2497,9 +2495,14 @@ void issuemenudrag(int posx,int posy,char ifinal=0)
 	{
 		case 0x111:
 		{
-			if ((ifinal) && (posx>=0) && (posy>=0) && (posx<control_firstmenux+32) && (posy<control_firstmenuy+32))
+			char istring[100];
+			if ((posx>=control_firstmenux) && (posy>=control_firstmenuy) && (posy<control_firstmenuy+32))
 			{
-				(*(_u32*)(*control_menuitem).variable)=0;
+				if ((ifinal) && (posx>=control_firstmenux+32))
+				{
+					unsigned int palette=(posx-control_firstmenux-32)/32;
+					(*(_u32*)(*control_menuitem).variable)=255*(palette & 1)+32640*(palette & 2)+4177920*(palette & 4);
+				}
 				goto apply_111;
 			}
 			diffx=posx-((control_firstmenux/32)*32)-32;
@@ -2516,9 +2519,8 @@ void issuemenudrag(int posx,int posy,char ifinal=0)
 				(*(((_u8*)(*control_menuitem).variable)+2))=diffx;
 				(*(((_u8*)(*control_menuitem).variable)+3))=diffy;
 			}
-			char istring[100];
-			sprintf(istring,"%i",*(int*)((*control_menuitem).variable));
 			apply_111:
+			sprintf(istring,"%i",*(int*)((*control_menuitem).variable));
 			if ((*control_menuitem).LMB_function)
 			{
 				(*control_menuitem).LMB_function((*control_menuitem).name,istring);

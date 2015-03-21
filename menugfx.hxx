@@ -440,6 +440,21 @@ int sdl_listmenudraw(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int count,int xpos=0,
 void sdl_colorpaldraw(int posx,int posy)
 {
 	_u32 icolor;
+	for (int ilv1=0;ilv1<8;ilv1++)
+	{
+		int icolor=255*(ilv1 & 1)+32640*(ilv1 & 2)+4177920*(ilv1 & 4);
+		_u32 * tl_buffer=screen+(posy-64)*gfx_screensizex+posx+ilv1*32;
+		int tl_max=ilv1*32+posx+32;
+		for (int ilv2=0;ilv2<32;ilv2++)
+		{
+			for (int ilv3=0;ilv3<32;ilv3++)
+			{
+				*tl_buffer=icolor;
+				tl_buffer++;
+			}
+			tl_buffer+=gfx_screensizex-32;
+		}
+	}
 	for (int ilv1=0;ilv1<256;ilv1++)
 	{
 		for (int ilv2=0;ilv2<256;ilv2++)

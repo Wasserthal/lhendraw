@@ -588,11 +588,17 @@ int control_aggresstextcursor(const char * cursorname="\uE000")//searches the te
 			{
 				arbitrarycursorstring[2]^=1;//try the other one, too...
 				_uXX control_textedit_cursor2=(_uXX)strstr(tl_buffer,cursorname);
-				if ((control_textedit_cursor2>(_uXX)NULL))
+				if ((control_textedit_cursor2!=(_uXX)NULL))
 				{
-					if (control_textedit_cursor>(_uXX)NULL)
+					if (control_textedit_cursor!=(_uXX)NULL)
 					{
-						control_textedit_cursor=min(control_textedit_cursor,control_textedit_cursor2);
+						int reversed=(control_textedit_cursor>control_textedit_cursor2);
+						if (reversed)
+						{
+							((char*)control_textedit_cursor)[2]=0x81;
+							((char*)control_textedit_cursor2)[2]=0x80;
+							control_textedit_cursor=control_textedit_cursor2;
+						}
 					}
 					else
 					{
@@ -606,12 +612,73 @@ int control_aggresstextcursor(const char * cursorname="\uE000")//searches the te
 				tl_backval=TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_s);
 				goto iback;
 			}
+			int returnvalue=(strncmp((char*)control_textedit_cursor,"\uE001",3)==0)?2:1;
 			control_textedit_cursor-=(_uXX)tl_buffer;
-			return 1;
+			return returnvalue;
 		}
 		return 0;
 	}
 	return 0;
+}
+int control_swaptextcursor()
+{
+	if (control_aggresstextcursor(arbitrarycursorstring)==2)
+	{
+		((char*)TELESCOPE_getproperty_contents())[control_textedit_cursor+2]=0x80;//Third byte
+		while (TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_s)>0)
+		{
+			char * tl_backstring=strstr(((char*)TELESCOPE_getproperty_contents()),"\uE000");
+			if (tl_backstring)
+			{
+				tl_backstring[2]=0x81;//Third byte
+				return 1;
+			}
+		}
+	}
+	return 0;
+}
+int control_splitattextcursor()
+{
+	char count=0;
+	if (control_aggresstextcursor("\uE000"))
+	{
+		if (control_textedit_cursor!=0)
+		{
+			TELESCOPE_split(control_textedit_cursor,"",1);
+			count++;
+		}
+	}
+	if (control_aggresstextcursor("\uE001"))
+	{
+		if (control_textedit_cursor!=0)
+		{
+			TELESCOPE_split(control_textedit_cursor,"",1);
+			count+=2;
+		}
+		control_swaptextcursor();
+	}
+	return count;
+}
+int control_squashselection()
+{
+	char * icursor;
+	control_splitattextcursor();
+	control_aggresstextcursor("\uE000");
+	control_textedit_selectmode=0;
+	icursorback:
+	icursor=(char*)TELESCOPE_getproperty_contents();
+	if (strstr(icursor,"\uE001")==NULL)
+	{
+		TELESCOPE_clear_item();
+		goto icursorback;
+	}
+	if ((control_aggresstextcursor("\uE001"))<=0)
+	{
+		return 0;
+	}
+	icursor=(char *)TELESCOPE_getproperty_contents();
+	icursor[0]=0xEE;icursor[1]=0x80;icursor[2]=0x80;
+	return 1;
 }
 void issuetextclick(int iposx,int iposy,const char * whichcursor="\uE000")
 {
@@ -2520,10 +2587,41 @@ void issuemenudrag(int posx,int posy,char ifinal=0)
 				(*(((_u8*)(*control_menuitem).variable)+3))=diffy;
 			}
 			apply_111:
-			sprintf(istring,"%i",*(int*)((*control_menuitem).variable));
-			if ((*control_menuitem).LMB_function)
+			if (control_mousestate & 0x40)
 			{
-				(*control_menuitem).LMB_function((*control_menuitem).name,istring);
+				char * icursor;
+				control_splitattextcursor();
+				control_aggresstextcursor("\uE000");
+				if (control_textedit_selectmode==1)
+				{
+					icursorback:
+					icursor=(char*)TELESCOPE_getproperty_contents();
+					if ((strstr(icursor,"\uE001")==NULL))
+					{
+						(*(s_instance*)TELESCOPE_getproperty()).color=*(int*)((*control_menuitem).variable);
+						int tl_backvalue=TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_s);
+						if (tl_backvalue>0) goto icursorback;
+					}
+				}
+				else
+				{
+					icursor=(char*)TELESCOPE_getproperty_contents();
+					if (icursor[3]!=0)
+					{
+						TELESCOPE_split(3,"",1);
+						control_aggresstextcursor("\uE000");
+					}
+					(*(s_instance*)TELESCOPE_getproperty()).color=*(int*)((*control_menuitem).variable);
+				}
+			}
+			else
+			{
+				cantinsert:;
+				sprintf(istring,"%i",*(int*)((*control_menuitem).variable));
+				if ((*control_menuitem).LMB_function)
+				{
+					(*control_menuitem).LMB_function((*control_menuitem).name,istring);
+				}
 			}
 			break;
 		}
@@ -2723,7 +2821,7 @@ void control_normal()
 						if (control_mousestate==0x42)
 						{
 							issuetextclick(control_Event.motion.x-gfx_canvasminx, control_Event.motion.y-gfx_canvasminy,"\uE001");
-							control_aggresstextcursor(arbitrarycursorstring);
+							if (control_aggresstextcursor(arbitrarycursorstring))
 							{
 								char * currenttextpointer=((char*)TELESCOPE_getproperty_contents())+control_textedit_cursor+3;
 								if ((strncmp(currenttextpointer,"\uE001",3)==0) || (strncmp(currenttextpointer,"\uE000",3)==0))
@@ -2945,12 +3043,28 @@ void control_normal()
 						control_mousestate=0;
 						break;
 						case SDLK_LEFT:
+						if ((control_textedit_selectmode==0) && (MODIFIER_KEYS.SHIFT))
+						{
+							if (control_aggresstextcursor("\uE000"))
+							{
+								TELESCOPE_insertintoproperties_offset("\uE001",3,control_textedit_cursor+3);
+								control_textedit_selectmode=1;
+							}
+						}
 						if (control_aggresstextcursor())
 						{
 							textedit_left();
 						}
 						break;
 						case SDLK_RIGHT:
+						if ((control_textedit_selectmode==0) && (MODIFIER_KEYS.SHIFT))
+						{
+							if (control_aggresstextcursor("\uE000"))
+							{
+								TELESCOPE_insertintoproperties_offset("\uE001",3,control_textedit_cursor);
+								control_textedit_selectmode=1;
+							}
+						}
 						if (control_aggresstextcursor())
 						{
 							textedit_right();
@@ -3064,6 +3178,13 @@ void control_normal()
 						{
 							unicodeinput:;
 							utf8encode(getunicode(&control_Event),&tl_unicode);
+							if (strcmp(tl_unicode,"")!=0)
+							{
+								if (control_textedit_selectmode==1)
+								{
+									control_squashselection();
+								}
+							}
 							TELESCOPE_insertintoproperties_offset(tl_unicode,strlen(tl_unicode),control_textedit_cursor);
 						}
 						#endif

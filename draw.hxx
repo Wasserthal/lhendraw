@@ -1064,7 +1064,7 @@ tlposx+tlcos-tlsin,tlposy+tlsin+tlcos,tlposx+2*tlcos-tlsin,tlposy+2*tlsin+tlcos,
 		colornr=(*glob_n_multilist)[text_actual_node[index_in_buffer].owner].color;
 		MACRO_DRAWPREFIX(get_colorstring)(colornr);
 	}
-	colornr=((*glob_t_multilist))[index_in_buffer].color;
+	basecolornr=((*glob_t_multilist))[index_in_buffer].color;
 	MACRO_DRAWPREFIX(get_colorstring_passive)(colornr);
 
 	gfx_txselectmode=(((control_mousestate & 0x40)>0) && (control_textedit_selectmode==1) && (control_textedit_type==STRUCTURE_OBJECTTYPE_t) && (control_textedit_index==index_in_buffer));
@@ -1152,10 +1152,8 @@ tlposx+tlcos-tlsin,tlposy+tlsin+tlcos,tlposx+2*tlcos-tlsin,tlposy+2*tlsin+tlcos,
 			}
 /*		}*/
 	}
-	if (colornr!=0)
-	{
-		MACRO_DRAWPREFIX(get_colorstring)(colornr);
-	}
+	if (colornr==0) colornr=basecolornr;
+	MACRO_DRAWPREFIX(get_colorstring)(colornr);
 	if ((((*((s_instance*)TELESCOPE_getproperty())).connect & 0x6)!=0) && (sortback))
 	{
 		switch (finalstring[0])

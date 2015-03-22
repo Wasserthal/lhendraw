@@ -2145,6 +2145,7 @@ catalogized_command_funcdef(COPY)
 	return 1;
 }
 extern int control_aggresstextcursor(const char *);
+extern int control_squashselection();
 catalogized_command_funcdef(PASTE)
 {
 	if (LHENDRAW_clipboardmode==1) goto loaded;
@@ -2182,7 +2183,12 @@ catalogized_command_funcdef(PASTE)
 			LHENDRAW_clipboardbuffer=(char*)realloc(LHENDRAW_clipboardbuffer,LHENDRAW_clipboardbuffer_count+1);
 			LHENDRAW_clipboardbuffer[LHENDRAW_clipboardbuffer_count]=0;
 			//TODO: overflow check
+			if (control_textedit_selectmode==1)
+			{
+				control_squashselection();
+			}
 			TELESCOPE_insertintoproperties_offset(LHENDRAW_clipboardbuffer,LHENDRAW_clipboardbuffer_count,control_textedit_cursor);
+			cantinsert:;
 		}
 	}
 	if (LHENDRAW_clipboardmode==1) return 1;

@@ -344,6 +344,7 @@ float ibonddist2;
 float ibonddist3;
 float ibonddist4;
 int colornr;
+int basecolornr;
 int fontnr;
 char * finalstring;
 cdx_Rectangle iBBX;

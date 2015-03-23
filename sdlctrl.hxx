@@ -1221,9 +1221,9 @@ int issueclick(int iposx,int iposy)
 			float control_startz=0;
 			float tl_angle=0;
 			float radius=constants_bondlength/(2*sin(Pi/control_drawproperties.ring_element_count));
-			float tl_h=radius*cos(Pi/control_drawproperties.ring_element_count);
 			if (selection_clickselection_found & (1<<STRUCTURE_OBJECTTYPE_b))
 			{
+				float tl_h=radius*cos(Pi/control_drawproperties.ring_element_count);
 				for (int ilv1=0;ilv1<(*glob_b_multilist).filllevel;ilv1++)
 				{
 					if (selection_clickselection[ilv1] & (1<<STRUCTURE_OBJECTTYPE_b))
@@ -1253,6 +1253,45 @@ int issueclick(int iposx,int iposy)
 						control_startx+=cos(tl_angle)*tl_h;
 						control_starty+=sin(tl_angle)*tl_h;
 						goto ifoundbond;
+					}
+				}
+			}
+			else
+			{
+				if (selection_clickselection_found & (1<<STRUCTURE_OBJECTTYPE_n))
+				{
+					for (int ilv1=0;ilv1<(*glob_n_multilist).filllevel;ilv1++)
+					{
+						if (selection_clickselection[ilv1] & (1<<STRUCTURE_OBJECTTYPE_n))
+						{
+							skipatoms=1;
+							atomnr[0]=ilv1;
+							tl_atom[0]=(*glob_n_multilist).bufferlist()+atomnr[0];
+							retrievepoints((*glob_n_multilist).bufferlist()+ilv1,&control_startx,&control_starty,&control_startz,0);
+							if ((atom_actual_node[ilv1].bondcount==1)||(atom_actual_node[ilv1].bondcount==2))
+							{
+								atomnr[1]=getother(ilv1,atom_actual_node[ilv1].bonds[0]);
+								tl_atom[1]=(*glob_n_multilist).bufferlist()+atomnr[1];
+								tl_angle=getangle(tl_atom[0]->xyz.x-tl_atom[1]->xyz.x,tl_atom[0]->xyz.y-tl_atom[1]->xyz.y);
+								if (atom_actual_node[ilv1].bondcount==2)
+								{
+									float tl_angle2;
+									atomnr[1]=getother(ilv1,atom_actual_node[ilv1].bonds[1]);
+									tl_atom[1]=(*glob_n_multilist).bufferlist()+atomnr[1];
+									tl_angle2=(tl_angle+getangle(tl_atom[0]->xyz.x-tl_atom[1]->xyz.x,tl_atom[0]->xyz.y-tl_atom[1]->xyz.y))*0.5;
+									float tl_discriminant=fmod(tl_angle-tl_angle2+6*Pi,2*Pi);
+									if ((tl_discriminant>Pi/2)&&(tl_discriminant<3*Pi/2))
+									{
+										tl_angle2+=Pi;
+									}
+									tl_angle=tl_angle2;
+								}
+							}
+							control_startx+=cos(tl_angle)*radius;
+							control_starty+=sin(tl_angle)*radius;
+							tl_angle+=Pi/control_drawproperties.ring_element_count;
+							goto ifoundbond;
+						}
 					}
 				}
 			}

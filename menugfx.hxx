@@ -859,7 +859,7 @@ int sdl_selectiondraw()
 						int tl_distance=sqr(currentx-closest_mousex)+sqr(currenty-closest_mousey);
 						if (tl_distance<worstdistance)
 						{
-							if (edit_hit(((basic_instance*)(ibufferpos+isize*ilv2)),tlpx,tlpy,0,ilv1)>0)
+							if (edit_hit(((basic_instance*)(ibufferpos+isize*ilv2)),(closest_mousex/SDL_zoomx)+SDL_scrollx,(closest_mousey/SDL_zoomy)+SDL_scrolly,0,ilv1)>0)
 							{
 								closestobject_list=ilv1;
 								closestobject=ilv2;

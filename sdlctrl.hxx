@@ -680,6 +680,18 @@ int control_squashselection()
 	icursor[0]=0xEE;icursor[1]=0x80;icursor[2]=0x80;
 	return 1;
 }
+void control_orhogonizegraphic(graphic_instance * iinstance)
+{
+	(*iinstance).Center3D.x=((*iinstance).BoundingBox.left+(*iinstance).BoundingBox.right)*0.5;
+	(*iinstance).Center3D.y=((*iinstance).BoundingBox.top+(*iinstance).BoundingBox.bottom)*0.5;
+	(*iinstance).Center3D.z=0;
+	(*iinstance).MajorAxisEnd3D.x=(*iinstance).BoundingBox.right;
+	(*iinstance).MajorAxisEnd3D.y=(*iinstance).Center3D.y;
+	(*iinstance).MajorAxisEnd3D.z=0;
+	(*iinstance).MinorAxisEnd3D.x=(*iinstance).Center3D.x;
+	(*iinstance).MinorAxisEnd3D.y=(*iinstance).BoundingBox.bottom;
+	(*iinstance).MinorAxisEnd3D.z=0;
+}
 void issuetextclick(int iposx,int iposy,const char * whichcursor="\uE000")
 {
 	control_posx=iposx;
@@ -1207,6 +1219,18 @@ int issueclick(int iposx,int iposy)
 				}
 			}
 			control_mousestate=0;return 0;
+		}
+		case 16:
+		{
+			control_manipulatedinstance=edit_summongraphic();
+			if (control_drawproperties.GraphicType==0) control_drawproperties.GraphicType=1;
+			(*(graphic_instance*)control_manipulatedinstance).GraphicType=control_drawproperties.GraphicType;
+			(*(graphic_instance*)control_manipulatedinstance).BoundingBox.left=control_coorsx;
+			(*(graphic_instance*)control_manipulatedinstance).BoundingBox.right=control_coorsx;
+			(*(graphic_instance*)control_manipulatedinstance).BoundingBox.top=control_coorsy;
+			(*(graphic_instance*)control_manipulatedinstance).BoundingBox.bottom=control_coorsy;
+			control_orhogonizegraphic((graphic_instance*)control_manipulatedinstance);
+			break;
 		}
 		case 17:
 		{
@@ -1746,6 +1770,13 @@ void issuedrag(int iposx,int iposy)
 		case 0x10000:
 		{
 			interpretkey(control_lastinterpret);
+			break;
+		}
+		case 16:
+		{
+			(*(graphic_instance*)control_manipulatedinstance).BoundingBox.right=control_coorsx;
+			(*(graphic_instance*)control_manipulatedinstance).BoundingBox.bottom=control_coorsy;
+			control_orhogonizegraphic((graphic_instance*)control_manipulatedinstance);
 			break;
 		}
 		case 18:

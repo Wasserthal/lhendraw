@@ -35,6 +35,8 @@ struct drawproperties_
 	_i32 Element;
 	_i32 ring_element_count;
 	_i32 ring_unsaturation;
+	_i32 GraphicType;
+	_i32 fillstyle;//0: line 1: solid
 	int ARROW_subtool;//0:draw 1: Skip 2: Situp
 	int CHARGE_subtool;//0:Substitute charges 1: del 2: draw plainly
 	int SELECTION_subtool;//0:Rectangular 1: round
@@ -1392,6 +1394,32 @@ n_instance * edit_summonatom(int * inr=NULL)
 		((*glob_n_multilist).filllevel)++;
 		(*tlinstance).id=(*glob_n_multilist).maxid+1;
 		(*glob_n_multilist).maxid++;
+		if (inr!=NULL)
+		{
+			*inr=tl_nr;
+		}
+		return tlinstance;
+	}
+	return NULL;
+}
+graphic_instance * edit_summongraphic(int * inr=NULL)
+{
+	if ((*glob_graphic_multilist).filllevel<bufferlistsize)
+	{
+		int tl_nr=-1;
+		graphic_instance * tlinstance;
+		if (janitor_getmaxid(STRUCTURE_OBJECTTYPE_graphic)<0) return NULL;
+		tl_nr=(*glob_graphic_multilist).filllevel;
+		tlinstance=new(&((*glob_graphic_multilist)[tl_nr])) graphic_instance;
+		(*tlinstance).color=control_drawproperties.color;
+		(*tlinstance).Z=edit_getnewZ();
+		selection_currentselection[tl_nr]&=(~(1<<STRUCTURE_OBJECTTYPE_graphic));
+		((*glob_graphic_multilist).filllevel)++;
+		(*tlinstance).OvalType=(control_drawproperties.fillstyle)?0x4:0;
+		(*tlinstance).RectangleType=(control_drawproperties.fillstyle)?0x8:0;
+		(*tlinstance).id=(*glob_graphic_multilist).maxid+1;
+		(*tlinstance).LineType=0;
+		(*glob_graphic_multilist).maxid++;
 		if (inr!=NULL)
 		{
 			*inr=tl_nr;

@@ -146,6 +146,16 @@ menuitem pullout_toolbox[]={
 "","",
 0x00FF00,
 },
+{0,7,
+77,//Picture
+"GRAPHIC",
+1,0,
+16,
+"Draw geometric shapes and brackets",
+"",
+"","",
+0x00FF00,
+},
 {2,2,
 2,//Picture
 "Save",

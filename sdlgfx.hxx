@@ -517,14 +517,16 @@ void gfx_expressgeometry_begin(float x,float y)
 	gfx_geometry.type=1;
 	if_gfx_geo
 	{
+		gfx_geometry.startx=x;
+		gfx_geometry.starty=y;
 		gfx_geometry.currentx=x;
 		gfx_geometry.currenty=y;
 		return;
 	}
-	gfx_geometry.startx=(x-SDL_scrollx)*SDL_zoomx;
-	gfx_geometry.starty=(y-SDL_scrolly)*SDL_zoomy;
-	gfx_geometry.currentx=gfx_geometry.startx;
-	gfx_geometry.currenty=gfx_geometry.starty;
+	gfx_geometry.currentx=(x-SDL_scrollx)*SDL_zoomx;
+	gfx_geometry.currenty=(y-SDL_scrolly)*SDL_zoomy;
+	gfx_geometry.startx=x;
+	gfx_geometry.starty=y;
 	gfx_geometry.firstdirection=0;
 	gfx_geometry.lastdirection=0;
 }

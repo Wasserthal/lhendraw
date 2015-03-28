@@ -85,6 +85,68 @@ void MACRO_DRAWPREFIX(expresshexangle)(float ifx1,float ify1,float ifx2,float if
 	LHENDRAW_inficorn[5].y=ify6;
 	MACRO_DRAWPREFIX(expressinfinityangle)(6);
 }
+void MACRO_DRAWPREFIX(drawglyph)(int ino,int ideltax,int ideltay)
+{
+	if (glyphmemory[ilv1].units==-1)
+	{
+		for (int ilv2=0;ilv2<glyphmemory[ino].composite.count;ilv2++)
+		{
+			int deltax=0;int deltay=0;
+			if (glyphmemory[ino].composite.unit[ilv2].flags & 2)
+			{
+				deltax+=glyphmemory[ino].composite.unit[ilv2].arg1;
+				deltay+=glyphmemory[ino].composite.unit[ilv2].arg2;
+			}
+			MACRO_DRAWPREFIX(drawglyph)(glyphmemory[ino].composite.unit[ilv2].index-3,deltax,deltay);
+		}
+	}
+	if (MACRO_DRAWPREFIX(expressgeometry_start)(-100000,-10000,10000000,1000000))//TODO
+	{
+		MACRO_DRAWPREFIX(expressgeometry_begin)(glyphmemory[ino].simple.donecoordinates[0].x+ideltax,glyphmemory[ino].simple.donecoordinates[0].y+ideltay);
+		for (int ilv2=1;ilv2<glyphmemory[ino].maxcount;ilv2++)
+		{
+			char tl_postincrement=0;
+			if ((glyphmemory[ino].simple.donecoordinates[ilv2].flags & 1)==0)
+			{
+				MACRO_DRAWPREFIX(expressgeometry_line)(glyphmemory[ino].simple.donecoordinates[ilv2].x+ideltax,glyphmemory[ino].simple.donecoordinates[ilv2].y+ideltay);
+
+			}
+			else
+			{
+				float nextx,nexty;
+				if ((glyphmemory[ino].simple.donecoordinates[ilv2].flags & 2)==0)
+				{
+					if ((glyphmemory[ino].simple.donecoordinates[ilv2+1].flags & 1)==0)
+					{
+						nextx=glyphmemory[ino].simple.donecoordinates[ilv2+1].x;
+						nexty=glyphmemory[ino].simple.donecoordinates[ilv2+1].y;
+						tl_postincrement=1;
+					}
+					else
+					{
+						nextx=(glyphmemory[ino].simple.donecoordinates[ilv2].x+glyphmemory[ino].simple.donecoordinates[ilv2+1].x)*0.5;
+						nexty=(glyphmemory[ino].simple.donecoordinates[ilv2].y+glyphmemory[ino].simple.donecoordinates[ilv2+1].y)*0.5;
+					}
+				}
+				else
+				{
+					MACRO_DRAWPREFIX(expressgeometry_bezier2)(glyphmemory[ino].simple.donecoordinates[ilv2].x+ideltax,glyphmemory[ino].simple.donecoordinates[ilv2].y+ideltay,gfx_geometry.startx,gfx_geometry.starty);
+					goto icircle;
+				}
+				MACRO_DRAWPREFIX(expressgeometry_bezier2)(glyphmemory[ino].simple.donecoordinates[ilv2].x+ideltax,glyphmemory[ino].simple.donecoordinates[ilv2].y+ideltay,nextx+ideltax,nexty+ideltay);
+				if (tl_postincrement) ilv2++;
+			}
+			if (glyphmemory[ino].simple.donecoordinates[ilv2].flags & 2)
+			{
+				MACRO_DRAWPREFIX(expressgeometry_backline)();
+				icircle:;
+				ilv2++;
+				MACRO_DRAWPREFIX(expressgeometry_begin)(glyphmemory[ino].simple.donecoordinates[ilv2].x+ideltax,glyphmemory[ino].simple.donecoordinates[ilv2].y+ideltay);
+			}
+		}
+		MACRO_DRAWPREFIX(expressgeometry_end)();
+	}
+}
 
 void MACRO_DRAWPREFIX(drawarrheads)(cdx_Rectangle iBBX,float langle,float cangle,float otherlangle,float othercangle,int currentArrowHeadType,int currentArrowHeadTail,int currentArrowHeadHead,float tllinedist)
 {
@@ -540,6 +602,12 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,char hatches)
 	}
 	goto svg_main_loop;
 	svg_main_graphic:
+/*	TEST routines for truetype fonts
+	for (int ilv1=0;ilv1<4;ilv1++)
+	{
+		MACRO_DRAWPREFIX(stylegenestring)(2);
+		MACRO_DRAWPREFIX(drawglyph)(ilv1+66,ilv1*1248,0);
+	}*/
 /* HOW ARROW MUST BE DONE:
 1. The arrow type determiner determines arrow type and bond spacing.
 2. The lines/arc are drawn. if it was something else, the next two points are skipped. 

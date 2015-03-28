@@ -80,7 +80,7 @@ void memory_areamoved(char * ibegin1,char * ibegin2,intl ilength)//can be called
 	{
 		if ((memory_bufferstructure[ilv1].baseaddressaddress>=(char**)ibegin1) && (memory_bufferstructure[ilv1].baseaddressaddress<(char**)iend))
 		{
-			memory_bufferstructure[ilv1].baseaddressaddress+=idelta;
+			(*(char**)&(memory_bufferstructure[ilv1].baseaddressaddress))+=idelta;
 		}
 	}
 }

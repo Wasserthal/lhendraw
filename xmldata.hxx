@@ -384,7 +384,7 @@ struct undo_singlebuffer
 {
 	char * buffer;//When==NULL, this buffer is empty, apply the buffer of the parent
 	char * contentbuffer;//NULL if no buffer.
-	char imultilist[sizeof(multilist<basic_instance>)];
+	char imultilist[sizeof(basicmultilist)];
 	TELESCOPE_buffer bufferhead;//Only for ease. the pointers in here are by no means important and need only be updated when this element, intended for formatted output of a structure, is output'ed
 };
 #define chararray char *

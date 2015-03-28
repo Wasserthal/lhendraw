@@ -190,7 +190,7 @@ int slayundo()
 					((intl*)(undosteps[0].handles[ilv1].buffer))[ilv2]=((intl*)(undosteps[1].handles[ilv1].buffer))[ilv2];
 				}
 				memory_free(undosteps[1].handles[ilv1].buffer);
-				for (int ilv2=0;ilv2<sizeof(multilist<basic_instance>);ilv2++)
+				for (int ilv2=0;ilv2<sizeof(basicmultilist);ilv2++)
 				{
 					undosteps[0].handles[ilv1].imultilist[ilv2]=undosteps[1].handles[ilv1].imultilist[ilv2];
 				}
@@ -263,7 +263,7 @@ int storeundo(_u32 flags)
 				{
 					((intl*)(undosteps[undosteps_count].handles[ilv1].contentbuffer))[ilv3]=((intl*)(glob_contentbuffer[ilv1].buffer))[ilv3];
 				}
-				for (int ilv2=0;ilv2<sizeof(multilist<basic_instance>);ilv2++)
+				for (int ilv2=0;ilv2<sizeof(basicmultilist);ilv2++)
 				{
 					((char*)(undosteps[undosteps_count].handles[ilv1].imultilist))[ilv2]=((char*)(tl_multilist))[ilv2];
 				}
@@ -313,7 +313,7 @@ int restoreundo(_u32 flags,_u32 orderflags/*bit0: restore count only*/)//doesn't
 				if (orderflags & 1)
 				{
 					char * ipointer=(*tl_multilist).pointer;
-					for (int ilv2=0;ilv2<sizeof(multilist<basic_instance>);ilv2++)
+					for (int ilv2=0;ilv2<sizeof(basicmultilist);ilv2++)
 					{
 						((char*)(tl_multilist))[ilv2]=((char*)(undosteps[thatundostep].handles[ilv1].imultilist))[ilv2];
 					}
@@ -335,7 +335,7 @@ int restoreundo(_u32 flags,_u32 orderflags/*bit0: restore count only*/)//doesn't
 				{
 					tl_buffer=(intl*)(undo_retrievebuffer(currentundostep,ilv1));
 				}
-				for (int ilv2=0;ilv2<sizeof(multilist<basic_instance>);ilv2++)
+				for (int ilv2=0;ilv2<sizeof(basicmultilist);ilv2++)
 				{
 					((char*)(tl_multilist))[ilv2]=((char*)(undosteps[thatundostep].handles[ilv1].imultilist))[ilv2];
 				}

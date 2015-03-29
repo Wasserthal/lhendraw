@@ -1225,6 +1225,12 @@ int issueclick(int iposx,int iposy)
 			control_manipulatedinstance=edit_summongraphic();
 			if (control_drawproperties.GraphicType==0) control_drawproperties.GraphicType=1;
 			(*(graphic_instance*)control_manipulatedinstance).GraphicType=control_drawproperties.GraphicType;
+
+			if (control_drawproperties.GraphicType==8)
+			{
+				(*(graphic_instance*)control_manipulatedinstance).GraphicType=3;
+				(*(graphic_instance*)control_manipulatedinstance).CornerRadius=20;
+			}
 			(*(graphic_instance*)control_manipulatedinstance).BoundingBox.left=control_coorsx;
 			(*(graphic_instance*)control_manipulatedinstance).BoundingBox.right=control_coorsx;
 			(*(graphic_instance*)control_manipulatedinstance).BoundingBox.top=control_coorsy;
@@ -3089,6 +3095,7 @@ void control_normal()
 					int tl_length;
 					char tl_alternate=0;
 					int tl_counter=0;
+					char tl_hadrun=0;
 					switch (control_Event.key.keysym.sym)
 					{
 						case SDLK_ESCAPE:
@@ -3157,7 +3164,7 @@ void control_normal()
 							}
 							iTEXT_HOME_END:;
 							if (tl_alternate==2) {tl_alternate=1;textedit_left();goto iTEXT_HOME_RESTART;}
-							if (tl_alternate==3) {tl_alternate=2;goto iTEXT_END_RESTART;}//and then, forward
+							if (tl_alternate==3) {tl_alternate=2;tl_hadrun=0;goto iTEXT_END_RESTART;}//and then, forward
 							if (tl_alternate)
 							{
 								for (int ilv1=0;ilv1<tl_counter;ilv1++)
@@ -3170,9 +3177,10 @@ void control_normal()
 						break;
 						case SDLK_END:
 						{
+							tl_hadrun=0;
 							if (control_aggresstextcursor())
 							{
-								while (textedit_right()>0){iTEXT_END_RESTART:;if (((char*)TELESCOPE_getproperty_contents())[control_textedit_cursor+3]=='\n') {goto iTEXT_END_END;}}
+								while (textedit_right()>0){if (tl_hadrun) if (((char*)TELESCOPE_getproperty_contents())[control_textedit_cursor-1]=='\n') {textedit_left();goto iTEXT_END_END;}  iTEXT_END_RESTART:;if (((char*)TELESCOPE_getproperty_contents())[control_textedit_cursor+3]=='\n') {goto iTEXT_END_END;}tl_hadrun=1;}
 							}
 							iTEXT_END_END:;
 							if (tl_alternate)
@@ -3189,6 +3197,11 @@ void control_normal()
 						case SDLK_BACKSPACE:
 						if (control_aggresstextcursor())
 						{
+							if (control_textedit_selectmode==1)
+							{
+								control_squashselection();
+								break;
+							}
 							textedit_left();
 							control_textedit_cursor+=3;
 							if (utf8encompass((char*)TELESCOPE_getproperty_contents(),&control_textedit_cursor,&tl_length)>0)
@@ -3200,6 +3213,11 @@ void control_normal()
 						case SDLK_DELETE:
 						if (control_aggresstextcursor())
 						{
+							if (control_textedit_selectmode==1)
+							{
+								control_squashselection();
+								break;
+							}
 							control_textedit_cursor+=3;
 							while (control_textedit_cursor>=strlen((char*)TELESCOPE_getproperty_contents()))
 							{
@@ -3233,6 +3251,10 @@ void control_normal()
 							}
 							else
 							{
+								if (control_textedit_selectmode==1)
+								{
+									control_squashselection();
+								}
 								TELESCOPE_insertintoproperties_offset("\n",1,control_textedit_cursor);
 							}
 						}

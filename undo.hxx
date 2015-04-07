@@ -309,10 +309,11 @@ int restoreundo(_u32 flags,_u32 orderflags/*bit0: restore count only*/)//doesn't
 		{
 			if (flags & (1<<ilv1))
 			{
+				char * ipointer;
 				thatundostep=currentundostep;
 				if (orderflags & 1)
 				{
-					char * ipointer=(*tl_multilist).pointer;
+					ipointer=(*tl_multilist).pointer;
 					for (int ilv2=0;ilv2<sizeof(basicmultilist);ilv2++)
 					{
 						((char*)(tl_multilist))[ilv2]=((char*)(undosteps[thatundostep].handles[ilv1].imultilist))[ilv2];
@@ -335,10 +336,12 @@ int restoreundo(_u32 flags,_u32 orderflags/*bit0: restore count only*/)//doesn't
 				{
 					tl_buffer=(intl*)(undo_retrievebuffer(currentundostep,ilv1));
 				}
+				ipointer=(*tl_multilist).pointer;
 				for (int ilv2=0;ilv2<sizeof(basicmultilist);ilv2++)
 				{
 					((char*)(tl_multilist))[ilv2]=((char*)(undosteps[thatundostep].handles[ilv1].imultilist))[ilv2];
 				}
+				(*tl_multilist).pointer=ipointer;
 				imax=min(LHENDRAW_buffersize,(tl_multilist->itemsize*((basicmultilist*)(undosteps[thatundostep].handles[ilv1].imultilist))->filllevel+sizeof(intl)-1))/sizeof(intl);
 				for (int ilv3=0;ilv3<imax;ilv3++)
 				{

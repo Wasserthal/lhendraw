@@ -105,6 +105,12 @@ void MACRO_DRAWPREFIX(drawglyph)(int ino,int ideltax,int ideltay)
 		MACRO_DRAWPREFIX(expressgeometry_begin)(glyphmemory[ino].simple.donecoordinates[0].x+ideltax,glyphmemory[ino].simple.donecoordinates[0].y+ideltay);
 		for (int ilv2=1;ilv2<glyphmemory[ino].maxcount;ilv2++)
 		{
+			if (ilv2==38)
+			{
+				SDL_color=0xFF00;
+				MACRO_DRAWPREFIX(expressellipse)(glyphmemory[ino].simple.donecoordinates[ilv2].x+ideltax,glyphmemory[ino].simple.donecoordinates[ilv2].y+ideltay,35,35);
+				SDL_color=0x00;
+			}
 			char tl_postincrement=0;
 			if ((glyphmemory[ino].simple.donecoordinates[ilv2].flags & 1)==0)
 			{
@@ -138,7 +144,7 @@ void MACRO_DRAWPREFIX(drawglyph)(int ino,int ideltax,int ideltay)
 			}
 			if (glyphmemory[ino].simple.donecoordinates[ilv2].flags & 2)
 			{
-				MACRO_DRAWPREFIX(expressgeometry_backline)();
+//				MACRO_DRAWPREFIX(expressgeometry_backline)();
 				icircle:;
 				ilv2++;
 				MACRO_DRAWPREFIX(expressgeometry_begin)(glyphmemory[ino].simple.donecoordinates[ilv2].x+ideltax,glyphmemory[ino].simple.donecoordinates[ilv2].y+ideltay);
@@ -602,11 +608,18 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,char hatches)
 	}
 	goto svg_main_loop;
 	svg_main_graphic:
-/*	TEST routines for truetype fonts
-	for (int ilv1=0;ilv1<4;ilv1++)
+	for (int ilv1=0;ilv1<1;ilv1++)
 	{
 		MACRO_DRAWPREFIX(stylegenestring)(2);
 		MACRO_DRAWPREFIX(drawglyph)(ilv1+66,ilv1*1248,0);
+	}
+/*	MACRO_DRAWPREFIX(stylegenestring)(2);
+	if(MACRO_DRAWPREFIX(expressgeometry_start)(-10000,-10000,1000000,100000))
+	{
+	MACRO_DRAWPREFIX(expressgeometry_begin)(glyphmemory[66].simple.donecoordinates[33].x,+glyphmemory[66].simple.donecoordinates[33].y);
+	MACRO_DRAWPREFIX(expressgeometry_bezier2)(glyphmemory[66].simple.donecoordinates[44].x,+glyphmemory[66].simple.donecoordinates[44].y,glyphmemory[66].simple.donecoordinates[45].x,+glyphmemory[66].simple.donecoordinates[45].y);
+	MACRO_DRAWPREFIX(expressgeometry_bezier2)(glyphmemory[66].simple.donecoordinates[32].x,+glyphmemory[66].simple.donecoordinates[0].y,glyphmemory[66].simple.donecoordinates[33].x,+glyphmemory[66].simple.donecoordinates[33].y);
+	MACRO_DRAWPREFIX(expressgeometry_end)();
 	}*/
 /* HOW ARROW MUST BE DONE:
 1. The arrow type determiner determines arrow type and bond spacing.

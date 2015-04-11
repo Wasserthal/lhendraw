@@ -70,7 +70,6 @@ void memory_alloc(char ** address,int itype)
 	memory_bufferstructure[memory_bufferstructure_count].baseaddressaddress=address;
 	memory_bufferstructure[memory_bufferstructure_count].type=itype;
 	memory_bufferstructure_count++;
-	printf("all:%p\n",*address);
 }
 void memory_areamoved(char * ibegin1,char * ibegin2,intl ilength)//can be called from outside to tell that data with baseaddresses has moved inside a buffer, or from memory if a memory is moved. Better name memory areas whether they contain memory addresses or not... (NO! too complicated).
 {
@@ -86,7 +85,6 @@ void memory_areamoved(char * ibegin1,char * ibegin2,intl ilength)//can be called
 }
 int memory_free(void * ibaseaddress)
 {
-	printf("fadd:%p\n",ibaseaddress);
 	for (int ilv1=0;ilv1<memory_bufferstructure_count;ilv1++)
 	{
 		if (memory_bufferstructure[ilv1].baseaddress==ibaseaddress)

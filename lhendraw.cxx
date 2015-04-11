@@ -159,8 +159,6 @@ void Signal(int signum)
 int main(int argc,char * * argv)
 {
 #ifndef NODEBUG
-	FILE * ifile=fopen("LiberationMono-Regular.lennardfont","r");
-	glyf_init(ifile);
 	progname=argv[0];
 	signal(SIGSEGV,&Signal);
 	signal(SIGILL,&Signal);

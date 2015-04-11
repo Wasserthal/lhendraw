@@ -81,4 +81,9 @@ void resources_init(char * iargv0)
 		text_load(resource_file);
 	}
 	#endif
+	resource_file=criticalfilename(iargv0,idirectorystring,"/LiberationMono-Regular.lennardfont");
+	if (resource_file)
+	{
+		glyf_init(resource_file);
+	}
 }

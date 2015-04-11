@@ -44,4 +44,5 @@ install:
 	cp hotkeys.xml -t /usr/share/lhendraw
 	cp -R gfx -t /usr/share/lhendraw/
 	cp *.ttf -t /usr/share/lhendraw
+	cp *.lennardfont -t /usr/share/lhendraw
 	ln -s -f /usr/share/lhendraw/lhendraw /usr/bin/lhendraw

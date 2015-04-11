@@ -483,8 +483,8 @@ struct gfx_geometry_
 	int startx,starty;
 	int currentx,currenty;
 	int left,right,top,bottom;
-	int lastdirection;//0: none, save to "firstdirection" 1: downward 2: upward
-	int firstdirection;
+	int lastdirection;//1: downward 2: upward
+	int firstdirection;//0: none, save to "firstdirection" 1: downward 2: upward
 };
 gfx_geometry_ gfx_geometry;
 
@@ -512,8 +512,28 @@ int __attribute__((warn_unused_result)) gfx_expressgeometry_start(float left,flo
 	}
 	return 1;
 }
+#define GFX_GEONEXT(MACROPARAM)\
+{\
+	gfx_geometry.lastdirection=(MACROPARAM);\
+	if (gfx_geometry.firstdirection==0) {fprintf(stderr,"WARNsdlgfx.hxx:536");}\
+}
+void gfx_expressgeometry_neutro(int currentdirection,char halt=0)
+{
+	if_gfx_geo return;
+	if (gfx_geometry.firstdirection==0) {gfx_geometry.firstdirection=currentdirection;return;}
+	
+	if (gfx_geometry.lastdirection!=currentdirection) return;
+	if ((gfx_geometry.currenty)<gfx_geometry.top) return;
+	if ((gfx_geometry.currenty)>=gfx_geometry.bottom) return;
+	if (gfx_geometry.currentx>=gfx_geometry.right) return;
+	int medix=gfx_geometry.currentx;
+	if (medix<gfx_geometry.left) medix=gfx_geometry.left;
+	canvas[gfx_geometry.currenty*gfx_screensizex+medix+1]=0xFF00;
+	gfx_linewisebuffer[gfx_geometry.currenty*gfx_canvassizex+medix]^=1;
+}
 void gfx_expressgeometry_begin(float x,float y)
 {
+	if (gfx_geometry.type!=0) gfx_expressgeometry_neutro(gfx_geometry.firstdirection);
 	gfx_geometry.type=1;
 	if_gfx_geo
 	{
@@ -530,36 +550,22 @@ void gfx_expressgeometry_begin(float x,float y)
 	gfx_geometry.firstdirection=0;
 	gfx_geometry.lastdirection=0;
 }
-#define GFX_GEONEXT(MACROPARAM)\
-{\
-	gfx_geometry.lastdirection=(MACROPARAM);\
-	if (gfx_geometry.firstdirection==0) {gfx_geometry.firstdirection=(MACROPARAM);}\
-}
-void gfx_expressgeometry_neutro(int currentdirection,char halt=0)
-{
-	if_gfx_geo return;
-	if (gfx_geometry.lastdirection!=currentdirection) return;
-	if ((gfx_geometry.currenty)<gfx_geometry.top) return;
-	if ((gfx_geometry.currenty)>=gfx_geometry.bottom) return;
-	if (gfx_geometry.currentx>=gfx_geometry.right) return;
-	int medix=gfx_geometry.currentx;
-	if (medix<gfx_geometry.left) medix=gfx_geometry.left;
-	gfx_linewisebuffer[gfx_geometry.currenty*gfx_canvassizex+medix]^=1;
-}
 void gfx_expressgeometry_end()
 {
 	if_gfx_geo return;
-	if (gfx_geometry.type==1) gfx_expressgeometry_neutro(gfx_geometry.firstdirection,1);
+	if (gfx_geometry.type==1) gfx_expressgeometry_neutro(gfx_geometry.firstdirection);
 	for (int ilv1=gfx_geometry.top;ilv1<gfx_geometry.bottom;ilv1++)
 	{
 		char state=0;
 		for (int ilv2=gfx_geometry.left;ilv2<gfx_geometry.right;ilv2++)
 		{
 			state^=gfx_linewisebuffer[ilv1*gfx_canvassizex+ilv2];
-			if (state)
+			if (state & 1)
 			{
 				canvas[ilv1*gfx_screensizex+ilv2]=SDL_color;
 			}
+				if (state & 0x2)
+				canvas[ilv1*gfx_screensizex+ilv2]^=0xFF;
 		}
 	}
 	gfx_geometry.type=2;
@@ -605,6 +611,7 @@ void gfx_expressgeometry_line(float x,float y)
 		{
 			int medix=(ilv1-gfx_geometry.currenty)*m+gfx_geometry.currentx;
 			if (medix<gfx_geometry.left) medix=gfx_geometry.left;
+			if (medix>=gfx_geometry.right) medix=gfx_geometry.right-1;
 			gfx_linewisebuffer[ilv1*gfx_canvassizex+medix]^=1;
 		}
 	}
@@ -616,11 +623,11 @@ void gfx_expressgeometry_line(float x,float y)
 		gfx_geometry.currenty=iy;
 	}
 }
-void gfx_expressgeometry_bezier2(float x1,float y1,float x2,float y2)
+void gfx_expressgeometry_bezier2(float inx1,float iny1,float x2,float y2)
 {
 	if_gfx_geo
 	{
-		gfx_expressbezier2(gfx_geometry.currentx,gfx_geometry.currenty,x1,y1,x2,y2);
+		gfx_expressbezier2(gfx_geometry.currentx,gfx_geometry.currenty,inx1,iny1,x2,y2);
 		gfx_geometry.currentx=x2;
 		gfx_geometry.currenty=y2;
 		return;
@@ -631,15 +638,15 @@ void gfx_expressgeometry_bezier2(float x1,float y1,float x2,float y2)
 	y2=(y2-SDL_scrolly)*SDL_zoomy;
 	int x0=x2;
 	int y0=y2;
-	x1=(int)((x1-SDL_scrollx)*SDL_zoomx);
-	y1=(int)((y1-SDL_scrolly)*SDL_zoomy);
+	int x1=(int)((inx1-SDL_scrollx)*SDL_zoomx);
+	int y1=(int)((iny1-SDL_scrolly)*SDL_zoomy);
 	char swapped=0;
 	int lasty;//make sure it's smaller than the actual start in first place!
 	int endy;
 	float fragment;
 	float currentlevel;
 	float lastlevel;
-	int imediy;
+	int medix,mediy;
 	char hasotherhalf;
 	if (starty>y0)
 	{
@@ -657,11 +664,10 @@ void gfx_expressgeometry_bezier2(float x1,float y1,float x2,float y2)
 	{
 		gfx_expressgeometry_neutro((3*swapped)^1);
 		lasty=starty-1;
+
 		endy=y0;
-		fragment=0.45/(endy-starty);
 		currentlevel=0;
-		lastlevel=1+fragment;
-		imediy=0;
+		lastlevel=1;
 		GFX_GEONEXT((3*swapped)^1);
 		if (gfx_geometry.lastdirection==2) gfx_geometry.lastdirection=2;
 	}
@@ -673,21 +679,17 @@ void gfx_expressgeometry_bezier2(float x1,float y1,float x2,float y2)
 			{
 				lasty=y1-1;
 				endy=starty;
-				fragment=-0.45/(starty-y1);
-				currentlevel=(starty-y1)/((y0-y1)+(starty-y1));
-				lastlevel=fragment;
-				imediy=0;
+				currentlevel=(starty-y1)/(float)((y0-y1)+(starty-y1));
+				lastlevel=0;
 				hasotherhalf=2;
 			}
 			else
 			{
-				gfx_expressgeometry_neutro(1);
+				gfx_expressgeometry_neutro(2);
 				lasty=y1-1;
 				endy=y0;
-				fragment=0.45/(endy-y1);
-				currentlevel=(starty-y1)/((y0-y1)+(starty-y1));
-				lastlevel=1+fragment;
-				imediy=0;
+				currentlevel=(starty-y1)/(float)((y0-y1)+(starty-y1));
+				lastlevel=1;
 				hasotherhalf=1;
 				GFX_GEONEXT(1);
 			}
@@ -698,43 +700,48 @@ void gfx_expressgeometry_bezier2(float x1,float y1,float x2,float y2)
 			{
 				lasty=y0-1;
 				endy=y1;
-				fragment=-0.45/(y1-starty);
 				currentlevel=1;
-				lastlevel=(starty-y1)/((y0-y1)+(starty-y1))+fragment;
-				imediy=0;
+				lastlevel=(starty-y1)/(float)((y0-y1)+(starty-y1));
 				hasotherhalf=2;
 			}
 			else
 			{
-				gfx_expressgeometry_neutro(2);
+				gfx_expressgeometry_neutro(1);
 				lasty=starty-1;
 				endy=y1;
-				fragment=0.45/(y1-starty);
 				currentlevel=0;
-				lastlevel=(starty-y1)/((y0-y1)+(starty-y1))+fragment;
-				imediy=0;
+				lastlevel=(starty-y1)/(float)((y0-y1)+(starty-y1));
 				hasotherhalf=1;
 				GFX_GEONEXT(2);
 			}
 		}
 	}
+	fragment=0.45*(lastlevel-currentlevel)/(float)(endy-lasty+1);
+	if (fragment==0) {fragment=(hasotherhalf==2)?-0.001:0.001;}
 	do
 	{
-		float mediy=((starty+((y1-starty)*currentlevel))*(1-currentlevel))+((y1+(y0-y1)*currentlevel)*currentlevel);
-		imediy=mediy;
-		if (imediy>lasty)
+		mediy=((starty+((y1-starty)*currentlevel))*(1-currentlevel))+((y1+(y0-y1)*currentlevel)*currentlevel);
+		if ((mediy>lasty))
 		{
-			lasty=imediy;
-			int medix=((startx+((x1-startx)*currentlevel))*(1-currentlevel))+((x1+(x0-x1)*currentlevel)*currentlevel);
+			lasty=mediy;
+			lastline:;
+			medix=((startx+((x1-startx)*currentlevel))*(1-currentlevel))+((x1+(x0-x1)*currentlevel)*currentlevel);
 			if ((lasty>=0) && (lasty<gfx_canvassizey) && (medix<gfx_canvassizex))
 			{
 				if (medix<gfx_geometry.left) medix=gfx_geometry.left;
-				gfx_linewisebuffer[lasty*gfx_canvassizex+medix]^=1;
+				if (medix>=gfx_geometry.right) medix=gfx_geometry.right-1;
+				gfx_linewisebuffer[lasty*gfx_canvassizex+medix]^=1+(lasty>endy)*2;
 			}
 		}
 		currentlevel+=fragment;
 	}
 	while ((((currentlevel<=lastlevel) && (hasotherhalf!=2)) || ((currentlevel>=lastlevel) && (hasotherhalf==2))) && (lasty<endy));
+	if (lasty!=endy)
+	{
+		currentlevel=lastlevel;
+		lasty=endy;
+		goto lastline;
+	}
 	if (hasotherhalf==1) goto iotherhalfback;
 	gfx_geometry.currentx=x2;
 	gfx_geometry.currenty=y2;
@@ -749,7 +756,9 @@ void gfx_expressgeometry_backline()
 			return;
 		}
 		gfx_expressgeometry_line(gfx_geometry.startx,gfx_geometry.starty);
+		gfx_expressgeometry_neutro(gfx_geometry.firstdirection);
 		gfx_geometry.type=2;
+		gfx_geometry.firstdirection=0;
 	}
 }
 
@@ -848,6 +857,8 @@ void gfx_expressspinellipse(float ix,float iy,float radiusx,float radiusy, float
 {
 	ix=(ix-SDL_scrollx)*SDL_zoomx;
 	iy=(iy-SDL_scrolly)*SDL_zoomy;
+	radiusx=radiusx*SDL_zoomx;
+	radiusy=radiusy*SDL_zoomy;
 	int isteps=radiusx*Pi*2;
 	float tlsaxx=cos(axangle);float tlsaxy=sin(axangle);
 	if (SDL_linestyle & 2)

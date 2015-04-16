@@ -491,6 +491,7 @@ catalogized_command_funcdef(ISSUEDELETE)
 	}
 	if (selection_currentselection_found)
 	{
+		i_delete_newclick:;
 		for (int ilv1=1;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
 		{
 			icompare=1<<ilv1;
@@ -525,7 +526,17 @@ catalogized_command_funcdef(ISSUEDELETE)
 	}
 	else
 	{
-		if (control_hotatom!=-1)
+		if (gethot()==-1)
+		{
+			clickforthem();
+			if (selection_clickselection_found)
+			{
+				selection_copyselection(selection_currentselection,selection_clickselection);
+				selection_currentselection_found=selection_clickselection_found;
+				goto i_delete_newclick;
+			}
+		}
+		if (gethot()!=-1)
 		{
 			if (control_hotatom<(*glob_n_multilist).filllevel)
 			{

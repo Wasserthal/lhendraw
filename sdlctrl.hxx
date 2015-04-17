@@ -3258,6 +3258,8 @@ void control_normal()
 									TELESCOPE_shrink(control_textedit_cursor,3);
 								}
 								edit_resortstring(glob_n_multilist,control_textedit_index);
+								edit_interpretaselementwithimplicithydrogens(glob_n_multilist,control_textedit_index);
+								edit_bondsum(control_textedit_index,1);
 								control_mousestate=0;
 							}
 							else

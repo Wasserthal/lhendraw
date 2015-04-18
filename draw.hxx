@@ -85,7 +85,7 @@ void MACRO_DRAWPREFIX(expresshexangle)(float ifx1,float ify1,float ifx2,float if
 	LHENDRAW_inficorn[5].y=ify6;
 	MACRO_DRAWPREFIX(expressinfinityangle)(6);
 }
-void MACRO_DRAWPREFIX(drawglyph)(int ino,int ideltax,int ideltay)
+void MACRO_DRAWPREFIX(drawglyph)(int ino,int ideltax,int ideltay,int * i_txcursorx,int * i_txcursory,float angle,float size)
 {
 	if (glyphmemory[ilv1].units==-1)
 	{
@@ -97,25 +97,25 @@ void MACRO_DRAWPREFIX(drawglyph)(int ino,int ideltax,int ideltay)
 				deltax+=glyphmemory[ino].composite.unit[ilv2].arg1;
 				deltay+=glyphmemory[ino].composite.unit[ilv2].arg2;
 			}
-			MACRO_DRAWPREFIX(drawglyph)(glyphmemory[ino].composite.unit[ilv2].index-3,deltax,deltay);
+			MACRO_DRAWPREFIX(drawglyph)(glyphmemory[ino].composite.unit[ilv2].index-3,deltax,deltay,i_txcursorx,i_txcursory,angle,size);
 		}
 	}
+	glyf_modglyph(ino,0,ideltax,ideltay,i_txcursorx,i_txcursory,size*cos(angle),size*sin(angle),-size*sin(angle),size*cos(angle));
 	if (MACRO_DRAWPREFIX(expressgeometry_start)(-100000,-10000,10000000,1000000))//TODO
 	{
-		MACRO_DRAWPREFIX(expressgeometry_begin)(glyphmemory[ino].simple.donecoordinates[0].x+ideltax,glyphmemory[ino].simple.donecoordinates[0].y+ideltay);
+		MACRO_DRAWPREFIX(expressgeometry_begin)(glyphmemory[ino].simple.donecoordinates[0].modx,glyphmemory[ino].simple.donecoordinates[0].mody);
 		for (int ilv2=1;ilv2<glyphmemory[ino].maxcount;ilv2++)
 		{
-			if (ilv2==38)
+/*			if (ilv2==38)
 			{
 				SDL_color=0xFF00;
-				MACRO_DRAWPREFIX(expressellipse)(glyphmemory[ino].simple.donecoordinates[ilv2].x+ideltax,glyphmemory[ino].simple.donecoordinates[ilv2].y+ideltay,35,35);
+				MACRO_DRAWPREFIX(expressellipse)(glyphmemory[ino].simple.donecoordinates[ilv2].modx,glyphmemory[ino].simple.donecoordinates[ilv2].mody,35,35);
 				SDL_color=0x00;
-			}
+			}*/
 			char tl_postincrement=0;
 			if ((glyphmemory[ino].simple.donecoordinates[ilv2].flags & 1)==0)
 			{
-				MACRO_DRAWPREFIX(expressgeometry_line)(glyphmemory[ino].simple.donecoordinates[ilv2].x+ideltax,glyphmemory[ino].simple.donecoordinates[ilv2].y+ideltay);
-
+				MACRO_DRAWPREFIX(expressgeometry_line)(glyphmemory[ino].simple.donecoordinates[ilv2].modx,glyphmemory[ino].simple.donecoordinates[ilv2].mody);
 			}
 			else
 			{
@@ -124,30 +124,30 @@ void MACRO_DRAWPREFIX(drawglyph)(int ino,int ideltax,int ideltay)
 				{
 					if ((glyphmemory[ino].simple.donecoordinates[ilv2+1].flags & 1)==0)
 					{
-						nextx=glyphmemory[ino].simple.donecoordinates[ilv2+1].x;
-						nexty=glyphmemory[ino].simple.donecoordinates[ilv2+1].y;
+						nextx=glyphmemory[ino].simple.donecoordinates[ilv2+1].modx;
+						nexty=glyphmemory[ino].simple.donecoordinates[ilv2+1].mody;
 						tl_postincrement=1;
 					}
 					else
 					{
-						nextx=(glyphmemory[ino].simple.donecoordinates[ilv2].x+glyphmemory[ino].simple.donecoordinates[ilv2+1].x)*0.5;
-						nexty=(glyphmemory[ino].simple.donecoordinates[ilv2].y+glyphmemory[ino].simple.donecoordinates[ilv2+1].y)*0.5;
+						nextx=(glyphmemory[ino].simple.donecoordinates[ilv2].modx+glyphmemory[ino].simple.donecoordinates[ilv2+1].modx)*0.5;
+						nexty=(glyphmemory[ino].simple.donecoordinates[ilv2].mody+glyphmemory[ino].simple.donecoordinates[ilv2+1].mody)*0.5;
 					}
 				}
 				else
 				{
-					MACRO_DRAWPREFIX(expressgeometry_bezier2)(glyphmemory[ino].simple.donecoordinates[ilv2].x+ideltax,glyphmemory[ino].simple.donecoordinates[ilv2].y+ideltay,gfx_geometry.startx,gfx_geometry.starty);
+					MACRO_DRAWPREFIX(expressgeometry_bezier2)(glyphmemory[ino].simple.donecoordinates[ilv2].modx,glyphmemory[ino].simple.donecoordinates[ilv2].mody,gfx_geometry.startx,gfx_geometry.starty);
 					goto icircle;
 				}
-				MACRO_DRAWPREFIX(expressgeometry_bezier2)(glyphmemory[ino].simple.donecoordinates[ilv2].x+ideltax,glyphmemory[ino].simple.donecoordinates[ilv2].y+ideltay,nextx+ideltax,nexty+ideltay);
+				MACRO_DRAWPREFIX(expressgeometry_bezier2)(glyphmemory[ino].simple.donecoordinates[ilv2].modx,glyphmemory[ino].simple.donecoordinates[ilv2].mody,nextx,nexty);
 				if (tl_postincrement) ilv2++;
 			}
 			if (glyphmemory[ino].simple.donecoordinates[ilv2].flags & 2)
 			{
-//				MACRO_DRAWPREFIX(expressgeometry_backline)();
+				MACRO_DRAWPREFIX(expressgeometry_backline)();
 				icircle:;
 				ilv2++;
-				MACRO_DRAWPREFIX(expressgeometry_begin)(glyphmemory[ino].simple.donecoordinates[ilv2].x+ideltax,glyphmemory[ino].simple.donecoordinates[ilv2].y+ideltay);
+				MACRO_DRAWPREFIX(expressgeometry_begin)(glyphmemory[ino].simple.donecoordinates[ilv2].modx,glyphmemory[ino].simple.donecoordinates[ilv2].mody);
 			}
 		}
 		MACRO_DRAWPREFIX(expressgeometry_end)();
@@ -608,10 +608,12 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,char hatches)
 	}
 	goto svg_main_loop;
 	svg_main_graphic:
-	for (int ilv1=0;ilv1<1;ilv1++)
+	for (int ilv1=0;ilv1<2;ilv1++)
 	{
 		MACRO_DRAWPREFIX(stylegenestring)(2);
-		MACRO_DRAWPREFIX(drawglyph)(ilv1+66,ilv1*1248,0);
+		int tl_x=ilv1*800;
+		int tl_y=0;
+		MACRO_DRAWPREFIX(drawglyph)(ilv1+66,ilv1*1248,0,&tl_x,&tl_y,0,1);
 	}
 /*	MACRO_DRAWPREFIX(stylegenestring)(2);
 	if(MACRO_DRAWPREFIX(expressgeometry_start)(-10000,-10000,1000000,100000))

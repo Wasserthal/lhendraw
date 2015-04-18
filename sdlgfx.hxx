@@ -16,7 +16,10 @@ int gfx_initialized=0;
 float SDL_scrollx=0,SDL_scrolly=0;
 float SDL_zoomx=1,SDL_zoomy=1;
 int SDL_txcursorx=0;int SDL_txcursory=0;
+int SDL_glyfstartx=0;int SDL_glyfstarty=0;
 int SDL_old_txcursorx=0;int SDL_old_txcursory=0;
+char SDL_text_fallback=0;
+int framenumber=0;
 //_u8 screen[gfx_screensizex*gfx_screensizey*gfx_depth];
 _u32 * screen;
 _u32 * canvas;
@@ -75,7 +78,16 @@ int gfx_get_colorstringv(int number)
 }
 void gfx_express_txinit(char ialignment,float iposx,float iposy,float iatomfontheight)
 {
-	SDL_txcursorx=(iposx-SDL_scrollx)*SDL_zoomx-3;SDL_txcursory=(iposy-SDL_scrolly)*SDL_zoomy+4;
+	if (SDL_text_fallback)
+	{
+		SDL_txcursorx=0;SDL_txcursory=0;
+		SDL_glyfstartx=iposx;
+		SDL_glyfstarty=iposy;
+	}
+	else
+	{
+		SDL_txcursorx=(iposx-SDL_scrollx)*SDL_zoomx-3;SDL_txcursory=(iposy-SDL_scrolly)*SDL_zoomy+4;
+	}
 	SDL_old_txcursorx=SDL_txcursorx;SDL_old_txcursory=SDL_txcursory;
 }
 inline void gfx_express_text_tail()
@@ -480,7 +492,7 @@ int ibrakelist_count;
 struct gfx_geometry_
 {
 	char type;//0: at start 1: line drawn 2: loop closed
-	int startx,starty;
+	float startx,starty;
 	int currentx,currenty;
 	int left,right,top,bottom;
 	int lastdirection;//1: downward 2: upward
@@ -529,7 +541,10 @@ void gfx_expressgeometry_neutro(int currentdirection,char halt=0)
 	int medix=gfx_geometry.currentx;
 	if (medix<gfx_geometry.left) medix=gfx_geometry.left;
 	canvas[gfx_geometry.currenty*gfx_screensizex+medix+1]=0xFF00;
-	gfx_linewisebuffer[gfx_geometry.currenty*gfx_canvassizex+medix]^=1;
+	if ((gfx_geometry.currenty>=0) && (gfx_geometry.currenty<gfx_geometry.bottom))
+	{
+		gfx_linewisebuffer[gfx_geometry.currenty*gfx_canvassizex+medix]^=1;
+	}
 }
 void gfx_expressgeometry_begin(float x,float y)
 {
@@ -612,7 +627,10 @@ void gfx_expressgeometry_line(float x,float y)
 			int medix=(ilv1-gfx_geometry.currenty)*m+gfx_geometry.currentx;
 			if (medix<gfx_geometry.left) medix=gfx_geometry.left;
 			if (medix>=gfx_geometry.right) medix=gfx_geometry.right-1;
-			gfx_linewisebuffer[ilv1*gfx_canvassizex+medix]^=1;
+			if ((ilv1>=0) && (ilv1<gfx_geometry.bottom))
+			{
+				gfx_linewisebuffer[ilv1*gfx_canvassizex+medix]^=1;
+			}
 		}
 	}
 	if (iy!=gfx_geometry.currenty)
@@ -730,7 +748,10 @@ void gfx_expressgeometry_bezier2(float inx1,float iny1,float x2,float y2)
 			{
 				if (medix<gfx_geometry.left) medix=gfx_geometry.left;
 				if (medix>=gfx_geometry.right) medix=gfx_geometry.right-1;
-				gfx_linewisebuffer[lasty*gfx_canvassizex+medix]^=1+(lasty>endy)*2;
+				if ((lasty>=0) && (lasty<gfx_geometry.bottom))
+				{
+					gfx_linewisebuffer[lasty*gfx_canvassizex+medix]^=1+(lasty>endy)*2;
+				}
 			}
 		}
 		currentlevel+=fragment;
@@ -1041,12 +1062,15 @@ void text_print_bitmap(int * posx,int * posy,fontpixinf_ * ifontpixinf)
 		icanvas+=icanvasskip;
 	}
 }
+void gfx_drawglyph(int ino,int ideltax,int ideltay,int * i_txcursorx,int * i_txcursory,float angle,float size);
 void gfx_printformatted(const char * iinput,const char * parms,int imode,int start,int end)
 {
 	int ilv4=start;
 	char linebreak;
 	int i_offsy=0;
 	int i_startx=SDL_txcursorx;
+	int i_glyfcursorx=0;
+	int i_glyfcursory=0;
 	thatwasatemporaryskip:
 	linebreak=0;
 	_i32 backcount=0;
@@ -1074,7 +1098,16 @@ void gfx_printformatted(const char * iinput,const char * parms,int imode,int sta
 		if (imode & 1) {i_offsy=4;}
 		if (imode & 4) {i_offsy=-4;}
 		SDL_txcursory+=i_offsy;
-		text_print_bitmap(&SDL_txcursorx,&SDL_txcursory,&fontpixinf[indexfromunicode(utf8resolve((unsigned char*)iinput + ilv4,&backcount))]);
+		if (SDL_text_fallback==0)
+		{
+			text_print_bitmap(&SDL_txcursorx,&SDL_txcursory,&fontpixinf[indexfromunicode(utf8resolve((unsigned char*)iinput + ilv4,&backcount))]);
+		}
+		else
+		{
+			SDL_linestyle=2;
+			int ino=utf8resolve((unsigned char*)iinput + ilv4,&backcount);
+			gfx_drawglyph(indexfromunicode(ino)/*TODO: new text routine*/,SDL_glyfstartx,SDL_glyfstarty,&SDL_txcursorx,&SDL_txcursory,0,0.006);
+		}
 		SDL_txcursory-=i_offsy;
 	}
 	skipfornow:
@@ -1089,6 +1122,7 @@ void getatoms();
 void gfx_controlprocedure(bool irestriction,char hatches);
 void gfx_output(int mode=0)
 {
+	framenumber++;
 	#ifndef NODEBUG
 	clock_gettime(clockid,&ts);
 	counter1-=ts.tv_nsec+1000000000*ts.tv_sec;

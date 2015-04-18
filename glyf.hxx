@@ -3,6 +3,8 @@ struct glyf_coordinate_
 	_u8 flags;
 	_i16 x;
 	_i16 y;
+	float modx;
+	float mody;
 };
 struct glyf_
 {
@@ -67,6 +69,37 @@ instructionLength:%i\
 glyf_ * glyphmemory;
 int glyphmemory_count;
 int glyphmemory_max;
+void glyf_modglyph(int ino,int mode,float iposx,float iposy,int * horzx,int * horzy,float xx,float yx,float xy,float yy,int * xmin=NULL,int * xmax=NULL,int * ymin=NULL,int * ymax=NULL)
+{
+	if (ymax!=NULL)
+	{
+		(*xmin)=2147483647;
+		(*xmax)=-2147483648;
+		(*ymin)=2147483647;
+		(*ymax)=-2147483648;
+	}
+	if (glyphmemory[ino].units<=0) return;
+	for (int ilv1=0;ilv1<glyphmemory[ino].maxcount;ilv1++)
+	{
+		float tl_in_x,tl_in_y,tl_out_x,tl_out_y;
+		tl_in_x=glyphmemory[ino].simple.donecoordinates[ilv1].x;
+		tl_in_y=glyphmemory[ino].simple.donecoordinates[ilv1].y;
+		tl_out_x=(tl_in_x+(*horzx))*xx+(tl_in_y+(*horzy))*xy+iposx;
+		tl_out_y=(tl_in_x+(*horzx))*yx+(tl_in_y+(*horzy))*yy+iposy;
+		if (ymax!=NULL)
+		{
+			if (tl_out_x<(*xmin)) (*xmin)=tl_out_x;	
+			if (tl_out_y<(*ymin)) (*ymin)=tl_out_y;	
+			if (tl_out_x>(*xmax)) (*xmax)=tl_out_x;	
+			if (tl_out_y>(*ymax)) (*ymax)=tl_out_y;	
+		}
+		glyphmemory[ino].simple.donecoordinates[ilv1].modx=tl_out_x;
+		glyphmemory[ino].simple.donecoordinates[ilv1].mody=tl_out_y;
+	}
+	(*horzx)+=1200;
+	//TODO: add points for underline, only after output is not in glyf memory any longer
+	//also add a square around the letter, depending on mode, to show selection
+}
 void do_inglyph(glyf_ * inglyph,FILE * infile)
 {
 	_u32 bytes;

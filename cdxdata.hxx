@@ -326,9 +326,15 @@ int __attribute__((sysv_abi))CDXMLREAD__i32(char * input,void * output)
 	int ilv1;
 	_i32 wert=0;
 	ilv1=0;
+	char negative=0;
 	while (spaciatic(input[ilv1]))
 	{
 		ilv1++;
+	}
+	if (input[ilv1]=='-')
+	{
+		ilv1++;
+		negative^=1;
 	}
 	iback:
 	wert+=input[ilv1]-48;
@@ -338,6 +344,7 @@ int __attribute__((sysv_abi))CDXMLREAD__i32(char * input,void * output)
 		wert*=10;
 		goto iback;
 	}
+	if (negative) wert=-wert;
 	*((_i32*)output)=wert;
 	return ilv1;
 }
@@ -363,9 +370,15 @@ int __attribute__((sysv_abi))CDXMLREAD__i8(char * input,void * output)
 	int ilv1;
 	_i8 wert=0;
 	ilv1=0;
+	char negative;
 	while (spaciatic(input[ilv1]))
 	{
 		ilv1++;
+	}
+	if (input[ilv1]=='-')
+	{
+		ilv1++;
+		negative^=1;
 	}
 	iback:
 	wert+=input[ilv1]-48;
@@ -375,6 +388,7 @@ int __attribute__((sysv_abi))CDXMLREAD__i8(char * input,void * output)
 		wert*=10;
 		goto iback;
 	}
+	if (negative) wert=-wert;
 	*((_i8*)output)=wert;
 	return ilv1;
 }

@@ -1077,6 +1077,7 @@ inline int placepoints(arrow_instance * iinstance,float ix,float iy,float iz,int
 inline int placepoints(t_instance * iinstance,float ix,float iy,float iz,int inumber,basicmultilist * imultilist=NULL)
 {
 	float tl_x,tl_y,tl_z;
+	printf("running%f,%f\n",ix,iy);
 	if (retrievepoints(iinstance,&tl_x,&tl_y,&tl_z,inumber)>0)
 	{
 		tl_x-=ix;

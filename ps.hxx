@@ -7,7 +7,7 @@ void ps_express_text_tail()
 {
 	fprintf(outfile,"pop pop\n");
 }
-void ps_express_txinit(char ialignment,float iposx,float iposy,float iatomfontheight)
+void ps_express_txinit(char ialignment,float iposx,float iposy,float iatomfontheight,float angle)
 {
 	ps_txposx=iposx-4;
 	ps_txposy=SVG_height-iposy-4;

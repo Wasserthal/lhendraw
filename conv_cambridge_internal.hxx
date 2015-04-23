@@ -250,7 +250,10 @@ void CAMBRIDGECONV_text()
 		CAMBRIDGECONV_EXISTSTHEN(t,Justification);
 		CAMBRIDGECONV_EXISTSTHEN(t,LabelAlignment);
 		CAMBRIDGECONV_EXISTSTHEN(t,color);
-		CAMBRIDGECONV_EXISTSTHEN(t,IGOTYOU);
+		if (AUTOSTRUCT_EXISTS(CAMBRIDGE_s_instance,(*tl_CAMBRIDGE_t_instance),RotationAngle))
+		{
+			tl_t_instance.RotationAngle=(*tl_CAMBRIDGE_t_instance).RotationAngle*Pi/65536.0/360.0;
+		}
 		(*tl_t_multilist).ADD(&tl_t_instance);
 		TELESCOPE_aggressobject(tl_t_multilist,(*tl_t_multilist).filllevel-1);
 		i_n_only:;

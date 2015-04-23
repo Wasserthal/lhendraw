@@ -85,9 +85,19 @@ void MACRO_DRAWPREFIX(expresshexangle)(float ifx1,float ify1,float ifx2,float if
 	LHENDRAW_inficorn[5].y=ify6;
 	MACRO_DRAWPREFIX(expressinfinityangle)(6);
 }
-void MACRO_DRAWPREFIX(drawglyph)(int ino,int ideltax,int ideltay,int * i_txcursorx,int * i_txcursory,float angle,float size)
+void MACRO_DRAWPREFIX(drawglyph)(int unicode,int ideltax,int ideltay,int * i_txcursorx,int * i_txcursory,float angle,float size)
 {
-	if (glyphmemory[ilv1].units==-1)
+	int ino=0;
+	for (int ilv1=0;ilv1<glyphmemory_max;ilv1++)
+	{
+		if (glyphmemory[ilv1].unicode==unicode)
+		{
+			ino=ilv1;
+			goto ifertig;
+		}
+	}
+	ifertig:;
+	if (glyphmemory[ino].units==-1)
 	{
 		for (int ilv2=0;ilv2<glyphmemory[ino].composite.count;ilv2++)
 		{
@@ -472,7 +482,7 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,char hatches)
 			sortback=atom_actual_node[index_in_buffer].labelside;
 			if ((control_mousestate & 0x40) && (control_textedit_index==index_in_buffer)) sortback=0;
 			gfx_txselectmode=(((control_mousestate & 0x40)>0) && (control_textedit_selectmode==1) && (control_textedit_type==STRUCTURE_OBJECTTYPE_n) && (control_textedit_index==index_in_buffer));
-			MACRO_DRAWPREFIX(express_txinit)(2 | sortback,((*glob_n_multilist))[index_in_buffer].xyz.x,((*glob_n_multilist))[index_in_buffer].xyz.y,atomfontheight);
+			MACRO_DRAWPREFIX(express_txinit)(2 | sortback,((*glob_n_multilist))[index_in_buffer].xyz.x,((*glob_n_multilist))[index_in_buffer].xyz.y,atomfontheight,0);
 			TELESCOPE_aggressobject(glob_n_multilist,index_in_buffer);
 			goto n_to_t_shunt;
 		}
@@ -522,7 +532,7 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,char hatches)
 			{
 				tl_format=0;
 			}
-			MACRO_DRAWPREFIX(express_txinit)(2 | atom_actual_node[index_in_buffer].labelside,(*i_n_instance).xyz.x,(*i_n_instance).xyz.y,atomfontheight);
+			MACRO_DRAWPREFIX(express_txinit)(2 | atom_actual_node[index_in_buffer].labelside,(*i_n_instance).xyz.x,(*i_n_instance).xyz.y,atomfontheight,0);
 			for (int ilv1=0;ilv1<6;ilv1++)
 			{
 				int actual=ilv1;
@@ -1151,7 +1161,7 @@ tlposx+tlcos-tlsin,tlposy+tlsin+tlcos,tlposx+2*tlcos-tlsin,tlposy+2*tlsin+tlcos,
 	MACRO_DRAWPREFIX(get_colorstring_passive)(colornr);
 
 	gfx_txselectmode=(((control_mousestate & 0x40)>0) && (control_textedit_selectmode==1) && (control_textedit_type==STRUCTURE_OBJECTTYPE_t) && (control_textedit_index==index_in_buffer));
-	MACRO_DRAWPREFIX(express_txinit)(((*glob_t_multilist)[index_in_buffer].LabelAlignment==-1),((*glob_t_multilist))[index_in_buffer].xyz.x,((*glob_t_multilist))[index_in_buffer].xyz.y,atomfontheight);
+	MACRO_DRAWPREFIX(express_txinit)(((*glob_t_multilist)[index_in_buffer].LabelAlignment==-1),((*glob_t_multilist))[index_in_buffer].xyz.x,((*glob_t_multilist))[index_in_buffer].xyz.y,atomfontheight,(*glob_t_multilist)[index_in_buffer].RotationAngle);
 	TELESCOPE_aggressobject(glob_t_multilist,index_in_buffer);
 	n_to_t_shunt:
 	int tlbackval;

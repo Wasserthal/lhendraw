@@ -304,7 +304,10 @@ void CONVCAMBRIDGE_text(CAMBRIDGE_page_instance * master)
 		(*tl_CAMBRIDGE_t_instance).p.x=(*tl_t_instance).xyz.x;//BACKWARDS COMPATIBILITY
 		(*tl_CAMBRIDGE_t_instance).p.y=(*tl_t_instance).xyz.y;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_t_instance,p);//BACKWARDS COMPATIBILITY
 		(*tl_CAMBRIDGE_t_instance).xyz=(*tl_t_instance).xyz;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_t_instance,xyz);
-		(*tl_CAMBRIDGE_t_instance).IGOTYOU=(*tl_t_instance).IGOTYOU;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_t_instance,IGOTYOU);
+		if ((*tl_t_instance).RotationAngle!=0)
+		{
+			(*tl_CAMBRIDGE_t_instance).RotationAngle=((*tl_t_instance).RotationAngle)/Pi*180.0*65536.0;
+		}
 		(*tl_CAMBRIDGE_t_instance).id=janitor_id_list[STRUCTURE_OBJECTTYPE_t-1]+(*tl_t_instance).id;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_t_instance,id);
 		(*tl_CAMBRIDGE_t_instance).Z=(*tl_t_instance).Z;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_t_instance,Z);
 	}

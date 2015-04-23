@@ -5,7 +5,7 @@ group;annotation group fragment t graphic arrow curve ;;
 fragment;annotation n b t graphic arrow curve ;4 BoundingBox ;
 n;t annotation ;! NodeType 0 Element 0 id 0 NumHydrogens 0 Charge 0 color 2 p 3 xyz 0 Z ! ExternalConnectionType ;
 b;;0 id 0 color 0 B 0 E 0 Z ‼ Order ! Display ! Display2 ! DoublePosition ;
-t;s ;0 id 0 Z 4 BoundingBox ! Justification ! LabelAlignment 0 WordWrapWidth 0 color 2 p 3 xyz 0 IGOTYOU 0 relN : s ;
+t;s ;0 id 0 Z 4 BoundingBox ! Justification ! LabelAlignment 0 WordWrapWidth 0 color 2 p 3 xyz 0 relN 0 RotationAngle : s ;
 s;;0 color 0 font 0 face 1 size 0 PCTEXTcounter S PCTEXT ;
 colortable;color ;;
 color;;1 r 1 g 1 b ;

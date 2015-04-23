@@ -96,7 +96,7 @@ void glyf_modglyph(int ino,int mode,float iposx,float iposy,int * horzx,int * ho
 		glyphmemory[ino].simple.donecoordinates[ilv1].modx=tl_out_x;
 		glyphmemory[ino].simple.donecoordinates[ilv1].mody=tl_out_y;
 	}
-	(*horzx)+=1200;
+	(*horzx)+=glyphmemory[ino].offsetx;//1200
 	//TODO: add points for underline, only after output is not in glyf memory any longer
 	//also add a square around the letter, depending on mode, to show selection
 }

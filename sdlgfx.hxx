@@ -16,9 +16,10 @@ int gfx_initialized=0;
 float SDL_scrollx=0,SDL_scrolly=0;
 float SDL_zoomx=1,SDL_zoomy=1;
 int SDL_txcursorx=0;int SDL_txcursory=0;
+float SDL_txangle=0;
 int SDL_glyfstartx=0;int SDL_glyfstarty=0;
 int SDL_old_txcursorx=0;int SDL_old_txcursory=0;
-char SDL_text_fallback=0;
+char SDL_text_fallback=1;
 int framenumber=0;
 //_u8 screen[gfx_screensizex*gfx_screensizey*gfx_depth];
 _u32 * screen;
@@ -76,11 +77,21 @@ int gfx_get_colorstringv(int number)
 	SDL_color=number;
 	return 0;
 }
-void gfx_express_txinit(char ialignment,float iposx,float iposy,float iatomfontheight)
+void gfx_express_txinit(char ialignment,float iposx,float iposy,float iatomfontheight,float iangle)
 {
+	SDL_text_fallback=0;
+	SDL_txangle=iangle;
+	if ((SDL_zoomx>1.01) || (SDL_zoomx<0.99))
+	{
+		SDL_text_fallback=0;
+	}
+	if ((iangle>0.01) || (iangle<-0.01))
+	{
+		SDL_text_fallback=1;
+	}
 	if (SDL_text_fallback)
 	{
-		SDL_txcursorx=0;SDL_txcursory=0;
+		SDL_txcursorx=-500;SDL_txcursory=666.666666;
 		SDL_glyfstartx=iposx;
 		SDL_glyfstarty=iposy;
 	}
@@ -1069,8 +1080,6 @@ void gfx_printformatted(const char * iinput,const char * parms,int imode,int sta
 	char linebreak;
 	int i_offsy=0;
 	int i_startx=SDL_txcursorx;
-	int i_glyfcursorx=0;
-	int i_glyfcursory=0;
 	thatwasatemporaryskip:
 	linebreak=0;
 	_i32 backcount=0;
@@ -1106,7 +1115,7 @@ void gfx_printformatted(const char * iinput,const char * parms,int imode,int sta
 		{
 			SDL_linestyle=2;
 			int ino=utf8resolve((unsigned char*)iinput + ilv4,&backcount);
-			gfx_drawglyph(indexfromunicode(ino)/*TODO: new text routine*/,SDL_glyfstartx,SDL_glyfstarty,&SDL_txcursorx,&SDL_txcursory,0,0.006);
+			gfx_drawglyph(ino,SDL_glyfstartx,SDL_glyfstarty,&SDL_txcursorx,&SDL_txcursory,SDL_txangle,0.006);
 		}
 		SDL_txcursory-=i_offsy;
 	}

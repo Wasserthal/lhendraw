@@ -580,6 +580,10 @@ _u32 upfrom(int input)
 char arbitrarycursorstring[4]="\uE000";
 int control_aggresstextcursor(const char * cursorname="\uE000")//searches the text cursor and places telescope_tempvar on it. must return 1 if present, and 0 if no cursor present
 {
+	if ((control_mousestate & 0x40)==0)
+	{
+		return 0;
+	}
 	if (cursorname==NULL)
 	{
 		cursorname=arbitrarycursorstring;
@@ -1094,18 +1098,27 @@ int issueclick(int iposx,int iposy)
 					{
 						if ((*glob_t_multilist)[ilv1].exist)
 						{
-							control_textedit_type=STRUCTURE_OBJECTTYPE_t;
-							control_textedit_index=ilv1;
-							control_textedit_selectmode=0;
-							int tl_distance=-1;
-							if (edit_textlength(glob_t_multilist,ilv1,control_coorsx,control_coorsy,&tl_distance)<=0)
+							if (control_lastmousebutton==SDL_BUTTON_LEFT)
 							{
-								TELESCOPE_aggressobject(glob_t_multilist,ilv1);
-								tl_backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_s);
-								if (tl_backval==0) {control_mousestate=0;return 0;}
+								control_textedit_type=STRUCTURE_OBJECTTYPE_t;
+								control_textedit_index=ilv1;
+								control_textedit_selectmode=0;
+								int tl_distance=-1;
+								if (edit_textlength(glob_t_multilist,ilv1,control_coorsx,control_coorsy,&tl_distance)<=0)
+								{
+									TELESCOPE_aggressobject(glob_t_multilist,ilv1);
+									tl_backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_s);
+									if (tl_backval==0) {control_mousestate=0;return 0;}
+								}
+								TELESCOPE_insertintoproperties_offset((char*)"\uE000",3,tl_distance);
+								control_mousestate=0x40;return 0;
 							}
-							TELESCOPE_insertintoproperties_offset((char*)"\uE000",3,tl_distance);
-							control_mousestate=0x40;return 0;
+							if (control_lastmousebutton==SDL_BUTTON_RIGHT)
+							{
+								control_startx=control_coorsx;
+								control_manipulatedinstance=&((*glob_t_multilist)[ilv1]);
+								goto ifertig;
+							}
 						}
 					}
 				}
@@ -1488,6 +1501,12 @@ void issuedrag(int iposx,int iposy)
 		{
 			selection_frame.endx=control_coorsx;
 			selection_frame.endy=control_coorsy;
+			break;
+		}
+		case 11:
+		{
+			(*(t_instance*)control_manipulatedinstance).RotationAngle+=(control_coorsx-control_startx)/180*Pi;
+			control_startx=control_coorsx;
 			break;
 		}
 		case 7:

@@ -208,7 +208,7 @@ void svg_printformatted(const char * iinput,const char * parms,int imode,int sta
 	}
 	if (linebreak) {svg_outstring("<tspan dy=\"%f\" x=\"0\">&#8202;</tspan>",20.0/18.0*currentsetfontsize);if (ilv4<end) goto thatwasatemporaryskip;}//a line break;
 }
-void svg_express_txinit(char ialignment,float iposx,float iposy,float iatomfontheight)
+void svg_express_txinit(char ialignment,float iposx,float iposy,float iatomfontheight,float angle)
 {
 	svg_text_buffer_count=0;
 	svg_text_buffer[0]=0;

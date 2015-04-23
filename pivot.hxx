@@ -35,7 +35,7 @@ void get_selection_pivot()
 	}
 	for (int ilv1=2;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
 	{
-		internalpointcount=retrieveprops_basic(-1,ilv1);
+		internalpointcount=retrieveprops_basic(1,ilv1);
 		icompare=1<<ilv1;
 		int isize= STRUCTURE_OBJECTTYPE_List[ilv1].size;
 		basicmultilist * tlmultilist=findmultilist(STRUCTURE_OBJECTTYPE_List[ilv1].name);
@@ -47,11 +47,11 @@ void get_selection_pivot()
 			if ((*((basic_instance*)(ibufferpos+isize*ilv2))).exist)
 			{
 				iAllofthem=((selection_currentselection[ilv2]) & icompare)>0;
-				for (int ilv3=-1;retrievepoints_basic(((basic_instance*)(ibufferpos+isize*ilv2)),&tl_x,&tl_y,&tl_z,ilv3,ilv1)>0;ilv3--)
+				for (int ilv3=1-(internalpointcount==0)*1;retrievepoints_basic(((basic_instance*)(ibufferpos+isize*ilv2)),&tl_x,&tl_y,&tl_z,ilv3,ilv1)>0;ilv3++)
 				{
-					if (ilv3<=-3) continue;//HACK: this is a hack because some components are undefined
-					if ((selection_currentselection[ilv2*internalpointcount-ilv3+1] & (1<<(STRUCTURE_OBJECTTYPE_ListSize+ilv1))) || (iAllofthem))
+					if ((selection_currentselection[ilv2*internalpointcount+ilv3-1] & (1<<(STRUCTURE_OBJECTTYPE_ListSize+ilv1))) || (iAllofthem))
 					{
+						printf("%i\n",internalpointcount);
 						edit_pivot.x+=tl_x;
 						edit_pivot.y+=tl_y;
 						edit_pivot.z+=tl_z;
@@ -83,7 +83,7 @@ void applytransform(float matrix[3][3])
 	char * ibufferpos;
 	_u32 icompare;
 	cdx_Point3D xyz;
-	int internalpointcount;
+	int internalpointcount,manipulationpointcount;
 	char iAllofthem=0;
 	for (int ilv1=0;ilv1<(*glob_n_multilist).filllevel;ilv1++)
 	{
@@ -104,6 +104,7 @@ void applytransform(float matrix[3][3])
 	for (int ilv1=2;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
 	{
 		internalpointcount=retrieveprops_basic(-1,ilv1);
+		manipulationpointcount=retrieveprops_basic(1,ilv1);
 		icompare=1<<ilv1;
 		int isize= STRUCTURE_OBJECTTYPE_List[ilv1].size;
 		basicmultilist * tlmultilist=findmultilist(STRUCTURE_OBJECTTYPE_List[ilv1].name);
@@ -115,9 +116,9 @@ void applytransform(float matrix[3][3])
 			if ((*((basic_instance*)(ibufferpos+isize*ilv2))).exist)
 			{
 				iAllofthem=((selection_currentselection[ilv2]) & icompare);
-				for (int ilv3=-1;retrievepoints_basic(((basic_instance*)(ibufferpos+isize*ilv2)),&tl_x,&tl_y,&tl_z,ilv3,ilv1)>0;ilv3--)
+				if ((iAllofthem))
 				{
-					if ((selection_currentselection[ilv2*internalpointcount+ilv3-1] & (1<<(STRUCTURE_OBJECTTYPE_ListSize+ilv1))) || (iAllofthem))
+					for (int ilv3=-1+(internalpointcount==0)*1;retrievepoints_basic(((basic_instance*)(ibufferpos+isize*ilv2)),&tl_x,&tl_y,&tl_z,ilv3,ilv1)>0;ilv3--)
 					{
 						xyz.x=tl_x-edit_pivot.x;
 						xyz.y=tl_y-edit_pivot.y;
@@ -126,6 +127,22 @@ void applytransform(float matrix[3][3])
 						tl_y=xyz.x*matrix[0][1]+xyz.y*matrix[1][1]+xyz.z*matrix[2][1]+edit_pivot.y;
 						tl_z=xyz.x*matrix[0][2]+xyz.y*matrix[1][2]+xyz.z*matrix[2][2]+edit_pivot.z;
 						placepoints_basic(((basic_instance*)(ibufferpos+isize*ilv2)),tl_x,tl_y,tl_z,ilv3,ilv1);
+					}
+				}
+				else
+				{
+					for (int ilv3=1;retrievepoints_basic(((basic_instance*)(ibufferpos+isize*ilv2)),&tl_x,&tl_y,&tl_z,ilv3,ilv1)>0;ilv3++)
+					{
+						if ((selection_currentselection[ilv2*manipulationpointcount+ilv3-1] & (1<<(STRUCTURE_OBJECTTYPE_ListSize+ilv1))))
+						{
+							xyz.x=tl_x-edit_pivot.x;
+							xyz.y=tl_y-edit_pivot.y;
+							xyz.z=tl_z-edit_pivot.z;
+							tl_x=xyz.x*matrix[0][0]+xyz.y*matrix[1][0]+xyz.z*matrix[2][0]+edit_pivot.x;
+							tl_y=xyz.x*matrix[0][1]+xyz.y*matrix[1][1]+xyz.z*matrix[2][1]+edit_pivot.y;
+							tl_z=xyz.x*matrix[0][2]+xyz.y*matrix[1][2]+xyz.z*matrix[2][2]+edit_pivot.z;
+							placepoints_basic(((basic_instance*)(ibufferpos+isize*ilv2)),tl_x,tl_y,tl_z,ilv3,ilv1);
+						}
 					}
 				}
 			}

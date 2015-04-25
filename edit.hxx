@@ -24,7 +24,8 @@
 		LOCALMACRO_1(b)\
 		LOCALMACRO_1(graphic)\
 		LOCALMACRO_1(arrow)\
-		LOCALMACRO_1(t)
+		LOCALMACRO_1(t)\
+		LOCALMACRO_1(curve)
 extern char control_filename[512];
 struct drawproperties_
 {
@@ -546,6 +547,14 @@ inline int retrieveprops_t(int what)
 {
 	return 0;
 }
+inline int retrieveprops_curve(int what)
+{
+	if (what==1)
+	{
+		return -1;
+	}
+	return 0;
+}
 //ANY retrievepoints on an object with a negative prop count must keep it's telescope-element set to read the corresponding item
 inline int retrievepoints(n_instance * iinstance,float * ix,float * iy,float * iz,int inumber,basicmultilist * imultilist=NULL)
 {
@@ -718,6 +727,20 @@ inline int retrievepoints(t_instance * iinstance,float * ix,float * iy,float * i
 	(*iz)=iinstance->xyz.z;
 	return 1;
 }
+inline int retrievepoints(curve_instance * iinstance,float * ix,float * iy,float * iz,int inumber,basicmultilist * imultilist=NULL)
+{
+	if (inumber>=0)
+	{
+		if (inumber<iinstance->CurvePoints.count)
+		{
+			(*ix)=iinstance->CurvePoints.a[inumber].x;
+			(*iy)=iinstance->CurvePoints.a[inumber].y;
+//			(*iz)=iinstance->CurvePoints.a[inumber].z;//TODO
+			return 1;
+		}
+	}
+	return 0;
+}
 int hit(n_instance * iinstance,float ix,float iy,int ino)
 {
 	float idistance;
@@ -839,6 +862,22 @@ int hit(t_instance * iinstance,float ix,float iy, int ino)
 		return 1;
 	}
 	return 0;
+}
+int hit(curve_instance * iinstance,float ix,float iy, int ino)
+{
+	float tl_x,tl_y,tl_z;
+	if (retrievepoints(iinstance,&tl_x,&tl_y,&tl_z,ino)>0)
+	{
+		if ((sqr(ix-tl_x)+sqr(iy-tl_y))<glob_clickradius)
+		{
+			return 1;
+		}
+		else
+		{
+			return 0;
+		}
+	}
+	return -1;
 }
 inline int placepoints(n_instance * iinstance,float ix,float iy,float iz,int inumber,basicmultilist * imultilist=NULL)
 {
@@ -1094,6 +1133,20 @@ inline int placepoints(t_instance * iinstance,float ix,float iy,float iz,int inu
 	}
 	return 0;
 }
+inline int placepoints(curve_instance * iinstance,float ix,float iy,float iz,int inumber,basicmultilist * imultilist=NULL)
+{
+	char all=0;
+	if (inumber>0)
+	{
+		if (inumber<iinstance->CurvePoints.count)
+		{
+			iinstance->CurvePoints.a[inumber].x=ix;
+			iinstance->CurvePoints.a[inumber].y=iy;
+			return 1;
+		}
+	}
+	return 0;
+}
 #define LOCALMACRO_1(whatabout) case STRUCTURE_OBJECTTYPE_ ## whatabout: return retrieveprops_ ## whatabout(what);break;
 int retrieveprops_basic(int what,int objecttype)
 {
@@ -1268,6 +1321,7 @@ basic_instance * getclicked(int imap,float clckx,float clcky,int * backtype=NULL
 	basic_instance * bestinstance=NULL;
 	float bestvalue=0x2000000000;
 	float thisvalue;
+	int isize;
 	for (int ilv0=1;ilv0<STRUCTURE_OBJECTTYPE_ListSize;ilv0++)
 	{
 		int necessary=((imap & (1<<ilv0))>0)+(((imap & (1<<(ilv0+STRUCTURE_OBJECTTYPE_ListSize)))>0)*2);
@@ -1275,6 +1329,7 @@ basic_instance * getclicked(int imap,float clckx,float clcky,int * backtype=NULL
 		{
 			_u32 compare=1<<ilv0;
 			basicmultilist * tlmultilist=findmultilist(STRUCTURE_OBJECTTYPE_List[ilv0].name);
+			isize=(*tlmultilist).itemsize;
 			int internalpointcount=retrieveprops_basic(1,ilv0);
 			int follower3=0;
 			for (int ilv1=0;ilv1<(*tlmultilist).filllevel;ilv1++)
@@ -1331,7 +1386,7 @@ basic_instance * getclicked(int imap,float clckx,float clcky,int * backtype=NULL
 					}
 					else
 					{
-						TELESCOPE_aggressobject(glob_n_multilist,ilv1);
+						TELESCOPE_aggressobject(tlmultilist,ilv1);
 						int tl_backval;
 						int ilv2=0;
 						tl_backval=retrievepoints_basic(tlinstance,&ix,&iy,&iz,ilv2+1,ilv0);
@@ -1343,7 +1398,7 @@ basic_instance * getclicked(int imap,float clckx,float clcky,int * backtype=NULL
 								thisvalue=fsqr(ix-clckx)+fsqr(iy-clcky);
 								if (thisvalue<bestvalue)
 								{
-									bestinstance=(basic_instance*)(glob_n_multilist->bufferlist()+ilv1);
+									bestinstance=(basic_instance*)(tlmultilist->pointer+isize*ilv1);
 									if (backtype!=NULL)
 									{
 										*backtype=ilv0+STRUCTURE_OBJECTTYPE_ListSize;
@@ -1484,7 +1539,36 @@ t_instance * edit_summontext(int * inr=NULL)
 		tlinstance=new(&((*glob_t_multilist)[tl_nr])) t_instance;
 		(*tlinstance).color=control_drawproperties.color;
 		selection_currentselection[tl_nr]&=(~(1<<STRUCTURE_OBJECTTYPE_t));
+		(*tlinstance).Z=edit_getnewZ();
 		((*glob_t_multilist).filllevel)++;
+		if (inr!=NULL)
+		{
+			*inr=tl_nr;
+		}
+		return tlinstance;
+	}
+	return NULL;
+}
+curve_instance * edit_summoncurve(int * inr=NULL)
+{
+	if ((*glob_curve_multilist).filllevel<bufferlistsize)
+	{
+		int tl_nr=-1;
+		curve_instance * tlinstance;
+		tl_nr=(*glob_curve_multilist).filllevel;
+		tlinstance=new(&((*glob_curve_multilist)[tl_nr])) curve_instance;
+		(*tlinstance).color=control_drawproperties.color;
+		(*tlinstance).CurvePoints.count=0;
+		(*tlinstance).Closed=0;
+		(*tlinstance).ArrowheadHead=0;
+		(*tlinstance).ArrowheadType=0;
+		(*tlinstance).ArrowheadTail=0;
+		(*tlinstance).ArrowShaftSpacing=0;
+		(*tlinstance).FillType=0;
+		(*tlinstance).LineType=0;
+		(*tlinstance).Z=edit_getnewZ();
+		selection_currentselection[tl_nr]&=(~(1<<STRUCTURE_OBJECTTYPE_curve));
+		((*glob_curve_multilist).filllevel)++;
 		if (inr!=NULL)
 		{
 			*inr=tl_nr;

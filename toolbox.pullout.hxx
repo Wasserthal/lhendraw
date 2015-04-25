@@ -125,6 +125,18 @@ menuitem pullout_toolbox[]={
 "","",
 0x00FF00,
 },
+{1,5,
+89,//Picture
+"CURVE",
+1,0,
+12,
+"click on curve point to move point\n"
+"use this tool while a curve is selected to continue curve\n"
+"click on non-curve to start new curve\n",
+"",
+"","",
+0x00FF00,
+},
 {0,6,
 46,//Picture
 "TRACKBALL",

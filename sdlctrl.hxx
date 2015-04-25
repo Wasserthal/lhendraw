@@ -13,7 +13,7 @@ int control_firstmenux,control_firstmenuy;
 int control_lastmenux,control_lastmenuy;
 int control_mousestate=0;//0: inactive; 0x1: from tool, mouseclick; 0x2: from special tool, keyboard 0x4: on menu, dragging 0x8: on button_function dependent menu, popup 0x10 popup-menu or PSE, multiple levels 0x20 dragging menuitem 0x40: text editing
 int control_toolaction=0;//1: move 2: move selection 3: tool specific
-int control_tool=2;//1: Hand 2: 2coordinate Selection 3: Lasso, no matter which 4: Shift tool 5: Magnifying glass 6: Element draw 7: chemdraw draw 8: eraser 9: Arrows 10: attributes 11: text tool 12: bezier 13: image 14: spectrum 15: tlc plate/gel plate 16: graphic 17: aromatic ring tool 18: Arrow_skip 19: Arrow_situp
+int control_tool=2;//1: Hand 2: 2coordinate Selection 3: Lasso, no matter which 4: Shift tool 5: Magnifying glass 6: Element draw 7: chemdraw draw 8: eraser 9: Arrows 10: attributes 11: text tool 12: curve(bezier) 13: image 14: spectrum 15: tlc plate/gel plate 16: graphic 17: aromatic ring tool 18: Arrow_skip 19: Arrow_situp
 int control_menumode=0;//1: shliderhorz, 2: slidervert 3: colorchooser
 AUTOSTRUCT_PULLOUTLISTING_ * control_menuitem=NULL;
 #define control_toolcount 20
@@ -1240,6 +1240,57 @@ int issueclick(int iposx,int iposy)
 						TELESCOPE_insertintoproperties_offset((char*)"\uE000",3,-1);
 						control_mousestate=0x40;return 0;
 					}
+				}
+			}
+			control_mousestate=0;return 0;
+		}
+		case 12:
+		{
+			if (control_lastmousebutton==SDL_BUTTON_RIGHT)
+			{
+				selection_clearselection(selection_currentselection);
+				selection_currentselection_found=0;
+				control_mousestate=0;return 0;
+			}
+			if (selection_clickselection_found & (1<<(STRUCTURE_OBJECTTYPE_curve+STRUCTURE_OBJECTTYPE_ListSize)))
+			{
+				curve_instance * tl_curve_instance=(curve_instance*)getclicked(1<<(STRUCTURE_OBJECTTYPE_curve+STRUCTURE_OBJECTTYPE_ListSize),control_coorsx,control_coorsy);
+				if (tl_curve_instance!=NULL)
+				{
+					selection_clearselection(selection_currentselection);
+					selection_currentselection_found=0;
+					int inumber=tl_curve_instance-(*glob_curve_multilist).bufferlist();
+					printf("FOUND:%i\n",inumber);
+					selection_currentselection[inumber]|=1<<STRUCTURE_OBJECTTYPE_curve;
+					selection_currentselection_found|=1<<STRUCTURE_OBJECTTYPE_curve;
+				}
+			}
+			else
+			{
+				if (selection_currentselection_found & (1<<(STRUCTURE_OBJECTTYPE_curve)))
+				{
+					selection_copyselection(selection_clickselection,selection_currentselection);
+					selection_clickselection_found=selection_currentselection_found;
+					curve_instance * tl_curve_instance=(curve_instance*)getclicked(1<<STRUCTURE_OBJECTTYPE_curve,control_coorsx,control_coorsy);
+					if (tl_curve_instance!=NULL)
+					{
+						(*tl_curve_instance).CurvePoints.a[(*tl_curve_instance).CurvePoints.count].x=control_coorsx;
+						(*tl_curve_instance).CurvePoints.a[(*tl_curve_instance).CurvePoints.count].y=control_coorsy;
+						(*tl_curve_instance).CurvePoints.count++;
+					}
+				}
+				else
+				{
+					int tl_curveno=0;
+					curve_instance * tl_curve_instance=edit_summoncurve(&tl_curveno);
+					(*tl_curve_instance).CurvePoints.a[0].x=control_coorsx;
+					(*tl_curve_instance).CurvePoints.a[0].y=control_coorsy;
+					(*tl_curve_instance).CurvePoints.a[1].x=control_coorsx;
+					(*tl_curve_instance).CurvePoints.a[1].y=control_coorsy;
+					(*tl_curve_instance).CurvePoints.count=2;
+					selection_clearselection(selection_currentselection);
+					selection_currentselection[tl_curveno]|=1<<STRUCTURE_OBJECTTYPE_curve;
+					selection_currentselection_found|=1<<STRUCTURE_OBJECTTYPE_curve;
 				}
 			}
 			control_mousestate=0;return 0;

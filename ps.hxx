@@ -12,6 +12,7 @@ void ps_express_txinit(char ialignment,float iposx,float iposy,float iatomfonthe
 	ps_txposx=iposx-4;
 	ps_txposy=SVG_height-iposy-4;
 	ps_fontsize=iatomfontheight;
+	SDL_text_fallback=1;
 	fprintf(outfile,"\nnewpath\n %f %f moveto\n0 0\n",ps_txposx,ps_txposy);
 }
 void ps_expressarc(float centerx,float centery,float radiusx,float radiusy,float startangle,float endangle)
@@ -50,11 +51,11 @@ int ps_get_colorstringv(int number)
 }
 void ps_printformatted(const char * iinput,const char * parms,int imode,int start,int end)
 {
-	if (imode==1)
+	if (imode==0x20)
 	{
 		fprintf(outfile,"0 -6 rmoveto\n");
 	}
-	if (imode==4)
+	if (imode==0x40)
 	{
 		fprintf(outfile,"0 6 rmoveto\n");
 	}
@@ -77,11 +78,11 @@ void ps_printformatted(const char * iinput,const char * parms,int imode,int star
 		ifertig:;
 	}
 	fprintf(outfile,") dup show stringwidth pop add 0\n");
-	if (imode==1)
+	if (imode==0x20)
 	{
 		fprintf(outfile,"0 6 rmoveto\n");
 	}
-	if (imode==4)
+	if (imode==0x40)
 	{
 		fprintf(outfile,"0 -6 rmoveto\n");
 	}

@@ -27,7 +27,15 @@ inline void MACRO_DRAWPREFIX(get_colorstring_passive)(int number)
 	}
 }
 
-
+inline int MACRO_DRAWPREFIX(formatfromifsmat)(int inifsmat)
+{
+	switch (inifsmat)
+	{
+		case 1: return 0x20;
+		case 4: return 0x40;
+	}
+	return 0;
+}
 
 
 
@@ -85,9 +93,24 @@ void MACRO_DRAWPREFIX(expresshexangle)(float ifx1,float ify1,float ifx2,float if
 	LHENDRAW_inficorn[5].y=ify6;
 	MACRO_DRAWPREFIX(expressinfinityangle)(6);
 }
-void MACRO_DRAWPREFIX(drawglyph)(int unicode,int ideltax,int ideltay,int * i_txcursorx,int * i_txcursory,float angle,float size)
+void MACRO_DRAWPREFIX(drawglyph)(int unicode,int imode,int ideltax,int ideltay,int * i_txcursorx,int * i_txcursory,float angle,float size)
 {
 	int ino=0;
+	if (unicode==32) {(*i_txcursorx)+=1230;return;}
+	if (unicode==10) {(*i_txcursorx)=0;(*i_txcursory)+=2667;return;}
+	if ((unicode==0xE000) || (unicode==0xE001))
+	{
+		int dummy_txcursorx=(*i_txcursorx)-615;
+		if (gfx_txselectmode & 1)
+		{
+			gfx_txselectmode^=2;
+		}
+		else
+		{
+			MACRO_DRAWPREFIX(drawglyph)('|',imode,ideltax,ideltay,&dummy_txcursorx,i_txcursory,angle,size);
+		}
+		return;
+	}
 	for (int ilv1=0;ilv1<glyphmemory_max;ilv1++)
 	{
 		if (glyphmemory[ilv1].unicode==unicode)
@@ -107,60 +130,77 @@ void MACRO_DRAWPREFIX(drawglyph)(int unicode,int ideltax,int ideltay,int * i_txc
 				deltax+=glyphmemory[ino].composite.unit[ilv2].arg1;
 				deltay+=glyphmemory[ino].composite.unit[ilv2].arg2;
 			}
-			MACRO_DRAWPREFIX(drawglyph)(glyphmemory[ino].composite.unit[ilv2].index-3,deltax,deltay,i_txcursorx,i_txcursory,angle,size);
+			MACRO_DRAWPREFIX(drawglyph)(glyphmemory[ino].composite.unit[ilv2].index-3,imode,deltax,deltay,i_txcursorx,i_txcursory,angle,size);
 		}
 	}
-	glyf_modglyph(ino,0,ideltax,ideltay,i_txcursorx,i_txcursory,size*cos(angle),size*sin(angle),-size*sin(angle),size*cos(angle));
-	if (MACRO_DRAWPREFIX(expressgeometry_start)(-100000,-10000,10000000,1000000))//TODO
+	int tl_left,tl_right,tl_top,tl_bottom;
+	glyf_modglyph(ino,imode|0x80*((gfx_txselectmode&2)>>1),ideltax,ideltay,i_txcursorx,i_txcursory,size*cos(angle),size*sin(angle),-size*sin(angle),size*cos(angle),&tl_left,&tl_right,&tl_top,&tl_bottom);
+	if (MACRO_DRAWPREFIX(expressgeometry_start)(tl_left-1,tl_top-1,tl_right+1,tl_bottom+1))
 	{
-		MACRO_DRAWPREFIX(expressgeometry_begin)(glyphmemory[ino].simple.donecoordinates[0].modx,glyphmemory[ino].simple.donecoordinates[0].mody);
-		for (int ilv2=1;ilv2<glyphmemory[ino].maxcount;ilv2++)
+		MACRO_DRAWPREFIX(expressgeometry_begin)(glyf_processed[0].x,glyf_processed[0].y);
+		for (int ilv2=1;ilv2<glyf_processedcount;ilv2++)
 		{
 /*			if (ilv2==38)
 			{
 				SDL_color=0xFF00;
-				MACRO_DRAWPREFIX(expressellipse)(glyphmemory[ino].simple.donecoordinates[ilv2].modx,glyphmemory[ino].simple.donecoordinates[ilv2].mody,35,35);
+				MACRO_DRAWPREFIX(expressellipse)(glyf_processed[ilv2].x,glyf_processed[ilv2].y,35,35);
 				SDL_color=0x00;
 			}*/
 			char tl_postincrement=0;
-			if ((glyphmemory[ino].simple.donecoordinates[ilv2].flags & 1)==0)
+			if ((glyf_processed[ilv2].flags & 1)==0)
 			{
-				MACRO_DRAWPREFIX(expressgeometry_line)(glyphmemory[ino].simple.donecoordinates[ilv2].modx,glyphmemory[ino].simple.donecoordinates[ilv2].mody);
+				MACRO_DRAWPREFIX(expressgeometry_line)(glyf_processed[ilv2].x,glyf_processed[ilv2].y);
 			}
 			else
 			{
 				float nextx,nexty;
-				if ((glyphmemory[ino].simple.donecoordinates[ilv2].flags & 2)==0)
+				if ((glyf_processed[ilv2].flags & 2)==0)
 				{
-					if ((glyphmemory[ino].simple.donecoordinates[ilv2+1].flags & 1)==0)
+					if ((glyf_processed[ilv2+1].flags & 1)==0)
 					{
-						nextx=glyphmemory[ino].simple.donecoordinates[ilv2+1].modx;
-						nexty=glyphmemory[ino].simple.donecoordinates[ilv2+1].mody;
+						nextx=glyf_processed[ilv2+1].x;
+						nexty=glyf_processed[ilv2+1].y;
 						tl_postincrement=1;
 					}
 					else
 					{
-						nextx=(glyphmemory[ino].simple.donecoordinates[ilv2].modx+glyphmemory[ino].simple.donecoordinates[ilv2+1].modx)*0.5;
-						nexty=(glyphmemory[ino].simple.donecoordinates[ilv2].mody+glyphmemory[ino].simple.donecoordinates[ilv2+1].mody)*0.5;
+						nextx=(glyf_processed[ilv2].x+glyf_processed[ilv2+1].x)*0.5;
+						nexty=(glyf_processed[ilv2].y+glyf_processed[ilv2+1].y)*0.5;
 					}
 				}
 				else
 				{
-					MACRO_DRAWPREFIX(expressgeometry_bezier2)(glyphmemory[ino].simple.donecoordinates[ilv2].modx,glyphmemory[ino].simple.donecoordinates[ilv2].mody,gfx_geometry.startx,gfx_geometry.starty);
+					MACRO_DRAWPREFIX(expressgeometry_bezier2)(glyf_processed[ilv2].x,glyf_processed[ilv2].y,gfx_geometry.startx,gfx_geometry.starty);
 					goto icircle;
 				}
-				MACRO_DRAWPREFIX(expressgeometry_bezier2)(glyphmemory[ino].simple.donecoordinates[ilv2].modx,glyphmemory[ino].simple.donecoordinates[ilv2].mody,nextx,nexty);
+				MACRO_DRAWPREFIX(expressgeometry_bezier2)(glyf_processed[ilv2].x,glyf_processed[ilv2].y,nextx,nexty);
 				if (tl_postincrement) ilv2++;
 			}
-			if (glyphmemory[ino].simple.donecoordinates[ilv2].flags & 2)
+			if (glyf_processed[ilv2].flags & 2)
 			{
 				MACRO_DRAWPREFIX(expressgeometry_backline)();
 				icircle:;
 				ilv2++;
-				MACRO_DRAWPREFIX(expressgeometry_begin)(glyphmemory[ino].simple.donecoordinates[ilv2].modx,glyphmemory[ino].simple.donecoordinates[ilv2].mody);
+				MACRO_DRAWPREFIX(expressgeometry_begin)(glyf_processed[ilv2].x,glyf_processed[ilv2].y);
 			}
 		}
 		MACRO_DRAWPREFIX(expressgeometry_end)();
+	}
+}
+void MACRO_DRAWPREFIX(draw_printformatted)(const char * iinput,const char * parms,int imode,int start,int end)
+{
+	if (SDL_text_fallback==0)
+	{
+		MACRO_DRAWPREFIX(printformatted)(iinput,parms,imode,start,end);
+	}
+	else
+	{
+		int backcount=0;
+		for (int ilv4=start;ilv4<end;ilv4+=backcount)
+		{
+			int ino=utf8resolve((unsigned char*)iinput + ilv4,&backcount);
+			gfx_drawglyph(ino,imode,SDL_glyfstartx,SDL_glyfstarty,&SDL_txcursorx,&SDL_txcursory,SDL_txangle,0.006);
+		}
 	}
 }
 
@@ -568,7 +608,7 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,char hatches)
 				{
 					MACRO_DRAWPREFIX(text_rewind)((unsigned char*)istring,strlen(istring));
 				}
-				MACRO_DRAWPREFIX(printformatted)(istring,"",(1*(actual==4)) | (4*(ilv1==5)),0,strlen(istring));
+				MACRO_DRAWPREFIX(draw_printformatted)(istring,"",(0x20*(actual==4)) | (0x40*(ilv1==5)),0,strlen(istring));
 			}
 			MACRO_DRAWPREFIX(express_text_tail)();
 		}
@@ -618,13 +658,6 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,char hatches)
 	}
 	goto svg_main_loop;
 	svg_main_graphic:
-	for (int ilv1=0;ilv1<2;ilv1++)
-	{
-		MACRO_DRAWPREFIX(stylegenestring)(2);
-		int tl_x=ilv1*800;
-		int tl_y=0;
-		MACRO_DRAWPREFIX(drawglyph)(ilv1+66,ilv1*1248,0,&tl_x,&tl_y,0,1);
-	}
 /*	MACRO_DRAWPREFIX(stylegenestring)(2);
 	if(MACRO_DRAWPREFIX(expressgeometry_start)(-10000,-10000,1000000,100000))
 	{
@@ -1271,7 +1304,7 @@ tlposx+tlcos-tlsin,tlposy+tlsin+tlcos,tlposx+2*tlcos-tlsin,tlposy+2*tlsin+tlcos,
 			{
 				if (ifsmat==2)
 				{
-					MACRO_DRAWPREFIX(printformatted)(finalstring,iparms,ifsmat,tlstart,tlend);
+					MACRO_DRAWPREFIX(draw_printformatted)(finalstring,iparms,MACRO_DRAWPREFIX(formatfromifsmat(ifsmat)),tlstart,tlend);
 					tlstart=ilv3;
 					tlend=ilv3+1;
 					ifsmat=1;
@@ -1290,7 +1323,7 @@ tlposx+tlcos-tlsin,tlposy+tlsin+tlcos,tlposx+2*tlcos-tlsin,tlposy+2*tlsin+tlcos,
 					}
 					if (ifsmat==4)
 					{
-						MACRO_DRAWPREFIX(printformatted)(finalstring,iparms,ifsmat,tlstart,tlend);
+						MACRO_DRAWPREFIX(draw_printformatted)(finalstring,iparms,MACRO_DRAWPREFIX(formatfromifsmat(ifsmat)),tlstart,tlend);
 						tlstart=ilv3;
 						tlend=ilv3+1;
 						ifsmat=0;
@@ -1311,7 +1344,7 @@ tlposx+tlcos-tlsin,tlposy+tlsin+tlcos,tlposx+2*tlcos-tlsin,tlposy+2*tlsin+tlcos,
 					}
 					if (ifsmat==1)
 					{
-						MACRO_DRAWPREFIX(printformatted)(finalstring,iparms,ifsmat,tlstart,tlend);
+						MACRO_DRAWPREFIX(draw_printformatted)(finalstring,iparms,MACRO_DRAWPREFIX(formatfromifsmat(ifsmat)),tlstart,tlend);
 						tlstart=ilv3;
 						tlend=ilv3+1;
 						ifsmat=2;
@@ -1324,7 +1357,7 @@ tlposx+tlcos-tlsin,tlposy+tlsin+tlcos,tlposx+2*tlcos-tlsin,tlposy+2*tlsin+tlcos,
 					}
 					if (ifsmat==4)
 					{
-						MACRO_DRAWPREFIX(printformatted)(finalstring,iparms,ifsmat,tlstart,tlend);
+						MACRO_DRAWPREFIX(draw_printformatted)(finalstring,iparms,MACRO_DRAWPREFIX(formatfromifsmat(ifsmat)),tlstart,tlend);
 						tlstart=ilv3;
 						tlend=ilv3+1;
 						ifsmat=2;
@@ -1347,7 +1380,7 @@ tlposx+tlcos-tlsin,tlposy+tlsin+tlcos,tlposx+2*tlcos-tlsin,tlposy+2*tlsin+tlcos,
 						}
 						if (ifsmat==1)
 						{
-							MACRO_DRAWPREFIX(printformatted)(finalstring,iparms,ifsmat,tlstart,tlend);
+							MACRO_DRAWPREFIX(draw_printformatted)(finalstring,iparms,MACRO_DRAWPREFIX(formatfromifsmat(ifsmat)),tlstart,tlend);
 							tlstart=ilv3;
 							tlend=ilv3+1;
 							ifsmat=4;
@@ -1355,7 +1388,7 @@ tlposx+tlcos-tlsin,tlposy+tlsin+tlcos,tlposx+2*tlcos-tlsin,tlposy+2*tlsin+tlcos,
 						}
 						if (ifsmat==2)
 						{
-							MACRO_DRAWPREFIX(printformatted)(finalstring,iparms,ifsmat,tlstart,tlend);
+							MACRO_DRAWPREFIX(draw_printformatted)(finalstring,iparms,MACRO_DRAWPREFIX(formatfromifsmat(ifsmat)),tlstart,tlend);
 							tlstart=ilv3;
 							tlend=ilv3+1;
 							ifsmat=4;
@@ -1374,7 +1407,7 @@ tlposx+tlcos-tlsin,tlposy+tlsin+tlcos,tlposx+2*tlcos-tlsin,tlposy+2*tlsin+tlcos,
 							}
 							if (ifsmat==1)
 							{
-								MACRO_DRAWPREFIX(printformatted)(finalstring,iparms,ifsmat,tlstart,tlend);
+								MACRO_DRAWPREFIX(draw_printformatted)(finalstring,iparms,MACRO_DRAWPREFIX(formatfromifsmat(ifsmat)),tlstart,tlend);
 								tlstart=ilv3;
 								tlend=ilv3+1;
 								ifsmat=0;
@@ -1388,7 +1421,7 @@ tlposx+tlcos-tlsin,tlposy+tlsin+tlcos,tlposx+2*tlcos-tlsin,tlposy+2*tlsin+tlcos,
 							}
 							if (ifsmat==4)
 							{
-								MACRO_DRAWPREFIX(printformatted)(finalstring,iparms,ifsmat,tlstart,tlend);
+								MACRO_DRAWPREFIX(draw_printformatted)(finalstring,iparms,MACRO_DRAWPREFIX(formatfromifsmat(ifsmat)),tlstart,tlend);
 								tlstart=ilv3;
 								tlend=ilv3+1;
 								ifsmat=0;
@@ -1409,7 +1442,7 @@ tlposx+tlcos-tlsin,tlposy+tlsin+tlcos,tlposx+2*tlcos-tlsin,tlposy+2*tlsin+tlcos,
 			trivial:
 			;
 		}
-		MACRO_DRAWPREFIX(printformatted)(finalstring,iparms,ifsmat,tlstart,tlend);
+		MACRO_DRAWPREFIX(draw_printformatted)(finalstring,iparms,MACRO_DRAWPREFIX(formatfromifsmat(ifsmat)),tlstart,tlend);
 	}
 	else
 	{
@@ -1462,7 +1495,7 @@ tlposx+tlcos-tlsin,tlposy+tlsin+tlcos,tlposx+2*tlcos-tlsin,tlposy+2*tlsin+tlcos,
 		/*fprintf(outfile,"<tspan %s style=\"fill:#%s\">%s</tspan>%s\n",
 		(tlformlabeltype & 0x20) ? "dy=\"+3\" font-size=\"14\"" : ((tlformlabeltype & 0x40) ? "dy=\"-3\" font-size=\"14%\"":""),
 		colorstring,finalstring,(tlformlabeltype & 0x20)?"<tspan dy=\"-3\"/>":((tlformlabeltype & 0x40)?"<tspan dy=\"3\"/>":""));*/
-		MACRO_DRAWPREFIX(printformatted)(finalstring,iparms,((tlformlabeltype & 0x20) ? 1 : 0) | ((tlformlabeltype & 0x40) ? 4 : 0),0,strlen(finalstring));
+		MACRO_DRAWPREFIX(draw_printformatted)(finalstring,iparms,tlformlabeltype,0,strlen(finalstring));
 	}
 /*	if (sortback)
 	{

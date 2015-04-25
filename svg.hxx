@@ -157,21 +157,18 @@ void svg_printformatted(const char * iinput,const char * parms,int imode,int sta
 	char linebreak;
 	thatwasatemporaryskip:
 	linebreak=0;
-	if (imode==1)
+	imode&=0x60;
+	if (imode==0x20)
 	{
 		svg_outstring("<tspan dy=\"+%f\" %s font-size=\"%f\" style=\"fill:#%s\">&#8202;",currentsetfontsize/6.0,parms,currentsetfontsize*0.77777,colorstring);
 	}
-	if ((imode==2) || (imode==0))
+	if ((imode==0) || (imode==0x60))
 	{
 		svg_outstring("<tspan %s font-size=\"%f\" style=\"fill:#%s\">",parms,currentsetfontsize,colorstring);
 	}
-	if (imode==4)
+	if (imode==0x40)
 	{
 		svg_outstring("<tspan dy=\"-%f\" %s font-size=\"%f\" style=\"fill:#%s\">&#8202;",currentsetfontsize/6.0,parms,currentsetfontsize*0.77777,colorstring);
-	}
-	if ((imode>4) || (imode<0) || (imode==3))
-	{
-		fprintf(stderr,"Programming error! Format string unknown!\n");exit(1);
 	}
 	for (;ilv4<end;ilv4++)
 	{
@@ -197,11 +194,11 @@ void svg_printformatted(const char * iinput,const char * parms,int imode,int sta
 	svg_outstring("</tspan>");
 	if (ilv4>=end)
 	{
-		if (imode==1)
+		if (imode==0x20)
 		{
 			svg_outstring("<tspan %s dy=\"-%f\">&#8202;</tspan>",parms,currentsetfontsize/6.0);
 		}
-		if (imode==4)
+		if (imode==0x40)
 		{
 			svg_outstring("<tspan %s dy=\"%f\">&#8202;</tspan>",parms,currentsetfontsize/6.0);
 		}

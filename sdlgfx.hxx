@@ -1073,13 +1073,11 @@ void text_print_bitmap(int * posx,int * posy,fontpixinf_ * ifontpixinf)
 		icanvas+=icanvasskip;
 	}
 }
-void gfx_drawglyph(int ino,int ideltax,int ideltay,int * i_txcursorx,int * i_txcursory,float angle,float size);
 void gfx_printformatted(const char * iinput,const char * parms,int imode,int start,int end)
 {
 	int ilv4=start;
 	char linebreak;
 	int i_offsy=0;
-	int i_startx=SDL_txcursorx;
 	thatwasatemporaryskip:
 	linebreak=0;
 	_i32 backcount=0;
@@ -1104,19 +1102,10 @@ void gfx_printformatted(const char * iinput,const char * parms,int imode,int sta
 			linebreak=1;
 			goto skipfornow;
 		}
-		if (imode & 1) {i_offsy=4;}
-		if (imode & 4) {i_offsy=-4;}
+		if (imode & 0x20) {i_offsy=4;}
+		if (imode & 0x40) {i_offsy=-4;}
 		SDL_txcursory+=i_offsy;
-		if (SDL_text_fallback==0)
-		{
-			text_print_bitmap(&SDL_txcursorx,&SDL_txcursory,&fontpixinf[indexfromunicode(utf8resolve((unsigned char*)iinput + ilv4,&backcount))]);
-		}
-		else
-		{
-			SDL_linestyle=2;
-			int ino=utf8resolve((unsigned char*)iinput + ilv4,&backcount);
-			gfx_drawglyph(ino,SDL_glyfstartx,SDL_glyfstarty,&SDL_txcursorx,&SDL_txcursory,SDL_txangle,0.006);
-		}
+		text_print_bitmap(&SDL_txcursorx,&SDL_txcursory,&fontpixinf[indexfromunicode(utf8resolve((unsigned char*)iinput + ilv4,&backcount))]);
 		SDL_txcursory-=i_offsy;
 	}
 	skipfornow:

@@ -69,8 +69,18 @@ instructionLength:%i\
 glyf_ * glyphmemory;
 int glyphmemory_count;
 int glyphmemory_max;
+struct glyf_processedpoint
+{
+	float x,y;
+	int flags;
+};
+glyf_processedpoint glyf_processed[65536];
+int glyf_processedcount;
 void glyf_modglyph(int ino,int mode,float iposx,float iposy,int * horzx,int * horzy,float xx,float yx,float xy,float yy,int * xmin=NULL,int * xmax=NULL,int * ymin=NULL,int * ymax=NULL)
 {
+	int ilv1;
+	float shear=0;
+	glyf_processedcount=0;
 	if (ymax!=NULL)
 	{
 		(*xmin)=2147483647;
@@ -79,11 +89,18 @@ void glyf_modglyph(int ino,int mode,float iposx,float iposy,int * horzx,int * ho
 		(*ymax)=-2147483648;
 	}
 	if (glyphmemory[ino].units<=0) return;
-	for (int ilv1=0;ilv1<glyphmemory[ino].maxcount;ilv1++)
+	SDL_linestyle=((mode & 8)!=0)?0:2;
+	if (mode & 2)
 	{
-		float tl_in_x,tl_in_y,tl_out_x,tl_out_y;
-		tl_in_x=glyphmemory[ino].simple.donecoordinates[ilv1].x;
+		shear=0.5;
+	}
+	float tl_in_x,tl_in_y,tl_out_x,tl_out_y,tl_in_flags;
+	for (ilv1=0;ilv1<glyphmemory[ino].maxcount;ilv1++)
+	{
+		tl_in_x=glyphmemory[ino].simple.donecoordinates[ilv1].x+shear*glyphmemory[ino].simple.donecoordinates[ilv1].y;
 		tl_in_y=glyphmemory[ino].simple.donecoordinates[ilv1].y;
+		tl_in_flags=glyphmemory[ino].simple.donecoordinates[ilv1].flags;
+		iagain:;
 		tl_out_x=(tl_in_x+(*horzx))*xx+(tl_in_y+(*horzy))*xy+iposx;
 		tl_out_y=(tl_in_x+(*horzx))*yx+(tl_in_y+(*horzy))*yy+iposy;
 		if (ymax!=NULL)
@@ -93,12 +110,47 @@ void glyf_modglyph(int ino,int mode,float iposx,float iposy,int * horzx,int * ho
 			if (tl_out_x>(*xmax)) (*xmax)=tl_out_x;	
 			if (tl_out_y>(*ymax)) (*ymax)=tl_out_y;	
 		}
-		glyphmemory[ino].simple.donecoordinates[ilv1].modx=tl_out_x;
-		glyphmemory[ino].simple.donecoordinates[ilv1].mody=tl_out_y;
+		glyf_processed[ilv1].x=tl_out_x;
+		glyf_processed[ilv1].y=tl_out_y;
+		glyf_processed[ilv1].flags=tl_in_flags;
 	}
+	if (mode & 0x80)
+	{
+		int ilv2=ilv1-glyphmemory[ino].maxcount;
+		if (ilv2<4)
+		{
+			tl_in_flags=0;
+			switch (ilv2)
+			{
+				case 0: tl_in_x=0;tl_in_y=400;break;
+				case 1: tl_in_x=1200;tl_in_y=400;break;
+				case 2: tl_in_x=1200;tl_in_y=-2000;break;
+				case 3: tl_in_x=0;tl_in_y=-2000;tl_in_flags=2;break;
+			}
+			goto iagain;
+		}
+	}
+	else
+	{
+		if (mode & 0x4)
+		{
+			int ilv2=ilv1-glyphmemory[ino].maxcount;
+			if (ilv2<4)
+			{
+				tl_in_flags=0;
+				switch (ilv2)
+				{
+					case 0: tl_in_x=0;tl_in_y=400;break;
+					case 1: tl_in_x=1200;tl_in_y=400;break;
+					case 2: tl_in_x=1200;tl_in_y=200;break;
+					case 3: tl_in_x=0;tl_in_y=200;tl_in_flags=2;break;
+				}
+				goto iagain;
+			}
+		}
+	}
+	glyf_processedcount=ilv1;
 	(*horzx)+=glyphmemory[ino].offsetx;//1200
-	//TODO: add points for underline, only after output is not in glyf memory any longer
-	//also add a square around the letter, depending on mode, to show selection
 }
 void do_inglyph(glyf_ * inglyph,FILE * infile)
 {
@@ -111,7 +163,6 @@ void do_inglyph(glyf_ * inglyph,FILE * infile)
 	fread(&((*inglyph).offsetx),2,1,infile);
 	fread(&((*inglyph).offsety),2,1,infile);
 	fread(&((*inglyph).units),2,1,infile);
-	printf(">!!%i!!<",(*inglyph).units);
 	if ((*inglyph).units==-1)
 	{
 		fread(&((*inglyph).composite.count),2,1,infile);
@@ -131,8 +182,6 @@ void do_inglyph(glyf_ * inglyph,FILE * infile)
 	int ibasecount=0;
 	int lastoff=0;
 	debug_expectedbytes+=bytes;
-	printf("bytes:%i\n",bytes);
-	printf("!%i!\n",(*inglyph).maxcount);
 	if ((*inglyph).maxcount>300) {printf("SLEEP!\n");sleep(10);exit(0);}
 	_i16 forelastx=0;
 	_i16 forelasty=0;
@@ -143,7 +192,6 @@ void do_inglyph(glyf_ * inglyph,FILE * infile)
 		_u8 ihv0;
 		fread(&ihv0,1,1,infile);
 		(*inglyph).simple.donecoordinates[ilv2].flags=(ihv0>>4);
-		printf("___%08hhx:%i:%i\n",ihv0,ilv2,(*inglyph).maxcount);
 		for (int ilv1=0;ilv1<2;ilv1++)
 		{
 			_i16 * target=(ilv1)?(&((*inglyph).simple.donecoordinates[ilv2].y)):&(((*inglyph).simple.donecoordinates[ilv2].x));

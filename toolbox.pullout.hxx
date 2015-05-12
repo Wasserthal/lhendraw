@@ -126,7 +126,7 @@ menuitem pullout_toolbox[]={
 0x00FF00,
 },
 {1,5,
-89,//Picture
+76,//Picture
 "CURVE",
 1,0,
 12,

@@ -41,11 +41,12 @@ struct drawproperties_
 	int ARROW_subtool;//0:draw 1: Skip 2: Situp
 	int CHARGE_subtool;//0:Substitute charges 1: del 2: draw plainly
 	int SELECTION_subtool;//0:Rectangular 1: round
+	int CURVE_subtool;//0: putpoints 1: handles 2: pencil
 };
 structenum * searchreflectedstruct(const char * input);
 void applytransform_single(float matrix[3][3],cdx_Point3D * input,cdx_Point3D * output,cdx_Point3D * pivot);
 _small edit_current5bondcarbon=0;
-drawproperties_ control_drawproperties={1,0,4,0,constants_Element_implicitcarbon,6,1,0,0,0};
+drawproperties_ control_drawproperties={1,0,4,0,constants_Element_implicitcarbon,6,1,0,0,0,0,0,1};
 int control_hotatom=-1;
 //Copies a set of atoms and bonds from one buffer to another. Can take atoms from ANY other buffer
 char * undo_retrievebuffer(intl start,intl list);
@@ -553,6 +554,10 @@ inline int retrieveprops_curve(int what)
 	{
 		return -1;
 	}
+	if (what==-1)
+	{
+		return -1;
+	}
 	return 0;
 }
 //ANY retrievepoints on an object with a negative prop count must keep it's telescope-element set to read the corresponding item
@@ -729,6 +734,28 @@ inline int retrievepoints(t_instance * iinstance,float * ix,float * iy,float * i
 }
 inline int retrievepoints(curve_instance * iinstance,float * ix,float * iy,float * iz,int inumber,basicmultilist * imultilist=NULL)
 {
+			(*iz)=0;//TODO:3D remove this
+	if (inumber==0)
+	{
+		float sumx,sumy,sumz;
+		sumx=0;
+		sumy=0;
+		sumz=0;
+		for (int ilv1=1;ilv1<iinstance->CurvePoints.count;ilv1++)
+		{
+			sumx+=iinstance->CurvePoints.a[ilv1].x;
+			sumy+=iinstance->CurvePoints.a[ilv1].y;
+			//TODO:3D sumz+=iinstance->CurvePoints.a[ilv1].z;
+		}
+		if (iinstance->CurvePoints.count>1)
+		{
+			(*ix)=sumx/(iinstance->CurvePoints.count-1);
+			(*iy)=sumy/(iinstance->CurvePoints.count-1);
+			//TODO: 3D (*iz)=sumz/iinstance->CurvePoints.count;
+			return 1;
+		}
+	}
+	if (inumber<0) inumber=-inumber-1;
 	if (inumber>=0)
 	{
 		if (inumber<iinstance->CurvePoints.count)
@@ -1136,6 +1163,7 @@ inline int placepoints(t_instance * iinstance,float ix,float iy,float iz,int inu
 inline int placepoints(curve_instance * iinstance,float ix,float iy,float iz,int inumber,basicmultilist * imultilist=NULL)
 {
 	char all=0;
+	if (inumber<0) inumber=-inumber-1;
 	if (inumber>0)
 	{
 		if (inumber<iinstance->CurvePoints.count)
@@ -1316,7 +1344,7 @@ n_instance * snapatom_short(float iposx,float iposy,_small * iatomnr=NULL,int id
 	return NULL;
 }
 
-basic_instance * getclicked(int imap,float clckx,float clcky,int * backtype=NULL,int * backindex=NULL,basic_instance ** backsub=NULL,float * backvalue=NULL)
+basic_instance * getclicked(int imap,float clckx,float clcky,int * backtype=NULL,int * backindex=NULL,basic_instance ** backsub=NULL,float * backvalue=NULL,int * backsubnr=NULL)
 {
 	basic_instance * bestinstance=NULL;
 	float bestvalue=0x2000000000;
@@ -1353,6 +1381,14 @@ basic_instance * getclicked(int imap,float clckx,float clcky,int * backtype=NULL
 							{
 								*backindex=ilv1;
 							}
+							if (backsub!=NULL)
+							{
+								(*backsub)=NULL;
+							}
+							if (backsubnr!=NULL)
+							{
+								(*backsubnr)=0;
+							}
 							bestvalue=thisvalue;
 						}
 					}
@@ -1378,6 +1414,10 @@ basic_instance * getclicked(int imap,float clckx,float clcky,int * backtype=NULL
 									if (backvalue!=NULL)
 									{
 										*backvalue=thisvalue;
+									}
+									if (backsubnr!=NULL)
+									{
+										(*backsubnr)=ilv2+1;
 									}
 									bestvalue=thisvalue;
 								}
@@ -1410,6 +1450,10 @@ basic_instance * getclicked(int imap,float clckx,float clcky,int * backtype=NULL
 									if (backsub!=NULL)
 									{
 										*backsub=(basic_instance*)TELESCOPE_getproperty();//Note that TELESCOPE_tempval gets set by retrievepoints_basic!
+									}
+									if (backsubnr!=NULL)
+									{
+										(*backsubnr)=ilv2+1;
 									}
 									if (backvalue!=NULL)
 									{
@@ -3468,6 +3512,36 @@ catalogized_command_funcdef(CLEANUP)
 	}*/
 	if ((changed) && (count<1000000)) goto iback;
 	return 1;
+}
+catalogized_command_funcdef(REVERSEBEZIER)
+{
+	char wert=0;
+	for (int ilv1=0;ilv1<(*glob_curve_multilist).filllevel;ilv1++)
+	{
+		if (selection_currentselection[ilv1] & (1<<STRUCTURE_OBJECTTYPE_curve))
+		{
+			curve_instance * tl_instance=(*glob_curve_multilist).bufferlist()+ilv1;
+			if ((*tl_instance).exist)
+			{
+				int tl_excess=((*tl_instance).CurvePoints.count)%3;
+				for (int ilv2=tl_excess;ilv2<3;ilv2++)
+				{
+					(*tl_instance).CurvePoints.a[(*tl_instance).CurvePoints.count].x=(*tl_instance).CurvePoints.a[(*tl_instance).CurvePoints.count-1].x*2-(*tl_instance).CurvePoints.a[(*tl_instance).CurvePoints.count-2].x;
+					(*tl_instance).CurvePoints.a[(*tl_instance).CurvePoints.count].y=(*tl_instance).CurvePoints.a[(*tl_instance).CurvePoints.count-1].y*2-(*tl_instance).CurvePoints.a[(*tl_instance).CurvePoints.count-2].y;
+					//TODO: 3D(*tl_instance).CurvePoints.a[(*tl_instance).CurvePoints.count].z=(*tl_instance).CurvePoints.a[(*tl_instance).CurvePoints.count-1].z*2-(*tl_instance).CurvePoints.a[(*tl_instance).CurvePoints.count-2].z;
+					(*tl_instance).CurvePoints.count++;
+				}
+				for (int ilv1=0;ilv1<(*tl_instance).CurvePoints.count/2;ilv1++)
+				{
+					cdx_Point2D swap=(*tl_instance).CurvePoints.a[ilv1];
+					(*tl_instance).CurvePoints.a[ilv1]=(*tl_instance).CurvePoints.a[(*tl_instance).CurvePoints.count-1-ilv1];
+					(*tl_instance).CurvePoints.a[(*tl_instance).CurvePoints.count-1-ilv1]=swap;
+					wert=1;
+				}
+			}
+		}
+	}
+	return wert;
 }
 int edit_flexicopy(int undostep_no,multilist<n_instance> * n_target,multilist<b_instance> * b_target,selection_ iselection,intl * i_deltaback,float dx,float dy,char overwrite)
 {

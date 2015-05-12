@@ -1254,15 +1254,19 @@ int issueclick(int iposx,int iposy)
 			}
 			if (selection_clickselection_found & (1<<(STRUCTURE_OBJECTTYPE_curve+STRUCTURE_OBJECTTYPE_ListSize)))
 			{
-				curve_instance * tl_curve_instance=(curve_instance*)getclicked(1<<(STRUCTURE_OBJECTTYPE_curve+STRUCTURE_OBJECTTYPE_ListSize),control_coorsx,control_coorsy);
+				int tl_subno=0;
+				curve_instance * tl_curve_instance=(curve_instance*)getclicked(1<<(STRUCTURE_OBJECTTYPE_curve+STRUCTURE_OBJECTTYPE_ListSize),control_coorsx,control_coorsy,NULL,NULL,NULL,NULL,&tl_subno);
 				if (tl_curve_instance!=NULL)
 				{
 					selection_clearselection(selection_currentselection);
 					selection_currentselection_found=0;
 					int inumber=tl_curve_instance-(*glob_curve_multilist).bufferlist();
-					printf("FOUND:%i\n",inumber);
 					selection_currentselection[inumber]|=1<<STRUCTURE_OBJECTTYPE_curve;
 					selection_currentselection_found|=1<<STRUCTURE_OBJECTTYPE_curve;
+					if (tl_subno<2)
+					{
+						REVERSEBEZIER("","");
+					}
 				}
 			}
 			else
@@ -1274,9 +1278,33 @@ int issueclick(int iposx,int iposy)
 					curve_instance * tl_curve_instance=(curve_instance*)getclicked(1<<STRUCTURE_OBJECTTYPE_curve,control_coorsx,control_coorsy);
 					if (tl_curve_instance!=NULL)
 					{
-						(*tl_curve_instance).CurvePoints.a[(*tl_curve_instance).CurvePoints.count].x=control_coorsx;
-						(*tl_curve_instance).CurvePoints.a[(*tl_curve_instance).CurvePoints.count].y=control_coorsy;
-						(*tl_curve_instance).CurvePoints.count++;
+						if (control_drawproperties.CURVE_subtool==0)
+						{
+							singlepoints:;
+							(*tl_curve_instance).CurvePoints.a[(*tl_curve_instance).CurvePoints.count].x=control_coorsx;
+							(*tl_curve_instance).CurvePoints.a[(*tl_curve_instance).CurvePoints.count].y=control_coorsy;
+							(*tl_curve_instance).CurvePoints.count++;
+							control_mousestate=0;return 0;
+						}
+						if (control_drawproperties.CURVE_subtool==1)
+						{
+							if ((*tl_curve_instance).CurvePoints.count%3) goto singlepoints;
+							for (int ilv1=0;ilv1<3;ilv1++)
+							{
+								(*tl_curve_instance).CurvePoints.a[(*tl_curve_instance).CurvePoints.count].x=control_coorsx;
+								(*tl_curve_instance).CurvePoints.a[(*tl_curve_instance).CurvePoints.count].y=control_coorsy;
+								(*tl_curve_instance).CurvePoints.count++;
+							}
+							control_manipulatedinstance=(basic_instance*)tl_curve_instance;
+							break;
+						}
+						if (control_drawproperties.CURVE_subtool==2)
+						{
+							control_manipulatedinstance=(basic_instance*)tl_curve_instance;
+							control_startx=control_coorsx;
+							control_starty=control_coorsy;
+							break;
+						}
 					}
 				}
 				else
@@ -1288,9 +1316,20 @@ int issueclick(int iposx,int iposy)
 					(*tl_curve_instance).CurvePoints.a[1].x=control_coorsx;
 					(*tl_curve_instance).CurvePoints.a[1].y=control_coorsy;
 					(*tl_curve_instance).CurvePoints.count=2;
+					if (control_drawproperties.CURVE_subtool==1)
+					{
+						(*tl_curve_instance).CurvePoints.a[1].x=control_coorsx;
+						(*tl_curve_instance).CurvePoints.a[1].y=control_coorsy;
+						(*tl_curve_instance).CurvePoints.count++;
+					}
 					selection_clearselection(selection_currentselection);
 					selection_currentselection[tl_curveno]|=1<<STRUCTURE_OBJECTTYPE_curve;
 					selection_currentselection_found|=1<<STRUCTURE_OBJECTTYPE_curve;
+					if (control_drawproperties.CURVE_subtool!=0)
+					{
+						control_manipulatedinstance=(basic_instance*)tl_curve_instance;
+						break;
+					}
 				}
 			}
 			control_mousestate=0;return 0;
@@ -1558,6 +1597,33 @@ void issuedrag(int iposx,int iposy)
 		{
 			(*(t_instance*)control_manipulatedinstance).RotationAngle+=(control_coorsx-control_startx)/180*Pi;
 			control_startx=control_coorsx;
+			break;
+		}
+		case 12:
+		{
+			if (control_drawproperties.CURVE_subtool==1)
+			{
+				curve_instance * tl_curve_instance=(curve_instance*)control_manipulatedinstance;
+				(*tl_curve_instance).CurvePoints.a[(*tl_curve_instance).CurvePoints.count-1].x=control_coorsx;
+				(*tl_curve_instance).CurvePoints.a[(*tl_curve_instance).CurvePoints.count-1].y=control_coorsy;
+				(*tl_curve_instance).CurvePoints.a[(*tl_curve_instance).CurvePoints.count-3].x=2*(*tl_curve_instance).CurvePoints.a[(*tl_curve_instance).CurvePoints.count-2].x-control_coorsx;
+				(*tl_curve_instance).CurvePoints.a[(*tl_curve_instance).CurvePoints.count-3].y=2*(*tl_curve_instance).CurvePoints.a[(*tl_curve_instance).CurvePoints.count-2].y-control_coorsy;
+			}
+			if (control_drawproperties.CURVE_subtool==2)
+			{
+				if (fabs(fsqr(control_coorsx-control_startx)+fsqr(control_coorsy-control_starty))>((100.0)/(SDL_zoomx*SDL_zoomx)))
+				{
+					curve_instance * tl_curve_instance=(curve_instance*)control_manipulatedinstance;
+					if ((*tl_curve_instance).CurvePoints.count<bezierpointmax-1)
+					{
+						(*tl_curve_instance).CurvePoints.a[(*tl_curve_instance).CurvePoints.count].x=control_coorsx;
+						(*tl_curve_instance).CurvePoints.a[(*tl_curve_instance).CurvePoints.count].y=control_coorsy;
+						(*tl_curve_instance).CurvePoints.count++;
+						control_startx=control_coorsx;
+						control_starty=control_coorsy;
+					}
+				}
+			}
 			break;
 		}
 		case 7:
@@ -3086,6 +3152,13 @@ void control_normal()
 						{
 							if (idirection==1)
 							{
+								selection_recheck(selection_currentselection,&selection_currentselection_found);
+								if (selection_currentselection_found)
+								{
+									selection_clearselection(selection_currentselection);
+									selection_currentselection_found=0;
+								}
+								else
 								LHENDRAW_leave=1;
 							}
 						}

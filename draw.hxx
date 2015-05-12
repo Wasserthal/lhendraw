@@ -111,6 +111,7 @@ void MACRO_DRAWPREFIX(drawglyph)(int unicode,int imode,int ideltax,int ideltay,i
 		}
 		return;
 	}
+	if (unicode<0) {ino=-unicode;goto ifertig;}
 	for (int ilv1=0;ilv1<glyphmemory_max;ilv1++)
 	{
 		if (glyphmemory[ilv1].unicode==unicode)
@@ -124,14 +125,15 @@ void MACRO_DRAWPREFIX(drawglyph)(int unicode,int imode,int ideltax,int ideltay,i
 	{
 		for (int ilv2=0;ilv2<glyphmemory[ino].composite.count;ilv2++)
 		{
-			int deltax=0;int deltay=0;
+			int deltax=*i_txcursorx;int deltay=*i_txcursory;
 			if (glyphmemory[ino].composite.unit[ilv2].flags & 2)
 			{
 				deltax+=glyphmemory[ino].composite.unit[ilv2].arg1;
 				deltay+=glyphmemory[ino].composite.unit[ilv2].arg2;
 			}
-			MACRO_DRAWPREFIX(drawglyph)(glyphmemory[ino].composite.unit[ilv2].index-3,imode,deltax,deltay,i_txcursorx,i_txcursory,angle,size);
+			MACRO_DRAWPREFIX(drawglyph)(-glyphmemory[ino].composite.unit[ilv2].index+3,imode,ideltax,ideltay,&deltax,&deltay,angle,size);
 		}
+		(*i_txcursorx)+=glyphmemory[ino].offsetx;
 	}
 	int tl_left,tl_right,tl_top,tl_bottom;
 	glyf_modglyph(ino,imode|0x80*((gfx_txselectmode&2)>>1),ideltax,ideltay,i_txcursorx,i_txcursory,size*cos(angle),size*sin(angle),-size*sin(angle),size*cos(angle),&tl_left,&tl_right,&tl_top,&tl_bottom);

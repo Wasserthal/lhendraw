@@ -2,7 +2,7 @@ menuitem pullout_toolspecific_BOND[]={
 {0,0,
 11,//Picture
 "double",
-3,3,
+3,6,
 1,
 "Double bonds",
 "control_drawproperties.bond_multiplicity",

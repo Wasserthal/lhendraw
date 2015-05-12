@@ -1,0 +1,32 @@
+menuitem pullout_toolspecific_CURVE[]={
+{0,0,
+76,//Picture
+"curve",
+6,6,
+0,
+"Simple bezier mode\n",
+"control_drawproperties.CURVE_subtool",
+"","",
+0xFFFF,
+},
+{1,0,
+89,//Picture
+"curve",
+6,6,
+1,
+"Simple bezier mode\n",
+"control_drawproperties.CURVE_subtool",
+"","",
+0xFFFF,
+},
+{2,0,
+88,//Picture
+"curve",
+6,6,
+2,
+"Simple bezier mode\n",
+"control_drawproperties.CURVE_subtool",
+"","",
+0xFFFF,
+},
+};

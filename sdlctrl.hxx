@@ -979,13 +979,13 @@ int issueclick(int iposx,int iposy)
 					if (tlbond==NULL) {control_mousestate=0;return 0;}
 					if (control_lastmousebutton==SDL_BUTTON_RIGHT)
 					{
-						control_drawproperties.bond_multiplicity=(*tlbond).Order>>4;
-						control_drawproperties.bond_Display1=(*tlbond).Display;
+						control_drawproperties.bond_Order=(*tlbond).Order;
+						control_drawproperties.bond_Display=(*tlbond).Display;
 						control_drawproperties.color=(*tlbond).color;
 						control_mousestate=0;
 						return 0;
 					}
-					if ((control_drawproperties.bond_multiplicity==1) && (control_drawproperties.bond_Display1==0) && ((*tlbond).Display==0))
+					if ((control_drawproperties.bond_Order==16) && (control_drawproperties.bond_Display==0) && ((*tlbond).Display==0))
 					{
 						(*tlbond).Order&=0xF0;
 						(*tlbond).Order+=16;
@@ -996,13 +996,13 @@ int issueclick(int iposx,int iposy)
 					}
 					else
 					{
-						if ((control_drawproperties.bond_multiplicity==2) && (((*tlbond).Order==32)||((*tlbond).Order==24)))
+						if ((control_drawproperties.bond_Order==32) && (((*tlbond).Order==32)||((*tlbond).Order==24)))
 						{
 							SWAPDOUBLEPOSITION("","",glob_b_multilist,tlbond,0/*wrong, not important*/);
 						}
 						else
 						{
-							if (((*tlbond).Display==control_drawproperties.bond_Display1) && ((*tlbond).Order==control_drawproperties.bond_multiplicity<<4))
+							if (((*tlbond).Display==control_drawproperties.bond_Display) && ((*tlbond).Order==control_drawproperties.bond_Order))
 							{
 								int tl_swap=(*tlbond).B;
 								(*tlbond).B=(*tlbond).E;
@@ -1010,8 +1010,8 @@ int issueclick(int iposx,int iposy)
 							}
 							else
 							{
-								(*tlbond).Order=control_drawproperties.bond_multiplicity<<4;
-								(*tlbond).Display=control_drawproperties.bond_Display1;
+								(*tlbond).Order=control_drawproperties.bond_Order;
+								(*tlbond).Display=control_drawproperties.bond_Display;
 							}
 						}
 					}
@@ -1726,16 +1726,16 @@ void issuedrag(int iposx,int iposy)
 					{
 						if (oldbond)
 						{
-							if (((*oldbond).color==control_drawproperties.color) && ((*oldbond).Display==control_drawproperties.bond_Display1) && (((*tlatom).id==(*oldbond).B)||(strchr("\x10\x11\x12\x15\x18\x23\x24",(*oldbond).Display+0x10))))
+							if (((*oldbond).color==control_drawproperties.color) && ((*oldbond).Display==control_drawproperties.bond_Display) && (((*tlatom).id==(*oldbond).B)||(strchr("\x10\x11\x12\x15\x18\x23\x24",(*oldbond).Display+0x10))))
 							{
-								if (control_drawproperties.bond_multiplicity==1)
+								if (control_drawproperties.bond_Order==16)
 								{
-									(*tlbond).Order+=control_drawproperties.bond_multiplicity<<4;
+									(*tlbond).Order+=control_drawproperties.bond_Order;
 									if ((*tlbond).Order>64) (*tlbond).Order=64;
 								}
 								else
 								{
-									if ((control_drawproperties.bond_multiplicity==2) && (((*oldbond).Order==32)||((*oldbond).Order==24)))
+									if ((control_drawproperties.bond_Order==32) && (((*oldbond).Order==32)||((*oldbond).Order==24)))
 									{
 										(*tlbond).DoublePosition=(*oldbond).DoublePosition;
 										(*tlbond).Order=(*oldbond).Order;
@@ -1750,14 +1750,14 @@ void issuedrag(int iposx,int iposy)
 							else
 							{
 								issuedrag_7_bond_setbondorder:;
-								(*tlbond).Order=control_drawproperties.bond_multiplicity<<4;
+								(*tlbond).Order=control_drawproperties.bond_Order;
 							}
 							(*tlbond).color=control_drawproperties.color;
-							(*tlbond).Display=control_drawproperties.bond_Display1;
+							(*tlbond).Display=control_drawproperties.bond_Display;
 							goto ifertig;
 						}
 						(*tlbond).Z=(*tlatom2).Z;
-						(*tlbond).Order=control_drawproperties.bond_multiplicity<<4;
+						(*tlbond).Order=control_drawproperties.bond_Order;
 					}
 				}
 			}
@@ -2468,6 +2468,39 @@ int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int
 						}
 						break;
 					}
+					case 8:
+					{
+						int * tl_variable_p=((_i32*)((*ipulloutlisting).variable));
+						char tl_on;
+						if (*tl_variable_p!=(*ipulloutlisting).toolnr)
+						{
+							tl_on=1;
+							*tl_variable_p=(*ipulloutlisting).toolnr;
+						}
+						else
+						{
+							tl_on=0;
+							*tl_variable_p=0;
+							int tl_delta=tl_variable_p-((_i32*)&(control_drawproperties));
+							if ((tl_delta>=0) && (tl_delta<(sizeof(drawproperties_)/sizeof(_i32))))
+							{
+								*tl_variable_p=*(_i32*)(((char*)tl_variable_p)-((char*)&control_drawproperties)+((char*)&control_drawproperties_init));
+							}
+						}
+						char * tl_name=(*ipulloutlisting).variablename;
+						tl_name+=strlen(tl_name)-1;
+						while (*tl_name!='_') tl_name--;
+						tl_name++;
+						if ((*ipulloutlisting).LMB_function!=NULL)
+						{
+							(*ipulloutlisting).LMB_function(tl_name,tl_on?((*ipulloutlisting).name):"0");
+						}
+						else
+						{
+							SETITEMVARIABLES(tl_name,tl_on?((*ipulloutlisting).name):"0");
+						}
+						break;
+					}
 					case 0x103:
 					{
 						if ((pixeloriginposy-(posy*32))>=24)
@@ -2519,6 +2552,17 @@ int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int
 						break;
 					}
 					case 6: *((_i32*)((*ipulloutlisting).variable))=0;break;
+					case 8:
+					{  
+						int * tl_variable_p=((_i32*)((*ipulloutlisting).variable));
+						*tl_variable_p=0;
+						int tl_delta=tl_variable_p-((_i32*)&(control_drawproperties));
+						if ((tl_delta>=0) && (tl_delta<(sizeof(drawproperties_)/sizeof(_i32))))
+						{
+							*tl_variable_p=*(_i32*)(((char*)tl_variable_p)-((char*)&control_drawproperties)+((char*)&control_drawproperties_init));
+						}
+						break;
+					}
 					case 0x201: 
 					{
 						structenum * istructenum=(structenum*)(*ipulloutlisting).variable;

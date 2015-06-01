@@ -862,6 +862,8 @@ intl get_bienum(bienum * ibienum,const char * input,intl count)
 			return ibienum[ilv1].number;
 		}
 	}
+	if (strcmp(input,"0")==0) return ibienum[ilv1].number;
+	if (strcmp(input,"0")==0) return ibienum[ilv1].number;
 	return 0;
 };
 char * lookup_bienum(bienum * ibienum,intl imax,intl value)

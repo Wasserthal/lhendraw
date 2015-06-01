@@ -29,8 +29,11 @@
 extern char control_filename[512];
 struct drawproperties_
 {
-	_i32 bond_multiplicity;
-	_i32 bond_Display1;
+	_i32 bond_Order;
+	_i32 bond_Display;
+	_i32 bond_Display2;
+	_i32 curve_Closed;
+	_i32 curve_Filled;
 	_i32 attribute_tool;
 	int color;
 	_i32 Element;
@@ -46,7 +49,8 @@ struct drawproperties_
 structenum * searchreflectedstruct(const char * input);
 void applytransform_single(float matrix[3][3],cdx_Point3D * input,cdx_Point3D * output,cdx_Point3D * pivot);
 _small edit_current5bondcarbon=0;
-drawproperties_ control_drawproperties={1,0,4,0,constants_Element_implicitcarbon,6,1,0,0,0,0,0,1};
+drawproperties_ control_drawproperties={16,0,0,0,0,4,0,constants_Element_implicitcarbon,6,1,0,0,0,0,0,1};
+drawproperties_ control_drawproperties_init={16,0,0,0,0,4,0,constants_Element_implicitcarbon,6,1,0,0,0,0,0,1};
 int control_hotatom=-1;
 //Copies a set of atoms and bonds from one buffer to another. Can take atoms from ANY other buffer
 char * undo_retrievebuffer(intl start,intl list);
@@ -1556,9 +1560,9 @@ b_instance * edit_summonbond(int i_id_begin,int i_id_end,int i_nr_begin,int i_nr
 		selection_currentselection[(*glob_b_multilist).filllevel]&=(~(1<<STRUCTURE_OBJECTTYPE_b));
 		(*tlinstance).B=i_id_begin;
 		(*tlinstance).E=i_id_end;
-		(*tlinstance).Display=control_drawproperties.bond_Display1;
+		(*tlinstance).Display=control_drawproperties.bond_Display;
 		(*tlinstance).DoublePosition=0;
-		(*tlinstance).Display2=0;
+		(*tlinstance).Display2=control_drawproperties.bond_Display2;
 		(*tlinstance).Order=0x10;
 		(*tlinstance).color=control_drawproperties.color;
 		(*tlinstance).Z=edit_getnewZ();
@@ -1685,7 +1689,7 @@ float edit_get_atom_best_free_side(int atomnr)
 	if (atom_actual_node[atomnr].bondcount==1)
 	{
 		int atomnr2=getother(atomnr,atom_actual_node[atomnr].bonds[0]);
-		if (((control_drawproperties.bond_multiplicity>1) && (glob_b_multilist->bufferlist()[atom_actual_node[atomnr].bonds[0]].Order>24))||(control_drawproperties.bond_multiplicity>2)||(glob_b_multilist->bufferlist()[atom_actual_node[atomnr].bonds[0]].Order>40))
+		if (((control_drawproperties.bond_Order>16) && (glob_b_multilist->bufferlist()[atom_actual_node[atomnr].bonds[0]].Order>24))||(control_drawproperties.bond_Order>32)||(glob_b_multilist->bufferlist()[atom_actual_node[atomnr].bonds[0]].Order>40))
 		{
 			return fmod(getangle((*glob_n_multilist)[atomnr2].xyz.x-(*glob_n_multilist)[atomnr].xyz.x,(*glob_n_multilist)[atomnr2].xyz.y-(*glob_n_multilist)[atomnr].xyz.y)+5*Pi,2*Pi);
 		}
@@ -1739,7 +1743,7 @@ int edit_errichten(int startatom)
 		if (tlbond)
 		{
 			(*tlbond).Z=(*tlatom).Z+2;
-			(*tlbond).Order=control_drawproperties.bond_multiplicity<<4;
+			(*tlbond).Order=control_drawproperties.bond_Order;
 		}
 	}
 	return atomnr2;
@@ -1851,6 +1855,81 @@ catalogized_command_iterated_funcdef(SETITEMVARIABLE)
 		}
 	}
 	return 0;
+}
+catalogized_command_funcdef(SETITEMVARIABLES)
+{
+	char imemory[100];
+	char * imemoryp=imemory;
+	int isize;
+	int ioffset;
+	int iparametersize;
+	char * tl_pointer;
+	for (int ilv1=1;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
+	{
+		_i32 icompare=1<<ilv1;
+		basicmultilist * tl_multilist=findmultilist(STRUCTURE_OBJECTTYPE_List[ilv1].name);
+		for (int ilv1=0;ilv1<(*tl_multilist)._->properties_count;ilv1++)
+		{
+			if (strcmp((*tl_multilist)._->properties[ilv1].name,parameter)==0)
+			{
+				iparametersize=(*tl_multilist)._->properties[ilv1].size;
+				ioffset=(*tl_multilist)._->properties[ilv1].ref;
+				if (iparametersize>100)
+				{
+					imemoryp=(char*)malloc(iparametersize);
+				}
+				else
+				{
+					imemoryp=imemory;
+				}
+				(*tl_multilist)._->properties[ilv1].delegate((char*)value,imemoryp);
+				goto istart;
+			}
+		}
+		goto iskip;
+		istart:
+		isize=(*tl_multilist).itemsize;
+		for (int ilv2=0;ilv2<(*tl_multilist).filllevel;ilv2++)
+		{
+			basic_instance * tl_basic_instance=(basic_instance*)((*tl_multilist).pointer+(isize*ilv2));
+			if ((*tl_basic_instance).exist)
+			{
+				if (selection_currentselection[ilv2] & (1<<ilv1))
+				{
+					tl_pointer=((char*)tl_basic_instance)+ioffset;
+					for (int ilv3=0;ilv3<iparametersize;ilv3++)
+					{
+						(*(tl_pointer++))=imemoryp[ilv3];
+					}
+				}
+			}
+		}
+		if (iparametersize>100)
+		{
+			free(imemoryp);
+		}
+		iskip:;
+	}
+	return 1;
+}
+catalogized_command_funcdef(RESETBONDSTYLE)
+{
+	control_drawproperties.bond_Order=16;
+	control_drawproperties.bond_Display=0;
+	control_drawproperties.bond_Display2=0;
+	if (strcmp(value,"0")==0)
+	{
+		printf("NULL\n");
+		SETITEMVARIABLES("Order","1");
+	}
+	else
+	{
+		printf("OT3R\n");
+		SETITEMVARIABLES("Order",value);
+	}
+	SETITEMVARIABLES("Display","0");
+	SETITEMVARIABLES("Display2","0");
+	return 1;
 }
 catalogized_command_iterated_funcdef(SWAPDOUBLEPOSITION)
 {
@@ -2648,8 +2727,9 @@ catalogized_command_funcdef(SELECTALL)
 }
 catalogized_command_funcdef(RESETDRAWTOOL)
 {
-	control_drawproperties.bond_multiplicity=1;
-	control_drawproperties.bond_Display1=0;
+	control_drawproperties.bond_Order=16;
+	control_drawproperties.bond_Display=0;
+	printf("RDT\n");
 	return 1;
 }
 catalogized_command_funcdef(TEST_SMASH)

@@ -1263,23 +1263,6 @@ tlposx+tlcos-tlsin,tlposy+tlsin+tlcos,tlposx+2*tlcos-tlsin,tlposy+2*tlsin+tlcos,
 		iparms=iparmsstring;
 		#endif
 	}
-	if (owner!=-1)
-	{
-/*		if ((*((*glob_t_multilist)[index_in_buffer].s)).count_in_it==1)//TODO: check if it consists of exactly one element
-		{*/
-			if (((*glob_s_multilist)[0].face & 0x60)==0x60)
-			{
-				if ((*glob_t_multilist)[index_in_buffer].Justification==-1)
-				{
-					string_resorted=0;
-					if (string_resorted)
-					{
-						finalstring=resortedstring;
-					}
-				}
-			}
-/*		}*/
-	}
 	if (colornr==0) colornr=basecolornr;
 	MACRO_DRAWPREFIX(get_colorstring)(colornr);
 	if ((((*((s_instance*)TELESCOPE_getproperty())).connect & 0x6)!=0) && (sortback))

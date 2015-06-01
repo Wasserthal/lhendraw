@@ -286,11 +286,11 @@ int __attribute__((sysv_abi))CDXMLWRITE_ENUM_%s(char * input,void * output)\n{\n
 		}
 		if ((properties_type_nrs[ilv1]==5) || (properties_type_nrs[ilv1]==4) || (properties_type_nrs[ilv1]==7))
 		{
-			fprintf(thisfile,"{\"%s\",offsetof(%s%s_instance,%s),CDXMLREAD_ENUM_%s,CDXMLWRITE_ENUM_%s,CDXMLREAD_BIN__i32,CDXMLWRITE_BIN__i16},\n",properties[ilv1],datablockstring,name,properties[ilv1],properties[ilv1],properties[ilv1]);
+			fprintf(thisfile,"{\"%s\",offsetof(%s%s_instance,%s),sizeof(%s),CDXMLREAD_ENUM_%s,CDXMLWRITE_ENUM_%s,CDXMLREAD_BIN__i32,CDXMLWRITE_BIN__i16},\n",properties[ilv1],datablockstring,name,properties[ilv1],properties_types[ilv1],properties[ilv1],properties[ilv1]);
 		}
 		else
 		{
-			fprintf(thisfile,"{\"%s\",offsetof(%s%s_instance,%s),CDXMLREAD_%s,CDXMLWRITE_%s,CDXMLREAD_BIN_%s,CDXMLWRITE_BIN_%s},\n",properties[ilv1],datablockstring,name,properties[ilv1],(properties_type_nrs[ilv1]!=0)?properties_types[ilv1]:"_i32",(properties_type_nrs[ilv1]!=0)?properties_types[ilv1]:"_i32",properties_types[ilv1],properties_types[ilv1]);
+			fprintf(thisfile,"{\"%s\",offsetof(%s%s_instance,%s),sizeof(%s),CDXMLREAD_%s,CDXMLWRITE_%s,CDXMLREAD_BIN_%s,CDXMLWRITE_BIN_%s},\n",properties[ilv1],datablockstring,name,properties[ilv1],properties_types[ilv1],(properties_type_nrs[ilv1]!=0)?properties_types[ilv1]:"_i32",(properties_type_nrs[ilv1]!=0)?properties_types[ilv1]:"_i32",properties_types[ilv1],properties_types[ilv1]);
 		}
 	}
 	fprintf(outfile,"};\n");
@@ -338,14 +338,18 @@ int __attribute__((sysv_abi))CDXMLWRITE_ENUM_%s(char * input,void * output)\n{\n
 	sprintf(helpbufferpos,"}\n%n",&helpbufferreturnvalue);
 	helpbufferpos+=helpbufferreturnvalue;
 	(*helpbufferpos)=0;
-	sprintf(helpbufferpos,"multilist<%s%s_instance> globstat_%s%s_multilist=multilist<%s%s_instance>();\n%n",datablockstring,name,datablockstring,name,datablockstring,name,&helpbufferreturnvalue);//TODO mem: leaks
-	helpbufferpos+=helpbufferreturnvalue;
-	sprintf(helpbufferpos,"multilist<%s%s_instance> * glob_%s%s_multilist=&globstat_%s%s_multilist;\n%n",datablockstring,name,datablockstring,name,datablockstring,name,&helpbufferreturnvalue);
-	helpbufferpos+=helpbufferreturnvalue;
+	if (linemode!=1)
+	{
+		sprintf(helpbufferpos,"multilist<%s%s_instance> globstat_%s%s_multilist=multilist<%s%s_instance>();\n%n",datablockstring,name,datablockstring,name,datablockstring,name,&helpbufferreturnvalue);//TODO mem: leaks
+		helpbufferpos+=helpbufferreturnvalue;
+		sprintf(helpbufferpos,"multilist<%s%s_instance> * glob_%s%s_multilist=&globstat_%s%s_multilist;\n%n",datablockstring,name,datablockstring,name,datablockstring,name,&helpbufferreturnvalue);
+		helpbufferpos+=helpbufferreturnvalue;
+	}
 //	fprintf(initfile,"glob_%s%s_multilist=new multilist<%s%s_instance>;\n",datablockstring,name,datablockstring,name);
 	(*helpbufferpos)=0;
 	if (fread(&ihv1,1,1,infile)==0){goto done;};
 	if (ihv1!='\n') {if(!feof(infile)){printf("no linebreak");exit(1);}else goto done;}
+	if (linemode!=1)
 	fprintf(multilistlistfile,"{\"%s%s\",&globstat_%s%s_multilist,%i},\n",datablockstring,name,datablockstring,name,usage);
 	if (!feof(infile))
 	{

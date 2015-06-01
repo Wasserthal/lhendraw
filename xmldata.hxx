@@ -36,6 +36,7 @@ struct superconstellation//Information on a single content or property of an obj
 	char name[30];
 	int ref;//relative position inside of the object, in bytes
 	//The following delegates apply to properties only
+	int size;//size of the variable in RAM, in bytes
 	CDXMLREAD_functype delegate;
 	CDXMLREAD_functype writedelegate;
 	CDXMLREAD_functype binreaddelegate;
@@ -133,6 +134,7 @@ class basicmultilist
 	intl numberinlist;
 	_u32 maxid;
 	char * pointer;
+	AUTOSTRUCT_cstyle_vtable * _;
 	basicmultilist(){pointer=NULL;itemsize=0;};
 	virtual intl getmaxitems() {return 0;}
 	void reset()
@@ -211,6 +213,7 @@ template <class whatabout> class multilist : public basicmultilist
 		maxid=0;
 		memory_alloc(&pointer,2);
 		itemsize=sizeof(whatabout);
+		_=&((*(whatabout*)0).INTERNAL_cstyle_vtable);
 		return;
 	}
 	int ADD(whatabout * iwhatabout)//without dependants, use item buffer instead

@@ -623,6 +623,19 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,char hatches)
 	MACRO_DRAWPREFIX(get_colorstring)(colornr);
 	MACRO_DRAWPREFIX(stylegenestring)(1|(((*i_curve_instance).FillType & 1)?2:0)|(((*i_curve_instance).LineType & 2)?4:0));
 	tllast=1;
+	if ((*i_curve_instance).FillType>0)
+	{
+		if (MACRO_DRAWPREFIX(expressgeometry_start)(0,0,1000,1000))
+		{
+			MACRO_DRAWPREFIX(expressgeometry_begin)((*i_curve_instance).CurvePoints.a[1].x,(*i_curve_instance).CurvePoints.a[1].y);
+			for (int ilv1=2;ilv1<(*i_curve_instance).CurvePoints.count-2;ilv1+=3)
+			{
+				MACRO_DRAWPREFIX(expressgeometry_bezier3)((*i_curve_instance).CurvePoints.a[ilv1].x,(*i_curve_instance).CurvePoints.a[ilv1].y,(*i_curve_instance).CurvePoints.a[ilv1+1].x,(*i_curve_instance).CurvePoints.a[ilv1+1].y,(*i_curve_instance).CurvePoints.a[ilv1+2].x,(*i_curve_instance).CurvePoints.a[ilv1+2].y);
+			}
+			MACRO_DRAWPREFIX(expressgeometry_end)();
+			goto svg_main_loop;
+		}
+	}
 	for (int ilv2=1;ilv2<(*i_curve_instance).CurvePoints.count-3;ilv2+=3)
 	{
 		MACRO_DRAWPREFIX(expressbezier)((*i_curve_instance).CurvePoints.a[ilv2].x,(*i_curve_instance).CurvePoints.a[ilv2].y,(*i_curve_instance).CurvePoints.a[ilv2+1].x,(*i_curve_instance).CurvePoints.a[ilv2+1].y,(*i_curve_instance).CurvePoints.a[ilv2+2].x,(*i_curve_instance).CurvePoints.a[ilv2+2].y,(*i_curve_instance).CurvePoints.a[ilv2+3].x,(*i_curve_instance).CurvePoints.a[ilv2+3].y);

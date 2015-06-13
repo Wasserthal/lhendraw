@@ -41,11 +41,11 @@ menuitem pullout_toolspecific_CURVE[]={
 },
 {1,1,
 98,//Picture
-"1",
+"Solid",
 8,6,
 1,
 "Simple bezier mode\n",
-"control_drawproperties.curve_Filled",
+"control_drawproperties.curve_FillType",
 "","",
 0xFFFF,
 },

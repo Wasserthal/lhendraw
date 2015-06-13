@@ -778,6 +778,285 @@ void gfx_expressgeometry_bezier2(float inx1,float iny1,float x2,float y2)
 	gfx_geometry.currentx=x2;
 	gfx_geometry.currenty=y2;
 }
+float gfx_expressgeometry_calcbezier3apogee(int which,int starty,int y1,int y2,int y0)//which=0: check if there are 2 points,retval +1 if yes, -1 if no 1: first point 2: second point
+{
+	float a=-3*starty+9*y1-9*y2+3*y0;
+	float b=6*starty-12*y1+6*y2;
+	float c=-3*starty+3*y1;
+			//A calculation follows
+//			starty*(1-currentlevel)*(1-currentlevel)*(1-currentlevel)+y1*currentlevel*(1-currentlevel)*(1-currentlevel)*3+y2*(1-currentlevel)*currentlevel*currentlevel*3+y0*currentlevel*currentlevel*currentlevel;
+/*y=
+			starty-3*starty*currentlevel+3*starty*currentlevel*currentlevel-starty*currentlevel*currentlevel*currentlevel+
+			+3*y1*currentlevel-6*y1*currentlevel*currentlevel+3*y1*currentlevel*currentlevel*currentlevel+
+			+3*y2*currentlevel*currentlevel-3*y2*currentlevel*currentlevel*currentlevel+
+			+y0*currentlevel*currentlevel*currentlevel;
+			*/
+/*y'=
+			-3*starty+6*starty*currentlevel-3*starty*currentlevel*currentlevel+
+			+3*y1-12*y1*currentlevel+9*y1*currentlevel*currentlevel+
+			+6*y2*currentlevel-9*y2*currentlevel*currentlevel+
+			+3*y0*currentlevel*currentlevel=0
+<=>			*/
+/*c=3*starty+3*y1; b=6*starty-12*y1+6*y2; a=-3*starty+9*y1-9*y2+3*y0*/
+	if ((a<0.00001) && (a>-0.00001))
+	{
+		//fitting with parabola
+		//parabolaequation=-a*x*x+b*x
+		//parabolaequation'=-2*a*x+b=0
+		float a=(3)*(y1-((y0/3)+(starty*2/3)));
+		if ((a<0.00001) && (a>-0.00001))
+		{
+			if (which==0) return -1;
+			return 0;//good approximation for "NO" max/min
+		}
+		if (which==0) return -2;
+		return ((y0-starty)/2/a)+0.5;
+	}
+	if ((b*b-(4*a*c))<0)
+	{
+		if (which==0) return -1; else return 0;
+	}
+	float resultat1=(-b-sqrt(b*b-(4*a*c)))/(2*a);
+	float resultat2=(-b+sqrt(b*b-(4*a*c)))/(2*a);
+	if (resultat2<resultat1)
+	{
+		float resultat3=resultat1;
+		resultat1=resultat2;
+		resultat2=resultat3;
+	}
+	if ((which==0) && ((resultat2>=1) || (resultat1<=0))) return -1;
+	if (resultat2>1) resultat2=resultat1;
+	if (resultat1<0) resultat1=resultat2;
+	if (resultat1>1) resultat1=1;
+	if (resultat2<0) resultat2=0;
+	if (which==0) return 1;
+	if (which==1) return resultat1; else return resultat2;
+}
+			
+void gfx_expressgeometry_bezier3(float inx1,float iny1,float inx2,float iny2,float x3,float y3)
+{
+	if_gfx_geo
+	{
+		gfx_expressbezier(gfx_geometry.currentx,gfx_geometry.currenty,inx1,iny1,inx2,iny2,x3,y3);
+		gfx_geometry.currentx=x3;
+		gfx_geometry.currenty=y3;
+		return;
+	}
+	int startx=gfx_geometry.currentx;
+	int starty=gfx_geometry.currenty;
+	int x2=(int)((inx2-SDL_scrollx)*SDL_zoomx);
+	int y2=(int)((iny2-SDL_scrolly)*SDL_zoomy);
+	x3=(x3-SDL_scrollx)*SDL_zoomx;
+	y3=(y3-SDL_scrolly)*SDL_zoomy;
+	int x0=x3;
+	int y0=y3;
+	int x1=(int)((inx1-SDL_scrollx)*SDL_zoomx);
+	int y1=(int)((iny1-SDL_scrolly)*SDL_zoomy);
+	char swapped=0;
+	int lasty;//make sure it's smaller than the actual start in first place!
+	int endy;
+	float fragment;
+	float currentlevel;
+	float lastlevel;
+	int medix,mediy;
+	char hasotherhalf;
+	if (starty>y0)
+	{
+		int swap=starty;
+		starty=y0;
+		y0=swap;
+		swap=startx;
+		startx=x0;
+		x0=swap;
+		swap=y1;
+		y1=y2;
+		y2=swap;
+		swap=x1;
+		x1=x2;
+		x2=swap;
+		swapped=1;
+	}
+	hasotherhalf=-1;
+	float knotpattern=gfx_expressgeometry_calcbezier3apogee(0,starty,y1,y2,y0);
+	iotherhalfback:;
+	if ((knotpattern>0) && (y2<y1))//Total surge
+	{
+		printf("Thought\n");
+		if (hasotherhalf==1)
+		{
+			lasty=starty-1;
+			endy=y1;
+			currentlevel=0;
+			lastlevel=gfx_expressgeometry_calcbezier3apogee(1,starty,y1,y2,y0);
+			hasotherhalf=3;
+		}
+		else
+		if (hasotherhalf==4)
+		{
+			lasty=y2-1;
+			endy=y0;
+			currentlevel=gfx_expressgeometry_calcbezier3apogee(2,starty,y1,y2,y0);
+			lastlevel=1;
+			hasotherhalf=1;
+		}
+		else
+		{
+			gfx_expressgeometry_neutro(2);
+			lasty=y2-1;
+			endy=y1;
+			currentlevel=gfx_expressgeometry_calcbezier3apogee(2,starty,y1,y2,y0);
+			lastlevel=gfx_expressgeometry_calcbezier3apogee(1,starty,y1,y2,y0);
+			hasotherhalf=4;
+			GFX_GEONEXT(1);
+		}
+	}
+	else
+	{
+		if ((y1>starty) && (y2<y0))
+		{
+			if (y1>y0)
+			{
+				if (knotpattern<-1.5)
+				{
+					goto i_lower_bend;
+				}
+				else
+				{
+					goto i_linear;
+				}
+			}
+			else
+			{//Plain ramp
+				i_linear:;
+				gfx_expressgeometry_neutro((3*swapped)^1);
+				lasty=starty-1;
+				endy=y0;
+				currentlevel=0;
+				lastlevel=1;
+				GFX_GEONEXT((3*swapped)^1);
+				if (gfx_geometry.lastdirection==2) gfx_geometry.lastdirection=2;
+			}
+		}
+		else
+		{
+			if (y1<starty)
+			{
+				if (y2>y0)//WIDE SURGE
+				{
+					if (hasotherhalf==4)
+					{
+						lasty=y1-1;
+						endy=starty;
+						currentlevel=gfx_expressgeometry_calcbezier3apogee(1,starty,y1,y2,y0);
+						lastlevel=0;
+						hasotherhalf=2;
+					}
+					else
+					if (hasotherhalf==1)
+					{
+						lasty=y0-1;
+						endy=y2;
+						currentlevel=1;
+						lastlevel=gfx_expressgeometry_calcbezier3apogee(2,starty,y1,y2,y0);
+						hasotherhalf=4;
+					}
+					else
+					{
+						gfx_expressgeometry_neutro(2);
+						lasty=y1-1;
+						endy=y2;
+						currentlevel=gfx_expressgeometry_calcbezier3apogee(1,starty,y1,y2,y0);
+						lastlevel=gfx_expressgeometry_calcbezier3apogee(2,starty,y1,y2,y0);
+						hasotherhalf=1;
+						GFX_GEONEXT(2);
+					}
+				}
+				else
+				{
+					if (hasotherhalf==1)
+					{
+						lasty=min(y1,y2)-1;
+						endy=starty;
+						currentlevel=gfx_expressgeometry_calcbezier3apogee(1,starty,y1,y2,y0);
+						lastlevel=0;
+						hasotherhalf=2;
+					}
+					else
+					{
+						gfx_expressgeometry_neutro(2);
+						lasty=min(y1,y2)-1;
+						endy=y0;
+						currentlevel=gfx_expressgeometry_calcbezier3apogee(1,starty,y1,y2,y0);
+						lastlevel=1;
+						hasotherhalf=1;
+						GFX_GEONEXT(1);
+					}
+				}
+			}
+			else
+			{
+				i_lower_bend:;
+				if (hasotherhalf==1)
+				{
+					lasty=y0-1;
+					endy=max(y1,y2);
+					currentlevel=1;
+					lastlevel=gfx_expressgeometry_calcbezier3apogee(1,starty,y1,y2,y0);
+					hasotherhalf=2;
+				}
+				else
+				{
+					gfx_expressgeometry_neutro(1);
+					lasty=starty-1;
+					endy=max(y1,y2);
+					currentlevel=0;
+					lastlevel=gfx_expressgeometry_calcbezier3apogee(1,starty,y1,y2,y0);
+					hasotherhalf=1;
+					GFX_GEONEXT(2);
+				}
+			}
+		}
+	}
+	fragment=0.30*(lastlevel-currentlevel)/(float)(endy-lasty+1)*fabs(1.0/(float)(endy-lasty+1));
+	if (fragment==0) {fragment=((hasotherhalf%2)==0)?-0.001:0.001;}
+	do
+	{
+		mediy=starty-3*starty*currentlevel+3*starty*currentlevel*currentlevel-starty*currentlevel*currentlevel*currentlevel+
+		+3*y1*currentlevel-6*y1*currentlevel*currentlevel+3*y1*currentlevel*currentlevel*currentlevel+
+		+3*y2*currentlevel*currentlevel-3*y2*currentlevel*currentlevel*currentlevel+
+		+y0*currentlevel*currentlevel*currentlevel;
+		if ((mediy>lasty))
+		{
+			lasty=mediy;
+			lastline:;
+			medix=startx-3*startx*currentlevel+3*startx*currentlevel*currentlevel-startx*currentlevel*currentlevel*currentlevel+
+			+3*x1*currentlevel-6*x1*currentlevel*currentlevel+3*x1*currentlevel*currentlevel*currentlevel+
+			+3*x2*currentlevel*currentlevel-3*x2*currentlevel*currentlevel*currentlevel+
+			+x0*currentlevel*currentlevel*currentlevel;
+			if ((lasty>=0) && (lasty<gfx_canvassizey) && (medix<gfx_canvassizex))
+			{
+				if (medix<gfx_geometry.left) medix=gfx_geometry.left;
+				if (medix>=gfx_geometry.right) medix=gfx_geometry.right-1;
+				if ((lasty>=0) && (lasty<gfx_geometry.bottom))
+				{
+					gfx_linewisebuffer[lasty*gfx_canvassizex+medix]^=1+(lasty>endy)*2;
+				}
+			}
+		}
+//		printf("-%i,starty:%i,endy:%i-\n",mediy,starty,endy);
+		currentlevel+=fragment;
+	}
+	while ((((currentlevel<=lastlevel) && ((hasotherhalf%2)!=0)) || ((currentlevel>=lastlevel) && ((hasotherhalf%2)==0))) && (lasty<endy));
+	if (lasty!=endy)
+	{
+		currentlevel=lastlevel;
+		lasty=endy;
+		goto lastline;
+	}
+	if ((hasotherhalf==1) || (hasotherhalf==4)) goto iotherhalfback;
+	gfx_geometry.currentx=x3;
+	gfx_geometry.currenty=y3;
+}
 void gfx_expressgeometry_backline()
 {
 	if (gfx_geometry.type==1)

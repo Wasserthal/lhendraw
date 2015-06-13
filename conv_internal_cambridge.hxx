@@ -480,6 +480,31 @@ void CONVCAMBRIDGE_Symbol(CAMBRIDGE_page_instance * master)
 		skipthismultilist:;
 	}
 }
+void CONVCAMBRIDGE_curve(CAMBRIDGE_page_instance * master)
+{
+	multilist<CAMBRIDGE_curve_instance> * tl_CAMBRIDGE_curve_multilist=retrievemultilist<CAMBRIDGE_curve_instance>();
+	multilist<curve_instance> * tl_curve_multilist=retrievemultilist<curve_instance>();
+	for (int ilv1=0;ilv1<(*tl_curve_multilist).filllevel;ilv1++)
+	{
+		if (control_save_selection)
+		{
+			if ((selection_currentselection[ilv1] & (1<<STRUCTURE_OBJECTTYPE_curve))==0)
+			{
+				continue;
+			}
+		}
+		curve_instance * tl_curve_instance=(*tl_curve_multilist).bufferlist()+ilv1;
+		ADD_TO_MULTILISTREFERENCE(master,curve);
+		CONVCAMBRIDGE_COLORCONV(curve);
+		(*tl_CAMBRIDGE_curve_instance).Z=(*tl_curve_instance).Z;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_curve_instance,Z);
+		(*tl_CAMBRIDGE_curve_instance).ArrowheadType=(*tl_curve_instance).ArrowheadType;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_curve_instance,ArrowheadType);
+		(*tl_CAMBRIDGE_curve_instance).ArrowheadHead=(*tl_curve_instance).ArrowheadHead;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_curve_instance,ArrowheadHead);
+		(*tl_CAMBRIDGE_curve_instance).ArrowheadTail=(*tl_curve_instance).ArrowheadTail;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_curve_instance,ArrowheadTail);
+		(*tl_CAMBRIDGE_curve_instance).CurvePoints=(*tl_curve_instance).CurvePoints;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_curve_instance,CurvePoints);
+		(*tl_CAMBRIDGE_curve_instance).FillType=(*tl_curve_instance).FillType;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_curve_instance,FillType);
+		(*tl_CAMBRIDGE_curve_instance).Closed=(*tl_curve_instance).Closed;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_curve_instance,Closed);
+	}
+}
 
 void CONVCAMBRIDGE_internaltomain(CAMBRIDGE_page_instance * master)
 {
@@ -490,4 +515,5 @@ void CONVCAMBRIDGE_internaltomain(CAMBRIDGE_page_instance * master)
 	CONVCAMBRIDGE_arrow(master);
 	CONVCAMBRIDGE_graphic(master);
 	CONVCAMBRIDGE_Symbol(master);
+	CONVCAMBRIDGE_curve(master);
 }

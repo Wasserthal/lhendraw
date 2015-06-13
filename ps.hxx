@@ -136,6 +136,10 @@ void ps_expressgeometry_bezier2(float x1,float y1,float x2,float y2)
 	float by=(y2+2*y1)/3;
 	fprintf(outfile,"%f %f %f %f %f %f curveto\n",ax,SVG_height-ay,bx,SVG_height-by,x2,SVG_height-y2);
 }
+void ps_expressgeometry_bezier3(float x1,float y1,float x2,float y2,float x3,float y3)
+{
+	fprintf(outfile,"%f %f %f %f %f %f curveto\n",x1,SVG_height-y1,x2,SVG_height-y2,x3,SVG_height-y3);
+}
 void ps_expressgeometry_backline()
 {
 	//TODO

@@ -880,7 +880,7 @@ int sdl_selectiondraw()
 						{
 							follower3=ilv2*internalpointcount+ilv3-1;
 						}
-						if ((control_tool==12) && (((selection_currentselection[ilv2]) & icompare)>0) && (control_drawproperties.CURVE_subtool==1))
+						if ((control_tool==12) && (((selection_currentselection[ilv2]) & icompare)>0) && (control_drawproperties.CURVE_subtool!=2))
 						{
 							draw_drawmarkpoint((tlpx-SDL_scrollx)*SDL_zoomx-3+gfx_canvasminx,(tlpy-SDL_scrolly)*SDL_zoomy-3+gfx_canvasminy,47,1,0);
 							cdx_Point2D * friendpoint=&((*(curve_instance*)(ibufferpos+isize*ilv2)).CurvePoints.a[(((ilv3-1)/3)*3)+1]);

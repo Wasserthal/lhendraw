@@ -3625,12 +3625,15 @@ catalogized_command_funcdef(REVERSEBEZIER)
 			if ((*tl_instance).exist)
 			{
 				int tl_excess=((*tl_instance).CurvePoints.count)%3;
-				for (int ilv2=tl_excess;ilv2<3;ilv2++)
+				if (tl_excess>0)
 				{
-					(*tl_instance).CurvePoints.a[(*tl_instance).CurvePoints.count].x=(*tl_instance).CurvePoints.a[(*tl_instance).CurvePoints.count-1].x*2-(*tl_instance).CurvePoints.a[(*tl_instance).CurvePoints.count-2].x;
-					(*tl_instance).CurvePoints.a[(*tl_instance).CurvePoints.count].y=(*tl_instance).CurvePoints.a[(*tl_instance).CurvePoints.count-1].y*2-(*tl_instance).CurvePoints.a[(*tl_instance).CurvePoints.count-2].y;
-					//TODO: 3D(*tl_instance).CurvePoints.a[(*tl_instance).CurvePoints.count].z=(*tl_instance).CurvePoints.a[(*tl_instance).CurvePoints.count-1].z*2-(*tl_instance).CurvePoints.a[(*tl_instance).CurvePoints.count-2].z;
-					(*tl_instance).CurvePoints.count++;
+					for (int ilv2=tl_excess;ilv2<3;ilv2++)
+					{
+						(*tl_instance).CurvePoints.a[(*tl_instance).CurvePoints.count].x=(*tl_instance).CurvePoints.a[(*tl_instance).CurvePoints.count-1].x*2-(*tl_instance).CurvePoints.a[(*tl_instance).CurvePoints.count-2].x;
+						(*tl_instance).CurvePoints.a[(*tl_instance).CurvePoints.count].y=(*tl_instance).CurvePoints.a[(*tl_instance).CurvePoints.count-1].y*2-(*tl_instance).CurvePoints.a[(*tl_instance).CurvePoints.count-2].y;
+						//TODO: 3D(*tl_instance).CurvePoints.a[(*tl_instance).CurvePoints.count].z=(*tl_instance).CurvePoints.a[(*tl_instance).CurvePoints.count-1].z*2-(*tl_instance).CurvePoints.a[(*tl_instance).CurvePoints.count-2].z;
+						(*tl_instance).CurvePoints.count++;
+					}
 				}
 				for (int ilv1=0;ilv1<(*tl_instance).CurvePoints.count/2;ilv1++)
 				{

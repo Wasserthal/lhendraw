@@ -567,7 +567,7 @@ int __attribute__((sysv_abi))CDXMLREAD_cdx_Bezierpoints(char * input,void * outp
 	(*list).count=0;
 	ilv1=0;
 	iback:
-	if (ilv1>=bezierpointmax-1) {(*list).count=ilv1;return ilv1;}
+	if ((*list).count>bezierpointmax-1) {(*list).count=bezierpointmax-1;return ilv1;}
 	ilv1+=CDXMLREAD_float(input+ilv1,&((*list).a[(*list).count].x));
 	while(spaciatic(input[ilv1])) ilv1++;
 	if (input[ilv1]==0) return ilv1;

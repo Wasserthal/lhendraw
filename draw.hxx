@@ -621,31 +621,39 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,char hatches)
 	i_curve_instance=(curve_instance*)&((*glob_curve_multilist)[index_in_buffer]);
 	colornr=(*i_curve_instance).color;
 	MACRO_DRAWPREFIX(get_colorstring)(colornr);
-	MACRO_DRAWPREFIX(stylegenestring)(1|(((*i_curve_instance).FillType & 1)?2:0)|(((*i_curve_instance).LineType & 2)?4:0));
+	MACRO_DRAWPREFIX(stylegenestring)(1|(((*i_curve_instance).FillType>0)?2:0)|(((*i_curve_instance).LineType & 2)?4:0));
 	tllast=1;
-	if ((*i_curve_instance).FillType>0)
 	{
-		if (MACRO_DRAWPREFIX(expressgeometry_start)(0,0,1000,1000))
+	float tl_minx=1000000000000; float tl_miny=1000000000000; float tl_maxx=-1000000000000; float tl_maxy=-1000000000000;
+	for (int ilv1=0;ilv1<(*i_curve_instance).CurvePoints.count;ilv1++)
+	{
+		if ((*i_curve_instance).CurvePoints.a[ilv1].x<tl_minx) tl_minx=(*i_curve_instance).CurvePoints.a[ilv1].x;
+		if ((*i_curve_instance).CurvePoints.a[ilv1].x>tl_maxx) tl_maxx=(*i_curve_instance).CurvePoints.a[ilv1].x;
+		if ((*i_curve_instance).CurvePoints.a[ilv1].y<tl_miny) tl_miny=(*i_curve_instance).CurvePoints.a[ilv1].y;
+		if ((*i_curve_instance).CurvePoints.a[ilv1].y>tl_maxy) tl_maxy=(*i_curve_instance).CurvePoints.a[ilv1].y;
+	}
+	if (MACRO_DRAWPREFIX(expressgeometry_start)(tl_minx,tl_miny,tl_maxx,tl_maxy))
+	{
+		MACRO_DRAWPREFIX(expressgeometry_begin)((*i_curve_instance).CurvePoints.a[1].x,(*i_curve_instance).CurvePoints.a[1].y);
+		for (int ilv1=2;ilv1<(*i_curve_instance).CurvePoints.count-2;ilv1+=3)
 		{
-			MACRO_DRAWPREFIX(expressgeometry_begin)((*i_curve_instance).CurvePoints.a[1].x,(*i_curve_instance).CurvePoints.a[1].y);
-			for (int ilv1=2;ilv1<(*i_curve_instance).CurvePoints.count-2;ilv1+=3)
-			{
-				MACRO_DRAWPREFIX(expressgeometry_bezier3)((*i_curve_instance).CurvePoints.a[ilv1].x,(*i_curve_instance).CurvePoints.a[ilv1].y,(*i_curve_instance).CurvePoints.a[ilv1+1].x,(*i_curve_instance).CurvePoints.a[ilv1+1].y,(*i_curve_instance).CurvePoints.a[ilv1+2].x,(*i_curve_instance).CurvePoints.a[ilv1+2].y);
-			}
-			MACRO_DRAWPREFIX(expressgeometry_end)();
-			goto svg_main_loop;
+			MACRO_DRAWPREFIX(expressgeometry_bezier3)((*i_curve_instance).CurvePoints.a[ilv1].x,(*i_curve_instance).CurvePoints.a[ilv1].y,(*i_curve_instance).CurvePoints.a[ilv1+1].x,(*i_curve_instance).CurvePoints.a[ilv1+1].y,(*i_curve_instance).CurvePoints.a[ilv1+2].x,(*i_curve_instance).CurvePoints.a[ilv1+2].y);
 		}
+		if ((*i_curve_instance).Closed)
+		{
+			MACRO_DRAWPREFIX(expressgeometry_bezier3)((*i_curve_instance).CurvePoints.a[(*i_curve_instance).CurvePoints.count-1].x,(*i_curve_instance).CurvePoints.a[(*i_curve_instance).CurvePoints.count-1].y,(*i_curve_instance).CurvePoints.a[0].x,(*i_curve_instance).CurvePoints.a[0].y,(*i_curve_instance).CurvePoints.a[1].x,(*i_curve_instance).CurvePoints.a[1].y);
+		}
+		else
+		{
+			if ((*i_curve_instance).FillType>0)
+			{
+				MACRO_DRAWPREFIX(expressgeometry_backline)();
+			}
+		}
+		MACRO_DRAWPREFIX(expressgeometry_end)();
 	}
-	for (int ilv2=1;ilv2<(*i_curve_instance).CurvePoints.count-3;ilv2+=3)
-	{
-		MACRO_DRAWPREFIX(expressbezier)((*i_curve_instance).CurvePoints.a[ilv2].x,(*i_curve_instance).CurvePoints.a[ilv2].y,(*i_curve_instance).CurvePoints.a[ilv2+1].x,(*i_curve_instance).CurvePoints.a[ilv2+1].y,(*i_curve_instance).CurvePoints.a[ilv2+2].x,(*i_curve_instance).CurvePoints.a[ilv2+2].y,(*i_curve_instance).CurvePoints.a[ilv2+3].x,(*i_curve_instance).CurvePoints.a[ilv2+3].y);
-		tllast=ilv2+3;
 	}
-	if ((*i_curve_instance).Closed)
-	{
-		MACRO_DRAWPREFIX(expressbezier)((*i_curve_instance).CurvePoints.a[tllast].x,(*i_curve_instance).CurvePoints.a[tllast].y,(*i_curve_instance).CurvePoints.a[tllast+1].x,(*i_curve_instance).CurvePoints.a[tllast+1].y,(*i_curve_instance).CurvePoints.a[0].x,(*i_curve_instance).CurvePoints.a[0].y,(*i_curve_instance).CurvePoints.a[1].x,(*i_curve_instance).CurvePoints.a[1].y);
-	}
-	else
+	if ((*i_curve_instance).Closed==0)
 	{
 		currentArrowHeadType=1;
 		currentArrowHeadTail=1;

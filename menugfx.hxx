@@ -883,7 +883,7 @@ int sdl_selectiondraw()
 						if ((control_tool==12) && (((selection_currentselection[ilv2]) & icompare)>0) && (control_drawproperties.CURVE_subtool==1))
 						{
 							draw_drawmarkpoint((tlpx-SDL_scrollx)*SDL_zoomx-3+gfx_canvasminx,(tlpy-SDL_scrolly)*SDL_zoomy-3+gfx_canvasminy,47,1,0);
-							cdx_Point2D * friendpoint=&((*(curve_instance*)(ibufferpos+isize*ilv2)).CurvePoints.a[(((ilv3+0)/3)*3)+1]);
+							cdx_Point2D * friendpoint=&((*(curve_instance*)(ibufferpos+isize*ilv2)).CurvePoints.a[(((ilv3-1)/3)*3)+1]);
 							SDL_color=0;SDL_linestyle=0;
 							gfx_expressline(tlpx,tlpy,(*friendpoint).x,(*friendpoint).y);
 						}

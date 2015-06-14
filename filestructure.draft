@@ -16,6 +16,6 @@ line;annotation ;0 id 0 color 0 SupersededBy 4 BoundingBox 0 Z ! ArrowType ! Lin
 graphic;represent annotation ;0 id 0 color 0 SupersededBy 4 BoundingBox 0 Z ! GraphicType ! ArrowType ! SymbolType 1 AngularSize 1 CornerRadius ‼ OvalType ! RectangleType ! LineType ! BracketType 3 Center3D 3 MajorAxisEnd3D 3 MinorAxisEnd3D : represent ;
 represent;;! attribute 0 object ;
 annotation;;s Keyword S Content ;
-curve;;0 id 0 color 0 Z # ArrowheadType # ArrowheadHead # ArrowheadTail ~ CurvePoints ! FillType 0 CurveType ! Closed ;
+curve;;0 id 0 color 0 Z # ArrowheadType # ArrowheadHead # ArrowheadTail ~ CurvePoints ! FillType 0 CurveType ! Closed 0 FadePercent ;
 LENHACK_ANNOTATION;;0 IgnoreTextboxes ;
 moleculefill;;0 clockwise 0 Z 4 BoundingBox T Points 0 RGB ;

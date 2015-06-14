@@ -746,27 +746,27 @@ inline int retrievepoints(curve_instance * iinstance,float * ix,float * iy,float
 		sumx=0;
 		sumy=0;
 		sumz=0;
-		for (int ilv1=1;ilv1<iinstance->CurvePoints.count;ilv1++)
+		for (int ilv1=0;ilv1<iinstance->CurvePoints.count;ilv1++)
 		{
 			sumx+=iinstance->CurvePoints.a[ilv1].x;
 			sumy+=iinstance->CurvePoints.a[ilv1].y;
 			//TODO:3D sumz+=iinstance->CurvePoints.a[ilv1].z;
 		}
-		if (iinstance->CurvePoints.count>1)
+		if (iinstance->CurvePoints.count>=1)
 		{
-			(*ix)=sumx/(iinstance->CurvePoints.count-1);
-			(*iy)=sumy/(iinstance->CurvePoints.count-1);
+			(*ix)=sumx/(iinstance->CurvePoints.count);
+			(*iy)=sumy/(iinstance->CurvePoints.count);
 			//TODO: 3D (*iz)=sumz/iinstance->CurvePoints.count;
 			return 1;
 		}
 	}
-	if (inumber<0) inumber=-inumber-1;
-	if (inumber>=0)
+	if (inumber<0) inumber=-inumber;
+	if (inumber>0)
 	{
-		if (inumber<iinstance->CurvePoints.count)
+		if (inumber<=iinstance->CurvePoints.count)
 		{
-			(*ix)=iinstance->CurvePoints.a[inumber].x;
-			(*iy)=iinstance->CurvePoints.a[inumber].y;
+			(*ix)=iinstance->CurvePoints.a[inumber-1].x;
+			(*iy)=iinstance->CurvePoints.a[inumber-1].y;
 //			(*iz)=iinstance->CurvePoints.a[inumber].z;//TODO
 			return 1;
 		}
@@ -1168,13 +1168,33 @@ inline int placepoints(t_instance * iinstance,float ix,float iy,float iz,int inu
 inline int placepoints(curve_instance * iinstance,float ix,float iy,float iz,int inumber,basicmultilist * imultilist=NULL)
 {
 	char all=0;
-	if (inumber<0) inumber=-inumber-1;
+	if (inumber<0) inumber=-inumber;
+	if (inumber==0)
+	{
+		float tl_x,tl_y,tl_z;
+		retrievepoints(iinstance,&tl_x,&tl_y,&tl_z,0);
+		tl_x=ix-tl_x;
+		tl_y=iy-tl_y;
+		tl_z=iz-tl_z;
+		for (int ilv1=0;ilv1<iinstance->CurvePoints.count;ilv1++)
+		{
+			iinstance->CurvePoints.a[ilv1].x+=tl_x;
+			iinstance->CurvePoints.a[ilv1].y+=tl_y;
+		}
+		return 1;
+	}
 	if (inumber>0)
 	{
-		if (inumber<iinstance->CurvePoints.count)
+		if (inumber<=iinstance->CurvePoints.count)
 		{
-			iinstance->CurvePoints.a[inumber].x=ix;
-			iinstance->CurvePoints.a[inumber].y=iy;
+			iinstance->CurvePoints.a[inumber-1].x=ix;
+			iinstance->CurvePoints.a[inumber-1].y=iy;
+			return 1;
+		}
+		if (inumber==iinstance->CurvePoints.count)
+		{
+			iinstance->CurvePoints.a[0].x=ix;
+			iinstance->CurvePoints.a[0].y=iy;
 			return 1;
 		}
 	}

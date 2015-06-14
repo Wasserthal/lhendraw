@@ -362,6 +362,7 @@ void CAMBRIDGECONV_graphic()
 		CAMBRIDGECONV_EXISTSTHEN(graphic,GraphicType);
 		CAMBRIDGECONV_EXISTSTHEN(graphic,SymbolType);
 		CAMBRIDGECONV_EXISTSTHEN(graphic,CornerRadius);
+		tl_graphic_instance.CornerRadius/=100;
 		CAMBRIDGECONV_EXISTSTHEN(graphic,OvalType);
 		CAMBRIDGECONV_EXISTSTHEN(graphic,RectangleType);
 		CAMBRIDGECONV_EXISTSTHEN(graphic,LineType);
@@ -403,6 +404,30 @@ void CAMBRIDGECONV_arrow()
 		(*tl_arrow_multilist).ADD(&tl_arrow_instance);
 	}
 }
+void CAMBRIDGECONV_curve()
+{
+	multilist<CAMBRIDGE_curve_instance> * tl_CAMBRIDGE_curve_multilist=retrievemultilist<CAMBRIDGE_curve_instance>();
+	multilist<curve_instance> * tl_curve_multilist=retrievemultilist<curve_instance>();
+	for (int ilv1=0;ilv1<(*tl_CAMBRIDGE_curve_multilist).filllevel;ilv1++)
+	{
+		CAMBRIDGE_curve_instance * tl_CAMBRIDGE_curve_instance=(*tl_CAMBRIDGE_curve_multilist).bufferlist()+ilv1;
+		curve_instance tl_curve_instance;
+		tl_curve_instance=curve_instance();
+		CAMBRIDGECONV_COLORCONV(curve);
+		CAMBRIDGECONV_EXISTSTHEN(curve,Z);
+		CAMBRIDGECONV_EXISTSTHEN(curve,ArrowheadType);
+		CAMBRIDGECONV_EXISTSTHEN(curve,ArrowheadHead);
+		CAMBRIDGECONV_EXISTSTHEN(curve,ArrowheadTail);
+		CAMBRIDGECONV_EXISTSTHEN(curve,CurvePoints);
+		CAMBRIDGECONV_EXISTSTHEN(curve,FillType);
+		CAMBRIDGECONV_EXISTSTHEN(curve,Closed);
+		if (AUTOSTRUCT_EXISTS(CAMBRIDGE_curve_instance,(*tl_CAMBRIDGE_curve_instance),FadePercent))
+		{
+			if (tl_curve_instance.FillType==0) tl_curve_instance.FillType=1;
+		}
+		(*tl_curve_multilist).ADD(&tl_curve_instance);
+	}
+}
 
 extern int janitor_getmaxid(_u32 ino);
 void CAMBRIDGECONV_maintointernal()
@@ -413,5 +438,6 @@ void CAMBRIDGECONV_maintointernal()
 	CAMBRIDGECONV_text();
 	CAMBRIDGECONV_graphic();
 	CAMBRIDGECONV_arrow();
+	CAMBRIDGECONV_curve();
 	janitor_getmaxid(0);//You never know what must be done with them next.
 }

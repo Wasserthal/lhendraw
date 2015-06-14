@@ -881,7 +881,6 @@ void gfx_expressgeometry_bezier3(float inx1,float iny1,float inx2,float iny2,flo
 	iotherhalfback:;
 	if ((knotpattern>0) && (y2<y1))//Total surge
 	{
-		printf("Thought\n");
 		if (hasotherhalf==1)
 		{
 			lasty=starty-1;
@@ -901,13 +900,13 @@ void gfx_expressgeometry_bezier3(float inx1,float iny1,float inx2,float iny2,flo
 		}
 		else
 		{
-			gfx_expressgeometry_neutro(2);
+			gfx_expressgeometry_neutro((3*swapped)^1);
 			lasty=y2-1;
 			endy=y1;
 			currentlevel=gfx_expressgeometry_calcbezier3apogee(2,starty,y1,y2,y0);
 			lastlevel=gfx_expressgeometry_calcbezier3apogee(1,starty,y1,y2,y0);
 			hasotherhalf=4;
-			GFX_GEONEXT(1);
+			GFX_GEONEXT((3*swapped)^1);
 		}
 	}
 	else
@@ -939,7 +938,7 @@ void gfx_expressgeometry_bezier3(float inx1,float iny1,float inx2,float iny2,flo
 		}
 		else
 		{
-			if (y1<starty)
+			if (y1<=starty)
 			{
 				if (y2>y0)//WIDE SURGE
 				{
@@ -962,17 +961,17 @@ void gfx_expressgeometry_bezier3(float inx1,float iny1,float inx2,float iny2,flo
 					}
 					else
 					{
-						gfx_expressgeometry_neutro(2);
+						gfx_expressgeometry_neutro((3*swapped)^2);
 						lasty=y1-1;
 						endy=y2;
 						currentlevel=gfx_expressgeometry_calcbezier3apogee(1,starty,y1,y2,y0);
 						lastlevel=gfx_expressgeometry_calcbezier3apogee(2,starty,y1,y2,y0);
 						hasotherhalf=1;
-						GFX_GEONEXT(2);
+						GFX_GEONEXT((3*swapped)^2);
 					}
 				}
 				else
-				{
+				{//upwards
 					if (hasotherhalf==1)
 					{
 						lasty=min(y1,y2)-1;

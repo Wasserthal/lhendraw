@@ -51,7 +51,6 @@ void get_selection_pivot()
 				{
 					if ((selection_currentselection[ilv2*internalpointcount+ilv3-1] & (1<<(STRUCTURE_OBJECTTYPE_ListSize+ilv1))) || (iAllofthem))
 					{
-						printf("%i\n",internalpointcount);
 						edit_pivot.x+=tl_x;
 						edit_pivot.y+=tl_y;
 						edit_pivot.z+=tl_z;

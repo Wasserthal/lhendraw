@@ -905,8 +905,16 @@ int issueclick(int iposx,int iposy)
 			control_manipulatedinstance=getclicked((1<<STRUCTURE_OBJECTTYPE_n),control_coorsx,control_coorsy);
 			if (selection_currentselection_found==0)
 			{
-				selection_copyselection(selection_currentselection,selection_clickselection);
-				selection_currentselection_found=selection_clickselection_found;
+				if (control_lastmousebutton==SDL_BUTTON_LEFT)
+				{
+					selection_ORselection(selection_currentselection,selection_clickselection);
+					selection_currentselection_found|=selection_clickselection_found;
+				}
+				else
+				{
+					selection_SUBTRACTselection(selection_currentselection,selection_clickselection);
+					selection_currentselection_found&=~selection_clickselection_found;
+				}
 			}
 			control_startx=control_coorsx;
 			control_starty=control_coorsy;

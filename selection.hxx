@@ -40,6 +40,13 @@ void selection_ORselection(selection_ iselection,selection_ iselection2)
 		iselection[ilv1]|=iselection2[ilv1];
 	}
 }
+void selection_SUBTRACTselection(selection_ iselection,selection_ iselection2)
+{
+	for (int ilv1=0;ilv1<selection_max;ilv1++)
+	{
+		iselection[ilv1]&=~iselection2[ilv1];
+	}
+}
 void selection_XORselection(selection_ iselection,selection_ iselection2)
 {
 	for (int ilv1=0;ilv1<selection_max;ilv1++)

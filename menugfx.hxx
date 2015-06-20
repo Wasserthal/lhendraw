@@ -1,4 +1,14 @@
 //any graphics output which is not data of the document
+_i32 menu_addyifneg(_i32 input)
+{
+	if (input<0) return input+gfx_screensizey;
+	return input;
+}
+_i32 menu_addxifneg(_i32 input)
+{
+	if (input<0) return input+gfx_screensizex;
+	return input;
+}
 void text_output_bitmap(int * posx,int * posy,fontpixinf_ * ifontpixinf)
 {
 	int ilv1,ilv2;

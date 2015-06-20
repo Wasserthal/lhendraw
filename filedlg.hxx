@@ -234,7 +234,7 @@ void control_filedlg()
 								case SDLK_END:
 								{
 									tl_structenum->number=tl_structenum->count-1;
-									int tl_max=((*tl_pulloutlisting).maxy-(*tl_pulloutlisting).y)/16;
+									int tl_max=(menu_addyifneg((*tl_pulloutlisting).maxy)-(*tl_pulloutlisting).y)/16;
 									if (tl_structenum->number>=tl_structenum->scroll+tl_max) tl_structenum->scroll=tl_structenum->number-tl_max+1;
 									break;
 								}
@@ -246,7 +246,7 @@ void control_filedlg()
 								{
 									tl_structenum->number++;
 									if (tl_structenum->number>=tl_structenum->count) tl_structenum->number=tl_structenum->count-1;
-									int tl_max=((*tl_pulloutlisting).maxy-(*tl_pulloutlisting).y)/16;
+									int tl_max=(menu_addyifneg((*tl_pulloutlisting).maxy)-(*tl_pulloutlisting).y)/16;
 									if (tl_structenum->number>=tl_structenum->scroll+tl_max) tl_structenum->scroll=tl_structenum->number-tl_max+1;
 									break;
 								}

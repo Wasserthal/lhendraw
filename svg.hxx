@@ -6,7 +6,7 @@ int svg_get_colorstringv(int number)
 	sprintf(colorstring,"%06X",number);
 	return 0;
 }
-void svg_stylegenestring(int flags,unsigned int fillcolor=0)
+void svg_stylegenestring(int flags,unsigned int fillcolor=0)//0x1: line 0x2: filled 0x4: bold 0x8 dashed
 {
 	int stylestringlength=0;
 	stylestring[0]=0;//redundant

@@ -621,7 +621,7 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,char hatches)
 	i_curve_instance=(curve_instance*)&((*glob_curve_multilist)[index_in_buffer]);
 	colornr=(*i_curve_instance).color;
 	MACRO_DRAWPREFIX(get_colorstring)(colornr);
-	MACRO_DRAWPREFIX(stylegenestring)(1|(((*i_curve_instance).FillType>0)?2:0)|(((*i_curve_instance).LineType & 2)?4:0));
+	MACRO_DRAWPREFIX(stylegenestring)(stylefromattrs((*i_curve_instance).LineType,(*i_curve_instance).FillType));
 	tllast=1;
 	{
 	float tl_minx=1000000000000; float tl_miny=1000000000000; float tl_maxx=-1000000000000; float tl_maxy=-1000000000000;
@@ -888,7 +888,7 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,char hatches)
 	if ((*i_graphic_instance).GraphicType==3)
 	{
 		//TODO SUBJECT make LENHACK Frame omissions in conversion, not in draw
-		MACRO_DRAWPREFIX(stylegenestring)(stylefromrectangle((*i_graphic_instance).RectangleType));
+		MACRO_DRAWPREFIX(stylegenestring)(stylefromattrs((*i_graphic_instance).LineType,(*i_graphic_instance).FillType));
 		float tl_corn=(*i_graphic_instance).CornerRadius;
 		if ((*i_graphic_instance).CornerRadius>0)
 		{
@@ -925,18 +925,9 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,char hatches)
 	}
 	if ((*i_graphic_instance).GraphicType==4)
 	{
-		MACRO_DRAWPREFIX(stylegenestring)(1|(((*i_graphic_instance).OvalType & 4)?2:0));
-		if ((*i_graphic_instance).OvalType & 1)
-		{
-			float tldistance=sqrt((iBBX.right-iBBX.left)*(iBBX.right-iBBX.left)+(iBBX.bottom-iBBX.top)*(iBBX.bottom-iBBX.top));
-			iBBX.left-=tldistance;
-			MACRO_DRAWPREFIX(expresscdxcircle)(iBBX.right,iBBX.bottom,tldistance);
-		}
-		else
-		{
-			ellipsoid.create((*i_graphic_instance).Center3D,(*i_graphic_instance).MajorAxisEnd3D,(*i_graphic_instance).MinorAxisEnd3D);
-			MACRO_DRAWPREFIX(expressspinellipse)((*i_graphic_instance).Center3D.x,(*i_graphic_instance).Center3D.y,ellipsoid.radiusx,ellipsoid.radiusy,ellipsoid.axangle);
-		}
+		MACRO_DRAWPREFIX(stylegenestring)(stylefromattrs((*i_graphic_instance).LineType,(*i_graphic_instance).FillType));
+		ellipsoid.create((*i_graphic_instance).Center3D,(*i_graphic_instance).MajorAxisEnd3D,(*i_graphic_instance).MinorAxisEnd3D);
+		MACRO_DRAWPREFIX(expressspinellipse)((*i_graphic_instance).Center3D.x,(*i_graphic_instance).Center3D.y,ellipsoid.radiusx,ellipsoid.radiusy,ellipsoid.axangle);
 	}
 	if ((*i_graphic_instance).GraphicType==5)
 	{
@@ -950,18 +941,9 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,char hatches)
 			goto skipthisgraphic;
 		}
 		#endif
-		MACRO_DRAWPREFIX(stylegenestring)(0x10);
-		if ((*i_graphic_instance).OvalType & 1)
-		{
-			float tldistance=sqrt((iBBX.right-iBBX.left)*(iBBX.right-iBBX.left)+(iBBX.bottom-iBBX.top)*(iBBX.bottom-iBBX.top));
-			iBBX.left-=tldistance;
-			MACRO_DRAWPREFIX(expresscdxcircle)(iBBX.right,iBBX.bottom,tldistance);
-		}
-		else
-		{
-			ellipsoid.create((*i_graphic_instance).Center3D,(*i_graphic_instance).MajorAxisEnd3D,(*i_graphic_instance).MinorAxisEnd3D);
-			MACRO_DRAWPREFIX(expressspinellipse)((*i_graphic_instance).Center3D.x,(*i_graphic_instance).Center3D.y,ellipsoid.radiusx,ellipsoid.radiusy,ellipsoid.axangle);
-		}
+		MACRO_DRAWPREFIX(stylegenestring)(stylefromattrs((*i_graphic_instance).LineType,(*i_graphic_instance).FillType));
+		ellipsoid.create((*i_graphic_instance).Center3D,(*i_graphic_instance).MajorAxisEnd3D,(*i_graphic_instance).MinorAxisEnd3D);
+		MACRO_DRAWPREFIX(expressspinellipse)((*i_graphic_instance).Center3D.x,(*i_graphic_instance).Center3D.y,ellipsoid.radiusx,ellipsoid.radiusy,ellipsoid.axangle);
 	}
 	if ((*i_graphic_instance).GraphicType==7)
 	{
@@ -969,7 +951,7 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,char hatches)
 	}
 	if ((*i_graphic_instance).GraphicType==6)
 	{
-		MACRO_DRAWPREFIX(stylegenestring)(1);
+		MACRO_DRAWPREFIX(stylegenestring)(stylefromattrs((*i_graphic_instance).LineType,(*i_graphic_instance).FillType));
 		cangle=getangle(iBBX.right-iBBX.left,iBBX.bottom-iBBX.top)+Pi/2;
 		langle=getangle(iBBX.right-iBBX.left,iBBX.bottom-iBBX.top);
 		switch ((*i_graphic_instance).BracketType)

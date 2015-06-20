@@ -40,13 +40,13 @@ menuitem pullout_toolspecific_CURVE[]={
 0xFFFF,
 },
 {1,1,
-98,//Picture
-"Solid",
-8,6,
+102,//Picture
+"1",
+3,3,
 1,
-"Simple bezier mode\n",
-"control_drawproperties.curve_FillType",
-"","",
+"Reverse Bezier\n",
+"control_drawproperties.curve_Closed",
+"REVERSEBEZIER","",
 0xFFFF,
 },
 };

@@ -33,15 +33,14 @@ struct drawproperties_
 	_i32 bond_Display;
 	_i32 bond_Display2;
 	_i32 curve_Closed;
-	_i32 curve_FillType;
-	_i32 curve_LineType;
+	_i32 FillType;//0: line 1: solid
+	_i32 LineType;
 	_i32 attribute_tool;
 	int color;
 	_i32 Element;
 	_i32 ring_element_count;
 	_i32 ring_unsaturation;
 	_i32 GraphicType;
-	_i32 fillstyle;//0: line 1: solid
 	int ARROW_subtool;//0:draw 1: Skip 2: Situp
 	int CHARGE_subtool;//0:Substitute charges 1: del 2: draw plainly
 	int SELECTION_subtool;//0:Rectangular 1: round
@@ -50,8 +49,8 @@ struct drawproperties_
 structenum * searchreflectedstruct(const char * input);
 void applytransform_single(float matrix[3][3],cdx_Point3D * input,cdx_Point3D * output,cdx_Point3D * pivot);
 _small edit_current5bondcarbon=0;
-drawproperties_ control_drawproperties={16,0,0,0,0,0,4,0,constants_Element_implicitcarbon,6,1,0,0,0,0,0,1};
-drawproperties_ control_drawproperties_init={16,0,0,0,0,0,4,0,constants_Element_implicitcarbon,6,1,0,0,0,0,0,1};
+drawproperties_ control_drawproperties={16,0,0,0,0,0,4,0,constants_Element_implicitcarbon,6,1,0,0,0,0,1};
+drawproperties_ control_drawproperties_init={16,0,0,0,0,0,4,0,constants_Element_implicitcarbon,6,1,0,0,0,0,1};
 int control_hotatom=-1;
 //Copies a set of atoms and bonds from one buffer to another. Can take atoms from ANY other buffer
 char * undo_retrievebuffer(intl start,intl list);
@@ -1540,10 +1539,9 @@ graphic_instance * edit_summongraphic(int * inr=NULL)
 		(*tlinstance).Z=edit_getnewZ();
 		selection_currentselection[tl_nr]&=(~(1<<STRUCTURE_OBJECTTYPE_graphic));
 		((*glob_graphic_multilist).filllevel)++;
-		(*tlinstance).OvalType=(control_drawproperties.fillstyle)?0x4:0;
-		(*tlinstance).RectangleType=(control_drawproperties.fillstyle)?0x8:0;
+		(*tlinstance).FillType=control_drawproperties.FillType;
 		(*tlinstance).id=(*glob_graphic_multilist).maxid+1;
-		(*tlinstance).LineType=0;
+		(*tlinstance).LineType=control_drawproperties.LineType;;
 		(*glob_graphic_multilist).maxid++;
 		if (inr!=NULL)
 		{
@@ -1633,8 +1631,8 @@ curve_instance * edit_summoncurve(int * inr=NULL)
 		(*tlinstance).ArrowheadType=0;
 		(*tlinstance).ArrowheadTail=0;
 		(*tlinstance).ArrowShaftSpacing=0;
-		(*tlinstance).FillType=control_drawproperties.curve_FillType;
-		(*tlinstance).LineType=control_drawproperties.curve_LineType;
+		(*tlinstance).FillType=control_drawproperties.FillType;
+		(*tlinstance).LineType=control_drawproperties.LineType;
 		(*tlinstance).Z=edit_getnewZ();
 		selection_currentselection[tl_nr]&=(~(1<<STRUCTURE_OBJECTTYPE_curve));
 		((*glob_curve_multilist).filllevel)++;

@@ -361,11 +361,80 @@ void CAMBRIDGECONV_graphic()
 		CAMBRIDGECONV_EXISTSTHEN(graphic,BoundingBox);
 		CAMBRIDGECONV_EXISTSTHEN(graphic,GraphicType);
 		CAMBRIDGECONV_EXISTSTHEN(graphic,SymbolType);
-		CAMBRIDGECONV_EXISTSTHEN(graphic,CornerRadius);
-		tl_graphic_instance.CornerRadius/=100;
-		CAMBRIDGECONV_EXISTSTHEN(graphic,OvalType);
-		CAMBRIDGECONV_EXISTSTHEN(graphic,RectangleType);
 		CAMBRIDGECONV_EXISTSTHEN(graphic,LineType);
+		if (tl_CAMBRIDGE_graphic_instance->OvalType & 1)
+		{
+		}
+		for (int ilv2=1;ilv2<=0x20;ilv2*=2)
+		{
+			if (tl_CAMBRIDGE_graphic_instance->OvalType & ilv2)
+			switch (ilv2)
+			{
+				case 1:
+				{
+					cdx_Rectangle iBBX=tl_CAMBRIDGE_graphic_instance->BoundingBox;
+					float tldistance=sqrt((iBBX.right-iBBX.left)*(iBBX.right-iBBX.left)+(iBBX.bottom-iBBX.top)*(iBBX.bottom-iBBX.top));
+					iBBX.left-=tldistance;
+					iBBX.right=iBBX.left+tldistance;
+					iBBX.bottom=iBBX.top+tldistance;
+					tl_graphic_instance.BoundingBox=iBBX;
+				}
+				break;
+				case 2:
+				{
+					tl_graphic_instance.FillType=2;
+				}
+				break;
+				case 4:
+				{
+					tl_graphic_instance.FillType=1;
+				}
+				break;
+				case 8:
+				{
+					tl_graphic_instance.LineType|=1;
+				}
+				break;
+				case 0x10:
+				{
+					tl_graphic_instance.LineType|=2;
+				}
+				break;
+			}
+		}
+		for (int ilv2=1;ilv2<=0x20;ilv2*=2)
+		{
+			if (tl_CAMBRIDGE_graphic_instance->RectangleType & ilv2)
+			switch (ilv2)
+			{
+				case 1:
+				{
+					CAMBRIDGECONV_EXISTSTHEN(graphic,CornerRadius);
+					tl_graphic_instance.CornerRadius/=100;
+				}
+				break;
+				case 4:
+				{
+					tl_graphic_instance.FillType=2;
+				}
+				break;
+				case 8:
+				{
+					tl_graphic_instance.FillType=1;
+				}
+				break;
+				case 0x10:
+				{
+					tl_graphic_instance.LineType|=1;
+				}
+				break;
+				case 0x20:
+				{
+					tl_graphic_instance.LineType|=2;
+				}
+				break;
+			}
+		}
 		CAMBRIDGECONV_EXISTSTHEN(graphic,BracketType);
 		CAMBRIDGECONV_EXISTSTHEN(graphic,Center3D);
 		CAMBRIDGECONV_EXISTSTHEN(graphic,MajorAxisEnd3D);

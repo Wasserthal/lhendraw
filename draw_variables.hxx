@@ -503,6 +503,12 @@ char emptystring[1]="";
 char semicolonstring[2]=";";
 int stylefromline(int input) {return 1|((input & 1)?8:0)|((input & 2)?4:0);}
 int stylefromrectangle(int input) {return 1|((input & 0x10)?8:0)|((input & 0x20)?4:0)|((input & 0x8)?2:0);}
+int stylefromattrs(_i32 LineType,_i32 FillType)
+{
+	_i32 wert=((FillType==0)?1:0)|((LineType & 1)?8:0)|((LineType & 2)?4:0)|((FillType==1)?2:0);
+	//0x1: line 0x2: filled 0x4: bold 0x8 dashed
+	return wert;
+}
 typedef struct MODIFIER_KEYS_
 {
 	char CTRL;

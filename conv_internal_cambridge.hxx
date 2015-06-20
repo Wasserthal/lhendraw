@@ -396,12 +396,49 @@ void CONVCAMBRIDGE_graphic(CAMBRIDGE_page_instance * master)
 		CONVCAMBRIDGE_COLORCONV(graphic);
 		(*tl_CAMBRIDGE_graphic_instance).BoundingBox=(*tl_graphic_instance).BoundingBox;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_graphic_instance,BoundingBox);
 		(*tl_CAMBRIDGE_graphic_instance).GraphicType=(*tl_graphic_instance).GraphicType;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_graphic_instance,GraphicType);
-		(*tl_CAMBRIDGE_graphic_instance).SymbolType=(*tl_graphic_instance).SymbolType;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_graphic_instance,SymbolType);
-		(*tl_CAMBRIDGE_graphic_instance).CornerRadius=(*tl_graphic_instance).CornerRadius;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_graphic_instance,CornerRadius);
-		(*tl_CAMBRIDGE_graphic_instance).CornerRadius*=100;
-		(*tl_CAMBRIDGE_graphic_instance).OvalType=(*tl_graphic_instance).OvalType;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_graphic_instance,OvalType);
-		(*tl_CAMBRIDGE_graphic_instance).RectangleType=(*tl_graphic_instance).RectangleType;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_graphic_instance,RectangleType);
-		(*tl_CAMBRIDGE_graphic_instance).LineType=(*tl_graphic_instance).LineType;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_graphic_instance,LineType);
+		switch ((*tl_graphic_instance).GraphicType)
+		{
+			case 1://Line
+			case 2://Arc
+			case 6://Bracket
+			{
+				(*tl_CAMBRIDGE_graphic_instance).LineType=(*tl_graphic_instance).LineType;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_graphic_instance,LineType);
+				break;
+			}
+			case 3://Rectangle
+			{
+				if ((*tl_graphic_instance).CornerRadius>0)
+				{
+					(*tl_CAMBRIDGE_graphic_instance).CornerRadius=(*tl_graphic_instance).CornerRadius;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_graphic_instance,CornerRadius);
+					(*tl_CAMBRIDGE_graphic_instance).CornerRadius*=100;
+					(*tl_CAMBRIDGE_graphic_instance).RectangleType|=1;
+				}
+				int tl_f=tl_graphic_instance->LineType;
+				(*tl_CAMBRIDGE_graphic_instance).RectangleType|=((tl_f & 1)!=0)*0x10+((tl_f & 2)!=0)*0x20;
+				tl_f=tl_graphic_instance->FillType;
+				(*tl_CAMBRIDGE_graphic_instance).RectangleType|=((tl_f & 1)!=0)*0x8+((tl_f & 2)!=0)*0x4;
+				AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_graphic_instance,RectangleType);
+				break;
+			}
+			case 4://Oval
+			{
+				int tl_f=tl_graphic_instance->LineType;
+				(*tl_CAMBRIDGE_graphic_instance).OvalType|=((tl_f & 1)!=0)*0x8+((tl_f & 2)!=0)*0x10;
+				tl_f=tl_graphic_instance->FillType;
+				(*tl_CAMBRIDGE_graphic_instance).OvalType|=((tl_f & 1)!=0)*0x4+((tl_f & 2)!=0)*0x2;
+				AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_graphic_instance,OvalType);
+				break;
+			}
+			case 5://Orbital
+			{
+				break;
+			}
+			case 7://Symbol
+			{
+				(*tl_CAMBRIDGE_graphic_instance).SymbolType=(*tl_graphic_instance).SymbolType;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_graphic_instance,SymbolType);
+				break;
+			}
+		}
 		(*tl_CAMBRIDGE_graphic_instance).BracketType=(*tl_graphic_instance).BracketType;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_graphic_instance,BracketType);
 		(*tl_CAMBRIDGE_graphic_instance).Center3D=(*tl_graphic_instance).Center3D;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_graphic_instance,Center3D);
 		(*tl_CAMBRIDGE_graphic_instance).MajorAxisEnd3D=(*tl_graphic_instance).MajorAxisEnd3D;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_graphic_instance,MajorAxisEnd3D);

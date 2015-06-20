@@ -2538,7 +2538,7 @@ int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int
 						}
 						char * tl_name=(*ipulloutlisting).variablename;
 						tl_name+=strlen(tl_name)-1;
-						while (*tl_name!='_') tl_name--;
+						while ((*tl_name!='_') && (*tl_name!='.')) tl_name--;
 						tl_name++;
 						if ((*ipulloutlisting).LMB_function!=NULL)
 						{

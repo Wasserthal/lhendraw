@@ -27,7 +27,7 @@
 		LOCALMACRO_1(t)\
 		LOCALMACRO_1(curve)
 extern char control_filename[512];
-struct drawproperties_
+struct control_drawproperties_
 {
 	_i32 bond_Order;
 	_i32 bond_Display;
@@ -49,8 +49,8 @@ struct drawproperties_
 structenum * searchreflectedstruct(const char * input);
 void applytransform_single(float matrix[3][3],cdx_Point3D * input,cdx_Point3D * output,cdx_Point3D * pivot);
 _small edit_current5bondcarbon=0;
-drawproperties_ control_drawproperties={16,0,0,0,0,0,4,0,constants_Element_implicitcarbon,6,1,0,0,0,0,1};
-drawproperties_ control_drawproperties_init={16,0,0,0,0,0,4,0,constants_Element_implicitcarbon,6,1,0,0,0,0,1};
+control_drawproperties_ control_drawproperties={16,0,0,0,0,0,4,0,constants_Element_implicitcarbon,6,1,0,0,0,0,1};
+control_drawproperties_ control_drawproperties_init={16,0,0,0,0,0,4,0,constants_Element_implicitcarbon,6,1,0,0,0,0,1};
 int control_hotatom=-1;
 //Copies a set of atoms and bonds from one buffer to another. Can take atoms from ANY other buffer
 char * undo_retrievebuffer(intl start,intl list);
@@ -3500,6 +3500,8 @@ catalogized_command_funcdef(SET_ALL_ITEMS)//TODO: works for _i32 only, right now
 }
 catalogized_command_funcdef(OPTIONS)
 {
+	LHENDRAW_filedlgmode=2;
+	menu_selectedmenuelement=0;
 	return 0;
 }
 catalogized_command_funcdef(WARN_HYPERC)

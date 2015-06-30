@@ -252,6 +252,16 @@ int main(int argc,char * * argv)
 			sdl_menuframe();
 			draw_reticle();
 		break;
+		case 2:
+			sdl_optionsmenucommon();
+			control_filedlg();
+			gfx_gfxstart();
+			screenclear(0xFFFFFF);
+			sdl_optionsmenucommon();
+			sdl_menudraw();
+			sdl_menuframe();
+			draw_reticle();
+		break;
 		}
 		gfx_gfxstop();
 		usleep(1000);

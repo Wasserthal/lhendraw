@@ -5,11 +5,13 @@ commandline: ./generated/filestructure.hxx ./generated/internalstructure.hxx par
 	g++ -O0 -g -std=c++0x -Wno-invalid-offsetof parsecdxml.cxx -o parsexml -D DEBUG -D LENNARD_HACK -Wno-format -D GFXOUT_SVG
 	g++ -g -O0 -std=c++0x -Wno-invalid-offsetof makeinf.cxx -o makeinf -D DEBUG -D LENNARD_HACK -Wno-format -D GFXOUT_SVG
 ./tools/filestructure_maker: ./tools/filestructure.c
-	gcc -O0 -std=c99 -g ./tools/filestructure.c -o ./tools/filestructure_maker -D BITMODE32
+	gcc -O0 -std=c99 -g ./tools/filestructure.c -o ./tools/filestructure_maker
 ./tools/reflection_enums: ./tools/reflection_enums.c
-	gcc -O0 -std=c99 -g ./tools/reflection_enums.c -o ./tools/reflection_enums -D BITMODE32
+	gcc -O0 -std=c99 -g ./tools/reflection_enums.c -o ./tools/reflection_enums
 ./tools/reflection: ./tools/reflection.c
-	gcc -O0 -std=c99 -g ./tools/reflection.c -o ./tools/reflection -D BITMODE32
+	gcc -O0 -std=c99 -g ./tools/reflection.c -o ./tools/reflection
+./tools/option: ./tools/option.c
+	gcc -O0 -std=c99 -g ./tools/option.c -o ./tools/option
 ./generated/filestructure.hxx ./generated/internalstructure.hxx ./generated/initialization_parsexml.hxx: ./tools/filestructure_maker filestructure.draft internalstructure.draft
 	mkdir ./generated ; true
 	echo 'void automatic_init() {'> ./generated/initialization_parsexml.hxx
@@ -33,11 +35,13 @@ mac: ./generated/cambridgestructure.hxx ./generated/structure.hxx parsecdxml.cxx
 	g++ -g -O0 -std=c++0x -m64 lhendraw.cxx -o lhendraw -I/Library/Frameworks/SDL2.framework/Headers -lm -Wno-invalid-offsetof -Wno-dynamic-class-memaccess -D GFXOUT_SDL -D BITMODE64 -D NODEBUG -D OSX -ferror-limit=1000 -D SDL2 -framework SDL2 -L/opt/X11/lib/ -I/opt/x11/share/include/freetype -lfreetype -D NOCLIPBOARD
 lennard_infget: makeinf.hxx makeinf_test.cxx cdxdata.hxx lendefs.h
 	g++ -g -O0 -std=c++0x -Wno-invalid-offsetof makeinf_test.cxx -o lennard_infget -D DEBUG -D MACHINE_READABLE -Wno-format
-./generated/pullout_stringfile.hxx: tools/pullout.c *.pullout.hxx
+./generated/pullout_stringfile.hxx: ./tools/option tools/pullout.c *.pullout.hxx edit.hxx
 	ls -1 *\.pullout.hxx | cut -d. -f 1 | xargs -I{} ./tools/pulloutmatic.sh {} > ./generated/pulloutmatic.hxx
 	cat *.pullout.hxx > ./generated/pullout.hxx
 	gcc tools/pullout.c -o tools/pullout
 	./tools/pullout
+	./tools/option ./edit.hxx
+	
 install:
 	mkdir -p /usr/share/lhendraw
 	cp lhendraw -t /usr/share/lhendraw

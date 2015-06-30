@@ -439,7 +439,19 @@ int sdl_listmenudraw(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int count,int xpos=0,
 					}
 					iscreen+=gfx_screensizex-horziend+horzistart;
 				}
-				tl_pointer=(char*)(ilisting[ilv1].variable);
+				if (ilisting[ilv1].lmbmode==0x301)
+				{
+					tl_pointer=(char*)(ilisting[ilv1].variable);
+				}
+				if (ilisting[ilv1].lmbmode==0x302)
+				{
+					tl_pointer=(char*)(ilisting[ilv1].name);
+					SDL_color=0;
+					printmenutext(horzistart+xpos-160,vertistart+ypos,tl_pointer,min(strlen(tl_pointer),(160)/8));
+					SDL_color=0xFFFFFF;
+					tl_pointer=({char ichar[20];ichar;});
+					sprintf(tl_pointer,"%i",*(int*)(ilisting[ilv1].variable));
+				}
 				printmenutext(horzistart+xpos,(vertistart)+ypos,tl_pointer,min(strlen(tl_pointer),(horziend-horzistart)/8));
 				break;
 			}
@@ -574,6 +586,11 @@ void sdl_filemenucommon()
 	if (control_filemenu_mode==2) addmenu("filedlg_buttons_export",4);
 	if (control_filemenu_mode==3) addmenu("filedlg_buttons_import",4);
 	addmenu("filedlg_lists",3);
+}
+void sdl_optionsmenucommon()
+{
+	menu_list_count=0;
+	addmenu("options",3);
 }
 int menu_itembyname(const char * name,int * menu,int * index)
 {

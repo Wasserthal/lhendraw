@@ -21,7 +21,7 @@ int contents_count=0;
 int contents_length[maxunits];
 int properties_length[maxunits];
 char properties_types[maxunits][stringlength+1];
-intl properties_type_nrs[maxunits];
+int properties_type_nrs[maxunits];
 char enums_registered[maxunits][stringlength+1];
 int enums_registered_count=0;
 char helpbuffer[65536];

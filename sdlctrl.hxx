@@ -1,7 +1,7 @@
 //This unit transforms user input into commands to the program
 struct menuref_
 {
-	char type;//0: buttons 1: popup and the like 2: PSE
+	char type;//0: buttons 1: popup and the like 2: PSE 3: list 4: textbutton
 	structenum what;//The structenum
 	int alignx,aligny;//The position
 };
@@ -2531,12 +2531,12 @@ int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int
 							tl_on=0;
 							*tl_variable_p=0;
 							int tl_delta=tl_variable_p-((_i32*)&(control_drawproperties));
-							if ((tl_delta>=0) && (tl_delta<(sizeof(drawproperties_)/sizeof(_i32))))
+							if ((tl_delta>=0) && (tl_delta<(sizeof(control_drawproperties_)/sizeof(_i32))))
 							{
 								*tl_variable_p=*(_i32*)(((char*)tl_variable_p)-((char*)&control_drawproperties)+((char*)&control_drawproperties_init));
 							}
 						}
-						char * tl_name=(*ipulloutlisting).variablename;
+						char * tl_name=(char*)(*ipulloutlisting).variablename;
 						tl_name+=strlen(tl_name)-1;
 						while ((*tl_name!='_') && (*tl_name!='.')) tl_name--;
 						tl_name++;
@@ -2597,7 +2597,7 @@ int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int
 					case 4:
 					{
 						control_mousestate=8;
-						menu_matrixsubmenuvariable=(*ipulloutlisting).name;
+						menu_matrixsubmenuvariable=(char*)((*ipulloutlisting).name);
 						break;
 					}
 					case 6: *((_i32*)((*ipulloutlisting).variable))=0;break;
@@ -2606,7 +2606,7 @@ int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int
 						int * tl_variable_p=((_i32*)((*ipulloutlisting).variable));
 						*tl_variable_p=0;
 						int tl_delta=tl_variable_p-((_i32*)&(control_drawproperties));
-						if ((tl_delta>=0) && (tl_delta<(sizeof(drawproperties_)/sizeof(_i32))))
+						if ((tl_delta>=0) && (tl_delta<(sizeof(control_drawproperties_)/sizeof(_i32))))
 						{
 							*tl_variable_p=*(_i32*)(((char*)tl_variable_p)-((char*)&control_drawproperties)+((char*)&control_drawproperties_init));
 						}
@@ -2663,6 +2663,10 @@ int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int
 						if (istructenum->scroll<0) istructenum->scroll=0;
 						break;
 					}
+					case 0x302: 
+					{
+						(*(_i32*)(*ipulloutlisting).variable)++;
+					}
 				}
 				break;
 			}
@@ -2676,6 +2680,10 @@ int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int
 						istructenum->scroll+=1;
 						if (istructenum->scroll>=istructenum->count) istructenum->scroll=istructenum->count-1;
 						break;
+					}
+					case 0x302: 
+					{
+						(*(_i32*)(*ipulloutlisting).variable)--;
 					}
 				}
 				break;

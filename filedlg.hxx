@@ -104,15 +104,18 @@ void control_filedlg()
 				int tl_menunr,tl_index;
 				menu_itemwadethrough(&menu_selectedmenuelement,&tl_menunr,&tl_index,0);
 				AUTOSTRUCT_PULLOUTLISTING_ * tl_pulloutlisting=((AUTOSTRUCT_PULLOUTLISTING_*)(menu_list[tl_menunr].what.pointer))+tl_index;
-				int ilength=strlen(control_Event.text.text);
-				if (control_menutexteditcursor<=strlen(((char*)(tl_pulloutlisting->variable))))
+				if (tl_pulloutlisting.lmbmode==0x301)
 				{
-					for (int ilv1=strlen(((char*)(tl_pulloutlisting->variable)))+ilength-1;ilv1>=control_menutexteditcursor;ilv1--)
+					int ilength=strlen(control_Event.text.text);
+					if (control_menutexteditcursor<=strlen(((char*)(tl_pulloutlisting->variable))))
 					{
-						((char*)(tl_pulloutlisting->variable))[ilv1+ilength]=((char*)(tl_pulloutlisting->variable))[ilv1];
+						for (int ilv1=strlen(((char*)(tl_pulloutlisting->variable)))+ilength-1;ilv1>=control_menutexteditcursor;ilv1--)
+						{
+							((char*)(tl_pulloutlisting->variable))[ilv1+ilength]=((char*)(tl_pulloutlisting->variable))[ilv1];
+						}
+						strncpy(((char*)(tl_pulloutlisting->variable))+control_menutexteditcursor,control_Event.text.text,ilength);
+						control_menutexteditcursor=control_menutexteditcursor+=ilength;
 					}
-					strncpy(((char*)(tl_pulloutlisting->variable))+control_menutexteditcursor,control_Event.text.text,ilength);
-					control_menutexteditcursor=control_menutexteditcursor+=ilength;
 				}
 				break;
 			}
@@ -256,10 +259,73 @@ void control_filedlg()
 						{
 							char tl_symboltype;
 							char arrester=0;
-							if (control_menutexteditcursor>strlen(((char*)(tl_pulloutlisting->variable)))) control_menutexteditcursor=strlen(((char*)(tl_pulloutlisting->variable)));
-							tl_symboltype=sentenumeric(((char*)(tl_pulloutlisting->variable))[control_menutexteditcursor]);
+							char * tl_editedstring=NULL;
+							char numberstring[20];
+							int maxruns=1000;
 							iback:
+							maxruns--;
+							if (maxruns<=0) goto keyprocessed;
+							if (((*tl_pulloutlisting).lmbmode&(0xFFFF))==0x301)
+							{
+								tl_editedstring=((char*)(tl_pulloutlisting->variable));
+							}
+							if (((*tl_pulloutlisting).lmbmode&(0xFFFF))==0x302)
+							{
+								tl_editedstring=numberstring;
+								sprintf(tl_editedstring,"%i",*(int*)(tl_pulloutlisting[ilv1].variable));
+							}
+							if (control_menutexteditcursor>strlen(tl_editedstring)) control_menutexteditcursor=strlen(tl_editedstring);
+							tl_symboltype=sentenumeric(tl_editedstring[control_menutexteditcursor]);
 							arrester=0;
+							if (((*tl_pulloutlisting).lmbmode&(0xFFFF))==0x302)
+							{
+								_i8 tl_numeral;
+								switch (control_Event.key.keysym.sym)
+								{
+									case SDLK_KP_MINUS:
+									case SDLK_MINUS:
+									{
+										(*((int*)tl_pulloutlisting->variable))=-(*((int*)tl_pulloutlisting->variable));
+									}
+									break;
+									case SDLK_0:tl_0:tl_numeral=0;goto numeralfound;
+									case SDLK_1:tl_1:tl_numeral=1;goto numeralfound;
+									case SDLK_2:tl_2:tl_numeral=2;goto numeralfound;
+									case SDLK_3:tl_3:tl_numeral=3;goto numeralfound;
+									case SDLK_4:tl_4:tl_numeral=4;goto numeralfound;
+									case SDLK_5:tl_5:tl_numeral=5;goto numeralfound;
+									case SDLK_6:tl_6:tl_numeral=6;goto numeralfound;
+									case SDLK_7:tl_7:tl_numeral=7;goto numeralfound;
+									case SDLK_8:tl_8:tl_numeral=8;goto numeralfound;
+									case SDLK_9:tl_9:tl_numeral=9;goto numeralfound;
+									{
+										numeralfound:;
+										int position=strlen(tl_editedstring)-control_menutexteditcursor;
+										if (position<0) position=0;
+										_i32 lastval=(*((int*)tl_pulloutlisting->variable));
+										_i32 mantisse=lastval/pow(10,max(position,0));
+										_i32 rest=lastval%(_i32)pow(10,max(position,0));
+										(*((int*)tl_pulloutlisting->variable))=mantisse*pow(10,max(position+1,0))+rest+pow(10,max(position,0))*tl_numeral;
+										position++;
+										control_menutexteditcursor++;
+									}
+									break;
+									case SDLK_KP0:goto tl_0;
+									case SDLK_KP1:goto tl_1;
+									case SDLK_KP2:goto tl_2;
+									case SDLK_KP3:goto tl_3;
+									case SDLK_KP4:goto tl_4;
+									case SDLK_KP5:goto tl_5;
+									case SDLK_KP6:goto tl_6;
+									case SDLK_KP7:goto tl_7;
+									case SDLK_KP8:goto tl_8;
+									case SDLK_KP9:goto tl_9;
+									default:
+									goto key_unprocessed;
+								}
+								goto keyprocessed;
+							}
+							key_unprocessed:;
 							switch (control_Event.key.keysym.sym)
 							{
 								case SDLK_LEFT:
@@ -272,15 +338,15 @@ void control_filedlg()
 								case SDLK_RIGHT:
 								{
 									control_menutexteditcursor++;
-									if (control_menutexteditcursor>strlen(((char*)(tl_pulloutlisting->variable)))) {control_menutexteditcursor=strlen(((char*)(tl_pulloutlisting->variable)));arrester=1;}
+									if (control_menutexteditcursor>strlen(tl_editedstring)) {control_menutexteditcursor=strlen(tl_editedstring);arrester=1;}
 									if (control_menutextedithorziscroll+((tl_pulloutlisting->maxx-tl_pulloutlisting->x)/8)<control_menutexteditcursor) {control_menutextedithorziscroll=control_menutexteditcursor;arrester=1;}
 									break;
 								}
 								case SDLK_END:
 								{
-									control_menutexteditcursor=strlen(((char*)(tl_pulloutlisting->variable)));
+									control_menutexteditcursor=strlen(tl_editedstring);
 									arrester=1;
-									if (control_menutexteditcursor>strlen(((char*)(tl_pulloutlisting->variable)))) {control_menutexteditcursor=strlen(((char*)(tl_pulloutlisting->variable)));arrester=1;}
+									if (control_menutexteditcursor>strlen(tl_editedstring)) {control_menutexteditcursor=strlen(tl_editedstring);arrester=1;}
 									if (control_menutextedithorziscroll+((tl_pulloutlisting->maxx-tl_pulloutlisting->x)/8)<control_menutexteditcursor) {control_menutextedithorziscroll=control_menutexteditcursor;arrester=1;}
 									break;
 								}
@@ -299,7 +365,7 @@ void control_filedlg()
 									if (control_menutextedithorziscroll>control_menutexteditcursor) {control_menutextedithorziscroll=control_menutexteditcursor;arrester=1;}
 									if (control_menutexteditcursor>=1)
 									{
-										if (sentenumeric(((char*)(tl_pulloutlisting->variable))[control_menutexteditcursor])!=sentenumeric(((char*)(tl_pulloutlisting->variable))[control_menutexteditcursor-1]))
+										if (sentenumeric(tl_editedstring[control_menutexteditcursor])!=sentenumeric(tl_editedstring[control_menutexteditcursor-1]))
 										{
 											arrester=1;
 										}
@@ -307,11 +373,26 @@ void control_filedlg()
 								}
 								case SDLK_DELETE:
 								{
-									if (strlen(((char*)(tl_pulloutlisting->variable)))>control_menutexteditcursor)
+									if (((*tl_pulloutlisting).lmbmode&(0xFFFF))==0x302)
 									{
-										for (int ilv1=control_menutexteditcursor;ilv1<strlen(((char*)(tl_pulloutlisting->variable)));ilv1++)
+										int position=strlen(tl_editedstring)-control_menutexteditcursor;
+										if (position<0) position=0;
+										_i32 lastval=(*((int*)tl_pulloutlisting->variable));
+										_i32 mantisse=lastval/pow(10,max(position,0));
+										_i32 rest=lastval%(_i32)pow(10,max(position-1,0));
+										position--;
+										(*((int*)tl_pulloutlisting->variable))=mantisse*pow(10,max(position,0))+rest;
+										if (abs(lastval)>=abs((*((int*)tl_pulloutlisting->variable))))
 										{
-											((char*)(tl_pulloutlisting->variable))[ilv1]=((char*)(tl_pulloutlisting->variable))[ilv1+1];
+											arrester=1;
+										}
+										break;
+									}
+									if (strlen(tl_editedstring)>control_menutexteditcursor)
+									{
+										for (int ilv1=control_menutexteditcursor;ilv1<strlen(tl_editedstring);ilv1++)
+										{
+											tl_editedstring[ilv1]=tl_editedstring[ilv1+1];
 										}
 									}
 									else
@@ -324,13 +405,13 @@ void control_filedlg()
 								default:
 								{
 									_u16 ihv1=(getunicode(&control_Event));
-									if (control_menutexteditcursor<=strlen(((char*)(tl_pulloutlisting->variable))))
+									if (control_menutexteditcursor<=strlen(tl_editedstring))
 									{
-										for (int ilv1=strlen(((char*)(tl_pulloutlisting->variable)));ilv1>=control_menutexteditcursor;ilv1--)
+										for (int ilv1=strlen(tl_editedstring);ilv1>=control_menutexteditcursor;ilv1--)
 										{
-											((char*)(tl_pulloutlisting->variable))[ilv1+1]=((char*)(tl_pulloutlisting->variable))[ilv1];
+											tl_editedstring[ilv1+1]=tl_editedstring[ilv1];
 										}
-										((char*)(tl_pulloutlisting->variable))[control_menutexteditcursor++]=ihv1;
+										tl_editedstring[control_menutexteditcursor++]=ihv1;
 									}
 									arrester=1;
 								}
@@ -340,7 +421,7 @@ void control_filedlg()
 							{
 								if (arrester==0)
 								{
-									if (tl_symboltype==sentenumeric(((char*)(tl_pulloutlisting->variable))[control_menutexteditcursor]))
+									if (tl_symboltype==sentenumeric(tl_editedstring[control_menutexteditcursor]))
 									{
 										goto iback;
 									}

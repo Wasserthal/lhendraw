@@ -91,6 +91,7 @@ int storeundo(_u32 flags);
 int restoreundo(_u32 flags,_u32 orderflags);
 int undo_trackundo();
 int undo_trackredo(int variable);
+#include "analysis.hxx"
 #include "edit.hxx"
 #include "pivot.hxx"
 #include "./generated/pullout_stringfile.hxx"

@@ -1,10 +1,11 @@
 //This unit transforms user input into commands to the program
 struct menuref_
 {
-	char type;//0: buttons 1: popup and the like 2: PSE 3: list 4: textbutton
+	char type;//0: buttons 1: popup and the like 2: PSE 3: list 4: textbutton 5: analysis window
 	structenum what;//The structenum
 	int alignx,aligny;//The position
 };
+int control_analysis_window=1;
 menuref_ menu_list[20];
 int menu_list_count=0;
 char * menu_matrixsubmenuvariable;

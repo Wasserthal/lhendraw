@@ -24,6 +24,7 @@ typedef _u32 selection_datatype;
 #define constants_clickradius 225
 #define constants_Element_loneradical 0
 #define constants_Element_lonepair 1
+#define constants_Element_hydrogen 2
 #define constants_Element_implicitcarbon 9
 float glob_clickradius=225;
 float glob_subpoint_clickradius=50;

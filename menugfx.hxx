@@ -704,6 +704,13 @@ void sdl_commonmenucommon()
 		menu_list[menu_list_count].aligny=160;
 		menu_list_count++;
 	}
+	if (control_analysis_window)
+	{
+		menu_list[menu_list_count].type=5;
+		menu_list[menu_list_count].alignx=0;
+		menu_list[menu_list_count].aligny=-160;
+		menu_list_count++;
+	}
 }
 void sdl_psedraw(int istartx,int istarty)
 {
@@ -734,6 +741,50 @@ void sdl_psedraw(int istartx,int istarty)
 		printmenutext(istartx+element[ilv1].PSEX*32+10,istarty+element[ilv1].PSEY*48+24,element[ilv1].name,strlen(element[ilv1].name));
 	}
 }
+void sdl_analysisdraw(int alignx,int aligny)
+{
+	char analysis_string[4000];
+	char worststring[]="Zzzz";
+	char * laststring=(char*)"Aaaa";
+	int stringincrement;
+	alignx=menu_addxifneg(alignx);
+	aligny=menu_addyifneg(aligny);
+	checkupinconsistencies();
+	getatoms();
+	analysis_ElementalAnalysis();
+	int horzcoord=0;
+	SDL_color=0;
+	for (int ilv1=0;ilv1<element_max;ilv1++)
+	{
+		int element_nr=constants_Element_implicitcarbon;
+		char * currentstring=worststring;
+		for (int ilv2=0;ilv2<element_max;ilv2++)
+		{
+			if (strcmp(element[ilv2].name,laststring)>0)
+			{
+				if (strcmp(element[ilv2].name,currentstring)<0)
+				{
+					element_nr=ilv2;
+					currentstring=(char*)element[ilv2].name;
+				}
+			}
+		}
+		if (analysis_analysis[element_nr]!=0)
+		{
+			printmenutext(alignx+horzcoord,aligny,element[element_nr].name,strlen(element[element_nr].name));
+			horzcoord+=strlen(element[element_nr].name)*8;
+			if (analysis_analysis[element_nr]>1)
+			{
+				sprintf(analysis_string,"%i%n",analysis_analysis[element_nr],&stringincrement);
+				printmenutext(alignx+horzcoord,aligny+5,analysis_string,stringincrement);
+				horzcoord+=stringincrement*8;
+			}
+		}
+		laststring=currentstring;
+	}
+	sprintf(analysis_string,"Weight=%6.2f g/mol",analysis_mass());
+	printmenutext(alignx,aligny+32,analysis_string,strlen(analysis_string));
+}
 int sdl_menudraw()
 {
 	int i_menu;int i_index;
@@ -760,6 +811,10 @@ int sdl_menudraw()
 		if (menu_list[ilv1].type==4)
 		{
 			sdl_textbuttonmenudraw((AUTOSTRUCT_PULLOUTLISTING_*)menu_list[ilv1].what.pointer,menu_list[ilv1].what.count,menu_list[ilv1].alignx,menu_list[ilv1].aligny);
+		}
+		if (menu_list[ilv1].type==5)
+		{
+			sdl_analysisdraw(menu_list[ilv1].alignx,menu_list[ilv1].aligny);
 		}
 	}
 	return 0;

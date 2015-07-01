@@ -22,7 +22,7 @@ void control_help()
 	if (control_Event.type==SDL_KEYDOWN) return;
 	gfx_gfxstart();
 	screenclear(0xFFFFFF);
-	printmenutext(0,20,helpstring,sizeof(helpstring),1);
+	printmenutext(0,20,helpstring,sizeof(helpstring)-1,1);
 	gfx_gfxstop();
 	goto iback;
 }

@@ -1,0 +1,18 @@
+Source: lhendraw
+Section: unknown
+Priority: extra
+Maintainer: Dr. Lennard K. Wasserthal <Wasserthal@nefkom.net>
+Build-Depends: gcc (>= 4.1.1), g++ (>= 4.1.1), debhelper (>= 8.0.0)
+Standards-Version: 3.9.3
+Homepage: www.nefkom.net/Wasserthal/index.html
+Vcs-Git: git://www.github.com/Waserthal/lhendraw.git
+Vcs-Browser: git
+
+
+
+Package: lhendraw
+Architecture: any
+Depends: libc6 (>= 2.2.5), libfreetype6 (>= 2.2.1), libgcc1 (>= 1:4.1.1), libsdl1.2debian (>= 1.2.11), libstdc++6 (>= 4.1.1), libx11-6, libxmu6
+Description: <highly cdx/cdxml-compatible chemistry drawing program>
+ <This program is aimed to edit the .cdx/.cdxml file formats, as invented
+ by cambridgesoft, as correctly as possible.>

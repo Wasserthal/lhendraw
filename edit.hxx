@@ -193,11 +193,11 @@ void getatoms()//makes some preprocessing
 {
 	float theside,thelevel;
 	float tl_angle;
-	for (int ilv1=0;ilv1<bufferlistsize;ilv1++)//TODO: bufferlistsize is wrong
+	for (int ilv1=0;ilv1<glob_n_multilist->filllevel;ilv1++)
 	{
 		atom_actual_node[ilv1].bondcount=0;
 	}
-	for (int ilv1=0;ilv1<bufferlistsize;ilv1++)
+	for (int ilv1=0;ilv1<glob_t_multilist->filllevel;ilv1++)
 	{
 		text_actual_node[ilv1].owner=-1;
 	}
@@ -1501,7 +1501,7 @@ basic_instance * getclicked(int imap,float clckx,float clcky,int * backtype=NULL
 
 n_instance * edit_summonatom(int * inr=NULL)
 {
-	if ((*glob_n_multilist).filllevel<bufferlistsize)
+	if ((*glob_n_multilist).filllevel<(*glob_n_multilist).getmaxitems())
 	{
 		int tl_nr=-1;
 		n_instance * tlinstance;
@@ -1528,7 +1528,7 @@ n_instance * edit_summonatom(int * inr=NULL)
 }
 graphic_instance * edit_summongraphic(int * inr=NULL)
 {
-	if ((*glob_graphic_multilist).filllevel<bufferlistsize)
+	if ((*glob_graphic_multilist).filllevel<(*glob_graphic_multilist).getmaxitems())
 	{
 		int tl_nr=-1;
 		graphic_instance * tlinstance;
@@ -1553,7 +1553,7 @@ graphic_instance * edit_summongraphic(int * inr=NULL)
 }
 arrow_instance * edit_summonarrow(int * inr=NULL)
 {
-	if ((*glob_arrow_multilist).filllevel<bufferlistsize)
+	if ((*glob_arrow_multilist).filllevel<(*glob_arrow_multilist).getmaxitems())
 	{
 		int tl_nr=-1;
 		arrow_instance * tlinstance;
@@ -1572,7 +1572,7 @@ arrow_instance * edit_summonarrow(int * inr=NULL)
 }
 b_instance * edit_summonbond(int i_id_begin,int i_id_end,int i_nr_begin,int i_nr_end)
 {
-	if ((*glob_b_multilist).filllevel<bufferlistsize)
+	if ((*glob_b_multilist).filllevel<(*glob_b_multilist).getmaxitems())
 	{
 		b_instance * tlinstance;
 		tlinstance=new(&((*glob_b_multilist)[(*glob_b_multilist).filllevel])) b_instance;
@@ -1598,7 +1598,7 @@ b_instance * edit_summonbond(int i_id_begin,int i_id_end,int i_nr_begin,int i_nr
 }
 t_instance * edit_summontext(int * inr=NULL)
 {
-	if ((*glob_t_multilist).filllevel<bufferlistsize)
+	if ((*glob_t_multilist).filllevel<(*glob_t_multilist).getmaxitems())
 	{
 		int tl_nr=-1;
 		t_instance * tlinstance;
@@ -1618,7 +1618,7 @@ t_instance * edit_summontext(int * inr=NULL)
 }
 curve_instance * edit_summoncurve(int * inr=NULL)
 {
-	if ((*glob_curve_multilist).filllevel<bufferlistsize)
+	if ((*glob_curve_multilist).filllevel<(*glob_curve_multilist).getmaxitems())
 	{
 		int tl_nr=-1;
 		curve_instance * tlinstance;

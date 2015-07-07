@@ -81,7 +81,7 @@ struct atom_actual_node_
 	}
 };
 
-atom_actual_node_ atom_actual_node[bufferlistsize];
+atom_actual_node_ * atom_actual_node;
 struct bond_actual_node_
 {
 	_small start,end;
@@ -90,12 +90,12 @@ struct bond_actual_node_
 	float numberleft[2],numberright[2];
 };
 
-bond_actual_node_ bond_actual_node[bufferlistsize];
+bond_actual_node_ * bond_actual_node;
 struct text_actual_node_
 {
 	_small owner;
 };
-text_actual_node_ text_actual_node[bufferlistsize];
+text_actual_node_ * text_actual_node;
 void getcaptions(float * width,float * height,float * left,float * top)
 {
 	float minx=maxfloat;
@@ -319,11 +319,11 @@ void svg_findaround()
 	}
 	#endif
 	/*Piece from getatoms information needed also when there are no graphics form bound calculation*/
-	for (int ilv1=0;ilv1<bufferlistsize;ilv1++)
+	for (int ilv1=0;ilv1<glob_n_multilist->filllevel;ilv1++)
 	{
 		atom_actual_node[ilv1].bondcount=0;
 	}
-	for (int ilv1=0;ilv1<bufferlistsize;ilv1++)
+	for (int ilv1=0;ilv1<glob_b_multilist->filllevel;ilv1++)
 	{
 		text_actual_node[ilv1].owner=-1;
 	}

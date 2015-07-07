@@ -147,7 +147,7 @@ int copytobuffer(TELESCOPE_buffer * ibuffer,char * input)//TODO: what if string 
 			for (ilv2=ilv1;;ilv2++)
 			{
 				if (input[ilv2]==0) return -20;
-				if (input[ilv2]==';') {input[ilv2++]=0;goto ifound;}
+				if (input[ilv2]==';') {input[ilv2]=0;goto ifound;}
 			}
 			ifound:
 			for (int ilv3=0;ilv3<sizeof(list_xml)/sizeof(list_bookstavecode);ilv3++)

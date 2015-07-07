@@ -134,6 +134,14 @@ void exittag()
 	}
 };
 
+#define CHECKLENGTHRESTRICTION(ADDITION)\
+if (paramvaluestring_length>=LHENDRAW_buffersize-ADDITION)\
+{\
+	if (memory_realloc_x2()==0)\
+	{\
+		fprintf(stderr,"overflow error!\n");exit(1);\
+	}\
+}
 void input_fsm(FILE* infile)
 {
 	intl fsmint=0; //0: in_nothing. 1: bracket-opening 2: Tagreading 3: parameterstringreading 4: bracket-closing,i.e. start PCTEXT reading 5: Qmark-ignoring 7: waiting_for_tag_end 8: Addstring - Hyphenation 9: After equals symbol 10 PCTEXTstringreading.
@@ -351,7 +359,8 @@ void input_fsm(FILE* infile)
 				fsmint=3;
 				break;
 			}
-			paramvaluestring[paramvaluestring_length++]=ichar;//TODO: length restriction
+			CHECKLENGTHRESTRICTION(1);
+			paramvaluestring[paramvaluestring_length++]=ichar;
 		break;
 		case 10:
 			if (ichar=='<')
@@ -361,7 +370,8 @@ void input_fsm(FILE* infile)
 			}
 			else
 			{
-				parameterstring[parameterstring_length++]=ichar;//TODO: length restriction
+				CHECKLENGTHRESTRICTION(1);
+				parameterstring[parameterstring_length++]=ichar;
 //TODO:				upon length restriction, don't forget that ampersand escapes may not be interrupted.
 			}
 		break;

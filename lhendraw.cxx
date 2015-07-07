@@ -167,10 +167,27 @@ int main(int argc,char * * argv)
 	signal(SIGSYS,&Signal);
 	signal(SIGPIPE,&Signal);
 #endif
+	printf("%i,%i\n",sizeof(bond_actual_node_),sizeof(b_instance));
+	if (sizeof(bond_actual_node_)>sizeof(b_instance))
+	{
+		fprintf(stderr,"Conceptual programming error, Helpstructure b > structure b\n");exit(1);
+	}
+	printf("%i,%i\n",sizeof(atom_actual_node_),sizeof(n_instance));
+	if (sizeof(atom_actual_node_)>sizeof(n_instance))
+	{
+		fprintf(stderr,"Conceptual programming error, Helpstructure n > structure n\n");exit(1);
+	}
+	printf("%i,%i\n",sizeof(text_actual_node_),sizeof(t_instance));
+	if (sizeof(text_actual_node_)>sizeof(t_instance))
+	{
+		fprintf(stderr,"Conceptual programming error, Helpstructure t > structure t\n");exit(1);
+	}
 	memory_init();
 	memory_alloc(&tagnamestring,10);
 	memory_alloc(&parameterstring,10);
 	memory_alloc(&paramvaluestring,10);
+	memory_alloc((char**)&atom_actual_node,4);
+	memory_alloc((char**)&bond_actual_node,4);
 	#ifndef NODEBUG
 	clock_getcpuclockid(getpid(),&clockid);
 	#endif

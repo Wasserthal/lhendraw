@@ -17,8 +17,6 @@ As long the objects are only appended on the end, we can do a list sort which wo
 {
 	int listnr;//number of multilist, -1 means empty
 	int nr;
-	int next;//-1 means final
-	int last;//-1 means first
 	int Z;//Or better let that out? either link ratio or actual order will be relevant!
 }multi_objref;*/
 int minusoneint=-1;
@@ -27,10 +25,9 @@ typedef struct multi_objref_
 	int listnr;//number of multilist, -1 means empty
 	int nr;//-1 means empty
 }multi_objref_;
-#define multilistZcount 100//TODO: calculate properly
-multi_objref_ objectZorderlist[bufferlistsize*multilistZcount];
+multi_objref_ * objectZorderlist=NULL;
 int objectZorderlist_count;
-multi_objref_ sortarr2[2][bufferlistsize*multilistZcount];
+multi_objref_ * sortarr2[2]={NULL,NULL};
 typedef struct multi_Z_geometry_
 {
 	char * offset;
@@ -241,13 +238,25 @@ void initZlist()
 		objectZorderlist_count+=findmultilist(STRUCTURE_OBJECTTYPE_List[ilv1].name)->filllevel;
 	}
 	objectZorderlist_count*=2;
-	for (int ilv1=0;ilv1<objectZorderlist_count;ilv1++)//TODO: find actual count, for example, by summing up all filllevels... 
+	realloced:;
+	if (objectZorderlist_count*sizeof(multi_objref_)>=LHENDRAW_buffersize)
+	{
+		if (memory_realloc_x2()==0)
+		{
+			fprintf(stderr,"memory not sufficient for Z-buffer!");exit(1);
+		}
+		goto realloced;
+	}
+	if (objectZorderlist==NULL)
+	{
+		memory_alloc((char**)&objectZorderlist,5);
+		memory_alloc((char**)(sortarr2+0),5);
+		memory_alloc((char**)(sortarr2+1),5);
+	}
+	for (int ilv1=0;ilv1<objectZorderlist_count;ilv1++)
 	{
 		objectZorderlist[ilv1].nr=-1;objectZorderlist[ilv1].listnr=-1;
-/*		objectZorderlist[ilv1].last=ilv1-1;objectZorderlist[ilv1].next=ilv1+1;*/
 	}
-/*	objectZorderlist[0].last=-1;
-	objectZorderlist[objectZorderlist_count-1].last=-1;*/
  	for (int ilv1=0;ilv1<multilist_count;ilv1++)
 	{
 		CDXMLREAD_functype thisfunc;

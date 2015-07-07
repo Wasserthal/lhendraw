@@ -195,12 +195,13 @@ struct basic_instance
 	basic_instance(){master=NULL;exist=1;};//TODO put exist into basic_instance_propertybuffer
 	~basic_instance(){};
 };
+#define dependantlistsize 8192
 template <class whatabout> class multilist : public basicmultilist
 {
 	public:
 	inline whatabout * bufferlist(){return (whatabout*)pointer;}
 	//TODO: split off the non-contentbuffer "CAMBRIDGE" items-multilist as new data type, carrying the dependants, so this large variable is not stored in the undo steps. Turn it into an own buffer later!
-	multilistreference<whatabout> dependants[bufferlistsize];//needed to point to contained objects from another list, while still being able to move items in this mulitilist (this in the sense of this-pointer)
+	multilistreference<whatabout> dependants[8192];//needed to point to contained objects from another list, while still being able to move items in this mulitilist (this in the sense of this-pointer)
 	inline whatabout & operator[](int ino)
 	{
 		return *((whatabout*)(((char*)pointer)+(ino*itemsize)));
@@ -263,7 +264,7 @@ template <class whatabout> class multilist : public basicmultilist
 	{
 		(*input).start_in_it=filllevel;
 		(*input).count_in_it=0;
-		if (ourcount<bufferlistsize)
+		if (ourcount<dependantlistsize)
 		{
 			memcpy(dependants+ourcount,input,sizeof(multilistreference<whatabout>));
 			dependants[ourcount].mynumber=ourcount;

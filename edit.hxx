@@ -45,6 +45,7 @@ struct control_drawproperties_
 	int CHARGE_subtool;//0:Substitute charges 1: del 2: draw plainly
 	int SELECTION_subtool;//0:Rectangular 1: round
 	int CURVE_subtool;//0: putpoints 1: handles 2: pencil
+	_i32 face;
 };
 structenum * searchreflectedstruct(const char * input);
 void applytransform_single(float matrix[3][3],cdx_Point3D * input,cdx_Point3D * output,cdx_Point3D * pivot);
@@ -1810,6 +1811,14 @@ catalogized_command_iterated_funcdef(SPROUT)
 }
 int edit_setelement(int i_Elementnr,n_instance * iinstance,int iindex)
 {
+	iback:;
+	TELESCOPE_aggressobject(glob_n_multilist,iindex);
+	int tl_backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_s);
+	if (tl_backval>0)
+	{
+		TELESCOPE_clear_item();
+		goto iback;
+	}
 	if ((*(n_instance*)iinstance).Element!=i_Elementnr)
 	{
 		if ((element[i_Elementnr].maxbonds!=element[(*(n_instance*)iinstance).Element].maxbonds) || (element[i_Elementnr].hasVE!=element[(*(n_instance*)iinstance).Element].hasVE))
@@ -1852,7 +1861,25 @@ catalogized_command_iterated_funcdef(LABELTEXT)
 			return edit_setelement(ilv1,(n_instance*)iinstance,iindex);
 		}
 	}
-	return 0;
+	iback:;
+	TELESCOPE_aggressobject(glob_n_multilist,iindex);
+	int tl_backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_s);
+	if (tl_backval>0)
+	{
+		TELESCOPE_clear_item();
+		goto iback;
+	}
+	TELESCOPE_aggressobject(glob_n_multilist,iindex);
+	s_instance tl_s_instance;
+	tl_s_instance.face=control_drawproperties.face;
+	tl_s_instance.font=1;
+	tl_s_instance.size=12;
+	tl_s_instance.type=TELESCOPE_ELEMENTTYPE_s;
+	tl_s_instance.length=sizeof(s_instance)+strlen(value)+1;//trailing 0 //TODO: which string
+	TELESCOPE_add(TELESCOPE_ELEMENTTYPE_s,value,tl_s_instance.length-sizeof(s_instance));//TODO: string
+	*((s_instance*)TELESCOPE_getproperty())=tl_s_instance;
+	(*(n_instance*)iinstance).Element=-1;
+	return 1;
 }
 catalogized_command_iterated_funcdef(LASTLABELTEXT)
 {
@@ -2790,28 +2817,56 @@ catalogized_command_funcdef(SEARCH)
 char edit_scoop_atomstring[4];
 int edit_scoop_numhydrogens;
 int edit_scoop_charge;
+int edit_scoop_atomcount;
+char edit_scoop_startedsmall;
 edit_formatstruct edit_scoop_packedformats[6];
-s_instance edit_scoop_formats[6];
-_u8 edit_scoop_valids;//0: BIG 1: SMALL1 2: SMALL2 3: H 4: Nr 5: Charge
-void processatomsymbol(int * fsm,char * pointer,s_instance * format)
+s_instance edit_scoop_formats[7];
+_u8 edit_scoop_valids;//0: BIG 1: SMALL1 2: SMALL2 3: H 4: Nr 5: Charge 6: Main-atom count 
+char edit_brackets_allowed;
+char edit_grouplabels_allowed;
+char edit_dashes_allowed;
+char edit_hydrogens_allowed;
+char edit_complexnicknames_allowed;
+//TODO: continue at the point WHERE it was aborted.
+//TODO: fully abort when abort was from fsm=0
+int processatomsymbol(int * fsm,char * & pointer,s_instance * format)
 {
 	char ihv1;
-	if ((*fsm)==6) return;
 	if (pointer==NULL)
 	{
 		(*fsm)=7;
-		return;
+		return 0;
 	}
 	iback:
-	if ((*pointer)==0) return;
+	if ((*pointer)==0) return 0;
 	ihv1=(*pointer);
+	if (ihv1=='-')
+	{
+		if (edit_dashes_allowed)
+		{
+			pointer++;
+			*fsm=7;
+			return 1;
+		}
+	}
 	if ((*fsm)==0)
 	{
+		if (((ihv1=='(') || (ihv1==')') || (ihv1=='[') || (ihv1==']')) && (edit_brackets_allowed))
+		{
+			edit_scoop_atomstring[0]=ihv1;
+			edit_scoop_valids|=1<<0;
+			edit_scoop_formats[0]=*format;
+			edit_scoop_startedsmall=0;
+			pointer++;
+			(*fsm)=6;
+			goto iback;
+		}
 		if ((ihv1>='A') && (ihv1<='Z'))
 		{
 			edit_scoop_atomstring[0]=ihv1;
 			edit_scoop_valids|=1<<0;
 			edit_scoop_formats[0]=*format;
+			edit_scoop_startedsmall=0;
 			(*fsm)=1;
 			pointer++;
 			goto iback;
@@ -2821,9 +2876,15 @@ void processatomsymbol(int * fsm,char * pointer,s_instance * format)
 			edit_scoop_atomstring[0]=ihv1;
 			edit_scoop_valids|=1<<0;
 			edit_scoop_formats[0]=*format;
+			edit_scoop_startedsmall=1;
 			(*fsm)=5;
 			pointer++;
 			goto iback;
+		}
+		if ((ihv1=='-') && (edit_dashes_allowed))
+		{
+			(*fsm)=7;
+			pointer++;
 		}
 		if ((ihv1=='.') || (ihv1==' ') || (ihv1==':'))
 		{
@@ -2831,6 +2892,7 @@ void processatomsymbol(int * fsm,char * pointer,s_instance * format)
 			{
 				edit_scoop_atomstring[0]=ihv1;
 			}
+			edit_scoop_startedsmall=0;
 			edit_scoop_valids|=1<<0;
 			edit_scoop_formats[0]=*format;
 			(*fsm)=5;
@@ -2838,11 +2900,11 @@ void processatomsymbol(int * fsm,char * pointer,s_instance * format)
 			goto iback;
 		}
 		(*fsm)=7;
-		return;
+		return 0;
 	}
 	if ((*fsm)==1)
 	{
-		if (ihv1=='H')
+		if ((ihv1=='H') && (edit_hydrogens_allowed==1))
 		{
 			(*fsm)=4;
 			edit_scoop_valids|=1<<3;
@@ -2851,8 +2913,22 @@ void processatomsymbol(int * fsm,char * pointer,s_instance * format)
 			pointer++;
 			goto iback;
 		}
+		if ((ihv1>='0') && (ihv1<='9') && edit_dashes_allowed)
+		{
+			edit_scoop_atomcount=(edit_scoop_atomcount*10)+ihv1-'0';
+			edit_scoop_valids|=1<<6;
+			edit_scoop_formats[6]=*format;
+			(*fsm)=6;
+			pointer++;
+			goto iback;
+		}
+		if ((ihv1>='A') && (ihv1<='Z') && (((edit_scoop_startedsmall) && (edit_grouplabels_allowed))||(edit_complexnicknames_allowed)))
+		{
+			goto valid_next_letter;
+		}
 		if ((ihv1>='a') && (ihv1<='z'))
 		{
+			valid_next_letter:;
 			edit_scoop_atomstring[1]=ihv1;
 			edit_scoop_valids|=1<<1;
 			edit_scoop_formats[1]=*format;
@@ -2861,11 +2937,11 @@ void processatomsymbol(int * fsm,char * pointer,s_instance * format)
 			goto iback;
 		}
 		(*fsm)=7;
-		return;
+		return 1;
 	}
 	if ((*fsm)==2)
 	{
-		if (ihv1=='H')//Some idea: would this be wise to do for fluorine?
+		if ((ihv1=='H') && (edit_hydrogens_allowed==1))
 		{
 			(*fsm)=4;
 			edit_scoop_valids|=1<<3;
@@ -2874,8 +2950,22 @@ void processatomsymbol(int * fsm,char * pointer,s_instance * format)
 			pointer++;
 			goto iback;
 		}
+		if ((ihv1>='0') && (ihv1<='9') && edit_dashes_allowed)
+		{
+			edit_scoop_atomcount=(edit_scoop_atomcount*10)+ihv1-'0';
+			edit_scoop_valids|=1<<6;
+			edit_scoop_formats[6]=*format;
+			(*fsm)=6;
+			pointer++;
+			goto iback;
+		}
+		if ((ihv1>='A') && (ihv1<='Z') && (edit_complexnicknames_allowed))
+		{
+			goto valid_next_letter2;
+		}
 		if ((ihv1>='a') && (ihv1<='z'))
 		{
+			valid_next_letter2:;
 			edit_scoop_atomstring[2]=ihv1;//Overwrites
 			edit_scoop_valids|=1<<2;
 			edit_scoop_formats[2]=*format;
@@ -2884,11 +2974,11 @@ void processatomsymbol(int * fsm,char * pointer,s_instance * format)
 			goto iback;
 		}
 		(*fsm)=7;
-		return;
+		return 1;
 	}
 	if ((*fsm)==3)
 	{
-		if (ihv1=='H')//Some idea: would this be wise to do for fluorine?
+		if ((ihv1=='H') && (edit_hydrogens_allowed==1))
 		{
 			(*fsm)=4;
 			edit_scoop_valids|=1<<3;
@@ -2898,7 +2988,7 @@ void processatomsymbol(int * fsm,char * pointer,s_instance * format)
 			goto iback;
 		}
 		(*fsm)=7;
-		return;
+		return 1;
 	}
 	if ((*fsm)==4)
 	{
@@ -2912,7 +3002,7 @@ void processatomsymbol(int * fsm,char * pointer,s_instance * format)
 			goto iback;
 		}
 		(*fsm)=7;
-		return;
+		return 1;
 	}
 	if ((*fsm)==5)
 	{
@@ -2926,14 +3016,23 @@ void processatomsymbol(int * fsm,char * pointer,s_instance * format)
 			goto iback;
 		}
 		(*fsm)=7;
-		return;
+		return 1;
 	}
 	if ((*fsm)==6)
 	{
+		if ((ihv1>='0') && (ihv1<='9'))
+		{
+			edit_scoop_atomcount=(edit_scoop_atomcount*10)+ihv1-'0';
+			edit_scoop_valids|=1<<6;
+			edit_scoop_formats[6]=*format;
+			(*fsm)=6;
+			pointer++;
+			goto iback;
+		}
 		(*fsm)=7;
-		return;
+		return 1;
 	}
-	return;
+	return 1;
 }
 int edit_interpretaselementwithimplicithydrogens(multilist<n_instance> * imultilist,int inumber)
 {
@@ -2956,6 +3055,11 @@ int edit_interpretaselementwithimplicithydrogens(multilist<n_instance> * imultil
 		(*imultilist)[inumber].Element=constants_Element_implicitcarbon;
 		goto yes_its_an_element;
 	}
+	edit_brackets_allowed=0;
+	edit_grouplabels_allowed=0;
+	edit_dashes_allowed=0;
+	edit_hydrogens_allowed=1;
+	edit_complexnicknames_allowed=0;
 	iback:
 	if (i_backval)
 	{
@@ -3019,6 +3123,155 @@ int edit_interpretaselementwithimplicithydrogens(multilist<n_instance> * imultil
 	(*(s_f_instance*)TELESCOPE_getproperty()).type=TELESCOPE_ELEMENTTYPE_s_f;
 	(*imultilist)[inumber].protons=edit_scoop_numhydrogens;
 	(*imultilist)[inumber].color=edit_scoop_formats[0].color;
+	return 1;
+}
+int edit_elementstack[100][element_max];
+int edit_interpretasmoleculechainformula(multilist<n_instance> * imultilist,int inumber)
+{
+	int element_stack_counter=0;
+	char * ipointer;
+	int i_backval=0;
+	int i_char_backval=0;
+	int fsm=0;//0: nothing 1: One big letter 2: One big Letter, and also small letters 3: Hydrogens-H 4: Number reached 5: other symbol, done 6: Invalid-cant interpret
+	edit_complexnicknames_allowed=0;
+	for (int ilv1=0;ilv1<element_max;ilv1++)
+	{
+		edit_elementstack[element_stack_counter][ilv1]=0;
+	}
+	startagain:;
+	i_backval=TELESCOPE_aggressobject(imultilist,inumber);
+	if (i_backval)
+	{
+		i_backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_s);
+		if (i_backval) ipointer=(char*)TELESCOPE_getproperty_contents();
+	}
+	if (i_backval==0)
+	{
+		return 0;
+	}
+	edit_brackets_allowed=1;
+	edit_grouplabels_allowed=1;
+	edit_dashes_allowed=1;
+	edit_hydrogens_allowed=0;
+	int end_of_line=0;
+	inextelement:;
+	fsm=0;
+	i_char_backval=0;
+	edit_scoop_valids=0;
+	(*(_u32*)edit_scoop_atomstring)=0;
+	edit_scoop_numhydrogens=0;
+	edit_scoop_charge=0;
+	edit_scoop_atomcount=0;
+	iback:
+	i_char_backval=processatomsymbol(&fsm,ipointer,(s_instance*)TELESCOPE_getproperty());
+	if (fsm>=7)
+	{
+		goto enoughtointerpret;
+	}
+	//TODO: evaluate subscript/superscript
+/*		if (((*(s_instance*)TELESCOPE_getproperty()).face & 0x60)!=0x60)
+	{
+		fsm=7;
+	}*/
+	i_backval=TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_s);
+	if (i_backval)
+	{
+		ipointer=(char*)TELESCOPE_getproperty_contents();
+		goto iback;
+	}
+	else
+	{
+		end_of_line=1;
+	}
+	enoughtointerpret:;
+	if (edit_scoop_atomcount==0) edit_scoop_atomcount=1;
+	for (int ilv1=0;ilv1<sizeof(element)/sizeof(element_);ilv1++)
+	{
+		if (constants_Element_implicitcarbon!=ilv1)
+		{
+			if (strcmp(edit_scoop_atomstring,element[ilv1].name)==0)
+			{
+				edit_elementstack[element_stack_counter][ilv1]+=edit_scoop_atomcount;
+				goto yes_its_an_element;
+			}
+		}
+	}
+	//Not an element, but an 3-letter abbreviation
+	for (int ilv1=0;ilv1<sizeof(element_abbreviation)/sizeof(element_abbreviation_);ilv1++)
+	{
+		if (strcmp(edit_scoop_atomstring,element_abbreviation[ilv1].name)==0)
+		{
+			for (int ilv2=0;element_abbreviation[ilv1].composition[ilv2]!=0;ilv2+=2)
+			{
+				for (int ilv3=0;ilv3<sizeof(element)/sizeof(element_);ilv3++)
+				{
+					if (strcmp(element[ilv3].name,(char*)&(element_abbreviation[ilv1].composition[ilv2+1]))==0)
+					{
+						edit_elementstack[element_stack_counter][ilv3]+=element_abbreviation[ilv1].composition[ilv2]*edit_scoop_atomcount;
+					}
+				}
+			}
+			goto yes_its_an_element;
+		}
+	}
+	//Brackets:
+	if ((edit_scoop_atomstring[0]=='(') || (edit_scoop_atomstring[0]==')') || (edit_scoop_atomstring[0]=='[') || (edit_scoop_atomstring[0]==']'))
+	{
+		if ((edit_scoop_atomstring[0]=='(') || (edit_scoop_atomstring[0]=='['))
+		{
+			if (element_stack_counter<99)
+			{
+				element_stack_counter++;
+				for (int ilv1=0;ilv1<element_max;ilv1++)
+				{
+					edit_elementstack[element_stack_counter][ilv1]=0;
+				}
+			}
+			goto yes_its_an_element;
+		}
+		if ((edit_scoop_atomstring[0]==')') || (edit_scoop_atomstring[0]==']'))
+		{
+			if (element_stack_counter>0)
+			{
+				for (int ilv1=0;ilv1<element_max;ilv1++)
+				{
+					edit_elementstack[element_stack_counter-1][ilv1]+=edit_elementstack[element_stack_counter][ilv1]*edit_scoop_atomcount;
+				}
+				element_stack_counter--;
+				goto yes_its_an_element;
+			}
+		}
+	}
+	//Now, it may be a complex nickname like TMS 
+	if ((edit_complexnicknames_allowed==0) && (strlen(edit_scoop_atomstring)!=0))
+	{
+		edit_complexnicknames_allowed=1;
+		element_stack_counter=0;
+		for (int ilv1=0;ilv1<element_max;ilv1++)
+		{
+			edit_elementstack[element_stack_counter][ilv1]=0;
+		}
+		goto startagain;
+	}
+	yes_its_an_element:;
+	if (i_char_backval==0)
+	{
+		i_backval=TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_s);
+		if (i_backval)
+		{
+			goto inextelement;
+		}
+		goto endabrechnung;
+	}
+	if (end_of_line==0) goto inextelement;
+	endabrechnung:;
+	if (element_stack_counter==0)
+	{
+		for (int ilv1=0;ilv1<element_max;ilv1++)
+		{
+			analysis_analysis[ilv1]+=edit_elementstack[0][ilv1];
+		}
+	}
 	return 1;
 }
 #define L_SEPARATE \

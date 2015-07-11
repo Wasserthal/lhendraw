@@ -188,6 +188,7 @@ int main(int argc,char * * argv)
 	memory_alloc(&paramvaluestring,10);
 	memory_alloc((char**)&atom_actual_node,4);
 	memory_alloc((char**)&bond_actual_node,4);
+	memory_alloc((char**)&text_actual_node,4);
 	#ifndef NODEBUG
 	clock_getcpuclockid(getpid(),&clockid);
 	#endif

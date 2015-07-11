@@ -9,6 +9,11 @@ typedef struct element_
 	int minfep;
 	int PSEX;int PSEY;
 }element_;
+typedef struct element_abbreviation_
+{
+	char name[4];
+	int composition[10];
+}element_abbreviation_;
 element_ element[]=
 {
 {0,1,{"."},{1,0,0},1,0,7,0},
@@ -123,3 +128,15 @@ element_ element[]=
 {104,-1,{"Rf"},{0.00},-1,0,3,6},
 };
 #define element_max sizeof(element)/sizeof(element_)
+element_abbreviation_ element_abbreviation[]={
+{"Et",{2,'C',5,'H',0}},
+{"Pr",{3,'C',7,'H',0}},
+{"iPr",{3,'C',7,'H',0}},
+{"Bu",{4,'C',9,'H',0}},
+{"iBu",{4,'C',9,'H',0}},
+{"tBu",{4,'C',9,'H',0}},
+{"Ac",{2,'C',3,'H',2,'O',0}},
+{"Ts",{7,'C',7,'H',2,'O',1,'S',0}},
+{"Tf",{7,'C',3,'F',2,'O',1,'S',0}},
+{"TMS",{3,'C',9,'H',1,0x6953,0}},
+};

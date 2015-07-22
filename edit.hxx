@@ -3307,6 +3307,7 @@ char edit_resortstring(basicmultilist * imultilist,int iinstance) // resorts che
 	int fsm=0;//0=done 1: Capital letter 2: little letter 3: number 4: plus/minus 5: Bracket
 	int ihv1;
 	int backval;
+	int startedsmall=0;
 	TELESCOPE_aggressobject(imultilist,iinstance);
 	s_instance *itelescope,*ilasttelescope;
 	ilasttelescope=NULL;
@@ -3346,7 +3347,7 @@ char edit_resortstring(basicmultilist * imultilist,int iinstance) // resorts che
 			L_SEPARATE;
 			itelescope->connect=1;
 			itelescope->effface=itelescope->face&~0x60;
-			fsm=1;
+			fsm=0;
 		}
 		if ((ihv1>='0') && (ihv1<='9'))
 		{
@@ -3386,17 +3387,32 @@ char edit_resortstring(basicmultilist * imultilist,int iinstance) // resorts che
 		}
 		if ((ihv1>='a') && (ihv1<='z'))
 		{
+			startedsmall=0;
 			if ((fsm!=1) && (fsm!=2))
 			{
 				L_SEPARATE;
 				itelescope->effface=itelescope->face&~0x60;
+				itelescope->connect=1;
+				startedsmall=1;
+				fsm=1;
 			}
-			fsm=2;
+			else
+			{
+				fsm=2;
+			}
 		}
 		if ((ihv1>='A') && (ihv1<='Z'))
 		{
-			L_SEPARATE;
-			itelescope->effface=itelescope->face&~0x60;
+			if ((fsm==1) && (startedsmall==1))
+			{
+				itelescope->connect=1;
+				startedsmall=0;
+			}
+			else
+			{
+				L_SEPARATE;
+				itelescope->effface=itelescope->face&~0x60;
+			}
 			fsm=1;
 		}
 	}

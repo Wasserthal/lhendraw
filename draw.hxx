@@ -1280,202 +1280,13 @@ tlposx+tlcos-tlsin,tlposy+tlsin+tlcos,tlposx+2*tlcos-tlsin,tlposy+2*tlsin+tlcos,
 			case '}' : finalstring=(char*)"{";break;
 		}
 	}
-	if (((*((s_instance*)TELESCOPE_getproperty())).face & 0x60)==0x60)
-	{
-		//TODO: remove this, make format set by edit_resortstring.
-		int tlmax=strlen(finalstring);
-		int tlstart,tlend;
-		tlstart=0;tlend=0;
-		for (int ilv3=0;ilv3<tlmax;ilv3++)
-		{
-			if ((finalstring[ilv3]>='0') && (finalstring[ilv3]<='9'))
-			{
-				if (ifsmat==2)
-				{
-					MACRO_DRAWPREFIX(draw_printformatted)(finalstring,iparms,MACRO_DRAWPREFIX(formatfromifsmat(ifsmat)),tlstart,tlend);
-					tlstart=ilv3;
-					tlend=ilv3+1;
-					ifsmat=1;
-				}
-				else
-				{
-					if (ifsmat==0)
-					{
-						tlend=ilv3+1;
-						goto trivial;
-					}
-					if (ifsmat==1)
-					{
-						tlend=ilv3+1;
-						goto trivial;
-					}
-					if (ifsmat==4)
-					{
-						MACRO_DRAWPREFIX(draw_printformatted)(finalstring,iparms,MACRO_DRAWPREFIX(formatfromifsmat(ifsmat)),tlstart,tlend);
-						tlstart=ilv3;
-						tlend=ilv3+1;
-						ifsmat=0;
-						goto trivial;
-					}
-				}
-			}
-			else
-			{
-				if (sentenumeric(finalstring[ilv3]))
-				{
-					treatasbookstave:
-					if (ifsmat==0)
-					{
-						tlend=ilv3+1;
-						ifsmat=2;
-						goto trivial;
-					}
-					if (ifsmat==1)
-					{
-						MACRO_DRAWPREFIX(draw_printformatted)(finalstring,iparms,MACRO_DRAWPREFIX(formatfromifsmat(ifsmat)),tlstart,tlend);
-						tlstart=ilv3;
-						tlend=ilv3+1;
-						ifsmat=2;
-						goto trivial;
-					}
-					if (ifsmat==2)
-					{
-						tlend=ilv3+1;
-						goto trivial;
-					}
-					if (ifsmat==4)
-					{
-						MACRO_DRAWPREFIX(draw_printformatted)(finalstring,iparms,MACRO_DRAWPREFIX(formatfromifsmat(ifsmat)),tlstart,tlend);
-						tlstart=ilv3;
-						tlend=ilv3+1;
-						ifsmat=2;
-						goto trivial;
-					}
-				}
-				else
-				{
-					if ((finalstring[ilv3]=='+') || (finalstring[ilv3]=='-'))
-					{
-						if (ifsmat==0)
-						{
-							tlend=ilv3+1;
-							goto trivial;
-						}
-						if (ifsmat==4)
-						{
-							tlend=ilv3+1;
-							goto trivial;
-						}
-						if (ifsmat==1)
-						{
-							MACRO_DRAWPREFIX(draw_printformatted)(finalstring,iparms,MACRO_DRAWPREFIX(formatfromifsmat(ifsmat)),tlstart,tlend);
-							tlstart=ilv3;
-							tlend=ilv3+1;
-							ifsmat=4;
-							goto trivial;
-						}
-						if (ifsmat==2)
-						{
-							MACRO_DRAWPREFIX(draw_printformatted)(finalstring,iparms,MACRO_DRAWPREFIX(formatfromifsmat(ifsmat)),tlstart,tlend);
-							tlstart=ilv3;
-							tlend=ilv3+1;
-							ifsmat=4;
-							goto trivial;
-						}
-					}
-					else
-					{
-						if (spaciatic(finalstring[ilv3]))
-						{
-							treatasspace:
-							if (ifsmat==0)
-							{
-								tlend=ilv3+1;
-								goto trivial;
-							}
-							if (ifsmat==1)
-							{
-								MACRO_DRAWPREFIX(draw_printformatted)(finalstring,iparms,MACRO_DRAWPREFIX(formatfromifsmat(ifsmat)),tlstart,tlend);
-								tlstart=ilv3;
-								tlend=ilv3+1;
-								ifsmat=0;
-								goto trivial;
-							}
-							if (ifsmat==2)
-							{
-								tlend=ilv3+1;
-								ifsmat=0;
-								goto trivial;
-							}
-							if (ifsmat==4)
-							{
-								MACRO_DRAWPREFIX(draw_printformatted)(finalstring,iparms,MACRO_DRAWPREFIX(formatfromifsmat(ifsmat)),tlstart,tlend);
-								tlstart=ilv3;
-								tlend=ilv3+1;
-								ifsmat=0;
-								goto trivial;
-							}
-						}
-						else
-						{
-							if (finalstring[ilv3] & 0x80)
-							{
-								goto treatasbookstave;
-							}
-							goto treatasspace;
-						}
-					}
-				}
-			}
-			trivial:
-			;
-		}
-		MACRO_DRAWPREFIX(draw_printformatted)(finalstring,iparms,MACRO_DRAWPREFIX(formatfromifsmat(ifsmat)),tlstart,tlend);
-	}
-	else
 	{
 		int tlformlabeltype=(*((s_instance*)TELESCOPE_getproperty())).face;
 		currentsetfontsize=(*((s_instance*)TELESCOPE_getproperty())).size;
-		#ifdef LENNARD_HACK
-		/*if ((currentsetfontsize>20.0) || (tlformlabeltype & 0x1))
+		if (((*((s_instance*)TELESCOPE_getproperty())).face & 0x60)==0x60)
 		{
-			if (currentsetfontsize>99.0)
-			{
-				iparms=STRINGOUTPUT_emptyformat;
-			}
-			else
-			{
-				if (currentsetfontsize!=29)
-				{
-					iparms=STRINGOUTPUT_bold;
-					if (currentsetfontsize!=38)
-					{
-						currentsetfontsize=24;
-					}
-				}
-				else
-				{
-					currentsetfontsize=29;
-				}
-			}
+			tlformlabeltype=(*((s_instance*)TELESCOPE_getproperty())).effface;
 		}
-		else
-		{
-			currentsetfontsize=18;
-		}*/
-		if (currentsetfontsize<=99.0)
-		{
-			currentsetfontsize=24;
-			if (tlformlabeltype & 0x1)
-			{
-				if (((SVG_width>1280) && (irestriction==0)) || ((SVG_currentfringex-SVG_currentbasex>1280) && (irestriction==0)))
-				{
-					currentsetfontsize=38;
-				}
-				iparms=STRINGOUTPUT_bold;
-			}
-		}
-		#endif
 		#ifdef CAMBRIDGESOFT_CONFORMING
 		sprintf(iparmsstring,"%s",((tlformlabeltype & 0x1) ? STRINGOUTPUT_bold : STRINGOUTPUT_emptyformat),currentsetfontsize);
 		iparms=iparmsstring;
@@ -1483,6 +1294,7 @@ tlposx+tlcos-tlsin,tlposy+tlsin+tlcos,tlposx+2*tlcos-tlsin,tlposy+2*tlsin+tlcos,
 		/*fprintf(outfile,"<tspan %s style=\"fill:#%s\">%s</tspan>%s\n",
 		(tlformlabeltype & 0x20) ? "dy=\"+3\" font-size=\"14\"" : ((tlformlabeltype & 0x40) ? "dy=\"-3\" font-size=\"14%\"":""),
 		colorstring,finalstring,(tlformlabeltype & 0x20)?"<tspan dy=\"-3\"/>":((tlformlabeltype & 0x40)?"<tspan dy=\"3\"/>":""));*/
+	//MACRO_DRAWPREFIX(formatfromifsmat(ifsmat))
 		MACRO_DRAWPREFIX(draw_printformatted)(finalstring,iparms,tlformlabeltype,0,strlen(finalstring));
 	}
 /*	if (sortback)

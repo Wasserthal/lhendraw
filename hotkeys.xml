@@ -2,7 +2,7 @@
 <Objects>
 <Object type="Atom">
 <Hotkeys>
-<Hotkey key="a" command="LABELTEXT" value="A"/>
+<Hotkey key="a" command="LABELTEXT" value="Al"/>
 <Hotkey key="A" command="LABELTEXT" value="As"/>
 <Hotkey key="b" command="LABELTEXT" value="B"/>
 <Hotkey key="B" command="LABELTEXT" value="Br"/>
@@ -25,7 +25,7 @@
 <Hotkey key="k" command="LABELTEXT" value="K"/>
 <Hotkey key="K" command="LABELTEXT" value="Ca"/>
 <Hotkey key="l" command="LABELTEXT" value="Li"/>
-<Hotkey key="L" command="LABELTEXT" value="Al"/>
+<Hotkey key="L" command="LABELTEXT" value="L"/>
 <Hotkey key="m" command="LABELTEXT" value="Mg"/>
 <Hotkey key="M" command="LABELTEXT" value="Mn"/>
 <Hotkey key="n" command="LABELTEXT" value="N"/>

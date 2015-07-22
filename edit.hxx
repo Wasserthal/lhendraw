@@ -3276,7 +3276,6 @@ int edit_interpretasmoleculechainformula(multilist<n_instance> * imultilist,int 
 }
 #define L_SEPARATE \
 {\
-	printf("%s",current_s_string+ilv1);\
 	if (ilv1!=0)\
 	{\
 		itelescope->connect&=~1;\
@@ -3298,7 +3297,7 @@ int edit_interpretasmoleculechainformula(multilist<n_instance> * imultilist,int 
 char edit_resortstring(basicmultilist * imultilist,int iinstance) // resorts chemical text to be right-aligned
 {
 	//Explanation of the connect attribute:
-	//0: means the next Element is not connected, and is set right to the next Element on right-aligned molecule labels
+	//0: means the next Element is not connected, and is set left to the current Element on right-aligned molecule labels
 	//1: means the next Element is right of the current Element even on right-aligned molecule labels, e.g. numbers
 	//0x4: means that this is a open-bracket. When right-aligned, the elements next to the corresponding 0x3 closing-bracket are drawn after it.
 	//it is drawn as the corresponding closing-bracket, then.
@@ -3332,23 +3331,34 @@ char edit_resortstring(basicmultilist * imultilist,int iinstance) // resorts che
 		{
 			L_SEPARATE;
 			itelescope->connect=4;
+			itelescope->effface=itelescope->face&~0x60;
 			fsm=0;
 		}
 		if ((ihv1==')') || (ihv1==']') || (ihv1=='}'))
 		{
 			L_SEPARATE;
 			itelescope->connect=3;
+			itelescope->effface=itelescope->face&~0x60;
 			fsm=5;
 		}
 		if ((ihv1=='+') || (ihv1=='-'))
 		{
-			if (fsm==4) {goto feeble_aftermath;}
-			fsm=4;
+			L_SEPARATE;
+			itelescope->connect=1;
+			itelescope->effface=itelescope->face&~0x60;
+			fsm=1;
 		}
 		if ((ihv1>='0') && (ihv1<='9'))
 		{
 			if ((fsm==1) || (fsm==2) || (fsm==3))
 			{
+				((s_instance*)TELESCOPE_getproperty())->connect|=1;
+				TELESCOPE_split(ilv1,"",1);
+				ilv1=0;
+				itelescope=(s_instance*)TELESCOPE_getproperty();
+				current_s_string=(char*)TELESCOPE_getproperty_contents();
+				ilength=min(strlen(current_s_string),TELESCOPE_getproperty_contentlength());
+				itelescope->effface=(itelescope->face&~0x60)+0x20;
 			}
 			else
 			{
@@ -3363,11 +3373,13 @@ char edit_resortstring(basicmultilist * imultilist,int iinstance) // resorts che
 						itelescope=(s_instance*)TELESCOPE_getproperty();
 						current_s_string=(char*)TELESCOPE_getproperty_contents();
 						ilength=min(strlen(current_s_string),TELESCOPE_getproperty_contentlength());
+						itelescope->effface=(itelescope->face&~0x60)+0x20;
 					}
 				}
 				else
 				{
 					L_SEPARATE;
+					itelescope->effface=itelescope->face&~0x60;
 				}
 			}
 			fsm=3;
@@ -3377,12 +3389,14 @@ char edit_resortstring(basicmultilist * imultilist,int iinstance) // resorts che
 			if ((fsm!=1) && (fsm!=2))
 			{
 				L_SEPARATE;
+				itelescope->effface=itelescope->face&~0x60;
 			}
 			fsm=2;
 		}
 		if ((ihv1>='A') && (ihv1<='Z'))
 		{
 			L_SEPARATE;
+			itelescope->effface=itelescope->face&~0x60;
 			fsm=1;
 		}
 	}

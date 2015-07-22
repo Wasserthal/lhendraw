@@ -5,6 +5,7 @@ struct menuref_
 	structenum what;//The structenum
 	int alignx,aligny;//The position
 };
+int control_keyboardormousemode=0;//0: Keyboard mode; 1: Mouse mode
 int control_analysis_window=1;
 menuref_ menu_list[20];
 int menu_list_count=0;
@@ -366,23 +367,23 @@ int interpretkey(int listnr=-1)
 		control_posy=control_mousey-gfx_canvasminy;
 		control_coorsx=control_posx/SDL_zoomx+SDL_scrollx;
 		control_coorsy=control_posy/SDL_zoomy+SDL_scrolly;
-		clickforthem();
-		if (selection_clickselection_found)
+		if (gethot()!=-1)
 		{
-			if (getclicked((1<<STRUCTURE_OBJECTTYPE_ListSize)-1,control_coorsx,control_coorsy,&ihot_list,&ihot_instance))
-			{
-				i_selectedtypes=1<<ihot_list;
-				ihot=1;
-			}
+			i_selectedtypes=1<<STRUCTURE_OBJECTTYPE_n;
+			ihot=1;
+			ihot_list=STRUCTURE_OBJECTTYPE_n;
+			ihot_instance=control_hotatom;
 		}
 		else
 		{
-			if (gethot()!=-1)
+			clickforthem();
+			if (selection_clickselection_found)
 			{
-				i_selectedtypes=1<<STRUCTURE_OBJECTTYPE_n;
-				ihot=1;
-				ihot_list=STRUCTURE_OBJECTTYPE_n;
-				ihot_instance=control_hotatom;
+				if (getclicked((1<<STRUCTURE_OBJECTTYPE_ListSize)-1,control_coorsx,control_coorsy,&ihot_list,&ihot_instance))
+				{
+					i_selectedtypes=1<<ihot_list;
+					ihot=1;
+				}
 			}
 		}
 	}
@@ -477,6 +478,12 @@ catalogized_command_funcdef(UNDOTREE)
 {
 	return 1;
 }
+int control_findhotatomfrommouse()
+{
+	selection_clearselection(selection_clickselection);
+	_u32 tlfound=clickfor((control_mousex-gfx_canvasminx)/SDL_zoomx+SDL_scrollx,(control_mousey-gfx_canvasminy)/SDL_zoomy+SDL_scrolly,STRUCTURE_OBJECTTYPE_n,constants_clickradius,1)>0;
+	return NULL!=getclicked(1<<STRUCTURE_OBJECTTYPE_n,(control_mousex-gfx_canvasminx)/SDL_zoomx+SDL_scrollx,(control_mousey-gfx_canvasminy)/SDL_zoomy+SDL_scrolly,NULL,&control_hotatom);
+}
 catalogized_command_funcdef(ISSUEDELETE)
 {
 	_u32 icompare;
@@ -530,13 +537,7 @@ catalogized_command_funcdef(ISSUEDELETE)
 	{
 		if (gethot()==-1)
 		{
-			clickforthem();
-			if (selection_clickselection_found)
-			{
-				selection_copyselection(selection_currentselection,selection_clickselection);
-				selection_currentselection_found=selection_clickselection_found;
-				goto i_delete_newclick;
-			}
+			if (control_keyboardormousemode==1) control_findhotatomfrommouse();
 		}
 		if (gethot()!=-1)
 		{
@@ -2981,6 +2982,7 @@ void control_normal()
 		{
 			case SDL_MOUSEMOTION:
 			{
+				control_keyboardormousemode=1;
 				control_doubleclickenergy=0;
 				control_mousex=control_Event.motion.x;
 				control_mousey=control_Event.motion.y;
@@ -3036,6 +3038,7 @@ void control_normal()
 			case SDL_MOUSEBUTTONDOWN:
 			{
 				SDL_MOUSEBUTTONDOWN_FROM_MOUSEWHEEL:;
+				control_keyboardormousemode=1;
 				if ((control_mousestate & (~0x58))==0)
 				{
 					if ((control_mousestate & (24)) || (control_Event.button.x<gfx_canvasminx) || (control_Event.button.y<gfx_canvasminy) || (control_Event.button.x>=gfx_canvasmaxx) || (control_Event.button.y>=gfx_canvasmaxy))
@@ -3277,22 +3280,7 @@ void control_normal()
 						{
 							if (control_mousestate==0)
 							{
-								selection_clearselection(selection_clickselection);
-								int ilv0=STRUCTURE_OBJECTTYPE_n;
-								_u32 tlfound=clickfor((control_mousex-gfx_canvasminx)/SDL_zoomx+SDL_scrollx,(control_mousey-gfx_canvasminy)/SDL_zoomy+SDL_scrolly,STRUCTURE_OBJECTTYPE_n,constants_clickradius,1)>0;
-								if (tlfound)
-								{
-									for (int ilv2=0;ilv2<(*glob_n_multilist).filllevel;ilv2++)
-									{
-										if (selection_clickselection[ilv2] & (1<<STRUCTURE_OBJECTTYPE_n))
-										{
-											if ((*glob_n_multilist)[ilv2].exist)
-											{
-												control_hotatom=ilv2;
-											}
-										}
-									}
-								}
+								control_findhotatomfrommouse();
 								idontrepeat=1;
 								issueshiftstart();
 								control_keycombotool=1;
@@ -3558,6 +3546,7 @@ void control_normal()
 					control_textedit_KEY_abort:;
 				}
 				break;
+				control_keyboardormousemode=0;
 			}
 			case SDL_QUIT:
 			{

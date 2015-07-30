@@ -1,4 +1,12 @@
+#define constants_MSPoints 64
+float analysis_MSSpectrum[constants_MSPoints];
+float analysis_MSSplit[constants_MSPoints];
+float analysis_MSNext[constants_MSPoints];
+float analysis_MSPower[constants_MSPoints];
+int analysis_MSmin,analysis_MSmax;
+float analysis_MS100;
 int analysis_analysis[element_max];
+int analysis_charge;
 float element_mass(int input)
 {
 	float wert=0;
@@ -8,9 +16,46 @@ float element_mass(int input)
 	}
 	return wert;
 }
+float element_isotopecount(int input)
+{
+	int wert=0;
+	for (int ilv1=0;element[input].isotopes[ilv1]>0;ilv1+=2)
+	{
+		wert+=1;
+	}
+	return wert;
+}
+float element_exactmass(int input)
+{
+	float bestmass=0;
+	float bestabundancy=0;
+	for (int ilv1=0;element[input].isotopes[ilv1]>0;ilv1+=2)
+	{
+		if (bestabundancy<element[input].isotopes[ilv1])
+		{
+			bestmass=element[input].isotopes[ilv1+1];
+			bestabundancy=element[input].isotopes[ilv1];
+		}
+	}
+	return bestmass;
+}
+float element_minmass(int input)
+{
+	return element[input].isotopes[1];
+}
+float element_maxmass(int input)
+{
+	float wert=0;
+	int ilv1;
+	for (ilv1=0;element[input].isotopes[ilv1]>0;ilv1+=2)
+	{
+	}
+	return element[input].isotopes[ilv1-1];
+}
 int edit_interpretasmoleculechainformula(multilist<n_instance> * imultilist,int inumber);
 void analysis_ElementalAnalysis()
 {
+	analysis_charge=0;
 	for (int ilv1=0;ilv1<element_max;ilv1++)
 	{
 		analysis_analysis[ilv1]=0;
@@ -22,6 +67,7 @@ void analysis_ElementalAnalysis()
 		if (selection_currentselection[ilv1] & icompare)
 		{
 			float i_bond_sum=0;
+			analysis_charge+=tl_n_instance->charge;
 			if ((tl_n_instance->Element>=0) && (tl_n_instance->Element<element_max))
 			{
 				analysis_analysis[tl_n_instance->Element]++;
@@ -63,77 +109,137 @@ float analysis_mass()
 	}
 	return wert;
 }
-/*int edit_interpretasmoleculechainformula(multilist<n_instance> * imultilist,int inumber)
+void analysis_MSadd(float sum,float intensity)
 {
-	char * ipointer;
-	int i_backval=0;
-	int fsm=0;//0: nothing 1: One big letter 2: One big Letter, and also small letters 3: Hydrogens-H 4: Number reached 5: other symbol, done 6: Invalid-cant interpret
-	i_backval=TELESCOPE_aggressobject(imultilist,inumber);
-	if (i_backval)
+	analysis_MSSpectrum[(int)((sum-analysis_MSmin)/(analysis_MSmax-analysis_MSmin))]+=intensity;
+}
+void analysis_MSmul(float * factor1,float * factor2,float * result)//both factors may be identical or identical with the result
+{
+	for (int ilv1=0;ilv1<constants_MSPoints;ilv1++)
 	{
-		i_backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_s);
-		if (i_backval) ipointer=(char*)TELESCOPE_getproperty_contents();
+		analysis_MSNext[ilv1]=0;
 	}
-	else
+	for (int ilv1=0;ilv1<constants_MSPoints;ilv1++)
 	{
-		edit_scoop_numhydrogens=4;
-		(*imultilist)[inumber].Element=constants_Element_implicitcarbon;
-		goto yes_its_an_element;
-	}
-	edit_brackets_allowed=1;
-	edit_grouplabels_allowed=1;
-	edit_dashes_allowed=1;
-	edit_hydrogens_allowed=0;
-	inextelement:;
-	edit_scoop_valids=0;
-	(*(_u32*)edit_scoop_atomstring)=0;
-	edit_scoop_numhydrogens=0;
-	edit_scoop_charge=0;
-	edit_scoop_atomcount=0;
-	iback:
-	if (i_backval)
-	{
-		processatomsymbol(&fsm,ipointer,(s_instance*)TELESCOPE_getproperty());
-		if (fsm>=7) goto enoughtointerpret;
-		if (((*(s_instance*)TELESCOPE_getproperty()).face & 0x60)!=0x60)
+		for (int ilv2=0;ilv2<constants_MSPoints-ilv1;ilv2++)
 		{
-			fsm=7;
-		}
-		i_backval=TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_s);
-		if (i_backval)
-		{
-			ipointer=(char*)TELESCOPE_getproperty_contents();
-			goto iback;
+			analysis_MSNext[ilv2+ilv1]+=factor1[ilv1]*factor2[ilv2];
 		}
 	}
-	enoughtointerpret:;
-	for (int ilv1=0;ilv1<sizeof(element)/sizeof(element_);ilv1++)
+	for (int ilv1=0;ilv1<constants_MSPoints;ilv1++)
 	{
-		if (strcmp(edit_scoop_atomstring,element[ilv1].name)==0)
+		result[ilv1]=analysis_MSNext[ilv1];
+	}
+}
+float analysis_MSPivot(float * input)
+{
+	float result=0;
+	float sum=0;
+	for (int ilv1=0;ilv1<constants_MSPoints;ilv1++)
+	{
+		sum+=input[ilv1];
+		result+=input[ilv1]*ilv1;
+	}
+	result/=sum;
+	return result;
+}
+void analysis_MSMove(float * input,int amount,int * shift)
+{
+	shift-=amount;
+	if (amount<0)
+	{
+		for (int ilv1=0;ilv1<constants_MSPoints+amount;ilv1++)
 		{
-
-			goto yes_its_an_element;
+			input[ilv1]=input[ilv1-amount];
+		}
+		for (int ilv1=constants_MSPoints+amount;ilv1<constants_MSPoints;ilv1++)
+		{
+			input[ilv1]=0;
 		}
 	}
-	for (int ilv1=0;ilv1<sizeof(element_abbreviation)/sizeof(element_abbreviation_);ilv1++)
+	if (amount>0)
 	{
-		if (strcmp(edit_scoop_atomstring,element_abbreviation[ilv1].name)==0)
+		for (int ilv1=constants_MSPoints-1;ilv1>=amount;ilv1--)
 		{
-			for (int ilv2=0;element_abbreviation[ilv1].composition[ilv2]!=0;ilv2++)
-			{
-				for (int ilv1=0;ilv1<sizeof(element)/sizeof(element_);ilv1++)
-				{
-					if (strcmp(edit_scoop_atomstring,element_abbreviation[ilv1].composition[ilv2+1])==0)
-					{
-						(*imultilist)[inumber].Element=ilv1;
-						goto yes_its_an_element;
-					}
-				}
-			}
-			goto yes_its_an_element;
+			input[ilv1]=input[ilv1-amount];
+		}
+		for (int ilv1=0;ilv1<amount;ilv1++)
+		{
+			input[ilv1]=0;
 		}
 	}
-	return 0;
-	yes_its_an_element:;
-	return 1;
-}*/
+}
+void analysis_mulmass(int nr)
+{
+	int isotopecount=element_isotopecount(nr);
+	for (int ilv1=0;ilv1<constants_MSPoints;ilv1++)
+	{
+		analysis_MSSplit[ilv1]=0;
+	}
+	analysis_MSSplit[0]=1;
+	for (int ilv1=0;ilv1<constants_MSPoints;ilv1++)
+	{
+		analysis_MSPower[ilv1]=0;
+	}
+	analysis_MSPower[0]=1;
+	int element_basicmass=round(element[nr].isotopes[1]);
+	int element_maxdeltamass=round(element[nr].isotopes[isotopecount*2-1]);
+	int element_powerdeltamass=element_basicmass;
+	//generates an isotope-split for ONE Element.
+	for (int ilv1=0;element[nr].isotopes[ilv1]!=0;ilv1+=2)
+	{
+		analysis_MSPower[(int)round(element[nr].isotopes[ilv1+1])-element_basicmass]+=element[nr].isotopes[ilv1];
+	}
+	//Then, the split is applied to its powers of two who match the number of elements present in that analysis
+	for (int ilv1=0;ilv1<analysis_analysis[nr];ilv1++)
+	{
+		if ((1<<ilv1) & analysis_analysis[nr])
+		{
+			analysis_MSmin+=element_powerdeltamass;
+			analysis_MSmul(analysis_MSSplit,analysis_MSPower,analysis_MSSplit);
+		}
+		analysis_MSmul(analysis_MSPower,analysis_MSPower,analysis_MSPower);
+		element_powerdeltamass+=element_powerdeltamass;
+		int tl_pivot=analysis_MSPivot(analysis_MSPower);
+/*			if (tl_pivot>(constants_MSPoints>>1))
+		{
+			analysis_MSMove(analysis_MSPower,(constants_MSPoints>>1)-tl_pivot,&element_powerdeltamass);
+		}*/
+	}
+	analysis_MSmul(analysis_MSSpectrum,analysis_MSSplit,analysis_MSSpectrum);
+	int tl_pivot=analysis_MSPivot(analysis_MSSpectrum);
+/*		if (tl_pivot>(constants_MSPoints>>1))
+	{
+		analysis_MSMove(analysis_MSSpectrum,(constants_MSPoints>>1)-tl_pivot,&analysis_MSmin);
+	}*/
+}
+void analysis_MS()
+{
+	for (int ilv1=0;ilv1<constants_MSPoints;ilv1++)
+	{
+		analysis_MSSpectrum[ilv1]=0;
+	}
+	analysis_MSSpectrum[0]=1;
+	analysis_MSmin=0;
+	analysis_MSmax=0;
+/*      for (int ilv1=0;ilv1<element_max;ilv1++)
+	{
+		analysis_MSmin+=analysis_analysis[ilv1]*element_minmass(ilv1);
+	}
+	for (int ilv1=0;ilv1<element_max;ilv1++)
+	{
+		analysis_MSmax+=analysis_analysis[ilv1]*element_maxmass(ilv1);
+	}*/
+	for (int ilv1=0;ilv1<element_max;ilv1++)
+	{
+		if (analysis_analysis[ilv1]>0)
+		{
+			analysis_mulmass(ilv1);
+		}
+	}
+	analysis_MS100=0;
+	for (int ilv1=0;ilv1<constants_MSPoints;ilv1++)
+	{
+		if (analysis_MS100<analysis_MSSpectrum[ilv1]) analysis_MS100=analysis_MSSpectrum[ilv1];
+	}
+}

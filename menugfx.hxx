@@ -782,8 +782,29 @@ void sdl_analysisdraw(int alignx,int aligny)
 		}
 		laststring=currentstring;
 	}
+	if (analysis_charge!=0)
+	{
+		if (abs(analysis_charge>1))
+		{
+			sprintf(analysis_string,"%i%c%n",abs(analysis_charge),(analysis_charge>0)?'+':'-',&stringincrement);
+		}
+		else
+		{
+			sprintf(analysis_string,"%c%n",(analysis_charge>0)?'+':'-',&stringincrement);
+		}
+		printmenutext(alignx+horzcoord,aligny-5,analysis_string,stringincrement);
+		horzcoord+=stringincrement*8;
+	}
 	sprintf(analysis_string,"Weight=%6.2f g/mol",analysis_mass());
 	printmenutext(alignx,aligny+32,analysis_string,strlen(analysis_string));
+	analysis_MS();
+	for (int ilv1=0;ilv1<64;ilv1++)
+	{
+		for (int ilv2=0;ilv2>-((64.0*analysis_MSSpectrum[ilv1])/analysis_MS100);ilv2--)
+		{
+			screen[(aligny+100+ilv2)*gfx_screensizex+ilv1*2]=0;
+		}
+	}
 }
 int sdl_menudraw()
 {

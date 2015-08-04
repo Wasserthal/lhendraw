@@ -159,8 +159,8 @@ void Signal(int signum)
 #endif
 int main(int argc,char * * argv)
 {
-#ifndef NODEBUG
 	progname=argv[0];
+#ifndef NODEBUG
 	signal(SIGSEGV,&Signal);
 	signal(SIGILL,&Signal);
 	signal(SIGFPE,&Signal);

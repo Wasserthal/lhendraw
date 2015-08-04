@@ -243,6 +243,7 @@ _small getother(_small inatom, _small inbond)
 	{
 		return (bond_actual_node[inbond].end);
 	}
+	asm("int3\n");
 	fprintf(stderr,"Programmierfehler oder Datenfehler! bond %i hat start=%i, end=%i, soll aber ausgehen von %i (id=%i)!\n",inbond,bond_actual_node[inbond].start,bond_actual_node[inbond].end,inatom,glob_n_multilist->bufferlist()[inatom].id);exit(1);
 }
 int findunfragmentedatom()

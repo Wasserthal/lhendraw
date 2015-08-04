@@ -379,6 +379,21 @@ int get_bond_between(int inatom1, int inatom2)
 	}
 	return -3;
 }
+int get_bond_between_actual_node(int inatom1, int inatom2)
+{
+	int imax=(*glob_b_multilist).filllevel;
+	for (int ilv1=0;ilv1<atom_actual_node[inatom1].bondcount;ilv1++)
+	{
+		for (int ilv2=0;ilv2<atom_actual_node[inatom2].bondcount;ilv2++)
+		{
+			if (atom_actual_node[inatom1].bonds[ilv1]==atom_actual_node[inatom2].bonds[ilv2])
+			{
+				return atom_actual_node[inatom1].bonds[ilv1];
+			}
+		}
+	}
+	return -3;
+}
 int gethot()
 {
 	if ((control_hotatom>=0) && (control_hotatom<(*glob_n_multilist).filllevel))
@@ -4482,6 +4497,7 @@ int edit_atom_fits(n_instance * atom1,n_instance * atom2)
 			}
 		}
 	}
+	printf("REJ_ele:%i,%i",atom1->Element,atom2->Element);
 	return 0;
 	chargecheck:;
 	if ((atom1->charge>0) && (atom2->charge<atom1->charge)) return 0;
@@ -4490,12 +4506,41 @@ int edit_atom_fits(n_instance * atom1,n_instance * atom2)
 }
 int edit_bond_fits(b_instance * bond1,b_instance * bond2)
 {
+	if (bond1->Order>bond2->Order)
+	{
+		return 0;
+	}
+	return 1;
 }
 int edit_atoms_in_check=0;
 int currentatom_in_check=0;
 int * edit_searchbuffer;
 int * edit_orderbuffer;
 int * edit_branchbuffer;//stores for every orderbuffer-atom from what parent it had branched, and -1 for the root atom
+void edit_moleculesearch_yell()
+{
+	for (int ilv1=0;ilv1<currentatom_in_check;ilv1++)
+	{
+		printf("`%c%i%c`",selection_clickselection[edit_searchbuffer[edit_orderbuffer[ilv1]]]?'(':'`',edit_searchbuffer[edit_orderbuffer[ilv1]],selection_clickselection[edit_searchbuffer[edit_orderbuffer[ilv1]]]?')':'`');
+	}
+	printf("\n");
+}
+void edit_moleculesearch_oell()
+{
+	for (int ilv1=0;ilv1<currentatom_in_check;ilv1++)
+	{
+		printf("''%i''",edit_orderbuffer[ilv1]);
+	}
+	printf("\n");
+}
+void edit_moleculesearch_brell()
+{
+	for (int ilv1=0;ilv1<currentatom_in_check;ilv1++)
+	{
+		printf("°°%i°°",edit_branchbuffer[ilv1]);
+	}
+	printf("\n");
+}
 int edit_getunclicked(int atom1,int * result,char selectionmode)
 {
 	char foundalready=0;
@@ -4510,7 +4555,6 @@ int edit_getunclicked(int atom1,int * result,char selectionmode)
 			goto iimpossible;
 		}
 		ipossible:;
-		printf("nr:%i,bond:%i\n",atom1,ilv1);
 		if (((selection_currentselection[resultnr] & (1<<STRUCTURE_OBJECTTYPE_n))!=0)==selectionmode)
 		{
 			if ((selection_clickselection[resultnr] & (1<<STRUCTURE_OBJECTTYPE_n))==0)
@@ -4525,12 +4569,11 @@ int edit_getunclicked(int atom1,int * result,char selectionmode)
 	return 0;
 }
 //expands by 1 step
-int edit_brimstone_findtemplate(int from)
+int edit_moleculesearch_findtemplate(int from)
 {
 	//setting (edit_orderbuffer[edit_atoms_in_check]) to -1 always, the used ones are clickselection-ed anyway, and one does not need to iterate through them.
 	(edit_orderbuffer[edit_atoms_in_check])=-1;
 	int retval=edit_getunclicked(edit_orderbuffer[from],&(edit_orderbuffer[edit_atoms_in_check]),1);
-	printf("or:%ifrom:%i\n",edit_orderbuffer[from],from);
 	if (retval<0) return 0;//error occurred. 0 means: abandon this
 	if (retval==0)
 	{
@@ -4538,7 +4581,7 @@ int edit_brimstone_findtemplate(int from)
 		{
 			for (int ilv1=from-1;ilv1>=0;ilv1--)
 			{
-				if (edit_brimstone_findtemplate(from-1)>0) return 1;
+				if (edit_moleculesearch_findtemplate(ilv1)>0) return 1;
 			}
 			return 2;//means: finished
 		}
@@ -4550,50 +4593,65 @@ int edit_brimstone_findtemplate(int from)
 	edit_atoms_in_check++;
 	return 1;
 }
-int edit_brimstone_findnext()
+int edit_moleculesearch_findnext()
 {
 	int retval;
 	edit_searchbuffer[edit_orderbuffer[currentatom_in_check]]=-1;
 	iback:;
+	printf("N\n");
+	edit_moleculesearch_yell();
 	retval=edit_getunclicked(edit_searchbuffer[edit_orderbuffer[edit_branchbuffer[currentatom_in_check]]],&(edit_searchbuffer[edit_orderbuffer[currentatom_in_check]]),0);
 	if (retval<=0) return 0;//means: abandon this
 	if (edit_atom_fits(glob_n_multilist->bufferlist()+edit_orderbuffer[currentatom_in_check],glob_n_multilist->bufferlist()+edit_searchbuffer[edit_orderbuffer[currentatom_in_check]])>0)
 	{
 		selection_clickselection[edit_searchbuffer[edit_orderbuffer[currentatom_in_check]]]|=(1<<STRUCTURE_OBJECTTYPE_n);
-		edit_branchbuffer[currentatom_in_check]=edit_orderbuffer[currentatom_in_check-1];
 		currentatom_in_check++;
+		edit_moleculesearch_yell();
+		printf("YES\n");
 		return 1;
 	}
 	goto iback;
 }
-int edit_brimstone_findother()
+int edit_moleculesearch_findother()
 {
 	int retval;
 	iback:;
+	printf("O\n");
 	selection_clickselection[edit_searchbuffer[edit_orderbuffer[currentatom_in_check-1]]]&=~(1<<STRUCTURE_OBJECTTYPE_n);
 	if (currentatom_in_check<=0) return 0;
+	edit_moleculesearch_yell();
 	retval=edit_getunclicked(edit_searchbuffer[edit_orderbuffer[edit_branchbuffer[currentatom_in_check-1]]],&(edit_searchbuffer[edit_orderbuffer[currentatom_in_check-1]]),0);
 	if (retval<=0) return 0;//means: abandon this
 	if (edit_atom_fits(glob_n_multilist->bufferlist()+edit_orderbuffer[currentatom_in_check-1],glob_n_multilist->bufferlist()+edit_searchbuffer[edit_orderbuffer[currentatom_in_check-1]])>0)
 	{
+		selection_clickselection[edit_searchbuffer[edit_orderbuffer[currentatom_in_check-1]]]|=(1<<STRUCTURE_OBJECTTYPE_n);
 		return 1;
 	}
 	goto iback;
 }
-int edit_brimstone_findlast()
+int edit_moleculesearch_findlast()
 {
 	int retval;
 	iback:;
+	printf("L\n");
 	selection_clickselection[edit_searchbuffer[edit_orderbuffer[currentatom_in_check-1]]]&=~(1<<STRUCTURE_OBJECTTYPE_n);
-	if (currentatom_in_check<=1) return 0;//means: abandon this
+	if (currentatom_in_check<=2) return 0;//means: abandon this
+	edit_moleculesearch_yell();
 	currentatom_in_check--;
+	selection_clickselection[edit_searchbuffer[edit_orderbuffer[currentatom_in_check-1]]]&=~(1<<STRUCTURE_OBJECTTYPE_n);
 	retval=edit_getunclicked(edit_searchbuffer[edit_orderbuffer[edit_branchbuffer[currentatom_in_check-1]]],&(edit_searchbuffer[edit_orderbuffer[currentatom_in_check-1]]),0);
-	if (retval>0) return 1;
+	edit_moleculesearch_yell();
+	if (retval>0)
+	{
+		selection_clickselection[edit_searchbuffer[edit_orderbuffer[currentatom_in_check-1]]]|=(1<<STRUCTURE_OBJECTTYPE_n);
+		return 1;
+	}
 	goto iback;
 }
-int edit_brimstone()
+int edit_moleculesearch()
 {
 	int ibackval=0;
+	int retval;
 	memory_alloc((char**)&edit_searchbuffer,5);
 	memory_alloc((char**)&edit_orderbuffer,5);
 	memory_alloc((char**)&edit_branchbuffer,5);
@@ -4616,17 +4674,17 @@ int edit_brimstone()
 		}
 	}
 	//Nothing was selected
-	return 0;
+	retval=0;
+	goto done;
 	igottemplateatom:;
-	int retval=0;
+	retval=0;
 	do
 	{
-		printf("AIC:%i\n",edit_atoms_in_check);
 		for (int ilv1=0;ilv1<edit_atoms_in_check;ilv1++)
 		{
 			printf("%i--\n",edit_orderbuffer[ilv1]);
 		}
-		retval=edit_brimstone_findtemplate(edit_atoms_in_check-1);
+		retval=edit_moleculesearch_findtemplate(edit_atoms_in_check-1);
 	} while ((retval>0) && (retval!=2));
 	for (int ilv1=0;ilv1<glob_n_multilist->filllevel;ilv1++)//Loops all unselected atoms to start tree-matching there
 	{
@@ -4635,43 +4693,95 @@ int edit_brimstone()
 			n_instance * iinstance=glob_n_multilist->bufferlist()+ilv1;
 			if (iinstance->exist)
 			{
-				//TODO: assign 
 				if (edit_atom_fits(glob_n_multilist->bufferlist()+edit_orderbuffer[0],iinstance)>0)
 				{
+					printf("START:%i\n",ilv1);
 					selection_clickselection[ilv1]|=(1<<STRUCTURE_OBJECTTYPE_n);
 					edit_searchbuffer[edit_orderbuffer[0]]=ilv1;
 					currentatom_in_check=1;
 					edit_branchbuffer[0]=-1;
 					iback:;
-					ibackval=edit_brimstone_findnext();
-					printf("Nr:val:%i ;;;%i,%i.%i\n",ibackval,currentatom_in_check,ilv1,edit_atoms_in_check);
+					ibackval=edit_moleculesearch_findnext();
+					edit_moleculesearch_yell();
 					if (ibackval==1)
 					{
 						if (currentatom_in_check==edit_atoms_in_check)
 						{
+							int verificationmode=1;
+							inscribe:;//run through this twice, once to check if bonds are fitting, second time to mark the fitting bonds
+							for (int ilv2=0;ilv2<glob_n_multilist->filllevel;ilv2++)
+							{
+								if (selection_currentselection[ilv2] & (1<<STRUCTURE_OBJECTTYPE_n))
+								{
+									n_instance * iinstance2=glob_n_multilist->bufferlist()+ilv2;
+									if (iinstance2->exist)
+									{
+										for (int ilv3=0;ilv3<atom_actual_node[ilv2].bondcount;ilv3++)
+										{
+											if (selection_currentselection[atom_actual_node[ilv2].bonds[ilv3]] & (1<<STRUCTURE_OBJECTTYPE_b))
+											{
+												int other=getother(ilv2,atom_actual_node[ilv2].bonds[ilv3]);
+												if (selection_currentselection[other] & (1<<STRUCTURE_OBJECTTYPE_n))
+												{
+													int backval=get_bond_between_actual_node(edit_searchbuffer[ilv2],edit_searchbuffer[other]);
+													if (backval>=0)
+													{
+														if (verificationmode)
+														{
+															if (edit_bond_fits(glob_b_multilist->bufferlist()+atom_actual_node[ilv2].bonds[ilv3],glob_b_multilist->bufferlist()+backval)<=0) goto failed;
+														}
+														else
+														{
+															selection_clickselection[backval]|=(1<<STRUCTURE_OBJECTTYPE_b);
+														}
+													}
+													else
+													{
+														goto failed;
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+							edit_moleculesearch_yell();
+							if (verificationmode)
+							{
+								verificationmode=0;
+								goto inscribe;
+							}
+							selection_SUBTRACTselection(selection_clickselection,selection_currentselection);
 							selection_copyselection(selection_currentselection,selection_clickselection);
 							retval=1;
 							goto done;
 						}
 						goto iback;
 					}
-					if (edit_brimstone_findother()>0)
+					failed:;
+					if (edit_moleculesearch_findother()>0)
 					{
 						goto iback;
 					}
 					else
 					{
-						if (edit_brimstone_findlast()==0)
+						if (edit_moleculesearch_findlast()<=0)
 						{
 							goto badstart;
 						}
+						else
+						{
+							goto iback;
+						}
 					}
+					badstart:;//remember to clear selection when jumping to this label with a bigger structure built up.
+					selection_clickselection[ilv1]&=~(1<<STRUCTURE_OBJECTTYPE_n);
+//					selection_ANDselection(selection_clickselection,selection_currentselection);
 				}
-				selection_clickselection[ilv1]&=~(1<<STRUCTURE_OBJECTTYPE_n);
 			}
 		}
-		badstart:;
 	}
+	printf("out!\n");
 	retval=0;
 	done:;
 	memory_free(edit_branchbuffer);
@@ -4681,7 +4791,8 @@ int edit_brimstone()
 }
 catalogized_command_funcdef(SEARCH)
 {
-	return edit_brimstone();
+	checkupinconsistencies();
+	return edit_moleculesearch();
 }
 extern int control_tool;
 catalogized_command_funcdef(DUMPCLICKABMAT)

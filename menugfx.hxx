@@ -1020,5 +1020,8 @@ int sdl_selectiondraw()
 							goto iback2;
 						}
 					}
+					char temporarystring[20];
+					sprintf(temporarystring,"%i      ",control_hotatom);
+					printmenutext(100,12,temporarystring,7);
 	return 0;
 }

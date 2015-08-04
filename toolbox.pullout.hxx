@@ -461,6 +461,16 @@ menuitem pullout_toolbox[]={
 "PASTE","",
 0x00FF00,
 },
+{10,0,
+74,//Picture
+"search",
+3,0,
+0,
+"search",
+"",
+"SEARCH","",
+0x00FF00,
+},
 {-1,-2,
 5,//Picture
 "dump clickabilitymatrix",

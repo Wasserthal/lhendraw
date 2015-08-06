@@ -237,7 +237,6 @@ void cmdline(int argc,char ** argv)
 	{
 		if (argmeanings[ilv1]==2)
 		{
-			printf("LOAD_TYPE:%sargv[%i],argmeanings%i\n",argv[ilv1],ilv1,argmeanings[ilv1]);
 			LOAD_TYPE(argv[ilv1],"");
 		}
 	}

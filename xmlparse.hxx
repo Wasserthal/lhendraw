@@ -22,10 +22,9 @@ void entertag()
 	}
 	else
 	{
-//		printf("%s has no member named %s at %X!\n",currentinstance->getName(),tagnamestring,debugcounter);
-/*		printf("instead it got:");
-		printf("%s\n",page_instance::contents[5].name);*/
+		#ifndef NODEBUG
 		printf("%s vs. %s !\n",tagnamestring,currentinstance->getName());
+		#endif
 		if (strcmp(currentinstance->getName(),"gummydummy")==0)
 		{
 			scrunity++;
@@ -342,7 +341,7 @@ void input_fsm(FILE* infile)
 			}
 			fprintf(stderr,"Error: \">\" expected at end of tag");
 			#ifdef DEBUG
-				fprintf(stderr,"%%-> %llX <-i\n",debugcounter);
+			fprintf(stderr,"%%-> %llX <-i\n",debugcounter);
 			#endif
 			for (int ilv1=0;ilv1<15;ilv1++)
 			{
@@ -391,10 +390,12 @@ void input_fsm(FILE* infile)
 int debug_demonstratefsm_recursion_depth=0;
 void indent()
 {
+	#ifndef NODEBUG
 	for (int ilv1=0;ilv1<debug_demonstratefsm_recursion_depth;ilv1++)
 	{
 		printf("  ");
 	}
+	#endif
 }
 int input_recursion(FILE * infile)
 {
@@ -430,13 +431,17 @@ int input_recursion(FILE * infile)
 				paramvaluestring[ilv1]=padding;
 			}
 			scoopparam_bin();
+			#ifndef NODEBUG
 			printf("%s:%i:%llX\n",tl_name,(int)paramvaluestring_length,*(_u64*)paramvaluestring);
+			#endif
 		}
 		else
 		{
 			backval=fread(paramvaluestring,1,paramvaluestring_length,infile);
 			if (backval<paramvaluestring_length) return -7;
+			#ifndef NODEBUG
 			printf("%04hX:%i:%llX\n",itype,(int)paramvaluestring_length,*(_u64*)paramvaluestring);
+			#endif
 		}
 		debug_demonstratefsm_recursion_depth-=1;
 		return 1;
@@ -449,19 +454,25 @@ int input_recursion(FILE * infile)
 	if (tl_name)
 	{
 		strcpy(tagnamestring,tl_name);
+		#ifndef NODEBUG
 		printf("\e[31m%s:\e[0m%i\n",tl_name,iid);
+		#endif
 	}
 	else
 	{
 		strcpy(tagnamestring,"gummydummy");
+		#ifndef NODEBUG
 		printf("\e[31m%04hX:\e[0m%i\n",itype,iid);
+		#endif
 	}
 	tagnamestring_length=strlen(tagnamestring);
 	entertag();
 	strcpy(parameterstring,"id");memcpy(paramvaluestring,(char*)&iid,4);
 	scoopparam_bin();
 	indent();
+	#ifndef NODEBUG
 	printf("you are in a %s\n",(*currentinstance).getName());
+	#endif
 	backval=1;
 	while (backval>0)
 	{
@@ -602,7 +613,9 @@ int output_object_bin(FILE * outfile,basic_instance * iinstance)
 			{
 				goto ignore_item;
 			}
+			#ifndef NODEBUG
 			printf("Unknown number of Element named %s\n",name);goto ignore_item;
+			#endif
 			idone:;
 			(*iinstance)._->properties[ilv1].binwritedelegate(((char*)iinstance)+ipropertypos,outfile);
 			ignore_item:;

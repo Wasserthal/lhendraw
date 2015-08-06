@@ -4607,7 +4607,6 @@ int edit_moleculesearch_findnext()
 	int retval;
 	edit_searchbuffer[edit_orderbuffer[currentatom_in_check]]=-1;
 	iback:;
-	//WHY is findnext called from
 	retval=edit_getunclicked(edit_searchbuffer[edit_orderbuffer[edit_branchbuffer[currentatom_in_check]]],&(edit_searchbuffer[edit_orderbuffer[currentatom_in_check]]),0);
 	if (retval<=0) return 0;//means: abandon this
 	if (edit_atom_fits(glob_n_multilist->bufferlist()+edit_orderbuffer[currentatom_in_check],glob_n_multilist->bufferlist()+edit_searchbuffer[edit_orderbuffer[currentatom_in_check]])>0)
@@ -4772,8 +4771,6 @@ int edit_moleculesearch()
 					}
 					badstart:;//remember to clear selection when jumping to this label with a bigger structure built up.
 					selection_clickselection[ilv1]&=~(1<<STRUCTURE_OBJECTTYPE_n);
-
-//					selection_ANDselection(selection_clickselection,selection_currentselection);
 				}
 			}
 		}
@@ -4793,26 +4790,6 @@ catalogized_command_funcdef(SEARCH)
 catalogized_command_funcdef(SEARCHFILE)
 {
 	int retval;
-/*char failed=0;
-	SELECTALL("","");
-	char ifilename[stringlength+stringlength+2];
-	sprintf(ifilename,"%s/.lhendraw",getenv("PWD"));
-	DIR * DD=opendir(ifilename);
-	char retval=-30;
-	iback:;
-	if (DD)
-	{
-		sprintf(ifilename,"%s/.lhendraw/clipboard",getenv("PWD"));
-		control_save_selection=1;
-		retval=SAVE_TYPE(ifilename,"cdxml");
-		control_save_selection=0;
-	}
-	else
-	{
-		system("mkdir $PWD/.lhendraw");
-		failed=1;//do this better! make a global variable to tell whether it exists or not
-		goto iback;
-	}*/
 	storeundo(~0);
 	SELECTALL("","1");
 	retval=LOAD_TYPE(parameter,value);

@@ -142,12 +142,6 @@ void MACRO_DRAWPREFIX(drawglyph)(int unicode,int imode,int ideltax,int ideltay,i
 		MACRO_DRAWPREFIX(expressgeometry_begin)(glyf_processed[0].x,glyf_processed[0].y);
 		for (int ilv2=1;ilv2<glyf_processedcount;ilv2++)
 		{
-/*			if (ilv2==38)
-			{
-				SDL_color=0xFF00;
-				MACRO_DRAWPREFIX(expressellipse)(glyf_processed[ilv2].x,glyf_processed[ilv2].y,35,35);
-				SDL_color=0x00;
-			}*/
 			char tl_postincrement=0;
 			if ((glyf_processed[ilv2].flags & 1)==0)
 			{
@@ -681,14 +675,6 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,char hatches)
 	}
 	goto svg_main_loop;
 	svg_main_graphic:
-/*	MACRO_DRAWPREFIX(stylegenestring)(2);
-	if(MACRO_DRAWPREFIX(expressgeometry_start)(-10000,-10000,1000000,100000))
-	{
-	MACRO_DRAWPREFIX(expressgeometry_begin)(glyphmemory[66].simple.donecoordinates[33].x,+glyphmemory[66].simple.donecoordinates[33].y);
-	MACRO_DRAWPREFIX(expressgeometry_bezier2)(glyphmemory[66].simple.donecoordinates[44].x,+glyphmemory[66].simple.donecoordinates[44].y,glyphmemory[66].simple.donecoordinates[45].x,+glyphmemory[66].simple.donecoordinates[45].y);
-	MACRO_DRAWPREFIX(expressgeometry_bezier2)(glyphmemory[66].simple.donecoordinates[32].x,+glyphmemory[66].simple.donecoordinates[0].y,glyphmemory[66].simple.donecoordinates[33].x,+glyphmemory[66].simple.donecoordinates[33].y);
-	MACRO_DRAWPREFIX(expressgeometry_end)();
-	}*/
 /* HOW ARROW MUST BE DONE:
 1. The arrow type determiner determines arrow type and bond spacing.
 2. The lines/arc are drawn. if it was something else, the next two points are skipped. 
@@ -1028,7 +1014,6 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,char hatches)
 		iBBX.right=(*i_arrow_instance).Center3D.x;
 		iBBX.bottom=(*i_arrow_instance).Center3D.y;
 		ellipsoid.create((*i_arrow_instance).Center3D,(*i_arrow_instance).MajorAxisEnd3D,(*i_arrow_instance).MinorAxisEnd3D);
-//		tlcounter^=ellipsoid.ellipsereversed;
 		ellipsoid.fill((*i_arrow_instance).Tail3D.x-(*i_arrow_instance).Center3D.x,(*i_arrow_instance).Tail3D.y-(*i_arrow_instance).Center3D.y);
 		tlAngularSize=ellipsoid.internalangle;
 		ellipsoid.fill((*i_arrow_instance).Head3D.x-(*i_arrow_instance).Center3D.x,(*i_arrow_instance).Head3D.y-(*i_arrow_instance).Center3D.y);
@@ -1222,32 +1207,6 @@ tlposx+tlcos-tlsin,tlposy+tlsin+tlcos,tlposx+2*tlcos-tlsin,tlposy+2*tlsin+tlcos,
 		int tlformlabeltype=(*((s_instance*)TELESCOPE_getproperty())).face;
 		currentsetfontsize=(*((s_instance*)TELESCOPE_getproperty())).size;
 		#ifdef LENNARD_HACK
-		/*if ((currentsetfontsize>20.0) || (tlformlabeltype & 0x1))
-		{
-			if (currentsetfontsize>99.0)
-			{
-				iparms=STRINGOUTPUT_emptyformat;
-			}
-			else
-			{
-				if (currentsetfontsize!=29)
-				{
-					iparms=STRINGOUTPUT_bold;
-					if (currentsetfontsize!=38)
-					{
-						currentsetfontsize=24;
-					}
-				}
-				else
-				{
-					currentsetfontsize=29;
-				}
-			}
-		}
-		else
-		{
-			currentsetfontsize=18;
-		}*/
 		if (currentsetfontsize<=99.0)
 		{
 			currentsetfontsize=24;
@@ -1291,9 +1250,6 @@ tlposx+tlcos-tlsin,tlposy+tlsin+tlcos,tlposx+2*tlcos-tlsin,tlposy+2*tlsin+tlcos,
 		sprintf(iparmsstring,"%s",((tlformlabeltype & 0x1) ? STRINGOUTPUT_bold : STRINGOUTPUT_emptyformat),currentsetfontsize);
 		iparms=iparmsstring;
 		#endif
-		/*fprintf(outfile,"<tspan %s style=\"fill:#%s\">%s</tspan>%s\n",
-		(tlformlabeltype & 0x20) ? "dy=\"+3\" font-size=\"14\"" : ((tlformlabeltype & 0x40) ? "dy=\"-3\" font-size=\"14%\"":""),
-		colorstring,finalstring,(tlformlabeltype & 0x20)?"<tspan dy=\"-3\"/>":((tlformlabeltype & 0x40)?"<tspan dy=\"3\"/>":""));*/
 	//MACRO_DRAWPREFIX(formatfromifsmat(ifsmat))
 		MACRO_DRAWPREFIX(draw_printformatted)(finalstring,iparms,tlformlabeltype,0,strlen(finalstring));
 	}

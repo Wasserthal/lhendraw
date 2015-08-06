@@ -127,16 +127,6 @@ void checkupinconsistencies()
 			edit_textlength(glob_t_multilist,ilv1);
 		}
 	}
-/*	for (int ilv1=0;ilv1<(*glob_n_multilist).filllevel;ilv1++)
-	{
-		for (int ilv2=ilv1+1;ilv2<(*glob_n_multilist).filllevel;ilv2++)
-		{
-			if ((*glob_n_multilist)[ilv1].id==(*glob_n_multilist)[ilv2].id)
-			{
-				printf("%i==%i;%i\n",ilv1,ilv2,(*glob_n_multilist)[ilv1].id);
-			}
-		}
-	}*/
 	for (int ilv1=0;ilv1<(*glob_b_multilist).filllevel;ilv1++)//removes defective bonds
 	{
 		b_instance * tl_b_instance=&((*glob_b_multilist)[ilv1]);

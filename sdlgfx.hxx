@@ -21,7 +21,6 @@ int SDL_glyfstartx=0;int SDL_glyfstarty=0;
 int SDL_old_txcursorx=0;int SDL_old_txcursory=0;
 char SDL_text_fallback=1;
 int framenumber=0;
-//_u8 screen[gfx_screensizex*gfx_screensizey*gfx_depth];
 _u32 * screen;
 _u32 * canvas;
 _u32 SDL_color;

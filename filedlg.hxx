@@ -339,7 +339,7 @@ void control_filedlg()
 								{
 									control_menutexteditcursor++;
 									if (control_menutexteditcursor>strlen(tl_editedstring)) {control_menutexteditcursor=strlen(tl_editedstring);arrester=1;}
-									if (control_menutextedithorziscroll+((tl_pulloutlisting->maxx-tl_pulloutlisting->x)/8)<control_menutexteditcursor) {control_menutextedithorziscroll=control_menutexteditcursor;arrester=1;}
+									if (control_menutextedithorziscroll+((menu_addxifneg(tl_pulloutlisting->maxx)-menu_addxifneg(tl_pulloutlisting->x))/8)<control_menutexteditcursor) {control_menutextedithorziscroll=control_menutexteditcursor;arrester=1;}
 									break;
 								}
 								case SDLK_END:
@@ -347,7 +347,7 @@ void control_filedlg()
 									control_menutexteditcursor=strlen(tl_editedstring);
 									arrester=1;
 									if (control_menutexteditcursor>strlen(tl_editedstring)) {control_menutexteditcursor=strlen(tl_editedstring);arrester=1;}
-									if (control_menutextedithorziscroll+((tl_pulloutlisting->maxx-tl_pulloutlisting->x)/8)<control_menutexteditcursor) {control_menutextedithorziscroll=control_menutexteditcursor;arrester=1;}
+									if (control_menutextedithorziscroll+((menu_addxifneg(tl_pulloutlisting->maxx)-menu_addxifneg(tl_pulloutlisting->x))/8)<control_menutexteditcursor) {control_menutextedithorziscroll=control_menutexteditcursor;arrester=1;}
 									break;
 								}
 								case SDLK_HOME:

@@ -27,6 +27,7 @@
 		LOCALMACRO_1(t)\
 		LOCALMACRO_1(curve)
 extern char control_filename[512];
+extern int control_saveuponexit;
 struct control_drawproperties_
 {
 	_i32 bond_Order;
@@ -47,11 +48,20 @@ struct control_drawproperties_
 	int CURVE_subtool;//0: putpoints 1: handles 2: pencil
 	_i32 face;
 };
+struct control_searchproperties_
+{
+	int foundbehavior;//0: return filename 1: start new thread, open file 2: start new thread open file and mark 3: start new thread, open file and mark anything 4: iterate, but return the number of overlapping matches 5: iterate, but return the number of non-overlapping matches 6: like 4, but yield no filename 7: like 5, but yield no filename 0x11-0x17: like 1-7, but end after one file!
+	int invert;//1 inverts search!
+	int resolvelabels;//0: exact match things like R, ~ or * 1: interpret their MEANING in the search pattern.
+	_i32 expand_haystack_atoms;
+	_i32 expand_template_atoms;
+};
 structenum * searchreflectedstruct(const char * input);
 void applytransform_single(float matrix[3][3],cdx_Point3D * input,cdx_Point3D * output,cdx_Point3D * pivot);
 _small edit_current5bondcarbon=0;
 control_drawproperties_ control_drawproperties={16,0,0,0,0,0,4,0,constants_Element_implicitcarbon,6,1,0,0,0,0,1};
 control_drawproperties_ control_drawproperties_init={16,0,0,0,0,0,4,0,constants_Element_implicitcarbon,6,1,0,0,0,0,1};
+control_searchproperties_ control_searchproperties={0,0,1,1,0};
 int control_hotatom=-1;
 //Copies a set of atoms and bonds from one buffer to another. Can take atoms from ANY other buffer
 char * undo_retrievebuffer(intl start,intl list);
@@ -1163,7 +1173,6 @@ inline int placepoints(arrow_instance * iinstance,float ix,float iy,float iz,int
 inline int placepoints(t_instance * iinstance,float ix,float iy,float iz,int inumber,basicmultilist * imultilist=NULL)
 {
 	float tl_x,tl_y,tl_z;
-	printf("running%f,%f\n",ix,iy);
 	if (retrievepoints(iinstance,&tl_x,&tl_y,&tl_z,inumber)>0)
 	{
 		tl_x-=ix;
@@ -1980,12 +1989,10 @@ catalogized_command_funcdef(RESETBONDSTYLE)
 	control_drawproperties.bond_Display2=0;
 	if (strcmp(value,"0")==0)
 	{
-		printf("NULL\n");
 		SETITEMVARIABLES("Order","1");
 	}
 	else
 	{
-		printf("OT3R\n");
 		SETITEMVARIABLES("Order",value);
 	}
 	SETITEMVARIABLES("Display","0");
@@ -2689,6 +2696,7 @@ catalogized_command_funcdef(LOAD_TYPE)
 	_small tl_n_lastfilllevel;
 	infile=fopen(parameter,"r");
 	if (infile==NULL) return 0;
+	control_saveuponexit=0;
 	strncpy(control_filename,parameter,511);control_filename[511]=0;
 	FORCEEXTENSION
 	LHENDRAW_loadmemoryoverflow=0;
@@ -2790,7 +2798,6 @@ catalogized_command_funcdef(RESETDRAWTOOL)
 {
 	control_drawproperties.bond_Order=16;
 	control_drawproperties.bond_Display=0;
-	printf("RDT\n");
 	return 1;
 }
 catalogized_command_funcdef(TEST_SMASH)
@@ -3649,6 +3656,7 @@ catalogized_command_funcdef(FILEDLG_FILE_LOAD)
 	{
 		return -41;
 	}
+	control_saveuponexit=0;
 	DIR * DD=opendir(control_currentdirectory);
 	char retval=-30;
 	if (DD)
@@ -4497,7 +4505,6 @@ int edit_atom_fits(n_instance * atom1,n_instance * atom2)
 			}
 		}
 	}
-	printf("REJ_ele:%i,%i",atom1->Element,atom2->Element);
 	return 0;
 	chargecheck:;
 	if ((atom1->charge>0) && (atom2->charge<atom1->charge)) return 0;
@@ -4517,11 +4524,11 @@ int currentatom_in_check=0;
 int * edit_searchbuffer;
 int * edit_orderbuffer;
 int * edit_branchbuffer;//stores for every orderbuffer-atom from what parent it had branched, and -1 for the root atom
-void edit_moleculesearch_yell()
+void edit_moleculesearch_brell()
 {
 	for (int ilv1=0;ilv1<currentatom_in_check;ilv1++)
 	{
-		printf("`%c%i%c`",selection_clickselection[edit_searchbuffer[edit_orderbuffer[ilv1]]]?'(':'`',edit_searchbuffer[edit_orderbuffer[ilv1]],selection_clickselection[edit_searchbuffer[edit_orderbuffer[ilv1]]]?')':'`');
+		printf("°°%i°°",edit_branchbuffer[ilv1]);
 	}
 	printf("\n");
 }
@@ -4533,13 +4540,16 @@ void edit_moleculesearch_oell()
 	}
 	printf("\n");
 }
-void edit_moleculesearch_brell()
+void edit_moleculesearch_yell()
 {
 	for (int ilv1=0;ilv1<currentatom_in_check;ilv1++)
 	{
-		printf("°°%i°°",edit_branchbuffer[ilv1]);
+		printf("`%c%i%c`",selection_clickselection[edit_searchbuffer[edit_orderbuffer[ilv1]]]?'(':'`',edit_searchbuffer[edit_orderbuffer[ilv1]],selection_clickselection[edit_searchbuffer[edit_orderbuffer[ilv1]]]?')':'`');
 	}
 	printf("\n");
+	memory_yell(edit_searchbuffer);
+	edit_moleculesearch_brell();
+	edit_moleculesearch_oell();
 }
 int edit_getunclicked(int atom1,int * result,char selectionmode)
 {
@@ -4559,7 +4569,6 @@ int edit_getunclicked(int atom1,int * result,char selectionmode)
 		{
 			if ((selection_clickselection[resultnr] & (1<<STRUCTURE_OBJECTTYPE_n))==0)
 			{
-				printf("%i\n",resultnr);
 				*result=resultnr;
 				return 1;
 			}
@@ -4598,16 +4607,13 @@ int edit_moleculesearch_findnext()
 	int retval;
 	edit_searchbuffer[edit_orderbuffer[currentatom_in_check]]=-1;
 	iback:;
-	printf("N\n");
-	edit_moleculesearch_yell();
+	//WHY is findnext called from
 	retval=edit_getunclicked(edit_searchbuffer[edit_orderbuffer[edit_branchbuffer[currentatom_in_check]]],&(edit_searchbuffer[edit_orderbuffer[currentatom_in_check]]),0);
 	if (retval<=0) return 0;//means: abandon this
 	if (edit_atom_fits(glob_n_multilist->bufferlist()+edit_orderbuffer[currentatom_in_check],glob_n_multilist->bufferlist()+edit_searchbuffer[edit_orderbuffer[currentatom_in_check]])>0)
 	{
 		selection_clickselection[edit_searchbuffer[edit_orderbuffer[currentatom_in_check]]]|=(1<<STRUCTURE_OBJECTTYPE_n);
 		currentatom_in_check++;
-		edit_moleculesearch_yell();
-		printf("YES\n");
 		return 1;
 	}
 	goto iback;
@@ -4616,10 +4622,8 @@ int edit_moleculesearch_findother()
 {
 	int retval;
 	iback:;
-	printf("O\n");
+	if (currentatom_in_check<=1) return 0;
 	selection_clickselection[edit_searchbuffer[edit_orderbuffer[currentatom_in_check-1]]]&=~(1<<STRUCTURE_OBJECTTYPE_n);
-	if (currentatom_in_check<=0) return 0;
-	edit_moleculesearch_yell();
 	retval=edit_getunclicked(edit_searchbuffer[edit_orderbuffer[edit_branchbuffer[currentatom_in_check-1]]],&(edit_searchbuffer[edit_orderbuffer[currentatom_in_check-1]]),0);
 	if (retval<=0) return 0;//means: abandon this
 	if (edit_atom_fits(glob_n_multilist->bufferlist()+edit_orderbuffer[currentatom_in_check-1],glob_n_multilist->bufferlist()+edit_searchbuffer[edit_orderbuffer[currentatom_in_check-1]])>0)
@@ -4633,14 +4637,11 @@ int edit_moleculesearch_findlast()
 {
 	int retval;
 	iback:;
-	printf("L\n");
-	selection_clickselection[edit_searchbuffer[edit_orderbuffer[currentatom_in_check-1]]]&=~(1<<STRUCTURE_OBJECTTYPE_n);
 	if (currentatom_in_check<=2) return 0;//means: abandon this
-	edit_moleculesearch_yell();
+	selection_clickselection[edit_searchbuffer[edit_orderbuffer[currentatom_in_check-1]]]&=~(1<<STRUCTURE_OBJECTTYPE_n);
 	currentatom_in_check--;
 	selection_clickselection[edit_searchbuffer[edit_orderbuffer[currentatom_in_check-1]]]&=~(1<<STRUCTURE_OBJECTTYPE_n);
 	retval=edit_getunclicked(edit_searchbuffer[edit_orderbuffer[edit_branchbuffer[currentatom_in_check-1]]],&(edit_searchbuffer[edit_orderbuffer[currentatom_in_check-1]]),0);
-	edit_moleculesearch_yell();
 	if (retval>0)
 	{
 		selection_clickselection[edit_searchbuffer[edit_orderbuffer[currentatom_in_check-1]]]|=(1<<STRUCTURE_OBJECTTYPE_n);
@@ -4680,10 +4681,6 @@ int edit_moleculesearch()
 	retval=0;
 	do
 	{
-		for (int ilv1=0;ilv1<edit_atoms_in_check;ilv1++)
-		{
-			printf("%i--\n",edit_orderbuffer[ilv1]);
-		}
 		retval=edit_moleculesearch_findtemplate(edit_atoms_in_check-1);
 	} while ((retval>0) && (retval!=2));
 	for (int ilv1=0;ilv1<glob_n_multilist->filllevel;ilv1++)//Loops all unselected atoms to start tree-matching there
@@ -4695,14 +4692,13 @@ int edit_moleculesearch()
 			{
 				if (edit_atom_fits(glob_n_multilist->bufferlist()+edit_orderbuffer[0],iinstance)>0)
 				{
-					printf("START:%i\n",ilv1);
 					selection_clickselection[ilv1]|=(1<<STRUCTURE_OBJECTTYPE_n);
 					edit_searchbuffer[edit_orderbuffer[0]]=ilv1;
 					currentatom_in_check=1;
 					edit_branchbuffer[0]=-1;
 					iback:;
 					ibackval=edit_moleculesearch_findnext();
-					edit_moleculesearch_yell();
+					iskipback:;
 					if (ibackval==1)
 					{
 						if (currentatom_in_check==edit_atoms_in_check)
@@ -4745,7 +4741,6 @@ int edit_moleculesearch()
 									}
 								}
 							}
-							edit_moleculesearch_yell();
 							if (verificationmode)
 							{
 								verificationmode=0;
@@ -4761,7 +4756,8 @@ int edit_moleculesearch()
 					failed:;
 					if (edit_moleculesearch_findother()>0)
 					{
-						goto iback;
+						ibackval=1;
+						goto iskipback;
 					}
 					else
 					{
@@ -4776,12 +4772,12 @@ int edit_moleculesearch()
 					}
 					badstart:;//remember to clear selection when jumping to this label with a bigger structure built up.
 					selection_clickselection[ilv1]&=~(1<<STRUCTURE_OBJECTTYPE_n);
+
 //					selection_ANDselection(selection_clickselection,selection_currentselection);
 				}
 			}
 		}
 	}
-	printf("out!\n");
 	retval=0;
 	done:;
 	memory_free(edit_branchbuffer);
@@ -4793,6 +4789,39 @@ catalogized_command_funcdef(SEARCH)
 {
 	checkupinconsistencies();
 	return edit_moleculesearch();
+}
+catalogized_command_funcdef(SEARCHFILE)
+{
+	int retval;
+/*char failed=0;
+	SELECTALL("","");
+	char ifilename[stringlength+stringlength+2];
+	sprintf(ifilename,"%s/.lhendraw",getenv("PWD"));
+	DIR * DD=opendir(ifilename);
+	char retval=-30;
+	iback:;
+	if (DD)
+	{
+		sprintf(ifilename,"%s/.lhendraw/clipboard",getenv("PWD"));
+		control_save_selection=1;
+		retval=SAVE_TYPE(ifilename,"cdxml");
+		control_save_selection=0;
+	}
+	else
+	{
+		system("mkdir $PWD/.lhendraw");
+		failed=1;//do this better! make a global variable to tell whether it exists or not
+		goto iback;
+	}*/
+	storeundo(~0);
+	SELECTALL("","1");
+	retval=LOAD_TYPE(parameter,value);
+	if (retval>0)
+	{
+		retval=SEARCH("","");
+	}
+	restoreundo(~0,0);
+	return (retval>0);
 }
 extern int control_tool;
 catalogized_command_funcdef(DUMPCLICKABMAT)

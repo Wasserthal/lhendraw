@@ -104,6 +104,23 @@ int memory_free(void * ibaseaddress)
 	exit(1);
 	return 0;
 }
+extern int *firstsrch;
+extern int *firstordr;
+extern int *firstbrnch;
+int memory_yell(void * ibaseaddress)
+{
+	for (int ilv1=0;ilv1<memory_bufferstructure_count;ilv1++)
+	{
+		if (memory_bufferstructure[ilv1].baseaddress==ibaseaddress)
+		{
+			printf("MEM: %i\n",memory_bufferstructure[ilv1].type);
+			return 1;
+		}
+	}
+	fprintf(stderr,"DEBUG ERROR, NOT FOUND%p\n",ibaseaddress);
+	exit(1);
+	return 0;
+}
 intl undo_memory_needs();
 int memory_realloc_down(int newsize)
 {

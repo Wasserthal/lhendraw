@@ -1,6 +1,6 @@
 //Processes the commandline parameters
 char argmeanings[1000];//0: filename which is wanted 1: interpret this 2: Filename, to be read at start
-char parametersthatwantfilename[]={"oslcnw"};
+char parametersthatwantfilename[]={"oslcnw-"};
 char parametersexecutedimmediately[]={"Ioh"};
 char * parameter_filename;
 char * parameter_filetype;
@@ -84,7 +84,14 @@ void executeparameter(const char which,int parameter,int posinparameter,int argc
 		case '5' :	WARN_HYPERC("","");
 		case '-' :      if ((argv[parameter][posinparameter])!=0)
 				{
-				//TODO: add your multi-symbol commands here
+					if (strcmp(argv[parameter]+posinparameter,"search")==0)
+					{
+						for (int ilv1=parameter+1;ilv1<argc;ilv1++)
+						{
+							parameter_filename=argv[ilv1];
+							if (SEARCHFILE(parameter_filename,"")>0) {printf("%s\n",parameter_filename);}
+						}
+					}
 				}//or it was a --, so not interpreted.
 				break;
 		case 'c' :      for (int ilv1=0;ilv1<REFLECTION_FUNCTION_ListSize;ilv1++)
@@ -97,8 +104,8 @@ void executeparameter(const char which,int parameter,int posinparameter,int argc
 				break;
 		case 'N' :      FILE_NEW("","");break;
 		case 'n' :	parameter_filetype=NULL;parameter_filename=getparameter(parameter,posinparameter,parameter_filetype,NULL,argc,argv);
-				LOAD_INTO_SEARCHBUF(parameter_filename,parameter_filetype);
-				if (SEARCH("","")) {printf("%s\n",parameter_filename);}break;
+				if (SEARCHFILE(parameter_filename,parameter_filetype)>0) {printf("%s\n",parameter_filename);}
+				break;
 		case 'h' :      printf(
 "Usage:\n"
 "lhendraw [-I] [-o output] [-<parameter> <parameter_filename>] (...) <filename> (...)\n"
@@ -126,7 +133,7 @@ void executeparameter(const char which,int parameter,int posinparameter,int argc
 "-N<fn>  : Un-loads the current file and un-sets the current filename, just as New File. Defeats -o.\n"
 "-n<fn>  : searches, in the specified file, for the chemical pattern which is loaded before\n"
 "          files with matches are printed on stdout. One match per file.\n"
-"--search: searches, like -n, but in all follwing files. All following parameters are treated as input files.\n"
+"--search: searches, like -n, but in all follwing files. All following parameters are treated as files to investigate.\n"
 "\n"
 "Example:\n"
 "lhendraw -I -o.cdx shirt.cdx super.cdxml duper.cdx -ccheckupinconsistencies() -w.svg shirt.txt -cSELECT(true) -cROTATE(z,-90)\n"
@@ -152,7 +159,7 @@ void cmdline(int argc,char ** argv)
 		if (wfn)
 		{
 			argmeanings[ilv1]=0;
-			wfn&=2;
+			wfn&=6;
 		}
 		else
 		{
@@ -165,43 +172,50 @@ void cmdline(int argc,char ** argv)
 					{
 						wfn=2;//want only filenames, forever
 					}
-					//TODO: add your multi-symbol commands here.
-				}
-				for (int ilv2=1;argv[ilv1][ilv2]!=0;ilv2++)
-				{
-					if (strchr(parametersthatwantfilename,argv[ilv1][ilv2]))
+					if (strcmp(argv[ilv1]+2,"search")==0)
 					{
-						ilv2++;
-						if (argv[ilv1][ilv2]!=0)
+						wfn=4;//want only filenames, forever, and not to load in first place
+					}
+					//TODO: add further multi-symbol commands here.
+				}
+				else
+				{
+					for (int ilv2=1;argv[ilv1][ilv2]!=0;ilv2++)
+					{
+						if (strchr(parametersthatwantfilename,argv[ilv1][ilv2]))
 						{
-							if (argv[ilv1][ilv2]=='.')
+							ilv2++;
+							if (argv[ilv1][ilv2]!=0)
 							{
-								wfn=1;
-								for (;argv[ilv1][ilv2]!=0;ilv2++)//resumed-loop
+								if (argv[ilv1][ilv2]=='.')
 								{
-									if ((argv[ilv1][ilv2]=='=') && (argv[ilv1][ilv2+1]!=0))
+									wfn=1;
+									for (;argv[ilv1][ilv2]!=0;ilv2++)//resumed-loop
 									{
-										wfn=0;
+										if ((argv[ilv1][ilv2]=='=') && (argv[ilv1][ilv2+1]!=0))
+										{
+											wfn=0;
+										}
 									}
+								}
+								else
+								{
+									wfn=0;
 								}
 							}
 							else
 							{
-								wfn=0;
+								wfn=1;
 							}
 						}
-						else
+						if (strchr(parametersexecutedimmediately,argv[ilv1][ilv2]))
 						{
-							wfn=1;
+							executeparameter(argv[ilv1][ilv2],ilv1,ilv2,argc,argv);
 						}
+						goto ifertig;
 					}
-					if (strchr(parametersexecutedimmediately,argv[ilv1][ilv2]))
-					{
-						executeparameter(argv[ilv1][ilv2],ilv1,ilv2,argc,argv);
-					}
-					goto ifertig;
+					ifertig:;
 				}
-				ifertig:;
 			}
 			else
 			{
@@ -223,6 +237,7 @@ void cmdline(int argc,char ** argv)
 	{
 		if (argmeanings[ilv1]==2)
 		{
+			printf("LOAD_TYPE:%sargv[%i],argmeanings%i\n",argv[ilv1],ilv1,argmeanings[ilv1]);
 			LOAD_TYPE(argv[ilv1],"");
 		}
 	}
@@ -230,7 +245,7 @@ void cmdline(int argc,char ** argv)
 	{
 		if (argmeanings[ilv1]==1)
 		{
-			for (int ilv2=0;argv[ilv1][ilv2]!=0;ilv2++)
+			for (int ilv2=1;argv[ilv1][ilv2]!=0;ilv2++)
 			{
 				if (strchr(parametersexecutedimmediately,argv[ilv1][ilv2])==NULL)
 				{

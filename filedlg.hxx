@@ -253,6 +253,28 @@ void control_filedlg()
 									if (tl_structenum->number>=tl_structenum->scroll+tl_max) tl_structenum->scroll=tl_structenum->number-tl_max+1;
 									break;
 								}
+								default:
+								_u16 ihv1=(getunicode(&control_Event));
+								for (int ilv1=tl_structenum->number+1;ilv1<tl_structenum->count;ilv1++)
+								{
+									if (((char*)(((char*)tl_structenum->pointer)+tl_structenum->size*ilv1))[0]==ihv1)
+									{
+										tl_structenum->number=ilv1;
+										goto i_nextalphabet_fertig;
+									}
+								}
+								for (int ilv1=0;ilv1<tl_structenum->number;ilv1++)
+								{
+									if (((char*)(((char*)tl_structenum->pointer)+tl_structenum->size*ilv1))[0]==ihv1)
+									{
+										tl_structenum->number=ilv1;
+										goto i_nextalphabet_fertig;
+									}
+								}
+								i_nextalphabet_fertig:;
+								if (tl_structenum->number<tl_structenum->scroll) tl_structenum->scroll=tl_structenum->number;
+								int tl_max=(menu_addyifneg((*tl_pulloutlisting).maxy)-(*tl_pulloutlisting).y)/16;
+								if (tl_structenum->number>=tl_structenum->scroll+tl_max) tl_structenum->scroll=tl_structenum->number-tl_max+1;
 							}
 						}
 						if (((*tl_pulloutlisting).lmbmode&(0xFF00))==0x300)

@@ -3519,6 +3519,29 @@ int edit_textlength(basicmultilist * imultilist,int iindex,int deltax=0,int delt
 	return 0;
 }
 int menu_itembyname(const char * name,int * menu=NULL,int * index=NULL);
+catalogized_command_funcdef(FILEDLG_FILE_SORT)
+{
+	int diffresult=0;
+	for (int ilv1=0;ilv1<control_filememory.count-1;ilv1++)
+	{
+		for (int ilv2=ilv1+1;ilv2<control_filememory.count;ilv2++)
+		{
+			if (strncmp(control_filememory_buffer[ilv1],control_filememory_buffer[ilv2],255)>0)
+			{
+				for (int ilv3=0;ilv3<255;ilv3++)
+				{
+					char swap=control_filememory_buffer[ilv1][ilv3];
+					control_filememory_buffer[ilv1][ilv3]=control_filememory_buffer[ilv2][ilv3];
+					control_filememory_buffer[ilv2][ilv3]=swap;
+				}
+				_u32 swap=control_filememory_attribs[ilv1];
+				control_filememory_attribs[ilv1]=control_filememory_attribs[ilv2];
+				control_filememory_attribs[ilv2]=swap;
+			}
+		}
+	}
+	return 1;
+}
 catalogized_command_funcdef(FILEDLG_DEVICE_SEL)
 {
 	DIR * DD=opendir(parameter);
@@ -3534,12 +3557,13 @@ catalogized_command_funcdef(FILEDLG_DEVICE_SEL)
 			strncpy(control_currentdirectory,parameter,255);control_currentdirectory[255]=0;
 			control_filememory_attribs[ilv1]=dirpy->d_type;
 			control_filememory.count++;
-			menu_selectedmenuelement=menu_itembyname("FILEDLG_FILE_SEL");
 		}
 		readfinished:;
 		closedir(DD);
 		control_filememory.scroll=0;
 		control_filememory.number=0;
+		FILEDLG_FILE_SORT("","");
+		menu_selectedmenuelement=menu_itembyname("FILEDLG_FILE_SEL");
 		return 1;
 	}
 	return -30;
@@ -3565,6 +3589,7 @@ catalogized_command_funcdef(FILEDLG_FILE_SEL)
 		control_filememory.scroll=0;
 		control_filememory.number=0;
 		closedir(DD);
+		FILEDLG_FILE_SORT("","");
 	}
 	else
 	{

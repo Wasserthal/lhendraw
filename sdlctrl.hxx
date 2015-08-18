@@ -527,10 +527,29 @@ catalogized_command_funcdef(ISSUEDELETE)
 	{
 		if (gethot()==-1)
 		{
-			if (control_keyboardormousemode==1) control_findhotatomfrommouse();
+			if (control_keyboardormousemode==1) 
+			{
+				_i32 backtype,backindex;
+				clickforthem();
+				basic_instance * tl_instance=getclicked(~0,control_coorsx,control_coorsy,&backtype,&backindex);
+				if (tl_instance)
+				{
+					basicmultilist * tlmultilist=findmultilist(STRUCTURE_OBJECTTYPE_List[backtype].name);
+					TELESCOPE_aggressobject(tlmultilist,backindex);
+					TELESCOPE_clear();
+					tl_instance->exist=0;
+					goto successful;
+				}
+				else
+				{
+					//TODO: obsolete
+					control_findhotatomfrommouse();
+				}
+			}
 		}
 		if (gethot()!=-1)
 		{
+			//TODO: obsolete
 			if (control_hotatom<(*glob_n_multilist).filllevel)
 			{
 				ibufferpos=(char*)(*glob_n_multilist).pointer;
@@ -552,7 +571,11 @@ catalogized_command_funcdef(ISSUEDELETE)
 			}
 			control_hotatom=-1;
 		}
+		else
+		{
+		}
 	}
+	successful:;
 	checkupinconsistencies();
 	return isuccessful;
 }

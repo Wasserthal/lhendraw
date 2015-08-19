@@ -2309,6 +2309,8 @@ int save_image(FILE * ifile,const char * value)
 	float left,top,fwidth,fheight;
 	checkupinconsistencies();
 	getcaptions(&fwidth,&fheight,&left,&top);
+	fwidth-=left;
+	fheight-=top;
 	if ((fwidth<0) || (fheight<0))
 	{
 		left=0;top=0;fwidth=0;fheight=0;

@@ -96,7 +96,7 @@ struct text_actual_node_
 	_small owner;
 };
 text_actual_node_ * text_actual_node;
-void getcaptions(float * width,float * height,float * left,float * top)
+void getcaptions(float * right,float * bottom,float * left,float * top)
 {
 	float minx=maxfloat;
 	float miny=maxfloat;
@@ -205,8 +205,8 @@ void getcaptions(float * width,float * height,float * left,float * top)
 		}
 		}
 	}
-	(*width)=maxx;
-	(*height)=maxy;
+	(*right)=maxx;
+	(*bottom)=maxy;
 	if (left!=NULL)
 	{
 		*left=minx;

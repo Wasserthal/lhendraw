@@ -468,7 +468,7 @@ menuitem pullout_toolbox[]={
 0,
 "search",
 "",
-"SEARCH","",
+"SEARCHAS","",
 0x00FF00,
 },
 {-1,-2,

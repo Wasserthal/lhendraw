@@ -109,12 +109,15 @@ void control_filedlg()
 					int ilength=strlen(control_Event.text.text);
 					if (control_menutexteditcursor<=strlen(((char*)(tl_pulloutlisting->variable))))
 					{
-						for (int ilv1=strlen(((char*)(tl_pulloutlisting->variable)))+ilength-1;ilv1>=control_menutexteditcursor;ilv1--)
+						if (strlen((char*)(tl_pulloutlisting->variable))+ilength+1<stringlength)
 						{
-							((char*)(tl_pulloutlisting->variable))[ilv1+ilength]=((char*)(tl_pulloutlisting->variable))[ilv1];
+							for (int ilv1=strlen(((char*)(tl_pulloutlisting->variable)))+ilength-1;ilv1>=control_menutexteditcursor;ilv1--)
+							{
+								((char*)(tl_pulloutlisting->variable))[ilv1+ilength]=((char*)(tl_pulloutlisting->variable))[ilv1];
+							}
+							strncpy(((char*)(tl_pulloutlisting->variable))+control_menutexteditcursor,control_Event.text.text,ilength);
+							control_menutexteditcursor=control_menutexteditcursor+=ilength;
 						}
-						strncpy(((char*)(tl_pulloutlisting->variable))+control_menutexteditcursor,control_Event.text.text,ilength);
-						control_menutexteditcursor=control_menutexteditcursor+=ilength;
 					}
 				}
 				break;

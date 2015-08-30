@@ -273,7 +273,7 @@ int interpretkey(int listnr=-1)
 	char undostored=0;
 	int ilv1,ilv2;
 	_u32 tltype;
-	char keystring[4]={0,0,0,0};
+	char keystring[4+1]={0,0,0,0,0};
 	char erledigt=0;
 	char ihot=0;
 	char careaboutshift=1;

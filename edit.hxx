@@ -2425,7 +2425,7 @@ catalogized_command_funcdef(COPY)
 				LHENDRAW_clipboardbuffer=(char*)realloc(LHENDRAW_clipboardbuffer,tl_memsize*2);
 				tl_memsize*=2;
 			}
-			strncpy(LHENDRAW_clipboardbuffer+elapsed,(char*)control_textedit_cursor,tl_length);
+			memcpy(LHENDRAW_clipboardbuffer+elapsed,(char*)control_textedit_cursor,tl_length);
 			elapsed+=tl_length;
 			if (!endfound)
 			{
@@ -2657,9 +2657,11 @@ catalogized_command_funcdef(IMPORTAS)
 	menu_selectedmenuelement=0;
 	return 1;
 }
-catalogized_command_funcdef(LOAD_INTO_SEARCHBUF)
+catalogized_command_funcdef(SEARCHAS)
 {
-	printf("TODO***stub\n");
+	LHENDRAW_filedlgmode=1;
+	control_filemenu_mode=4;
+	menu_selectedmenuelement=0;
 	return 1;
 }
 int edit_bondsum(int nr,int dir)
@@ -4826,6 +4828,44 @@ catalogized_command_funcdef(SEARCHFILE)
 	}
 	restoreundo(~0,0);
 	return (retval>0);
+}
+catalogized_command_funcdef(FILEDLG_FILE_SEARCH)
+{
+	char currentfilename[stringlength*2+2];
+	DIR * DD=opendir(control_currentdirectory);
+	printf("%s\n",control_currentdirectory);
+	struct dirent * dirpy;
+	int retval=-30;
+	if (DD)
+	{
+		for (int ilv1=0;true;ilv1++)
+		{
+			dirpy=readdir(DD);
+			if (dirpy==NULL) goto readfinished;
+			strncpy(currentfilename,control_currentdirectory,stringlength);
+			strncat(currentfilename,"/",1);
+			strncat(currentfilename,dirpy->d_name,stringlength);
+			currentfilename[stringlength*2+1]=0;
+			FILE * testfile=fopen(currentfilename,"r");
+			if (testfile)
+			{
+				fclose(testfile);
+				if (SEARCHFILE(currentfilename,"")>0)
+				{
+					char orderstring[stringlength*3+3];
+					if (strchr(currentfilename,'\'')==NULL)
+					{
+						sprintf(orderstring,"lhendraw '%s' &",currentfilename);
+						system(orderstring);
+					}
+				}
+			}
+		}
+		readfinished:;
+		closedir(DD);
+		return 1;
+	}
+	return retval;
 }
 extern int control_tool;
 catalogized_command_funcdef(DUMPCLICKABMAT)

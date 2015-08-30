@@ -2,10 +2,10 @@ struct hotkeylist_
 {
 	int type;//the type of the object it belongs to.
 	_u32 modifiers;
-	char key[4];
+	char key[4+1];
 	catalogized_command_functype command;
-	char variable[20];
-	char value[20];
+	char variable[20+1];
+	char value[20+1];
 	_u32 UNDO;
 	int functype;//type type of the function. See tools/reflection.hxx
 };

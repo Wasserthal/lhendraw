@@ -236,7 +236,7 @@ int text_init(char * filename)
 	return 0;
 }
 #else
-int text_load(FILE * ifile)
+void text_load(FILE * ifile)
 {
 	fread(&fontpixinf_count,4,1,ifile);
 	fread(&fontpixbuffer_count,4,1,ifile);
@@ -247,7 +247,6 @@ int text_load(FILE * ifile)
 		fontpixinf[ilv1].memstart=+fontpixbuffer;
 	}
 	fclose(ifile);
-	//TODO: clear return value?
-	return 1;
+	return;
 }
 #endif

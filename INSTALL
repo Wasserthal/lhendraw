@@ -6,6 +6,8 @@ dependencies:
 - glibc/math (should be present anyway)
 - make (not totally necessary)
 - 32bit x86 processor(i386), 64bit x86 processor (AMD_K64)
+- X11-dev
+- libXmu-dev
 
 how to install
 type 

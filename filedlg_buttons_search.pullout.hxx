@@ -1,0 +1,24 @@
+menuitem pullout_filedlg_buttons_search[]={
+{100,-32,
+33,//Picture
+"Search",
+3,0,
+0,
+"SEARCH",
+"",
+"FILEDLG_FILE_SEARCH","",
+0x00FF00,
+164,-1,
+},
+{300,-32,
+33,//Picture
+"Cancel",
+3,0,
+0,
+"CANCEL",
+"",
+"CANCEL","",
+0x00FF00,
+364,-1,
+},
+};

@@ -2175,26 +2175,29 @@ void issuerelease()
 							}
 							while (retrievepoints_basic((basic_instance*)(ibufferpos+isize*ilv2),&tlpx,&tlpy,&tlpz,ilv3,ilv1)>0)
 							{
-								if ((tlpx>=selection_frame.startx) && (tlpx<=selection_frame.endx))
+								if (follower<LHENDRAW_buffersize/sizeof(selection_datatype))
 								{
-									if ((tlpy>=selection_frame.starty) && (tlpy<=selection_frame.endy))
+									if ((tlpx>=selection_frame.startx) && (tlpx<=selection_frame.endx))
 									{
-										if (ilv3>0)
+										if ((tlpy>=selection_frame.starty) && (tlpy<=selection_frame.endy))
 										{
-											if (selection_clickabilitymatrix.types2[2] & (1<<ilv1))
+											if (ilv3>0)
 											{
-												selection_clickselection[follower]|=(1<<(ilv1+STRUCTURE_OBJECTTYPE_ListSize));
-												goto i_control2_skipthiscenter;
+												if (selection_clickabilitymatrix.types2[2] & (1<<ilv1))
+												{
+													selection_clickselection[follower]|=(1<<(ilv1+STRUCTURE_OBJECTTYPE_ListSize));
+													goto i_control2_skipthiscenter;
+												}
 											}
+											selection_clickselection[ilv2]|=icompare;
+											selection_clickselection_found|=icompare;
+											i_control2_skipthiscenter:;
 										}
-										selection_clickselection[ilv2]|=icompare;
-										selection_clickselection_found|=icompare;
-										i_control2_skipthiscenter:;
 									}
-								}
-								if (ilv3>0)
-								{
-									follower++;
+									if (ilv3>0)
+									{
+										follower++;
+									}
 								}
 								ilv3++;
 							}
@@ -2242,61 +2245,64 @@ void issuerelease()
 							}
 							while (retrievepoints_basic((basic_instance*)(ibufferpos+isize*ilv2),&tlpx,&tlpy,&tlpz,ilv3,ilv1)>0)
 							{
-								tl_x=(tlpx-SDL_scrollx)*SDL_zoomx;
-								tl_y=(tlpy-SDL_scrolly)*SDL_zoomy;
-								tl_z=tlpz;
-								if ((tl_x<0)|| (tl_y<0) || (tl_y>=gfx_canvassizey))
+								if (follower<(LHENDRAW_buffersize/sizeof(selection_datatype)))
 								{
-									markstate=0;
-									ilv4=0;
-									i_control3_hub:;
-									for (;ilv4<selection_lassohub[tl_y+10000].count;ilv4++)
+									tl_x=(tlpx-SDL_scrollx)*SDL_zoomx;
+									tl_y=(tlpy-SDL_scrolly)*SDL_zoomy;
+									tl_z=tlpz;
+									if ((tl_x<0)|| (tl_y<0) || (tl_y>=gfx_canvassizey))
 									{
-										if (selection_lassohub[tl_y+10000].items[ilv4]>tl_x)
+										markstate=0;
+										ilv4=0;
+										i_control3_hub:;
+										for (;ilv4<selection_lassohub[tl_y+10000].count;ilv4++)
 										{
-											goto i_control3_hubdone;
-										}
-										markstate^=1;
-									}
-									i_control3_hubdone:;
-									if (markstate)
-									{
-										goto i_control3_yesselect;
-									}
-								}
-								else
-								{
-									if (tl_x>=gfx_canvassizex) 
-									{
-										markstate=((selection_lassobuffer[tl_y*gfx_canvassizex+gfx_canvassizex-1]&0x80)!=0);
-										for (ilv4=0;ilv4<selection_lassohub[tl_y+10000].count;ilv4++)
-										{
-											if (selection_lassohub[tl_y+10000].items[ilv4]>0)//right of canvas
+											if (selection_lassohub[tl_y+10000].items[ilv4]>tl_x)
 											{
-												goto i_control3_hub;
+												goto i_control3_hubdone;
 											}
+											markstate^=1;
 										}
-										goto i_control3_hub;
-									}
-									if (selection_lassobuffer[tl_y*gfx_canvassizex+tl_x]&0x80)
-									{
-										i_control3_yesselect:;
-										if (ilv3>0)
+										i_control3_hubdone:;
+										if (markstate)
 										{
-											if (selection_clickabilitymatrix.types2[2] & (1<<ilv1))
-											{
-												selection_clickselection[follower]|=(1<<(ilv1+STRUCTURE_OBJECTTYPE_ListSize));
-												goto i_control3_skipthiscenter;
-											}
+											goto i_control3_yesselect;
 										}
-										selection_clickselection[ilv2]|=icompare;
-										selection_clickselection_found|=icompare;
-										i_control3_skipthiscenter:;
 									}
-								}
-								if (ilv3>0)
-								{
-									follower++;
+									else
+									{
+										if (tl_x>=gfx_canvassizex) 
+										{
+											markstate=((selection_lassobuffer[tl_y*gfx_canvassizex+gfx_canvassizex-1]&0x80)!=0);
+											for (ilv4=0;ilv4<selection_lassohub[tl_y+10000].count;ilv4++)
+											{
+												if (selection_lassohub[tl_y+10000].items[ilv4]>0)//right of canvas
+												{
+													goto i_control3_hub;
+												}
+											}
+											goto i_control3_hub;
+										}
+										if (selection_lassobuffer[tl_y*gfx_canvassizex+tl_x]&0x80)
+										{
+											i_control3_yesselect:;
+											if (ilv3>0)
+											{
+												if (selection_clickabilitymatrix.types2[2] & (1<<ilv1))
+												{
+													selection_clickselection[follower]|=(1<<(ilv1+STRUCTURE_OBJECTTYPE_ListSize));
+													goto i_control3_skipthiscenter;
+												}
+											}
+											selection_clickselection[ilv2]|=icompare;
+											selection_clickselection_found|=icompare;
+											i_control3_skipthiscenter:;
+										}
+									}
+									if (ilv3>0)
+									{
+										follower++;
+									}
 								}
 								ilv3++;
 							}

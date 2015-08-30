@@ -991,11 +991,14 @@ int sdl_selectiondraw()
 							SDL_color=0;SDL_linestyle=0;
 							gfx_expressline(tlpx,tlpy,(*friendpoint).x,(*friendpoint).y);
 						}
-						if ((selection_currentselection[follower3]) & (1<<(ilv1+STRUCTURE_OBJECTTYPE_ListSize)))
+						if (follower3<(LHENDRAW_buffersize/sizeof(selection_datatype)))
 						{
-							draw_drawmarkpoint((tlpx-SDL_scrollx)*SDL_zoomx-3+gfx_canvasminx,(tlpy-SDL_scrolly)*SDL_zoomy-3+gfx_canvasminy,47,5,0);
+							if ((selection_currentselection[follower3]) & (1<<(ilv1+STRUCTURE_OBJECTTYPE_ListSize)))
+							{
+								draw_drawmarkpoint((tlpx-SDL_scrollx)*SDL_zoomx-3+gfx_canvasminx,(tlpy-SDL_scrolly)*SDL_zoomy-3+gfx_canvasminy,47,5,0);
+							}
+							follower3++;
 						}
-						follower3++;
 					}
 					ilv3++;
 					goto iback;

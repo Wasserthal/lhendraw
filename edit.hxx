@@ -1271,17 +1271,20 @@ template <class thisinstance> inline _u32 clickfor_template(float posx,float pos
 				}
 	 			ilv3=1;
 				iback:;
-				tl_backval=hit(tlinstance,posx,posy,ilv3);
-				if (tl_backval>=0)
+				if (follower<(LHENDRAW_buffersize<sizeof(selection_datatype)))
 				{
-					if (tl_backval>0)
+					tl_backval=hit(tlinstance,posx,posy,ilv3);
+					if (tl_backval>=0)
 					{
-						selection_clickselection[follower]|=(1<<(objecttype+STRUCTURE_OBJECTTYPE_ListSize));
-						found|=1<<(objecttype+STRUCTURE_OBJECTTYPE_ListSize);
+						if (tl_backval>0)
+						{
+							selection_clickselection[follower]|=(1<<(objecttype+STRUCTURE_OBJECTTYPE_ListSize));
+							found|=1<<(objecttype+STRUCTURE_OBJECTTYPE_ListSize);
+						}
+						ilv3++;
+						follower++;
+						goto iback;
 					}
-					ilv3++;
-					follower++;
-					goto iback;
 				}
 			}
 		}
@@ -1481,39 +1484,45 @@ basic_instance * getclicked(int imap,float clckx,float clcky,int * backtype=NULL
 						tl_backval=retrievepoints_basic(tlinstance,&ix,&iy,&iz,ilv2+1,ilv0);
 						while (tl_backval)
 						{
-							//TODO: follower3 overflow
-							if (selection_clickselection[follower3] & (compare<<STRUCTURE_OBJECTTYPE_ListSize))
+							if (follower3<(LHENDRAW_buffersize/sizeof(selection_datatype)))
 							{
-								thisvalue=fsqr(ix-clckx)+fsqr(iy-clcky);
-								if (thisvalue<bestvalue)
+								if (selection_clickselection[follower3] & (compare<<STRUCTURE_OBJECTTYPE_ListSize))
 								{
-									bestinstance=(basic_instance*)(tlmultilist->pointer+isize*ilv1);
-									if (backtype!=NULL)
+									thisvalue=fsqr(ix-clckx)+fsqr(iy-clcky);
+									if (thisvalue<bestvalue)
 									{
-										*backtype=ilv0+STRUCTURE_OBJECTTYPE_ListSize;
+										bestinstance=(basic_instance*)(tlmultilist->pointer+isize*ilv1);
+										if (backtype!=NULL)
+										{
+											*backtype=ilv0+STRUCTURE_OBJECTTYPE_ListSize;
+										}
+										if (backindex!=NULL)
+										{
+											*backindex=follower3;
+										}
+										if (backsub!=NULL)
+										{
+											*backsub=(basic_instance*)TELESCOPE_getproperty();//Note that TELESCOPE_tempval gets set by retrievepoints_basic!
+										}
+										if (backsubnr!=NULL)
+										{
+											(*backsubnr)=ilv2+1;
+										}
+										if (backvalue!=NULL)
+										{
+											*backvalue=thisvalue;
+										}
+										bestvalue=thisvalue;
 									}
-									if (backindex!=NULL)
-									{
-										*backindex=follower3;
-									}
-									if (backsub!=NULL)
-									{
-										*backsub=(basic_instance*)TELESCOPE_getproperty();//Note that TELESCOPE_tempval gets set by retrievepoints_basic!
-									}
-									if (backsubnr!=NULL)
-									{
-										(*backsubnr)=ilv2+1;
-									}
-									if (backvalue!=NULL)
-									{
-										*backvalue=thisvalue;
-									}
-									bestvalue=thisvalue;
 								}
+								follower3++;
+								ilv2++;
+								tl_backval=retrievepoints_basic(tlinstance,&ix,&iy,&iz,ilv2+1,ilv0);
 							}
-							follower3++;
-							ilv2++;
-							tl_backval=retrievepoints_basic(tlinstance,&ix,&iy,&iz,ilv2+1,ilv0);
+							else
+							{
+								//TODO: evaluate buffer shortage
+							}
 						}
 					}
 				}
@@ -3779,9 +3788,9 @@ catalogized_command_funcdef(SET_ALL_ITEMS)//TODO: works for _i32 only, right now
 						goto ioverflow;
 					}
 				}
-				ioverflow:;
 			}
 		}
+		ioverflow:;
 	}
 	for (int ilv1=1;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
 	{
@@ -4131,13 +4140,16 @@ int edit_flexicopy(int undostep_no,multilist<n_instance> * n_target,multilist<b_
 						{
 							follower=ilv2*internalpointcount;
 						}
-						for (int ilv3=1;retrievepoints_basic((basic_instance*)(ioldbufferpos+isize*ilv2),&tl_x,&tl_y,&tl_z,ilv3,ilv1,tloldmultilist/*must be retrieved by undo_retrievehandle to obtain correct pointer*/)>0;ilv3++)
+						if (follower<(LHENDRAW_buffersize/sizeof(selection_datatype)))
 						{
-							if (selection_currentselection[follower] & (1<<(STRUCTURE_OBJECTTYPE_ListSize+ilv1)))
+							for (int ilv3=1;retrievepoints_basic((basic_instance*)(ioldbufferpos+isize*ilv2),&tl_x,&tl_y,&tl_z,ilv3,ilv1,tloldmultilist/*must be retrieved by undo_retrievehandle to obtain correct pointer*/)>0;ilv3++)
 							{
-								placepoints_basic(((basic_instance*)(ibufferpos+isize*ilv2)),tl_x+dx,tl_y+dy,tl_z,ilv3,ilv1);
+								if (selection_currentselection[follower] & (1<<(STRUCTURE_OBJECTTYPE_ListSize+ilv1)))
+								{
+									placepoints_basic(((basic_instance*)(ibufferpos+isize*ilv2)),tl_x+dx,tl_y+dy,tl_z,ilv3,ilv1);
+								}
+								follower++;
 							}
-							follower++;
 						}
 					}
 				}

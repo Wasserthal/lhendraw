@@ -1,28 +1,13 @@
 //reads in all files essential for the program
 
-FILE * criticalfilename(char * iargv0,char * idirectorystring,const char * iname)
+FILE * criticalfilename(char * idirectorystring,const char * iname)
 {
-	FILE * thefile;
-	strcpy(idirectorystring,iargv0);
-	for (int ilv1=strlen(idirectorystring);ilv1>0;ilv1--)
-	{
-		if (idirectorystring[ilv1]=='/')
-		{
-			idirectorystring[ilv1]=0;
-			strcat(idirectorystring,iname);
-			goto ifilenamefertig;
-		}
-	}
-	ifilenamefertig:;
+	FILE * thefile=NULL;
+	strcpy(idirectorystring,"/usr/share/lhendraw");
+	strcat(idirectorystring,iname);
+	
 	thefile=fopen(idirectorystring,"r");
-	if (thefile==NULL)
-	{
-		strcpy(idirectorystring,"/usr/share/lhendraw");
-		strcat(idirectorystring,iname);
-		
-		thefile=fopen(idirectorystring,"r");
-		if (thefile==NULL){printf("File not found: %s\n",idirectorystring);}
-	}
+	if (thefile==NULL){printf("File not found: %s\n",idirectorystring);}
 	return thefile;
 }
 void bitmap_init(FILE * bitmapfile)
@@ -57,31 +42,31 @@ void config_init(FILE * configfile)
 	currentinstance=&firstcurrentinstance;
 	input_fsm(configfile);
 }
-void resources_init(char * iargv0)
+void resources_init()
 {
 	char idirectorystring[1000];
 	FILE * resource_file;
-	resource_file=criticalfilename(iargv0,idirectorystring,"/gfx/buttons.bmp");
+	resource_file=criticalfilename(idirectorystring,"/gfx/buttons.bmp");
 	bitmap_init(resource_file);
 	fclose(resource_file);
-	resource_file=criticalfilename(iargv0,idirectorystring,"/hotkeys.xml");
+	resource_file=criticalfilename(idirectorystring,"/hotkeys.xml");
 	config_init(resource_file);
 	fclose(resource_file);
 	#ifndef WITHOUT_FREETYPE
-	resource_file=criticalfilename(iargv0,idirectorystring,"/LiberationMono-Regular.ttf");
+	resource_file=criticalfilename(idirectorystring,"/LiberationMono-Regular.ttf");
 	if (resource_file)
 	{
 		fclose(resource_file);
 		text_init(idirectorystring);
 	}
 	#else
-	resource_file=criticalfilename(iargv0,idirectorystring,"/LiberationMono-Regular.bin");
+	resource_file=criticalfilename(idirectorystring,"/LiberationMono-Regular.bin");
 	if (resource_file)
 	{
 		text_load(resource_file);
 	}
 	#endif
-	resource_file=criticalfilename(iargv0,idirectorystring,"/LiberationMono-Regular.lennardfont");
+	resource_file=criticalfilename(idirectorystring,"/LiberationMono-Regular.lennardfont");
 	if (resource_file)
 	{
 		glyf_init(resource_file);

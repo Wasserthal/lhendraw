@@ -1029,3 +1029,38 @@ int sdl_selectiondraw()
 					printmenutext(100,12,temporarystring,7);
 	return 0;
 }
+inline void dwpx(int ilv1,int ilv2,int shiftx,int shifty,int color)
+{
+	int inbyte=resources_bitmap_buttons[LHENDRAW_maxbuttons-105+(control_displayproperties.outofarea==3)][(shifty+ilv2)%32][(shiftx+ilv1)%32];
+	if ((inbyte & 0xFF000000)==0)
+	{
+		inbyte=color;
+	}
+	canvas[ilv2*gfx_screensizex+ilv1]=inbyte;
+}
+void sdl_outofareadraw()
+{
+	int shiftx=(32-((-(int)(SDL_scrollx*SDL_zoomx))%32))%32;
+	int shifty=(32-((-(int)(SDL_scrolly*SDL_zoomy))%32))%32;
+	for (int ilv2=0;ilv2<min(-SDL_scrolly*SDL_zoomy,gfx_canvassizey);ilv2++)
+	{
+		for (int ilv1=max(-SDL_scrollx*SDL_zoomx,0);ilv1<gfx_canvassizex;ilv1++)
+		{
+			dwpx(ilv1,ilv2,shiftx,shifty,0xFF00);
+		}
+	}
+	for (int ilv1=0;ilv1<min(-SDL_scrollx*SDL_zoomx,gfx_canvassizex);ilv1++)
+	{
+		for (int ilv2=max(-SDL_scrolly*SDL_zoomy,0);ilv2<gfx_canvassizey;ilv2++)
+		{
+			dwpx(ilv1,ilv2,shiftx,shifty,0xFF0000);
+		}
+	}
+	for (int ilv1=0;ilv1<min(-SDL_scrollx*SDL_zoomx,gfx_canvassizex);ilv1++)
+	{
+		for (int ilv2=0;ilv2<min(-SDL_scrolly*SDL_zoomy,gfx_canvassizey);ilv2++)
+		{
+			dwpx(ilv1,ilv2,shiftx,shifty,0xFFFF00);
+		}
+	}
+}

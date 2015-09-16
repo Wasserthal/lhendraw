@@ -44,9 +44,9 @@ float control_starty=0;
 int control_menudragint=0;
 clickabilitymatrix_ control_clickabilitymatrixes[control_toolcount];
 
-char control_filename[stringlength]="";
+char control_filename[stringlength*2+2]="";
 char control_filetype[stringlength]=".cdx";
-char control_nextfilename[stringlength]="";
+char control_nextfilename[stringlength*2+2]="";
 char control_nextfiletype[stringlength]=".cdx";
 int control_force=0;
 int control_interactive=1;

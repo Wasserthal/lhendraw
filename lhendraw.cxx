@@ -204,7 +204,7 @@ int main(int argc,char * * argv)
 	}
 	initmemory();
 	automatic_init();
-	resources_init(argv[0]);
+	resources_init();
 	init_buffers();
 	for (int ilv1=0;ilv1<control_toolcount;ilv1++)
 	{
@@ -250,6 +250,12 @@ int main(int argc,char * * argv)
 			control_normal();
 			gfx_gfxstart();
 			screenclear(0xFFFFFF);
+			if (control_displayproperties.outofarea==2)
+			{
+				if (SDL_scrollx<0) SDL_scrollx=0;
+				if (SDL_scrolly<0) SDL_scrolly=0;
+			}
+			if (control_displayproperties.outofarea & 1) sdl_outofareadraw();
 			gfx_output();
 			sdl_canvasframedraw();
 			sdl_commonmenucommon();

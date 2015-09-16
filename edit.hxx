@@ -26,7 +26,7 @@
 		LOCALMACRO_1(arrow)\
 		LOCALMACRO_1(t)\
 		LOCALMACRO_1(curve)
-extern char control_filename[512];
+extern char control_filename[stringlength*2+2];
 extern int control_saveuponexit;
 struct control_drawproperties_
 {
@@ -56,12 +56,17 @@ struct control_searchproperties_
 	_i32 expand_haystack_atoms;
 	_i32 expand_template_atoms;
 };
+struct control_displayproperties_
+{
+	int outofarea;//0: off 1: on 2: reserved for: cannot scroll there 3: dragons
+};
 structenum * searchreflectedstruct(const char * input);
 void applytransform_single(float matrix[3][3],cdx_Point3D * input,cdx_Point3D * output,cdx_Point3D * pivot);
 _small edit_current5bondcarbon=0;
 control_drawproperties_ control_drawproperties={16,0,0,0,0,0,4,0,constants_Element_implicitcarbon,6,1,0,0,0,0,1};
 control_drawproperties_ control_drawproperties_init={16,0,0,0,0,0,4,0,constants_Element_implicitcarbon,6,1,0,0,0,0,1};
 control_searchproperties_ control_searchproperties={0,0,1,1,0};
+control_displayproperties_ control_displayproperties={1};
 int control_hotatom=-1;
 //Copies a set of atoms and bonds from one buffer to another. Can take atoms from ANY other buffer
 char * undo_retrievebuffer(intl start,intl list);
@@ -2757,7 +2762,12 @@ catalogized_command_funcdef(LOADAS)
 }
 catalogized_command_funcdef(SAVE)
 {
-	printf("TODO***stub\n");
+	char istring[3*stringlength+3];
+	sprintf(istring,"\n\n  OVERWRITE file named\n  %s?",control_filename);
+	if (userwarning(istring))
+	{
+		SAVE_TYPE(control_filename,"");
+	}
 	return 1;
 }
 catalogized_command_funcdef(WARNING_OK)
@@ -3659,6 +3669,7 @@ catalogized_command_funcdef(FILEDLG_FILE_SAVE)
 		{
 			retval=1;
 			LHENDRAW_filedlgmode=0;
+			strcpy(control_filename,control_totalfilename);
 		}
 		closedir(DD);
 	}
@@ -3705,6 +3716,7 @@ catalogized_command_funcdef(FILEDLG_FILE_LOAD)
 		if (retval>=1)
 		{
 			LHENDRAW_filedlgmode=0;
+			strcpy(control_filename,control_totalfilename);
 		}
 		closedir(DD);
 	}

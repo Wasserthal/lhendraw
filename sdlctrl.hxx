@@ -41,7 +41,8 @@ char control_clickforpriority=0;//0: frontmost 1: rearmost 2: nearest 3: nearest
 char control_ambiguousity=0;
 float control_startx=0;
 float control_starty=0;
-int control_menudragint=0;
+int control_menudragintx=0;
+int control_menudraginty=0;
 clickabilitymatrix_ control_clickabilitymatrixes[control_toolcount];
 
 char control_filename[stringlength*2+2]="";
@@ -1958,7 +1959,6 @@ void issuedrag(int iposx,int iposy)
 				(*tl_arrow).Center3D.x=(control_startx+control_coorsx)/2;
 				(*tl_arrow).Center3D.y=(control_starty+control_coorsy)/2;
 				(*tl_arrow).Center3D.z=0;
-				(*tl_arrow).LineType=0;
 				(*tl_arrow).AngularSize=0;
 				(*tl_arrow).MajorAxisEnd3D.x=control_coorsx;
 				(*tl_arrow).MajorAxisEnd3D.y=control_coorsy;
@@ -1966,9 +1966,8 @@ void issuedrag(int iposx,int iposy)
 				(*tl_arrow).MinorAxisEnd3D.x=(*tl_arrow).Center3D.x-(control_coorsy-(*tl_arrow).Center3D.y);
 				(*tl_arrow).MinorAxisEnd3D.y=(*tl_arrow).Center3D.y+(control_coorsx-(*tl_arrow).Center3D.x);
 				(*tl_arrow).MinorAxisEnd3D.z=0;
-				(*tl_arrow).ArrowheadType=1;
 				(*tl_arrow).ArrowheadHead=2;
-				(*tl_arrow).ArrowheadTail=0;
+				(*tl_arrow).ArrowheadTail=1;
 				(*tl_arrow).ArrowShaftSpacing=0;
 				(*tl_arrow).Z=0;//TODO: pretty urgent
 			}
@@ -2529,15 +2528,6 @@ int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int
 						}
 						break;
 					}
-					case 7: 
-					{
-						if ((*ipulloutlisting).LMB_function(control_nextfilename,control_nextfiletype))
-						{
-							strcpy(control_filename,control_nextfilename);
-							strcpy(control_filetype,control_nextfiletype);
-						}
-						break;
-					}
 					case 8:
 					{
 						int * tl_variable_p=((_i32*)((*ipulloutlisting).variable));
@@ -2582,6 +2572,12 @@ int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int
 							(*ipulloutlisting).LMB_function("",istring);
 							break;
 						}
+						goto idefault;
+					}
+					case 0x107: 
+					{
+						horzistart=(*ipulloutlisting).x;
+						vertistart=(*ipulloutlisting).y;
 						goto idefault;
 					}
 					case 0x201:
@@ -2667,7 +2663,8 @@ int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int
 							control_lastmenuy=pixeloriginposy;
 							control_usingmousebutton=button;
 							control_menuitem=ipulloutlisting;
-							control_menudragint=0;
+							control_menudragintx=0;
+							control_menudraginty=0;
 						}
 					}
 				}
@@ -2977,10 +2974,32 @@ void issuemenudrag(int posx,int posy,char ifinal=0)
 			undo_undodirty=1;
 			diffx=posx-control_lastmenux;
 			diffy=posy-control_lastmenuy;
-			control_menudragint+=diffx;
+			control_menudragintx+=diffx;
 			char istring[100];
-			sprintf(istring,"%f",((float)(control_menudragint))/gfx_canvassizex*2.0*Pi);
+			sprintf(istring,"%f",((float)(control_menudragintx))/gfx_canvassizex*2.0*Pi);
 			(*control_menuitem).LMB_function("",istring);
+			break;
+		}
+		case 0x107:
+		{
+			diffx=posx-control_lastmenux;
+			diffy=posy-control_lastmenuy;
+			if ((diffx!=0) || (diffy!=0))
+			{
+				restoreundo(~0,0);
+				getatoms();
+				undo_undodirty=1;
+				control_menudragintx+=diffx;
+				char istring[100];
+				sprintf(istring,"%f",((float)(control_menudragintx))/gfx_canvassizex*2.0*Pi);
+				(*control_menuitem).LMB_function("",istring);
+				control_menudraginty+=diffy;
+				sprintf(istring,"%f",((float)(control_menudraginty))/gfx_canvassizey*2.0*Pi);
+				(*control_menuitem).RMB_function("",istring);
+				SDL_WarpMouse(control_lastmenux,control_lastmenuy);
+				posx=control_lastmenux;
+				posy=control_lastmenuy;
+			}
 			break;
 		}
 	}

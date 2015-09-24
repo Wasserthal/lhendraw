@@ -10,7 +10,7 @@ typedef struct menuitem
 	int x,y;
 	int picno;
 	char name[80];
-	int lmbmode;//0: nothing 1: select a tool 2: toggle variable 3: execute a function 4: set/clear a multi-boolean variable 5: set single boolean of multi-boolean variable 6: set variable to value 7: Tool, immediately used for dragging 8: set variable to value. when double-clicked, call LMBfunction with name as parameter and a string of toolnr as value 0x1XX: click-drag button 0x2XX: table 0x3XX: text input field
+	int lmbmode;//0: nothing 1: select a tool 2: toggle variable 3: execute a function 4: set/clear a multi-boolean variable 5: set single boolean of multi-boolean variable 6: set variable to value 8: set variable to value. when double-clicked, call LMBfunction with name as parameter and a string of toolnr as value 0x1XX: click-drag button 0x107: Tool, immediately used for dragging 0x2XX: table 0x3XX: text input field
 	int rmbmode;//0: nothing 1: select a tool 2: toggle variable 3: execute a function 4: set/clear a multi-boolean variable
 	int toolnr;
 	char explanation[1024];

@@ -758,7 +758,7 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,char hatches)
 		MACRO_DRAWPREFIX(stylegenestring)(stylefromline(currentLineType));
 		if (currentLineType &0x100)
 		{
-//TODO****				MACRO_DRAWPREFIX(expressarc)(iBBX.right,iBBX.bottom
+			if (tllinedist==0) tllinedist=4;
 		}
 		if (currentEllipsemode)
 		{
@@ -767,14 +767,24 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,char hatches)
 			double ellipticy[8];
 			ellipsoid.fill(deltax,deltay);
 			float tlangle;
-			MACRO_DRAWPREFIX(expressarc_enhanced)(iBBX.right,iBBX.bottom,ellipsoid.radiusx,ellipsoid.radiusy,ellipsoid.internalangle,ellipsoid.internalangle+((tlAngularSize/180.0)*Pi),ellipsoid.axangle);
+			if (currentLineType & 0x100)
+			{
+				MACRO_DRAWPREFIX(expressarc_enhanced)(iBBX.right,iBBX.bottom,ellipsoid.radiusx+tllinedist,ellipsoid.radiusy+tllinedist,ellipsoid.internalangle,ellipsoid.internalangle+((tlAngularSize/180.0)*Pi),ellipsoid.axangle);
+				MACRO_DRAWPREFIX(expressarc_enhanced)(iBBX.right,iBBX.bottom,ellipsoid.radiusx-tllinedist,ellipsoid.radiusy-tllinedist,ellipsoid.internalangle,ellipsoid.internalangle+((tlAngularSize/180.0)*Pi),ellipsoid.axangle);
+			}
+			else
+			{
+				MACRO_DRAWPREFIX(expressarc_enhanced)(iBBX.right,iBBX.bottom,ellipsoid.radiusx,ellipsoid.radiusy,ellipsoid.internalangle,ellipsoid.internalangle+((tlAngularSize/180.0)*Pi),ellipsoid.axangle);
+			}
 			for (int ilv0=0;ilv0<2;ilv0++)
 			{
+				printf(".\n");
 				double tlbest=1e20;
 				int tlbestone=-1;
 				tlangle=ellipsoid.internalangle+((ilv0)?((tlAngularSize/180.0)*Pi):0);
 				if (tlradius<=arrowheadlength){goto stillacircle;}//Where we use tangential arrow tips
 				ARROW_ELLIPTIC(ellipsoid.radiusx/arrowheadlength,ellipsoid.radiusy/arrowheadlength,cos(tlangle),sin(tlangle),tla,tlb,tlc,tld,tle);
+				printf("TLA: %f\n",tla);
 				if (fabs(tla)<=1e-3) {goto stillacircle;}
 				QUARTIC_quartic(tla,tlb,tlc,tld,tle,&(ellipticx[0]),&(ellipticx[1]),&(ellipticx[2]),&(ellipticx[3]));
 				for (int ilv1=0;ilv1<4;ilv1++)
@@ -811,9 +821,11 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,char hatches)
 				{
 					(ilv0?otherlangle:langle)=getangle(ellipticx[tlbestone%4]-cos(tlangle)*ellipsoid.radiusx,ellipticy[tlbestone]-sin(tlangle)*ellipsoid.radiusy)+ellipsoid.axangle;
 					(ilv0?othercangle:cangle)=(ilv0?otherlangle:langle)+Pi/2;
+					printf("Ḃ%f\n",cangle);
 				}
 				else
 				{
+					printf("S%f\n",cangle);
 					goto stillacircle;
 				}
 				if (ilv0==1)
@@ -825,7 +837,15 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,char hatches)
 		}
 		else
 		{
-			MACRO_DRAWPREFIX(expressarc)(iBBX.right,iBBX.bottom,tlradius,tlradius,tlangle,tlangle+((tlAngularSize/180.0)*Pi));
+			if (currentLineType & 0x100)
+			{
+				MACRO_DRAWPREFIX(expressarc)(iBBX.right,iBBX.bottom,tlradius-tllinedist,tlradius-tllinedist,tlangle,tlangle+((tlAngularSize/180.0)*Pi));
+				MACRO_DRAWPREFIX(expressarc)(iBBX.right,iBBX.bottom,tlradius+tllinedist,tlradius+tllinedist,tlangle,tlangle+((tlAngularSize/180.0)*Pi));
+			}
+			else
+			{
+				MACRO_DRAWPREFIX(expressarc)(iBBX.right,iBBX.bottom,tlradius,tlradius,tlangle,tlangle+((tlAngularSize/180.0)*Pi));
+			}
 			stillacircle:
 			if (tlAngularSize>0)
 			{
@@ -842,32 +862,31 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,char hatches)
 			if (tlradius>arrowheadlength)
 			{
 				dturn=asin(arrowheadlength/tlradius/2);
-				extreme_angle_used:
-				if (tlAngularSize>0)
-				{
-					langle+=dturn;
-					cangle+=dturn;
-					otherlangle-=dturn;
-					othercangle-=dturn;
-				}
-				else
-				{
-					langle-=dturn;
-					cangle-=dturn;
-					otherlangle+=dturn;
-					othercangle+=dturn;
-				}
 			}
 			else
 			{
 				dturn=0.5236;
-				goto extreme_angle_used;
+			}
+			if (tlAngularSize>0)
+			{
+				langle+=dturn;
+				cangle+=dturn;
+				otherlangle-=dturn;
+				othercangle-=dturn;
+			}
+			else
+			{
+				langle-=dturn;
+				cangle-=dturn;
+				otherlangle+=dturn;
+				othercangle+=dturn;
 			}
 			iBBX.right+=tlradius*cos(tlangle+((tlAngularSize/180.0)*Pi));
 			iBBX.bottom+=tlradius*sin(tlangle+((tlAngularSize/180.0)*Pi));
 		}
 	}
 	else goto skiparrows;
+	printf("%f vs %f\n",cangle,othercangle);
 	MACRO_DRAWPREFIX(drawarrheads)(iBBX,langle,cangle,otherlangle,othercangle,currentArrowHeadType,currentArrowHeadTail,currentArrowHeadHead,tllinedist);
 	goto skipthisgraphic;
 	skiparrows:
@@ -1001,6 +1020,14 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,char hatches)
 		tllinedist=4;
 		currentLineType|=0x100;
 	}
+		if (currentArrowHeadHead==2)
+		{
+			tllefttan2=1+(currentArrowHeadType==2);
+		}
+		if (currentArrowHeadTail==2)
+		{
+			tllefttan=1+(currentArrowHeadType==2);
+		}
 	if (currentArrowHeadType & 2)
 	{
 		tllinedist=8;

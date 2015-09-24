@@ -526,7 +526,7 @@ int sdl_buttonmenudraw(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int count,int xpos=
 		sdl_toolboxitemdraw(ilisting[ilv1].x*32+xpos,ilisting[ilv1].y*32+ypos,ilisting[ilv1].picno,state);
 		continue;
 		sliderdraw:
-		sdl_sliderdraw(ilisting[ilv1].x*32+xpos,ilisting[ilv1].y*32+ypos,ilisting[ilv1].picno,(ilisting+ilv1==control_menuitem)?(-control_menudragint):0,ilisting[ilv1].bgcolor);
+		sdl_sliderdraw(ilisting[ilv1].x*32+xpos,ilisting[ilv1].y*32+ypos,ilisting[ilv1].picno,(ilisting+ilv1==control_menuitem)?(-control_menudragintx):0,ilisting[ilv1].bgcolor);
 		continue;
 	}
 		

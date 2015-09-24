@@ -47,6 +47,7 @@ struct control_drawproperties_
 	int SELECTION_subtool;//0:Rectangular 1: round
 	int CURVE_subtool;//0: putpoints 1: handles 2: pencil
 	_i32 face;
+	_i32 arrow_ArrowheadType;
 };
 struct control_searchproperties_
 {
@@ -63,8 +64,8 @@ struct control_displayproperties_
 structenum * searchreflectedstruct(const char * input);
 void applytransform_single(float matrix[3][3],cdx_Point3D * input,cdx_Point3D * output,cdx_Point3D * pivot);
 _small edit_current5bondcarbon=0;
-control_drawproperties_ control_drawproperties={16,0,0,0,0,0,4,0,constants_Element_implicitcarbon,6,1,0,0,0,0,1};
-control_drawproperties_ control_drawproperties_init={16,0,0,0,0,0,4,0,constants_Element_implicitcarbon,6,1,0,0,0,0,1};
+control_drawproperties_ control_drawproperties={16,0,0,0,0,0,4,0,constants_Element_implicitcarbon,6,1,0,0,0,0,1,0,1};
+control_drawproperties_ control_drawproperties_init={16,0,0,0,0,0,4,0,constants_Element_implicitcarbon,6,1,0,0,0,0,1,0,1};
 control_searchproperties_ control_searchproperties={0,0,1,1,0};
 control_displayproperties_ control_displayproperties={1};
 int control_hotatom=-1;
@@ -1040,12 +1041,16 @@ inline int placepoints(graphic_instance * iinstance,float ix,float iy,float iz,i
 	{
 		(*iinstance).BoundingBox.left=ix;
 		(*iinstance).BoundingBox.top=iy;
+		(*iinstance).Center3D.x=((*iinstance).BoundingBox.left+(*iinstance).BoundingBox.right)/2.0;
+		(*iinstance).Center3D.y=((*iinstance).BoundingBox.top+(*iinstance).BoundingBox.bottom)/2.0;
 		return 1;
 	}
 	if ((inumber==2) || (inumber==-2))
 	{
 		(*iinstance).BoundingBox.right=ix;
 		(*iinstance).BoundingBox.bottom=iy;
+		(*iinstance).Center3D.x=((*iinstance).BoundingBox.left+(*iinstance).BoundingBox.right)/2.0;
+		(*iinstance).Center3D.y=((*iinstance).BoundingBox.top+(*iinstance).BoundingBox.bottom)/2.0;
 		return 1;
 	}
 	float tl_x,tl_y,tl_z;
@@ -1276,7 +1281,7 @@ template <class thisinstance> inline _u32 clickfor_template(float posx,float pos
 				}
 	 			ilv3=1;
 				iback:;
-				if (follower<(LHENDRAW_buffersize<sizeof(selection_datatype)))
+				if (follower<(LHENDRAW_buffersize/sizeof(selection_datatype)))
 				{
 					tl_backval=hit(tlinstance,posx,posy,ilv3);
 					if (tl_backval>=0)
@@ -1580,7 +1585,7 @@ graphic_instance * edit_summongraphic(int * inr=NULL)
 		((*glob_graphic_multilist).filllevel)++;
 		(*tlinstance).FillType=control_drawproperties.FillType;
 		(*tlinstance).id=(*glob_graphic_multilist).maxid+1;
-		(*tlinstance).LineType=control_drawproperties.LineType;;
+		(*tlinstance).LineType=control_drawproperties.LineType;
 		(*glob_graphic_multilist).maxid++;
 		if (inr!=NULL)
 		{
@@ -1600,6 +1605,12 @@ arrow_instance * edit_summonarrow(int * inr=NULL)
 		tlinstance=new(&((*glob_arrow_multilist)[tl_nr])) arrow_instance;
 		selection_currentselection[tl_nr]&=(~(1<<STRUCTURE_OBJECTTYPE_arrow));
 		(*tlinstance).color=control_drawproperties.color;
+		(*tlinstance).ArrowheadType=control_drawproperties.arrow_ArrowheadType;
+		(*tlinstance).LineType=control_drawproperties.LineType;
+		if ((control_drawproperties.arrow_ArrowheadType>=2) && (control_drawproperties.arrow_ArrowheadType<=3))
+		{
+			(*tlinstance).ArrowShaftSpacing=4;
+		}
 		((*glob_arrow_multilist).filllevel)++;
 		if (inr!=NULL)
 		{
@@ -1667,9 +1678,12 @@ curve_instance * edit_summoncurve(int * inr=NULL)
 		(*tlinstance).CurvePoints.count=0;
 		(*tlinstance).Closed=control_drawproperties.curve_Closed;
 		(*tlinstance).ArrowheadHead=0;
-		(*tlinstance).ArrowheadType=0;
 		(*tlinstance).ArrowheadTail=0;
-		(*tlinstance).ArrowShaftSpacing=0;
+		(*tlinstance).ArrowheadType=control_drawproperties.arrow_ArrowheadType;
+		if ((control_drawproperties.arrow_ArrowheadType>=2) && (control_drawproperties.arrow_ArrowheadType<=3))
+		{
+			(*tlinstance).ArrowShaftSpacing=4;
+		}
 		(*tlinstance).FillType=control_drawproperties.FillType;
 		(*tlinstance).LineType=control_drawproperties.LineType;
 		(*tlinstance).Z=edit_getnewZ();

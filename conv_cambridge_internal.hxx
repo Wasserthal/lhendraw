@@ -467,7 +467,10 @@ void CAMBRIDGECONV_arrow()
 		CAMBRIDGECONV_EXISTSTHEN(arrow,ArrowheadType);
 		CAMBRIDGECONV_EXISTSTHEN(arrow,ArrowheadHead);
 		CAMBRIDGECONV_EXISTSTHEN(arrow,ArrowheadTail);
-		CAMBRIDGECONV_EXISTSTHEN(arrow,ArrowShaftSpacing);
+		if (tl_CAMBRIDGE_arrow_instance->ArrowShaftSpacing>0)
+		{
+			tl_arrow_instance.ArrowShaftSpacing=max(127,abs(tl_CAMBRIDGE_arrow_instance->ArrowShaftSpacing)/150);
+		}
 		CAMBRIDGECONV_EXISTSTHEN(arrow,Z);
 //graphicType???
 		(*tl_arrow_multilist).ADD(&tl_arrow_instance);

@@ -767,10 +767,30 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,char hatches)
 			double ellipticy[8];
 			ellipsoid.fill(deltax,deltay);
 			float tlangle;
+			tlradius=sqrt(deltax*deltax+deltay*deltay);
 			if (currentLineType & 0x100)
 			{
-				MACRO_DRAWPREFIX(expressarc_enhanced)(iBBX.right,iBBX.bottom,ellipsoid.radiusx+tllinedist,ellipsoid.radiusy+tllinedist,ellipsoid.internalangle,ellipsoid.internalangle+((tlAngularSize/180.0)*Pi),ellipsoid.axangle);
-				MACRO_DRAWPREFIX(expressarc_enhanced)(iBBX.right,iBBX.bottom,ellipsoid.radiusx-tllinedist,ellipsoid.radiusy-tllinedist,ellipsoid.internalangle,ellipsoid.internalangle+((tlAngularSize/180.0)*Pi),ellipsoid.axangle);
+				float takefromark=0;
+				float takefromark1=0;
+				float takefromark2=0;
+				if (currentArrowHeadType==2)
+				{
+					takefromark=fabs(tllinedist*2/ellipsoid.radiusx);
+					if (tlAngularSize>0)
+					{
+						takefromark=-takefromark;
+					}
+					if (currentArrowHeadHead==2)
+					{
+						takefromark1=takefromark;
+					}
+					if (currentArrowHeadTail==2)
+					{
+						takefromark2=takefromark;
+					}
+				}
+				MACRO_DRAWPREFIX(expressarc_enhanced)(iBBX.right,iBBX.bottom,ellipsoid.radiusx+tllinedist,ellipsoid.radiusy+tllinedist,ellipsoid.internalangle-takefromark1,ellipsoid.internalangle+((tlAngularSize/180.0)*Pi+takefromark2),ellipsoid.axangle);
+				MACRO_DRAWPREFIX(expressarc_enhanced)(iBBX.right,iBBX.bottom,ellipsoid.radiusx-tllinedist,ellipsoid.radiusy-tllinedist,ellipsoid.internalangle-takefromark1,ellipsoid.internalangle+((tlAngularSize/180.0)*Pi+takefromark2),ellipsoid.axangle);
 			}
 			else
 			{
@@ -778,13 +798,13 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,char hatches)
 			}
 			for (int ilv0=0;ilv0<2;ilv0++)
 			{
-				printf(".\n");
 				double tlbest=1e20;
 				int tlbestone=-1;
 				tlangle=ellipsoid.internalangle+((ilv0)?((tlAngularSize/180.0)*Pi):0);
+				goto stillacircle;//TODO: BUG: THE OTHER ALGORITHM IS DEFECTIVE unless the arrow is rotated by non-90° angles....
 				if (tlradius<=arrowheadlength){goto stillacircle;}//Where we use tangential arrow tips
 				ARROW_ELLIPTIC(ellipsoid.radiusx/arrowheadlength,ellipsoid.radiusy/arrowheadlength,cos(tlangle),sin(tlangle),tla,tlb,tlc,tld,tle);
-				printf("TLA: %f\n",tla);
+				printf("TLA: %f;TLB: %f;TLC: %f;TLD: %f;TLB: %f;\n",tla,tlb,tlc,tld,tle);
 				if (fabs(tla)<=1e-3) {goto stillacircle;}
 				QUARTIC_quartic(tla,tlb,tlc,tld,tle,&(ellipticx[0]),&(ellipticx[1]),&(ellipticx[2]),&(ellipticx[3]));
 				for (int ilv1=0;ilv1<4;ilv1++)
@@ -828,10 +848,15 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,char hatches)
 					printf("S%f\n",cangle);
 					goto stillacircle;
 				}
+				if (ilv0==0)
+				{
+					iBBX.left=currentCenter3D.x+cos(tlangle)*ellipsoid.radiusx*cos(ellipsoid.axangle)-sin(tlangle)*ellipsoid.radiusy*sin(ellipsoid.axangle);
+					iBBX.top=currentCenter3D.y+sin(tlangle)*ellipsoid.radiusy*cos(ellipsoid.axangle)+cos(tlangle)*ellipsoid.radiusx*sin(ellipsoid.axangle);
+				}
 				if (ilv0==1)
 				{
-					iBBX.right+=cos(tlangle)*ellipsoid.radiusx*cos(ellipsoid.axangle)-sin(tlangle)*ellipsoid.radiusy*sin(ellipsoid.axangle);
-					iBBX.bottom+=+sin(tlangle)*ellipsoid.radiusy*cos(ellipsoid.axangle)+cos(tlangle)*ellipsoid.radiusx*sin(ellipsoid.axangle);
+					iBBX.right+=currentCenter3D.x+cos(tlangle)*ellipsoid.radiusx*cos(ellipsoid.axangle)-sin(tlangle)*ellipsoid.radiusy*sin(ellipsoid.axangle);
+					iBBX.bottom+=currentCenter3D.y+sin(tlangle)*ellipsoid.radiusy*cos(ellipsoid.axangle)+cos(tlangle)*ellipsoid.radiusx*sin(ellipsoid.axangle);
 				}
 			}
 		}
@@ -886,7 +911,6 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,char hatches)
 		}
 	}
 	else goto skiparrows;
-	printf("%f vs %f\n",cangle,othercangle);
 	MACRO_DRAWPREFIX(drawarrheads)(iBBX,langle,cangle,otherlangle,othercangle,currentArrowHeadType,currentArrowHeadTail,currentArrowHeadHead,tllinedist);
 	goto skipthisgraphic;
 	skiparrows:
@@ -1040,6 +1064,8 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,char hatches)
 		tlGraphicType=2;
 		iBBX.right=(*i_arrow_instance).Center3D.x;
 		iBBX.bottom=(*i_arrow_instance).Center3D.y;
+		currentCenter3D=(*i_arrow_instance).MajorAxisEnd3D;
+		iBBX.top=(*i_arrow_instance).MajorAxisEnd3D.y;
 		ellipsoid.create((*i_arrow_instance).Center3D,(*i_arrow_instance).MajorAxisEnd3D,(*i_arrow_instance).MinorAxisEnd3D);
 		ellipsoid.fill((*i_arrow_instance).Tail3D.x-(*i_arrow_instance).Center3D.x,(*i_arrow_instance).Tail3D.y-(*i_arrow_instance).Center3D.y);
 		tlAngularSize=ellipsoid.internalangle;

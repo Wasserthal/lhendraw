@@ -47,7 +47,10 @@ struct control_drawproperties_
 	int SELECTION_subtool;//0:Rectangular 1: round
 	int CURVE_subtool;//0: putpoints 1: handles 2: pencil
 	_i32 face;
-	_i32 arrow_ArrowheadType;
+	_i32 arrow_ArrowheadType;//0x10001 means retrosynthetic
+	_i32 arrow_ArrowheadHead;
+	_i32 arrow_ArrowheadTail;
+	_i32 arrow_ArrowShaftSpacing;
 };
 struct control_searchproperties_
 {
@@ -64,8 +67,8 @@ struct control_displayproperties_
 structenum * searchreflectedstruct(const char * input);
 void applytransform_single(float matrix[3][3],cdx_Point3D * input,cdx_Point3D * output,cdx_Point3D * pivot);
 _small edit_current5bondcarbon=0;
-control_drawproperties_ control_drawproperties={16,0,0,0,0,0,4,0,constants_Element_implicitcarbon,6,1,0,0,0,0,1,0,1};
-control_drawproperties_ control_drawproperties_init={16,0,0,0,0,0,4,0,constants_Element_implicitcarbon,6,1,0,0,0,0,1,0,1};
+control_drawproperties_ control_drawproperties={16,0,0,0,0,0,4,0,constants_Element_implicitcarbon,6,1,0,0,0,0,1,0,1,2,1,1};
+control_drawproperties_ control_drawproperties_init={16,0,0,0,0,0,4,0,constants_Element_implicitcarbon,6,1,0,0,0,0,1,0,1,1,1,1};
 control_searchproperties_ control_searchproperties={0,0,1,1,0};
 control_displayproperties_ control_displayproperties={1};
 int control_hotatom=-1;
@@ -1012,6 +1015,20 @@ inline int placepoints(b_instance * iinstance,float ix,float iy,float iz,int inu
 	(*iinstance2).xyz.z-=tl_z;
 	return 1;
 }
+void scalepoint(cdx_Point3D * inpoint,float pivotx,float pivoty,float startx,float starty,float endx,float endy)
+{
+	if (fabs(startx-pivotx)>0.1)
+	{
+		float dist=startx-pivotx;
+		inpoint->x=pivotx+((inpoint->x-pivotx)/(startx-pivotx))*(endx-pivotx);
+	}
+	if (fabs(starty-pivoty)>0.1)
+	{
+		float dist=starty-pivoty;
+		inpoint->y=pivoty+((inpoint->y-pivoty)/(starty-pivoty))*(endy-pivoty);
+	}
+	return;
+}
 inline int placepoints(graphic_instance * iinstance,float ix,float iy,float iz,int inumber,basicmultilist * imultilist=NULL)
 {
 	if (inumber>2) return 0;
@@ -1039,18 +1056,26 @@ inline int placepoints(graphic_instance * iinstance,float ix,float iy,float iz,i
 	}
 	if ((inumber==1) || (inumber==-1))
 	{
+		if (inumber>0)
+		{
+			scalepoint(&((*iinstance).Center3D),(*iinstance).BoundingBox.right,(*iinstance).BoundingBox.bottom,(*iinstance).BoundingBox.left,(*iinstance).BoundingBox.top,ix,iy);
+			scalepoint(&((*iinstance).MinorAxisEnd3D),(*iinstance).BoundingBox.right,(*iinstance).BoundingBox.bottom,(*iinstance).BoundingBox.left,(*iinstance).BoundingBox.top,ix,iy);
+			scalepoint(&((*iinstance).MajorAxisEnd3D),(*iinstance).BoundingBox.right,(*iinstance).BoundingBox.bottom,(*iinstance).BoundingBox.left,(*iinstance).BoundingBox.top,ix,iy);
+		}
 		(*iinstance).BoundingBox.left=ix;
 		(*iinstance).BoundingBox.top=iy;
-		(*iinstance).Center3D.x=((*iinstance).BoundingBox.left+(*iinstance).BoundingBox.right)/2.0;
-		(*iinstance).Center3D.y=((*iinstance).BoundingBox.top+(*iinstance).BoundingBox.bottom)/2.0;
 		return 1;
 	}
 	if ((inumber==2) || (inumber==-2))
 	{
+		if (inumber>0)
+		{
+			scalepoint(&((*iinstance).Center3D),(*iinstance).BoundingBox.left,(*iinstance).BoundingBox.top,(*iinstance).BoundingBox.right,(*iinstance).BoundingBox.bottom,ix,iy);
+			scalepoint(&((*iinstance).MinorAxisEnd3D),(*iinstance).BoundingBox.left,(*iinstance).BoundingBox.top,(*iinstance).BoundingBox.right,(*iinstance).BoundingBox.bottom,ix,iy);
+			scalepoint(&((*iinstance).MajorAxisEnd3D),(*iinstance).BoundingBox.left,(*iinstance).BoundingBox.top,(*iinstance).BoundingBox.right,(*iinstance).BoundingBox.bottom,ix,iy);
+		}
 		(*iinstance).BoundingBox.right=ix;
 		(*iinstance).BoundingBox.bottom=iy;
-		(*iinstance).Center3D.x=((*iinstance).BoundingBox.left+(*iinstance).BoundingBox.right)/2.0;
-		(*iinstance).Center3D.y=((*iinstance).BoundingBox.top+(*iinstance).BoundingBox.bottom)/2.0;
 		return 1;
 	}
 	float tl_x,tl_y,tl_z;
@@ -1595,6 +1620,38 @@ graphic_instance * edit_summongraphic(int * inr=NULL)
 	}
 	return NULL;
 }
+catalogized_command_funcdef(EQUILIBRIUM_ARROWS)
+{
+	printf("PAR:%s;VAL:%s\n",parameter,value);
+	int to_value=atoi(value);
+	if (control_drawproperties.arrow_ArrowheadType!=to_value)
+	{
+		control_drawproperties.arrow_ArrowheadType=to_value;
+		if (to_value==4)
+		{
+			control_drawproperties.arrow_ArrowheadHead=3;
+			control_drawproperties.arrow_ArrowheadTail=3;
+			control_drawproperties.arrow_ArrowShaftSpacing=4;
+			SETITEMVARIABLES("ArrowheadType","1");
+			SETITEMVARIABLES("ArrowheadHead","3");
+			SETITEMVARIABLES("ArrowheadTail","3");
+			SETITEMVARIABLES("ArrowShaftSpacing","4");
+			return 1;
+		}
+	}
+	else
+	{
+		control_drawproperties.arrow_ArrowheadType=1;
+	}
+	control_drawproperties.arrow_ArrowheadHead=2;
+	control_drawproperties.arrow_ArrowheadTail=1;
+	control_drawproperties.arrow_ArrowShaftSpacing=0;
+	SETITEMVARIABLES("ArrowheadType","1");
+	SETITEMVARIABLES("ArrowheadHead","2");
+	SETITEMVARIABLES("ArrowheadTail","1");
+	SETITEMVARIABLES("ArrowShaftSpacing","0");
+	return 1;
+}
 arrow_instance * edit_summonarrow(int * inr=NULL)
 {
 	if ((*glob_arrow_multilist).filllevel<(*glob_arrow_multilist).getmaxitems())
@@ -1606,9 +1663,16 @@ arrow_instance * edit_summonarrow(int * inr=NULL)
 		selection_currentselection[tl_nr]&=(~(1<<STRUCTURE_OBJECTTYPE_arrow));
 		(*tlinstance).color=control_drawproperties.color;
 		(*tlinstance).ArrowheadType=control_drawproperties.arrow_ArrowheadType;
+		(*tlinstance).ArrowheadHead=control_drawproperties.arrow_ArrowheadHead;
+		(*tlinstance).ArrowheadTail=control_drawproperties.arrow_ArrowheadTail;
 		(*tlinstance).LineType=control_drawproperties.LineType;
 		if ((control_drawproperties.arrow_ArrowheadType>=2) && (control_drawproperties.arrow_ArrowheadType<=3))
 		{
+			(*tlinstance).ArrowShaftSpacing=4;
+		}
+		if (control_drawproperties.arrow_ArrowheadType==4)
+		{
+			(*tlinstance).ArrowheadType=1;
 			(*tlinstance).ArrowShaftSpacing=4;
 		}
 		((*glob_arrow_multilist).filllevel)++;

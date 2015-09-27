@@ -348,6 +348,7 @@ int basecolornr;
 int fontnr;
 char * finalstring;
 cdx_Rectangle iBBX;
+cdx_Point3D currentCenter3D;
 _small owner;
 float othercangle;
 float otherlangle;

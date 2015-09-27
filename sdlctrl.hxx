@@ -1966,9 +1966,6 @@ void issuedrag(int iposx,int iposy)
 				(*tl_arrow).MinorAxisEnd3D.x=(*tl_arrow).Center3D.x-(control_coorsy-(*tl_arrow).Center3D.y);
 				(*tl_arrow).MinorAxisEnd3D.y=(*tl_arrow).Center3D.y+(control_coorsx-(*tl_arrow).Center3D.x);
 				(*tl_arrow).MinorAxisEnd3D.z=0;
-				(*tl_arrow).ArrowheadHead=2;
-				(*tl_arrow).ArrowheadTail=1;
-				(*tl_arrow).ArrowShaftSpacing=0;
 				(*tl_arrow).Z=0;//TODO: pretty urgent
 			}
 			break;
@@ -2416,6 +2413,7 @@ int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int
 	int horzistart;
 	int vertistart;
 	int ihitnr=0;
+	const char * tl_zerostring="0";
 	AUTOSTRUCT_PULLOUTLISTING_ * ipulloutlisting=NULL;
 	if (starthitnr!=-1)
 	{
@@ -2528,8 +2526,15 @@ int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int
 						}
 						break;
 					}
+					case 9:
+					{
+						tl_zerostring="1";
+						goto skipzerostring;
+					}
 					case 8:
 					{
+						tl_zerostring="0";
+						skipzerostring:;
 						int * tl_variable_p=((_i32*)((*ipulloutlisting).variable));
 						char tl_on;
 						if (*tl_variable_p!=(*ipulloutlisting).toolnr)

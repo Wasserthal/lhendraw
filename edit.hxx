@@ -3720,6 +3720,7 @@ catalogized_command_funcdef(FILEDLG_FILE_PATH)
 		control_filememory.number=0;
 		menu_selectedmenuelement=menu_itembyname("FILEDLG_FILE_HEAD");
 		closedir(DD);
+		FILEDLG_FILE_SORT("","");
 		return 1;
 	}
 	return -30;

@@ -476,6 +476,7 @@ int input_recursion(FILE * infile)
 	backval=1;
 	while (backval>0)
 	{
+		if (debug_demonstratefsm_recursion_depth>=100) return -10;
 		backval=input_recursion(infile);
 		if (backval<0) {exittag();return backval;}
 	}
@@ -592,11 +593,11 @@ int output_object_bin(FILE * outfile,basic_instance * iinstance)
 		{
 			int ipropertypos=(*iinstance)._->properties[ilv1].ref;
 			char * name=(*iinstance)._->properties[ilv1].name;
-			for (int ilv1=0;ilv1<CDXML_propertycodes_ListSize;ilv1++)
+			for (int ilv2=0;ilv2<CDXML_propertycodes_ListSize;ilv2++)
 			{
-				if (strcmp(name,CDXML_propertycodes_List[ilv1].name)==0)
+				if (strcmp(name,CDXML_propertycodes_List[ilv2].name)==0)
 				{
-					dummy=CDXML_propertycodes_List[ilv1].number;
+					dummy=CDXML_propertycodes_List[ilv2].number;
 					fwrite(&dummy,2,1,outfile);
 					goto idone;
 				}
@@ -614,8 +615,9 @@ int output_object_bin(FILE * outfile,basic_instance * iinstance)
 				goto ignore_item;
 			}
 			#ifndef NODEBUG
-			printf("Unknown number of Element named %s\n",name);goto ignore_item;
+			printf("Unknown number of Element named %s\n",name);
 			#endif
+			goto ignore_item;
 			idone:;
 			(*iinstance)._->properties[ilv1].binwritedelegate(((char*)iinstance)+ipropertypos,outfile);
 			ignore_item:;

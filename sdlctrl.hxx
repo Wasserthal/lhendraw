@@ -531,26 +531,25 @@ catalogized_command_funcdef(ISSUEDELETE)
 			if (control_keyboardormousemode==1) 
 			{
 				_i32 backtype,backindex;
+				if (control_findhotatomfrommouse())
+				{
+					goto foundhot;
+				}
 				clickforthem();
-				basic_instance * tl_instance=getclicked(~0,control_coorsx,control_coorsy,&backtype,&backindex);
+				basic_instance * tl_instance=getclicked((1<<STRUCTURE_OBJECTTYPE_ListSize)-1,control_coorsx,control_coorsy,&backtype,&backindex);
 				if (tl_instance)
 				{
-					basicmultilist * tlmultilist=findmultilist(STRUCTURE_OBJECTTYPE_List[backtype].name);
+					basicmultilist * tlmultilist=findmultilist(STRUCTURE_OBJECTTYPE_List[backtype%STRUCTURE_OBJECTTYPE_ListSize].name);
 					TELESCOPE_aggressobject(tlmultilist,backindex);
 					TELESCOPE_clear();
 					tl_instance->exist=0;
 					goto successful;
 				}
-				else
-				{
-					//TODO: obsolete
-					control_findhotatomfrommouse();
-				}
 			}
 		}
 		if (gethot()!=-1)
 		{
-			//TODO: obsolete
+			foundhot:;
 			if (control_hotatom<(*glob_n_multilist).filllevel)
 			{
 				ibufferpos=(char*)(*glob_n_multilist).pointer;

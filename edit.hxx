@@ -1622,7 +1622,6 @@ graphic_instance * edit_summongraphic(int * inr=NULL)
 }
 catalogized_command_funcdef(EQUILIBRIUM_ARROWS)
 {
-	printf("PAR:%s;VAL:%s\n",parameter,value);
 	int to_value=atoi(value);
 	if (control_drawproperties.arrow_ArrowheadType!=to_value)
 	{
@@ -1632,9 +1631,9 @@ catalogized_command_funcdef(EQUILIBRIUM_ARROWS)
 			control_drawproperties.arrow_ArrowheadHead=3;
 			control_drawproperties.arrow_ArrowheadTail=3;
 			control_drawproperties.arrow_ArrowShaftSpacing=4;
-			SETITEMVARIABLES("ArrowheadType","1");
-			SETITEMVARIABLES("ArrowheadHead","3");
-			SETITEMVARIABLES("ArrowheadTail","3");
+			SETITEMVARIABLES("ArrowheadType","Solid");
+			SETITEMVARIABLES("ArrowheadHead","HalfLeft");
+			SETITEMVARIABLES("ArrowheadTail","HalfLeft");
 			SETITEMVARIABLES("ArrowShaftSpacing","4");
 			return 1;
 		}
@@ -1646,10 +1645,12 @@ catalogized_command_funcdef(EQUILIBRIUM_ARROWS)
 	control_drawproperties.arrow_ArrowheadHead=2;
 	control_drawproperties.arrow_ArrowheadTail=1;
 	control_drawproperties.arrow_ArrowShaftSpacing=0;
-	SETITEMVARIABLES("ArrowheadType","1");
-	SETITEMVARIABLES("ArrowheadHead","2");
-	SETITEMVARIABLES("ArrowheadTail","1");
+	if (to_value==4) to_value=1;
+	SETITEMVARIABLES("ArrowheadType",lookup_bienum(CDXML_ArrowheadType,CDXML_ArrowheadType_max,to_value));
+	SETITEMVARIABLES("ArrowheadHead",lookup_bienum(CDXML_ArrowheadHead,CDXML_ArrowheadHead_max,control_drawproperties.arrow_ArrowheadHead));
+	SETITEMVARIABLES("ArrowheadTail",lookup_bienum(CDXML_ArrowheadTail,CDXML_ArrowheadTail_max,control_drawproperties.arrow_ArrowheadTail));
 	SETITEMVARIABLES("ArrowShaftSpacing","0");
+	printf("Headtype%i,\n",control_drawproperties.arrow_ArrowheadType);
 	return 1;
 }
 arrow_instance * edit_summonarrow(int * inr=NULL)
@@ -1741,8 +1742,8 @@ curve_instance * edit_summoncurve(int * inr=NULL)
 		(*tlinstance).color=control_drawproperties.color;
 		(*tlinstance).CurvePoints.count=0;
 		(*tlinstance).Closed=control_drawproperties.curve_Closed;
-		(*tlinstance).ArrowheadHead=0;
-		(*tlinstance).ArrowheadTail=0;
+		(*tlinstance).ArrowheadHead=control_drawproperties.arrow_ArrowheadHead;
+		(*tlinstance).ArrowheadTail=control_drawproperties.arrow_ArrowheadTail;
 		(*tlinstance).ArrowheadType=control_drawproperties.arrow_ArrowheadType;
 		if ((control_drawproperties.arrow_ArrowheadType>=2) && (control_drawproperties.arrow_ArrowheadType<=3))
 		{

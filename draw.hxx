@@ -773,9 +773,13 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,char hatches)
 				float takefromark=0;
 				float takefromark1=0;
 				float takefromark2=0;
-				if (currentArrowHeadType==2)
+				if ((currentArrowHeadType==2)||(currentArrowHeadType==3))
 				{
-					takefromark=fabs(tllinedist*2/ellipsoid.radiusx);
+					takefromark=fabs(tllinedist/ellipsoid.radiusx);
+					if (currentArrowHeadType==2)
+					{
+						takefromark*=2;
+					}
 					if (tlAngularSize>0)
 					{
 						takefromark=-takefromark;

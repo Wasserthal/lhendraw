@@ -22,7 +22,7 @@ menuitem pullout_toolspecific_ARROW[]={
 {2,0,
 106,//Picture
 "2",
-3,3,
+7,3,
 2,
 "hollow Arrow\n",
 "control_drawproperties.arrow_ArrowheadType",
@@ -32,7 +32,7 @@ menuitem pullout_toolspecific_ARROW[]={
 {3,0,
 107,//Picture
 "3",
-3,3,
+7,3,
 3,
 "retrosynthetic arrow\n",
 "control_drawproperties.arrow_ArrowheadType",
@@ -42,10 +42,10 @@ menuitem pullout_toolspecific_ARROW[]={
 {4,0,
 52,//Picture
 "4",
-3,3,
+7,3,
 4,
 "retrosynthetic arrow\n",
-"",
+"control_drawproperties.arrow_ArrowheadType",
 "EQUILIBRIUM_ARROWS","EQUILIBRIUM_ARROWS",
 0xFFFF,
 },

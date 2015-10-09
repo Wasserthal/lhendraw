@@ -2495,6 +2495,7 @@ int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int
 					selection_clickabilitymatrix=control_clickabilitymatrixes[control_tool];
 					break;
 					case 2: *((char*)(*ipulloutlisting).variable)^=1;break;
+					case 7://fallthrough
 					case 3: 
 					{
 						char istring[100];

@@ -288,7 +288,9 @@ int main(int argc,char * * argv)
 		gfx_gfxstop();
 		usleep(1000);
 		control_doubleclickenergy-=1;
+		control_doublekeypressenergy-=1;
 		if (control_doubleclickenergy<0) control_doubleclickenergy=0;
+		if (control_doublekeypressenergy<0) control_doublekeypressenergy=0;
 		if (!LHENDRAW_leave) goto mainloop;
 		sdl_outit();
 		

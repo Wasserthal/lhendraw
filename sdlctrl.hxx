@@ -5,6 +5,7 @@ struct menuref_
 	structenum what;//The structenum
 	int alignx,aligny;//The position
 };
+char control_keycombotextinput[40]="";
 int control_keyboardormousemode=0;//0: Keyboard mode; 1: Mouse mode
 int control_analysis_window=1;
 menuref_ menu_list[20];
@@ -54,6 +55,7 @@ int control_interactive=1;
 int control_saveuponexit=0;
 int control_GUI=1;
 int control_doubleclickenergy=0;
+int control_doublekeypressenergy=0;
 basic_instance * control_manipulatedinstance;
 basic_instance * control_manipulatedinstance2;
 int control_manipulatedsubno;
@@ -409,6 +411,20 @@ int interpretkey(int listnr=-1)
 						}
 						else
 						{
+							if (((catalogized_command_iterated_functype)(hotkeylist[ilv1].command)==LABELTEXT) && (ihot) && (tltype==STRUCTURE_OBJECTTYPE_n))
+							{
+								if (control_doublekeypressenergy>0)
+								{
+									strcat(control_keycombotextinput,hotkeylist[ilv1].key);
+									strcat(control_keycombotextinput,"\uE000");
+									LABELTEXT("",control_keycombotextinput,glob_n_multilist,&((*glob_n_multilist)[ihot_instance]),ihot_instance);
+									control_mousestate=0x40;
+									control_textedit_type=STRUCTURE_OBJECTTYPE_n;
+									control_textedit_index=ihot_instance;
+									erledigt=1;
+									return 1;
+								}
+							}
 							if (hotkeylist[ilv1].command!=NULL)
 							{
 								basicmultilist * tl_multilist=findmultilist(STRUCTURE_OBJECTTYPE_List[tltype & 0xFFFF].name);
@@ -426,7 +442,7 @@ int interpretkey(int listnr=-1)
 											{
 												if (((catalogized_command_iterated_functype)(hotkeylist[ilv1].command))(hotkeylist[ilv1].variable,hotkeylist[ilv1].value,tl_multilist,&((*tl_multilist)[ilv2]),ilv2)){erledigt=1;};
 											}
-											if ((ihot) && (erledigt==0))
+											if (ihot)
 											{
 												goto hotbackshunt;
 											}
@@ -447,6 +463,11 @@ int interpretkey(int listnr=-1)
 						if (tltype & 0x40000)
 						{
 							control_mousestate=2;
+						}
+						if (((catalogized_command_iterated_functype)(hotkeylist[ilv1].command)==LABELTEXT) && (erledigt))
+						{
+							control_doublekeypressenergy=100;
+							strcpy(control_keycombotextinput,hotkeylist[ilv1].key);
 						}
 						if (erledigt) goto commanderledigt;
 					}
@@ -3027,6 +3048,7 @@ void control_normal()
 			{
 				control_keyboardormousemode=1;
 				control_doubleclickenergy=0;
+				control_doublekeypressenergy=0;
 				control_mousex=control_Event.motion.x;
 				control_mousey=control_Event.motion.y;
 				control_hotatom=-1;
@@ -3097,6 +3119,7 @@ void control_normal()
 					{
 						control_lastmousebutton=SDL_BUTTON_RIGHT;
 						control_doubleclickenergy=0;
+						control_doublekeypressenergy=0;
 						goto clickshunt;
 					}
 					case SDL_BUTTON_LEFT:
@@ -3155,6 +3178,7 @@ void control_normal()
 					case SDL_BUTTON_WHEELDOWN:
 					{
 						control_doubleclickenergy=0;
+						control_doublekeypressenergy=0;
 						if (MODIFIER_KEYS.CTRL)
 						{
 							float tl_factor=1.414213562;
@@ -3389,7 +3413,7 @@ void control_normal()
 					{
 						if (control_mousestate==0)
 						{
-							interpretkey();
+							if (interpretkey()) goto control_key_interpreted;
 						}
 					}
 				}
@@ -3588,8 +3612,9 @@ void control_normal()
 					}
 					control_textedit_KEY_abort:;
 				}
-				break;
+				control_key_interpreted:
 				control_keyboardormousemode=0;
+				break;
 			}
 			case SDL_QUIT:
 			{

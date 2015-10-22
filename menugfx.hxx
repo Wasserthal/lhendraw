@@ -503,8 +503,7 @@ int sdl_buttonmenudraw(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int count,int xpos=
 	if (ypos<0) ypos+=(gfx_screensizey>>5)<<5;
 	for (int ilv1=0;ilv1<count;ilv1++)
 	{
-		_u32 state=ilisting[ilv1].bgcolor;
-		state=(*ilisting).bgcolor<<8;
+		_u32 state=ilisting[ilv1].bgcolor<<8;
 		int tlvar=ilisting[ilv1].lmbmode;
 		iagain:
 		switch (tlvar)
@@ -526,10 +525,10 @@ int sdl_buttonmenudraw(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int count,int xpos=
 			case 8: state|=((*((_i32*)(ilisting[ilv1].variable)))==ilisting[ilv1].toolnr)?1:0;break;
 		}
 		sdl_toolboxitemdraw(ilisting[ilv1].x*32+xpos,ilisting[ilv1].y*32+ypos,ilisting[ilv1].picno,state);
-		continue;
+		goto idone;
 		sliderdraw:
 		sdl_sliderdraw(ilisting[ilv1].x*32+xpos,ilisting[ilv1].y*32+ypos,ilisting[ilv1].picno,(ilisting+ilv1==control_menuitem)?(-control_menudragintx):0,ilisting[ilv1].bgcolor);
-		continue;
+		idone:;
 	}
 		
 	return 1;
@@ -910,6 +909,14 @@ int sdl_selectiondraw()
 			else
 			{
 				screen[160+ilv1+((96+ilv0)*gfx_screensizex)]=0x3F0000;
+			}
+			if (control_doublekeypressenergy>ilv1)
+			{
+				screen[160+ilv1+((101+ilv0)*gfx_screensizex)]=0xFF00;
+			}
+			else
+			{
+				screen[160+ilv1+((101+ilv0)*gfx_screensizex)]=0x3F00;
 			}
 		}
 	}

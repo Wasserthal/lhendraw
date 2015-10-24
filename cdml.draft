@@ -1,0 +1,5 @@
+Total_Document;cdml ;;
+cdml;molecule ;;
+molecule;atom bond ;;
+atom;point ;;
+point;;0 x 0 y ;

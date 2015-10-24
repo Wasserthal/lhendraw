@@ -337,9 +337,12 @@ int __attribute__((sysv_abi))CDXMLREAD__i32(char * input,void * output)
 		negative^=1;
 	}
 	iback:
-	wert+=input[ilv1]-48;
+	if (!((input[ilv1]<48) || (input[ilv1]>=58)))
+	{
+		wert+=input[ilv1]-48;
+	}
 	ilv1++;
-	if ((input[ilv1]!=0) && (!spaciatic(input[ilv1])))
+	if ((input[ilv1]>=48) && (input[ilv1]<58))
 	{
 		wert*=10;
 		goto iback;
@@ -381,9 +384,12 @@ int __attribute__((sysv_abi))CDXMLREAD__i8(char * input,void * output)
 		negative^=1;
 	}
 	iback:
-	wert+=input[ilv1]-48;
+	if (!((input[ilv1]<48) || (input[ilv1]>=58)))
+	{
+		wert+=input[ilv1]-48;
+	}
 	ilv1++;
-	if ((input[ilv1]!=0) && (!spaciatic(input[ilv1])))
+	if ((input[ilv1]>=48) && (input[ilv1]<58))
 	{
 		wert*=10;
 		goto iback;

@@ -294,8 +294,12 @@ void MACRO_DRAWPREFIX(draw_Symbol)(int SymbolType)
 	MACRO_DRAWPREFIX(stylegenestring)(1);
 	switch(SymbolType)
 	{
-		case 4 : strcpy(colorstring2,"FFFFFF");goto charge;break;
-		case 5 : strcpy(colorstring2,"FFFFFF");goto charge;break;
+		case 2 :
+		case 3 : iBBX.left-=5;
+		case 4 :
+		case 5 :
+		case 8 :
+		case 9 : strcpy(colorstring2,"FFFFFF");goto charge;break;
 		case 1 : strcpy(colorstring2,colorstring);goto radical;break;
 		case 0 : strcpy(colorstring2,colorstring);goto lonepair;break;
 		case 6 : strcpy(colorstring2,colorstring);goto dagger;break;
@@ -305,11 +309,19 @@ void MACRO_DRAWPREFIX(draw_Symbol)(int SymbolType)
 	}
 	charge:
 	MACRO_DRAWPREFIX(stylegenestring)(1,0xFFFFFFFF);
-	MACRO_DRAWPREFIX(expressellipse)(iBBX.left,iBBX.top,6,6);
+	if ((SymbolType==4) || (SymbolType==5))
+	{
+		MACRO_DRAWPREFIX(expressellipse)(iBBX.left,iBBX.top,6,6);
+	}
 	MACRO_DRAWPREFIX(expressline)(iBBX.left-3,iBBX.top,iBBX.left+3,iBBX.top);
-	if (SymbolType==4)
+	if ((SymbolType==2) || (SymbolType==4) || (SymbolType==8))
 	{
 		MACRO_DRAWPREFIX(expressline)(iBBX.left,iBBX.top-3,iBBX.left,iBBX.top+3);
+	}
+	if ((SymbolType==2) || (SymbolType==3))
+	{
+		iBBX.left+=10;
+		goto radical;
 	}
 	return;
 	radical:
@@ -596,9 +608,10 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,char hatches)
 					case 3 : sprintf(istring,"%s",((*i_n_instance).protons-i_bond_sum<=0)?"":"H");break;
 					case 4 : if ((*i_n_instance).protons-i_bond_sum>1) sprintf(istring,"%i",(*i_n_instance).protons-i_bond_sum); else istring[0]=0;break;
 					case 5 :
-					if ((*i_n_instance).charge<0) {sprintf(istring,"%i-",-(*i_n_instance).charge);break;}
-					if ((*i_n_instance).charge>0) {sprintf(istring,"%i+",(*i_n_instance).charge);break;}
-					if ((*i_n_instance).charge==0) {istring[0]=0;break;}
+/*					if ((*i_n_instance).charge<0) {sprintf(istring,"%i-",-(*i_n_instance).charge);break;}
+					if ((*i_n_instance).charge>0) {sprintf(istring,"%i+",(*i_n_instance).charge);break;}Charges are drawn separately with icons. TODO: add these icons if missing
+					if ((*i_n_instance).charge==0) {istring[0]=0;break;}*///
+					istring[0]=0;break;
 				}
 				if ((atom_actual_node[index_in_buffer].labelside==1) && (actual>=3))
 				{

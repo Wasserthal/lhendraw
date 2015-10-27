@@ -413,7 +413,7 @@ int interpretkey(int listnr=-1)
 						{
 							if (((catalogized_command_iterated_functype)(hotkeylist[ilv1].command)==LABELTEXT) && (ihot) && (tltype==STRUCTURE_OBJECTTYPE_n))
 							{
-								if (control_doublekeypressenergy>0)
+								if ((control_doublekeypressenergy>0) && (strcmp(control_keycombotextinput,hotkeylist[ilv1].key)!=0))
 								{
 									strcat(control_keycombotextinput,hotkeylist[ilv1].key);
 									strcat(control_keycombotextinput,"\uE000");
@@ -1996,8 +1996,8 @@ void issuedrag(int iposx,int iposy)
 			Symbol_instance * tl_Symbol_instance=(Symbol_instance*)control_manipulatedinstance;
 			n_instance * tl_n_instance=(n_instance*)control_manipulatedinstance2;
 			tl_angle=getangle(control_coorsx-(*tl_n_instance).xyz.x,control_coorsy-(*tl_n_instance).xyz.y);
-			(*tl_Symbol_instance).dxyz.x=cos(tl_angle)*10;
-			(*tl_Symbol_instance).dxyz.y=sin(tl_angle)*10;
+			(*tl_Symbol_instance).dxyz.x=cos(tl_angle)*13;
+			(*tl_Symbol_instance).dxyz.y=sin(tl_angle)*13;
 			break;
 		}
 		case 0x10000:
@@ -2521,7 +2521,7 @@ int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int
 					{
 						char istring[100];
 						sprintf(istring,"%i",(*ipulloutlisting).toolnr);
-						(*ipulloutlisting).LMB_function("",istring);break;
+						(*ipulloutlisting).LMB_function("1",istring);break;
 					}
 					case 4:
 					{
@@ -2636,7 +2636,13 @@ int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int
 				{
 					case 1: goto selecttool;break;
 					case 2: *((char*)(*ipulloutlisting).variable)&=~1;break;
-					case 3: (*ipulloutlisting).RMB_function("","");break;
+					case 7: //fallthrough
+					case 3: 
+					{
+						char istring[100];
+						sprintf(istring,"%i",(*ipulloutlisting).toolnr);
+						(*ipulloutlisting).RMB_function("0",istring);break;
+					}
 					case 4:
 					{
 						control_mousestate=8;
@@ -3337,6 +3343,10 @@ void control_normal()
 						if (control_mousestate==2)
 						{
 							issuedrag(control_mousex-gfx_canvasminx, control_mousey-gfx_canvasminy);
+							control_mousestate=0;
+						}
+						if (control_mousestate==0x10)
+						{
 							control_mousestate=0;
 						}
 						break;

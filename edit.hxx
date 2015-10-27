@@ -1622,6 +1622,7 @@ graphic_instance * edit_summongraphic(int * inr=NULL)
 }
 catalogized_command_funcdef(EQUILIBRIUM_ARROWS)
 {
+	printf("VAL:%s\n",value);
 	int to_value=atoi(value);
 	if (control_drawproperties.arrow_ArrowheadType!=to_value)
 	{
@@ -1631,25 +1632,31 @@ catalogized_command_funcdef(EQUILIBRIUM_ARROWS)
 			control_drawproperties.arrow_ArrowheadHead=3;
 			control_drawproperties.arrow_ArrowheadTail=3;
 			control_drawproperties.arrow_ArrowShaftSpacing=4;
-			SETITEMVARIABLES("ArrowheadType","Solid");
-			SETITEMVARIABLES("ArrowheadHead","HalfLeft");
-			SETITEMVARIABLES("ArrowheadTail","HalfLeft");
-			SETITEMVARIABLES("ArrowShaftSpacing","4");
+			if (strcmp(parameter,"1")==0)
+			{
+				SETITEMVARIABLES("ArrowheadType","Solid");
+				SETITEMVARIABLES("ArrowheadHead","HalfLeft");
+				SETITEMVARIABLES("ArrowheadTail","HalfLeft");
+				SETITEMVARIABLES("ArrowShaftSpacing","4");
+			}
 			return 1;
 		}
 	}
 	else
 	{
 		control_drawproperties.arrow_ArrowheadType=1;
+		to_value=1;
 	}
 	control_drawproperties.arrow_ArrowheadHead=2;
 	control_drawproperties.arrow_ArrowheadTail=1;
 	control_drawproperties.arrow_ArrowShaftSpacing=0;
-	if (to_value==4) to_value=1;
-	SETITEMVARIABLES("ArrowheadType",lookup_bienum(CDXML_ArrowheadType,CDXML_ArrowheadType_max,to_value));
-	SETITEMVARIABLES("ArrowheadHead",lookup_bienum(CDXML_ArrowheadHead,CDXML_ArrowheadHead_max,control_drawproperties.arrow_ArrowheadHead));
-	SETITEMVARIABLES("ArrowheadTail",lookup_bienum(CDXML_ArrowheadTail,CDXML_ArrowheadTail_max,control_drawproperties.arrow_ArrowheadTail));
-	SETITEMVARIABLES("ArrowShaftSpacing","0");
+	if (strcmp(parameter,"1")==0)
+	{
+		SETITEMVARIABLES("ArrowheadType",lookup_bienum(CDXML_ArrowheadType,CDXML_ArrowheadType_max,to_value));
+		SETITEMVARIABLES("ArrowheadHead",lookup_bienum(CDXML_ArrowheadHead,CDXML_ArrowheadHead_max,control_drawproperties.arrow_ArrowheadHead));
+		SETITEMVARIABLES("ArrowheadTail",lookup_bienum(CDXML_ArrowheadTail,CDXML_ArrowheadTail_max,control_drawproperties.arrow_ArrowheadTail));
+		SETITEMVARIABLES("ArrowShaftSpacing","0");
+	}
 	printf("Headtype%i,\n",control_drawproperties.arrow_ArrowheadType);
 	return 1;
 }
@@ -1787,11 +1794,23 @@ int atom_addsymbol(int inr,int itype)
 		(*glob_n_multilist)[inr].charge-=1;
 		break;
 	}
+	if (((itype>=2) && (itype<=5)) || ((itype>=8) && (itype<=9)))
+	{
+		int tl_Element=(*glob_n_multilist)[inr].Element;
+		if ((*glob_n_multilist)[inr].charge>0)
+		{
+			if (element[tl_Element].hasVE>4) (*glob_n_multilist)[inr].protons++; else (*glob_n_multilist)[inr].protons--;
+		}
+		if ((*glob_n_multilist)[inr].charge<0)
+		{
+			if (element[tl_Element].hasVE==3) (*glob_n_multilist)[inr].protons++; else (*glob_n_multilist)[inr].protons--;
+		}
+	}
 	TELESCOPE_aggressobject(glob_n_multilist,inr);
 	Symbol_instance tl_Symbol_instance;
 	tl_Symbol_instance.length=sizeof(Symbol_instance);
-	tl_Symbol_instance.dxyz.x=10;
-	tl_Symbol_instance.dxyz.y=-10;
+	tl_Symbol_instance.dxyz.x=9.19;
+	tl_Symbol_instance.dxyz.y=-9.19;
 	tl_Symbol_instance.dxyz.z=0;
 	tl_Symbol_instance.SymbolType=itype;
 	int wert=TELESCOPE_add(TELESCOPE_ELEMENTTYPE_Symbol,NULL,0);
@@ -3196,6 +3215,7 @@ int edit_interpretaselementwithimplicithydrogens(multilist<n_instance> * imultil
 	}
 	if (fsm==7)
 	{
+			printf("Toasted:%s\n",(char*)TELESCOPE_getproperty_contents());
 		return 0;
 	}
 	for (int ilv1=0;ilv1<sizeof(element)/sizeof(element_);ilv1++)
@@ -3208,6 +3228,7 @@ int edit_interpretaselementwithimplicithydrogens(multilist<n_instance> * imultil
 	}
 	return 0;
 	yes_its_an_element:;
+	printf("Elem:%i\n",(*imultilist)[inumber].Element);
 
 	iback2://Then, we delete any s objects of the object
 	TELESCOPE_aggressobject(imultilist,inumber);

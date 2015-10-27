@@ -52,7 +52,7 @@ menuitem pullout_toolspecific_CURVE[]={
 {2,1,
 106,//Picture
 "2",
-7,3,
+7,7,
 2,
 "hollow Arrow\n",
 "control_drawproperties.arrow_ArrowheadType",
@@ -62,7 +62,7 @@ menuitem pullout_toolspecific_CURVE[]={
 {3,1,
 107,//Picture
 "3",
-7,3,
+7,7,
 3,
 "retrosynthetic arrow\n",
 "control_drawproperties.arrow_ArrowheadType",
@@ -72,7 +72,7 @@ menuitem pullout_toolspecific_CURVE[]={
 {4,1,
 52,//Picture
 "4",
-7,3,
+7,7,
 4,
 "retrosynthetic arrow\n",
 "control_drawproperties.arrow_ArrowheadType",

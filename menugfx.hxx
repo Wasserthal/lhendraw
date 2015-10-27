@@ -786,7 +786,7 @@ void sdl_analysisdraw(int alignx,int aligny)
 	}
 	if (analysis_charge!=0)
 	{
-		if (abs(analysis_charge>1))
+		if (abs(analysis_charge)>1)
 		{
 			sprintf(analysis_string,"%i%c%n",abs(analysis_charge),(analysis_charge>0)?'+':'-',&stringincrement);
 		}

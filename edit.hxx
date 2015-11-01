@@ -2007,7 +2007,7 @@ catalogized_command_iterated_funcdef(LABELTEXT)
 	}
 	TELESCOPE_aggressobject(glob_n_multilist,iindex);
 	s_instance tl_s_instance;
-	tl_s_instance.face=control_drawproperties.face;
+	tl_s_instance.face=0x60+(control_drawproperties.face & 0xF);
 	tl_s_instance.font=1;
 	tl_s_instance.size=12;
 	tl_s_instance.type=TELESCOPE_ELEMENTTYPE_s;
@@ -3215,7 +3215,6 @@ int edit_interpretaselementwithimplicithydrogens(multilist<n_instance> * imultil
 	}
 	if (fsm==7)
 	{
-			printf("Toasted:%s\n",(char*)TELESCOPE_getproperty_contents());
 		return 0;
 	}
 	for (int ilv1=0;ilv1<sizeof(element)/sizeof(element_);ilv1++)
@@ -3228,7 +3227,6 @@ int edit_interpretaselementwithimplicithydrogens(multilist<n_instance> * imultil
 	}
 	return 0;
 	yes_its_an_element:;
-	printf("Elem:%i\n",(*imultilist)[inumber].Element);
 
 	iback2://Then, we delete any s objects of the object
 	TELESCOPE_aggressobject(imultilist,inumber);

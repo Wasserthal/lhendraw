@@ -209,6 +209,7 @@ void svg_express_txinit(char ialignment,float iposx,float iposy,float iatomfonth
 {
 	svg_text_buffer_count=0;
 	svg_text_buffer[0]=0;
+	SDL_text_fallback=0;
 	iatomfontheight=12;
 	if (ialignment & 2)//For atoms only
 	{

@@ -148,7 +148,7 @@ CONVCAMBRIDGE_COLORCONV2(t,(*tl_n_instance).color);
 						tl_format=(*(s_f_instance*)TELESCOPE_getproperty()).valids;
 						tl_formatpointer=(edit_formatstruct*)TELESCOPE_getproperty_contents();
 					}
-					for (int ilv1=0;ilv1<6;ilv1++)
+					for (int ilv1=0;ilv1<5;ilv1++)
 					{
 						if (tl_s_f_instance)
 						{
@@ -170,6 +170,7 @@ CONVCAMBRIDGE_COLORCONV2(t,(*tl_n_instance).color);
 							case 2 : if (element[tl_Element].name[2]==0) {ilv1=2;goto ifertig;}sprintf(istring,"%c",element[tl_Element].name[2]);break;
 							case 3 : sprintf(istring,"%s",((*tl_n_instance).protons-(int)i_bond_sum<=0)?"":"H");break;
 							case 4 : if ((*tl_n_instance).protons-(int)i_bond_sum>1) sprintf(istring,"%i",(*tl_n_instance).protons-(int)i_bond_sum); else istring[0]=0;break;
+							//TODO: the following ones are not used, because they do not make any sense usually. However, one might want to add charge in the text...
 							case 5 :
 							if ((*tl_n_instance).charge<0) {sprintf(istring,"%i-",-(*tl_n_instance).charge);break;}
 							if ((*tl_n_instance).charge>0) {sprintf(istring,"%i+",(*tl_n_instance).charge);break;}

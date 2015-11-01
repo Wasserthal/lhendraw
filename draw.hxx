@@ -1276,6 +1276,7 @@ tlposx+tlcos-tlsin,tlposy+tlsin+tlcos,tlposx+2*tlcos-tlsin,tlposy+2*tlsin+tlcos,
 	{
 		int tlformlabeltype=(*((s_instance*)TELESCOPE_getproperty())).face;
 		currentsetfontsize=(*((s_instance*)TELESCOPE_getproperty())).size;
+		currentsetfontsize=16;
 		#ifdef LENNARD_HACK
 		if (currentsetfontsize<=99.0)
 		{
@@ -1312,6 +1313,7 @@ tlposx+tlcos-tlsin,tlposy+tlsin+tlcos,tlposx+2*tlcos-tlsin,tlposy+2*tlsin+tlcos,
 	{
 		int tlformlabeltype=(*((s_instance*)TELESCOPE_getproperty())).face;
 		currentsetfontsize=(*((s_instance*)TELESCOPE_getproperty())).size;
+		currentsetfontsize=16;
 		if (((*((s_instance*)TELESCOPE_getproperty())).face & 0x60)==0x60)
 		{
 			tlformlabeltype=(*((s_instance*)TELESCOPE_getproperty())).effface;

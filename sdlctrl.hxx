@@ -510,8 +510,40 @@ catalogized_command_funcdef(ISSUEDELETE)
 			return 0;
 		}
 	}
+	selection_recheck(selection_currentselection,&selection_currentselection_found);
 	if (selection_currentselection_found)
 	{
+		_u32 itemselection=((selection_currentselection_found>>STRUCTURE_OBJECTTYPE_ListSize) & ((1<<STRUCTURE_OBJECTTYPE_ListSize)-1));
+		for (int ilv1=1;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
+		{
+			if (retrieveprops_basic(1,ilv1)==-1)//cannot delete elements from lists with fixed element count
+			{
+				int follower3=0;
+				icompare=1<<ilv1;
+				isize= STRUCTURE_OBJECTTYPE_List[ilv1].size;
+				basicmultilist * tlmultilist=findmultilist(STRUCTURE_OBJECTTYPE_List[ilv1].name);
+				ibufferpos=tlmultilist->pointer;
+				if (tlmultilist==NULL) goto i_listdelete_fertig;
+				for (int ilv2=0;ilv2<tlmultilist->filllevel;ilv2++)
+				{
+					if (((basic_instance*)(ibufferpos+isize*ilv2))->exist)
+					{
+						float tl_x,tl_y,tl_z;
+						//TODO: retrieve point count instead
+						for (int ilv3=1;retrievepoints_basic(((basic_instance*)(ibufferpos+isize*ilv2)),&tl_x,&tl_y,&tl_z,ilv3,ilv1);ilv3++)
+						{
+							if ((selection_currentselection[follower3] & (icompare<<STRUCTURE_OBJECTTYPE_ListSize)))
+							{
+								removepoints_basic((basic_instance*)(ibufferpos+isize*ilv2),ilv3,ilv1);
+								ilv3--;
+							}
+							follower3++;//TODO: overflow check
+						}
+					}
+				}
+				i_listdelete_fertig:;
+			}
+		}
 		i_delete_newclick:;
 		for (int ilv1=1;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
 		{
@@ -2202,6 +2234,7 @@ void issuerelease()
 												if (selection_clickabilitymatrix.types2[2] & (1<<ilv1))
 												{
 													selection_clickselection[follower]|=(1<<(ilv1+STRUCTURE_OBJECTTYPE_ListSize));
+													selection_clickselection_found|=icompare<<STRUCTURE_OBJECTTYPE_ListSize;
 													goto i_control2_skipthiscenter;
 												}
 											}
@@ -2307,6 +2340,7 @@ void issuerelease()
 												if (selection_clickabilitymatrix.types2[2] & (1<<ilv1))
 												{
 													selection_clickselection[follower]|=(1<<(ilv1+STRUCTURE_OBJECTTYPE_ListSize));
+													selection_clickselection_found|=icompare<<STRUCTURE_OBJECTTYPE_ListSize;
 													goto i_control3_skipthiscenter;
 												}
 											}
@@ -3038,6 +3072,17 @@ void issuemenudrag(int posx,int posy,char ifinal=0)
 	control_lastmenux=posx;
 	control_lastmenuy=posy;
 }
+void issueshift(int ideltax,int ideltay)
+{
+	intl tl_deltaback=0;
+	if (MODIFIER_KEYS.CTRL) {ideltax*=5;ideltay*=5;}
+	if (MODIFIER_KEYS.SHIFT) {ideltax*=25;ideltay*=25;}
+	if (MODIFIER_KEYS.ALT) {ideltax*=100;ideltay*=100;}
+	if ((storeundo(~0))>0)
+	{
+		edit_flexicopy(currentundostep,glob_n_multilist,glob_b_multilist,selection_currentselection,&tl_deltaback,ideltax,ideltay,1);
+	}
+}
 void control_normal()
 {
 	char idirection=1;
@@ -3401,21 +3446,25 @@ void control_normal()
 					case SDLK_LEFT:
 					{
 						MODIFIER_KEYS.LEFT=idirection;
+						issueshift(-1,0);
 						break;
 					}
 					case SDLK_RIGHT:
 					{
 						MODIFIER_KEYS.RIGHT=idirection;
+						issueshift(1,0);
 						break;
 					}
 					case SDLK_UP:
 					{
 						MODIFIER_KEYS.UP=idirection;
+						issueshift(0,-1);
 						break;
 					}
 					case SDLK_DOWN:
 					{
 						MODIFIER_KEYS.DOWN=idirection;
+						issueshift(0,+1);
 						break;
 					}
 					default:

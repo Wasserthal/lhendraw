@@ -61,24 +61,53 @@ void selection_ANDselection(selection_ iselection,selection_ iselection2)
 		iselection[ilv1]&=iselection2[ilv1];
 	}
 }
+extern int retrieveprops_basic(int what,int objecttype);
+extern int retrievepoints_basic(basic_instance * iinstance,float * ix,float * iy,float * iz,int inumber,int objecttype,basicmultilist * imultilist);
 void selection_recheck(selection_ iselection,_u32 * matrix)
 {
 	(*matrix)=0;
 	_u32 icompare=0;
 	int isize=0;
+	int itemcount=1;
+	int follower3;
 	for (int ilv1=1;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
 	{
 		icompare=1<<ilv1;
+		itemcount=retrieveprops_basic(1,ilv1);
 		basicmultilist * tlmultilist=findmultilist(STRUCTURE_OBJECTTYPE_List[ilv1].name);
 		isize=STRUCTURE_OBJECTTYPE_List[ilv1].size;
+		follower3=0;
 		for (int ilv2=0;ilv2<(*tlmultilist).filllevel;ilv2++)
 		{
-			if (iselection[ilv2] & icompare)
+			if ((*(basic_instance*)(((char*)(*tlmultilist).pointer)+ilv2*isize)).exist)
 			{
-				if ((*(basic_instance*)(((char*)(*tlmultilist).pointer)+ilv2*isize)).exist)
+				if (iselection[ilv2] & icompare)
 				{
 					(*matrix)|=icompare;
 					goto ifertig;
+				}
+				if (itemcount>=1)
+				{
+					for (int ilv3=0;ilv3<itemcount;ilv3++)
+					{
+						if (iselection[ilv2*itemcount] & (icompare<<STRUCTURE_OBJECTTYPE_ListSize))
+						{
+							(*matrix)|=(icompare<<STRUCTURE_OBJECTTYPE_ListSize);
+						}
+					}
+				}
+				if (itemcount<0)
+				{
+					float tl_x,tl_y,tl_z;
+					//TODO: retrieve point count instead
+					for (int ilv3=1;(retrievepoints_basic((basic_instance*)(((char*)(*tlmultilist).pointer)+ilv2*isize),&tl_x,&tl_y,&tl_z,ilv3,ilv1,NULL)>0);ilv3++)
+					{
+						if (iselection[follower3] & (icompare<<STRUCTURE_OBJECTTYPE_ListSize))
+						{
+							(*matrix)|=(icompare<<STRUCTURE_OBJECTTYPE_ListSize);
+						}
+						follower3++;//TODO: overflow
+					}
 				}
 			}
 		}

@@ -599,6 +599,77 @@ inline int retrieveprops_curve(int what)
 	}
 	return 0;
 }
+inline int removepoints(n_instance * iinstance,int inumber,basicmultilist * imultilist=NULL)
+{
+	if (inumber>0)
+	{
+		int tl_backval=0;
+		int ilv1=0;
+		if (imultilist==NULL) imultilist=glob_n_multilist;
+		tl_backval=TELESCOPE_aggressobject(imultilist,iinstance-((multilist<n_instance>*)imultilist)->bufferlist());
+		tl_backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_Symbol);
+		iback:;
+		if (tl_backval>0)
+		{
+			ilv1++;
+			Symbol_instance * tl_Symbol_instance=(Symbol_instance*)TELESCOPE_getproperty();
+			if (ilv1==inumber)
+			{
+				switch (tl_Symbol_instance->SymbolType)
+				{
+					case 2:
+					case 4:
+					case 8:
+					(*iinstance).charge--;
+					break;
+					case 3:
+					case 5:
+					case 9:
+					(*iinstance).charge--;
+					break;
+				}
+				int backval=TELESCOPE_clear_item();
+				//TODO: reCALCULATE charge!
+				return (backval>0);
+			}
+			tl_backval=TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_Symbol);
+			goto iback;
+		}
+	}
+	return 0;
+}
+inline int removepoints(b_instance * iinstance,int inumber,basicmultilist * imultilist=NULL)
+{
+	return 0;
+}
+inline int removepoints(graphic_instance * iinstance,int inumber,basicmultilist * imultilist=NULL)
+{
+	return 0;
+}
+inline int removepoints(arrow_instance * iinstance,int inumber,basicmultilist * imultilist=NULL)
+{
+	return 0;
+}
+inline int removepoints(t_instance * iinstance,int inumber,basicmultilist * imultilist=NULL)
+{
+	return 0;
+}
+inline int removepoints(curve_instance * iinstance,int inumber,basicmultilist * imultilist=NULL)
+{
+	if (inumber>0)
+	{
+		inumber--;
+		if (inumber<iinstance->CurvePoints.count)
+		{
+			for (int ilv1=inumber;ilv1<iinstance->CurvePoints.count-1;ilv1++)
+			{
+				iinstance->CurvePoints.a[ilv1]=iinstance->CurvePoints.a[ilv1+1];
+			}
+			iinstance->CurvePoints.count--;
+		}
+	}
+	return 0;
+}
 //ANY retrievepoints on an object with a negative prop count must keep it's telescope-element set to read the corresponding item
 inline int retrievepoints(n_instance * iinstance,float * ix,float * iy,float * iz,int inumber,basicmultilist * imultilist=NULL)
 {
@@ -1327,6 +1398,16 @@ template <class thisinstance> inline _u32 clickfor_template(float posx,float pos
 	return found;
 }
 
+#define LOCALMACRO_1(whatabout) case STRUCTURE_OBJECTTYPE_ ## whatabout: return removepoints((whatabout ## _instance*)iinstance,inumber,imultilist);break;
+int removepoints_basic(basic_instance * iinstance,int inumber,int objecttype,basicmultilist * imultilist=NULL)
+{
+	switch (objecttype)
+	{
+		LOCALMACROES
+	}
+	return 0;
+}
+#undef LOCALMACRO_1
 #define LOCALMACRO_1(whatabout) case STRUCTURE_OBJECTTYPE_ ## whatabout: return retrievepoints((whatabout ## _instance*)iinstance,ix,iy,iz,inumber,imultilist);break;
 int retrievepoints_basic(basic_instance * iinstance,float * ix,float * iy,float * iz,int inumber,int objecttype,basicmultilist * imultilist=NULL)
 {
@@ -1360,11 +1441,6 @@ _u32 clickfor(float ix,float iy,int objecttype,float iclickradius=constants_clic
 	return 0;
 }
 #undef LOCALMACRO_1
-
-template <class whatabout> inline int retrievepoints_relay(whatabout * iinstance,float * ix,float * iy,int inumber)//template may become unnecessary
-{
-	return retrievepoints(iinstance,ix,iy,inumber);
-}
 
 char edit_atommatch(n_instance * iinstance1,n_instance * iinstance2)
 {

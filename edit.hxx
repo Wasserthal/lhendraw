@@ -3684,7 +3684,8 @@ int edit_textlength(basicmultilist * imultilist,int iindex,int deltax=0,int delt
 				else
 				{
 					fontpixinf_ * ifontpixinf=&fontpixinf[indexfromunicode(utf8resolve((unsigned char*)istring + ilv1,&backcount))];
-					currentwidth+=(*ifontpixinf).deltax;
+					char imode=((s_instance*)TELESCOPE_getproperty())->face;
+					currentwidth+=(*ifontpixinf).deltax+((imode & 1)==1)*1+((imode & 8)==8)*2;//larger
 					if (idistance!=NULL)
 					{
 						if (deltay<height*16+8)

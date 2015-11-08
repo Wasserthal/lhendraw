@@ -615,7 +615,7 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,char hatches)
 				}
 				if ((atom_actual_node[index_in_buffer].labelside==1) && (actual>=3))
 				{
-					MACRO_DRAWPREFIX(text_rewind)((unsigned char*)istring,strlen(istring));
+					MACRO_DRAWPREFIX(text_rewind)((unsigned char*)istring,strlen(istring),(0x20*(actual==4)) | (0x40*(ilv1==5)));
 				}
 				MACRO_DRAWPREFIX(draw_printformatted)(istring,"",(0x20*(actual==4)) | (0x40*(ilv1==5)),0,strlen(istring));
 			}
@@ -1316,7 +1316,7 @@ tlposx+tlcos-tlsin,tlposy+tlsin+tlcos,tlposx+2*tlcos-tlsin,tlposy+2*tlsin+tlcos,
 		currentsetfontsize=16;
 		if (((*((s_instance*)TELESCOPE_getproperty())).face & 0x60)==0x60)
 		{
-			tlformlabeltype=(*((s_instance*)TELESCOPE_getproperty())).effface;
+			tlformlabeltype=(*((s_instance*)TELESCOPE_getproperty())).effface|(tlformlabeltype & 0x1F);
 		}
 		#ifdef CAMBRIDGESOFT_CONFORMING
 		sprintf(iparmsstring,"%s",((tlformlabeltype & 0x1) ? STRINGOUTPUT_bold : STRINGOUTPUT_emptyformat),currentsetfontsize);
@@ -1359,7 +1359,7 @@ tlposx+tlcos-tlsin,tlposy+tlsin+tlcos,tlposx+2*tlcos-tlsin,tlposy+2*tlsin+tlcos,
 		tl_sort_backval=1;
 		goto svg_text_sort_introskip;
 		svg_text_sort_back:;
-		MACRO_DRAWPREFIX(text_rewind)(((unsigned char*)TELESCOPE_getproperty_contents()),strlen(((char*)TELESCOPE_getproperty_contents())));
+		MACRO_DRAWPREFIX(text_rewind)(((unsigned char*)TELESCOPE_getproperty_contents()),strlen(((char*)TELESCOPE_getproperty_contents())),((s_instance*)(TELESCOPE_getproperty()))->face);
 		if ((tl_sort_bracketmode==2) && (sortback)) goto tl_sort_bracketmode_shortcut;
 		tl_connectmode=((((s_instance*)TELESCOPE_getproperty())->connect & 1)>0);
 		if ((sortback) && ((((s_instance*)TELESCOPE_getproperty())->connect & 2)>0))

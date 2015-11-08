@@ -1289,24 +1289,108 @@ void gfx_expressellipse(float centerx,float centery,float radiusx,float radiusy)
 	}
 }
 
-int gfx_text_rewind(unsigned char * windtext,int length)
+int gfx_text_rewind(unsigned char * windtext,int length,int imode)
 {
 	int ilv4;
 	int backcount;
+	int larger=((imode & 1)==1)*1+((imode & 8)==8)*2;
 	SDL_txcursorx=SDL_old_txcursorx;
 	SDL_txcursory=SDL_old_txcursory;
 	for (ilv4=0;ilv4<length;ilv4+=backcount)
 	{
 		fontpixinf_ * ifontpixinf=&fontpixinf[indexfromunicode(utf8resolve((unsigned char*)windtext + ilv4,&backcount))];
-		SDL_txcursorx-=(*ifontpixinf).deltax;
+		SDL_txcursorx-=(*ifontpixinf).deltax+larger;
 		SDL_txcursory-=(*ifontpixinf).deltay;
 		SDL_old_txcursorx=SDL_txcursorx;
 		SDL_old_txcursory=SDL_txcursory;
 	}
 	return 1;
 }
-void text_print_bitmap(int * posx,int * posy,fontpixinf_ * ifontpixinf)
+inline char text_print_bitmap_enhanced_getpos(int posx,int posy,char * memory,int skip,int maxx,int maxy)
 {
+	if ((posx>=0) && (posy>=0) && (posx<maxx) && (posy<maxy))
+	{
+		return ((memory[posy*skip+posx] & 0x80)!=0);
+	}
+	return 0;
+}
+void text_print_bitmap_enhanced(int * posx,int * posy,fontpixinf_ * ifontpixinf,int imode)
+{
+	int ilv1,ilv2;
+	int scanx,scany;
+	int maxx,maxy;
+	int icanvasskip=gfx_screensizex;
+	int slope=0;
+	unsigned int * icanvas=canvas;
+	int skip=(*ifontpixinf).sizex;
+	char * mempos=(*ifontpixinf).memstart;
+	scanx=(*posx)+(*ifontpixinf).pivotx;
+	scany=(*posy)+(*ifontpixinf).pivoty;
+	maxx=(*ifontpixinf).sizex;
+	maxy=(*ifontpixinf).sizey;
+	int larger=((imode & 1)==1)*1+((imode & 8)==8)*2;
+	if (gfx_txselectmode & 2)
+	{
+		gfx_expressfillrectangle(*posx,(*posy)-12,(*posx)+(*ifontpixinf).deltax+larger,(*posy)+4,(SDL_color+0xC0C0) & 0xFFFFFF);
+	}
+	if (imode & 4)
+	{
+		gfx_expressline(*posx,(*posy)+4,(*posx)+(*ifontpixinf).deltax+larger,(*posy)+4);
+	}
+	(*posx)+=(*ifontpixinf).deltax+larger;
+	(*posy)+=(*ifontpixinf).deltay;
+	if ((imode & 0x8)==0)
+	{
+		for (ilv1=0;ilv1<maxy;ilv1++)
+		{
+			if (imode & 2) slope=1-(ilv1>>2);
+			for (ilv2=0;ilv2<maxx+1;ilv2++)
+			{
+				if (text_print_bitmap_enhanced_getpos(ilv2,ilv1,mempos,skip,maxx,maxy) || (text_print_bitmap_enhanced_getpos(ilv2-1,ilv1,mempos,skip,maxx,maxy) && (imode & 1)))
+				{
+					putpixel(ilv2+slope+scanx,ilv1+scany);
+				}
+			}
+		}
+	}
+	else //outline mode
+	{
+		slope=1;
+		for (ilv1=-1;ilv1<maxy+1;ilv1++)
+		{
+			if (imode & 2) slope=2-(ilv1>>2);
+			for (ilv2=-1;ilv2<maxx+2;ilv2++)
+			{
+				if (text_print_bitmap_enhanced_getpos(ilv2,ilv1,mempos,skip,maxx,maxy) || (text_print_bitmap_enhanced_getpos(ilv2-1,ilv1,mempos,skip,maxx,maxy) && (imode & 1)))
+				{
+					//do not paint anything when on letter but do not ask about pixels around it (for speed)
+				}
+				else
+				{
+					if (imode & 1)
+					{
+						if (text_print_bitmap_enhanced_getpos(ilv2-2,ilv1,mempos,skip,maxx,maxy)) putpixel(ilv2+slope+scanx,ilv1+scany);
+						if (text_print_bitmap_enhanced_getpos(ilv2+1,ilv1,mempos,skip,maxx,maxy)) putpixel(ilv2+slope+scanx,ilv1+scany);
+						if (text_print_bitmap_enhanced_getpos(ilv2-1,ilv1-1,mempos,skip,maxx,maxy)) putpixel(ilv2+slope+scanx,ilv1+scany);
+						if (text_print_bitmap_enhanced_getpos(ilv2-1,ilv1+1,mempos,skip,maxx,maxy)) putpixel(ilv2+slope+scanx,ilv1+scany);
+						if (text_print_bitmap_enhanced_getpos(ilv2,ilv1-1,mempos,skip,maxx,maxy)) putpixel(ilv2+slope+scanx,ilv1+scany);
+						if (text_print_bitmap_enhanced_getpos(ilv2,ilv1+1,mempos,skip,maxx,maxy)) putpixel(ilv2+slope+scanx,ilv1+scany);
+					}
+					else
+					{
+						if (text_print_bitmap_enhanced_getpos(ilv2-1,ilv1,mempos,skip,maxx,maxy)) putpixel(ilv2+slope+scanx,ilv1+scany);
+						if (text_print_bitmap_enhanced_getpos(ilv2+1,ilv1,mempos,skip,maxx,maxy)) putpixel(ilv2+slope+scanx,ilv1+scany);
+						if (text_print_bitmap_enhanced_getpos(ilv2,ilv1-1,mempos,skip,maxx,maxy)) putpixel(ilv2+slope+scanx,ilv1+scany);
+						if (text_print_bitmap_enhanced_getpos(ilv2,ilv1+1,mempos,skip,maxx,maxy)) putpixel(ilv2+slope+scanx,ilv1+scany);
+					}
+				}
+			}
+		}
+	}
+}
+void text_print_bitmap(int * posx,int * posy,fontpixinf_ * ifontpixinf,int imode)
+{
+	if (imode & 0x1A) return text_print_bitmap_enhanced(posx,posy,ifontpixinf,imode);
 	int ilv1,ilv2;
 	int scanx,scany;
 	int maxx,maxy;
@@ -1318,16 +1402,21 @@ void text_print_bitmap(int * posx,int * posy,fontpixinf_ * ifontpixinf)
 	scany=(*posy)+(*ifontpixinf).pivoty;
 	maxx=(*ifontpixinf).sizex+scanx;
 	maxy=(*ifontpixinf).sizey+scany;
+	int larger=((imode & 1)==1)*1;
 	if (scanx<0) {mempos-=scanx;scanx=0;}
 	if (scany<0) {mempos-=scany*skip;scany=0;}
-	if (maxx>=gfx_canvassizex) maxx=gfx_canvassizex-1;
+	if (maxx>=gfx_canvassizex) maxx=gfx_canvassizex-1-larger;
 	if (maxy>=gfx_canvassizey) maxy=gfx_canvassizey-1;
 	skip-=maxx-scanx;
 	if (gfx_txselectmode & 2)
 	{
-		gfx_expressfillrectangle(*posx,(*posy)-12,(*posx)+(*ifontpixinf).deltax,(*posy)+4,(SDL_color+0xC0C0) & 0xFFFFFF);
+		gfx_expressfillrectangle(*posx,(*posy)-12,(*posx)+(*ifontpixinf).deltax+larger,(*posy)+4,(SDL_color+0xC0C0) & 0xFFFFFF);
 	}
-	(*posx)+=(*ifontpixinf).deltax;
+	if (imode & 4)
+	{
+		gfx_expressline(*posx,(*posy)+4,(*posx)+(*ifontpixinf).deltax+larger,(*posy)+4);
+	}
+	(*posx)+=(*ifontpixinf).deltax+larger;
 	(*posy)+=(*ifontpixinf).deltay;
 	if ((scanx>=maxx) || (scany>=maxy))
 	{
@@ -1342,6 +1431,7 @@ void text_print_bitmap(int * posx,int * posy,fontpixinf_ * ifontpixinf)
 			if (*(mempos) & 0x80)
 			{
 				*(icanvas)=SDL_color;
+				if (imode & 1) *(icanvas+1)=SDL_color;
 			}
 			icanvas++;
 			mempos++;
@@ -1382,7 +1472,7 @@ void gfx_printformatted(const char * iinput,const char * parms,int imode,int sta
 		if (imode & 0x20) {i_offsy=4;}
 		if (imode & 0x40) {i_offsy=-4;}
 		SDL_txcursory+=i_offsy;
-		text_print_bitmap(&SDL_txcursorx,&SDL_txcursory,&fontpixinf[indexfromunicode(utf8resolve((unsigned char*)iinput + ilv4,&backcount))]);
+		text_print_bitmap(&SDL_txcursorx,&SDL_txcursory,&fontpixinf[indexfromunicode(utf8resolve((unsigned char*)iinput + ilv4,&backcount))],imode);
 		SDL_txcursory-=i_offsy;
 	}
 	skipfornow:

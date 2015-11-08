@@ -2621,6 +2621,37 @@ int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int
 						}
 						break;
 					}
+					case 0x15:
+					{
+						if (control_mousestate & 0x40)
+						{
+							char * icursor;
+							control_splitattextcursor();
+							control_aggresstextcursor("\uE000");
+							if (control_textedit_selectmode==1)
+							{
+								icursorback:
+								icursor=(char*)TELESCOPE_getproperty_contents();
+								if ((strstr(icursor,"\uE001")==NULL))
+								{
+									(*(s_instance*)TELESCOPE_getproperty()).face^=(*ipulloutlisting).toolnr;
+									int tl_backvalue=TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_s);
+									if (tl_backvalue>0) goto icursorback;
+								}
+							}
+							else
+							{
+								icursor=(char*)TELESCOPE_getproperty_contents();
+								if (icursor[3]!=0)
+								{
+									TELESCOPE_split(3,"",1);
+									control_aggresstextcursor("\uE000");
+								}
+								(*(s_instance*)TELESCOPE_getproperty()).face^=(*ipulloutlisting).toolnr;
+							}
+						}
+						break;
+					}
 					case 0x103:
 					{
 						if ((pixeloriginposy-(posy*32))>=24)

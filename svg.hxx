@@ -247,7 +247,7 @@ void svg_tail()
 	fprintf(outfile,"</svg>");
 	fclose(outfile);
 }
-int svg_text_rewind(const _u8 * sizestring,int length)
+int svg_text_rewind(const _u8 * sizestring,int length,int imode)
 {
 	if (svg_text_buffer_count>=svg_text_buffer_max-1)
 	{

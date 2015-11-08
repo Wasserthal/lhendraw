@@ -91,7 +91,7 @@ void ps_stylegenestring(int flags,unsigned int fillcolor=0)
 {
 	ps_linestyle=flags;
 }
-int ps_text_rewind(const _u8 * sizestring,int length)
+int ps_text_rewind(const _u8 * sizestring,int length,int imode)
 {
 	fprintf(outfile,"exch 0 exch sub exch rmoveto\n");
 	fprintf(outfile,"(");

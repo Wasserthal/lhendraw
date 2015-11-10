@@ -43,6 +43,7 @@ LLLLLL H   H EEEEE N    N DDD   R  R A     A    W     W
 #include "./generated/structure.hxx"
 #include "./generated/configfilestructure.hxx"
 #include "./generated/cambridgestructure.hxx"
+#include "./generated/bkchemstructure.hxx"
 int undo_getbufferfromstructure(basicmultilist * input,TELESCOPE_buffer * * bufferptr);
 #include "parsecdxml_variables.hxx"
 #include "janitor.hxx"

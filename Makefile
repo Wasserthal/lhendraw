@@ -29,7 +29,7 @@ commandline: ./generated/filestructure.hxx ./generated/internalstructure.hxx par
 	./tools/filestructure_maker -m filestructure.draft ./generated/filestructure.hxx ./generated/initialization_parsexml.hxx '' 
 	./tools/filestructure_maker -l internalstructure.draft ./generated/internalstructure.hxx ./generated/initialization_parsexml.hxx INTERNAL ./generated/propertylist_lhendraw.hxx ./generated/propertydirectory_lhendraw.hxx
 	echo '}' >> ./generated/initialization_parsexml.hxx
-./generated/structure.hxx ./generated/cambridgestructure.hxx ./generated/initialization_lhendraw.hxx ./generated/configfilestructure.hxx ./generated/multilistlistfile.hxx ./generated/propertydirectory_lhendraw.hxx: ./tools/filestructure_maker internalstructure.draft filestructure.draft configfile.draft
+./generated/structure.hxx ./generated/cambridgestructure.hxx ./generated/initialization_lhendraw.hxx ./generated/configfilestructure.hxx ./generated/multilistlistfile.hxx ./generated/propertydirectory_lhendraw.hxx: ./tools/filestructure_maker internalstructure.draft filestructure.draft configfile.draft bkchem.draft
 	mkdir ./generated ; true
 	rm ./generated/initialization_lhendraw.hxx ; rm ./generated/propertylist_lhendraw.hxx ; rm ./generated/propertydirectory_lhendraw.hxx ; rm ./generated/multilistlistfile.hxx ; true
 	./tools/filestructure_maker -l0 internalstructure.draft ./generated/structure.hxx ./generated/initialization_lhendraw.hxx '' ./generated/propertylist_lhendraw.hxx ./generated/propertydirectory_lhendraw.hxx

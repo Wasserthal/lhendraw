@@ -233,10 +233,8 @@ void getatoms()//makes some preprocessing
 			bond_actual_node[ilv1].xcotanleft[1]=Pi/2;
 			bond_actual_node[ilv1].xcotanright[0]=Pi/2;
 			bond_actual_node[ilv1].xcotanright[1]=Pi/2;
-			bond_actual_node[ilv1].numberleft[0]=-1;
-			bond_actual_node[ilv1].numberleft[1]=-1;
-			bond_actual_node[ilv1].numberright[0]=-1;
-			bond_actual_node[ilv1].numberright[1]=-1;
+			bond_actual_node[ilv1].leftdefined=0;
+			bond_actual_node[ilv1].rightdefined=0;
 			char diagnose_foundstart,diagnose_foundend;
 			diagnose_foundstart=0;diagnose_foundend=0;
 			for (int ilv2=0;ilv2<(*glob_n_multilist).filllevel;ilv2++)
@@ -320,11 +318,11 @@ void getatoms()//makes some preprocessing
 				//if the atom is a start atom, the bond has to be treated backwards
 				if (tlleftnr!=-1)
 				{
-					(*i_bond_actual_node).numberleft[(*i_bond_actual_node).start==ilv1]=tlleftnr;
+					(*i_bond_actual_node).leftdefined|=1<<((*i_bond_actual_node).start==ilv1);
 				}
 				if (tlrightnr!=-1)
 				{
-					(*i_bond_actual_node).numberright[(*i_bond_actual_node).start==ilv1]=tlrightnr;
+					(*i_bond_actual_node).rightdefined|=1<<((*i_bond_actual_node).start==ilv1);
 				}
 				if (tlleftest<Pi)
 				{

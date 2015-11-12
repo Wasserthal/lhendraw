@@ -87,7 +87,7 @@ struct bond_actual_node_
 	_small start,end;
 	float cotanleft[2],cotanright[2];//fw,bw==end,start NOTE: when [1], right and left are also seen from the other side.
 	float xcotanleft[2],xcotanright[2];//fw,bw==end,start NOTE: when [1], right and left are also seen from the other side.
-	int numberleft[2],numberright[2];
+	char leftdefined,rightdefined;
 };
 
 bond_actual_node_ * bond_actual_node;

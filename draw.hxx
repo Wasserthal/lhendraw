@@ -1172,13 +1172,13 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,char hatches)
 		float tlrighttan2=0;
 		if (specialE==0)
 		{
-			if ((bond_actual_node[index_in_buffer]).numberleft[0]!=-1) {tllefttan=tan(Pi/2-bond_actual_node[index_in_buffer].cotanleft[0]);}else{if ((bond_actual_node[index_in_buffer]).numberright[0]!=-1){tllefttan=tan(bond_actual_node[index_in_buffer].xcotanright[0]/2);}}
-			if ((bond_actual_node[index_in_buffer]).numberright[0]!=-1) {tlrighttan=tan(Pi/2-bond_actual_node[index_in_buffer].cotanright[0]);}else{if ((bond_actual_node[index_in_buffer]).numberleft[0]!=-1){tlrighttan=tan(bond_actual_node[index_in_buffer].xcotanleft[0]/2);}}
+			if ((bond_actual_node[index_in_buffer]).leftdefined & 1) {tllefttan=tan(Pi/2-bond_actual_node[index_in_buffer].cotanleft[0]);}else{if ((bond_actual_node[index_in_buffer]).rightdefined & 1){tllefttan=tan(bond_actual_node[index_in_buffer].xcotanright[0]/2);}}
+			if ((bond_actual_node[index_in_buffer]).rightdefined & 1) {tlrighttan=tan(Pi/2-bond_actual_node[index_in_buffer].cotanright[0]);}else{if ((bond_actual_node[index_in_buffer]).leftdefined & 1){tlrighttan=tan(bond_actual_node[index_in_buffer].xcotanleft[0]/2);}}
 		}
 		if (specialS==0)
 		{
-			if ((bond_actual_node[index_in_buffer]).numberleft[1]!=-1) {tllefttan2=tan(Pi/2-bond_actual_node[index_in_buffer].cotanleft[1]);}else{if ((bond_actual_node[index_in_buffer]).numberright[1]!=-1){tllefttan2=tan(bond_actual_node[index_in_buffer].xcotanright[1]/2);}}
-			if ((bond_actual_node[index_in_buffer]).numberright[1]!=-1) {tlrighttan2=tan(Pi/2-bond_actual_node[index_in_buffer].cotanright[1]);}else{if ((bond_actual_node[index_in_buffer]).numberleft[1]!=-1){tlrighttan2=tan(bond_actual_node[index_in_buffer].xcotanleft[1]/2);}}
+			if ((bond_actual_node[index_in_buffer]).leftdefined & 2) {tllefttan2=tan(Pi/2-bond_actual_node[index_in_buffer].cotanleft[1]);}else{if ((bond_actual_node[index_in_buffer]).rightdefined & 2){tllefttan2=tan(bond_actual_node[index_in_buffer].xcotanright[1]/2);}}
+			if ((bond_actual_node[index_in_buffer]).rightdefined & 2) {tlrighttan2=tan(Pi/2-bond_actual_node[index_in_buffer].cotanright[1]);}else{if ((bond_actual_node[index_in_buffer]).leftdefined & 2){tlrighttan2=tan(bond_actual_node[index_in_buffer].xcotanleft[1]/2);}}
 		}
 		if ((iDisplaytype1==2) || (iDisplaytype1==3) || (iDisplaytype1==4))
 		{

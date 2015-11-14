@@ -216,6 +216,8 @@ void CAMBRIDGECONV_text()
 	multilist<n_instance> * tl_n_multilist=retrievemultilist<n_instance>();
 	t_instance tl_t_instance;
 	s_instance tl_s_instance;
+	tl_s_instance.length=sizeof(s_instance);
+	tl_s_instance.type=TELESCOPE_ELEMENTTYPE_s;
 	for (int ilv1=0;ilv1<(*tl_CAMBRIDGE_t_multilist).filllevel;ilv1++)
 	{
 		atommode=0;
@@ -320,6 +322,8 @@ int CAMBRIDGECONV_represent(CAMBRIDGE_graphic_instance * tl_CAMBRIDGE_graphic_in
 	{
 		TELESCOPE_aggressobject(glob_n_multilist,n_index);
 		Symbol_instance tl_Symbol_instance;
+		tl_Symbol_instance.length=sizeof(Symbol_instance);
+		tl_Symbol_instance.type=TELESCOPE_ELEMENTTYPE_Symbol;
 		CAMBRIDGECONV_COLORCONV2(Symbol,graphic);
 		tl_Symbol_instance.SymbolType=(*tl_CAMBRIDGE_graphic_instance).SymbolType;
 		tl_Symbol_instance.dxyz.x=(*tl_CAMBRIDGE_graphic_instance).BoundingBox.left-(*i_n_instance).xyz.x;

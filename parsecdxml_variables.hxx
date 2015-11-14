@@ -82,6 +82,25 @@ structenum control_filememory
 };
 char control_currentdirectory[1024];
 char control_filenamehead[256];
+int control_setfilename(const char * ifilename)
+{
+	int istrpos;
+	for (int ilv1=strlen(ifilename)-1;ilv1>=0;ilv1--)
+	{
+		if (ifilename[ilv1]==constants_Directoryslash)
+		{
+			istrpos=ilv1;
+			goto ifound;
+		}
+	}
+	return 0;
+	ifound:;
+	strncpy(control_currentdirectory,ifilename,istrpos+1);
+	control_currentdirectory[istrpos]=0;
+	strcpy(control_filenamehead,ifilename+istrpos+1);
+	if (strcmp(control_filenamehead,"")==0) return 0;
+	return 1;
+}
 void TELESCOPE_measure(int tag,TELESCOPE_buffer * ibuffer)
 {
 	TELESCOPE * start;

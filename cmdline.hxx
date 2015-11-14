@@ -77,7 +77,7 @@ void executeparameter(const char which,int parameter,int posinparameter,int argc
 		case 'I' :      control_GUI=0; control_interactive=0;control_force=1;break;
 		case 'f' :      control_force|=1;break;
 		case 'F' :      control_force&=0;break;
-		case 'o' :      strncpy(control_filename,getparameter(parameter,posinparameter,parameter_filetype,NULL,argc,argv),stringlength-1);control_filename[stringlength-1]=0;strncpy(control_filetype,parameter_filetype,stringlength-1);control_filetype[stringlength-1]=0;control_saveuponexit=1;break;
+		case 'o' :      strncpy(control_filename,getparameter(parameter,posinparameter,parameter_filetype,NULL,argc,argv),stringlength-1);control_filename[stringlength-1]=0;strncpy(control_filetype,parameter_filetype,stringlength-1);control_filetype[stringlength-1]=0;control_saveuponexit=1;if (control_setfilename(control_filename)<=0) {fprintf(stderr,"Warning! Cannot set filename!\n");}break;
 //		case 'f' :      strncpy(control_filename,getparameter(parameter,posinparameter,parameter_filetype,NULL,argc,argv),stringlength-1);control_filename[stringlength-1]=0;strncpy(control_filetype,parameter_filetype,stringlength-1);control_filetype[stringlength-1]=0;break;
 		case 'w' :      parameter_filetype=NULL;parameter_filename=getparameter(parameter,posinparameter,parameter_filetype,NULL,argc,argv);SAVE_TYPE(parameter_filename,parameter_filetype);break;
 		case 'l' :      parameter_filetype=NULL;parameter_filename=getparameter(parameter,posinparameter,parameter_filetype,NULL,argc,argv);LOAD_TYPE(parameter_filename,parameter_filetype);break;

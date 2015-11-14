@@ -2082,6 +2082,8 @@ catalogized_command_iterated_funcdef(LABELTEXT)
 	}
 	TELESCOPE_aggressobject(glob_n_multilist,iindex);
 	s_instance tl_s_instance;
+	tl_s_instance.length=sizeof(s_instance);
+	tl_s_instance.type=TELESCOPE_ELEMENTTYPE_s;
 	tl_s_instance.face=0x60+(control_drawproperties.face & 0xF);
 	tl_s_instance.font=1;
 	tl_s_instance.size=12;
@@ -2713,6 +2715,11 @@ catalogized_command_funcdef(SAVE_TYPE)
 	{
 		return svg_main(ifile);
 	}
+	if (control_save_selection==0)
+	{
+		strncpy(control_filename,parameter,stringlength*2);
+		control_setfilename(parameter);
+	}
 	for (int ilv1=0;ilv1<multilist_count;ilv1++)
 	{
 		if (multilistlist[ilv1].usage==1)
@@ -2901,6 +2908,11 @@ catalogized_command_funcdef(LOAD_TYPE)
 		}
 	}
 	currentinstance=new(CAMBRIDGEPREFIX(Total_Document_instance));//TODO mem: leaks
+	if (control_save_selection==0)
+	{
+		strncpy(control_filename,parameter,stringlength*2);
+		control_setfilename(parameter);
+	}
 	if (strcmp(value,".cdxml")==0)
 	{
 		input_fsm(infile);

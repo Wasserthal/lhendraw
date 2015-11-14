@@ -1883,12 +1883,13 @@ int atom_addsymbol(int inr,int itype)
 	TELESCOPE_aggressobject(glob_n_multilist,inr);
 	Symbol_instance tl_Symbol_instance;
 	tl_Symbol_instance.length=sizeof(Symbol_instance);
+	tl_Symbol_instance.type=TELESCOPE_ELEMENTTYPE_Symbol;
 	tl_Symbol_instance.dxyz.x=9.19;
 	tl_Symbol_instance.dxyz.y=-9.19;
 	tl_Symbol_instance.dxyz.z=0;
 	tl_Symbol_instance.SymbolType=itype;
 	int wert=TELESCOPE_add(TELESCOPE_ELEMENTTYPE_Symbol,NULL,0);
-	if (wert)
+	if (wert>0)
 	{
 		*((Symbol_instance*)TELESCOPE_getproperty())=tl_Symbol_instance;
 	}

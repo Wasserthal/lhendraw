@@ -245,15 +245,22 @@ int main(int argc,char * * argv)
 		fprintf(outfile,"        %s %s;\n",(properties_type_nrs[ilv1]!=0)?properties_types[ilv1]:"//",properties[ilv1]);
 	}
 	
-	fprintf(outfile,"        static AUTOSTRUCT_cstyle_vtable INTERNAL_cstyle_vtable;\n	AUTOSTRUCT_GET_ROUTINE(contents,%i)\n        AUTOSTRUCT_PROPERTY_ROUTINE(%i)\n        %s%s_instance();\n        ~%s%s_instance(){}\n};\nAUTOSTRUCT_cstyle_vtable %s%s_instance::INTERNAL_cstyle_vtable={%s%s_instance::properties,%i,%s%s_instance::contents,%i};\nsuperconstellation %s%s_instance::contents[]={\n",contents_count,properties_count,datablockstring,name,datablockstring,name,datablockstring,name,datablockstring,name,properties_count,datablockstring,name,contents_count,datablockstring,name);
-	if (internalmode&1)
+	if (!linemode)
 	{
-		for (int ilv1=0;ilv1<contents_count;ilv1++)
+		fprintf(outfile,"        static AUTOSTRUCT_cstyle_vtable INTERNAL_cstyle_vtable;\n	AUTOSTRUCT_GET_ROUTINE(contents,%i)\n        AUTOSTRUCT_PROPERTY_ROUTINE(%i)\n        %s%s_instance();\n        ~%s%s_instance(){}\n};\nAUTOSTRUCT_cstyle_vtable %s%s_instance::INTERNAL_cstyle_vtable={%s%s_instance::properties,%i,%s%s_instance::contents,%i};\nsuperconstellation %s%s_instance::contents[]={\n",contents_count,properties_count,datablockstring,name,datablockstring,name,datablockstring,name,datablockstring,name,properties_count,datablockstring,name,contents_count,datablockstring,name);
+		if (internalmode&1)
 		{
-			fprintf(outfile,"{\"%s\",offsetof(%s%s_instance,%s)}%s\n",contents[ilv1],datablockstring,name,contents[ilv1],(ilv1==contents_count-1) ? "" : ",");
+			for (int ilv1=0;ilv1<contents_count;ilv1++)
+			{
+				fprintf(outfile,"{\"%s\",offsetof(%s%s_instance,%s)}%s\n",contents[ilv1],datablockstring,name,contents[ilv1],(ilv1==contents_count-1) ? "" : ",");
+			}
 		}
+		fprintf(outfile,"};\n");
 	}
-	fprintf(outfile,"};\n");
+	else
+	{
+		fprintf(outfile,"        static AUTOSTRUCT_cstyle_vtable INTERNAL_cstyle_vtable;\n	static superconstellation properties[];\n      %s%s_instance();\n        ~%s%s_instance(){}\n};\nAUTOSTRUCT_cstyle_vtable %s%s_instance::INTERNAL_cstyle_vtable={%s%s_instance::properties,%i,NULL,0};\n",datablockstring,name,datablockstring,name,datablockstring,name,datablockstring,name,properties_count);
+	}
 	for (int ilv1=0;ilv1<properties_count;ilv1++)
 	{
 		if ((properties_type_nrs[ilv1]==5) || (properties_type_nrs[ilv1]==4) || (properties_type_nrs[ilv1]==7))

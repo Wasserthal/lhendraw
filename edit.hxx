@@ -3728,28 +3728,28 @@ int edit_textlength(basicmultilist * imultilist,int iindex,int deltax=0,int delt
 	return 0;
 }
 int menu_itembyname(const char * name,int * menu=NULL,int * index=NULL);
-catalogized_command_funcdef(FILEDLG_FILE_SORT)
+void edit_filesort(char i_buffer[255][256],_u32 * i_attribs,structenum * i_filememory)
 {
 	int diffresult=0;
 	for (int ilv1=0;ilv1<control_filememory.count-1;ilv1++)
 	{
-		for (int ilv2=ilv1+1;ilv2<control_filememory.count;ilv2++)
+		for (int ilv2=ilv1+1;ilv2<(*i_filememory).count;ilv2++)
 		{
-			if (strncmp(control_filememory_buffer[ilv1],control_filememory_buffer[ilv2],255)>0)
+			if (strncmp(i_buffer[ilv1],i_buffer[ilv2],255)>0)
 			{
 				for (int ilv3=0;ilv3<255;ilv3++)
 				{
-					char swap=control_filememory_buffer[ilv1][ilv3];
-					control_filememory_buffer[ilv1][ilv3]=control_filememory_buffer[ilv2][ilv3];
-					control_filememory_buffer[ilv2][ilv3]=swap;
+					char swap=i_buffer[ilv1][ilv3];
+					i_buffer[ilv1][ilv3]=i_buffer[ilv2][ilv3];
+					i_buffer[ilv2][ilv3]=swap;
 				}
-				_u32 swap=control_filememory_attribs[ilv1];
-				control_filememory_attribs[ilv1]=control_filememory_attribs[ilv2];
-				control_filememory_attribs[ilv2]=swap;
+				_u32 swap=i_attribs[ilv1];
+				i_attribs[ilv1]=i_attribs[ilv2];
+				i_attribs[ilv2]=swap;
 			}
 		}
 	}
-	return 1;
+	return;
 }
 catalogized_command_funcdef(FILEDLG_DEVICE_SEL)
 {
@@ -3771,7 +3771,7 @@ catalogized_command_funcdef(FILEDLG_DEVICE_SEL)
 		closedir(DD);
 		control_filememory.scroll=0;
 		control_filememory.number=0;
-		FILEDLG_FILE_SORT("","");
+		edit_filesort(control_filememory_buffer,control_filememory_attribs,&control_filememory);
 		menu_selectedmenuelement=menu_itembyname("FILEDLG_FILE_SEL");
 		return 1;
 	}
@@ -3798,7 +3798,7 @@ catalogized_command_funcdef(FILEDLG_FILE_SEL)
 		control_filememory.scroll=0;
 		control_filememory.number=0;
 		closedir(DD);
-		FILEDLG_FILE_SORT("","");
+		edit_filesort(control_filememory_buffer,control_filememory_attribs,&control_filememory);
 	}
 	else
 	{
@@ -3828,12 +3828,186 @@ catalogized_command_funcdef(FILEDLG_FILE_PATH)
 		control_filememory.number=0;
 		menu_selectedmenuelement=menu_itembyname("FILEDLG_FILE_HEAD");
 		closedir(DD);
-		FILEDLG_FILE_SORT("","");
+		edit_filesort(control_filememory_buffer,control_filememory_attribs,&control_filememory);
 		return 1;
 	}
 	return -30;
 }
 catalogized_command_funcdef(FILEDLG_FILE_HEAD)
+{
+	menu_selectedmenuelement=0;
+	return 1;
+}
+catalogized_command_funcdef(FILEDLG_DEVICE_SEL_PORT)
+{
+	DIR * DD=opendir(parameter);
+	struct dirent * dirpy;
+	if (DD)
+	{
+		control_filememory_port.count=0;
+		for (int ilv1=0;ilv1<255;ilv1++)
+		{
+			dirpy=readdir(DD);
+			if (dirpy==NULL) goto readfinished;
+			strncpy(control_filememory_port_buffer[ilv1],dirpy->d_name,255);control_filememory_port_buffer[ilv1][255]=0;
+			strncpy(control_currentdirectory_port,parameter,255);control_currentdirectory_port[255]=0;
+			control_filememory_port_attribs[ilv1]=dirpy->d_type;
+			control_filememory_port.count++;
+		}
+		readfinished:;
+		closedir(DD);
+		control_filememory_port.scroll=0;
+		control_filememory_port.number=0;
+		edit_filesort(control_filememory_port_buffer,control_filememory_port_attribs,&control_filememory_port);
+		menu_selectedmenuelement=menu_itembyname("FILEDLG_FILE_SEL_PORT");
+		return 1;
+	}
+	return -30;
+}
+catalogized_command_funcdef(FILEDLG_FILE_SEL_PORT)
+{
+	int formerlength=strlen(control_currentdirectory_port);
+	sprintf(control_currentdirectory_port+strlen(control_currentdirectory_port),"%c%s",constants_Directoryslash,parameter);//TODO: limit
+	DIR * DD=opendir(control_currentdirectory_port);
+	struct dirent * dirpy;
+	if (DD)
+	{
+		control_filememory_port.count=0;
+		for (int ilv1=0;ilv1<255;ilv1++)
+		{
+			dirpy=readdir(DD);
+			if (dirpy==NULL) goto readfinished;
+			strncpy(control_filememory_port_buffer[ilv1],dirpy->d_name,255);control_filememory_port_buffer[ilv1][255]=0;
+			control_filememory_port_attribs[ilv1]=dirpy->d_type;
+			control_filememory_port.count++;
+		}
+		readfinished:;
+		control_filememory_port.scroll=0;
+		control_filememory_port.number=0;
+		closedir(DD);
+		edit_filesort(control_filememory_port_buffer,control_filememory_port_attribs,&control_filememory_port);
+	}
+	else
+	{
+		control_currentdirectory_port[formerlength]=0;
+		strncpy(control_filenamehead_port,parameter,255);control_filenamehead_port[255]=0;
+		menu_selectedmenuelement=menu_itembyname("FILEDLG_FILE_HEAD_PORT");
+	}
+	return 1;
+}
+catalogized_command_funcdef(FILEDLG_FILE_PATH_PORT)
+{
+	DIR * DD=opendir(control_currentdirectory_port);
+	struct dirent * dirpy;
+	if (DD)
+	{
+		control_filememory_port.count=0;
+		for (int ilv1=0;ilv1<255;ilv1++)
+		{
+			dirpy=readdir(DD);
+			if (dirpy==NULL) goto readfinished;
+			strncpy(control_filememory_port_buffer[ilv1],dirpy->d_name,255);control_filememory_port_buffer[ilv1][255]=0;
+			control_filememory_port_attribs[ilv1]=dirpy->d_type;
+			control_filememory_port.count++;
+		}
+		readfinished:;
+		control_filememory_port.scroll=0;
+		control_filememory_port.number=0;
+		menu_selectedmenuelement=menu_itembyname("FILEDLG_FILE_HEAD_PORT");
+		closedir(DD);
+		edit_filesort(control_filememory_port_buffer,control_filememory_port_attribs,&control_filememory_port);
+		return 1;
+	}
+	return -30;
+}
+catalogized_command_funcdef(FILEDLG_FILE_HEAD_PORT)
+{
+	menu_selectedmenuelement=0;
+	return 1;
+}
+catalogized_command_funcdef(FILEDLG_DEVICE_SEL_SEARCH)
+{
+	DIR * DD=opendir(parameter);
+	struct dirent * dirpy;
+	if (DD)
+	{
+		control_filememory_search.count=0;
+		for (int ilv1=0;ilv1<255;ilv1++)
+		{
+			dirpy=readdir(DD);
+			if (dirpy==NULL) goto readfinished;
+			strncpy(control_filememory_search_buffer[ilv1],dirpy->d_name,255);control_filememory_search_buffer[ilv1][255]=0;
+			strncpy(control_currentdirectory_search,parameter,255);control_currentdirectory_search[255]=0;
+			control_filememory_search_attribs[ilv1]=dirpy->d_type;
+			control_filememory_search.count++;
+		}
+		readfinished:;
+		closedir(DD);
+		control_filememory_search.scroll=0;
+		control_filememory_search.number=0;
+		edit_filesort(control_filememory_search_buffer,control_filememory_search_attribs,&control_filememory_search);
+		menu_selectedmenuelement=menu_itembyname("FILEDLG_FILE_SEL_SEARCH");
+		return 1;
+	}
+	return -30;
+}
+catalogized_command_funcdef(FILEDLG_FILE_SEL_SEARCH)
+{
+	int formerlength=strlen(control_currentdirectory_search);
+	sprintf(control_currentdirectory_search+strlen(control_currentdirectory_search),"%c%s",constants_Directoryslash,parameter);//TODO: limit
+	DIR * DD=opendir(control_currentdirectory_search);
+	struct dirent * dirpy;
+	if (DD)
+	{
+		control_filememory_search.count=0;
+		for (int ilv1=0;ilv1<255;ilv1++)
+		{
+			dirpy=readdir(DD);
+			if (dirpy==NULL) goto readfinished;
+			strncpy(control_filememory_search_buffer[ilv1],dirpy->d_name,255);control_filememory_search_buffer[ilv1][255]=0;
+			control_filememory_search_attribs[ilv1]=dirpy->d_type;
+			control_filememory_search.count++;
+		}
+		readfinished:;
+		control_filememory_search.scroll=0;
+		control_filememory_search.number=0;
+		closedir(DD);
+		edit_filesort(control_filememory_search_buffer,control_filememory_search_attribs,&control_filememory_search);
+	}
+	else
+	{
+		control_currentdirectory_search[formerlength]=0;
+		strncpy(control_filenamehead_search,parameter,255);control_filenamehead_search[255]=0;
+		menu_selectedmenuelement=menu_itembyname("FILEDLG_FILE_HEAD_SEARCH");
+	}
+	return 1;
+}
+catalogized_command_funcdef(FILEDLG_FILE_PATH_SEARCH)
+{
+	DIR * DD=opendir(control_currentdirectory_search);
+	struct dirent * dirpy;
+	if (DD)
+	{
+		control_filememory_search.count=0;
+		for (int ilv1=0;ilv1<255;ilv1++)
+		{
+			dirpy=readdir(DD);
+			if (dirpy==NULL) goto readfinished;
+			strncpy(control_filememory_search_buffer[ilv1],dirpy->d_name,255);control_filememory_search_buffer[ilv1][255]=0;
+			control_filememory_search_attribs[ilv1]=dirpy->d_type;
+			control_filememory_search.count++;
+		}
+		readfinished:;
+		control_filememory_search.scroll=0;
+		control_filememory_search.number=0;
+		menu_selectedmenuelement=menu_itembyname("FILEDLG_FILE_HEAD_SEARCH");
+		closedir(DD);
+		edit_filesort(control_filememory_search_buffer,control_filememory_search_attribs,&control_filememory_search);
+		return 1;
+	}
+	return -30;
+}
+catalogized_command_funcdef(FILEDLG_FILE_HEAD_SEARCH)
 {
 	menu_selectedmenuelement=0;
 	return 1;
@@ -3864,15 +4038,15 @@ catalogized_command_funcdef(FILEDLG_FILE_SAVE)
 }
 catalogized_command_funcdef(FILEDLG_FILE_EXPORT)
 {
-	if (strcmp(control_filenamehead,"")==0)
+	if (strcmp(control_filenamehead_port,"")==0)
 	{
 		return -41;
 	}
-	DIR * DD=opendir(control_currentdirectory);
+	DIR * DD=opendir(control_currentdirectory_port);
 	char retval=-30;
 	if (DD)
 	{
-		sprintf(control_totalfilename,"%s/%s",control_currentdirectory,control_filenamehead);
+		sprintf(control_totalfilename,"%s/%s",control_currentdirectory_port,control_filenamehead_port);
 		control_save_selection=1;
 		retval=SAVE_TYPE(control_totalfilename,"");//TODO: insert selected type
 		control_save_selection=0;
@@ -3911,15 +4085,15 @@ catalogized_command_funcdef(FILEDLG_FILE_LOAD)
 }
 catalogized_command_funcdef(FILEDLG_FILE_IMPORT)
 {
-	if (strcmp(control_filenamehead,"")==0)
+	if (strcmp(control_filenamehead_port,"")==0)
 	{
 		return -41;
 	}
-	DIR * DD=opendir(control_currentdirectory);
+	DIR * DD=opendir(control_currentdirectory_port);
 	char retval=-30;
 	if (DD)
 	{
-		sprintf(control_totalfilename,"%s/%s",control_currentdirectory,control_filenamehead);
+		sprintf(control_totalfilename,"%s/%s",control_currentdirectory_port,control_filenamehead_port);
 		retval=LOAD_TYPE(control_totalfilename,"");//TODO: insert selected type
 		if (retval>=1)
 		{
@@ -5042,9 +5216,9 @@ catalogized_command_funcdef(SEARCHFILE)
 }
 catalogized_command_funcdef(FILEDLG_FILE_SEARCH)
 {
-	char currentfilename[stringlength*2+2];
-	DIR * DD=opendir(control_currentdirectory);
-	printf("%s\n",control_currentdirectory);
+	char currentfilename_search[stringlength*2+2];
+	DIR * DD=opendir(control_currentdirectory_search);
+	printf("%s\n",control_currentdirectory_search);
 	struct dirent * dirpy;
 	int retval=-30;
 	if (DD)
@@ -5053,20 +5227,20 @@ catalogized_command_funcdef(FILEDLG_FILE_SEARCH)
 		{
 			dirpy=readdir(DD);
 			if (dirpy==NULL) goto readfinished;
-			strncpy(currentfilename,control_currentdirectory,stringlength);
-			strncat(currentfilename,"/",1);
-			strncat(currentfilename,dirpy->d_name,stringlength);
-			currentfilename[stringlength*2+1]=0;
-			FILE * testfile=fopen(currentfilename,"r");
+			strncpy(currentfilename_search,control_currentdirectory_search,stringlength);
+			strncat(currentfilename_search,"/",1);
+			strncat(currentfilename_search,dirpy->d_name,stringlength);
+			currentfilename_search[stringlength*2+1]=0;
+			FILE * testfile=fopen(currentfilename_search,"r");
 			if (testfile)
 			{
 				fclose(testfile);
-				if (SEARCHFILE(currentfilename,"")>0)
+				if (SEARCHFILE(currentfilename_search,"")>0)
 				{
 					char orderstring[stringlength*3+3];
-					if (strchr(currentfilename,'\'')==NULL)
+					if (strchr(currentfilename_search,'\'')==NULL)
 					{
-						sprintf(orderstring,"lhendraw '%s' &",currentfilename);
+						sprintf(orderstring,"lhendraw '%s' &",currentfilename_search);
 						system(orderstring);
 					}
 				}

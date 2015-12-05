@@ -67,6 +67,11 @@ TELESCOPE_tempvar_ TELESCOPE_debugvar;
 char control_filememory_buffer[255][256];
 char control_devicememory_buffer[255][64];
 _u32 control_filememory_attribs[255];
+char control_filememory_port_buffer[255][256];
+_u32 control_filememory_port_attribs[255];
+char control_filememory_search_buffer[255][256];
+_u32 control_filememory_search_attribs[255];
+//TODO: how are the attribs connected?
 int menu_selectedmenuelement;
 char control_filemenu_mode=0;
 int undo_undodirty=0;//set when undo was stored just to become immediately modified in the same command, like the storeundo at issueclick
@@ -80,8 +85,22 @@ structenum control_filememory
 	{"control_filememory"},
 	0,255,&control_filememory_buffer,1,sizeof(control_filememory_buffer[0]),-1,0,
 };
-char control_currentdirectory[1024];
-char control_filenamehead[256];
+structenum control_filememory_port
+{
+	{"control_filememory_port"},
+	0,255,&control_filememory_port_buffer,1,sizeof(control_filememory_port_buffer[0]),-1,0,
+};
+structenum control_filememory_search
+{
+	{"control_filememory_search"},
+	0,255,&control_filememory_search_buffer,1,sizeof(control_filememory_search_buffer[0]),-1,0,
+};
+char control_currentdirectory[1024]="";
+char control_filenamehead[256]="";
+char control_currentdirectory_port[1024]="";
+char control_filenamehead_port[256]="";
+char control_currentdirectory_search[1024]="";
+char control_filenamehead_search[256]="";
 int control_setfilename(const char * ifilename)
 {
 	int istrpos;
@@ -92,6 +111,12 @@ int control_setfilename(const char * ifilename)
 			istrpos=ilv1;
 			goto ifound;
 		}
+	}
+	if (strlen(ifilename)!=0)
+	{
+		control_currentdirectory[0]='.';
+		control_currentdirectory[1]=0;
+		return 1;
 	}
 	return 0;
 	ifound:;

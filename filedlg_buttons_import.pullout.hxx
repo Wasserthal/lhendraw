@@ -1,7 +1,7 @@
 menuitem pullout_filedlg_buttons_import[]={
 {100,-32,
 33,//Picture
-"Load",
+"Import",
 3,0,
 0,
 "EXPORT",

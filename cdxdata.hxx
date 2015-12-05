@@ -832,13 +832,13 @@ struct trienum
 struct fuenum
 {
 	int owner;//which unit it came from
-	char name[20];
+	char name[33];
 	catalogized_command_functype function;
 	int type;//0: single 1: iterated
 };
 struct structenum
 {
-	char name[25];
+	char name[33];
 	int count;//actual count
 	int max;//max numbers. only valid if list is intended to be variable.
 	void * pointer;

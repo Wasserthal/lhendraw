@@ -2493,6 +2493,11 @@ void save_bmp(gfx_bufferset_ & target,FILE * ifile,_i32 width,_i32 height)
 	}
 	fwrite(target.screen,4*width*height,1,ifile);
 }
+catalogized_command_funcdef(PRINT_HIRES)
+{
+	control_export.hires=1;
+	return 1;
+}
 int save_image(FILE * ifile,const char * value)
 {
 	float left,top,fwidth,fheight;
@@ -2533,6 +2538,23 @@ int save_image(FILE * ifile,const char * value)
 	for (int ilv1=0;ilv1<width*height;ilv1++)
 	{
 		*(((_u8*)(screen+ilv1))+3)=0xFF-*(((_u8*)(screen+ilv1))+3);
+	}
+	if (control_export.hires)
+	{
+		HQ_inmemory=(_RGB*)target.screen;
+		HQ_outmemory=(_RGB*)malloc(16*width*height);//indended TEMPORARY malloc
+		HQ_insizex=width;
+		HQ_insizey=height;
+		HQ_mainloop();
+		free(target.screen);
+		target.screen=(_u32*)HQ_outmemory;
+		width*=2;
+		height*=2;
+		target.screensizex=width;
+		target.screensizey=height;
+		target.canvas=target.screen;
+		target.canvassizex=width;
+		target.canvassizey=height;
 	}
 	if (strcmp(value,".png")==0)
 	{

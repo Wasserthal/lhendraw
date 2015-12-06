@@ -60,7 +60,8 @@ int control_menutextedithorziscroll=0;
 int control_menutexteditcursor=0;
 struct control_export_
 {
-	int bmp_compression=0;//0: normal;3:ARGB,32bpp only
+	int bmp_compression=0;//0: normal 3:ARGB,32bpp only
+	int hires=0;//0: not 1: use HQ_filter
 }control_export;
 TELESCOPE_tempvar_ TELESCOPE_tempvar;
 TELESCOPE_tempvar_ TELESCOPE_debugvar;

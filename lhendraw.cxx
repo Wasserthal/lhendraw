@@ -93,6 +93,7 @@ int restoreundo(_u32 flags,_u32 orderflags);
 int undo_trackundo();
 int undo_trackredo(int variable);
 #include "analysis.hxx"
+#include "HQ.h"
 #include "edit.hxx"
 #include "pivot.hxx"
 #include "./generated/pullout_stringfile.hxx"
@@ -168,6 +169,7 @@ int main(int argc,char * * argv)
 	signal(SIGSYS,&Signal);
 	signal(SIGPIPE,&Signal);
 #endif
+	control_export.hires=0;
 	if (sizeof(bond_actual_node_)>sizeof(b_instance))
 	{
 		fprintf(stderr,"Conceptual programming error, Helpstructure b > structure b\n");exit(1);

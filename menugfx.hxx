@@ -58,18 +58,18 @@ int draw_drawmarkpoint(int x,int y,int gfxno,int number,char noclip)
 	{
 		for (int ilv2=0;ilv2<8;ilv2++)
 		{
-			ARGB pixin;
+			_RGB pixin;
 			if ((((y+ilv1)>=gfx_canvasminy) && ((y+ilv1)<gfx_canvasmaxy) && ((x+ilv2)>=gfx_canvasminx) && ((x+ilv2)<gfx_canvasmaxx)) || (noclip))
 			{
-				pixin.A=screen[(y+ilv1)*gfx_screensizex+x+ilv2];
-				ARGB bitsin;
-				bitsin.A=ibutton[ilv1*32+ilv2];
-				int alpha=(_u8)bitsin.c[3];//no ENDIAN problem. bit order still from file!
+				pixin.W=screen[(y+ilv1)*gfx_screensizex+x+ilv2];
+				_RGB bitsin;
+				bitsin.W=ibutton[ilv1*32+ilv2];
+				int alpha=(_u8)bitsin.a[3];//no ENDIAN problem. bit order still from file!
 				for (int ilv3=0;ilv3<4;ilv3++)
 				{
-					pixin.c[ilv3]=(((256-alpha)*(_u8)(pixin.c[ilv3]))>>8)+(((alpha)*(_u8)(bitsin.c[ilv3]))>>8);
+					pixin.a[ilv3]=(((256-alpha)*(_u8)(pixin.a[ilv3]))>>8)+(((alpha)*(_u8)(bitsin.a[ilv3]))>>8);
 				}
-				screen[(y+ilv1)*gfx_screensizex+x+ilv2]=pixin.A;
+				screen[(y+ilv1)*gfx_screensizex+x+ilv2]=pixin.W;
 			}
 		}
 	}

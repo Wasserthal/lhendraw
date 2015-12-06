@@ -27,11 +27,19 @@ float Pi=3.141592654;
 #define _small int
 #define minfloat -1.0e20
 #define maxfloat 1.0e20
-union ARGB
+typedef struct _ARGB
 {
-	_u32 A;
-	char c[4];
-};
+	_u8 A;
+	_u8 R;
+	_u8 G;
+	_u8 B;
+}_ARGB;
+typedef union _RGB
+{
+	_u32 W;
+	_u8 a[4];
+	_ARGB c;
+}_RGB;
 inline intl sqr(intl input)
 {
 	return input*input;

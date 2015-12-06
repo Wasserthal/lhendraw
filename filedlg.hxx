@@ -297,7 +297,7 @@ void control_filedlg()
 							if (((*tl_pulloutlisting).lmbmode&(0xFFFF))==0x302)
 							{
 								tl_editedstring=numberstring;
-								sprintf(tl_editedstring,"%i",*(int*)(tl_pulloutlisting[ilv1].variable));
+								sprintf(tl_editedstring,"%i",*(int*)(tl_pulloutlisting->variable));
 							}
 							if (control_menutexteditcursor>strlen(tl_editedstring)) control_menutexteditcursor=strlen(tl_editedstring);
 							tl_symboltype=sentenumeric(tl_editedstring[control_menutexteditcursor]);

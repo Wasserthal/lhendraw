@@ -4116,7 +4116,9 @@ catalogized_command_funcdef(FILEDLG_FILE_IMPORT)
 	if (DD)
 	{
 		sprintf(control_totalfilename,"%s/%s",control_currentdirectory_port,control_filenamehead_port);
+		control_save_selection=1;
 		retval=LOAD_TYPE(control_totalfilename,"");//TODO: insert selected type
+		control_save_selection=0;
 		if (retval>=1)
 		{
 			LHENDRAW_filedlgmode=0;

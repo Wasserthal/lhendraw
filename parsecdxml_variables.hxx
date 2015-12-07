@@ -117,6 +117,7 @@ int control_setfilename(const char * ifilename)
 	{
 		control_currentdirectory[0]='.';
 		control_currentdirectory[1]=0;
+		strcpy(control_filenamehead,ifilename);
 		return 1;
 	}
 	return 0;

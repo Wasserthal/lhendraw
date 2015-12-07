@@ -237,7 +237,7 @@ void cmdline(int argc,char ** argv)
 	{
 		if (argmeanings[ilv1]==2)
 		{
-			LOAD_TYPE(argv[ilv1],"");
+			if (LOAD_TYPE(argv[ilv1],"")==0) control_setfilename(argv[ilv1]);
 		}
 	}
 	for (int ilv1=1;ilv1<argc;ilv1++)

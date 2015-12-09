@@ -2809,7 +2809,7 @@ fprintf(ifile,"%s","</colortable><fonttable>\n"
 	}
 	if (strcmp(value,".cdx")==0)
 	{
-		fprintf(ifile,"VCjD\1\2\3\4");
+		fprintf(ifile,"VjCD0100\4\3\2\1");
 		_u16 iu16=0;
 		for (int ilv1=0;ilv1<5;ilv1++)fwrite(&iu16,2,1,ifile);
 		printf("SAVING CDX\n");

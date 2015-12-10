@@ -5229,6 +5229,7 @@ catalogized_command_funcdef(SEARCHFILE)
 {
 	int retval;
 	storeundo(~0);
+	selection_clearselection(selection_currentselection);
 	SELECTALL("","1");
 	retval=LOAD_TYPE(parameter,value);
 	if (retval>0)

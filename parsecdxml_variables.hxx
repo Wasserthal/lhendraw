@@ -118,13 +118,17 @@ int control_setfilename(const char * ifilename)
 		control_currentdirectory[0]='.';
 		control_currentdirectory[1]=0;
 		strcpy(control_filenamehead,ifilename);
-		return 1;
+		goto correct;
 	}
 	return 0;
 	ifound:;
 	strncpy(control_currentdirectory,ifilename,istrpos+1);
 	control_currentdirectory[istrpos]=0;
 	strcpy(control_filenamehead,ifilename+istrpos+1);
+	correct:;
+	#ifndef SDL2
+	SDL_WM_SetCaption(control_filenamehead,control_filenamehead);
+	#endif
 	if (strcmp(control_filenamehead,"")==0) return 0;
 	return 1;
 }

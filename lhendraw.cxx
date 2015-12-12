@@ -45,12 +45,12 @@ LLLLLL H   H EEEEE N    N DDD   R  R A     A    W     W
 #include "./generated/cambridgestructure.hxx"
 #include "./generated/bkchemstructure.hxx"
 int undo_getbufferfromstructure(basicmultilist * input,TELESCOPE_buffer * * bufferptr);
+#include <SDL.h>
 #include "parsecdxml_variables.hxx"
 #include "janitor.hxx"
 #include "ellipeq.h"
 #include "quartic.hxx"
 #include <time.h>
-#include <SDL.h>
 #ifndef NOPOSIX
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -239,6 +239,8 @@ int main(int argc,char * * argv)
 		svg_findaround();
 		sdl_init();
 #ifndef SDL2
+		SDL_WM_SetCaption(control_filenamehead,control_filenamehead);
+		resources_set_icon();
 		SDL_EnableUNICODE(1);
 		SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY,SDL_DEFAULT_REPEAT_INTERVAL);
 //		SDL_ShowCursor(0);

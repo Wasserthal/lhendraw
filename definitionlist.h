@@ -108,6 +108,8 @@ bienum CDXML_objectcodes_List[]={
 };
 int CDXML_objectcodes_ListSize=sizeof(CDXML_objectcodes_List)/sizeof(CDXML_objectcodes_List[0]);
 bienum CDXML_propertycodes_List[]={
+{"CreationProgram",0x3},
+{"Name",0x8},
 {"Comment",0x9},
 {"Z",0xA},
 {"Warning",0x10},

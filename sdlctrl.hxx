@@ -3517,13 +3517,15 @@ void control_normal()
 					switch (control_Event.key.keysym.sym)
 					{
 						case SDLK_ESCAPE:
+						if (control_aggresstextcursor("\uE001"))
+						{
+							TELESCOPE_shrink(control_textedit_cursor,3);
+							control_textedit_selectmode=0;
+							break;
+						}
 						if (control_aggresstextcursor())
 						{
 							TELESCOPE_shrink(control_textedit_cursor,3);
-							if (control_aggresstextcursor("\uE001"))
-							{
-								TELESCOPE_shrink(control_textedit_cursor,3);
-							}
 							if (control_textedit_type==STRUCTURE_OBJECTTYPE_n)
 							{
 								edit_resortstring(glob_n_multilist,control_textedit_index);
@@ -3566,15 +3568,39 @@ void control_normal()
 						}
 						break;
 						case SDLK_DOWN:
+						if ((control_textedit_selectmode==0) && (MODIFIER_KEYS.SHIFT))
+						{
+							if (control_aggresstextcursor("\uE000"))
+							{
+								TELESCOPE_insertintoproperties_offset("\uE001",3,control_textedit_cursor);
+								control_textedit_selectmode=1;
+							}
+						}
 						tl_alternate=3;
 						tl_counter=0;
 						goto iTEXT_HOME_RESTART;//searches for a BEGINNING of the line, first!
 						case SDLK_UP:
+						if ((control_textedit_selectmode==0) && (MODIFIER_KEYS.SHIFT))
+						{
+							if (control_aggresstextcursor("\uE000"))
+							{
+								TELESCOPE_insertintoproperties_offset("\uE001",3,control_textedit_cursor+3);
+								control_textedit_selectmode=1;
+							}
+						}
 						tl_alternate=2;
 						tl_counter=0;
-						//FALLTHROUGH
-						case SDLK_HOME://FALLTHROUGH:
+						goto iTEXT_HOME_RESTART;
+						case SDLK_HOME:
 						{
+							if ((control_textedit_selectmode==0) && (MODIFIER_KEYS.SHIFT))
+                                                        {
+                                                                if (control_aggresstextcursor("\uE000"))
+                                                                {
+									TELESCOPE_insertintoproperties_offset("\uE001",3,control_textedit_cursor+3);
+                                                                        control_textedit_selectmode=1;
+                                                                }
+                                                        }
 							iTEXT_HOME_RESTART:;
 							if (control_aggresstextcursor())
 							{
@@ -3595,6 +3621,14 @@ void control_normal()
 						break;
 						case SDLK_END:
 						{
+							if ((control_textedit_selectmode==0) && (MODIFIER_KEYS.SHIFT))
+                                                        {
+                                                                if (control_aggresstextcursor("\uE000"))
+                                                                {
+									TELESCOPE_insertintoproperties_offset("\uE001",3,control_textedit_cursor);
+                                                                        control_textedit_selectmode=1;
+                                                                }
+                                                        }
 							tl_hadrun=0;
 							if (control_aggresstextcursor())
 							{

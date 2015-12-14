@@ -220,7 +220,7 @@ int main(int argc,char * * argv)
 	control_clickabilitymatrixes[10]=({clickabilitymatrix_ tl_clickabilitymatrix={2,0,0,
 	{0xFFFFFFFF,0x2,0x22,0x2,0x22,0x2,0x0,0xFFFFFFFF}};tl_clickabilitymatrix;});
 	control_clickabilitymatrixes[10]=({clickabilitymatrix_ tl_clickabilitymatrix={2,0,0,
-	{0xFFFFFFFF,0x2,0x22,0x2,0x22,0x2,0x0,0xFFFFFFFF}};tl_clickabilitymatrix;});
+	{0xFFFFFFFF,0x6,0x22,0x2,0x22,0x2,0x0,0xFFFFFFFF}};tl_clickabilitymatrix;});
 	control_clickabilitymatrixes[11]=({clickabilitymatrix_ tl_clickabilitymatrix={2,0,0,
 	{0xFFFFFFFF,0xA,0xA,0x8,0xA,0xA,0x0,0xFFFFFFFF}};tl_clickabilitymatrix;});
 	control_clickabilitymatrixes[17]=({clickabilitymatrix_ tl_clickabilitymatrix={2,0,0,

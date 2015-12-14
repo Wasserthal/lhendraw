@@ -1,7 +1,7 @@
 //Processes the commandline parameters
 char argmeanings[1000];//0: filename which is wanted 1: interpret this 2: Filename, to be read at start
-char parametersthatwantfilename[]={"oslcnw-"};
-char parametersexecutedimmediately[]={"Ioh"};
+char parametersthatwantfilename[]={"oslcnwf-"};
+char parametersexecutedimmediately[]={"IFioh"};
 char * parameter_filename;
 char * parameter_filetype;
 int parameter_argc;
@@ -74,13 +74,15 @@ void executeparameter(const char which,int parameter,int posinparameter,int argc
 	posinparameter++;
 	switch(which)
 	{
-		case 'I' :      control_GUI=0; control_interactive=0;control_force=1;break;
-		case 'f' :      control_force|=1;break;
-		case 'F' :      control_force&=0;break;
+		case 'I' :      control_GUI=0; control_interactive=0;break;
+		case 'i' :	control_interactive=1;
+		case 'F' :      control_force|=1;break;
+		case 'O' :	control_saveuponexit=0;break;
 		case 'o' :      strncpy(control_filename,getparameter(parameter,posinparameter,parameter_filetype,NULL,argc,argv),stringlength-1);control_filename[stringlength-1]=0;strncpy(control_filetype,parameter_filetype,stringlength-1);control_filetype[stringlength-1]=0;control_saveuponexit=1;if (control_setfilename(control_filename)<=0) {fprintf(stderr,"Warning! Cannot set filename!\n");}break;
-//		case 'f' :      strncpy(control_filename,getparameter(parameter,posinparameter,parameter_filetype,NULL,argc,argv),stringlength-1);control_filename[stringlength-1]=0;strncpy(control_filetype,parameter_filetype,stringlength-1);control_filetype[stringlength-1]=0;break;
+		case 'f' :      strncpy(control_filename,getparameter(parameter,posinparameter,parameter_filetype,NULL,argc,argv),stringlength-1);control_filename[stringlength-1]=0;strncpy(control_filetype,parameter_filetype,stringlength-1);control_filetype[stringlength-1]=0;if (control_setfilename(control_filename)<=0) {fprintf(stderr,"Warning! Cannot set filename!\n");}break;
 		case 'w' :      parameter_filetype=NULL;parameter_filename=getparameter(parameter,posinparameter,parameter_filetype,NULL,argc,argv);SAVE_TYPE(parameter_filename,parameter_filetype);break;
 		case 'l' :      parameter_filetype=NULL;parameter_filename=getparameter(parameter,posinparameter,parameter_filetype,NULL,argc,argv);LOAD_TYPE(parameter_filename,parameter_filetype);break;
+		case 'e' :      parameter_filetype=NULL;parameter_filename=getparameter(parameter,posinparameter,parameter_filetype,NULL,argc,argv);LOAD_TYPE(parameter_filename,parameter_filetype);break;
 		case '5' :	WARN_HYPERC("","");
 		case '-' :      if ((argv[parameter][posinparameter])!=0)
 				{
@@ -108,7 +110,7 @@ void executeparameter(const char which,int parameter,int posinparameter,int argc
 				break;
 		case 'h' :      printf(
 "Usage:\n"
-"lhendraw [-I] [-o output] [-<parameter> <parameter_filename>] (...) <filename> (...)\n"
+"lhendraw [-I] [-o output] [-<parameter> <parameter_filename>] (...) <filename> (...) [--search] <filenames>\n"
 "filenames and parameter_filename combinations may be mixed\n"
 "the \"output\" file is always saved when the program exits\n"
 "Its name is stored in the same register as the \"current\"\n"
@@ -117,10 +119,10 @@ void executeparameter(const char which,int parameter,int posinparameter,int argc
 "All other parameters are processed AFTERWARDS(sic)\n"
 "\n"
 "Parameters:\n"
-"-I      : No gui. implies f\n"
+"-I      : No gui. Doesn't run interactively\n"
 "-o<fn>  : specify output-filename/filetype. Will be saved at end. Is stored as the current document's filename\n"
-"-f      : run non-interactively\n"
-"-F      : Run interactively. overrides the f of -I\n"
+"-F      : Doesn't ask questions. Overwrites files. Use with more caution\n"
+"-i      : Run interactively. No meaning in the current situation\n"
 "Commands, processed in order:\n"
 "-w<fn>  : saves to filename. Set no current filename\n"
 "-l<fn>  : loads. Set no current filename\n"
@@ -132,7 +134,8 @@ void executeparameter(const char which,int parameter,int posinparameter,int argc
 "--      : Interpret the following parameters as filenames, to be additively loaded at start\n"
 "-N<fn>  : Un-loads the current file and un-sets the current filename, just as New File. Defeats -o.\n"
 "-n<fn>  : searches, in the specified file, for the chemical pattern which is loaded before\n"
-"          files with matches are printed on stdout. One match per file.\n"
+"          files with matches are printed on stdout. (unlike GUI search, when a new Instance of lhendraw\n"
+"          with that file is loaded). One match per file.\n"
 "--search: searches, like -n, but in all follwing files. All following parameters are treated as files to investigate.\n"
 "\n"
 "Example:\n"

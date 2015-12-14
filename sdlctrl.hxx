@@ -2947,13 +2947,13 @@ int textedit_left()
 			}
 			else
 			{
-				wert=0;
+				wert=-1;
 			}
 			skipfail:;
 		}
 		else
 		{
-			wert=0;
+			wert=-1;
 		}
 	}
 	utf8encompass((char*)TELESCOPE_getproperty_contents(),&control_textedit_cursor,&tl_length);
@@ -3444,7 +3444,7 @@ void control_normal()
 					}
 					case SDLK_BACKSPACE:
 					{
-						if (idirection)
+						if ((idirection) && (control_mousestate==0))
 						{
 							if (control_tool==12)
 							{
@@ -3473,29 +3473,30 @@ void control_normal()
 								}
 							}
 						}
+						break;
 					}
 					case SDLK_LEFT:
 					{
 						MODIFIER_KEYS.LEFT=idirection;
-						issueshift(-1,0);
+						if ((idirection) && (control_mousestate==0)) issueshift(-1,0);
 						break;
 					}
 					case SDLK_RIGHT:
 					{
 						MODIFIER_KEYS.RIGHT=idirection;
-						issueshift(1,0);
+						if ((idirection) && (control_mousestate==0)) issueshift(1,0);
 						break;
 					}
 					case SDLK_UP:
 					{
 						MODIFIER_KEYS.UP=idirection;
-						issueshift(0,-1);
+						if ((idirection) && (control_mousestate==0)) issueshift(0,-1);
 						break;
 					}
 					case SDLK_DOWN:
 					{
 						MODIFIER_KEYS.DOWN=idirection;
-						issueshift(0,+1);
+						if ((idirection) && (control_mousestate==0)) issueshift(0,+1);
 						break;
 					}
 					default:
@@ -3619,11 +3620,13 @@ void control_normal()
 								control_squashselection();
 								break;
 							}
-							textedit_left();
-							control_textedit_cursor+=3;
-							if (utf8encompass((char*)TELESCOPE_getproperty_contents(),&control_textedit_cursor,&tl_length)>0)
+							if (textedit_left()>=0)
 							{
-								TELESCOPE_shrink(control_textedit_cursor,tl_length);
+								control_textedit_cursor+=3;
+								if (utf8encompass((char*)TELESCOPE_getproperty_contents(),&control_textedit_cursor,&tl_length)>0)
+								{
+									TELESCOPE_shrink(control_textedit_cursor,tl_length);
+								}
 							}
 						}
 						break;

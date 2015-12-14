@@ -344,6 +344,13 @@ void gfx_expressline(float ileft,float itop,float iright,float ibottom)
 	}
 	if (abs(x2-x)>=abs(y2-y))
 	{
+		if (SDL_linestyle&4)
+		{
+			SDL_linestyle&=~4;
+			gfx_expressline(ileft,itop-1,iright,ibottom-1);
+			gfx_expressline(ileft,itop+1,iright,ibottom+1);
+			SDL_linestyle|=4;
+		}
 		if (x2==x)//it can be that still x width is zero.
 		{
 			canvas[gfx_screensizex*y2+x]=SDL_color;
@@ -379,6 +386,13 @@ void gfx_expressline(float ileft,float itop,float iright,float ibottom)
 	}
 	else
 	{
+		if (SDL_linestyle&4)
+		{
+			SDL_linestyle&=~4;
+			gfx_expressline(ileft-1,itop,iright-1,ibottom);
+			gfx_expressline(ileft+1,itop,iright+1,ibottom);
+			SDL_linestyle|=4;
+		}
 		if (y2<y)
 		{
 			x3=x;

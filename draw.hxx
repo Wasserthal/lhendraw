@@ -698,7 +698,7 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,char hatches)
 	colornr=(*i_graphic_instance).color;
 	tlGraphicType=(*i_graphic_instance).GraphicType;
 //	tlAngularSize=(*i_graphic_instance).AngularSize;//TODO: Make sure no graphics are created from something with an angular size
-	currentLineType=(*i_graphic_instance).LineType;
+	currentLineType=(*i_graphic_instance).LineType;//0: normal 2: Bold 0x100: Double
 	MACRO_DRAWPREFIX(get_colorstring)(colornr);
 	ellipsoid.reset();
 	currentArrowHeadType=1;
@@ -710,7 +710,6 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,char hatches)
 	tllefttan2=0;
 	tlrighttan2=0;
 	langle=0;cangle=0;
-	currentLineType=0;//0: normal 2: Bold 0x100: Double
 	currentEllipsemode=0;
 /*	if ((*i_graphic_instance).ArrowType & 1)
 	{

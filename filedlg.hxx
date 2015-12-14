@@ -386,7 +386,7 @@ void control_filedlg()
 								case SDLK_BACKSPACE:
 								{
 									control_menutexteditcursor--;
-									if (control_menutexteditcursor<0) {control_menutexteditcursor=0;arrester=1;}
+									if (control_menutexteditcursor<0) {control_menutexteditcursor=0;arrester=1;break;}
 									if (control_menutextedithorziscroll>control_menutexteditcursor) {control_menutextedithorziscroll=control_menutexteditcursor;arrester=1;}
 									if (control_menutexteditcursor>=1)
 									{

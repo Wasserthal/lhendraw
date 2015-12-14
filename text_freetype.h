@@ -185,7 +185,7 @@ void fontpixinf_add(FT_GlyphSlot islot,int iunicode)
 	fontpixinf[fontpixinf_count].unicode=iunicode;
 	for (int ilv1=0;ilv1<length;ilv1++)
 	{
-		fontpixbuffer[fontpixbuffer_count++]=(*islot).bitmap.buffer[ilv1];
+		fontpixbuffer[fontpixbuffer_count++]=(((_u8)(*islot).bitmap.buffer[ilv1])>65)?0x80:0;
 	}
 	fontpixinf_count++;
 }

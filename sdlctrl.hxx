@@ -103,23 +103,6 @@ control_toolinfo_ control_toolinfo[]=
 	{(_u32)~0,7,-1},//eraser
 	{(_u32)~0,0,0},//Arrow
 };
-void CONTROL_ZOOMIN(float ifactor,char i_direction)
-{
-	if (i_direction==1)
-	{
-		SDL_zoomx/=ifactor;
-		SDL_zoomy/=ifactor;
-		SDL_scrollx+=(control_Event.button.x-gfx_canvasminx)*((1/ifactor)-1)/SDL_zoomx;
-		SDL_scrolly+=(control_Event.button.y-gfx_canvasminy)*((1/ifactor)-1)/SDL_zoomy;
-	}
-	else
-	{
-		SDL_zoomx*=ifactor;
-		SDL_zoomy*=ifactor;
-		SDL_scrollx+=(control_Event.button.x-gfx_canvasminx)*(ifactor-1)/SDL_zoomx;
-		SDL_scrolly+=(control_Event.button.y-gfx_canvasminy)*(ifactor-1)/SDL_zoomy;
-	}
-}
 
 void checkupinconsistencies()
 {
@@ -304,7 +287,9 @@ int interpretkey(int listnr=-1)
 		case SDLK_F14: keystring[0]='F';keystring[1]='1';keystring[2]='4';break;
 		case SDLK_F15: keystring[0]='F';keystring[1]='1';keystring[2]='5';break;
 		case SDLK_MENU: strncpy(keystring,"MENU",4);break;
-		case SDLK_BACKSPACE: strncpy(keystring,"BACKSPACE",4);break;
+		case SDLK_KP_PLUS: strncpy(keystring,"NUM+",4);break;
+		case SDLK_KP_MINUS: strncpy(keystring,"NUM-",4);break;
+		case SDLK_BACKSPACE: strncpy(keystring,"BCKS",4);break;
 		case SDLK_TAB: strncpy(keystring,"TAB",4);break;
 		case SDLK_RETURN: strncpy(keystring,"RET",4);break;
 		case SDLK_DELETE: strncpy(keystring,"DEL",4);break;
@@ -392,7 +377,6 @@ int interpretkey(int listnr=-1)
 				{
 					if ((hotkeylist[ilv1].modifiers & ((~((_u32)(1-careaboutshift)))))==modifierpattern)
 					{
-
 						if ((undostored==0) && (hotkeylist[ilv1].UNDO & 1)) {storeundo(~0); undostored=1;}
 						if (tltype & 0x40000)
 						{
@@ -2424,7 +2408,7 @@ void issuerelease()
 			}
 			else
 			{
-				CONTROL_ZOOMIN(1.414213562,(control_lastmousebutton==SDL_BUTTON_RIGHT)*2-1);
+				ZOOM((control_lastmousebutton==SDL_BUTTON_RIGHT)?"-":"+","1.414213562");
 			}
 			break;
 		}
@@ -3263,12 +3247,13 @@ void control_normal()
 						control_doublekeypressenergy=0;
 						if (MODIFIER_KEYS.CTRL)
 						{
-							float tl_factor=1.414213562;
+							char * tl_factor;
+							tl_factor=(char*)"1.414213562";
 							if (MODIFIER_KEYS.ALT)
 							{
-								tl_factor=1.090507733;
+								tl_factor=(char*)"1.090507733";
 							}
-							CONTROL_ZOOMIN(tl_factor,idirection);
+							ZOOM((idirection>0)?"-":"+",tl_factor);
 							break;
 						}
 						if (MODIFIER_KEYS.SHIFT)

@@ -2227,6 +2227,14 @@ catalogized_command_funcdef(FILE_NEW)
 extern float control_coorsx;
 extern float control_coorsy;
 void checkupinconsistencies();
+catalogized_command_iterated_funcdef(CHARGE)
+{
+	if (imultilist==glob_n_multilist)
+	{
+		atom_addsymbol(iindex,(value[0]=='+')?4:5);
+	}
+	return 1;
+}
 catalogized_command_funcdef(CHUP)
 {
 	checkupinconsistencies();
@@ -3046,6 +3054,24 @@ catalogized_command_funcdef(OPEN_PSE)
 catalogized_command_funcdef(HOME)
 {
 	SDL_zoomx=1;SDL_zoomy=1;SDL_scrollx=0;SDL_scrolly=0;
+	return 1;
+}
+catalogized_command_funcdef(ZOOM)
+{
+	SDL_scrollx+=(gfx_canvassizex/2)/SDL_zoomx;
+	SDL_scrolly+=(gfx_canvassizey/2)/SDL_zoomy;
+	if (parameter[0]=='+')
+	{
+		SDL_zoomx*=atof(value);
+		SDL_zoomy*=atof(value);
+	}
+	else
+	{
+		SDL_zoomx/=atof(value);
+		SDL_zoomy/=atof(value);
+	}
+	SDL_scrollx-=(gfx_canvassizex/2)/SDL_zoomx;
+	SDL_scrolly-=(gfx_canvassizey/2)/SDL_zoomy;
 	return 1;
 }
 catalogized_command_funcdef(ONETOONE)

@@ -179,6 +179,16 @@ menuitem pullout_toolbox[]={
 "","",
 0x00FF00,
 },
+{1,7,
+97,//Picture
+"BRACKET",
+1,0,
+20,
+"Draw brackets",
+"",
+"","",
+0x00FF00,
+},
 {2,2,
 2,//Picture
 "Save",

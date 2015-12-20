@@ -16,10 +16,10 @@ int control_firstmenux,control_firstmenuy;
 int control_lastmenux,control_lastmenuy;
 int control_mousestate=0;//0: inactive; 0x1: from tool, mouseclick; 0x2: from special tool, keyboard 0x4: on menu, dragging 0x8: on button_function dependent menu, popup 0x10 popup-menu or PSE, multiple levels 0x20 dragging menuitem 0x40: text editing
 int control_toolaction=0;//1: move 2: move selection 3: tool specific
-int control_tool=2;//1: Hand 2: 2coordinate Selection 3: Lasso, no matter which 4: Shift tool 5: Magnifying glass 6: Element draw 7: chemdraw draw 8: eraser 9: Arrows 10: attributes 11: text tool 12: curve(bezier) 13: image 14: spectrum 15: tlc plate/gel plate 16: graphic 17: aromatic ring tool 18: Arrow_skip 19: Arrow_situp
+int control_tool=2;//1: Hand 2: 2coordinate Selection 3: Lasso, no matter which 4: Shift tool 5: Magnifying glass 6: Element draw 7: chemdraw draw 8: eraser 9: Arrows 10: attributes 11: text tool 12: curve(bezier) 13: image 14: spectrum 15: tlc plate/gel plate 16: graphic 17: aromatic ring tool 18: Arrow_skip 19: Arrow_situp 20: brackets
 int control_menumode=0;//1: shliderhorz, 2: slidervert 3: colorchooser
 AUTOSTRUCT_PULLOUTLISTING_ * control_menuitem=NULL;
-#define control_toolcount 20
+#define control_toolcount 21
 int control_keycombotool=0;//as above, but only valid if (mousestate & 2)
 _i32 control_toolstartkeysym;
 int control_lastinterpret=-1;
@@ -1401,7 +1401,8 @@ int issueclick(int iposx,int iposy)
 			}
 			control_mousestate=0;return 0;
 		}
-		case 16:
+		case 20://FALLTHROUGH
+		case 16://FALLTHROUGH
 		{
 			control_manipulatedinstance=edit_summongraphic();
 			if (control_drawproperties.GraphicType==0) control_drawproperties.GraphicType=1;
@@ -1417,6 +1418,11 @@ int issueclick(int iposx,int iposy)
 			(*(graphic_instance*)control_manipulatedinstance).BoundingBox.top=control_coorsy;
 			(*(graphic_instance*)control_manipulatedinstance).BoundingBox.bottom=control_coorsy;
 			control_orhogonizegraphic((graphic_instance*)control_manipulatedinstance);
+			if (control_tool==20)
+			{
+				(*(graphic_instance*)control_manipulatedinstance).GraphicType=6;
+				(*(graphic_instance*)control_manipulatedinstance).BracketType=control_drawproperties.BracketType;
+			}
 			break;
 		}
 		case 17:
@@ -2021,7 +2027,8 @@ void issuedrag(int iposx,int iposy)
 			interpretkey(control_lastinterpret);
 			break;
 		}
-		case 16:
+		case 20://FALLTHROUGH
+		case 16://FALLTHROUGH
 		{
 			(*(graphic_instance*)control_manipulatedinstance).BoundingBox.right=control_coorsx;
 			(*(graphic_instance*)control_manipulatedinstance).BoundingBox.bottom=control_coorsy;

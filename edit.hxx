@@ -51,6 +51,7 @@ struct control_drawproperties_
 	_i32 arrow_ArrowheadHead;
 	_i32 arrow_ArrowheadTail;
 	_i32 arrow_ArrowShaftSpacing;
+	_i32 BracketType;
 };
 struct control_searchproperties_
 {
@@ -67,8 +68,8 @@ struct control_displayproperties_
 structenum * searchreflectedstruct(const char * input);
 void applytransform_single(float matrix[3][3],cdx_Point3D * input,cdx_Point3D * output,cdx_Point3D * pivot);
 _small edit_current5bondcarbon=0;
-control_drawproperties_ control_drawproperties={16,0,0,0,0,0,4,0,constants_Element_implicitcarbon,6,1,0,0,0,0,1,0,1,2,1,1};
-control_drawproperties_ control_drawproperties_init={16,0,0,0,0,0,4,0,constants_Element_implicitcarbon,6,1,0,0,0,0,1,0,1,1,1,1};
+control_drawproperties_ control_drawproperties={16,0,0,0,0,0,4,0,constants_Element_implicitcarbon,6,1,0,0,0,0,1,0,1,2,1,1,4};
+control_drawproperties_ control_drawproperties_init={16,0,0,0,0,0,4,0,constants_Element_implicitcarbon,6,1,0,0,0,0,1,0,1,1,1,1,4};
 control_searchproperties_ control_searchproperties={0,0,1,1,0};
 control_displayproperties_ control_displayproperties={1};
 int control_hotatom=-1;
@@ -1685,6 +1686,7 @@ graphic_instance * edit_summongraphic(int * inr=NULL)
 		(*tlinstance).FillType=control_drawproperties.FillType;
 		(*tlinstance).id=(*glob_graphic_multilist).maxid+1;
 		(*tlinstance).LineType=control_drawproperties.LineType;
+		(*tlinstance).BracketType=control_drawproperties.BracketType;
 		(*glob_graphic_multilist).maxid++;
 		if (inr!=NULL)
 		{
@@ -2978,7 +2980,7 @@ catalogized_command_funcdef(LOADAS)
 catalogized_command_funcdef(SAVE)
 {
 	char istring[3*stringlength+3];
-	sprintf(istring,"\n\n  OVERWRITE file named\n  %s?",control_filename);
+	sprintf(istring,"\n\n  OVERWRITE file named\n  %s,%s?",control_currentdirectory,control_filenamehead);
 	if (userwarning(istring))
 	{
 		SAVE_TYPE(control_filename,"");

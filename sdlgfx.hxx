@@ -114,6 +114,23 @@ inline void putpixel(int iposx,int iposy)
 		}
 	}
 }
+inline void fatpixel(int iposx,int iposy)
+{
+	if ((iposx>=1) && (iposx<gfx_canvassizex-1))
+	{
+		if ((iposy>=1) && (iposy<gfx_canvassizey-1))
+		{
+			_u32 * tl_pointer=canvas+(gfx_screensizex*iposy)+iposx-1;
+			*(tl_pointer++)=SDL_color;
+			*(tl_pointer++)=SDL_color;
+			*(tl_pointer++)=SDL_color;
+			tl_pointer-=1+gfx_screensizex;
+			*tl_pointer=SDL_color;
+			tl_pointer+=(gfx_screensizex<<2);
+			*tl_pointer=SDL_color;
+		}
+	}
+}
 inline void gfx_stylegenestring(int flags,unsigned int fillcolor=0) //1: stroke 2: fill 4: bold 8: dashed
 {
 	SDL_linestyle=flags;
@@ -1250,7 +1267,14 @@ void gfx_expressarc_enhanced(float centerx,float centery,float radiusx,float rad
 	for (int ilv1=(isteps*startangle)/(Pi*2);ilv1<(isteps*endangle)/(Pi*2);ilv1++)
 	{
 		float tlangle=(ilv1/float(isteps))*2*Pi;
-		putpixel(centerx+tlsaxx*radiusx*cos(tlangle)-tlsaxy*radiusy*sin(tlangle),centery+tlsaxy*radiusx*cos(tlangle)+tlsaxx*radiusy*sin(tlangle));
+		if (SDL_linestyle & 4)
+		{
+			fatpixel(centerx+tlsaxx*radiusx*cos(tlangle)-tlsaxy*radiusy*sin(tlangle),centery+tlsaxy*radiusx*cos(tlangle)+tlsaxx*radiusy*sin(tlangle));
+		}
+		else
+		{
+			putpixel(centerx+tlsaxx*radiusx*cos(tlangle)-tlsaxy*radiusy*sin(tlangle),centery+tlsaxy*radiusx*cos(tlangle)+tlsaxx*radiusy*sin(tlangle));
+		}
 	}
 }
 inline void gfx_expressarc(float centerx,float centery,float radiusx,float radiusy,float startangle,float endangle)
@@ -1266,7 +1290,10 @@ void gfx_expressbow(float ileft,float itop,float iright,float ibottom,float irel
 	float tangle=asin(0.5/irelradius);
 	float tangent=0.5/tan(tangle);
 	float tldist=sqrt(fsqr(iright-ileft)+fsqr(ibottom-itop));
-	gfx_expressarc((iright+ileft)/2+tangent*cos(angle)*tldist,(ibottom+itop)/2+tangent*sin(angle)*tldist,irelradius*tldist,irelradius*tldist,fmod(angle-tangle+Pi,Pi*2),fmod(angle+tangle+Pi,Pi*2));
+	float istart=fmod(angle-tangle+Pi,Pi*2);
+	float iend=fmod(angle+tangle+Pi,Pi*2);
+	if (iend<istart) iend+=2*Pi;
+	gfx_expressarc((iright+ileft)/2+tangent*cos(angle)*tldist,(ibottom+itop)/2+tangent*sin(angle)*tldist,irelradius*tldist,irelradius*tldist,istart,iend);
 }
 void gfx_expressellipse(float centerx,float centery,float radiusx,float radiusy)
 {

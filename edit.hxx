@@ -2617,51 +2617,65 @@ catalogized_command_funcdef(COPY)
 			free(LHENDRAW_clipboardbuffer);
 		}
 	}
-	if ((control_mousestate==0x40) && (control_textedit_selectmode))
+	if (control_mousestate==0x40)
 	{
-		if (control_aggresstextcursor(NULL))
+		if (control_textedit_selectmode)
 		{
-			control_textedit_cursor+=(_uXX)TELESCOPE_getproperty_contents();
-			control_textedit_cursor+=3;
-			int tl_length;
-			int tl_memsize=256;
-			LHENDRAW_clipboardbuffer=(char*)malloc(tl_memsize);
-			int elapsed=0;
-			int endfound=0;
-			tl_back:;
-			tl_length=strlen((char*)control_textedit_cursor);
-			control_textedit_cursor2=(_uXX)strstr((char*)control_textedit_cursor,arbitrarycursorstring);
-			if (control_textedit_cursor2==(_uXX)NULL)
+			if (control_aggresstextcursor(NULL))
 			{
-				arbitrarycursorstring[2]^=1;//try the other one, too...
+				control_textedit_cursor+=(_uXX)TELESCOPE_getproperty_contents();
+				control_textedit_cursor+=3;
+				int tl_length;
+				int tl_memsize=256;
+				LHENDRAW_clipboardbuffer=(char*)malloc(tl_memsize);
+				int elapsed=0;
+				int endfound=0;
+				tl_back:;
+				tl_length=strlen((char*)control_textedit_cursor);
 				control_textedit_cursor2=(_uXX)strstr((char*)control_textedit_cursor,arbitrarycursorstring);
-			}
-			if (control_textedit_cursor2!=(_uXX)NULL)
-			{
-				endfound=1;
-				tl_length=control_textedit_cursor2-control_textedit_cursor;
-			}
-			if (tl_length>=tl_memsize-elapsed-1)
-			{
-				LHENDRAW_clipboardbuffer=(char*)realloc(LHENDRAW_clipboardbuffer,tl_memsize*2);
-				tl_memsize*=2;
-			}
-			memcpy(LHENDRAW_clipboardbuffer+elapsed,(char*)control_textedit_cursor,tl_length);
-			elapsed+=tl_length;
-			if (!endfound)
-			{
-				if (TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_s))
+				if (control_textedit_cursor2==(_uXX)NULL)
 				{
-					 control_textedit_cursor=(_uXX)TELESCOPE_getproperty_contents();
-					 goto tl_back;
+					arbitrarycursorstring[2]^=1;//try the other one, too...
+					control_textedit_cursor2=(_uXX)strstr((char*)control_textedit_cursor,arbitrarycursorstring);
 				}
+				if (control_textedit_cursor2!=(_uXX)NULL)
+				{
+					endfound=1;
+					tl_length=control_textedit_cursor2-control_textedit_cursor;
+				}
+				if (tl_length>=tl_memsize-elapsed-1)
+				{
+					LHENDRAW_clipboardbuffer=(char*)realloc(LHENDRAW_clipboardbuffer,tl_memsize*2);
+					tl_memsize*=2;
+				}
+				memcpy(LHENDRAW_clipboardbuffer+elapsed,(char*)control_textedit_cursor,tl_length);
+				elapsed+=tl_length;
+				if (!endfound)
+				{
+					if (TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_s))
+					{
+						 control_textedit_cursor=(_uXX)TELESCOPE_getproperty_contents();
+						 goto tl_back;
+					}
+				}
+				control_textedit_cursor-=(_uXX)TELESCOPE_getproperty_contents();
+				LHENDRAW_clipboardbuffer_count=elapsed;
 			}
-			control_textedit_cursor-=(_uXX)TELESCOPE_getproperty_contents();
-			LHENDRAW_clipboardbuffer_count=elapsed;
 		}
 	}
 	else
 	{
+		char control_totalfilename[stringlength+1];
+		sprintf(control_totalfilename,"mkdir -p %s/.clipboard",getenv("HOME"));
+		system(control_totalfilename);
+		edit_fileoperationrefersonlytopartofdocument=1;
+		sprintf(control_totalfilename,"%s/.clipboard/clipboard.cdx",getenv("HOME"));
+		printf("%s",control_totalfilename);
+		SAVE_TYPE(control_totalfilename,".cdx");
+		sprintf(control_totalfilename,"%s/.clipboard/clipboard.cdxml",getenv("HOME"));
+		printf("%s",control_totalfilename);
+		SAVE_TYPE(control_totalfilename,".cdxml");
+		edit_fileoperationrefersonlytopartofdocument=0;
 		LHENDRAW_clipboardmode=0;
 		return 0;
 	}
@@ -2673,6 +2687,24 @@ catalogized_command_funcdef(COPY)
 }
 extern int control_aggresstextcursor(const char *);
 extern int control_squashselection();
+int edit_load_lastfilllevel[STRUCTURE_OBJECTTYPE_ListSize];
+void edit_import_corrections()
+{
+	for (int ilv1=1;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
+	{
+		int i_multilistnumber;
+		_u32 icompare=1<<ilv1;
+		for (int ilv2=0;ilv2<edit_load_lastfilllevel[ilv1];ilv2++)
+		{
+			selection_currentselection[ilv2]&=~icompare;
+		}
+		int tl_currentfilllevel=findmultilist(STRUCTURE_OBJECTTYPE_List[ilv1].name)->filllevel;
+		for (int ilv2=edit_load_lastfilllevel[ilv1];ilv2<tl_currentfilllevel;ilv2++)
+		{
+			selection_currentselection[ilv2]|=icompare;
+		}
+	}
+}
 catalogized_command_funcdef(PASTE)
 {
 	if (LHENDRAW_clipboardmode==1) goto loaded;
@@ -2717,6 +2749,16 @@ catalogized_command_funcdef(PASTE)
 			TELESCOPE_insertintoproperties_offset(LHENDRAW_clipboardbuffer,LHENDRAW_clipboardbuffer_count,control_textedit_cursor);
 			cantinsert:;
 		}
+	}
+	else
+	{
+		char control_totalfilename[stringlength+1];
+		sprintf(control_totalfilename,"%s/.clipboard/clipboard.cdx",getenv("HOME"));
+		printf("%s",control_totalfilename);
+		edit_fileoperationrefersonlytopartofdocument=1;
+		LOAD_TYPE(control_totalfilename,".cdx");
+		edit_import_corrections();
+		edit_fileoperationrefersonlytopartofdocument=0;
 	}
 	if (LHENDRAW_clipboardmode==1) return 1;
 	free(LHENDRAW_clipboardbuffer);
@@ -2920,7 +2962,6 @@ void edit_add_deltahydrogens(_small ilastfilllevel)
 		edit_bondsum(ilv1,1);
 	}
 }
-int edit_load_lastfilllevel[STRUCTURE_OBJECTTYPE_ListSize];
 catalogized_command_funcdef(LOAD_TYPE)
 {
 	FILE * infile;
@@ -4154,20 +4195,7 @@ catalogized_command_funcdef(FILEDLG_FILE_IMPORT)
 		sprintf(control_totalfilename,"%s/%s",control_currentdirectory_port,control_filenamehead_port);
 		edit_fileoperationrefersonlytopartofdocument=1;
 		retval=LOAD_TYPE(control_totalfilename,"");//TODO: insert selected type
-		for (int ilv1=1;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
-		{
-			int i_multilistnumber;
-			_u32 icompare=1<<ilv1;
-			for (int ilv2=0;ilv2<edit_load_lastfilllevel[ilv1];ilv2++)
-			{
-				selection_currentselection[ilv2]&=~icompare;
-			}
-			int tl_currentfilllevel=findmultilist(STRUCTURE_OBJECTTYPE_List[ilv1].name)->filllevel;
-			for (int ilv2=edit_load_lastfilllevel[ilv1];ilv2<tl_currentfilllevel;ilv2++)
-			{
-				selection_currentselection[ilv2]|=icompare;
-			}
-		}
+		edit_import_corrections();
 		edit_fileoperationrefersonlytopartofdocument=0;
 		if (retval>=1)
 		{

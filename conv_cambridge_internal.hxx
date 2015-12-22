@@ -317,7 +317,7 @@ int CAMBRIDGECONV_represent(CAMBRIDGE_graphic_instance * tl_CAMBRIDGE_graphic_in
 	if (ino<0) return 0;
 	tl_CAMBRIDGE_represent_multilist=retrievemultilist<CAMBRIDGE_represent_instance>();
 	tl_CAMBRIDGE_represent_instance=(*tl_CAMBRIDGE_represent_multilist).bufferlist()+ino;
-	i_n_instance=(n_instance*)edit_locatebyid(STRUCTURE_OBJECTTYPE_n,(*tl_CAMBRIDGE_represent_instance).object,&n_index);
+	i_n_instance=(n_instance*)edit_locatebyid(STRUCTURE_OBJECTTYPE_n,(*tl_CAMBRIDGE_represent_instance).object+glob_n_multilist->maxid,&n_index);
 	if (i_n_instance)
 	{
 		TELESCOPE_aggressobject(glob_n_multilist,n_index);

@@ -373,7 +373,7 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,char hatches)
 	{
 		if (objectZorderlist[ilv1].listnr!=-1)
 		{
-			if (control_save_selection)
+			if (edit_fileoperationrefersonlytopartofdocument)
 			{
 				if ((selection_currentselection[objectZorderlist[ilv1].nr] & (1<<(*(multilistlist[objectZorderlist[ilv1].listnr].instance)).numberinlist))==0)
 				{

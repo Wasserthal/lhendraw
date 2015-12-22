@@ -2747,7 +2747,7 @@ catalogized_command_funcdef(SAVE_TYPE)
 	{
 		return svg_main(ifile);
 	}
-	if (control_save_selection==0)
+	if (edit_fileoperationrefersonlytopartofdocument==0)
 	{
 		strncpy(control_filename,parameter,stringlength*2);
 		control_setfilename(parameter);
@@ -2920,10 +2920,15 @@ void edit_add_deltahydrogens(_small ilastfilllevel)
 		edit_bondsum(ilv1,1);
 	}
 }
+int edit_load_lastfilllevel[STRUCTURE_OBJECTTYPE_ListSize];
 catalogized_command_funcdef(LOAD_TYPE)
 {
 	FILE * infile;
 	_small tl_n_lastfilllevel;
+	for (int ilv1=1;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
+	{
+		edit_load_lastfilllevel[ilv1]=findmultilist(STRUCTURE_OBJECTTYPE_List[ilv1].name)->filllevel;
+	}
 	infile=fopen(parameter,"r");
 	if (infile==NULL) return 0;
 	control_saveuponexit=0;
@@ -2940,7 +2945,7 @@ catalogized_command_funcdef(LOAD_TYPE)
 		}
 	}
 	currentinstance=new(CAMBRIDGEPREFIX(Total_Document_instance));//TODO mem: leaks
-	if (control_save_selection==0)
+	if (edit_fileoperationrefersonlytopartofdocument==0)
 	{
 		strncpy(control_filename,parameter,stringlength*2);
 		control_setfilename(parameter);
@@ -2966,7 +2971,10 @@ catalogized_command_funcdef(LOAD_TYPE)
 	edit_add_deltahydrogens(tl_n_lastfilllevel);
 	for (int ilv1=0;ilv1<multilist_count;ilv1++)
 	{
-		if (multilistlist[ilv1].instance->filllevel>=multilistlist[ilv1].instance->getmaxitems()) fprintf(stderr,"Multilist overflow! %s\n",multilistlist[ilv1].name);
+		if (multilistlist[ilv1].instance->filllevel>=multilistlist[ilv1].instance->getmaxitems()) {fprintf(stderr,"Multilist overflow! %s\n",multilistlist[ilv1].name);exit(2);}
+		if (edit_fileoperationrefersonlytopartofdocument)
+		{
+		}
 	}
 	return 1;
 }
@@ -4097,9 +4105,9 @@ catalogized_command_funcdef(FILEDLG_FILE_EXPORT)
 	if (DD)
 	{
 		sprintf(control_totalfilename,"%s/%s",control_currentdirectory_port,control_filenamehead_port);
-		control_save_selection=1;
+		edit_fileoperationrefersonlytopartofdocument=1;
 		retval=SAVE_TYPE(control_totalfilename,"");//TODO: insert selected type
-		control_save_selection=0;
+		edit_fileoperationrefersonlytopartofdocument=0;
 
 		if (retval>=1)
 		{
@@ -4144,9 +4152,23 @@ catalogized_command_funcdef(FILEDLG_FILE_IMPORT)
 	if (DD)
 	{
 		sprintf(control_totalfilename,"%s/%s",control_currentdirectory_port,control_filenamehead_port);
-		control_save_selection=1;
+		edit_fileoperationrefersonlytopartofdocument=1;
 		retval=LOAD_TYPE(control_totalfilename,"");//TODO: insert selected type
-		control_save_selection=0;
+		for (int ilv1=1;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
+		{
+			int i_multilistnumber;
+			_u32 icompare=1<<ilv1;
+			for (int ilv2=0;ilv2<edit_load_lastfilllevel[ilv1];ilv2++)
+			{
+				selection_currentselection[ilv2]&=~icompare;
+			}
+			int tl_currentfilllevel=findmultilist(STRUCTURE_OBJECTTYPE_List[ilv1].name)->filllevel;
+			for (int ilv2=edit_load_lastfilllevel[ilv1];ilv2<tl_currentfilllevel;ilv2++)
+			{
+				selection_currentselection[ilv2]|=icompare;
+			}
+		}
+		edit_fileoperationrefersonlytopartofdocument=0;
 		if (retval>=1)
 		{
 			LHENDRAW_filedlgmode=0;
@@ -5259,7 +5281,9 @@ catalogized_command_funcdef(SEARCHFILE)
 	storeundo(~0);
 	selection_clearselection(selection_currentselection);
 	SELECTALL("","1");
+	edit_fileoperationrefersonlytopartofdocument=1;
 	retval=LOAD_TYPE(parameter,value);
+	edit_fileoperationrefersonlytopartofdocument=0;
 	if (retval>0)
 	{
 		retval=SEARCH("","");

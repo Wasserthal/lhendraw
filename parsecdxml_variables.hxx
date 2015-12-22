@@ -12,7 +12,7 @@ char LHENDRAW_filedlgmode=0;
 char LHENDRAW_warndlgmode=0;
 int LHENDRAW_userdecision=0;
 char LHENDRAW_leave=0;
-int control_save_selection=0;
+int edit_fileoperationrefersonlytopartofdocument=0;//Hidden parameter
 const char * LHENDRAW_warning=NULL;
 int userwarning(const char*warning);
 _i32 janitor_maxZ=0;

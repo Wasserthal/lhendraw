@@ -281,7 +281,7 @@ void CONVCAMBRIDGE_text(CAMBRIDGE_page_instance * master)
 	for (int ilv1=0;ilv1<(*tl_t_multilist).filllevel;ilv1++)
 	{
 		if ((*tl_t_multilist).bufferlist()[ilv1].exist==0) continue;
-		if (control_save_selection)
+		if (edit_fileoperationrefersonlytopartofdocument)
 		{
 			if ((selection_currentselection[ilv1] & (1<<STRUCTURE_OBJECTTYPE_t))==0)
 			{
@@ -330,7 +330,7 @@ void CONVCAMBRIDGE_fragments(CAMBRIDGE_page_instance * master)
 	{
 		ibackb:
 		select_fragment_by_atom(iatomnr);
-		if (control_save_selection) selection_ANDselection(selection_fragmentselection,selection_currentselection);
+		if (edit_fileoperationrefersonlytopartofdocument) selection_ANDselection(selection_fragmentselection,selection_currentselection);
 
 		ADD_TO_MULTILISTREFERENCE(master,fragment);
 		tl_CAMBRIDGE_fragment_instance->BoundingBox.left=32767;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_fragment_instance,BoundingBox);
@@ -357,7 +357,7 @@ void CONVCAMBRIDGE_arrow(CAMBRIDGE_page_instance * master)
 	multilist<arrow_instance> * tl_arrow_multilist=retrievemultilist<arrow_instance>();
 	for (int ilv1=0;ilv1<(*tl_arrow_multilist).filllevel;ilv1++)
 	{
-		if (control_save_selection)
+		if (edit_fileoperationrefersonlytopartofdocument)
 		{
 			if ((selection_currentselection[ilv1] & (1<<STRUCTURE_OBJECTTYPE_arrow))==0)
 			{
@@ -391,7 +391,7 @@ void CONVCAMBRIDGE_graphic(CAMBRIDGE_page_instance * master)
 	multilist<graphic_instance> * tl_graphic_multilist=retrievemultilist<graphic_instance>();
 	for (int ilv1=0;ilv1<(*tl_graphic_multilist).filllevel;ilv1++)
 	{
-		if (control_save_selection)
+		if (edit_fileoperationrefersonlytopartofdocument)
 		{
 			if ((selection_currentselection[ilv1] & (1<<STRUCTURE_OBJECTTYPE_graphic))==0)
 			{
@@ -487,7 +487,7 @@ void CONVCAMBRIDGE_Symbol(CAMBRIDGE_page_instance * master)
 		ifilllevel=(*tl_multilist).filllevel;
 		for (int ilv2=0;ilv2<ifilllevel;ilv2++)
 		{
-			if (control_save_selection)
+			if (edit_fileoperationrefersonlytopartofdocument)
 			{
 				if ((selection_currentselection[ilv2] & (1<<ilv1))==0)
 				{
@@ -535,7 +535,7 @@ void CONVCAMBRIDGE_curve(CAMBRIDGE_page_instance * master)
 	multilist<curve_instance> * tl_curve_multilist=retrievemultilist<curve_instance>();
 	for (int ilv1=0;ilv1<(*tl_curve_multilist).filllevel;ilv1++)
 	{
-		if (control_save_selection)
+		if (edit_fileoperationrefersonlytopartofdocument)
 		{
 			if ((selection_currentselection[ilv1] & (1<<STRUCTURE_OBJECTTYPE_curve))==0)
 			{

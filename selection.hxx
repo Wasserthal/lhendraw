@@ -282,7 +282,7 @@ int findunfragmentedatom()
 	{
 		if ((*glob_n_multilist)[ilv1].exist)
 		{
-			if (control_save_selection)
+			if (edit_fileoperationrefersonlytopartofdocument)
 			{
 				if ((selection_currentselection[ilv1] & icompare)==0)
 				{
@@ -305,7 +305,7 @@ int findunfragmentedbond()
 	{
 		if ((*glob_b_multilist)[ilv1].exist)
 		{
-			if (control_save_selection)
+			if (edit_fileoperationrefersonlytopartofdocument)
 			{
 				if ((selection_currentselection[ilv1] & icompare)==0)
 				{

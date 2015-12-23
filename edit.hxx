@@ -2669,13 +2669,17 @@ catalogized_command_funcdef(COPY)
 		sprintf(control_totalfilename,"mkdir -p %s/.clipboard",getenv("HOME"));
 		system(control_totalfilename);
 		edit_fileoperationrefersonlytopartofdocument=1;
+		edit_file_always_overwrite=1;
+		system("clipboard -n 2>/dev/null");//new
 		sprintf(control_totalfilename,"%s/.clipboard/clipboard.cdx",getenv("HOME"));
 		printf("%s",control_totalfilename);
 		SAVE_TYPE(control_totalfilename,".cdx");
 		sprintf(control_totalfilename,"%s/.clipboard/clipboard.cdxml",getenv("HOME"));
 		printf("%s",control_totalfilename);
 		SAVE_TYPE(control_totalfilename,".cdxml");
+		system("clipboard -w 2>/dev/null");//write
 		edit_fileoperationrefersonlytopartofdocument=0;
+		edit_file_always_overwrite=0;
 		LHENDRAW_clipboardmode=0;
 		return 0;
 	}
@@ -2753,10 +2757,12 @@ catalogized_command_funcdef(PASTE)
 	else
 	{
 		char control_totalfilename[stringlength+1];
+		system("clipboard -r .cdx 2>/dev/null");//asks clipboard for cdx file
 		sprintf(control_totalfilename,"%s/.clipboard/clipboard.cdx",getenv("HOME"));
 		printf("%s",control_totalfilename);
 		edit_fileoperationrefersonlytopartofdocument=1;
 		LOAD_TYPE(control_totalfilename,".cdx");
+		system("clipboard -q 2>/dev/null");//closes clipboard
 		edit_import_corrections();
 		edit_fileoperationrefersonlytopartofdocument=0;
 	}
@@ -2769,7 +2775,7 @@ catalogized_command_funcdef(SAVE_TYPE)
 {
 	struct stat tl_buffer;
 	#ifndef NOPOSIX
-	if (stat(parameter,&tl_buffer)==0)
+	if ((stat(parameter,&tl_buffer)==0) && (edit_file_always_overwrite==0))
 	{
 		if (userwarning("File exists! Overwrite?\n")==0)return 0;
 	}

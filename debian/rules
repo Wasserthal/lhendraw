@@ -1,8 +1,0 @@
-#!/usr/bin/make -f
-# -*- makefile -*-
-# should be fine because it uses dbhelper
-# Uncomment this to turn on verbose mode.
-#export DH_VERBOSE=1
-
-%:
-	dh $@ 

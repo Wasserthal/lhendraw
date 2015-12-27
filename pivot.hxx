@@ -1,5 +1,67 @@
 cdx_Point3D edit_pivot;
 intl edit_pivot_counter;
+void crossprod(float result[3],float input1[3],float input2[3])
+{
+	result[0]=input1[1]*input2[2]-input1[2]*input2[1];
+	result[1]=input1[2]*input2[0]-input1[0]*input2[2];
+	result[2]=input1[0]*input2[1]-input1[1]*input2[0];
+}
+void normalizevector(float invector[3])
+{
+	float size=sqrt(invector[0]*invector[0]+invector[1]*invector[1]+invector[2]*invector[2]);
+	if (size>0.0000001)
+	{
+		invector[0]/=size;
+		invector[1]/=size;
+		invector[2]/=size;
+	}
+	else
+	{
+		invector[0]=1;
+		invector[1]=0;
+		invector[2]=0;
+	}
+}
+void vectordependentmatrix(float input[3][3])
+{
+	if ((edit_endatom_count<1) || (edit_endatom_count>2)) return;
+	float submatrix[3][3]={1,0,0,0,1,0,0,0,1};
+	float basevector[3];
+	cdx_Point3D xyz;
+	if (edit_endatom_count==1)
+	{
+		for (int ilv1=0;ilv1<3;ilv1++) submatrix[1][ilv1]=edit_endatom_vector[0][ilv1];
+	}
+	if (edit_endatom_count==2)
+	{
+		submatrix[1][ilv1]=glob_n_multilist->bufferlist()[edit_endatom[1]].xyz.x-glob_n_multilist->bufferlist()[edit_endatom[0]].xyz.x;
+		submatrix[1][ilv1]=glob_n_multilist->bufferlist()[edit_endatom[1]].xyz.y-glob_n_multilist->bufferlist()[edit_endatom[0]].xyz.y;
+		submatrix[1][ilv1]=glob_n_multilist->bufferlist()[edit_endatom[1]].xyz.z-glob_n_multilist->bufferlist()[edit_endatom[0]].xyz.z;
+	}
+	normalizevector(&(submatrix[1][0]));
+	crossprod(&(submatrix[0][0]),&(submatrix[1][0]),&(submatrix[2][0]));
+	normalizevector(&(submatrix[0][0]));
+	crossprod(&(submatrix[2][0]),&(submatrix[0][0]),&(submatrix[1][0]));
+	normalizevector(&(submatrix[2][0]));
+	for (int ilv1=0;ilv1<3;ilv1++)
+	{
+		xyz.x=input[ilv1][0];
+		xyz.y=input[ilv1][1];
+		xyz.z=input[ilv1][2];
+		input[ilv1][0]=xyz.x*submatrix[0][0]+xyz.y*submatrix[1][0]+xyz.z*submatrix[2][0];
+		input[ilv1][1]=xyz.x*submatrix[0][1]+xyz.y*submatrix[1][1]+xyz.z*submatrix[2][1];
+		input[ilv1][2]=xyz.x*submatrix[0][2]+xyz.y*submatrix[1][2]+xyz.z*submatrix[2][2];
+	}
+	for (int ilv1=0;ilv1<3;ilv1++)
+	{
+		xyz.x=input[ilv1][0];
+		xyz.y=input[ilv1][1];
+		xyz.z=input[ilv1][2];
+		input[ilv1][0]=xyz.x*submatrix[0][0]+xyz.y*submatrix[1][0]+xyz.z*submatrix[2][0];
+		input[ilv1][1]=xyz.x*submatrix[0][1]+xyz.y*submatrix[1][1]+xyz.z*submatrix[2][1];
+		input[ilv1][2]=xyz.x*submatrix[0][2]+xyz.y*submatrix[1][2]+xyz.z*submatrix[2][2];
+	}
+}
 void get_selection_pivot()
 {
 	intl ioffset;
@@ -11,13 +73,20 @@ void get_selection_pivot()
 	edit_pivot_counter=0;
 	edit_pivot.x=0;edit_pivot.y=0;edit_pivot.z=0;
 	edit_judgeselection(-1);
-	if (edit_singlepointselected)
+	for (int ilv1=0;ilv1<edit_endatom_count;ilv1++)
 	{
 		float tl_startx,tl_starty,tl_startz;
-		if (retrievepoints_basic(glob_n_multilist->bufferlist()+edit_partner,&edit_pivot.x,&edit_pivot.y,&edit_pivot.z,0,STRUCTURE_OBJECTTYPE_n)>0)
-		{
-			return;
-		}
+		retrievepoints_basic(glob_n_multilist->bufferlist()+edit_endatom[ilv1],&tl_startx,&tl_starty,&tl_startz,0,STRUCTURE_OBJECTTYPE_n);
+		edit_pivot.x+=tl_startx;
+		edit_pivot.y+=tl_starty;
+		edit_pivot.z+=tl_startz;
+	}
+	if (edit_endatom_count>0)
+	{
+		edit_pivot.x/=edit_endatom_count;
+		edit_pivot.y/=edit_endatom_count;
+		edit_pivot.z/=edit_endatom_count;
+		return;
 	}
 	for (int ilv1=0;ilv1<(*glob_n_multilist).filllevel;ilv1++)
 	{
@@ -164,6 +233,7 @@ catalogized_command_funcdef(PIVOT_TURNZ)
 	matrix[2][0]=0;
 	matrix[2][1]=0;
 	matrix[2][2]=1;
+	if (strncmp(parameter,"rel",3)==0) vectordependentmatrix(matrix);
 	applytransform(matrix);
 	return 1;
 }
@@ -181,6 +251,7 @@ catalogized_command_funcdef(PIVOT_TURNX)
 	matrix[2][0]=0;
 	matrix[2][1]=-sin(angle);
 	matrix[2][2]=cos(angle);
+	if (strncmp(parameter,"rel",3)==0) vectordependentmatrix(matrix);
 	applytransform(matrix);
 	return 1;
 }
@@ -198,6 +269,7 @@ catalogized_command_funcdef(PIVOT_TURNY)
 	matrix[2][0]=sin(angle);
 	matrix[2][1]=0;
 	matrix[2][2]=cos(angle);
+	if (strncmp(parameter,"rel",3)==0) vectordependentmatrix(matrix);
 	applytransform(matrix);
 	return 1;
 }
@@ -215,6 +287,8 @@ catalogized_command_funcdef(PIVOT_SCALEX)
 	matrix[2][0]=0;
 	matrix[2][1]=0;
 	matrix[2][2]=1;
+	if (strncmp(parameter,"rel",3)==0) vectordependentmatrix(matrix);
+	printf("%s\n",parameter);
 	applytransform(matrix);
 	return 1;
 }
@@ -232,6 +306,7 @@ catalogized_command_funcdef(PIVOT_SCALEY)
 	matrix[2][0]=0;
 	matrix[2][1]=0;
 	matrix[2][2]=1;
+	if (strncmp(parameter,"rel",3)==0) vectordependentmatrix(matrix);
 	applytransform(matrix);
 	return 1;
 }
@@ -249,6 +324,7 @@ catalogized_command_funcdef(PIVOT_SCALEZ)
 	matrix[2][0]=0;
 	matrix[2][1]=0;
 	matrix[2][2]=1-angle;
+	if (strncmp(parameter,"rel",3)==0) vectordependentmatrix(matrix);
 	applytransform(matrix);
 	return 1;
 }

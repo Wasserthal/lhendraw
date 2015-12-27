@@ -425,35 +425,71 @@ int gethot()
 	return -1;
 }
 int edit_endatom_count=0;
-int edit_endatom[2];
-int edit_singlepointselected=0;
-int edit_partner=0;
-int edit_judgepoint(int index)
+#define edit_endatom_max 2
+int edit_endatom[edit_endatom_max];
+int edit_endatom_quality[edit_endatom_max];
+double edit_endatom_vector[edit_endatom_max][3];
+int edit_judgepoint(int index,double *ivector)
 {
-	int icount=0;
-	n_instance * tl_n_instance=glob_n_multilist->bufferlist()+index;
-	if (tl_n_instance->exist)
+	int i_u_count=0;
+	int i_s_count=0;
+	double i_selectedvector[3]={0,0,0};
+	double i_unselectedvector[3]={0,0,0};
+	int i_partner=0;
+	n_instance * i_n_instance=glob_n_multilist->bufferlist()+index;
+	if (i_n_instance->exist)
 	{
 		if ((selection_currentselection[index] & (1<<STRUCTURE_OBJECTTYPE_n))>0)
 		{
 			for (int ilv2=0;ilv2<atom_actual_node[index].bondcount;ilv2++)
 			{
+				i_partner=getother(index,atom_actual_node[index].bonds[ilv2]);
 				if (selection_currentselection[atom_actual_node[index].bonds[ilv2]] & (1<<STRUCTURE_OBJECTTYPE_b))
 				{
+					i_selectedvector[0]+=glob_n_multilist->bufferlist()[i_partner].xyz.x-glob_n_multilist->bufferlist()[index].xyz.x;
+					i_selectedvector[1]+=glob_n_multilist->bufferlist()[i_partner].xyz.y-glob_n_multilist->bufferlist()[index].xyz.y;
+					i_selectedvector[3]+=glob_n_multilist->bufferlist()[i_partner].xyz.z-glob_n_multilist->bufferlist()[index].xyz.z;
+					i_s_count++;
 				}
 				else
 				{
-					edit_partner=getother(index,atom_actual_node[index].bonds[ilv2]);
-					icount++;
+					i_unselectedvector[0]+=glob_n_multilist->bufferlist()[i_partner].xyz.x-glob_n_multilist->bufferlist()[index].xyz.x;
+					i_unselectedvector[1]+=glob_n_multilist->bufferlist()[i_partner].xyz.y-glob_n_multilist->bufferlist()[index].xyz.y;
+					i_unselectedvector[3]+=glob_n_multilist->bufferlist()[i_partner].xyz.z-glob_n_multilist->bufferlist()[index].xyz.z;
+					i_u_count++;
 				}
 			}
 		}
 	}
-	return icount;
+	double * sourcevector;
+	int sourcecount=1;
+	if ((i_s_count<i_u_count) && (i_s_count>0))
+	{
+		sourcevector=i_selectedvector;
+		sourcecount=i_s_count;
+	}
+	else
+	{
+		if (i_u_count>0)
+		{
+			sourcevector=i_unselectedvector;
+			sourcecount=i_u_count;
+		}
+		else
+		{
+			sourcevector=i_unselectedvector;//==&{0,0,0}
+			sourcecount=1;//to prevent divide by zero;
+		}
+	}
+	ivector[0]=sourcevector[0]/sourcecount;
+	ivector[1]=sourcevector[1]/sourcecount;
+	ivector[2]=sourcevector[2]/sourcecount;
+	if (i_u_count>0) i_s_count=0;
+	return min(i_u_count,0xF)*0x10+min(i_s_count,0xF);
 }
 void edit_judgeselection(int backindex)//determines what type of pivot the current selection has
 {
-	int edit_endatom_count=0;
+	edit_endatom_count=0;
 	for (int ilv1=1;ilv1<glob_n_multilist->filllevel;ilv1++)
 	{
 		n_instance * tl_n_instance=glob_n_multilist->bufferlist()+ilv1;
@@ -468,10 +504,35 @@ void edit_judgeselection(int backindex)//determines what type of pivot the curre
 					}
 					else
 					{
-						if (edit_endatom_count<2)
+						double tl_vector[3]={0,0,0};
+						int tl_backval=edit_judgepoint(ilv1,tl_vector);
+						int tl_checked_unit;
+						for (tl_checked_unit=0;tl_checked_unit<edit_endatom_count;tl_checked_unit++)
 						{
-							edit_endatom[edit_endatom_count]=ilv1;
-							edit_endatom_count++;
+							if (tl_backval<edit_endatom_quality[tl_checked_unit])
+							{
+								instance_add:;
+								for (int ilv3=min(edit_endatom_count,edit_endatom_max-1);ilv3>tl_checked_unit;ilv3--)
+								{
+									edit_endatom[ilv3]=edit_endatom[ilv3-1];
+									edit_endatom_quality[ilv3]=edit_endatom_quality[ilv3-1];
+									edit_endatom_vector[ilv3][0]=edit_endatom_vector[ilv3-1][0];
+									edit_endatom_vector[ilv3][1]=edit_endatom_vector[ilv3-1][1];
+									edit_endatom_vector[ilv3][2]=edit_endatom_vector[ilv3-1][2];
+								}
+								edit_endatom[tl_checked_unit]=ilv1;
+								edit_endatom_quality[tl_checked_unit]=tl_backval;
+								edit_endatom_vector[tl_checked_unit][0]=tl_vector[0];
+								edit_endatom_vector[tl_checked_unit][1]=tl_vector[1];
+								edit_endatom_vector[tl_checked_unit][2]=tl_vector[2];
+								edit_endatom_count=tl_checked_unit+1;//cut them off
+								goto instance_done;
+							}
+						}
+						if (edit_endatom_count<edit_endatom_max)
+						{
+							tl_checked_unit=edit_endatom_count;
+							goto instance_add;
 						}
 						goto instance_done;
 					}
@@ -479,23 +540,6 @@ void edit_judgeselection(int backindex)//determines what type of pivot the curre
 			}
 		}
 		instance_done:;
-	}
-	for (int ilv2=0;ilv2<edit_endatom_count;ilv2++)
-	{
-		if ((edit_endatom[ilv2]==backindex) || (backindex==-1))
-		{
-			if (backindex==-1)
-			{
-				if (edit_judgepoint(edit_endatom[ilv2])==1) edit_singlepointselected=1;
-			}
-			else
-			{
-				if (edit_judgepoint(backindex)==1)
-				{
-					edit_singlepointselected=1;
-				}
-			}
-		}
 	}
 }
 int edit_checkclickpixels()
@@ -1698,7 +1742,6 @@ graphic_instance * edit_summongraphic(int * inr=NULL)
 }
 catalogized_command_funcdef(EQUILIBRIUM_ARROWS)
 {
-	printf("VAL:%s\n",value);
 	int to_value=atoi(value);
 	if (control_drawproperties.arrow_ArrowheadType!=to_value)
 	{
@@ -1733,7 +1776,6 @@ catalogized_command_funcdef(EQUILIBRIUM_ARROWS)
 		SETITEMVARIABLES("ArrowheadTail",lookup_bienum(CDXML_ArrowheadTail,CDXML_ArrowheadTail_max,control_drawproperties.arrow_ArrowheadTail));
 		SETITEMVARIABLES("ArrowShaftSpacing","0");
 	}
-	printf("Headtype%i,\n",control_drawproperties.arrow_ArrowheadType);
 	return 1;
 }
 arrow_instance * edit_summonarrow(int * inr=NULL)

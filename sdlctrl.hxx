@@ -267,7 +267,6 @@ int interpretkey(int listnr=-1)
 	int ihot_instance=0;
 	_u32 i_selectedtypes=0;
 	getatoms();
-	edit_singlepointselected=0;
 	if (listnr!=-1) {ilv1=listnr;goto interpreted;}
 	switch (control_Event.key.keysym.sym)
 	{
@@ -810,7 +809,6 @@ int issueclick(int iposx,int iposy)
 	{
 		fprintf(stderr,"Error! tool number out of range!\n");
 	}
-	edit_singlepointselected=0;
 	switch (control_tool)
 	{
 		case 2:
@@ -857,7 +855,6 @@ int issueclick(int iposx,int iposy)
 						selection_clearselection(selection_currentselection);
 						selection_currentselection_found=1<<backtype;
 						selection_currentselection[backindex]|=1<<backtype;
-						edit_singlepointselected=1;
 						return 0;
 					}
 					KEYDEPENDENTSELECTION;
@@ -929,7 +926,6 @@ int issueclick(int iposx,int iposy)
 						selection_clearselection(selection_currentselection);
 						selection_currentselection_found=1<<backtype;
 						selection_currentselection[backindex]|=1<<backtype;
-						edit_singlepointselected=1;
 						return 0;
 					}
 					KEYDEPENDENTSELECTION;
@@ -1881,13 +1877,6 @@ void issuedrag(int iposx,int iposy)
 			}
 			restoreundo(~0,((MODIFIER_KEYS.CTRL) || (MODIFIER_KEYS.ALT))?0:1);
 			undo_undodirty=1;
-			if (edit_singlepointselected==1)
-			{
-				if (MODIFIER_KEYS.ALT==0)
-				{
-					goto skip_snapping;
-				}
-			}
 			if (MODIFIER_KEYS.ALT)
 			{
 				float bestdist=4000000000000;
@@ -1932,7 +1921,6 @@ void issuedrag(int iposx,int iposy)
 					tl_deltay=tl_best_deltay;
 				}
 			}
-			skip_snapping:;
 			if (MODIFIER_KEYS.CTRL)
 			{
 				getatoms();
@@ -2164,7 +2152,6 @@ void issuerelease()
 	int ioffset;
 	char * ibufferpos;
 	int internalpointcount;
-	edit_singlepointselected=0;
 	if (control_mousestate==2)
 	{
 		tlwhichtool=control_keycombotool;

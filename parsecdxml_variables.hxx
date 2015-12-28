@@ -45,7 +45,7 @@ char constants_cdxstring[]=".cdx";
 typedef _u32 resources_button_[32][32];
 resources_button_ * resources_bitmap_buttons;
 extern TELESCOPE_buffer glob_contentbuffer[];
-struct TELESCOPE_tempvar_
+/*hiding from options menu*/struct TELESCOPE_tempvar_
 {
 	int pos;//object inside buffer
 	int objectsize;
@@ -59,6 +59,7 @@ struct TELESCOPE_tempvar_
 };
 int control_menutextedithorziscroll=0;
 int control_menutexteditcursor=0;
+char menugfx_menudescription[stringlength+1]={0};
 struct control_export_
 {
 	int bmp_compression=0;//0: normal 3:ARGB,32bpp only

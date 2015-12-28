@@ -2440,6 +2440,44 @@ void issuerelease()
 	control_mousestate=0;
 	return;
 }
+void control_issuemenuhover(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int posy)
+{
+	int horzistart;
+	int vertistart;
+	int ihitnr=0;
+	const char * tl_zerostring="0";
+	AUTOSTRUCT_PULLOUTLISTING_ * ipulloutlisting=NULL;
+	for (int ilv1=0;ilv1<icount;ilv1++)
+	{
+		horzistart=ilisting[ilv1].x;
+		vertistart=ilisting[ilv1].y;
+		if (horzistart<0) horzistart+=gfx_screensizex/constants_buttonsize;
+		if (vertistart<0) vertistart+=gfx_screensizey/constants_buttonsize;
+		if ((horzistart==posx) && (vertistart==posy))
+		{
+			ipulloutlisting=&(ilisting[ilv1]);
+			ihitnr=ilv1;
+			goto ifound;
+		}
+		if (ilisting[ilv1].lmbmode==0x103)
+		{
+			if (vertistart==posy)
+			{
+				if ((horzistart<=posx) && (horzistart+(gfx_canvassizex/32)>posx))
+				{
+					ipulloutlisting=&(ilisting[ilv1]);
+					ihitnr=ilv1;
+					goto ifound;
+				}
+			}
+		}
+	}
+	ifound:;
+	if (ipulloutlisting)
+	{
+		strcpy(menugfx_menudescription,ipulloutlisting->explanation);
+	}
+}
 int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int posy,int button,int pixeloriginposx,int pixeloriginposy,int starthitnr=-1)
 {
 	int horzistart;
@@ -2452,9 +2490,6 @@ int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int
 		ihitnr=starthitnr;
 		ipulloutlisting=ilisting+ihitnr;
 		goto ifound;
-	}
-	for (int ilv1=0;ilv1<icount;ilv1++)
-	{
 	}
 	for (int ilv1=0;ilv1<icount;ilv1++)
 	{
@@ -3092,6 +3127,34 @@ void issueshift(int ideltax,int ideltay)
 		edit_flexicopy(currentundostep,glob_n_multilist,glob_b_multilist,selection_currentselection,&tl_deltaback,ideltax,ideltay,1);
 	}
 }
+void control_issuemenuhovers(int iposx,int iposy)
+{
+	menugfx_menudescription[0]=0;
+	for (int ilv1=0;ilv1<AUTOSTRUCT_PULLOUTLISTING_toolbox_Size;ilv1++)
+	{
+		if (AUTOSTRUCT_PULLOUTLISTING_toolbox[ilv1].lmbmode==1)
+		{
+			if (AUTOSTRUCT_PULLOUTLISTING_toolbox[ilv1].toolnr==control_tool)
+			{
+				strcpy(menugfx_menudescription,AUTOSTRUCT_PULLOUTLISTING_toolbox[ilv1].explanation);
+			}
+		}
+	}
+	for (int ilv1=menu_list_count-1;ilv1>=0;ilv1--)
+	{
+		int tl_alignx=menu_list[ilv1].alignx;
+		int tl_aligny=menu_list[ilv1].aligny;
+		if (tl_alignx<0) tl_alignx+=gfx_screensizex;
+		if (tl_aligny<0) tl_aligny+=gfx_screensizey;
+		if (((iposx-tl_alignx)>=0) && ((iposy-tl_aligny)>=0))
+		{
+			switch (menu_list[ilv1].type)
+			{
+				case 0: control_issuemenuhover((AUTOSTRUCT_PULLOUTLISTING_*)menu_list[ilv1].what.pointer,menu_list[ilv1].what.count,(iposx-tl_alignx)/32,(iposy-tl_aligny)/32);break;
+			}
+		}
+	}
+}
 void control_normal()
 {
 	char idirection=1;
@@ -3111,6 +3174,7 @@ void control_normal()
 				control_doublekeypressenergy=0;
 				control_mousex=control_Event.motion.x;
 				control_mousey=control_Event.motion.y;
+				control_issuemenuhovers(control_mousex,control_mousey);
 				control_hotatom=-1;
 
 				if (SDL_PollEvent(&control_Event2))

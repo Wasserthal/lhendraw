@@ -122,7 +122,7 @@ void printmenutext(int posx,int posy,const char * iinput,int end,char symbolmode
 		text_output_bitmap(&iposx,&iposy,&fontpixinf[indexfromunicode(((unsigned char)iinput[ilv4]))]);
 	}
 	skipfornow:
-	if (linebreak) {if (ilv4<end) {if (symbolmode) {iposx=posx;iposy+=16;}goto thatwasatemporaryskip;}}//a line break;
+	if (linebreak) {if (ilv4<end) {if (symbolmode) {iposx=posx;iposy+=16;}else iposx+=16; goto thatwasatemporaryskip;}}//a line break;
 }
 int sdl_toolboxitemdraw(int posx,int posy,int gfxno,_u32 state)
 {
@@ -842,6 +842,7 @@ int sdl_menudraw()
 			sdl_analysisdraw(menu_list[ilv1].alignx,menu_list[ilv1].aligny);
 		}
 	}
+	printmenutext(4,gfx_screensizey-24,menugfx_menudescription,min(strlen(menugfx_menudescription),gfx_screensizex/8-8));
 	return 0;
 }
 void menuframeline(int x,int y,int maxx,int maxy)

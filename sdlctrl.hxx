@@ -3106,7 +3106,11 @@ void issuemenudrag(int posx,int posy,char ifinal=0)
 				control_menudraginty+=diffy;
 				sprintf(istring,"%f",((float)(control_menudraginty))/gfx_canvassizey*2.0*Pi);
 				(*control_menuitem).RMB_function("",istring);
+#ifndef SDL2
 				SDL_WarpMouse(control_lastmenux,control_lastmenuy);
+#else
+				SDL_WarpMouseInWindow(window,control_lastmenux,control_lastmenuy);
+#endif
 				posx=control_lastmenux;
 				posy=control_lastmenuy;
 			}

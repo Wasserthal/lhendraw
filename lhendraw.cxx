@@ -60,10 +60,10 @@ int undo_getbufferfromstructure(basicmultilist * input,TELESCOPE_buffer * * buff
 void automatic_init() {
 #include "./generated/initialization_lhendraw.hxx"
 }
-superconstellation AUTOSTRUCTURE_ctype_propertylist[]{
+superconstellation AUTOSTRUCTURE_ctype_propertylist[]={
 #include "./generated/propertylist_lhendraw.hxx"
 };
-superconstellation_directory AUTOSTRUCTURE_ctype_directory[]{
+superconstellation_directory AUTOSTRUCTURE_ctype_directory[]={
 #include "./generated/propertydirectory_lhendraw.hxx"
 };
 #include "text.h"
@@ -123,7 +123,7 @@ multilistlist_ multilistlist[]=
 #include "./generated/multilistlistfile.hxx"
 };
 #include "./generated/reflection.hxx"
-structenum REFLECTION_List[]{
+structenum REFLECTION_List[]={
 #include "./generated/pullout_reflectfile.hxx"
 };
 int REFLECTION_ListSize=sizeof(REFLECTION_List)/sizeof(structenum);

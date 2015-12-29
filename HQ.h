@@ -15,7 +15,7 @@
 _RGB * HQ_inmemory;
 _RGB * HQ_outmemory;
 _u32 HQ_insizex,HQ_insizey;
-_RGB HQ_threshold={.a={6,7,48,255}};
+_RGB HQ_threshold={0xFF300706};
 _RGB HQ_1,HQ_2,HQ_3,HQ_4,HQ_5,HQ_6,HQ_7,HQ_8,HQ_9;
 _RGB HQ_retval_00,HQ_retval_x0,HQ_retval_0y,HQ_retval_xy;
 _RGB HQ_sub_color(_RGB par1,_RGB par2)
@@ -54,7 +54,7 @@ _RGB Mix2Asym(_RGB par1,_RGB par2)
 	_u8 g1=(((int)(((_RGB)par1).a[1]))+((int)(((_RGB)par1).a[1]))+((int)(((_RGB)par1).a[1]))+((int)(((_RGB)par2).a[1])))>>2;
 	_u8 b1=(((int)(((_RGB)par1).a[2]))+((int)(((_RGB)par1).a[2]))+((int)(((_RGB)par1).a[2]))+((int)(((_RGB)par2).a[2])))>>2;
 	_u8 a1=(((int)(((_RGB)par1).a[3]))+((int)(((_RGB)par1).a[3]))+((int)(((_RGB)par1).a[3]))+((int)(((_RGB)par2).a[3])))>>2;
-	_RGB backval={.a={r1,g1,b1,a1}};
+	_RGB backval;backval.a[0]=r1;backval.a[1]=g1;backval.a[2]=b1;backval.a[3]=a1;
 	return backval;
 }
 _RGB Mix3(_RGB par1,_RGB par2,_RGB par3)
@@ -63,7 +63,8 @@ _RGB Mix3(_RGB par1,_RGB par2,_RGB par3)
 	_u8 g1=(((int)(((_RGB)par1).a[1]))+((int)(((_RGB)par1).a[1]))+((int)(((_RGB)par2).a[1]))+((int)(((_RGB)par3).a[1])))>>2;
 	_u8 b1=(((int)(((_RGB)par1).a[2]))+((int)(((_RGB)par1).a[2]))+((int)(((_RGB)par2).a[2]))+((int)(((_RGB)par3).a[2])))>>2;
 	_u8 a1=(((int)(((_RGB)par1).a[3]))+((int)(((_RGB)par1).a[3]))+((int)(((_RGB)par2).a[3]))+((int)(((_RGB)par3).a[3])))>>2;
-	_RGB backval={.a={r1,g1,b1,a1}};
+	_RGB backval;backval.a[0]=r1;backval.a[1]=g1;backval.a[2]=b1;backval.a[3]=a1;
+
 	return backval;
 }
 _RGB Mix2Pure(_RGB par1,_RGB par2)
@@ -76,7 +77,7 @@ _RGB Mix2Pure(_RGB par1,_RGB par2)
 	_u16 g2=((_RGB)par2).a[1];
 	_u16 b2=((_RGB)par2).a[2];
 	_u16 a2=((_RGB)par2).a[3];
-	_RGB backval={.a={(_u8)((r1+r2)>>1),(_u8)((g1+g2)>>1),(_u8)((b1+b2)>>1),(_u8)((a1+a2)>>1)}};
+	_RGB backval;backval.a[0]=r1;backval.a[1]=g1;backval.a[2]=b1;backval.a[3]=a1;
 	return backval;
 }
 _RGB Mix3Grad(_RGB par1,_RGB par2,_RGB par3)

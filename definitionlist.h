@@ -62,7 +62,7 @@ struct list_bookstavecode
 	char name[12];
 	char unicode[8];
 };
-list_bookstavecode list_xml[]
+list_bookstavecode list_xml[]=
 {
 	{{"lt"},{"<"}},
 	{{"gt"},{">"}},

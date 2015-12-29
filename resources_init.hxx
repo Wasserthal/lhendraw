@@ -1,5 +1,4 @@
 //reads in all files essential for the program
-#ifndef SDL2
 _u32 resources_icon[32][8]={{0x8C30000},{0xAEB0000},{0xAEB0000},{0x8C30000},{0x300C000},{0x300C000},{0xC003000},{0xC003000},
 {0x30000C00},{0x35555C00},{0x35555C00},{0x35555C00},{0x35555C00},{0x35555C00},{0x35555C00},{0x35555C00},
 {0x35555C00},{0x35555C00},{0x35555F00},{0x355555C0},{0x35555570},{0xF555457C},{0xD555415C},{0xD555505C},
@@ -22,11 +21,16 @@ void resources_set_icon()
 		if ((hoehe==13)||(hoehe==14)) {*(fix++)=0x02010101;*fix=0x04040404;}
 	}
 	SDL_Surface * iSurface=SDL_CreateRGBSurfaceFrom(resources_icon,32,32,8,32,0,0,0,0);
+	#ifndef SDL2
 	SDL_SetPalette(iSurface,SDL_LOGPAL|SDL_PHYSPAL,resources_icon_palette,0,5);
-
 	SDL_WM_SetIcon(iSurface,NULL);
+	#else
+	SDL_Palette * lost_iconpalette=SDL_AllocPalette(5);
+	SDL_SetPaletteColors(lost_iconpalette,resources_icon_palette,0,5);
+	SDL_SetSurfacePalette(iSurface,lost_iconpalette);
+	SDL_SetWindowIcon(window,iSurface);
+	#endif
 }
-#endif
 FILE * criticalfilename(char * idirectorystring,const char * iname)
 {
 	FILE * thefile=NULL;

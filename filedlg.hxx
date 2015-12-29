@@ -104,7 +104,7 @@ void control_filedlg()
 				int tl_menunr,tl_index;
 				menu_itemwadethrough(&menu_selectedmenuelement,&tl_menunr,&tl_index,0);
 				AUTOSTRUCT_PULLOUTLISTING_ * tl_pulloutlisting=((AUTOSTRUCT_PULLOUTLISTING_*)(menu_list[tl_menunr].what.pointer))+tl_index;
-				if (tl_pulloutlisting.lmbmode==0x301)
+				if (tl_pulloutlisting->lmbmode==0x301)
 				{
 					int ilength=strlen(control_Event.text.text);
 					if (control_menutexteditcursor<=strlen(((char*)(tl_pulloutlisting->variable))))
@@ -335,6 +335,7 @@ void control_filedlg()
 										control_menutexteditcursor++;
 									}
 									break;
+#ifndef SDL2
 									case SDLK_KP0:goto tl_0;
 									case SDLK_KP1:goto tl_1;
 									case SDLK_KP2:goto tl_2;
@@ -345,6 +346,8 @@ void control_filedlg()
 									case SDLK_KP7:goto tl_7;
 									case SDLK_KP8:goto tl_8;
 									case SDLK_KP9:goto tl_9;
+#else
+#endif
 									default:
 									goto key_unprocessed;
 								}

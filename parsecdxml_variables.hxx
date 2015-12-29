@@ -62,9 +62,9 @@ int control_menutexteditcursor=0;
 char menugfx_menudescription[stringlength+1]={0};
 struct control_export_
 {
-	int bmp_compression=0;//0: normal 3:ARGB,32bpp only
-	int hires=0;//0: not 1: use HQ_filter
-}control_export;
+	int bmp_compression;//0: normal 3:ARGB,32bpp only
+	int hires;//0: not 1: use HQ_filter
+}control_export={0,0};
 TELESCOPE_tempvar_ TELESCOPE_tempvar;
 TELESCOPE_tempvar_ TELESCOPE_debugvar;
 char control_filememory_buffer[255][256];
@@ -78,22 +78,22 @@ _u32 control_filememory_search_attribs[255];
 int menu_selectedmenuelement;
 char control_filemenu_mode=0;
 int undo_undodirty=0;//set when undo was stored just to become immediately modified in the same command, like the storeundo at issueclick
-structenum control_devicememory
+structenum control_devicememory=
 {
 	{"control_devicememory"},
 	0,255,&control_devicememory_buffer,1,sizeof(control_devicememory_buffer[0]),-1,0,
 };
-structenum control_filememory
+structenum control_filememory=
 {
 	{"control_filememory"},
 	0,255,&control_filememory_buffer,1,sizeof(control_filememory_buffer[0]),-1,0,
 };
-structenum control_filememory_port
+structenum control_filememory_port=
 {
 	{"control_filememory_port"},
 	0,255,&control_filememory_port_buffer,1,sizeof(control_filememory_port_buffer[0]),-1,0,
 };
-structenum control_filememory_search
+structenum control_filememory_search=
 {
 	{"control_filememory_search"},
 	0,255,&control_filememory_search_buffer,1,sizeof(control_filememory_search_buffer[0]),-1,0,

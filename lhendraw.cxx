@@ -66,6 +66,7 @@ superconstellation AUTOSTRUCTURE_ctype_propertylist[]{
 superconstellation_directory AUTOSTRUCTURE_ctype_directory[]{
 #include "./generated/propertydirectory_lhendraw.hxx"
 };
+#include "text.h"
 #include "text_freetype.h"
 
 #ifndef NODEBUG

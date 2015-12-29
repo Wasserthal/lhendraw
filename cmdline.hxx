@@ -94,6 +94,15 @@ void executeparameter(const char which,int parameter,int posinparameter,int argc
 							if (SEARCHFILE(parameter_filename,"")>0) {printf("%s\n",parameter_filename);}
 						}
 					}
+					if (strcmp(argv[parameter]+posinparameter,"exportfonttobin")==0)
+					{
+						for (int ilv1=parameter+1;ilv1<argc;ilv1++)
+						{
+							parameter_filename=argv[ilv1];
+							FILE * outfile=fopen(parameter_filename,"w");
+							text_store(outfile);
+						}
+					}
 				}//or it was a --, so not interpreted.
 				break;
 		case 'c' :      for (int ilv1=0;ilv1<REFLECTION_FUNCTION_ListSize;ilv1++)

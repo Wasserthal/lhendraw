@@ -23,12 +23,6 @@ commandline: ./generated/filestructure.hxx ./generated/internalstructure.hxx par
 	gcc -O0 -std=c99 -g ./tools/reflection.c -o ./tools/reflection
 ./tools/option: ./tools/option.c
 	gcc -O0 -std=c99 -g ./tools/option.c -o ./tools/option
-./generated/filestructure.hxx ./generated/internalstructure.hxx ./generated/initialization_parsexml.hxx: ./tools/filestructure_maker filestructure.draft internalstructure.draft
-	mkdir ./generated ; true
-	echo 'void automatic_init() {'> ./generated/initialization_parsexml.hxx
-	./tools/filestructure_maker -m filestructure.draft ./generated/filestructure.hxx ./generated/initialization_parsexml.hxx '' 
-	./tools/filestructure_maker -l internalstructure.draft ./generated/internalstructure.hxx ./generated/initialization_parsexml.hxx INTERNAL ./generated/propertylist_lhendraw.hxx ./generated/propertydirectory_lhendraw.hxx
-	echo '}' >> ./generated/initialization_parsexml.hxx
 ./generated/structure.hxx ./generated/cambridgestructure.hxx ./generated/initialization_lhendraw.hxx ./generated/configfilestructure.hxx ./generated/multilistlistfile.hxx ./generated/propertydirectory_lhendraw.hxx: ./tools/filestructure_maker internalstructure.draft filestructure.draft configfile.draft bkchem.draft
 	mkdir ./generated ; true
 	rm ./generated/initialization_lhendraw.hxx ; rm ./generated/propertylist_lhendraw.hxx ; rm ./generated/propertydirectory_lhendraw.hxx ; rm ./generated/multilistlistfile.hxx ; true
@@ -52,7 +46,7 @@ mac: ./generated/structure.hxx ./generated/reflection.hxx lendefs.h xmldata.hxx 
 lennard_infget: makeinf.hxx makeinf_test.cxx cdxdata.hxx lendefs.h
 	g++ -g -O0 -std=c++0x -Wno-invalid-offsetof makeinf_test.cxx -o lennard_infget -D DEBUG -D MACHINE_READABLE -Wno-format
 ./generated/pullout_stringfile.hxx: ./tools/option tools/pullout.c *.pullout.hxx edit.hxx parsecdxml_variables.hxx
-	ls -1 *\.pullout.hxx | cut -d. -f 1 | xargs -I{} ./tools/pulloutmatic.sh {} > ./generated/pulloutmatic.hxx
+	./tools/pulloutmatic.sh
 	rm ./generated/pullout.hxx ; rm ./generated/pullout_stringfile.hxx ; rm ./generated/pullout_structfile.hxx ; rm ./generated/pullout_reflectfile.hxx ; true;
 	cat *.pullout.hxx > ./generated/pullout.hxx
 	gcc tools/pullout.c -o tools/pullout

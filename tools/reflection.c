@@ -49,7 +49,7 @@ int main(int argc,char ** argv)
 	outfile=fopen("./generated/reflection.hxx","a");
 	outfile2=fopen("./generated/reflection_headers.hxx","a");
 	fprintf(outfile2,"extern fuenum REFLECTION_FUNCTION_List[];\n");
-	fprintf(outfile,"fuenum REFLECTION_FUNCTION_List[]{\n");
+	fprintf(outfile,"fuenum REFLECTION_FUNCTION_List[]={\n");
 	for (int ilv1=1;ilv1<argc;ilv1++)
 	{
 		infile=fopen(argv[ilv1],"r");

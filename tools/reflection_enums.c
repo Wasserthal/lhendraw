@@ -38,7 +38,7 @@ int main(void)
 				int backval=sscanf(buffer,"//--%[^\n \x0D]",group);
 				icount=0;
 				sprintf(searchstring,"#define %s_%%[^\n ] %%i",group);
-				fprintf(outfile,"trienum %s_List[]{\n",group);
+				fprintf(outfile,"trienum %s_List[]={\n",group);
 				fprintf(outfile2,"extern trienum %s_List[];\n",group);
 				glob_started=1;
 			}

@@ -150,8 +150,7 @@ class basicmultilist
 	}
 	virtual int getproperties(const char * name,CDXMLREAD_functype * delegateoutput)
 	{
-		fprintf(stderr,"Programming error! You asked for the properties of a basic multilist!");
-		exit(1);
+		error("Programming error! You asked for the properties of a basic multilist!");
 	}
 	~basicmultilist(){};
 };
@@ -227,7 +226,7 @@ template <class whatabout> class multilist : public basicmultilist
 		}
 		else
 		{
-			fprintf(stderr,"Programming error: overflow on internal multilist");exit(1);
+			error("Programming error: overflow on internal multilist");
 			return -1;
 		}
 	}
@@ -272,7 +271,7 @@ template <class whatabout> class multilist : public basicmultilist
 		}
 		else
 		{//TODO: Prevent memory overflow, better: 
-			fprintf(stderr,"Memory overflow on multilistreference_creation\n");exit(1);
+			error("Memory overflow on multilistreference_creation\n");
 		}
 		return &(dependants[ourcount-1]);
 	}
@@ -319,7 +318,6 @@ template <class whatabout> multilist<whatabout> * registermultilist(const char *
 			return (multilist<whatabout> *) multilistlist[ilv1].instance;
 		}
 	}
-	exit(1);
 	multilistlist[multilist_count].instance=new(multilist<whatabout>);//TODO mem: leaks
 	strcpy(multilistlist[multilist_count].name,thetypesname);
 	(*((multilistlist[multilist_count].instance))).index=multilist_count;
@@ -407,6 +405,6 @@ struct undo_singlebuffer
 		}\
 		else\
 		{\
-			fprintf(stderr,"programming error! " #WHAT " is no Element of this " #WHOM ", at address%p!\n",WHOM);exit(1);\
+			error("programming error! " #WHAT " is no Element of this " #WHOM ", at address%p!",WHOM);\
 		}\
 	}

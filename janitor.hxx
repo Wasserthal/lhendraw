@@ -241,10 +241,7 @@ void initZlist()
 	realloced:;
 	if (objectZorderlist_count*sizeof(multi_objref_)>=LHENDRAW_buffersize)
 	{
-		if (memory_realloc_x2()==0)
-		{
-			fprintf(stderr,"memory not sufficient for Z-buffer!");exit(1);
-		}
+		if (memory_realloc_x2()==0) error("memory not sufficient for Z-buffer!");
 		goto realloced;
 	}
 	if (objectZorderlist==NULL)

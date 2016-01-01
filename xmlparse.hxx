@@ -75,7 +75,7 @@ void scoopparam()
 	CDXMLREAD_functype thisfunc;
 	if (strcmp(parameterstring,"PCTEXTcounter")==0)
 	{
-		fprintf(stderr,"Hacking attempt detected (PCSTRING)!");exit(1);
+		error("Hacking attempt detected (PCSTRING)!");
 	}
 	int suboffset=(currentinstance->getproperties(parameterstring,&thisfunc,&iitemnumber));
 	if (suboffset!=-1)
@@ -97,7 +97,7 @@ void scoopparam_bin()
 	CDXMLREAD_functype thisfunc;
 	if (strcmp(parameterstring,"PCTEXTcounter")==0)
 	{
-		fprintf(stderr,"Hacking attempt detected (PCSTRING)!");exit(1);
+		error("Hacking attempt detected (PCSTRING)!");
 	}
 	if (currentinstance->_==NULL) return;
 	superconstellation * tl_superconstellation=getsuperconstellation_p(currentinstance->_,parameterstring,&iitemnumber);
@@ -138,7 +138,7 @@ if (paramvaluestring_length>=LHENDRAW_buffersize-ADDITION)\
 {\
 	if (memory_realloc_x2()==0)\
 	{\
-		fprintf(stderr,"overflow error!\n");exit(1);\
+		error("overflow error!");\
 	}\
 }
 void input_fsm(FILE* infile)
@@ -194,12 +194,12 @@ void input_fsm(FILE* infile)
 			{
 				if (bexittag==1)
 				{
-					fprintf(stderr,"Error: only slash in brackets!");exit(1);
+					error("Error: only slash in brackets!");
 				}
 				bexittag=0;
 				fsmint=4;
 			}
-			printf("Error: invalid beginning of tag!");exit(1);
+			error("Error: invalid beginning of tag!");
 		break;
 		case 2:
 			if (sentenumeric(ichar))
@@ -214,7 +214,7 @@ void input_fsm(FILE* infile)
 				{
 					if (ichar=='/')
 					{
-						fprintf(stderr,"Error: The Tag to end was defined by another /");exit(1);
+						error("Error: The Tag to end was defined by another /");
 						break;
 					}
 					if (ichar=='>')
@@ -249,7 +249,7 @@ void input_fsm(FILE* infile)
 			{
 				if (bexittag==1)
 				{
-					fprintf(stderr,"error: exiting tag had also exit on end");exit(1);
+					error("error: exiting tag had also exit on end");
 				}
 				exittag();
 				bexittag=0;
@@ -289,7 +289,7 @@ void input_fsm(FILE* infile)
 			{
 				if (paramvaluestring_length!=0)
 				{
-					fprintf(stderr,"Error: Starting the Hypenation too late");exit(1);
+					error("Error: Starting the Hypenation too late");
 				}
 				paramvaluestring_length=0;
 				fsmint=9;
@@ -339,16 +339,18 @@ void input_fsm(FILE* infile)
 			{
 				fsmint=4;break;	
 			}
-			fprintf(stderr,"Error: \">\" expected at end of tag");
 			#ifdef DEBUG
+			fprintf(stderr,"Error: \">\" expected at end of tag");
 			fprintf(stderr,"%%-> %llX <-i\n",debugcounter);
-			#endif
 			for (int ilv1=0;ilv1<15;ilv1++)
 			{
 				fread(&ichar,1,1,infile);
 				fprintf(stderr,"%c",ichar);
 			}
 			exit(1);
+			#else
+			error("Error: \">\" expected at end of tag");
+			#endif
 		break;
 		case 9:
 			if (ichar=='"')
@@ -375,7 +377,7 @@ void input_fsm(FILE* infile)
 			}
 		break;
 		default:
-		fprintf(stderr,"Error: Internal error!Invalid fsmint!!!!:%llX",fsmint);exit(1);
+		error("Error: Internal error!Invalid fsmint!!!!:%llX",fsmint);
 	}
 	if (currentinstance==NULL) return;
 	if (!feof(infile))
@@ -384,18 +386,16 @@ void input_fsm(FILE* infile)
 	}
 	if (strcmp((*currentinstance).getName(),"Total_Document")!=0)
 	{
-		fprintf(stderr,"Error: Premature End of File! You are still in a %s",(*currentinstance).getName());exit(1);
+		error("Error: Premature End of File! You are still in a %s",(*currentinstance).getName());
 	}
 }
 int debug_demonstratefsm_recursion_depth=0;
 void indent()
 {
-	#ifndef NODEBUG
 	for (int ilv1=0;ilv1<debug_demonstratefsm_recursion_depth;ilv1++)
 	{
-		printf("  ");
+		print("  ");
 	}
-	#endif
 }
 int input_recursion(FILE * infile)
 {
@@ -418,7 +418,7 @@ int input_recursion(FILE * infile)
 		if (tl_name)
 		{
 			strcpy(parameterstring,tl_name);
-			if (paramvaluestring_length>LHENDRAW_buffersize) {fprintf(stderr,"File overflow!");exit(1);}
+			if (paramvaluestring_length>LHENDRAW_buffersize) {error("File overflow!");}
 			backval=fread(paramvaluestring,1,paramvaluestring_length,infile);
 			if (backval<paramvaluestring_length) return -7;
 			_u8 padding=0x00;
@@ -431,17 +431,13 @@ int input_recursion(FILE * infile)
 				paramvaluestring[ilv1]=padding;
 			}
 			scoopparam_bin();
-			#ifndef NODEBUG
-			printf("%s:%i:%llX\n",tl_name,(int)paramvaluestring_length,*(_u64*)paramvaluestring);
-			#endif
+			print("%s:%i:%llX\n",tl_name,(int)paramvaluestring_length,*(_u64*)paramvaluestring);
 		}
 		else
 		{
 			backval=fread(paramvaluestring,1,paramvaluestring_length,infile);
 			if (backval<paramvaluestring_length) return -7;
-			#ifndef NODEBUG
-			printf("%04hX:%i:%llX\n",itype,(int)paramvaluestring_length,*(_u64*)paramvaluestring);
-			#endif
+			print("%04hX:%i:%llX\n",itype,(int)paramvaluestring_length,*(_u64*)paramvaluestring);
 		}
 		debug_demonstratefsm_recursion_depth-=1;
 		return 1;

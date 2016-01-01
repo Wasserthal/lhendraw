@@ -182,7 +182,7 @@ void do_inglyph(glyf_ * inglyph,FILE * infile)
 	int ibasecount=0;
 	int lastoff=0;
 	debug_expectedbytes+=bytes;
-	if ((*inglyph).maxcount>300) {printf("SLEEP!\n");sleep(10);exit(0);}
+	if ((*inglyph).maxcount>300) error("Error: font import runs unstable with too mach points in glyph");
 	_i16 forelastx=0;
 	_i16 forelasty=0;
 	_i16 lastx=0;
@@ -231,7 +231,7 @@ void do_inglyph(glyf_ * inglyph,FILE * infile)
 		forelastx=lastx;
 		forelasty=lasty;
 	}
-	if (ftell(infile)!=debug_expectedbytes) exit(1);
+	if (ftell(infile)!=debug_expectedbytes) error("Error: loading process behaved strangely during lennardfont import");
 }
 int glyf_init(FILE * infile)
 {

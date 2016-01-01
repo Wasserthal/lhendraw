@@ -26,11 +26,12 @@ LLLLLL H   H EEEEE N    N DDD   R  R A     A    W     W
 #include <X11/Xatom.h>
 #include <X11/Xmu/Atoms.h>
 #endif
+#include "lendefs.h"
+#include "debug.hxx"
 #define CAMBRIDGEPREFIX(content) CAMBRIDGE_ ## content
 #define CAMBRIDGEPREFIX2(content,content2) content ## _CAMBRIDGE_ ## content2
-#include "lendefs.h"
-#include "elements.hxx"
 #include "memory.hxx"
+#include "elements.hxx"
 #include "xmldata.hxx"
 #include "telescopic_list.hxx"
 #include "definitionlist.h"
@@ -140,26 +141,6 @@ structenum * searchreflectedstruct(const char * input)
 	}
 	return NULL;
 }
-void test_routine()
-{
-	#ifndef NODEBUG
-	printf("ggg:%llX---%llX\n",(long long)&(((*glob_CAMBRIDGE_t_multilist)[7])._vptr),(long long)(((*glob_CAMBRIDGE_t_multilist)[7])._vptr));
-	#endif
-}
-#ifndef NODEBUG
-const char *progname=NULL;
-void Signal(int signum)
-{
-	if (control_GUI)
-	{
-		char localbuf[512+1];
-		snprintf(localbuf,512,"gdb %s %d",progname,getpid());
-		system(localbuf);
-	}
-	else
-	fprintf(stderr,"FILE crashes:%s\n",control_filename);exit(1);
-}
-#endif
 int main(int argc,char * * argv)
 {
 #ifndef NODEBUG
@@ -173,15 +154,15 @@ int main(int argc,char * * argv)
 	control_export.hires=0;
 	if (sizeof(bond_actual_node_)>sizeof(b_instance))
 	{
-		fprintf(stderr,"Conceptual programming error, Helpstructure b > structure b\n");exit(1);
+		error("Conceptual programming error, Helpstructure b > structure b");
 	}
 	if (sizeof(atom_actual_node_)>sizeof(n_instance))
 	{
-		fprintf(stderr,"Conceptual programming error, Helpstructure n > structure n\n");exit(1);
+		error("Conceptual programming error, Helpstructure n > structure n");
 	}
 	if (sizeof(text_actual_node_)>sizeof(t_instance))
 	{
-		fprintf(stderr,"Conceptual programming error, Helpstructure t > structure t\n");exit(1);
+		error("Conceptual programming error, Helpstructure t > structure t");
 	}
 	memory_init();
 	memory_alloc(&tagnamestring,10);

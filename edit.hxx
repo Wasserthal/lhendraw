@@ -258,7 +258,7 @@ void getatoms()//makes some preprocessing
 			}
 			if ((diagnose_foundstart ==0) | (diagnose_foundend==0))
 			{
-				fprintf(stderr,"ERR:no start/end found!\n");exit(1);
+				error("Error: No start/end found on bond!");
 			}
 		}
 	}
@@ -3060,10 +3060,7 @@ catalogized_command_funcdef(LOAD_TYPE)
 	edit_add_deltahydrogens(tl_n_lastfilllevel);
 	for (int ilv1=0;ilv1<multilist_count;ilv1++)
 	{
-		if (multilistlist[ilv1].instance->filllevel>=multilistlist[ilv1].instance->getmaxitems()) {fprintf(stderr,"Multilist overflow! %s\n",multilistlist[ilv1].name);exit(2);}
-		if (edit_fileoperationrefersonlytopartofdocument)
-		{
-		}
+		if (multilistlist[ilv1].instance->filllevel>=multilistlist[ilv1].instance->getmaxitems()) error2(2,"Multilist overflow! %s",multilistlist[ilv1].name);
 	}
 	return 1;
 }

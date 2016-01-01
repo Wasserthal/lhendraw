@@ -14,7 +14,7 @@ int hotkeylist_count=0;
 void conv_config_internalconfig()
 {
 	hotkeylist_count=(*glob_CONFIGBRIDGE_Hotkey_multilist).filllevel;
-	if (hotkeylist_count>=1000) {fprintf(stderr,"too many hotkeys defined");exit(1);}
+	if (hotkeylist_count>=1000) error("too many hotkeys defined");
 	for (int ilv1=0;ilv1<hotkeylist_count;ilv1++)
 	{
 		CONFIGBRIDGE_Object_instance * tl_CONFIGBRIDGE_Object_instance=(CONFIGBRIDGE_Object_instance*)((*(CONFIGBRIDGE_Hotkeys_instance*)((*glob_CONFIGBRIDGE_Hotkey_multilist)[ilv1].master)).master);

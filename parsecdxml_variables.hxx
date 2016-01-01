@@ -250,23 +250,23 @@ int TELESCOPE_verify_objectcorrect()//-1: error 0: end of list 1: object 2: empt
 		}
 		if ((TELESCOPE_debugvar.objectpos<0) || (TELESCOPE_debugvar.objectpos>(*(TELESCOPE_debugvar.multilist)).filllevel))
 		{
-			fprintf(stderr,"TELESCOPE invalid object number%i of %lli\n",TELESCOPE_debugvar.objectpos,(*(TELESCOPE_debugvar.multilist)).filllevel);exit(1);
+			error("TELESCOPE invalid object number%i of %lli",TELESCOPE_debugvar.objectpos,(*(TELESCOPE_debugvar.multilist)).filllevel);
 		}
 		basic_instance_propertybuffer * i_basic_instance=((basic_instance_propertybuffer*)(((char*)((*(TELESCOPE_debugvar.multilist)).pointer))+(TELESCOPE_debugvar.objectsize*TELESCOPE_debugvar.objectpos)));
 		if ((*i_basic_instance).exist==0)
 		{
-			fprintf(stderr,"TELESCOPE owned by dead object\n");exit(1);
+			error("TELESCOPE owned by dead object");
 		}
 		if ((*i_basic_instance).pos_in_buffer!=TELESCOPE_debugvar.pos)
 		{
-			fprintf(stderr,"TELESCOPE and object went asynchronous:%i,%i\n",(int)(*i_basic_instance).pos_in_buffer,(int)TELESCOPE_debugvar.pos);exit(1);
+			error("TELESCOPE and object went asynchronous:%i,%i",(int)(*i_basic_instance).pos_in_buffer,(int)TELESCOPE_debugvar.pos);
 		}
 	}
 	else
 	{
 		if (TELESCOPE_debugvar.pos>(*(TELESCOPE_debugvar.buffer)).count)
 		{
-			fprintf(stderr,"TELESCOPE_buffer_overflow at beginning of object");exit(1);
+			error("TELESCOPE_buffer_overflow at beginning of object");
 		}
 		return 0;
 	}
@@ -386,11 +386,11 @@ int TELESCOPE_buffercheck(basicmultilist * imultilist)
 		TELESCOPE_debugvar.subpos=sizeof(TELESCOPE);
 		if (ilength<=sizeof(TELESCOPE))
 		{
-			fprintf(stderr,"TELESCOPE stupid length%i\n",ilength);exit(1);
+			error("TELESCOPE stupid length%i",ilength);
 		}
 		if ((TELESCOPE_debugvar.pos+ilength)>LHENDRAW_buffersize)
 		{
-			fprintf(stderr,"TELESCOPE buffer seems overflown%i\n",ilength);exit(1);
+			error("TELESCOPE buffer seems overflown%i",ilength);
 			return -21;
 		}
 	}
@@ -402,16 +402,16 @@ int TELESCOPE_buffercheck(basicmultilist * imultilist)
 			iTELESCOPE_element=(TELESCOPE_element*)((*(TELESCOPE_debugvar.buffer)).buffer+TELESCOPE_debugvar.pos+TELESCOPE_debugvar.subpos);
 			if (((*iTELESCOPE_element).type<0) || ((*iTELESCOPE_element).type>=TELESCOPE_ELEMENTTYPE_ListSize))
 			{
-				fprintf(stderr,"TELESCOPE bad element type%i\n",(*iTELESCOPE_element).type);exit(1);
+				error("TELESCOPE bad element type%i",(*iTELESCOPE_element).type);
 			}
-			fprintf(stderr,"%s",((*(TELESCOPE_debugvar.buffer)).buffer+TELESCOPE_debugvar.pos+TELESCOPE_debugvar.subpos)+TELESCOPE_ELEMENTTYPE_List[(*iTELESCOPE_element).type].size);
-			fprintf(stderr," %i",(int)((*iTELESCOPE_element).length-TELESCOPE_ELEMENTTYPE_List[(*iTELESCOPE_element).type].size));
+			print("%s",((*(TELESCOPE_debugvar.buffer)).buffer+TELESCOPE_debugvar.pos+TELESCOPE_debugvar.subpos)+TELESCOPE_ELEMENTTYPE_List[(*iTELESCOPE_element).type].size);
+			print(" %i",(int)((*iTELESCOPE_element).length-TELESCOPE_ELEMENTTYPE_List[(*iTELESCOPE_element).type].size));
 			TELESCOPE_debugvar.subpos+=(*iTELESCOPE_element).length;
 			TELESCOPE_debugvar.subpos2=TELESCOPE_debugvar.subpos;
 		}
 		if (TELESCOPE_debugvar.subpos>ilength)
 		{
-			fprintf(stderr,"TELESCOPE object contents overflow%i,%i>%i\n",(*iTELESCOPE_element).length,TELESCOPE_debugvar.subpos,ilength);exit(1);
+			error("TELESCOPE object contents overflow%i,%i>%i",(*iTELESCOPE_element).length,TELESCOPE_debugvar.subpos,ilength);
 		}
 	}
 	TELESCOPE_debugvar.subpos=0;
@@ -559,17 +559,17 @@ int TELESCOPE_split(int ipos,const char * iadditive_input,int ilength)
 	(*tl_Element).length=ipos+ilength+TELESCOPE_ELEMENTTYPE_List[itype].size;
 	if ((*tl_Element).length==0)
 	{
-		fprintf(stderr,"\\1");
+		print("\\1");
 	}
 	if ((*tl_SecondElement).length==0)
 	{
-		fprintf(stderr,"\\2");
+		print("\\2");
 	}
 	TELESCOPE_tempvar.subpos+=(*tl_Element).length;
 	TELESCOPE_tempvar.subpos2=TELESCOPE_tempvar.subpos+(*tl_SecondElement).length;
 	if ((*((TELESCOPE_element*)(((char*)tl_Element)+(*tl_Element).length))).length==0)
 	{
-		fprintf(stderr,"\\3");
+		print("\\3");
 	}
 	(*(TELESCOPE*)((*TELESCOPE_tempvar.buffer).buffer+TELESCOPE_tempvar.pos)).length+=ideltaplus2;
 	return 0;

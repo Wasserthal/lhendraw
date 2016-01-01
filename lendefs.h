@@ -1,5 +1,4 @@
-void test_routine();
-
+//Some definitions you always need
 #define intl long long
 #ifndef stringlength
 #define stringlength 512

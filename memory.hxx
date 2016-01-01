@@ -63,7 +63,7 @@ void memory_alloc(char ** address,int itype)
 	}
 	if (memory_bufferstructure_count>=memory_bufferstructure_max-1)
 	{
-		fprintf(stderr,"Programming error! Not enough memspace for all structures!\n");exit(1);
+		error("Programming error! Not enough memspace for all structures!");
 	}
 	(*address)=(char*)malloc(LHENDRAW_buffersize);
 	memory_bufferstructure[memory_bufferstructure_count].baseaddress=(*address);
@@ -100,8 +100,7 @@ int memory_free(void * ibaseaddress)
 		}
 	}
 	//This would be a memory-double-free, or freeing of a not mapped memory block.
-	fprintf(stderr,"DOUBLE FREE%p\n",ibaseaddress);
-	exit(1);
+	error("DOUBLE FREE%p",ibaseaddress);
 	return 0;
 }
 extern int *firstsrch;
@@ -117,8 +116,7 @@ int memory_yell(void * ibaseaddress)
 			return 1;
 		}
 	}
-	fprintf(stderr,"DEBUG ERROR, NOT FOUND%p\n",ibaseaddress);
-	exit(1);
+	fprintf(stderr,"DEBUG ERROR, NOT FOUND%p\n",ibaseaddress);exit(1);
 	return 0;
 }
 intl undo_memory_needs();

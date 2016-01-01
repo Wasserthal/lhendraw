@@ -477,8 +477,7 @@ int gfx()
 	#endif
 	if ( video == NULL ) 
 	{
-		fprintf(stderr,"Ich konnte kein Fenster mit der Auflösung %i*%i öffnen: %s\n",gfx_STANDARDX,gfx_STANDARDY,SDL_GetError());
-		exit(1);
+		error("Error: Couldn't open Window with Resolution %ix%i. SDL errno:%s",gfx_STANDARDX,gfx_STANDARDY,SDL_GetError());
 	}
 	return 1;
 }
@@ -486,8 +485,7 @@ void sdl_init()
 {
 	if (SDL_Init(SDL_INIT_VIDEO)<0)
 	{
-		fprintf(stderr, "SDL konnte nicht initialisiert werden: %s\n", SDL_GetError());
-		exit(1);
+		error("Error: couldn't initialize sdl. SDL errno:%s",SDL_GetError());
 	}
 	gfx();
 	gfx_initialized=1;

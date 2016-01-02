@@ -341,6 +341,93 @@ void MACRO_DRAWPREFIX(draw_Symbol)(int SymbolType)
 	MACRO_DRAWPREFIX(expressline)(iBBX.left-5,iBBX.top,iBBX.right+5,iBBX.top);
 	MACRO_DRAWPREFIX(expressline)(iBBX.left,iBBX.top-5,iBBX.right,iBBX.top+15);
 }
+void MACRO_DRAWPREFIX(singlebracket)(int ibt)
+{
+	switch (ibt)
+	{
+		case 3:
+		{
+			MACRO_DRAWPREFIX(expressline)(iBBX.left,iBBX.top,iBBX.right,iBBX.bottom);
+			MACRO_DRAWPREFIX(expressline)(iBBX.left,iBBX.top,iBBX.left+13.4*cos(cangle),iBBX.top+13.4*sin(cangle));
+			MACRO_DRAWPREFIX(expressline)(iBBX.right,iBBX.bottom,iBBX.right+13.4*cos(cangle),iBBX.bottom+13.4*sin(cangle));
+			break;
+		}
+		case 4:
+		{
+			MACRO_DRAWPREFIX(expressline)(iBBX.left+13.4*cos(langle),iBBX.top+13.4*sin(langle),(iBBX.left+iBBX.right)/2-13.4*cos(langle),(iBBX.top+iBBX.bottom)/2-13.4*sin(langle));
+			MACRO_DRAWPREFIX(expressline)((iBBX.left+iBBX.right)/2+13.4*cos(langle),(iBBX.top+iBBX.bottom)/2+13.4*sin(langle),iBBX.right-13.4*cos(langle),iBBX.bottom-13.4*sin(langle));
+			MACRO_DRAWPREFIX(expressbezier)(iBBX.left+13.4*cos(langle),iBBX.top+13.4*sin(langle),
+			iBBX.left+6.7*cos(langle),iBBX.top+6.7*sin(langle),
+			iBBX.left+6.7*cos(cangle),iBBX.top+6.7*sin(cangle),
+			iBBX.left+13.4*cos(cangle),iBBX.top+13.4*sin(cangle));
+			MACRO_DRAWPREFIX(expressbezier)((iBBX.left+iBBX.right)/2+13.4*cos(langle),(iBBX.top+iBBX.bottom)/2+13.4*sin(langle),
+			(iBBX.left+iBBX.right)/2+6.7*cos(langle),(iBBX.top+iBBX.bottom)/2+6.7*sin(langle),
+			(iBBX.left+iBBX.right)/2-6.7*cos(cangle),(iBBX.top+iBBX.bottom)/2-6.7*sin(cangle),
+			(iBBX.left+iBBX.right)/2-13.4*cos(cangle),(iBBX.top+iBBX.bottom)/2-13.4*sin(cangle));
+			MACRO_DRAWPREFIX(expressbezier)(iBBX.right-13.4*cos(langle),iBBX.bottom-13.4*sin(langle),
+			iBBX.right-6.7*cos(langle),iBBX.bottom-6.7*sin(langle),
+			iBBX.right+6.7*cos(cangle),iBBX.bottom+6.7*sin(cangle),
+			iBBX.right+13.4*cos(cangle),iBBX.bottom+13.4*sin(cangle));
+			MACRO_DRAWPREFIX(expressbezier)((iBBX.left+iBBX.right)/2-13.4*cos(langle),(iBBX.top+iBBX.bottom)/2-13.4*sin(langle),
+			(iBBX.left+iBBX.right)/2-6.7*cos(langle),(iBBX.top+iBBX.bottom)/2-6.7*sin(langle),
+			(iBBX.left+iBBX.right)/2-6.7*cos(cangle),(iBBX.top+iBBX.bottom)/2-6.7*sin(cangle),
+			(iBBX.left+iBBX.right)/2-13.4*cos(cangle),(iBBX.top+iBBX.bottom)/2-13.4*sin(cangle));
+			break;
+		}
+		case 5:
+		{
+			MACRO_DRAWPREFIX(expressbow)(iBBX.left,iBBX.top,iBBX.right,iBBX.bottom,1.8);
+			break;
+		}
+	}
+}
+void MACRO_DRAWPREFIX(doublebracket)(int ibt)
+{
+	int tl_singleBracketType=(ibt==0)?5:((ibt==1)?3:4);//sorry, simple subtraction of 3 wasn't possible.
+	if ((i_graphic_instance->MajorAxisEnd3D.x!=i_graphic_instance->Center3D.x) || (i_graphic_instance->MajorAxisEnd3D.y!=i_graphic_instance->Center3D.y) || (i_graphic_instance->MajorAxisEnd3D.z!=i_graphic_instance->Center3D.z))
+	{
+		if ((i_graphic_instance->MinorAxisEnd3D.x!=i_graphic_instance->Center3D.x) || (i_graphic_instance->MinorAxisEnd3D.y!=i_graphic_instance->Center3D.y) || (i_graphic_instance->MinorAxisEnd3D.z!=i_graphic_instance->Center3D.z))
+		{
+			cangle=getangle(+i_graphic_instance->MajorAxisEnd3D.x-i_graphic_instance->Center3D.x,+i_graphic_instance->MajorAxisEnd3D.y-i_graphic_instance->Center3D.y);
+			langle=getangle(+i_graphic_instance->MinorAxisEnd3D.x-i_graphic_instance->Center3D.x,+i_graphic_instance->MinorAxisEnd3D.y-i_graphic_instance->Center3D.y);
+			iBBX.right=i_graphic_instance->Center3D.x-i_graphic_instance->MajorAxisEnd3D.x+i_graphic_instance->MinorAxisEnd3D.x;
+			iBBX.left=i_graphic_instance->Center3D.x*3-i_graphic_instance->MajorAxisEnd3D.x-i_graphic_instance->MinorAxisEnd3D.x;
+			iBBX.top=i_graphic_instance->Center3D.y*3-i_graphic_instance->MajorAxisEnd3D.y-i_graphic_instance->MinorAxisEnd3D.y;
+			iBBX.bottom=i_graphic_instance->Center3D.y-i_graphic_instance->MajorAxisEnd3D.y+i_graphic_instance->MinorAxisEnd3D.y;
+			MACRO_DRAWPREFIX(singlebracket)(tl_singleBracketType);
+			cangle=fmod(cangle+Pi,2*Pi);
+			langle=fmod(langle+Pi,2*Pi);
+			iBBX.right=i_graphic_instance->Center3D.x+i_graphic_instance->MajorAxisEnd3D.x-i_graphic_instance->MinorAxisEnd3D.x;
+			iBBX.left=-i_graphic_instance->Center3D.x+i_graphic_instance->MajorAxisEnd3D.x+i_graphic_instance->MinorAxisEnd3D.x;
+			iBBX.bottom=i_graphic_instance->Center3D.y-i_graphic_instance->MinorAxisEnd3D.y+i_graphic_instance->MajorAxisEnd3D.y;
+			iBBX.top=-i_graphic_instance->Center3D.y+i_graphic_instance->MinorAxisEnd3D.y+i_graphic_instance->MajorAxisEnd3D.y;
+			MACRO_DRAWPREFIX(singlebracket)(tl_singleBracketType);
+		}
+		else
+		{
+			goto iregular;
+		}
+	}
+	else
+	{
+		iregular:;
+		cdx_Rectangle oldbbx=iBBX;
+		cangle=0;
+		langle=Pi/2;
+		iBBX.left=oldbbx.left;
+		iBBX.right=oldbbx.left;
+		iBBX.top=oldbbx.top;
+		iBBX.bottom=oldbbx.bottom;
+		MACRO_DRAWPREFIX(singlebracket)(tl_singleBracketType);
+		cangle=Pi;
+		langle=Pi+Pi/2;
+		iBBX.left=oldbbx.right;
+		iBBX.right=oldbbx.right;
+		iBBX.bottom=oldbbx.top;
+		iBBX.top=oldbbx.bottom;
+		MACRO_DRAWPREFIX(singlebracket)(tl_singleBracketType);
+	}
+}
 void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,char hatches)
 {
 	int ilv3,ilv4;
@@ -997,44 +1084,15 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,char hatches)
 	if ((*i_graphic_instance).GraphicType==6)
 	{
 		MACRO_DRAWPREFIX(stylegenestring)(stylefromattrs((*i_graphic_instance).LineType,(*i_graphic_instance).FillType));
-		cangle=getangle(iBBX.right-iBBX.left,iBBX.bottom-iBBX.top)+Pi/2;
-		langle=getangle(iBBX.right-iBBX.left,iBBX.bottom-iBBX.top);
-		switch ((*i_graphic_instance).BracketType)
+		if (((*i_graphic_instance).BracketType)>=3)
 		{
-			case 3:
-			{
-				MACRO_DRAWPREFIX(expressline)(iBBX.left,iBBX.top,iBBX.right,iBBX.bottom);
-				MACRO_DRAWPREFIX(expressline)(iBBX.left,iBBX.top,iBBX.left+13.4*cos(cangle),iBBX.top+13.4*sin(cangle));
-				MACRO_DRAWPREFIX(expressline)(iBBX.right,iBBX.bottom,iBBX.right+13.4*cos(cangle),iBBX.bottom+13.4*sin(cangle));
-				break;
-			}
-			case 4:
-			{
-				MACRO_DRAWPREFIX(expressline)(iBBX.left+13.4*cos(langle),iBBX.top+13.4*sin(langle),(iBBX.left+iBBX.right)/2-13.4*cos(langle),(iBBX.top+iBBX.bottom)/2-13.4*sin(langle));
-				MACRO_DRAWPREFIX(expressline)((iBBX.left+iBBX.right)/2+13.4*cos(langle),(iBBX.top+iBBX.bottom)/2+13.4*sin(langle),iBBX.right-13.4*cos(langle),iBBX.bottom-13.4*sin(langle));
-				MACRO_DRAWPREFIX(expressbezier)(iBBX.left+13.4*cos(langle),iBBX.top+13.4*sin(langle),
-				iBBX.left+6.7*cos(langle),iBBX.top+6.7*sin(langle),
-				iBBX.left+6.7*cos(cangle),iBBX.top+6.7*sin(cangle),
-				iBBX.left+13.4*cos(cangle),iBBX.top+13.4*sin(cangle));
-				MACRO_DRAWPREFIX(expressbezier)((iBBX.left+iBBX.right)/2+13.4*cos(langle),(iBBX.top+iBBX.bottom)/2+13.4*sin(langle),
-				(iBBX.left+iBBX.right)/2+6.7*cos(langle),(iBBX.top+iBBX.bottom)/2+6.7*sin(langle),
-				(iBBX.left+iBBX.right)/2-6.7*cos(cangle),(iBBX.top+iBBX.bottom)/2-6.7*sin(cangle),
-				(iBBX.left+iBBX.right)/2-13.4*cos(cangle),(iBBX.top+iBBX.bottom)/2-13.4*sin(cangle));
-				MACRO_DRAWPREFIX(expressbezier)(iBBX.right-13.4*cos(langle),iBBX.bottom-13.4*sin(langle),
-				iBBX.right-6.7*cos(langle),iBBX.bottom-6.7*sin(langle),
-				iBBX.right+6.7*cos(cangle),iBBX.bottom+6.7*sin(cangle),
-				iBBX.right+13.4*cos(cangle),iBBX.bottom+13.4*sin(cangle));
-				MACRO_DRAWPREFIX(expressbezier)((iBBX.left+iBBX.right)/2-13.4*cos(langle),(iBBX.top+iBBX.bottom)/2-13.4*sin(langle),
-				(iBBX.left+iBBX.right)/2-6.7*cos(langle),(iBBX.top+iBBX.bottom)/2-6.7*sin(langle),
-				(iBBX.left+iBBX.right)/2-6.7*cos(cangle),(iBBX.top+iBBX.bottom)/2-6.7*sin(cangle),
-				(iBBX.left+iBBX.right)/2-13.4*cos(cangle),(iBBX.top+iBBX.bottom)/2-13.4*sin(cangle));
-				break;
-			}
-			case 5:
-			{
-				MACRO_DRAWPREFIX(expressbow)(iBBX.left,iBBX.top,iBBX.right,iBBX.bottom,1.8);
-				break;
-			}
+			cangle=getangle(iBBX.right-iBBX.left,iBBX.bottom-iBBX.top)+Pi/2;
+			langle=getangle(iBBX.right-iBBX.left,iBBX.bottom-iBBX.top);
+			MACRO_DRAWPREFIX(singlebracket)((*i_graphic_instance).BracketType);
+		}
+		else
+		{
+			MACRO_DRAWPREFIX(doublebracket)((*i_graphic_instance).BracketType);
 		}
 	}
 	skipthisgraphic:

@@ -449,9 +449,12 @@ void CONVCAMBRIDGE_graphic(CAMBRIDGE_page_instance * master)
 				}
 			}
 			(*tl_CAMBRIDGE_graphic_instance).BracketType=(*tl_graphic_instance).BracketType;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_graphic_instance,BracketType);
-			(*tl_CAMBRIDGE_graphic_instance).Center3D=(*tl_graphic_instance).Center3D;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_graphic_instance,Center3D);
-			(*tl_CAMBRIDGE_graphic_instance).MajorAxisEnd3D=(*tl_graphic_instance).MajorAxisEnd3D;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_graphic_instance,MajorAxisEnd3D);
-			(*tl_CAMBRIDGE_graphic_instance).MinorAxisEnd3D=(*tl_graphic_instance).MinorAxisEnd3D;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_graphic_instance,MinorAxisEnd3D);
+			if (edit_getBoundingBoxMode(tl_graphic_instance)>0)
+			{
+				(*tl_CAMBRIDGE_graphic_instance).Center3D=(*tl_graphic_instance).Center3D;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_graphic_instance,Center3D);
+				(*tl_CAMBRIDGE_graphic_instance).MajorAxisEnd3D=(*tl_graphic_instance).MajorAxisEnd3D;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_graphic_instance,MajorAxisEnd3D);
+				(*tl_CAMBRIDGE_graphic_instance).MinorAxisEnd3D=(*tl_graphic_instance).MinorAxisEnd3D;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_graphic_instance,MinorAxisEnd3D);
+			}
 			(*tl_CAMBRIDGE_graphic_instance).id=janitor_id_list[STRUCTURE_OBJECTTYPE_graphic-1]+(*tl_graphic_instance).id;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_graphic_instance,id);
 			(*tl_CAMBRIDGE_graphic_instance).Z=(*tl_graphic_instance).Z;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_graphic_instance,Z);
 		}

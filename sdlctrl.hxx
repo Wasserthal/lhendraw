@@ -747,17 +747,35 @@ int control_squashselection()
 	icursor[0]=0xEE;icursor[1]=0x80;icursor[2]=0x80;
 	return 1;
 }
-void control_orhogonizegraphic(graphic_instance * iinstance)
+void control_orhogonizegraphic(graphic_instance * iinstance)//This is not understood as a file-format relevant synchronization of the bounding box with the axes.
+//It is rather a routine that converts 
 {
-	(*iinstance).Center3D.x=((*iinstance).BoundingBox.left+(*iinstance).BoundingBox.right)*0.5;
-	(*iinstance).Center3D.y=((*iinstance).BoundingBox.top+(*iinstance).BoundingBox.bottom)*0.5;
-	(*iinstance).Center3D.z=0;
-	(*iinstance).MajorAxisEnd3D.x=(*iinstance).BoundingBox.right;
-	(*iinstance).MajorAxisEnd3D.y=(*iinstance).Center3D.y;
-	(*iinstance).MajorAxisEnd3D.z=0;
-	(*iinstance).MinorAxisEnd3D.x=(*iinstance).Center3D.x;
-	(*iinstance).MinorAxisEnd3D.y=(*iinstance).BoundingBox.bottom;
-	(*iinstance).MinorAxisEnd3D.z=0;
+	switch (edit_getBoundingBoxMode(iinstance))
+	{
+		case 2:
+		{
+			(*iinstance).Center3D.x=(*iinstance).BoundingBox.left;
+			(*iinstance).Center3D.y=(*iinstance).BoundingBox.top;
+			(*iinstance).MajorAxisEnd3D.x=(*iinstance).BoundingBox.right;
+			(*iinstance).MajorAxisEnd3D.y=(*iinstance).BoundingBox.right;
+			(*iinstance).Center3D.z=0;
+			(*iinstance).MajorAxisEnd3D.z=0;
+			(*iinstance).MinorAxisEnd3D.z=0;
+		}
+		case 0: //OK, actually, in case 0, BoundingBox is invalid
+		case 1:
+		{
+			(*iinstance).Center3D.x=((*iinstance).BoundingBox.left+(*iinstance).BoundingBox.right)*0.5;
+			(*iinstance).Center3D.y=((*iinstance).BoundingBox.top+(*iinstance).BoundingBox.bottom)*0.5;
+			(*iinstance).Center3D.z=0;
+			(*iinstance).MajorAxisEnd3D.x=(*iinstance).BoundingBox.right;
+			(*iinstance).MajorAxisEnd3D.y=(*iinstance).Center3D.y;
+			(*iinstance).MajorAxisEnd3D.z=0;
+			(*iinstance).MinorAxisEnd3D.x=(*iinstance).Center3D.x;
+			(*iinstance).MinorAxisEnd3D.y=(*iinstance).BoundingBox.bottom;
+			(*iinstance).MinorAxisEnd3D.z=0;
+		}
+	}
 }
 void issuetextclick(int iposx,int iposy,const char * whichcursor="\uE000")
 {

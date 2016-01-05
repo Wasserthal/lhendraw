@@ -443,6 +443,48 @@ void CAMBRIDGECONV_graphic()
 		CAMBRIDGECONV_EXISTSTHEN(graphic,Center3D);
 		CAMBRIDGECONV_EXISTSTHEN(graphic,MajorAxisEnd3D);
 		CAMBRIDGECONV_EXISTSTHEN(graphic,MinorAxisEnd3D);
+		if (AUTOSTRUCT_EXISTS(CAMBRIDGE_graphic_instance,(*tl_CAMBRIDGE_graphic_instance),MajorAxisEnd3D))
+		{
+			//Actually unnecessary
+			switch (edit_getBoundingBoxMode(&tl_graphic_instance))
+			{
+				case 1:
+				tl_graphic_instance.BoundingBox.left=tl_graphic_instance.Center3D.x*2-tl_graphic_instance.MajorAxisEnd3D.x;
+				tl_graphic_instance.BoundingBox.top=tl_graphic_instance.Center3D.y*2-tl_graphic_instance.MinorAxisEnd3D.y;
+				tl_graphic_instance.BoundingBox.right=tl_graphic_instance.MajorAxisEnd3D.x;
+				tl_graphic_instance.BoundingBox.bottom=tl_graphic_instance.MinorAxisEnd3D.y;
+				break;
+				case 2:
+				tl_graphic_instance.BoundingBox.left=tl_graphic_instance.Center3D.x;
+				tl_graphic_instance.BoundingBox.top=tl_graphic_instance.Center3D.y;
+				tl_graphic_instance.BoundingBox.right=tl_graphic_instance.MajorAxisEnd3D.x;
+				tl_graphic_instance.BoundingBox.bottom=tl_graphic_instance.MinorAxisEnd3D.y;
+				break;
+				case 0:
+				break;
+			}
+		}
+		else
+		{
+			switch (edit_getBoundingBoxMode(&tl_graphic_instance))
+			{
+				case 1:
+				tl_graphic_instance.Center3D.x=(tl_graphic_instance.BoundingBox.left+tl_graphic_instance.BoundingBox.right)/2;
+				tl_graphic_instance.Center3D.y=(tl_graphic_instance.BoundingBox.left+tl_graphic_instance.BoundingBox.right)/2;
+				tl_graphic_instance.BoundingBox.right=tl_graphic_instance.MajorAxisEnd3D.x;
+				tl_graphic_instance.BoundingBox.bottom=tl_graphic_instance.MinorAxisEnd3D.y;
+				break;
+				case 2:
+				tl_graphic_instance.BoundingBox.left=tl_graphic_instance.Center3D.x;
+				tl_graphic_instance.BoundingBox.top=tl_graphic_instance.Center3D.y;
+				tl_graphic_instance.BoundingBox.right=tl_graphic_instance.MajorAxisEnd3D.x;
+				tl_graphic_instance.BoundingBox.bottom=tl_graphic_instance.MinorAxisEnd3D.y;
+				break;
+				case 0:
+				break;
+			}
+		}
+
 		CAMBRIDGECONV_EXISTSTHEN(graphic,id);//TODO: possibly not needed. Remove?
 		CAMBRIDGECONV_FIXID(graphic)
 		CAMBRIDGECONV_EXISTSTHEN(graphic,Z);

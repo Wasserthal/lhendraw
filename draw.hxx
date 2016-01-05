@@ -389,18 +389,18 @@ void MACRO_DRAWPREFIX(doublebracket)(int ibt)
 		if ((i_graphic_instance->MinorAxisEnd3D.x!=i_graphic_instance->Center3D.x) || (i_graphic_instance->MinorAxisEnd3D.y!=i_graphic_instance->Center3D.y) || (i_graphic_instance->MinorAxisEnd3D.z!=i_graphic_instance->Center3D.z))
 		{
 			cangle=getangle(+i_graphic_instance->MajorAxisEnd3D.x-i_graphic_instance->Center3D.x,+i_graphic_instance->MajorAxisEnd3D.y-i_graphic_instance->Center3D.y);
-			langle=getangle(+i_graphic_instance->MinorAxisEnd3D.x-i_graphic_instance->Center3D.x,+i_graphic_instance->MinorAxisEnd3D.y-i_graphic_instance->Center3D.y);
-			iBBX.right=i_graphic_instance->Center3D.x-i_graphic_instance->MajorAxisEnd3D.x+i_graphic_instance->MinorAxisEnd3D.x;
-			iBBX.left=i_graphic_instance->Center3D.x*3-i_graphic_instance->MajorAxisEnd3D.x-i_graphic_instance->MinorAxisEnd3D.x;
-			iBBX.top=i_graphic_instance->Center3D.y*3-i_graphic_instance->MajorAxisEnd3D.y-i_graphic_instance->MinorAxisEnd3D.y;
-			iBBX.bottom=i_graphic_instance->Center3D.y-i_graphic_instance->MajorAxisEnd3D.y+i_graphic_instance->MinorAxisEnd3D.y;
+			langle=getangle(-i_graphic_instance->MinorAxisEnd3D.x+i_graphic_instance->Center3D.x,-i_graphic_instance->MinorAxisEnd3D.y+i_graphic_instance->Center3D.y);
+			iBBX.left=i_graphic_instance->Center3D.x-i_graphic_instance->MajorAxisEnd3D.x+i_graphic_instance->MinorAxisEnd3D.x;
+			iBBX.right=i_graphic_instance->Center3D.x*3-i_graphic_instance->MajorAxisEnd3D.x-i_graphic_instance->MinorAxisEnd3D.x;
+			iBBX.bottom=i_graphic_instance->Center3D.y*3-i_graphic_instance->MajorAxisEnd3D.y-i_graphic_instance->MinorAxisEnd3D.y;
+			iBBX.top=i_graphic_instance->Center3D.y-i_graphic_instance->MajorAxisEnd3D.y+i_graphic_instance->MinorAxisEnd3D.y;
 			MACRO_DRAWPREFIX(singlebracket)(tl_singleBracketType);
 			cangle=fmod(cangle+Pi,2*Pi);
 			langle=fmod(langle+Pi,2*Pi);
-			iBBX.right=i_graphic_instance->Center3D.x+i_graphic_instance->MajorAxisEnd3D.x-i_graphic_instance->MinorAxisEnd3D.x;
-			iBBX.left=-i_graphic_instance->Center3D.x+i_graphic_instance->MajorAxisEnd3D.x+i_graphic_instance->MinorAxisEnd3D.x;
-			iBBX.bottom=i_graphic_instance->Center3D.y-i_graphic_instance->MinorAxisEnd3D.y+i_graphic_instance->MajorAxisEnd3D.y;
-			iBBX.top=-i_graphic_instance->Center3D.y+i_graphic_instance->MinorAxisEnd3D.y+i_graphic_instance->MajorAxisEnd3D.y;
+			iBBX.left=i_graphic_instance->Center3D.x+i_graphic_instance->MajorAxisEnd3D.x-i_graphic_instance->MinorAxisEnd3D.x;
+			iBBX.right=-i_graphic_instance->Center3D.x+i_graphic_instance->MajorAxisEnd3D.x+i_graphic_instance->MinorAxisEnd3D.x;
+			iBBX.top=i_graphic_instance->Center3D.y-i_graphic_instance->MinorAxisEnd3D.y+i_graphic_instance->MajorAxisEnd3D.y;
+			iBBX.bottom=-i_graphic_instance->Center3D.y+i_graphic_instance->MinorAxisEnd3D.y+i_graphic_instance->MajorAxisEnd3D.y;
 			MACRO_DRAWPREFIX(singlebracket)(tl_singleBracketType);
 		}
 		else

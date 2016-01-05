@@ -88,6 +88,7 @@ int clockid=0;
 #endif
 #include "conv_config_internalconfig.hxx"
 #include "selection.hxx"
+extern int edit_getBoundingBoxMode(graphic_instance * iinstance);
 #include "conv_cambridge_internal.hxx"
 #include "conv_internal_cambridge.hxx"
 int storeundo(_u32 flags);

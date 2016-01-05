@@ -171,3 +171,7 @@ int memory_realloc_d2()
 	if (LHENDRAW_buffersize<=4096) return 0;
 	return memory_realloc_down(LHENDRAW_buffersize/2);
 }
+void memory_spacecheck()//checks for space lack and raises memory when needed
+{
+	//TODO
+}

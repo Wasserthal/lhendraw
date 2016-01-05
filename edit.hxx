@@ -198,6 +198,51 @@ int for_all_objects(catalogized_command_iterated_functype ifunc,char selectionon
 	}
 	return erledigt;
 }
+int edit_getBoundingBoxMode(graphic_instance * i_graphic_instance)
+//Retval: 0: Bounding Box only 1: Standard 2: top, left are at Center3D.x Center3D.y
+{
+	switch ((*i_graphic_instance).GraphicType)
+	{
+		case 1:
+		return 0;
+		case 6:
+		{
+			switch ((*i_graphic_instance).BracketType)
+			{
+				case 0:
+				case 1:
+				case 2:
+				return 1;
+				case 3:
+				case 4:
+				case 5:
+				return 0;
+			}
+			break;
+		}
+		case 0:
+		case 3:
+		case 7:
+		{
+			return 1;
+			break;
+		}
+		break;
+		case 2:
+		{
+			//TODO: arc not supported
+			return 1;
+		}
+		break;
+		case 5:
+		case 4:
+		{
+			return 2;
+		}
+		break;
+	}
+	return 1;
+}
 char getleftof(cdx_Point3D * istart,cdx_Point3D * iend,cdx_Point3D * ikink)
 {
 	float diff1x,diff1y,diff2x,diff2y;
@@ -1200,6 +1245,12 @@ inline int placepoints(graphic_instance * iinstance,float ix,float iy,float iz,i
 	(*iinstance).BoundingBox.top-=tl_y;
 	(*iinstance).BoundingBox.right-=tl_x;
 	(*iinstance).BoundingBox.bottom-=tl_y;
+	(*iinstance).Center3D.x-=tl_x;
+	(*iinstance).Center3D.y-=tl_y;
+	(*iinstance).MajorAxisEnd3D.x-=tl_x;
+	(*iinstance).MajorAxisEnd3D.y-=tl_y;
+	(*iinstance).MinorAxisEnd3D.x-=tl_x;
+	(*iinstance).MinorAxisEnd3D.y-=tl_y;
 	return 1;
 }
 inline int placepoints(arrow_instance * iinstance,float ix,float iy,float iz,int inumber,basicmultilist * imultilist=NULL)
@@ -1687,7 +1738,7 @@ basic_instance * getclicked(int imap,float clckx,float clcky,int * backtype=NULL
 }
 
 
-n_instance * edit_summonatom(int * inr=NULL)
+n_instance * edit_summonatom(_i32 * inr=NULL)
 {
 	if ((*glob_n_multilist).filllevel<(*glob_n_multilist).getmaxitems())
 	{
@@ -1714,7 +1765,7 @@ n_instance * edit_summonatom(int * inr=NULL)
 	}
 	return NULL;
 }
-graphic_instance * edit_summongraphic(int * inr=NULL)
+graphic_instance * edit_summongraphic(_i32 * inr=NULL)
 {
 	if ((*glob_graphic_multilist).filllevel<(*glob_graphic_multilist).getmaxitems())
 	{
@@ -2813,6 +2864,43 @@ catalogized_command_funcdef(PASTE)
 	LHENDRAW_clipboardmode=0;
 	return 1;
 }
+extern graphic_instance * edit_summongraphic(_i32 * inr);
+void CONVCAMBRIDGE_splitbracketpairs()
+{
+	memory_spacecheck();
+	for (int ilv1=0;ilv1<glob_graphic_multilist->filllevel;ilv1++)
+	{
+		graphic_instance * tl_graphic_instance=glob_graphic_multilist->bufferlist()+ilv1;
+		if (tl_graphic_instance->exist)
+		{
+			if (tl_graphic_instance->GraphicType==6)
+			{
+				if ((tl_graphic_instance->BracketType>=0) && (tl_graphic_instance->BracketType<=2))
+				{
+					tl_graphic_instance->BracketType=(tl_graphic_instance->BracketType==0)?5:((tl_graphic_instance->BracketType==1)?3:4);//sorry, simple subtraction of 3 wasn't possible.
+					cdx_Rectangle tl_BBX;
+					_i32 tl_backno=0;
+					graphic_instance * tl_next_graphic_instance=edit_summongraphic(&tl_backno);
+					if (tl_next_graphic_instance)
+					{
+						tl_BBX.left=tl_graphic_instance->Center3D.x+tl_graphic_instance->MajorAxisEnd3D.x-tl_graphic_instance->MinorAxisEnd3D.x;
+						tl_BBX.right=-tl_graphic_instance->Center3D.x+tl_graphic_instance->MajorAxisEnd3D.x+tl_graphic_instance->MinorAxisEnd3D.x;
+						tl_BBX.top=tl_graphic_instance->Center3D.y-tl_graphic_instance->MinorAxisEnd3D.y+tl_graphic_instance->MajorAxisEnd3D.y;
+						tl_BBX.bottom=-tl_graphic_instance->Center3D.y+tl_graphic_instance->MinorAxisEnd3D.y+tl_graphic_instance->MajorAxisEnd3D.y;
+						memcpy(tl_next_graphic_instance,tl_graphic_instance,sizeof(graphic_instance));
+						tl_next_graphic_instance->BoundingBox=tl_BBX;
+						selection_currentselection[tl_backno]=(selection_currentselection[tl_backno]&(~(1<<STRUCTURE_OBJECTTYPE_graphic)))|(selection_currentselection[ilv1] & (1<<STRUCTURE_OBJECTTYPE_graphic));
+						tl_BBX.left=tl_next_graphic_instance->Center3D.x-tl_next_graphic_instance->MajorAxisEnd3D.x+tl_next_graphic_instance->MinorAxisEnd3D.x;
+						tl_BBX.right=tl_next_graphic_instance->Center3D.x*3-tl_next_graphic_instance->MajorAxisEnd3D.x-tl_next_graphic_instance->MinorAxisEnd3D.x;
+						tl_BBX.bottom=tl_next_graphic_instance->Center3D.y*3-tl_next_graphic_instance->MajorAxisEnd3D.y-tl_next_graphic_instance->MinorAxisEnd3D.y;
+						tl_BBX.top=tl_next_graphic_instance->Center3D.y-tl_next_graphic_instance->MajorAxisEnd3D.y+tl_next_graphic_instance->MinorAxisEnd3D.y;
+						tl_graphic_instance->BoundingBox=tl_BBX;
+					}
+				}
+			}
+		}
+	}
+}
 catalogized_command_funcdef(SAVE_TYPE)
 {
 	struct stat tl_buffer;
@@ -2935,6 +3023,7 @@ fprintf(ifile,"%s","</colortable><fonttable>\n"
 	tl_CAMBRIDGE_page_instance->HeightPages=37;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_page_instance,HeightPages);
 	tl_CAMBRIDGE_page_instance->WidthPages=48;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_page_instance,WidthPages);
 	tl_CAMBRIDGE_page_instance->DrawingSpace=1;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_page_instance,DrawingSpace);
+	CONVCAMBRIDGE_splitbracketpairs();
 	CONVCAMBRIDGE_internaltomain(tl_CAMBRIDGE_page_instance);
 	if (strcmp(value,".cdxml")==0)
 	{

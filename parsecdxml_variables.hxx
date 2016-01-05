@@ -41,6 +41,7 @@ float glob_subpoint_clickradius=50;
 #define SDLK_LSUPER SDLK_LGUI
 #define SDLK_RSUPER SDLK_RGUI
 #endif
+#define constants_maxlistentries 2047
 char constants_cdxstring[]=".cdx";
 typedef _u32 resources_button_[32][32];
 resources_button_ * resources_bitmap_buttons;
@@ -67,13 +68,13 @@ struct control_export_
 }control_export={0,0};
 TELESCOPE_tempvar_ TELESCOPE_tempvar;
 TELESCOPE_tempvar_ TELESCOPE_debugvar;
-char control_filememory_buffer[255][256];
-char control_devicememory_buffer[255][64];
-_u32 control_filememory_attribs[255];
-char control_filememory_port_buffer[255][256];
-_u32 control_filememory_port_attribs[255];
-char control_filememory_search_buffer[255][256];
-_u32 control_filememory_search_attribs[255];
+char control_filememory_buffer[constants_maxlistentries][256];
+char control_devicememory_buffer[constants_maxlistentries][64];
+_u32 control_filememory_attribs[constants_maxlistentries];
+char control_filememory_port_buffer[constants_maxlistentries][256];
+_u32 control_filememory_port_attribs[constants_maxlistentries];
+char control_filememory_search_buffer[constants_maxlistentries][256];
+_u32 control_filememory_search_attribs[constants_maxlistentries];
 //TODO: how are the attribs connected?
 int menu_selectedmenuelement;
 char control_filemenu_mode=0;

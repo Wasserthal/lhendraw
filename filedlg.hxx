@@ -21,7 +21,7 @@ void control_filedlg_datastorages()
 	control_devicememory.count=1;
 	if (tl_POSIXFILE)
 	{
-		for (int ilv1=1;ilv1<255;ilv1++)
+		for (int ilv1=1;ilv1<constants_maxlistentries;ilv1++)
 		{
 			int tl_mode=0;
 			int tl_counter=0;

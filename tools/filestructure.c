@@ -219,10 +219,6 @@ int main(int argc,char * * argv)
 		properties_length[properties_count]++;
 		goto symbolback3;
 	}
-	if (strcmp(properties_types[properties_count],":")==0)
-	{
-		strcpy(properties_types[properties_count],properties[properties_count]);
-	}
 	properties[properties_count][properties_length[properties_count]]=0;
 	properties_count++;
 	goto propertiesback;
@@ -291,6 +287,11 @@ int __attribute__((sysv_abi))CDXMLWRITE_ENUM_%s(char * input,void * output)\n{\n
 		{
 			thisfile=outfile;
 		}
+		if (strcmp(properties_types[ilv1],":")==0)
+		{
+			fprintf(thisfile,"{\"%s\",offsetof(%s%s_instance,%s),0,CDXMLREAD_INVALID,CDXMLWRITE_INVALID,CDXMLREAD_BIN_%s,CDXMLWRITE_BIN_%s},\n",properties[ilv1],datablockstring,name,properties[ilv1],properties[ilv1],properties[ilv1]);
+		}
+		else
 		if ((properties_type_nrs[ilv1]==5) || (properties_type_nrs[ilv1]==4) || (properties_type_nrs[ilv1]==7))
 		{
 			fprintf(thisfile,"{\"%s\",offsetof(%s%s_instance,%s),sizeof(%s),CDXMLREAD_ENUM_%s,CDXMLWRITE_ENUM_%s,CDXMLREAD_BIN__i32,CDXMLWRITE_BIN__i16},\n",properties[ilv1],datablockstring,name,properties[ilv1],properties_types[ilv1],properties[ilv1],properties[ilv1]);

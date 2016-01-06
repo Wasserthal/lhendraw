@@ -75,7 +75,7 @@ void scoopparam()
 	CDXMLREAD_functype thisfunc;
 	if (strcmp(parameterstring,"PCTEXTcounter")==0)
 	{
-		error("Hacking attempt detected (PCSTRING)!");
+		error("Break-in attempt detected (PCSTRING)!");
 	}
 	int suboffset=(currentinstance->getproperties(parameterstring,&thisfunc,&iitemnumber));
 	if (suboffset!=-1)
@@ -97,7 +97,7 @@ void scoopparam_bin()
 	CDXMLREAD_functype thisfunc;
 	if (strcmp(parameterstring,"PCTEXTcounter")==0)
 	{
-		error("Hacking attempt detected (PCSTRING)!");
+		error("Break-in attempt detected (PCSTRING)!");
 	}
 	if (currentinstance->_==NULL) return;
 	superconstellation * tl_superconstellation=getsuperconstellation_p(currentinstance->_,parameterstring,&iitemnumber);

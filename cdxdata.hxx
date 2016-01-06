@@ -86,6 +86,16 @@ struct cdx_Stylerun
 	_i16 color;
 };
 
+int __attribute__((sysv_abi))CDXMLREAD_INVALID(char * input,void * output)
+{
+	error("invalid READ Operation. Break-in attempt assumed");
+	exit(1);
+}
+int __attribute__((sysv_abi))CDXMLWRITE_INVALID(char * input,void * output)
+{
+	error("invalid WRITE Operation. Break-in attempt assumed");
+	exit(1);
+}
 int __attribute__((sysv_abi))CDXMLWRITE_cdx_String(char * input,void * output)
 {
 	fprintf((FILE*)output,"%s",input);

@@ -1803,6 +1803,36 @@ tlcplate_instance * edit_summontlcplate(int * nr=NULL)
 		(*tlinstance).Z=edit_getnewZ();
 		(*tlinstance).LineType=control_drawproperties.LineType;
 		((*glob_tlcplate_multilist).filllevel)++;
+		cdx_tlcspot itlcspot;
+		tlclane_instance tl_tlclane_instance;
+		TELESCOPE_aggressobject(glob_tlcplate_multilist,tl_nr);
+		tl_tlclane_instance.length=sizeof(tlclane_instance)+sizeof(cdx_tlcspot)*3;
+		tl_tlclane_instance.type=TELESCOPE_ELEMENTTYPE_tlclane;
+		itlcspot.Rf=0.3;
+		itlcspot.color=0x00FF00;
+		itlcspot.Curve_Type=1;
+		TELESCOPE_add(TELESCOPE_ELEMENTTYPE_tlclane,(char*)&itlcspot,sizeof(cdx_tlcspot)*3);
+		TELESCOPE_measure(TELESCOPE_ELEMENTTYPE_tlclane,& glob_contentbuffer[STRUCTURE_OBJECTTYPE_tlcplate]);
+		cdx_tlcspot * spots=(cdx_tlcspot*)TELESCOPE_getproperty_contents();
+		itlcspot.Rf=0.2;
+		itlcspot.color=0x00FF00;
+		spots[1]=itlcspot;
+		itlcspot.Rf=0.1;
+		itlcspot.color=0x00FF00;
+		spots[2]=itlcspot;
+		*((tlclane_instance*)TELESCOPE_getproperty())=tl_tlclane_instance;
+		TELESCOPE_aggressobject(glob_tlcplate_multilist,tl_nr);
+		tl_tlclane_instance.length=sizeof(tlclane_instance)+sizeof(cdx_tlcspot)*2;
+		tl_tlclane_instance.type=TELESCOPE_ELEMENTTYPE_tlclane;
+		itlcspot.Rf=0.2;
+		itlcspot.color=0x00FF00;
+		TELESCOPE_add(TELESCOPE_ELEMENTTYPE_tlclane,(char*)&itlcspot,sizeof(cdx_tlcspot)*2);
+		TELESCOPE_measure(TELESCOPE_ELEMENTTYPE_tlclane,& glob_contentbuffer[STRUCTURE_OBJECTTYPE_tlcplate]);
+		spots=(cdx_tlcspot*)TELESCOPE_getproperty_contents();
+		itlcspot.Rf=0.1;
+		itlcspot.color=0x00FF00;
+		spots[1]=itlcspot;
+		*((tlclane_instance*)TELESCOPE_getproperty())=tl_tlclane_instance;
 		if (nr!=NULL)
 		{
 			*nr=tl_nr;

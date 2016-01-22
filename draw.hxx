@@ -793,6 +793,36 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,char hatches)
 		draw_getposintlcplate(&tl_x2,&tl_y2,i_tlcplate_instance,1,0.85);
 		MACRO_DRAWPREFIX(get_colorstring)(0x7F7F7F);
 		MACRO_DRAWPREFIX(expressline)(tl_x1,tl_y1,tl_x2,tl_y2);
+		draw_getposintlcplate(&tl_x1,&tl_y1,i_tlcplate_instance,0,0.1);
+		draw_getposintlcplate(&tl_x2,&tl_y2,i_tlcplate_instance,1,0.1);
+		MACRO_DRAWPREFIX(get_colorstring)(0x7F7F7F);
+		MACRO_DRAWPREFIX(expressline)(tl_x1,tl_y1,tl_x2,tl_y2);
+		TELESCOPE_aggressobject(glob_tlcplate_multilist,index_in_buffer);
+		int tlbackval;
+		int tlclanecount=0;
+		TELESCOPE_measure(TELESCOPE_ELEMENTTYPE_tlclane,glob_contentbuffer+STRUCTURE_OBJECTTYPE_tlcplate);
+		tlbackval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_tlclane);
+		while (tlbackval>0)
+		{
+			tlclanecount++;
+			tlbackval=TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_tlclane);
+		}
+		int tlclaneno=0;
+		tlbackval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_tlclane);
+		while (tlbackval>0)
+		{
+			tlclaneno++;
+			cdx_tlcspot * itlcspot=(cdx_tlcspot*)TELESCOPE_getproperty_contents();
+			int count=TELESCOPE_getproperty_contentlength()/sizeof(cdx_tlcspot);
+			for (int ilv1=0;ilv1<count;ilv1++)
+			{
+				draw_getposintlcplate(&tl_x1,&tl_y1,i_tlcplate_instance,(tlclaneno-0.5)/tlclanecount,0.1*(*itlcspot).Rf+0.85*(1-(*itlcspot).Rf));
+				MACRO_DRAWPREFIX(get_colorstring)((*itlcspot).color);
+				MACRO_DRAWPREFIX(expresscdxcircle)(tl_x1,tl_y1,3);
+				itlcspot++;
+			}
+			tlbackval=TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_tlclane);
+		}
 	}
 	goto svg_main_loop;
 	svg_main_graphic:

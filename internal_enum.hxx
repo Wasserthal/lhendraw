@@ -36,6 +36,8 @@
 //contains a format list for atom symbols
 #define TELESCOPE_ELEMENTTYPE_Symbol 10
 //a charge symbol placed next to the atom
+#define TELESCOPE_ELEMENTTYPE_tlclane 11
+//a TLC or electrophoresis lane
 //--TELESCOPE_IDPURPOSE
 #define TELESCOPE_IDPURPOSE_None 0
 //better do not use ...

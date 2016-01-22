@@ -102,9 +102,9 @@ bienum CDXML_objectcodes_List[]={
 {"ReactionScheme",0x800D},
 {"ReactionStep",0x800E},
 {"Spectrum",0x8010},
-{"TLCPlate",0x8023},
-{"TLCLane",0x8024},
-{"TLCSpot",0x8025},
+{"tlcplate",0x8023},
+{"tlclane",0x8024},
+{"tlcspot",0x8025},
 };
 int CDXML_objectcodes_ListSize=sizeof(CDXML_objectcodes_List)/sizeof(CDXML_objectcodes_List[0]);
 bienum CDXML_propertycodes_List[]={

@@ -73,6 +73,13 @@ struct cdx_Pointreferences
 	int count;
 };
 
+struct cdx_tlcspot
+{
+	float Rf;
+	_u32 color;
+	_u32 Curve_Type;
+};
+
 inline void clear_cdx_String(cdx_String & input)
 {
 	input.a[0]=0;

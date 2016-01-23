@@ -558,6 +558,7 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,char hatches)
 									if (multilistlist[objectZorderlist[ilv1].listnr].instance==glob_b_multilist) goto svg_main_b;
 									if (multilistlist[objectZorderlist[ilv1].listnr].instance==glob_t_multilist) goto svg_main_t;
 									if (multilistlist[objectZorderlist[ilv1].listnr].instance==glob_arrow_multilist) goto svg_main_arrow;
+									if (multilistlist[objectZorderlist[ilv1].listnr].instance==glob_tlcplate_multilist) goto svg_main_tlcplate;
 									if (multilistlist[objectZorderlist[ilv1].listnr].instance==glob_moleculefill_multilist) goto svg_main_moleculefill;
 									LENNARD_HACK_REPEAT:
 									LENNARD_HACK_REPEATHOOK=0;
@@ -575,6 +576,7 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,char hatches)
 			if (multilistlist[objectZorderlist[ilv1].listnr].instance==glob_n_multilist) goto svg_main_n;
 			if (multilistlist[objectZorderlist[ilv1].listnr].instance==glob_curve_multilist) goto svg_main_curve;
 			if (multilistlist[objectZorderlist[ilv1].listnr].instance==glob_graphic_multilist) goto svg_main_graphic;
+			if (multilistlist[objectZorderlist[ilv1].listnr].instance==glob_tlcplate_multilist) goto svg_main_tlcplate;
 			if (multilistlist[objectZorderlist[ilv1].listnr].instance==glob_b_multilist) goto svg_main_b;
 			if (multilistlist[objectZorderlist[ilv1].listnr].instance==glob_t_multilist) goto svg_main_t;
 			if (multilistlist[objectZorderlist[ilv1].listnr].instance==glob_arrow_multilist) goto svg_main_arrow;
@@ -775,6 +777,22 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,char hatches)
 		cangle=langle+Pi/2;
 		othercangle=otherlangle+Pi/2;
 		MACRO_DRAWPREFIX(drawarrheads)(iBBX,langle,cangle,otherlangle,othercangle,currentArrowHeadType,currentArrowHeadTail,currentArrowHeadHead,tllinedist);
+	}
+	goto svg_main_loop;
+	svg_main_tlcplate:;
+	{
+		tlcplate_instance * i_tlcplate_instance=&((*glob_tlcplate_multilist))[index_in_buffer];
+		MACRO_DRAWPREFIX(get_colorstring)((*i_tlcplate_instance).color);
+		MACRO_DRAWPREFIX(stylegenestring)(stylefromline((*i_tlcplate_instance).LineType));
+		MACRO_DRAWPREFIX(expressline)((*i_tlcplate_instance).TopLeft.x,(*i_tlcplate_instance).TopLeft.y,(*i_tlcplate_instance).TopRight.x,(*i_tlcplate_instance).TopRight.y);
+		MACRO_DRAWPREFIX(expressline)((*i_tlcplate_instance).BottomLeft.x,(*i_tlcplate_instance).BottomLeft.y,(*i_tlcplate_instance).BottomRight.x,(*i_tlcplate_instance).BottomRight.y);
+		MACRO_DRAWPREFIX(expressline)((*i_tlcplate_instance).TopLeft.x,(*i_tlcplate_instance).TopLeft.y,(*i_tlcplate_instance).BottomLeft.x,(*i_tlcplate_instance).BottomLeft.y);
+		MACRO_DRAWPREFIX(expressline)((*i_tlcplate_instance).TopRight.x,(*i_tlcplate_instance).TopRight.y,(*i_tlcplate_instance).BottomRight.x,(*i_tlcplate_instance).BottomRight.y);
+		double tl_x1,tl_y1,tl_x2,tl_y2;
+		draw_getposintlcplate(&tl_x1,&tl_y1,i_tlcplate_instance,0,0.85);
+		draw_getposintlcplate(&tl_x2,&tl_y2,i_tlcplate_instance,1,0.85);
+		MACRO_DRAWPREFIX(get_colorstring)(0x7F7F7F);
+		MACRO_DRAWPREFIX(expressline)(tl_x1,tl_y1,tl_x2,tl_y2);
 	}
 	goto svg_main_loop;
 	svg_main_graphic:

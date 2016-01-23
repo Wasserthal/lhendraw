@@ -282,6 +282,16 @@ menuitem pullout_toolbox[]={
 "","",
 0x0000FF,
 },
+{0,9,
+78,//Picture
+"TLC Plates",
+1,0,
+15,
+"Click-drag to make tlc plate\n",
+"",
+"","",
+0x00FF00,
+},
 {11,2,
 20,//Picture
 "toolbox_M4",

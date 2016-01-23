@@ -535,6 +535,14 @@ typedef struct MODIFIER_KEYS_
 	char UP;
 	char DOWN;
 }MODIFIER_KEYS_;
+void draw_getposintlcplate(double * outx,double * outy,tlcplate_instance * i_tlcplate_instance,double inx,double iny)
+{
+	double horzipos=(1.0-inx)*(*i_tlcplate_instance).TopLeft.x*(1-iny)+(1.0-inx)*(*i_tlcplate_instance).BottomLeft.x*iny+inx*(*i_tlcplate_instance).TopRight.x*(1-iny)+inx*(*i_tlcplate_instance).BottomRight.x*iny;
+	double vertipos=(1.0-inx)*(*i_tlcplate_instance).TopLeft.y*(1-iny)+(1.0-inx)*(*i_tlcplate_instance).BottomLeft.y*iny+inx*(*i_tlcplate_instance).TopRight.y*(1-iny)+inx*(*i_tlcplate_instance).BottomRight.y*iny;
+	*outx=horzipos;
+	*outy=vertipos;
+	return;
+}
 MODIFIER_KEYS_ MODIFIER_KEYS={0,0,0,0,0,0,0,0};
 #ifdef SDL2
 _u16 getunicode(SDL_Event * input)

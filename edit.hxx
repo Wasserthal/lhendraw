@@ -1791,6 +1791,26 @@ graphic_instance * edit_summongraphic(_i32 * inr=NULL)
 	}
 	return NULL;
 }
+tlcplate_instance * edit_summontlcplate(int * nr=NULL)
+{
+	if ((*glob_tlcplate_multilist).filllevel<(*glob_tlcplate_multilist).getmaxitems())
+	{
+		int tl_nr=-1;
+		tlcplate_instance * tlinstance;
+		tl_nr=(*glob_tlcplate_multilist).filllevel;
+		tlinstance=new(&((*glob_tlcplate_multilist)[tl_nr])) tlcplate_instance;
+		(*tlinstance).color=control_drawproperties.color;
+		(*tlinstance).Z=edit_getnewZ();
+		(*tlinstance).LineType=control_drawproperties.LineType;
+		((*glob_tlcplate_multilist).filllevel)++;
+		if (nr!=NULL)
+		{
+			*nr=tl_nr;
+		}
+		return tlinstance;
+	}
+	return NULL;
+}
 catalogized_command_funcdef(EQUILIBRIUM_ARROWS)
 {
 	int to_value=atoi(value);

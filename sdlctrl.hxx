@@ -777,6 +777,17 @@ void control_orhogonizegraphic(graphic_instance * iinstance)//This is not unders
 		}
 	}
 }
+void control_orthogonizetlcplate(tlcplate_instance * iinstance)
+{
+	(*iinstance).TopLeft.x=(*iinstance).BoundingBox.left;
+	(*iinstance).TopLeft.y=(*iinstance).BoundingBox.top;
+	(*iinstance).TopRight.x=(*iinstance).BoundingBox.right;
+	(*iinstance).TopRight.y=(*iinstance).BoundingBox.top;
+	(*iinstance).BottomLeft.x=(*iinstance).BoundingBox.left;
+	(*iinstance).BottomLeft.y=(*iinstance).BoundingBox.bottom;
+	(*iinstance).BottomRight.x=(*iinstance).BoundingBox.right;
+	(*iinstance).BottomRight.y=(*iinstance).BoundingBox.bottom;
+}
 void issuetextclick(int iposx,int iposy,const char * whichcursor="\uE000")
 {
 	control_posx=iposx;
@@ -1415,6 +1426,23 @@ int issueclick(int iposx,int iposy)
 			}
 			control_mousestate=0;return 0;
 		}
+		case 15:
+		{
+			control_manipulatedinstance=edit_summontlcplate();
+			if (control_manipulatedinstance)
+			{
+				(*(tlcplate_instance*)control_manipulatedinstance).BoundingBox.left=control_coorsx;
+				(*(tlcplate_instance*)control_manipulatedinstance).BoundingBox.right=control_coorsx;
+				(*(tlcplate_instance*)control_manipulatedinstance).BoundingBox.top=control_coorsy;
+				(*(tlcplate_instance*)control_manipulatedinstance).BoundingBox.bottom=control_coorsy;
+				control_orthogonizetlcplate((tlcplate_instance*)control_manipulatedinstance);
+			}
+			else
+			{
+				control_mousestate=0;return 0;
+			}
+			break;
+		}
 		case 20://FALLTHROUGH
 		case 16://FALLTHROUGH
 		{
@@ -2031,6 +2059,13 @@ void issuedrag(int iposx,int iposy)
 		case 0x10000:
 		{
 			interpretkey(control_lastinterpret);
+			break;
+		}
+		case 15:
+		{
+			(*(tlcplate_instance*)control_manipulatedinstance).BoundingBox.right=control_coorsx;
+			(*(tlcplate_instance*)control_manipulatedinstance).BoundingBox.bottom=control_coorsy;
+			control_orthogonizetlcplate((tlcplate_instance*)control_manipulatedinstance);
 			break;
 		}
 		case 20://FALLTHROUGH

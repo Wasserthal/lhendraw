@@ -1843,6 +1843,7 @@ arrow_instance * edit_summonarrow(int * inr=NULL)
 		(*tlinstance).ArrowheadHead=control_drawproperties.arrow_ArrowheadHead;
 		(*tlinstance).ArrowheadTail=control_drawproperties.arrow_ArrowheadTail;
 		(*tlinstance).LineType=control_drawproperties.LineType;
+		(*tlinstance).FillType=control_drawproperties.FillType;
 		if ((control_drawproperties.arrow_ArrowheadType>=2) && (control_drawproperties.arrow_ArrowheadType<=3))
 		{
 			(*tlinstance).ArrowShaftSpacing=4;

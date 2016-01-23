@@ -441,6 +441,38 @@ void gfx_expressline(float ileft,float itop,float iright,float ibottom)
 	}
 	return;
 }
+void gfx_expressarc_enhanced(float centerx,float centery,float radiusx,float radiusy,float startangle,float endangle,float tiltangle)
+{
+	centerx=(centerx-SDL_scrollx)*SDL_zoomx;
+	centery=(centery-SDL_scrolly)*SDL_zoomy;
+	radiusx=radiusx*SDL_zoomx;
+	radiusy=radiusy*SDL_zoomx;
+	int isteps=radiusx*Pi*2;
+	if (startangle>endangle)
+	{
+		float swapangle;
+		swapangle=startangle;
+		startangle=endangle;
+		endangle=swapangle;
+	}
+	if (radiusy>radiusx)
+	{
+		isteps=radiusy*Pi*2;
+	}
+	float tlsaxx=cos(tiltangle);float tlsaxy=sin(tiltangle);
+	for (int ilv1=(isteps*startangle)/(Pi*2);ilv1<(isteps*endangle)/(Pi*2);ilv1++)
+	{
+		float tlangle=(ilv1/float(isteps))*2*Pi;
+		if (SDL_linestyle & 4)
+		{
+			fatpixel(centerx+tlsaxx*radiusx*cos(tlangle)-tlsaxy*radiusy*sin(tlangle),centery+tlsaxy*radiusx*cos(tlangle)+tlsaxx*radiusy*sin(tlangle));
+		}
+		else
+		{
+			putpixel(centerx+tlsaxx*radiusx*cos(tlangle)-tlsaxy*radiusy*sin(tlangle),centery+tlsaxy*radiusx*cos(tlangle)+tlsaxx*radiusy*sin(tlangle));
+		}
+	}
+}
 SDL_Surface *video;
 #ifdef SDL2
 SDL_Window *window;
@@ -553,6 +585,8 @@ int __attribute__((warn_unused_result)) gfx_expressgeometry_start(float left,flo
 	if (gfx_geometry.bottom>gfx_canvassizey) {gfx_geometry.bottom=gfx_canvassizey; if (gfx_geometry.top>=gfx_canvassizey) return 0;}
 	if (gfx_geometry.left<0) {gfx_geometry.left=0; if (gfx_geometry.right<0) return 0;}
 	if (gfx_geometry.top<0) {gfx_geometry.top=0; if (gfx_geometry.bottom<0) return 0;}
+	if (gfx_geometry.right<=gfx_geometry.left) return 0;
+	if (gfx_geometry.bottom<=gfx_geometry.top) return 0;
 	for (int ilv1=gfx_geometry.top;ilv1<gfx_geometry.bottom;ilv1++)
 	{
 		char * tl_buffer=gfx_linewisebuffer+(ilv1*gfx_canvassizex);
@@ -1084,6 +1118,153 @@ void gfx_expressgeometry_bezier3(float inx1,float iny1,float inx2,float iny2,flo
 	gfx_geometry.currentx=x3;
 	gfx_geometry.currenty=y3;
 }
+
+void gfx_expressgeometry_arc_enhanced(float centerx,float centery,float radiusx,float radiusy,double startangle,double endangle,float tiltangle)
+{
+	_i8 nearend=0;//0:start 1: end;
+	char firstdir=0;//1:down 2:up;
+	char lastdir=0;//1:down 2:up;
+	char currentdirection;
+	char hasstarted=0;
+	char swapped=0;
+	char lead_in=1;
+	char lead_out=0;
+	int medix,mediy;
+	int lastx,lasty;
+	lasty=centery+fabs(radiusy)+fabs(radiusx)+5+1000;//so there won't be a "first" point equal to it
+	float tlsaxx=cos(tiltangle);float tlsaxy=sin(tiltangle);
+	centerx=(centerx-SDL_scrollx)*SDL_zoomx;
+	centery=(centery-SDL_scrolly)*SDL_zoomy;
+	radiusx=radiusx*SDL_zoomx;
+	radiusy=radiusy*SDL_zoomx;
+	int xstart=centerx+tlsaxx*radiusx*cos(startangle)-tlsaxy*radiusy*sin(startangle);
+	int ystart=centery+tlsaxy*radiusx*cos(startangle)+tlsaxx*radiusy*sin(startangle);
+	int xend=centerx+tlsaxx*radiusx*cos(endangle)-tlsaxy*radiusy*sin(endangle);
+	int yend=centery+tlsaxy*radiusx*cos(endangle)+tlsaxx*radiusy*sin(endangle);
+	int firsty=gfx_geometry.currenty;
+	int leadcursortarget=ystart;
+	int finaly=yend;
+	int leadcursory=gfx_geometry.currenty;
+	if_gfx_geo
+	{
+		gfx_expressarc_enhanced(centerx,centery,radiusx,radiusy,startangle,endangle,tiltangle);
+		gfx_geometry.currentx=xend;
+		gfx_geometry.currenty=yend;
+		return;
+	}
+	int iradiusx=fabs(radiusx);
+	int iradiusy=fabs(radiusy);
+	double isteps=(1.0/iradiusx)*fabs(endangle-startangle)/32;
+	if (iradiusy>iradiusx)
+	{
+		isteps=(1.0/iradiusy)*fabs(endangle-startangle)/32;
+	}
+	if (isteps<0.000001) isteps=0.000001;
+	if (endangle<startangle) isteps=-isteps;
+	int lastmediy=-1;
+	int counter=0;
+	for (double ilv1=startangle;((lead_out==0) || (leadcursory!=leadcursortarget));ilv1+=(isteps*((lead_in==0) && (lead_out==0))))
+	{
+		counter++;
+		medix=centerx+tlsaxx*radiusx*cos(ilv1)-tlsaxy*radiusy*sin(ilv1);
+		if ((lead_in==0) && (lead_out==0))
+		{
+			mediy=centery+tlsaxy*radiusx*cos(ilv1)+tlsaxx*radiusy*sin(ilv1);
+		}
+		else
+		{
+			mediy=leadcursory;//TODO: maybe eliminate leadcursory, replace by mediy
+		}
+		if ((mediy!=lasty) && ((mediy!=firsty) || (hasstarted==1)))
+		{
+			if (hasstarted==0)
+			{
+				if (swapped==0)
+				{
+					firstdir=(mediy>lasty)?1:2;
+					currentdirection=firstdir;
+				}
+				else
+				{
+					firstdir=(mediy>lasty)?1:2;
+					currentdirection=(mediy>firsty)?1:2;
+				}
+				hasstarted=1;
+			}
+			else
+			{
+				char nextdirection=(mediy>lasty)?1:2;
+				if (currentdirection!=nextdirection)
+				{
+					if (medix<gfx_geometry.left) medix=gfx_geometry.left;
+					if (medix>=gfx_geometry.right) medix=gfx_geometry.right-1;
+					if ((mediy>=0) && (mediy<gfx_geometry.bottom))
+					{
+						gfx_linewisebuffer[lasty*gfx_canvassizex+medix]^=1;
+					}
+				}
+				currentdirection=nextdirection;
+			}
+		}
+		lastmediy=mediy;
+		if (mediy!=lasty)
+		{
+			if (medix<gfx_geometry.left) medix=gfx_geometry.left;
+			if (medix>=gfx_geometry.right) medix=gfx_geometry.right-1;
+			if ((mediy>=0) && (mediy<gfx_geometry.bottom))
+			{
+				gfx_linewisebuffer[mediy*gfx_canvassizex+medix]^=1;
+			}
+			lasty=mediy;
+		}
+		if ((lead_in) || (lead_out))
+		{
+			if (leadcursory==leadcursortarget)
+			{
+				lead_in=0;
+			}
+			else
+			{
+				if (leadcursortarget>leadcursory)leadcursory++;else leadcursory--;
+			}
+		}
+		else
+		{
+			if (endangle>startangle)
+			{
+				if (ilv1>(endangle+0.0000001))
+				{
+					counter=0;
+					lead_out=1;
+					leadcursory=mediy;
+					leadcursortarget=finaly;
+				}
+			}
+			else
+			{
+				if (ilv1<(endangle-0.0000001))
+				{
+					counter=0;
+					lead_out=1;
+					leadcursory=mediy;
+					leadcursortarget=finaly;
+				}
+			}
+		}
+	}
+	if (hasstarted==0)
+	{
+		gfx_geometry.currentx=xend;
+		return;
+	}
+	if (swapped==0)
+	{
+		gfx_expressgeometry_neutro(firstdir);
+	}
+	gfx_geometry.currentx=medix;
+	gfx_geometry.currenty=mediy;
+	GFX_GEONEXT(currentdirection);
+}
 void gfx_expressgeometry_backline()
 {
 	if (gfx_geometry.type==1)
@@ -1239,39 +1420,6 @@ void gfx_expressspinellipse(float ix,float iy,float radiusx,float radiusy, float
 		{
 			float tlangle=(ilv1/float(isteps))*2*Pi;
 			putpixel(ix+tlsaxx*radiusx*cos(tlangle)-tlsaxy*radiusy*sin(tlangle),iy+tlsaxy*radiusx*cos(tlangle)+tlsaxx*radiusy*sin(tlangle));
-		}
-	}
-}
-void gfx_expressarc_enhanced(float centerx,float centery,float radiusx,float radiusy,float startangle,float endangle,float tiltangle)
-{
-	centerx=(centerx-SDL_scrollx)*SDL_zoomx;
-	centery=(centery-SDL_scrolly)*SDL_zoomy;
-	radiusx=radiusx*SDL_zoomx;
-	radiusy=radiusy*SDL_zoomx;
-	int isteps=radiusx*Pi*2;
-	if (startangle>endangle)
-	{
-		float swapangle;
-		swapangle=startangle;
-		startangle=endangle;
-		endangle=swapangle;
-//		endangle+=2*Pi;
-	}
-	if (radiusy>radiusx)
-	{
-		isteps=radiusy*Pi*2;
-	}
-	float tlsaxx=cos(tiltangle);float tlsaxy=sin(tiltangle);
-	for (int ilv1=(isteps*startangle)/(Pi*2);ilv1<(isteps*endangle)/(Pi*2);ilv1++)
-	{
-		float tlangle=(ilv1/float(isteps))*2*Pi;
-		if (SDL_linestyle & 4)
-		{
-			fatpixel(centerx+tlsaxx*radiusx*cos(tlangle)-tlsaxy*radiusy*sin(tlangle),centery+tlsaxy*radiusx*cos(tlangle)+tlsaxx*radiusy*sin(tlangle));
-		}
-		else
-		{
-			putpixel(centerx+tlsaxx*radiusx*cos(tlangle)-tlsaxy*radiusy*sin(tlangle),centery+tlsaxy*radiusx*cos(tlangle)+tlsaxx*radiusy*sin(tlangle));
 		}
 	}
 }

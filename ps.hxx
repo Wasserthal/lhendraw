@@ -111,6 +111,9 @@ void ps_expressgeometry_begin(float x,float y)
 	ps_currentx=x;
 	ps_currenty=y;
 }
+void ps_expressgeometry_arc_enhanced(float centerx,float centery,float radiusx,float radiusy,float startangle,float endangle,float tiltangle)
+{
+}
 void ps_expressgeometry_end()
 {
 	if (ps_linestyle & 2)

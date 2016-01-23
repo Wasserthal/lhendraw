@@ -291,6 +291,9 @@ void svg_expressgeometry_begin(float x,float y)
 {
 	//TODO
 }
+void svg_expressgeometry_arc_enhanced(float centerx,float centery,float radiusx,float radiusy,float startangle,float endangle,float tiltangle)
+{
+}
 void svg_expressgeometry_end()
 {
 	//TODO

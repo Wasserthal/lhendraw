@@ -337,6 +337,7 @@ void svg_findaround()
 
 
 int currentLineType;//0: normal 2: Bold 0x100: Double
+int currentFillType;
 float cangle;
 float langle;
 float ibonddist;
@@ -469,6 +470,8 @@ char STRINGOUTPUT_bold[]="font-weight=\"bold\" ";
 char STRINGOUTPUT_LENNARDBOLD[]="font-weight=\"bold\"";
 char iparmsstring[stringlength+1];
 float currentsetfontsize=18;
+float draw_arrowmatrix[2][2];
+char draw_begun=0;
 void canonicalizeboundingbox(cdx_Rectangle * iBBX)
 {
 	float swap;
@@ -496,6 +499,17 @@ float compangle(float first,float second)
 	if (wert>Pi) {wert-=2*Pi;}
 	if (wert<-Pi) {wert+=2*Pi;}
 	return wert;
+}
+void draw_coors_arc_enhanced(double centerx,double centery,double radiusx,double radiusy,double startangle,double endangle,double tiltangle,double * xstart,double * ystart,double * xend,double * yend)
+{
+	int medix,mediy;
+	int lastx,lasty;
+	lasty=centery+fabs(radiusy)+fabs(radiusx)+5;//so there won't be a "first" point equal to it
+	double tlsaxx=cos(tiltangle);double tlsaxy=sin(tiltangle);
+	*xstart=centerx+tlsaxx*radiusx*cos(startangle)-tlsaxy*radiusy*sin(startangle);
+	*ystart=centery+tlsaxy*radiusx*cos(startangle)+tlsaxx*radiusy*sin(startangle);
+	*xend=centerx+tlsaxx*radiusx*cos(endangle)-tlsaxy*radiusy*sin(endangle);
+	*yend=centery+tlsaxy*radiusx*cos(endangle)+tlsaxx*radiusy*sin(endangle);
 }
 
 

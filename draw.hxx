@@ -214,10 +214,6 @@ void MACRO_DRAWPREFIX(drawarrheads)(cdx_Rectangle iBBX,float langle,float cangle
 		{
 			case 1 :
 			{
-				if (currentArrowHeadType==2)
-				{
-					MACRO_DRAWPREFIX(expressline)(tlArrowTopx+tllinedist*cos(tlcangle),tlArrowTopy+tllinedist*sin(tlcangle),tlArrowTopx-tllinedist*cos(tlcangle),tlArrowTopy-tllinedist*sin(tlcangle));
-				}
 				break;
 			}
 			case 2 :
@@ -230,20 +226,13 @@ tlArrowTopx+cos(tllangle)*arrowheadlength+cos(tlcangle)*arrowthickness,tlArrowTo
 tlArrowTopx+cos(tllangle)*arrowheadlength-cos(tlcangle)*arrowthickness,tlArrowTopy+sin(tllangle)*arrowheadlength-sin(tlcangle)*arrowthickness
 );
 				}
-				if ((currentArrowHeadType==3) || (currentArrowHeadType==2))
+				if (currentArrowHeadType==3)
 				{
 					MACRO_DRAWPREFIX(expressline)(tlArrowTopx,tlArrowTopy,
 tlArrowTopx+cos(tllangle)*tllinedist*2+cos(tlcangle)*tllinedist*2,tlArrowTopy+sin(tllangle)*tllinedist*2+sin(tlcangle)*tllinedist*2);
 					MACRO_DRAWPREFIX(expressline)(tlArrowTopx,tlArrowTopy,
 tlArrowTopx+cos(tllangle)*tllinedist*2-cos(tlcangle)*tllinedist*2,tlArrowTopy+sin(tllangle)*tllinedist*2-sin(tlcangle)*tllinedist*2);
 
-				}
-				if (currentArrowHeadType==2)
-				{
-					MACRO_DRAWPREFIX(expressline)(tlArrowTopx+cos(tllangle)*tllinedist*2+cos(tlcangle)*tllinedist,tlArrowTopy+sin(tllangle)*tllinedist*2+sin(tlcangle)*tllinedist,
-tlArrowTopx+cos(tllangle)*tllinedist*2+cos(tlcangle)*tllinedist*2,tlArrowTopy+sin(tllangle)*tllinedist*2+sin(tlcangle)*tllinedist*2);
-					MACRO_DRAWPREFIX(expressline)(tlArrowTopx+cos(tllangle)*tllinedist*2-cos(tlcangle)*tllinedist,tlArrowTopy+sin(tllangle)*tllinedist*2-sin(tlcangle)*tllinedist,
-tlArrowTopx+cos(tllangle)*tllinedist*2-cos(tlcangle)*tllinedist*2,tlArrowTopy+sin(tllangle)*tllinedist*2-sin(tlcangle)*tllinedist*2);
 				}
 				break;
 			}
@@ -379,6 +368,20 @@ void MACRO_DRAWPREFIX(singlebracket)(int ibt)
 			MACRO_DRAWPREFIX(expressbow)(iBBX.left,iBBX.top,iBBX.right,iBBX.bottom,1.8);
 			break;
 		}
+	}
+}
+void MACRO_DRAWPREFIX(express_arrowtippoint)(int type,float ix, float iy)
+{
+	float resx=ix*draw_arrowmatrix[0][0]+iy*draw_arrowmatrix[1][0]+(type?iBBX.right:iBBX.left);
+	float resy=ix*draw_arrowmatrix[0][1]+iy*draw_arrowmatrix[1][1]+(type?iBBX.bottom:iBBX.top);
+	if (draw_begun==0)
+	{
+		MACRO_DRAWPREFIX(expressgeometry_begin)(resx,resy);
+		draw_begun=1;
+	}
+	else
+	{
+		MACRO_DRAWPREFIX(expressgeometry_line)(resx,resy);
 	}
 }
 void MACRO_DRAWPREFIX(doublebracket)(int ibt)
@@ -786,6 +789,7 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,char hatches)
 	tlGraphicType=(*i_graphic_instance).GraphicType;
 //	tlAngularSize=(*i_graphic_instance).AngularSize;//TODO: Make sure no graphics are created from something with an angular size
 	currentLineType=(*i_graphic_instance).LineType;//0: normal 2: Bold 0x100: Double
+	currentFillType=(*i_graphic_instance).FillType;
 	MACRO_DRAWPREFIX(get_colorstring)(colornr);
 	ellipsoid.reset();
 	currentArrowHeadType=1;
@@ -832,10 +836,47 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,char hatches)
 		MACRO_DRAWPREFIX(stylegenestring)(stylefromline(currentLineType));
 		cangle=getangle(iBBX.right-iBBX.left,iBBX.bottom-iBBX.top)+Pi/2;
 		langle=getangle(iBBX.right-iBBX.left,iBBX.bottom-iBBX.top);
+		if (currentArrowHeadType==2)
+		{
+			MACRO_DRAWPREFIX(stylegenestring)(stylefromattrs(currentLineType,currentFillType));
+			if (MACRO_DRAWPREFIX(expressgeometry_start)(fmin(iBBX.left,iBBX.right)-tllinedist*2,fmin(iBBX.top,iBBX.bottom)-tllinedist*2,fmax(iBBX.left,iBBX.right)+tllinedist*2,fmax(iBBX.top,iBBX.bottom)+tllinedist*2))
+			{
+				draw_begun=0;
+				draw_arrowmatrix[0][0]=-tllinedist*cos(langle);
+				draw_arrowmatrix[1][0]=tllinedist*cos(cangle);
+				draw_arrowmatrix[0][1]=-tllinedist*sin(langle);
+				draw_arrowmatrix[1][1]=tllinedist*sin(cangle);
+				MACRO_DRAWPREFIX(express_arrowtippoint)(0,-tllefttan2,-1);
+
+				if (currentArrowHeadHead==2)
+				{
+					MACRO_DRAWPREFIX(express_arrowtippoint)(0,-tllefttan2,-2);
+					MACRO_DRAWPREFIX(express_arrowtippoint)(0,0,0);
+					MACRO_DRAWPREFIX(express_arrowtippoint)(0,-tllefttan2,2);
+				}
+
+				MACRO_DRAWPREFIX(express_arrowtippoint)(0,-tllefttan2,1);
+				MACRO_DRAWPREFIX(express_arrowtippoint)(1,tllefttan,1);
+
+				if (currentArrowHeadTail==2)
+				{
+					MACRO_DRAWPREFIX(express_arrowtippoint)(1,tllefttan,2);
+					MACRO_DRAWPREFIX(express_arrowtippoint)(1,0,0);
+					MACRO_DRAWPREFIX(express_arrowtippoint)(1,tllefttan,-2);
+				}
+
+				MACRO_DRAWPREFIX(express_arrowtippoint)(1,tllefttan,-1);
+				MACRO_DRAWPREFIX(expressgeometry_backline)();
+				MACRO_DRAWPREFIX(expressgeometry_end)();
+			}
+		}
 		if (currentLineType &0x100)
 		{
-			MACRO_DRAWPREFIX(expressline)(iBBX.left+tllinedist*(cos(cangle)+(cos(langle)*tllefttan2)),iBBX.top+tllinedist*(sin(cangle)+(sin(langle)*tllefttan2)),iBBX.right+tllinedist*(cos(cangle)-(cos(langle)*tllefttan)),iBBX.bottom+tllinedist*(sin(cangle)-(sin(langle)*tllefttan)));
-			MACRO_DRAWPREFIX(expressline)(iBBX.left-tllinedist*(cos(cangle)-(cos(langle)*tllefttan2)),iBBX.top-tllinedist*(sin(cangle)-(sin(langle)*tllefttan2)),iBBX.right-tllinedist*(cos(cangle)+(cos(langle)*tllefttan)),iBBX.bottom-tllinedist*(sin(cangle)+(sin(langle)*tllefttan)));
+			if (currentArrowHeadType!=2)
+			{
+				MACRO_DRAWPREFIX(expressline)(iBBX.left+tllinedist*(cos(cangle)+(cos(langle)*tllefttan2)),iBBX.top+tllinedist*(sin(cangle)+(sin(langle)*tllefttan2)),iBBX.right+tllinedist*(cos(cangle)-(cos(langle)*tllefttan)),iBBX.bottom+tllinedist*(sin(cangle)-(sin(langle)*tllefttan)));
+				MACRO_DRAWPREFIX(expressline)(iBBX.left-tllinedist*(cos(cangle)-(cos(langle)*tllefttan2)),iBBX.top-tllinedist*(sin(cangle)-(sin(langle)*tllefttan2)),iBBX.right-tllinedist*(cos(cangle)+(cos(langle)*tllefttan)),iBBX.bottom-tllinedist*(sin(cangle)+(sin(langle)*tllefttan)));
+			}
 		}
 		else
 		{
@@ -892,8 +933,56 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,char hatches)
 						takefromark2=takefromark;
 					}
 				}
-				MACRO_DRAWPREFIX(expressarc_enhanced)(iBBX.right,iBBX.bottom,ellipsoid.radiusx+tllinedist,ellipsoid.radiusy+tllinedist,ellipsoid.internalangle-takefromark1,ellipsoid.internalangle+((tlAngularSize/180.0)*Pi+takefromark2),ellipsoid.axangle);
-				MACRO_DRAWPREFIX(expressarc_enhanced)(iBBX.right,iBBX.bottom,ellipsoid.radiusx-tllinedist,ellipsoid.radiusy-tllinedist,ellipsoid.internalangle-takefromark1,ellipsoid.internalangle+((tlAngularSize/180.0)*Pi+takefromark2),ellipsoid.axangle);
+				if (currentArrowHeadType==2)
+				{
+					MACRO_DRAWPREFIX(stylegenestring)(stylefromattrs(currentLineType,currentFillType));
+					if (MACRO_DRAWPREFIX(expressgeometry_start)(iBBX.right-max(fabs(ellipsoid.radiusx),fabs(ellipsoid.radiusy))-fabs(tllinedist*3)-6,iBBX.bottom-max(fabs(ellipsoid.radiusx),fabs(ellipsoid.radiusy))-fabs(tllinedist*3)-6,iBBX.right+fabs(ellipsoid.radiusx)+fabs(ellipsoid.radiusy)+fabs(tllinedist*3)+6,iBBX.bottom+fabs(ellipsoid.radiusx)+fabs(ellipsoid.radiusy)+fabs(tllinedist*3)+6))//TODO: correct frame
+					{
+						_i8 tl_sign=(tlAngularSize>0)?1:-1;
+						double point1x,point1y,point2x,point2y,point3x,point3y,point4x,point4y,point5x,point5y,point6x,point6y;
+						draw_coors_arc_enhanced(iBBX.right,iBBX.bottom,ellipsoid.radiusx+tllinedist,ellipsoid.radiusy+tllinedist,ellipsoid.internalangle-takefromark1,ellipsoid.internalangle+((tlAngularSize/180.0)*Pi+takefromark2),ellipsoid.axangle,&point1x,&point1y,&point2x,&point2y);
+						draw_coors_arc_enhanced(iBBX.right,iBBX.bottom,ellipsoid.radiusx-tllinedist,ellipsoid.radiusy-tllinedist,ellipsoid.internalangle-takefromark1,ellipsoid.internalangle+((tlAngularSize/180.0)*Pi+takefromark2),ellipsoid.axangle,&point3x,&point3y,&point4x,&point4y);
+						draw_coors_arc_enhanced(iBBX.right,iBBX.bottom,ellipsoid.radiusx,ellipsoid.radiusy,ellipsoid.internalangle,ellipsoid.internalangle+((tlAngularSize/180.0)*Pi),ellipsoid.axangle,&point5x,&point5y,&point6x,&point6y);
+
+						MACRO_DRAWPREFIX(expressgeometry_begin)(point1x,point1y);
+						MACRO_DRAWPREFIX(expressgeometry_arc_enhanced)(iBBX.right,iBBX.bottom,ellipsoid.radiusx+tllinedist,ellipsoid.radiusy+tllinedist,ellipsoid.internalangle-takefromark1,ellipsoid.internalangle+((tlAngularSize/180.0)*Pi+takefromark2),ellipsoid.axangle);
+						if (currentArrowHeadTail==2)
+						{
+							iBBX.left=point6x;
+							iBBX.top=point6y;
+							langle=ellipsoid.axangle+ellipsoid.internalangle+((tlAngularSize/180.0)*Pi)-Pi/2*tl_sign;
+							draw_arrowmatrix[0][0]=-tllinedist*cos(langle);
+							draw_arrowmatrix[1][0]=tllinedist*cos(langle+Pi/2);
+							draw_arrowmatrix[0][1]=-tllinedist*sin(langle);
+							draw_arrowmatrix[1][1]=tllinedist*sin(langle+Pi/2);
+							MACRO_DRAWPREFIX(express_arrowtippoint)(0,-2,2*tl_sign);
+							MACRO_DRAWPREFIX(express_arrowtippoint)(0,0,0);
+							MACRO_DRAWPREFIX(express_arrowtippoint)(0,-2,-2*tl_sign);
+						}
+						MACRO_DRAWPREFIX(expressgeometry_line)(point4x,point4y);
+						MACRO_DRAWPREFIX(expressgeometry_arc_enhanced)(iBBX.right,iBBX.bottom,ellipsoid.radiusx-tllinedist,ellipsoid.radiusy-tllinedist,ellipsoid.internalangle+((tlAngularSize/180.0)*Pi+takefromark2),ellipsoid.internalangle-takefromark1,ellipsoid.axangle);
+						if (currentArrowHeadHead==2)
+						{
+							iBBX.left=point5x;
+							iBBX.top=point5y;
+							langle=ellipsoid.axangle+ellipsoid.internalangle+Pi/2*tl_sign;
+							draw_arrowmatrix[0][0]=-tllinedist*cos(langle);
+							draw_arrowmatrix[1][0]=tllinedist*cos(langle+Pi/2);
+							draw_arrowmatrix[0][1]=-tllinedist*sin(langle);
+							draw_arrowmatrix[1][1]=tllinedist*sin(langle+Pi/2);
+							MACRO_DRAWPREFIX(express_arrowtippoint)(0,-2,2*tl_sign);
+							MACRO_DRAWPREFIX(express_arrowtippoint)(0,0,0);
+							MACRO_DRAWPREFIX(express_arrowtippoint)(0,-2,-2*tl_sign);
+						}
+						MACRO_DRAWPREFIX(expressgeometry_backline)();
+						MACRO_DRAWPREFIX(expressgeometry_end)();
+					}
+				}
+				else
+				{
+					MACRO_DRAWPREFIX(expressarc_enhanced)(iBBX.right,iBBX.bottom,ellipsoid.radiusx+tllinedist,ellipsoid.radiusy+tllinedist,ellipsoid.internalangle-takefromark1,ellipsoid.internalangle+((tlAngularSize/180.0)*Pi+takefromark2),ellipsoid.axangle);
+					MACRO_DRAWPREFIX(expressarc_enhanced)(iBBX.right,iBBX.bottom,ellipsoid.radiusx-tllinedist,ellipsoid.radiusy-tllinedist,ellipsoid.internalangle-takefromark1,ellipsoid.internalangle+((tlAngularSize/180.0)*Pi+takefromark2),ellipsoid.axangle);
+				}
 			}
 			else
 			{
@@ -1112,6 +1201,7 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,char hatches)
 	tlrighttan2=0;
 	langle=0;cangle=0;
 	currentLineType=(*i_arrow_instance).LineType;//0: normal 2: Bold 0x100: Double
+	currentFillType=(*i_arrow_instance).FillType;
 	currentEllipsemode=0;
 	if (((*i_arrow_instance).ArrowShaftSpacing)>0)
 	{

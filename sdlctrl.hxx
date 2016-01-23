@@ -2713,6 +2713,7 @@ int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int
 						break;
 					}
 					case 0x301:
+					case 0x302:
 					{
 						menu_selectedmenuelement=menu_itembyname((*ipulloutlisting).name);
 						control_menutexteditcursor=(pixeloriginposx-(*ipulloutlisting).x)/8;

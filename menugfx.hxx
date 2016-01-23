@@ -842,7 +842,10 @@ int sdl_menudraw()
 			sdl_analysisdraw(menu_list[ilv1].alignx,menu_list[ilv1].aligny);
 		}
 	}
-	printmenutext(4,gfx_screensizey-24,menugfx_menudescription,min(strlen(menugfx_menudescription),gfx_screensizex/8-8));
+	if (LHENDRAW_filedlgmode==0)
+	{
+		printmenutext(4,gfx_screensizey-24,menugfx_menudescription,min(strlen(menugfx_menudescription),gfx_screensizex/8-8));
+	}
 	return 0;
 }
 void menuframeline(int x,int y,int maxx,int maxy)

@@ -2647,9 +2647,14 @@ void save_bmp(gfx_bufferset_ & target,FILE * ifile,_i32 width,_i32 height)
 	}
 	fwrite(target.screen,4*width*height,1,ifile);
 }
-catalogized_command_funcdef(PRINT_HIRES)
+catalogized_command_funcdef(BITMAP_LORES)
 {
-	control_export.hires=1;
+	control_export.hires=0;
+	return 1;
+}
+catalogized_command_funcdef(BITMAP_TRANSPARENT)
+{
+	control_export.transparent=1;
 	return 1;
 }
 int save_image(FILE * ifile,const char * value)

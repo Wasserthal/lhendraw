@@ -297,18 +297,97 @@ void initZlist()
 		reenumerate();
 	}
 }
+void janitor_bufferresort()
+{
+	for (int ilv1=1;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
+	{
+		basicmultilist * imultilist=findmultilist(STRUCTURE_OBJECTTYPE_List[ilv1].name);
+		int isize=STRUCTURE_OBJECTTYPE_List[ilv1].size;
+		int tl_object=0;
+		int tl_readpos=0;
+		int tl_writepos=0;
+		int length;
+		TELESCOPE_buffer * ibuffer=glob_contentbuffer+ilv1;
+		TELESCOPE * itelescope;
+		while (tl_readpos<ibuffer->count)
+		{
+			itelescope=(TELESCOPE*)(ibuffer->buffer+tl_readpos);
+			length=itelescope->length;
+			tl_readpos+=length;
+			if (itelescope->owner==-1)
+			{
+				for (int ilv3=tl_readpos;ilv3<ibuffer->count;ilv3++)
+				{
+					ibuffer->buffer[ilv3-length]=ibuffer->buffer[ilv3];
+				}
+				ibuffer->count-=length;
+				//shifts the buffer pointers of the other objects.
+				for (int ilv3=tl_object+1;ilv3<(*imultilist).filllevel;ilv3++)
+				{
+					basic_instance_propertybuffer * iinstance=(basic_instance_propertybuffer*)(((char*)((*imultilist).pointer))+(isize*ilv3));
+					if ((*iinstance).pos_in_buffer>=tl_readpos)
+					{
+						(*iinstance).pos_in_buffer-=length;
+					}
+				}
+			}
+			else
+			{
+				tl_object=itelescope->owner;
+			}
+			tl_writepos+=length;
+		}
+	}
+	return;
+}
+extern selection_datatype selection_currentselection[];
 void janitor_memoryresort()
 {
+	for (int ilv1=1;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
+	{
+		basicmultilist * imultilist=findmultilist(STRUCTURE_OBJECTTYPE_List[ilv1].name);
+		_uXX icompare=1<<ilv1;
+		int isize=STRUCTURE_OBJECTTYPE_List[ilv1].size;
+		int tl_difference=0;
+		TELESCOPE_buffer * ibuffer=glob_contentbuffer+ilv1;
+		for (int ilv2=0;ilv2+tl_difference<(*imultilist).filllevel;)
+		{
+			basic_instance_propertybuffer * iinstance=(basic_instance_propertybuffer*)(((char*)((*imultilist).pointer))+(isize*(ilv2+tl_difference)));
+			if ((*iinstance).exist==0)
+			{
+				tl_difference+=1;
+			}
+			else
+			{
+				if (tl_difference!=0)
+				{
+					if (TELESCOPE_aggressobject(imultilist,ilv2+tl_difference))
+					{
+						TELESCOPE_reindex(ilv2);
+					}
+					memcpy((((char*)((*imultilist).pointer))+(isize*ilv2)),(((char*)((*imultilist).pointer))+(isize*(ilv2+tl_difference))),isize);
+					_uXX selected=selection_currentselection[ilv2+tl_difference]&icompare;
+					selection_currentselection[ilv2]&=~icompare;
+					selection_currentselection[ilv2]|=selected;
+				}
+				ilv2++;
+			}
+		}
+		(*imultilist).filllevel-=tl_difference;
+	}
 	return;
 }
 void janitor_tidynumbers()
 {
 	return;
 }
+extern void checkupinconsistencies();
 catalogized_command_funcdef(REMEM)
 {
+	janitor_bufferresort();
 	janitor_memoryresort();
 	janitor_tidynumbers();
+	checkupinconsistencies();
 	return 1;
 }
 catalogized_command_funcdef(MEMX2)

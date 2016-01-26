@@ -26,6 +26,7 @@ LLLLLL H   H EEEEE N    N DDD   R  R A     A    W     W
 #include <X11/Xatom.h>
 #include <X11/Xmu/Atoms.h>
 #endif
+#include <SDL.h>
 #include "lendefs.h"
 #include "debug.hxx"
 #define CAMBRIDGEPREFIX(content) CAMBRIDGE_ ## content
@@ -33,11 +34,11 @@ LLLLLL H   H EEEEE N    N DDD   R  R A     A    W     W
 #include "memory.hxx"
 #include "elements.hxx"
 #include "xmldata.hxx"
-#include "telescopic_list.hxx"
 #include "definitionlist.h"
 #include "cdxdata.hxx"
-#include "xmlparse.hxx"
 #include "./generated/reflection_headers.hxx"
+#include "telescope.hxx"
+#include "xmlparse.hxx"
 #include "internal_enum.hxx"
 
 #include "enums.hxx"
@@ -45,9 +46,9 @@ LLLLLL H   H EEEEE N    N DDD   R  R A     A    W     W
 #include "./generated/configfilestructure.hxx"
 #include "./generated/cambridgestructure.hxx"
 #include "./generated/bkchemstructure.hxx"
+//HERE, the program-specific includes begin
 int undo_getbufferfromstructure(basicmultilist * input,TELESCOPE_buffer * * bufferptr);
-#include <SDL.h>
-#include "parsecdxml_variables.hxx"
+#include "variables.hxx"
 #include "janitor.hxx"
 #include "ellipeq.h"
 #include "quartic.hxx"

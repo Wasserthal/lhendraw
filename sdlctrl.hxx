@@ -123,6 +123,7 @@ void checkupinconsistencies()
 				(*tl_b_instance).exist=0;
 				goto i_b_destroyed;
 			}
+			//TODO:URGENT this calls edit_locatebyid, therefore consumes square time, put into getatoms and threat better
 			for (char ilv2=0;ilv2<2;ilv2++)//destroys bonds with one side missing
 			{
 				if (!edit_locatebyid(STRUCTURE_OBJECTTYPE_n,ilv2?((*tl_b_instance).B):((*tl_b_instance).E),NULL))

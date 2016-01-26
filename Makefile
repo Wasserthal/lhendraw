@@ -61,6 +61,7 @@ test_install:
 	cp *.lennardfont -t /usr/share/lhendraw
 	ln -s -f /usr/share/lhendraw/lhendraw /usr/bin/lhendraw
 install:
+	mkdir -p $(DESTDIR)/usr/share/lhendraw
 	install -d $(BIN) $(DESTDIR)/usr/share/lhendraw
 	install lhendraw $(BIN)
 	cp hotkeys.xml -t $(DESTDIR)/usr/share/lhendraw
@@ -68,3 +69,5 @@ install:
 	cp *.ttf -t $(DESTDIR)/usr/share/lhendraw
 	cp *.lennardfont -t $(DESTDIR)/usr/share/lhendraw
 	cp *.bin -t $(DESTDIR)/usr/share/lhendraw
+	mkdir -p $(DESTDIR)/usr/share/man/man1
+	gzip -c debian/manpage.1 > $(DESTDIR)/usr/share/man/man1/lhendraw.1.gz

@@ -264,6 +264,18 @@ void gfx_expressbezier(float x1,float y1,float x2,float y2,float x3,float y3,flo
 	}
 }
 
+void gfx_expresshorzline(int left,int y,int right,_u32 color)
+{
+	if (left<0) left=0;
+	if (right>=gfx_canvassizex) right=gfx_canvassizex-1;
+	if (y<0) return;
+	if (y>=gfx_canvassizey) return;
+	_u32 * pointer=canvas+y*gfx_screensizex+left;
+	for (int ilv1=left;ilv1<right;ilv1++)
+	{
+		*(pointer++)=color;
+	}
+}
 void gfx_expressline(float ileft,float itop,float iright,float ibottom)
 {
 	int x=(ileft-SDL_scrollx)*SDL_zoomx;
@@ -1525,7 +1537,7 @@ void text_print_bitmap_enhanced(int * posx,int * posy,fontpixinf_ * ifontpixinf,
 	}
 	if (imode & 4)
 	{
-		gfx_expressline(*posx,(*posy)+4,(*posx)+(*ifontpixinf).deltax+larger,(*posy)+4);
+		gfx_expresshorzline((*posx),(*posy)+4,(*posx)+(*ifontpixinf).deltax+larger,SDL_color);
 	}
 	(*posx)+=(*ifontpixinf).deltax+larger;
 	(*posy)+=(*ifontpixinf).deltay;
@@ -1604,7 +1616,7 @@ void text_print_bitmap(int * posx,int * posy,fontpixinf_ * ifontpixinf,int imode
 	}
 	if (imode & 4)
 	{
-		gfx_expressline(*posx,(*posy)+4,(*posx)+(*ifontpixinf).deltax+larger,(*posy)+4);
+		gfx_expresshorzline(*posx,(*posy)+4,(*posx)+(*ifontpixinf).deltax+larger,SDL_color);
 	}
 	(*posx)+=(*ifontpixinf).deltax+larger;
 	(*posy)+=(*ifontpixinf).deltay;

@@ -110,7 +110,33 @@ void checkupinconsistencies()
 	{
 		if ((*glob_t_multilist)[ilv1].exist)
 		{
+			char found=0;
 			edit_textlength(glob_t_multilist,ilv1);
+			if (TELESCOPE_aggressobject(glob_t_multilist,ilv1)>0)
+			{
+				int tl_backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_s);
+				while (tl_backval>0)
+				{
+					if (TELESCOPE_getproperty_contentlength()<=1)
+					{
+						TELESCOPE_clear_item();
+					}
+					else
+					{
+						found=1;
+					}
+					tl_backval=TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_s);
+				}
+				if (found==0)
+				{
+					TELESCOPE_clear();
+					(*glob_t_multilist)[ilv1].exist=0;
+				}
+			}
+			else
+			{
+				(*glob_t_multilist)[ilv1].exist=0;
+			}
 		}
 	}
 	for (int ilv1=0;ilv1<(*glob_b_multilist).filllevel;ilv1++)//removes defective bonds

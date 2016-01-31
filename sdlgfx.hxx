@@ -123,10 +123,8 @@ inline void fatpixel(int iposx,int iposy)
 			_u32 * tl_pointer=canvas+(gfx_screensizex*iposy)+iposx-1;
 			*(tl_pointer++)=SDL_color;
 			*(tl_pointer++)=SDL_color;
-			*(tl_pointer++)=SDL_color;
 			tl_pointer-=1+gfx_screensizex;
-			*tl_pointer=SDL_color;
-			tl_pointer+=(gfx_screensizex<<2);
+			*(tl_pointer++)=SDL_color;
 			*tl_pointer=SDL_color;
 		}
 	}
@@ -224,6 +222,12 @@ void gfx_expressbezier2(float x1,float y1,float x2,float y2,float x3,float y3)
 		ix=(x1+(x2-x1)*ishare)*iminusshare+(x2+(x3-x2)*ishare)*ishare;
 		iy=(y1+(y2-y1)*ishare)*iminusshare+(y2+(y3-y2)*ishare)*ishare;
 		putpixel(ix,iy);
+		if (SDL_linestyle & 4)
+		{
+			putpixel(ix+1,iy);
+			putpixel(ix,iy+1);
+			putpixel(ix+1,iy+1);
+		}
 	}
 }
 void gfx_expressbezier(float x1,float y1,float x2,float y2,float x3,float y3,float x4,float y4)
@@ -251,6 +255,12 @@ void gfx_expressbezier(float x1,float y1,float x2,float y2,float x3,float y3,flo
 		iy=((y1*ishare+y2*iminusshare)*ishare+(y2*ishare+y3*iminusshare)*iminusshare)*ishare+
 		((y2*ishare+y3*iminusshare)*ishare+(y3*ishare+y4*iminusshare)*iminusshare)*iminusshare;
 		putpixel(ix,iy);
+		if (SDL_linestyle & 4)
+		{
+			putpixel(ix+1,iy);
+			putpixel(ix,iy+1);
+			putpixel(ix+1,iy+1);
+		}
 	}
 }
 
@@ -361,13 +371,6 @@ void gfx_expressline(float ileft,float itop,float iright,float ibottom)
 	}
 	if (abs(x2-x)>=abs(y2-y))
 	{
-		if (SDL_linestyle&4)
-		{
-			SDL_linestyle&=~4;
-			gfx_expressline(ileft,itop-1,iright,ibottom-1);
-			gfx_expressline(ileft,itop+1,iright,ibottom+1);
-			SDL_linestyle|=4;
-		}
 		if (x2==x)//it can be that still x width is zero.
 		{
 			canvas[gfx_screensizex*y2+x]=SDL_color;
@@ -403,13 +406,6 @@ void gfx_expressline(float ileft,float itop,float iright,float ibottom)
 	}
 	else
 	{
-		if (SDL_linestyle&4)
-		{
-			SDL_linestyle&=~4;
-			gfx_expressline(ileft-1,itop,iright-1,ibottom);
-			gfx_expressline(ileft+1,itop,iright+1,ibottom);
-			SDL_linestyle|=4;
-		}
 		if (y2<y)
 		{
 			x3=x;
@@ -1374,6 +1370,13 @@ int gfx_expressinfinityangle(int count)
 
 void gfx_expressspinellipse(float ix,float iy,float radiusx,float radiusy, float axangle)
 {
+	if (SDL_linestyle & 4)
+	{
+		SDL_linestyle&=~4;
+		gfx_expressspinellipse(ix,iy,radiusx-1.0/SDL_zoomx,radiusy-1.0/SDL_zoomy,axangle);
+		gfx_expressspinellipse(ix,iy,radiusx-0.5/SDL_zoomx,radiusy-0.5/SDL_zoomy,axangle);
+		SDL_linestyle|=4;
+	}
 	ix=(ix-SDL_scrollx)*SDL_zoomx;
 	iy=(iy-SDL_scrolly)*SDL_zoomy;
 	radiusx=radiusx*SDL_zoomx;

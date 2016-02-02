@@ -46,6 +46,47 @@ struct control_export_
 	int hires;//0: not 1: use HQ_filter
 	int transparent;//0: not 1: use HQ_filter
 }control_export={0,1,0};
+typedef struct MODIFIER_KEYS_
+{
+	char CTRL;
+	char ALT;
+	char LALT,RALT;
+	char SHIFT;
+	char SUPER;
+	char LEFT;
+	char RIGHT;
+	char UP;
+	char DOWN;
+}MODIFIER_KEYS_;
+MODIFIER_KEYS_ MODIFIER_KEYS={0,0,0,0,0,0,0,0};
+#ifdef SDL2
+_u16 getunicode(SDL_Event * input)
+{
+	char ihv1=SDL_GetKeyName(input->key.keysym.sym)[0];
+	if (strlen(SDL_GetKeyName(input->key.keysym.sym))==1)
+	{
+		if ((ihv1>='A') && (ihv1<='Z'))
+		{
+			if (MODIFIER_KEYS.SHIFT)
+			{
+				return ihv1;
+			}
+			else
+			{
+				return ihv1+0x20;
+			}
+		}
+	}
+	return 0;
+}
+#define SDL_BUTTON_WHEELUP 4
+#define SDL_BUTTON_WHEELDOWN 5
+#else
+_u16 getunicode(SDL_Event * input)
+{
+	return input->key.keysym.unicode;
+}
+#endif
 char control_filememory_buffer[constants_maxlistentries][256];
 char control_devicememory_buffer[constants_maxlistentries][64];
 _u32 control_filememory_attribs[constants_maxlistentries];

@@ -524,17 +524,6 @@ int stylefromattrs(_i32 LineType,_i32 FillType)
 	//0x1: line 0x2: filled 0x4: bold 0x8 dashed
 	return wert;
 }
-typedef struct MODIFIER_KEYS_
-{
-	char CTRL;
-	char ALT;
-	char SHIFT;
-	char SUPER;
-	char LEFT;
-	char RIGHT;
-	char UP;
-	char DOWN;
-}MODIFIER_KEYS_;
 void draw_getposintlcplate(double * outx,double * outy,tlcplate_instance * i_tlcplate_instance,double inx,double iny)
 {
 	double horzipos=(1.0-inx)*(*i_tlcplate_instance).TopLeft.x*(1-iny)+(1.0-inx)*(*i_tlcplate_instance).BottomLeft.x*iny+inx*(*i_tlcplate_instance).TopRight.x*(1-iny)+inx*(*i_tlcplate_instance).BottomRight.x*iny;
@@ -543,32 +532,3 @@ void draw_getposintlcplate(double * outx,double * outy,tlcplate_instance * i_tlc
 	*outy=vertipos;
 	return;
 }
-MODIFIER_KEYS_ MODIFIER_KEYS={0,0,0,0,0,0,0,0};
-#ifdef SDL2
-_u16 getunicode(SDL_Event * input)
-{
-	char ihv1=SDL_GetKeyName(input->key.keysym.sym)[0];
-	if (strlen(SDL_GetKeyName(input->key.keysym.sym))==1)
-	{
-		if ((ihv1>='A') && (ihv1<='Z'))
-		{
-			if (MODIFIER_KEYS.SHIFT)
-			{
-				return ihv1;
-			}
-			else
-			{
-				return ihv1+0x20;
-			}
-		}
-	}
-	return 0;
-}
-#define SDL_BUTTON_WHEELUP 4
-#define SDL_BUTTON_WHEELDOWN 5
-#else
-_u16 getunicode(SDL_Event * input)
-{
-	return input->key.keysym.unicode;
-}
-#endif

@@ -3500,8 +3500,13 @@ void control_normal()
 						break;
 					}
 					case SDLK_RALT:
+					{
+						MODIFIER_KEYS.RALT=idirection;
+						goto fallthrough;
+					}
 					case SDLK_LALT://FALLTHROUGH
 					{
+						MODIFIER_KEYS.LALT=idirection;
 						fallthrough:
 						MODIFIER_KEYS.ALT=idirection;
 						break;
@@ -3847,13 +3852,70 @@ void control_normal()
 							control_mousestate=0;
 						}
 						break;
+						case SDLK_v:
+						if ((MODIFIER_KEYS.CTRL)&&(MODIFIER_KEYS.ALT==0))
+						{
+							PASTE("","");
+						}
+						else
+						{
+							#ifndef SDL2
+							goto ldefault;
+							#endif
+						}
+						break;
+						case SDLK_c:
+						if ((MODIFIER_KEYS.CTRL)&&(MODIFIER_KEYS.ALT==0))
+						{
+							COPY("","");
+						}
+						else
+						{
+							#ifndef SDL2
+							goto ldefault;
+							#endif
+						}
+						break;
+						case SDLK_x:
+						if ((MODIFIER_KEYS.CTRL)&&(MODIFIER_KEYS.ALT==0))
+						{
+							COPY("","");
+							if (control_textedit_selectmode==1)
+							{
+								control_squashselection();
+							}
+						}
+						else
+						{
+							#ifndef SDL2
+							goto ldefault;
+							#endif
+						}
+						break;
 						#ifndef SDL2
 						default:;
+						ldefault:;
 						char * tl_unicode;
 						if (control_aggresstextcursor())
 						{
-							unicodeinput:;
+							if ((MODIFIER_KEYS.LALT))
+							{
+								int ihv1=(control_Event.key.keysym.sym-SDLK_a+'A');
+								if ((ihv1>='A') && (ihv1<='Z'))
+								{
+									if (MODIFIER_KEYS.SHIFT==0)ihv1+=0x20;
+									for (int ilv1=0;ilv1<sizeof(list_greeklist)/sizeof(namelist_);ilv1++)
+									{
+										if (ihv1==list_greeklist[ilv1].input[0])
+										{
+											tl_unicode=list_greeklist[ilv1].output;
+											goto greekfound;
+										}
+									}
+								}
+							}
 							utf8encode(getunicode(&control_Event),&tl_unicode);
+							greekfound:;
 							if (strcmp(tl_unicode,"")!=0)
 							{
 								if (control_textedit_selectmode==1)

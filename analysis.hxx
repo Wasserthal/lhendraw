@@ -5,6 +5,7 @@ float analysis_MSNext[constants_MSPoints];
 float analysis_MSPower[constants_MSPoints];
 int analysis_MSmin,analysis_MSmax;
 float analysis_MS100;
+float analysis_ExactMass;
 int analysis_analysis[element_max];
 int analysis_charge;
 float element_mass(int input)
@@ -241,5 +242,16 @@ void analysis_MS()
 	for (int ilv1=0;ilv1<constants_MSPoints;ilv1++)
 	{
 		if (analysis_MS100<analysis_MSSpectrum[ilv1]) analysis_MS100=analysis_MSSpectrum[ilv1];
+	}
+}
+void analysis_calc_ExactMass()
+{
+	analysis_ExactMass=0;
+	for (int ilv1=0;ilv1<element_max;ilv1++)
+	{
+		if (analysis_analysis[ilv1]>0)
+		{
+			analysis_ExactMass+=element_exactmass(ilv1)*analysis_analysis[ilv1];
+		}
 	}
 }

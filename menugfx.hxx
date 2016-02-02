@@ -756,6 +756,7 @@ void sdl_analysisdraw(int alignx,int aligny)
 	checkupinconsistencies();
 	getatoms();
 	analysis_ElementalAnalysis();
+	analysis_calc_ExactMass();
 	int horzcoord=0;
 	SDL_color=0;
 	for (int ilv1=0;ilv1<element_max;ilv1++)
@@ -801,12 +802,14 @@ void sdl_analysisdraw(int alignx,int aligny)
 	}
 	sprintf(analysis_string,"Weight=%6.2f g/mol",analysis_mass());
 	printmenutext(alignx,aligny+32,analysis_string,strlen(analysis_string));
+	sprintf(analysis_string,"Exact=%6.2f g/mol",analysis_ExactMass);
+	printmenutext(alignx,aligny+48,analysis_string,strlen(analysis_string));
 	analysis_MS();
 	for (int ilv1=0;ilv1<64;ilv1++)
 	{
 		for (int ilv2=0;ilv2>-((64.0*analysis_MSSpectrum[ilv1])/analysis_MS100);ilv2--)
 		{
-			screen[(aligny+100+ilv2)*gfx_screensizex+ilv1*2]=0;
+			screen[(aligny+124+ilv2)*gfx_screensizex+ilv1*2]=0;
 		}
 	}
 }

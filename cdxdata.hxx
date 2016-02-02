@@ -52,7 +52,8 @@ If it is filled from PCDATA, its name is PCDATA*/
 struct cdx_Buffered_String /*can be filled both by Property value and inter-Object-Text.
 If it is filled from PCDATA, its name is PCDATA*/
 {
-	char * a;//TODO: add count, remove NULL-termination. or rather: collapse this entire structure type to a propertylist trail.
+	char * a;//TODO: remove NULL-termination. or rather: collapse this entire structure type to a propertylist trail.
+	int count;
 };
 
 inline void clear_cdx_Buffered_String(cdx_Buffered_String & input) /*can be filled both by Property value and inter-Object-Text.
@@ -121,25 +122,38 @@ int __attribute__((sysv_abi))CDXMLREAD_BIN_cdx_String(char * input,void * output
 }
 int __attribute__((sysv_abi))CDXMLWRITE_BIN_cdx_String(char * input,void * output)
 {
-	static int length=sizeof(input)+1;
+	static int length=strlen(input)+1;
 	fwrite(&length,2,1,(FILE*)output);
 	fprintf((FILE*)output,"%s",input);
 	return strlen(input)+1;
 }
 
-int writefrombuffer(FILE * output,char * input)
+int writefrombuffer(FILE * output,cdx_Buffered_String * input)
 {
-	for (int ilv1=0;input[ilv1]!=0;ilv1++)
+	char * instring=input->a;
+	for (int ilv1=0;(instring[ilv1]!=0)&&(ilv1<input->count);ilv1++)
 	{
 		for (int ilv2=0;ilv2<sizeof(list_xml)/sizeof(list_bookstavecode);ilv2++)
 		{
-			if (input[ilv1]==list_xml[ilv2].unicode[0])
+			if (instring[ilv1]==list_xml[ilv2].unicode[0])
 			{
 				fprintf(output,"&%s;",list_xml[ilv2].name);
 				goto ifertig;
 			}
 		}
-		fprintf(output,"%c",input[ilv1]);
+		if (instring[ilv1] & 0x80)
+		{
+			for (int ilv2=0;ilv2<list_greeklist_size;ilv2++)
+			{
+				if (strncmp(list_greeklist[ilv2].output,instring+ilv1,strlen(list_greeklist[ilv2].output))==0)
+				{
+					ilv1+=strlen(list_greeklist[ilv2].output)-1;
+					fprintf(output,"%s",list_greeklist[ilv2].input);
+					goto ifertig;
+				}
+			}
+		}
+		fprintf(output,"%c",instring[ilv1]);
 		ifertig:;
 	}
 	return 0;
@@ -199,7 +213,7 @@ int copytobuffer(TELESCOPE_buffer * ibuffer,char * input)//TODO: what if string 
 }
 int __attribute__((sysv_abi))CDXMLWRITE_cdx_Buffered_String(char * input,void * output)
 {
-	return writefrombuffer((FILE*)output,*(char**)input);
+	return writefrombuffer((FILE*)output,((cdx_Buffered_String*)input));
 }
 int __attribute__((sysv_abi))CDXMLREAD_cdx_Buffered_String(char * input,void * output)
 {
@@ -247,7 +261,7 @@ int __attribute__((sysv_abi))CDXMLREAD_BIN_cdx_Buffered_String(char * input,void
 }
 int __attribute__((sysv_abi))CDXMLWRITE_BIN_cdx_Buffered_String(char * input,void * output)
 {
-	static int length=sizeof(input)+1;
+	static int length=strlen(input)+1;
 	fwrite(&length,2,1,(FILE*)output);
 	fprintf((FILE*)output,"%s",input);
 	static char zero=0;

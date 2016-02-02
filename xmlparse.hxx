@@ -493,7 +493,7 @@ void output_object(FILE * outfile,basic_instance * iinstance)
 {
 	char hadhadcontent=0;
 	char haspctext=0;
-	char * PCTEXT_pointer;
+	cdx_Buffered_String * iPCTEXT;
 	_i32 propertycount=(*iinstance)._->properties_count;
 	_i32 contentcount=(*iinstance)._->contents_count;
 	_u32 * ipointer=(*iinstance).getINTERNALPropertyexistflags();
@@ -509,7 +509,7 @@ void output_object(FILE * outfile,basic_instance * iinstance)
 			if (strcmp(name,"PCTEXT")==0)
 			{
 				haspctext=1;
-				PCTEXT_pointer=((char*)iinstance)+ipropertypos;
+				iPCTEXT=(cdx_Buffered_String*)(((char*)iinstance)+ipropertypos);
 			}
 			else
 			{
@@ -522,7 +522,7 @@ void output_object(FILE * outfile,basic_instance * iinstance)
 	if (haspctext)
 	{
 		fprintf(outfile,">");
-		writefrombuffer(outfile,*(char**)PCTEXT_pointer);
+		writefrombuffer(outfile,iPCTEXT);
 	}
 	hadhadcontent=haspctext;
 	for (int ilv1=0;ilv1<contentcount;ilv1++)

@@ -4985,13 +4985,14 @@ int edit_readsfrombuffer(char * input)
 	goto iback;
 	return 0;
 }
-int edit_printtranslate(FILE * output,const char * text,int * icursor)
+int edit_printtranslate(FILE * output,const char * text,int icount,int * icursor)
 {
 	int i_starttype=0;
 	int i_currenttype=0;
 	int begincursor=(*icursor);
 	char ihv1=0;
 	iback:;
+	if ((*icursor)>=icount) {return 0;}
 	if (text[(*icursor)]==0) {return 0;};
 	if (text[(*icursor)] & 0x80)
 	{
@@ -5033,13 +5034,14 @@ int edit_printtranslate(FILE * output,const char * text,int * icursor)
 	goto iback;
 	return 0;
 }
-void edit_printtest(char * text,int * i_elementcount,int * tl_starttype,int * length)
+void edit_printtest(char * text,int icount,int * i_elementcount,int * tl_starttype,int * length)
 {
 	int cursor=0;
 	int i_currenttype=0;
 	char ihv1=0;
 	*tl_starttype=0;
 	iback:;
+	if (cursor>=icount) {return;}
 	if (text[cursor]==0) {return;};
 	if (text[cursor] & 0x80)
 	{
@@ -5088,7 +5090,7 @@ int edit_writestobuffer(char * input,void * output)
 		int tl_count=1;
 		int tl_starttype=0;
 		CAMBRIDGE_s_instance * tl_CAMBRIDGE_s_instance=glob_CAMBRIDGE_s_multilist->bufferlist()+ilv1;
-		edit_printtest(tl_CAMBRIDGE_s_instance->PCTEXT.a,&tl_count,&tl_starttype,&textlength);
+		edit_printtest(tl_CAMBRIDGE_s_instance->PCTEXT.a,tl_CAMBRIDGE_s_instance->PCTEXT.count,&tl_count,&tl_starttype,&textlength);
 		if (tl_starttype!=0)
 		{
 			tl_CAMBRIDGE_s_instance->font=tl_starttype;
@@ -5118,7 +5120,7 @@ int edit_writestobuffer(char * input,void * output)
 		tl_stylerun.size=tl_CAMBRIDGE_s_instance->size*20;
 		fwrite(&tl_stylerun,sizeof(cdx_Stylerun),1,(FILE*)output);
 		fseek((FILE*)output,fseekcur,SEEK_SET);
-		if (edit_printtranslate((FILE*)output,tl_CAMBRIDGE_s_instance->PCTEXT.a,&subcursor)){goto iagain;}
+		if (edit_printtranslate((FILE*)output,tl_CAMBRIDGE_s_instance->PCTEXT.a,tl_CAMBRIDGE_s_instance->PCTEXT.count,&subcursor)){goto iagain;}
 		fseekcur=ftell((FILE*)output);
 	}
 	length=fseekcur-fseekstart-2;

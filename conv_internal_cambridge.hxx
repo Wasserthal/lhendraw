@@ -67,16 +67,51 @@ int CONVCAMBRIDGE_s_f(CAMBRIDGE_t_instance * master,edit_formatstruct * iformat,
 	(*tl_CAMBRIDGE_s_instance).PCTEXTcounter=strlen((*tl_CAMBRIDGE_s_instance).PCTEXT.a);
 	return 1;
 }
-void CONVCAMBRIDGE_s(CAMBRIDGE_t_instance * master,s_instance * tl_s_instance,char * CAMBRIDGE_s_instance_buffer)
+int CONVCAMBRIDGE_latin_vs_greek(CAMBRIDGE_t_instance * master,s_instance * tl_s_instance,int * icursor,int count,char * ibufferptr)
 {
-	multilist<CAMBRIDGE_s_instance> * tl_CAMBRIDGE_s_multilist=retrievemultilist<CAMBRIDGE_s_instance>();
+	int ilv2;
+	int currenttype=0;
+	int thereismore=0;
 	ADD_TO_MULTILISTREFERENCE(master,s);
+	iback:;
+	if ((*icursor)>=count){thereismore=0;goto done;}
+	if (ibufferptr[(*icursor)]==0){thereismore=0;goto done;}
+	for (ilv2=0;ilv2<list_greeklist_size;ilv2++)
+	{
+		if (strncmp(list_greeklist[ilv2].output,ibufferptr+(*icursor),strlen(list_greeklist[ilv2].output))==0)
+		{
+			if (currenttype==0) {currenttype=2;}else{if ((currenttype)!=2){thereismore=1;goto done;}}
+			printf("2");
+			currenttype=2;
+			(*icursor)+=strlen(list_greeklist[ilv2].output);
+			goto ifound;
+		}
+	}
+	if (currenttype==0) {currenttype=1;}else{if ((currenttype)!=1){thereismore=1;goto done;}}
+	printf("1");
+	(*icursor)++;
+	ifound:;
+	goto iback;
+	done:;
+	if ((*icursor)>=count)thereismore=0;
+	if (ibufferptr[(*icursor)]==0)thereismore=0;
 	CONVCAMBRIDGE_COLORCONV(s);
-	(*tl_CAMBRIDGE_s_instance).font=1;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_s_instance,font);
+	(*tl_CAMBRIDGE_s_instance).font=currenttype;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_s_instance,font);
 	(*tl_CAMBRIDGE_s_instance).face=(*tl_s_instance).face;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_s_instance,face);
 	(*tl_CAMBRIDGE_s_instance).size=(*tl_s_instance).size;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_s_instance,size);
-	(*tl_CAMBRIDGE_s_instance).PCTEXT.a=CAMBRIDGE_s_instance_buffer;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_s_instance,PCTEXT);
-	(*tl_CAMBRIDGE_s_instance).PCTEXTcounter=strlen((*tl_CAMBRIDGE_s_instance).PCTEXT.a);
+	(*tl_CAMBRIDGE_s_instance).PCTEXT.a=ibufferptr;
+	(*tl_CAMBRIDGE_s_instance).PCTEXT.count=(*icursor);
+	AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_s_instance,PCTEXT);
+	return thereismore;
+};
+void CONVCAMBRIDGE_s(CAMBRIDGE_t_instance * master,s_instance * tl_s_instance,char * CAMBRIDGE_s_instance_buffer)
+{
+	int icursor=0;
+	while (CONVCAMBRIDGE_latin_vs_greek(master,tl_s_instance,&icursor,strlen(CAMBRIDGE_s_instance_buffer),CAMBRIDGE_s_instance_buffer)>0)
+	{
+		CAMBRIDGE_s_instance_buffer+=icursor;
+		icursor=0;
+	}
 }
 void CONVCAMBRIDGE_atoms(CAMBRIDGE_fragment_instance * master,cdx_Rectangle * iBoundingBox)
 {

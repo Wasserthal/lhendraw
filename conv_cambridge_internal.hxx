@@ -18,49 +18,43 @@ if (tl_ ## MACROPARAM_TYPE ## _instance.id!=0)\
 }
 #define CAMBRIDGECONV_COLORCONV(MACROPARAM_TYPE) \
 {\
-	__label__ color_fertig;\
+	_u32 outcolor;\
 	if (AUTOSTRUCT_EXISTS(CAMBRIDGE_ ## MACROPARAM_TYPE ## _instance,(*tl_CAMBRIDGE_ ## MACROPARAM_TYPE ## _instance),color))\
 	{\
-		int tlcolor=(*tl_CAMBRIDGE_ ## MACROPARAM_TYPE ## _instance).color-2;\
-		if (tlcolor==-2) {tl_ ## MACROPARAM_TYPE ## _instance.color=0x000000; goto color_fertig; }\
-		if (tlcolor==-1) {tl_ ## MACROPARAM_TYPE ## _instance.color=0xFFFFFF; goto color_fertig; }\
-		if (tlcolor<(*glob_CAMBRIDGE_color_multilist).filllevel)\
-		{\
-			tl_ ## MACROPARAM_TYPE ## _instance.color=((_u8)(((*glob_CAMBRIDGE_color_multilist))[tlcolor].r*255)*65536)|((_u8)(((*glob_CAMBRIDGE_color_multilist))[tlcolor].g*255)*256)|((_u8)(((*glob_CAMBRIDGE_color_multilist))[tlcolor].b*255));\
-		}\
-		else\
-		{\
-			tl_ ## MACROPARAM_TYPE ## _instance.color=0x000000;\
-		}\
+		outcolor=CAMBRIDGECONV_getcolorfrompalette((*tl_CAMBRIDGE_ ## MACROPARAM_TYPE ## _instance).color);\
 	}\
 	else\
 	{\
-		tl_ ## MACROPARAM_TYPE ## _instance.color=0x000000;\
+		outcolor=0x000000;\
 	}\
-	color_fertig:;\
+	tl_ ## MACROPARAM_TYPE ## _instance.color=outcolor;\
 }
 #define CAMBRIDGECONV_COLORCONV2(MACROPARAM_TYPE,MACROPARAM_TYPE2) \
 {\
-	__label__ color_fertig;\
+	_u32 outcolor;\
 	if (AUTOSTRUCT_EXISTS(CAMBRIDGE_ ## MACROPARAM_TYPE2 ## _instance,(*tl_CAMBRIDGE_ ## MACROPARAM_TYPE2 ## _instance),color))\
 	{\
-		int tlcolor=(*tl_CAMBRIDGE_ ## MACROPARAM_TYPE2 ## _instance).color-2;\
-		if (tlcolor==-2) {tl_ ## MACROPARAM_TYPE ## _instance.color=0x000000; goto color_fertig; }\
-		if (tlcolor==-1) {tl_ ## MACROPARAM_TYPE ## _instance.color=0xFFFFFF; goto color_fertig; }\
-		if (tlcolor<(*glob_CAMBRIDGE_color_multilist).filllevel)\
-		{\
-			tl_ ## MACROPARAM_TYPE ## _instance.color=((_u8)(((*glob_CAMBRIDGE_color_multilist))[tlcolor].r*255)*65536)|((_u8)(((*glob_CAMBRIDGE_color_multilist))[tlcolor].g*255)*256)|((_u8)(((*glob_CAMBRIDGE_color_multilist))[tlcolor].b*255));\
-		}\
-		else\
-		{\
-			tl_ ## MACROPARAM_TYPE ## _instance.color=0x000000;\
-		}\
+		outcolor=CAMBRIDGECONV_getcolorfrompalette((*tl_CAMBRIDGE_ ## MACROPARAM_TYPE2 ## _instance).color);\
 	}\
 	else\
 	{\
-		tl_ ## MACROPARAM_TYPE ## _instance.color=0x000000;\
+		outcolor=0x000000;\
 	}\
-	color_fertig:;\
+	tl_ ## MACROPARAM_TYPE ## _instance.color=outcolor;\
+}
+_u32 CAMBRIDGECONV_getcolorfrompalette(int ino)
+{
+	ino-=2;
+	if (ino==-2) return 0x000000;
+	if (ino==-1) return 0xFFFFFF;
+	if (ino<(*glob_CAMBRIDGE_color_multilist).filllevel)
+	{
+		return ((_u8)(((*glob_CAMBRIDGE_color_multilist))[ino].r*255)*65536)|((_u8)(((*glob_CAMBRIDGE_color_multilist))[ino].g*255)*256)|((_u8)(((*glob_CAMBRIDGE_color_multilist))[ino].b*255));
+	}
+	else
+	{
+		return 0x000000;
+	}
 }
 int edit_interpretaselementwithimplicithydrogens(multilist<n_instance> * imultilist,int inumber);
 CAMBRIDGE_font_instance * getfont(_small iid)
@@ -210,6 +204,7 @@ void CAMBRIDGECONV_bond()
 void CAMBRIDGECONV_text()
 {
 	char atommode;
+	int color=0;
 	multilist<CAMBRIDGE_t_instance> * tl_CAMBRIDGE_t_multilist=retrievemultilist<CAMBRIDGE_t_instance>();
 	multilist<CAMBRIDGE_s_instance> * tl_CAMBRIDGE_s_multilist=retrievemultilist<CAMBRIDGE_s_instance>();
 	multilist<t_instance> * tl_t_multilist=retrievemultilist<t_instance>();
@@ -228,12 +223,14 @@ void CAMBRIDGECONV_text()
 			{
 				CAMBRIDGE_n_instance * tl_CAMBRIDGE_n_instance=(CAMBRIDGE_n_instance*)((*tl_CAMBRIDGE_t_instance).master);
 				TELESCOPE_aggressobject(tl_n_multilist,(*tl_CAMBRIDGE_t_instance).relN);
+				color=CAMBRIDGECONV_getcolorfrompalette(tl_CAMBRIDGE_n_instance->color);
 				atommode=1;
 				goto i_n_only;
 			}
 		}
 		tl_t_instance=t_instance();
 		CAMBRIDGECONV_COLORCONV(t)
+		color=tl_t_instance.color;
 		if (AUTOSTRUCT_EXISTS(CAMBRIDGE_t_instance,(*tl_CAMBRIDGE_t_instance),BoundingBox))
 		{
 			tl_t_instance.xyz.x=(*tl_CAMBRIDGE_t_instance).BoundingBox.left;
@@ -269,7 +266,14 @@ void CAMBRIDGECONV_text()
 			tl_s_instance.font=(*tl_CAMBRIDGE_s_instance).font;
 			tl_s_instance.face=(*tl_CAMBRIDGE_s_instance).face;
 			tl_s_instance.size=(*tl_CAMBRIDGE_s_instance).size;
-			CAMBRIDGECONV_COLORCONV(s)
+			if (AUTOSTRUCT_EXISTS(CAMBRIDGE_s_instance,(*tl_CAMBRIDGE_s_instance),color))
+			{
+				CAMBRIDGECONV_COLORCONV(s)
+			}
+			else
+			{
+				tl_s_instance.color=color;
+			}
 			tl_s_instance.type=TELESCOPE_ELEMENTTYPE_s;
 			if (strcmp((*getfont((*tl_CAMBRIDGE_s_instance).font)).name.a,"Symbol")==0)
 			{

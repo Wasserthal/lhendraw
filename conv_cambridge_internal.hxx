@@ -57,6 +57,7 @@ _u32 CAMBRIDGECONV_getcolorfrompalette(int ino)
 	}
 }
 int edit_interpretaselementwithimplicithydrogens(multilist<n_instance> * imultilist,int inumber);
+char edit_resortstring(basicmultilist * imultilist,int iinstance);
 CAMBRIDGE_font_instance * getfont(_small iid)
 {
 	static CAMBRIDGE_font_instance defaultfont;
@@ -310,7 +311,13 @@ void CAMBRIDGECONV_text()
 			*((s_instance*)TELESCOPE_getproperty())=tl_s_instance;
 			s_element_was_empty:;
 		}
-		if (atommode) edit_interpretaselementwithimplicithydrogens(glob_n_multilist,(*tl_CAMBRIDGE_t_instance).relN);
+		if (atommode)
+		{
+			if (edit_interpretaselementwithimplicithydrogens(glob_n_multilist,(*tl_CAMBRIDGE_t_instance).relN)==0)
+			{
+				edit_resortstring(glob_n_multilist,(*tl_CAMBRIDGE_t_instance).relN);
+			}
+		}
 	}
 }
 int CAMBRIDGECONV_represent(CAMBRIDGE_graphic_instance * tl_CAMBRIDGE_graphic_instance,int ino)

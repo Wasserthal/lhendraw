@@ -3155,10 +3155,35 @@ void edit_add_deltahydrogens(_small ilastfilllevel)
 		edit_bondsum(ilv1,1);
 	}
 }
+extern void applytransform(float matrix[3][3]);
+void edit_correct_bondlength(_small * ilastfilllevels,float factor)
+{
+	float imatrix[3][3]={{1,0,0},{0,1,0},{0,1,0}};
+	imatrix[0][0]=factor;
+	imatrix[1][1]=factor;
+	imatrix[2][2]=factor;
+	selection_copyselection(selection_clickselection,selection_currentselection);
+	for (int ilv1=1;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
+	{
+		int tl_filllevel=findmultilist(STRUCTURE_OBJECTTYPE_List[ilv1].name)->filllevel;
+		selection_datatype icompare=1<<ilv1;
+		for (int ilv2=ilastfilllevels[ilv1];ilv2<tl_filllevel;ilv2++)
+		{
+			selection_currentselection[ilv2]|=icompare;
+		}
+		icompare=~icompare;
+		for (int ilv2=0;ilv2<ilastfilllevels[ilv1];ilv2++)
+		{
+			selection_currentselection[ilv2]&=icompare;
+		}
+	}
+	applytransform(imatrix);
+	selection_copyselection(selection_currentselection,selection_clickselection);
+}
 catalogized_command_funcdef(LOAD_TYPE)
 {
 	FILE * infile;
-	_small tl_n_lastfilllevel;
+	_small tl_lastfilllevels[STRUCTURE_OBJECTTYPE_ListSize];
 	for (int ilv1=1;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
 	{
 		edit_load_lastfilllevel[ilv1]=findmultilist(STRUCTURE_OBJECTTYPE_List[ilv1].name)->filllevel;
@@ -3198,11 +3223,18 @@ catalogized_command_funcdef(LOAD_TYPE)
 		return 0;
 	}
 	fclose(infile);
-	tl_n_lastfilllevel=(*glob_n_multilist).filllevel;
+	for (int ilv1=1;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
+	{
+		tl_lastfilllevels[ilv1]=findmultilist(STRUCTURE_OBJECTTYPE_List[ilv1].name)->filllevel;
+	}
 	CAMBRIDGECONV_maintointernal();
 	svg_findaround();
 	getatoms();
-	edit_add_deltahydrogens(tl_n_lastfilllevel);
+	edit_add_deltahydrogens(tl_lastfilllevels[STRUCTURE_OBJECTTYPE_n]);
+	if ((glob_CAMBRIDGE_CDXML_multilist->bufferlist()[0].BondLength!=0) && (glob_CAMBRIDGE_CDXML_multilist->bufferlist()[0].BondLength!=30))
+	{
+		edit_correct_bondlength(tl_lastfilllevels,30.0/glob_CAMBRIDGE_CDXML_multilist->bufferlist()[0].BondLength);
+	}
 	for (int ilv1=0;ilv1<multilist_count;ilv1++)
 	{
 		if (multilistlist[ilv1].instance->filllevel>=multilistlist[ilv1].instance->getmaxitems()) error2(2,"Multilist overflow! %s",multilistlist[ilv1].name);

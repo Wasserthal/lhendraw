@@ -143,6 +143,8 @@ bienum CDXML_propertycodes_List[]={
 {"BS",0x60A},
 {"CircularBondOrdering",0x60B},
 
+{"BondLength",0x805},
+
 {"GraphicType",0xA00},
 {"LineType",0xA01},
 {"ArrowType",0xA02},

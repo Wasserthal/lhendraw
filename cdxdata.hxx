@@ -478,7 +478,7 @@ int __attribute__((sysv_abi))CDXMLREAD_float(char * input,void * output)
 	}
 	idone:
 	ilv1++;
-	if ((input[ilv1]!=0) && (!spaciatic(input[ilv1])))
+	if (((input[ilv1]>='0') && (input[ilv1]<='9'))||(input[ilv1]=='.'))
 	{
 		ientry:
 		if (input[ilv1]=='.')
@@ -899,8 +899,6 @@ intl get_bienum(bienum * ibienum,const char * input,intl count)
 			return ibienum[ilv1].number;
 		}
 	}
-	if (strcmp(input,"0")==0) return ibienum[ilv1].number;
-	if (strcmp(input,"0")==0) return ibienum[ilv1].number;
 	return 0;
 };
 char * lookup_bienum(bienum * ibienum,intl imax,intl value)

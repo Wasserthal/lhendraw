@@ -36,6 +36,7 @@ LLLLLL H   H EEEEE N    N DDD   R  R A     A    W     W
 #include "xmldata.hxx"
 #include "definitionlist.h"
 #include "cdxdata.hxx"
+#include "bkchemdata.hxx"
 #include "./generated/reflection_headers.hxx"
 #include "telescope.hxx"
 #include "xmlparse.hxx"
@@ -92,6 +93,7 @@ int clockid=0;
 extern int edit_getBoundingBoxMode(graphic_instance * iinstance);
 #include "conv_cambridge_internal.hxx"
 #include "conv_internal_cambridge.hxx"
+#include "conv_bkchem_internal.hxx"
 int storeundo(_u32 flags);
 int restoreundo(_u32 flags,_u32 orderflags);
 int undo_trackundo();

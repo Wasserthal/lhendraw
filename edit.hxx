@@ -3062,6 +3062,7 @@ fprintf(ifile,"%s","</colortable><fonttable>\n"
 	//TODO: all subobjects of page must get filllevel=0 before add!
 	glob_CAMBRIDGE_CDXML_multilist->filllevel=0;
 	CAMBRIDGE_CDXML_instance i_CAMBRIDGE_CDXML_instance=CAMBRIDGE_CDXML_instance();
+	i_CAMBRIDGE_CDXML_instance.BondLength=30;AUTOSTRUCT_EXISTS_SET_NAME(&i_CAMBRIDGE_CDXML_instance,BondLength);
 	(*glob_CAMBRIDGE_CDXML_multilist).ADD(&i_CAMBRIDGE_CDXML_instance);
 	glob_CAMBRIDGE_page_multilist->filllevel=0;
 	ADD_TO_MULTILISTREFERENCE(&i_CAMBRIDGE_CDXML_instance,page);
@@ -3203,24 +3204,43 @@ catalogized_command_funcdef(LOAD_TYPE)
 			multilistlist[ilv1].instance->reset();
 		}
 	}
-	currentinstance=new(CAMBRIDGEPREFIX(Total_Document_instance));//TODO mem: leaks
-	if (edit_fileoperationrefersonlytopartofdocument==0)
+	if (strcmp(value,".cdml")==0)
 	{
-		strncpy(control_filename,parameter,stringlength*2);
-		control_setfilename(parameter);
-	}
-	if (strcmp(value,".cdxml")==0)
-	{
+		currentinstance=new(BKCHEM_Total_Document_instance);//TODO mem: leaks
+		bkchemids_count=0;
 		input_fsm(infile);
-	}
-	else if (strcmp(value,".cdx")==0)
-	{
-		input_bin(infile);
+		for (int ilv1=1;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
+		{
+			tl_lastfilllevels[ilv1]=findmultilist(STRUCTURE_OBJECTTYPE_List[ilv1].name)->filllevel;
+		}
+		fclose(infile);
+		BKCHEMCONV_maintointernal();
+		edit_correct_bondlength(tl_lastfilllevels,30.0/0.7);//TODO: exact value
+		svg_findaround();
+		getatoms();
+		return 1;
 	}
 	else
 	{
-		fclose(infile);
-		return 0;
+		currentinstance=new(CAMBRIDGEPREFIX(Total_Document_instance));//TODO mem: leaks
+		if (edit_fileoperationrefersonlytopartofdocument==0)
+		{
+			strncpy(control_filename,parameter,stringlength*2);
+			control_setfilename(parameter);
+		}
+		if (strcmp(value,".cdxml")==0)
+		{
+			input_fsm(infile);
+		}
+		else if (strcmp(value,".cdx")==0)
+		{
+			input_bin(infile);
+		}
+		else
+		{
+			fclose(infile);
+			return 0;
+		}
 	}
 	fclose(infile);
 	for (int ilv1=1;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)

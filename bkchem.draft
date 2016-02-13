@@ -1,6 +1,7 @@
 Total_Document;cdml ;;
+standard;bond ;;
 cdml;molecule ;;
 molecule;atom bond ;;
-atom;point ;;
-bond;;;
-point;;0 x 0 y ;
+atom;point ;i id i name 0 valency ;
+bond;;i start i end i length ;
+point;;1 x 1 y ;

@@ -87,7 +87,14 @@ void CAMBRIDGECONV_atom()
 		if (AUTOSTRUCT_EXISTS(CAMBRIDGE_n_instance,(*tl_CAMBRIDGE_n_instance),Element))
 		{
 			tl_n_instance.Element=(*tl_CAMBRIDGE_n_instance).Element;
-			tl_n_instance.Element+=1;
+			if ((tl_n_instance).Element>0)
+			{
+				tl_n_instance.Element+=1;
+			}
+			else
+			{
+				tl_n_instance.Element=-1;
+			}
 			if ((tl_n_instance).Element>3)
 			{
 				(tl_n_instance).Element+=2;
@@ -103,10 +110,9 @@ void CAMBRIDGECONV_atom()
 		for (int ilv2=(*tl_CAMBRIDGE_t_multilistreference).start_in_it;ilv2<(*tl_CAMBRIDGE_t_multilistreference).start_in_it+(*tl_CAMBRIDGE_t_multilistreference).count_in_it;ilv2++)
 		{
 			(*glob_CAMBRIDGE_t_multilist)[ilv2].relN=(*glob_n_multilist).filllevel;
-			tl_n_instance.Element=-1;
+			if (tl_n_instance.Element==constants_Element_implicitcarbon) tl_n_instance.Element=-1;
 			tl_n_instance.Z=(*glob_CAMBRIDGE_t_multilist)[ilv2].Z;
 			(*tl_CAMBRIDGE_n_instance).color=(*glob_CAMBRIDGE_t_multilist)[ilv2].color;
-			(tl_n_instance).protons=0;
 			goto skip_because_text;
 		}
 		if (AUTOSTRUCT_EXISTS(CAMBRIDGE_n_instance,(*tl_CAMBRIDGE_n_instance),NumHydrogens))
@@ -202,6 +208,7 @@ void CAMBRIDGECONV_bond()
 	}
 }
 
+extern int edit_setelement(int i_Elementnr,n_instance * iinstance,int iindex);
 void CAMBRIDGECONV_text()
 {
 	char atommode;
@@ -313,9 +320,23 @@ void CAMBRIDGECONV_text()
 		}
 		if (atommode)
 		{
+			int * iElement=&(glob_n_multilist->bufferlist()[(*tl_CAMBRIDGE_t_instance).relN].Element);
+			int lastelement=*iElement;
+			if (lastelement==constants_Element_implicitcarbon) lastelement=-1;
 			if (edit_interpretaselementwithimplicithydrogens(glob_n_multilist,(*tl_CAMBRIDGE_t_instance).relN)==0)
 			{
 				edit_resortstring(glob_n_multilist,(*tl_CAMBRIDGE_t_instance).relN);
+			}
+			else
+			{
+				if ((lastelement>0) && (*iElement!=lastelement))
+				{
+					*iElement=lastelement;
+				}
+				else
+				{
+					glob_n_multilist->bufferlist()[(*tl_CAMBRIDGE_t_instance).relN].protons=0;
+				}
 			}
 		}
 	}

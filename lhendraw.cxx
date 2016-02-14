@@ -155,7 +155,6 @@ int main(int argc,char * * argv)
 	signal(SIGSYS,&Signal);
 	signal(SIGPIPE,&Signal);
 #endif
-	control_export.hires=0;
 	if (sizeof(bond_actual_node_)>sizeof(b_instance))
 	{
 		error("Conceptual programming error, Helpstructure b > structure b");

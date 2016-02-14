@@ -75,7 +75,7 @@ void executeparameter(const char which,int parameter,int posinparameter,int argc
 	switch(which)
 	{
 		case 'I' :      control_GUI=0; control_interactive=0;break;
-		case 'i' :	control_interactive=1;
+		case 'i' :	control_interactive=1;break;
 		case 'F' :      control_force|=1;break;
 		case 'O' :	control_saveuponexit=0;break;
 		case 'o' :      strncpy(control_filename,getparameter(parameter,posinparameter,parameter_filetype,NULL,argc,argv),stringlength-1);control_filename[stringlength-1]=0;strncpy(control_filetype,parameter_filetype,stringlength-1);control_filetype[stringlength-1]=0;control_saveuponexit=1;if (control_setfilename(control_filename)<=0) {fprintf(stderr,"Warning! Cannot set filename!\n");}break;
@@ -104,6 +104,7 @@ void executeparameter(const char which,int parameter,int posinparameter,int argc
 						}
 					}
 				}//or it was a --, so not interpreted.
+				return;
 				break;
 		case 'c' :      for (int ilv1=0;ilv1<REFLECTION_FUNCTION_ListSize;ilv1++)
 				{
@@ -224,7 +225,7 @@ void cmdline(int argc,char ** argv)
 						{
 							executeparameter(argv[ilv1][ilv2],ilv1,ilv2,argc,argv);
 						}
-						goto ifertig;
+						if (wfn==1) goto ifertig;
 					}
 					ifertig:;
 				}

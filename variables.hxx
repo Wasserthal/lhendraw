@@ -44,8 +44,9 @@ struct control_export_
 {
 	int bmp_compression;//0: normal 3:ARGB,32bpp only
 	int hires;//0: not 1: use HQ_filter
-	int transparent;//0: not 1: use HQ_filter
-}control_export={0,1,0};
+	int transparent;
+};
+control_export_ control_export={0,1,0};
 typedef struct MODIFIER_KEYS_
 {
 	char CTRL;

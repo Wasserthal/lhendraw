@@ -2668,10 +2668,10 @@ int save_image(FILE * ifile,const char * value)
 	{
 		left=0;top=0;fwidth=0;fheight=0;
 	}
-	left-=8;
-	top-=8;
-	fwidth+=16;
-	fheight+=16;
+	left-=24;
+	top-=24;
+	fwidth+=48;
+	fheight+=48;
 	int width=fwidth;
 	int height=fheight;
 	gfx_bufferset_ target;

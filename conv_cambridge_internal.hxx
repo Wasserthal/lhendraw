@@ -322,9 +322,12 @@ void CAMBRIDGECONV_text()
 		{
 			int * iElement=&(glob_n_multilist->bufferlist()[(*tl_CAMBRIDGE_t_instance).relN].Element);
 			int lastelement=*iElement;
+			signed char * iprotons=&(glob_n_multilist->bufferlist()[(*tl_CAMBRIDGE_t_instance).relN].protons);
+			int lastprotons=*iprotons;
 			if (lastelement==constants_Element_implicitcarbon) lastelement=-1;
 			if (edit_interpretaselementwithimplicithydrogens(glob_n_multilist,(*tl_CAMBRIDGE_t_instance).relN)==0)
 			{
+				glob_n_multilist->bufferlist()[(*tl_CAMBRIDGE_t_instance).relN].protons=0;
 				edit_resortstring(glob_n_multilist,(*tl_CAMBRIDGE_t_instance).relN);
 			}
 			else
@@ -332,10 +335,7 @@ void CAMBRIDGECONV_text()
 				if ((lastelement>0) && (*iElement!=lastelement))
 				{
 					*iElement=lastelement;
-				}
-				else
-				{
-					glob_n_multilist->bufferlist()[(*tl_CAMBRIDGE_t_instance).relN].protons=0;
+					*iprotons=lastprotons;
 				}
 			}
 		}

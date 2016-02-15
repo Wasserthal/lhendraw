@@ -64,7 +64,8 @@ int CONVCAMBRIDGE_s_f(CAMBRIDGE_t_instance * master,edit_formatstruct * iformat,
 	(*tl_CAMBRIDGE_s_instance).face=(*iformat).face|0x60;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_s_instance,face);
 	(*tl_CAMBRIDGE_s_instance).size=12;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_s_instance,size);
 	(*tl_CAMBRIDGE_s_instance).PCTEXT.a=ibuffer2;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_s_instance,PCTEXT);
-	(*tl_CAMBRIDGE_s_instance).PCTEXTcounter=strlen((*tl_CAMBRIDGE_s_instance).PCTEXT.a);
+	(*tl_CAMBRIDGE_s_instance).PCTEXT.count=strlen(ibuffer);
+	(*tl_CAMBRIDGE_s_instance).PCTEXTcounter=strlen(ibuffer);
 	return 1;
 }
 int CONVCAMBRIDGE_latin_vs_greek(CAMBRIDGE_t_instance * master,s_instance * tl_s_instance,int * icursor,int count,char * ibufferptr)
@@ -88,7 +89,6 @@ int CONVCAMBRIDGE_latin_vs_greek(CAMBRIDGE_t_instance * master,s_instance * tl_s
 		}
 	}
 	if (currenttype==0) {currenttype=1;}else{if ((currenttype)!=1){thereismore=1;goto done;}}
-	printf("1");
 	(*icursor)++;
 	ifound:;
 	goto iback;

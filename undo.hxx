@@ -18,6 +18,7 @@ struct undo_undostep_
 };
 undo_undostep_ undosteps[constants_undostep_max];
 TELESCOPE_buffer glob_contentbuffer[sizeof(STRUCTURE_OBJECTTYPE_List)/sizeof(trienum)];
+char undo_nextcommandname[80]="ROOT";
 char * undo_retrievebuffer(intl start,intl list)
 {
 	intl current=start;
@@ -224,8 +225,14 @@ int slayundo()
 	}
 	return 1;
 }
-int storeundo(_u32 flags)
+int storeundo(_u32 flags,const char * iname)
 {
+	if (undo_undodirty==0)
+	{
+		undo_undodirty=1;
+		strncpy(undo_nextcommandname,iname,79);
+		return 1;
+	}
 	if (undosteps_count==0) flags=~0;
 	intl imax=0;
 	basicmultilist * tl_multilist;
@@ -288,6 +295,8 @@ int storeundo(_u32 flags)
 		}
 	}
 	undosteps[undosteps_count].parent=currentundostep;
+	strncpy(undosteps[undosteps_count].commandname,undo_nextcommandname,79);
+	strncpy(undo_nextcommandname,iname,79);
 	currentundostep=undosteps_count;
 //	printf("\e[31m%i,%i\e[0m\n",currentundostep,undosteps_count);
 	undosteps_count++;

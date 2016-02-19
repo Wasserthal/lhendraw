@@ -98,7 +98,7 @@ _u32 control_filememory_search_attribs[constants_maxlistentries];
 //TODO: how are the attribs connected?
 int menu_selectedmenuelement;
 char control_filemenu_mode=0;
-int undo_undodirty=0;//set when undo was stored just to become immediately modified in the same command, like the storeundo at issueclick
+int undo_undodirty=1;//set when undo was stored just to become immediately modified in the same command, like the storeundo at issueclick
 structenum control_devicememory=
 {
 	{"control_devicememory"},

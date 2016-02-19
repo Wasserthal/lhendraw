@@ -3286,7 +3286,7 @@ catalogized_command_funcdef(WARNING_OK)
 }
 catalogized_command_funcdef(UNDO)
 {
-	if (undo_undodirty) {storeundo(~0);}
+	if (undo_undodirty) {storeundo(~0,"UNDO");}
 	undo_trackundo();
 	restoreundo(~0,0);
 	return 1;
@@ -5550,7 +5550,7 @@ catalogized_command_funcdef(SEARCH)
 catalogized_command_funcdef(SEARCHFILE)
 {
 	int retval;
-	storeundo(~0);
+	storeundo(~0,"SRCHDUMP");
 	selection_clearselection(selection_currentselection);
 	SELECTALL("","1");
 	edit_fileoperationrefersonlytopartofdocument=1;

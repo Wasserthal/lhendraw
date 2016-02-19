@@ -403,7 +403,7 @@ int interpretkey(int listnr=-1)
 				{
 					if ((hotkeylist[ilv1].modifiers & ((~((_u32)(1-careaboutshift)))))==modifierpattern)
 					{
-						if ((undostored==0) && (hotkeylist[ilv1].UNDO & 1)) {storeundo(~0); undostored=1;}
+						if ((undostored==0) && (hotkeylist[ilv1].UNDO & 1)) {storeundo(~0,(*glob_CONFIGBRIDGE_Hotkey_multilist)[ilv1].command.a); undostored=1;}
 						if (tltype & 0x40000)
 						{
 							issueshiftstart();
@@ -498,6 +498,9 @@ catalogized_command_funcdef(HELP)
 }
 catalogized_command_funcdef(UNDOTREE)
 {
+	LHENDRAW_filedlgmode=3;
+	control_filemenu_mode=0;
+	menu_selectedmenuelement=0;
 	return 1;
 }
 int control_findhotatomfrommouse()
@@ -515,7 +518,7 @@ catalogized_command_funcdef(ISSUEDELETE)
 	char isuccessful=0;
 	if (control_mousestate==0)
 	{
-		if (!storeundo(~0))
+		if (!storeundo(~0,"DEL"))
 		{
 			return 0;
 		}
@@ -857,7 +860,9 @@ int issueclick(int iposx,int iposy)
 	control_posy=iposy;
 	control_coorsx=control_posx/SDL_zoomx+SDL_scrollx;
 	control_coorsy=control_posy/SDL_zoomy+SDL_scrolly;
-	storeundo(~0);
+	char toolstr[80];
+	sprintf(toolstr,"%i",control_tool);
+	storeundo(~0,toolstr);
 	control_dragged=0;
 	control_id=-1;
 	clickforthem();
@@ -2841,7 +2846,7 @@ int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int
 						idefault:;
 						if ((tl_mbmode & (~0xFF))==0x100)
 						{
-							storeundo(~0);
+							storeundo(~0,"COLOR");
 							if (tl_mbmode==0x111)
 							{
 								pixeloriginposx=(pixeloriginposx>>5)<<5;
@@ -2917,7 +2922,7 @@ int issuepseclick(int x,int y,int ibutton)
 				selection_recheck(selection_currentselection,&selection_currentselection_found);
 				if (selection_currentselection_found & icompare)
 				{
-					storeundo(icompare);
+					storeundo(icompare,"PSE");
 					for (int ilv2=0;ilv2<(*glob_n_multilist).filllevel;ilv2++)
 					{
 						if (selection_currentselection[ilv2] & icompare)
@@ -3207,7 +3212,7 @@ void issueshift(int ideltax,int ideltay)
 	if (MODIFIER_KEYS.CTRL) {ideltax*=5;ideltay*=5;}
 	if (MODIFIER_KEYS.SHIFT) {ideltax*=25;ideltay*=25;}
 	if (MODIFIER_KEYS.ALT) {ideltax*=100;ideltay*=100;}
-	if ((storeundo(~0))>0)
+	if ((storeundo(~0,"SHIFT"))>0)
 	{
 		edit_flexicopy(currentundostep,glob_n_multilist,glob_b_multilist,selection_currentselection,&tl_deltaback,ideltax,ideltay,1);
 	}

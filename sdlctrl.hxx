@@ -2653,6 +2653,7 @@ int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int
 					{
 						char istring[100];
 						sprintf(istring,"%i",(*ipulloutlisting).toolnr);
+						//TODO: always make sure that undo is stored... in any those of these functions that modify the file
 						(*ipulloutlisting).LMB_function("1",istring);break;
 					}
 					case 4:
@@ -2711,6 +2712,7 @@ int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int
 						tl_name++;
 						if ((*ipulloutlisting).LMB_function!=NULL)
 						{
+							storeundo(~0,(*ipulloutlisting).name);
 							(*ipulloutlisting).LMB_function(tl_name,tl_on?((*ipulloutlisting).name):"0");
 						}
 						else
@@ -2846,7 +2848,7 @@ int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int
 						idefault:;
 						if ((tl_mbmode & (~0xFF))==0x100)
 						{
-							storeundo(~0,"COLOR");
+							storeundo(~0,(*ipulloutlisting).name);
 							if (tl_mbmode==0x111)
 							{
 								pixeloriginposx=(pixeloriginposx>>5)<<5;

@@ -98,12 +98,15 @@ int init_buffers()
 }
 int undo_trackredo(int param)
 {
-	for (int ilv1=undosteps_count-1;ilv1>=0;ilv1--)
+	if (undo_undodirty==0)
 	{
-		if (undosteps[ilv1].parent==currentundostep)
+		for (int ilv1=undosteps_count-1;ilv1>=0;ilv1--)
 		{
-			currentundostep=ilv1;
-			return 1;
+			if (undosteps[ilv1].parent==currentundostep)
+			{
+				currentundostep=ilv1;
+				return 1;
+			}
 		}
 	}
 //	printf("-%i\n",currentundostep);
@@ -236,16 +239,6 @@ int storeundo(_u32 flags,const char * iname)
 	if (undosteps_count==0) flags=~0;
 	intl imax=0;
 	basicmultilist * tl_multilist;
-	if (currentundostep!=-1)
-	{
-		if (undo_undodirty==0)
-		{
-			if (undosteps[currentundostep].parent!=-1)
-			{
-				currentundostep=undosteps[currentundostep].parent;
-			}
-		}
-	}
 	if (undosteps_count>=constants_undostep_max)
 	{
 		if (slayredo()<=0)
@@ -309,7 +302,7 @@ int restoreundo(_u32 flags,_u32 orderflags/*bit0: restore count only*/)//doesn't
 	basicmultilist * tl_multilist;
 	if (currentundostep==-1) return -1;
 	intl * tl_buffer=NULL;
-	intl thatundostep;
+	intl thatundostep;//TODO: this variable is unnecessary
 //	printf("\e[34m%i\e[0m\n",currentundostep);
 	for (int ilv1=1;ilv1<sizeof(STRUCTURE_OBJECTTYPE_List)/sizeof(trienum);ilv1++)
 	{

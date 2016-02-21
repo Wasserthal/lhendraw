@@ -1,6 +1,6 @@
 //defines and processes internal variables
 char LHENDRAW_clipboardmode=0;//0: no clipboardmode 1: lhendraw is providing a X11 clipboard content
-char LHENDRAW_filedlgmode=0;
+char LHENDRAW_filedlgmode=0;//Requires reset
 char LHENDRAW_warndlgmode=0;
 int LHENDRAW_userdecision=0;
 char LHENDRAW_leave=0;
@@ -156,7 +156,7 @@ int control_setfilename(const char * ifilename)
 	return 1;
 }
 int undosteps_count=0;
-int currentundostep=-1;
+int currentundostep=-1;//The latest undo-step that is actually saved, so NOT the current one
 TELESCOPE_buffer * undo_retrievecontentbuffer(intl start,intl list);
 int getbufferfromstructure(basicmultilist * input,TELESCOPE_buffer * * bufferptr)
 {

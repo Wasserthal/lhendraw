@@ -88,6 +88,23 @@ void sdl_buttondraw(int posx,int posy,int number)
 	}
 	return;
 }
+void sdl_buttondraw_coloring(int posx,int posy,int number,int color,int light)
+{
+	for (int ilv2=0;ilv2<32;ilv2++)
+	{
+		for (int ilv3=0;ilv3<32;ilv3++)
+		{
+			_u32 tlgfx=resources_bitmap_buttons[LHENDRAW_maxbuttons-number][ilv2][ilv3];
+			if ((tlgfx>>24)>0x00)
+			{
+				_u8 intensity=(tlgfx & 0xFF0000)>>16;
+				_u8 others=(tlgfx & 0xFF00)>>8;
+				screen[(posy+ilv2)*gfx_screensizex+posx+ilv3]=color*intensity+light*others;
+			}
+		}
+	}
+	return;
+}
 void printmenutext(int posx,int posy,const char * iinput,int end,char symbolmode)
 {
 	int ilv4=0;

@@ -94,7 +94,7 @@ extern int edit_getBoundingBoxMode(graphic_instance * iinstance);
 #include "conv_cambridge_internal.hxx"
 #include "conv_internal_cambridge.hxx"
 #include "conv_bkchem_internal.hxx"
-int storeundo(_u32 flags);
+int storeundo(_u32 flags,const char * iname);
 int restoreundo(_u32 flags,_u32 orderflags);
 int undo_trackundo();
 int undo_trackredo(int variable);
@@ -134,6 +134,7 @@ structenum REFLECTION_List[]={
 int REFLECTION_ListSize=sizeof(REFLECTION_List)/sizeof(structenum);
 #include "cmdline.hxx"
 #include "undo.hxx"
+#include "undotree.hxx"
 structenum * searchreflectedstruct(const char * input)
 {
 	for (int ilv1=0;ilv1<REFLECTION_ListSize;ilv1++)
@@ -272,6 +273,13 @@ int main(int argc,char * * argv)
 			sdl_optionsmenucommon();
 			sdl_menudraw();
 			sdl_menuframe();
+			draw_reticle();
+		break;
+		case 3:
+			control_undotree();
+			gfx_gfxstart();
+			screenclear(0xFFFFFF);
+			draw_undotree(0);
 			draw_reticle();
 		break;
 		}

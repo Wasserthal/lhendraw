@@ -4705,8 +4705,8 @@ catalogized_command_funcdef(REVERSEBEZIER)
 }
 int edit_flexicopy(int undostep_no,multilist<n_instance> * n_target,multilist<b_instance> * b_target,selection_ iselection,intl * i_deltaback,float dx,float dy,char overwrite)
 {
-	n_instance * n_input=(n_instance*)undo_retrievebuffer(currentundostep,STRUCTURE_OBJECTTYPE_n);
-	b_instance * b_input=(b_instance*)undo_retrievebuffer(currentundostep,STRUCTURE_OBJECTTYPE_b);
+	n_instance * n_input=(n_instance*)undo_retrievebuffer(undostep_no,STRUCTURE_OBJECTTYPE_n);
+	b_instance * b_input=(b_instance*)undo_retrievebuffer(undostep_no,STRUCTURE_OBJECTTYPE_b);
 	multilist<n_instance> * i_n_multilist=(multilist<n_instance>*)&(undo_retrievehandle(undostep_no,STRUCTURE_OBJECTTYPE_n)->imultilist);
 	multilist<b_instance> * i_b_multilist=(multilist<b_instance>*)&(undo_retrievehandle(undostep_no,STRUCTURE_OBJECTTYPE_b)->imultilist);
 	int n_max=i_n_multilist->filllevel;

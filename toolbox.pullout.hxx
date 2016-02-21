@@ -457,7 +457,7 @@ menuitem pullout_toolbox[]={
 "UndoTree",
 3,0,
 4,
-"UNIMPLEMENTED",
+"Walk the undotree. Highly experimental - you will loose your data",
 "",
 "UNDOTREE","",
 0x00FF00,

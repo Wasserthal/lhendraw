@@ -158,6 +158,25 @@ void checkupinconsistencies()
 					goto i_b_destroyed;
 				}
 			}
+			if ((*tl_b_instance).Order<=10)
+			{
+				(*tl_b_instance).Display=1;
+			}
+			if (((*tl_b_instance).Order>=22) && ((*tl_b_instance).Order<=26))
+			{
+				(*tl_b_instance).Display2=1;
+			}
+			if ((((*tl_b_instance).Order%16)==0) && ((*tl_b_instance).Order!=0))
+			{
+				if ((*tl_b_instance).Display==1)
+				{
+					(*tl_b_instance).Display=0;
+				}
+				if ((*tl_b_instance).Display2==1)
+				{
+					(*tl_b_instance).Display2=0;
+				}
+			}
 		}
 		i_b_destroyed:;
 	}

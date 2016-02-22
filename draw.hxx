@@ -44,14 +44,14 @@ void MACRO_DRAWPREFIX(expresscdxcircle)(float ileft,float itop,float radius)
 	MACRO_DRAWPREFIX(expressellipse)(ileft,itop,fabs(radius),fabs(radius));
 }
 #define dashdist 3
-void MACRO_DRAWPREFIX(expresshashangle)(float langle,float cangle,float ix1,float iy1,float ix2,float iy2,float bonddist3,float bonddist4)
+void MACRO_DRAWPREFIX(expresshashangle)(float cangle,float ix1,float iy1,float ix2,float iy2,float bonddist3,float bonddist4)
 {
 	float ilength=sqrt((ix2-ix1)*(ix2-ix1)+(iy2-iy1)*(iy2-iy1));
 	for (float ilv1=0;ilv1<ilength;ilv1+=dashdist)
 	{
 		float share=(ilv1/ilength);
 		float share2=share*bonddist3+(1-share)*bonddist4;
-		MACRO_DRAWPREFIX(expressline)(ix1*(1-share)+ix2*share+cos(cangle)*share2,iy1*(1-share)+iy2*share+sin(langle)*share2,ix1*(1-share)+ix2*share-cos(cangle)*share2,iy1*(1-share)+iy2*share-sin(cangle)*share2);
+		MACRO_DRAWPREFIX(expressline)(ix1*(1-share)+ix2*share+cos(cangle)*share2,iy1*(1-share)+iy2*share+sin(cangle)*share2,ix1*(1-share)+ix2*share-cos(cangle)*share2,iy1*(1-share)+iy2*share-sin(cangle)*share2);
 	}
 }
 void MACRO_DRAWPREFIX(expresstriangle)(float ifx1,float ify1,float ifx2,float ify2,float ifx3,float ify3)
@@ -1377,7 +1377,7 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,char hatches)
 		}
 		if ((iDisplaytype1==2) || (iDisplaytype1==3) || (iDisplaytype1==4))
 		{
-			MACRO_DRAWPREFIX(expresshashangle)(langle,cangle,
+			MACRO_DRAWPREFIX(expresshashangle)(cangle,
 			iBBX.right+ibonddist2*cos(cangle),iBBX.bottom+ibonddist2*sin(cangle),
 			iBBX.left+ibonddist2*cos(cangle),iBBX.top+ibonddist2*sin(cangle),
 			ibonddist3,ibonddist4
@@ -1398,8 +1398,19 @@ iBBX.right+ibonddist2*cos(cangle)+ibonddist4*(cos(cangle)-(cos(langle)*tlrightta
 	}
 	else
 	{
-		MACRO_DRAWPREFIX(stylegenestring)(((iDisplaytype1==1) ?8:0) | 1);
-		MACRO_DRAWPREFIX(expressline)(iBBX.left+ibonddist2*cos(cangle),iBBX.top+ibonddist2*sin(cangle),iBBX.right+ibonddist2*cos(cangle),iBBX.bottom+ibonddist2*sin(cangle));
+		if (iDisplaytype1==2)
+		{
+			MACRO_DRAWPREFIX(expresshashangle)(cangle,
+			iBBX.right,iBBX.bottom,
+			iBBX.left,iBBX.top,
+			4,4
+			);
+		}
+		else
+		{
+			MACRO_DRAWPREFIX(stylegenestring)(((iDisplaytype1==1) ?8:0) | 1);
+			MACRO_DRAWPREFIX(expressline)(iBBX.left+ibonddist2*cos(cangle),iBBX.top+ibonddist2*sin(cangle),iBBX.right+ibonddist2*cos(cangle),iBBX.bottom+ibonddist2*sin(cangle));
+		}
 	}
 	if ((*i_b_instance).Order>16)
 	{

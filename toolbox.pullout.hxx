@@ -352,6 +352,16 @@ menuitem pullout_toolbox[]={
 "","",
 0xFFFF,
 },
+{15,1,
+156,//Picture
+"Dashed",
+8,6,
+1,
+"Dashed",
+"control_drawproperties.LineType",
+"","",
+0xFFFF,
+},
 {11,1,
 34,//Picture
 "color",

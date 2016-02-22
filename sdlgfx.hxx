@@ -181,6 +181,7 @@ void gfx_expressbeziertrack(cdx_Bezierpoints * ipoints)
 			iy=(((*ipoints).a[ilv1].y*ishare+(*ipoints).a[ilv1+1].y*iminusshare)*ishare+((*ipoints).a[ilv1+1].y*ishare+(*ipoints).a[ilv1+2].y*iminusshare)*iminusshare)*ishare+
 			(((*ipoints).a[ilv1+1].y*ishare+(*ipoints).a[ilv1+2].y*iminusshare)*ishare+((*ipoints).a[ilv1+2].y*ishare+(*ipoints).a[ilv1+3].y*iminusshare)*iminusshare)*iminusshare;
 			putpixel(ix,iy);
+			skip_because_dashed:;
 		}
 	}
 }
@@ -248,6 +249,13 @@ void gfx_expressbezier(float x1,float y1,float x2,float y2,float x3,float y3,flo
 	if (stepsbecausey>stepsbecausex) {stepsbecausex=stepsbecausey;}
 	for (int ilv2=0;ilv2<stepsbecausex;ilv2++)
 	{
+		if (SDL_linestyle & 8)
+		{
+			if (ilv2 & 0x80)
+			{
+				goto skip_because_dashed;
+			}
+		}
 		ishare=(float(ilv2)/stepsbecausex);
 		iminusshare=1-ishare;
 		ix=((x1*ishare+x2*iminusshare)*ishare+(x2*ishare+x3*iminusshare)*iminusshare)*ishare+
@@ -261,6 +269,7 @@ void gfx_expressbezier(float x1,float y1,float x2,float y2,float x3,float y3,flo
 			putpixel(ix,iy+1);
 			putpixel(ix+1,iy+1);
 		}
+		skip_because_dashed:;
 	}
 }
 
@@ -383,7 +392,7 @@ void gfx_expressline(float ileft,float itop,float iright,float ibottom)
 	}
 	if (abs(x2-x)>=abs(y2-y))
 	{
-		if (x2==x)//it can be that still x width is zero.
+		if (x2==x)//it can be that x width is zero nonetheless.
 		{
 			canvas[gfx_screensizex*y2+x]=SDL_color;
 		}
@@ -400,18 +409,26 @@ void gfx_expressline(float ileft,float itop,float iright,float ibottom)
 		for (int ilv1=0;ilv1<x2-x;ilv1++)
 		{
 			int vertical=y+ilv1*slope;
-			canvas[gfx_screensizex*vertical+ilv1+x]=SDL_color;
-			if (SDL_linestyle & 4)
+			if (SDL_linestyle & 8)
 			{
-				_u32 * place=canvas+(gfx_screensizex*(vertical-1)+ilv1+x);
-				if (vertical>0)
+				if ((ilv1 & 4)==0) goto skipbecausebezierx;
+			}
+			else
+			{
+				skipbecausebezierx:;
+				canvas[gfx_screensizex*vertical+ilv1+x]=SDL_color;
+				if (SDL_linestyle & 4)
 				{
-					*place=SDL_color;
-				}
-				place+=(gfx_screensizex<<1);
-				if (vertical<(gfx_canvassizey-1))
-				{
-					*place=SDL_color;
+					_u32 * place=canvas+(gfx_screensizex*(vertical-1)+ilv1+x);
+					if (vertical>0)
+					{
+						*place=SDL_color;
+					}
+					place+=(gfx_screensizex<<1);
+					if (vertical<(gfx_canvassizey-1))
+					{
+						*place=SDL_color;
+					}
 				}
 			}
 		}
@@ -431,18 +448,26 @@ void gfx_expressline(float ileft,float itop,float iright,float ibottom)
 		for (int ilv1=0;ilv1<y2-y;ilv1++)
 		{
 			int horizontal=x+ilv1*slope;
-			canvas[gfx_screensizex*(ilv1+y)+horizontal]=SDL_color;
-			if (SDL_linestyle & 4)
+			if (SDL_linestyle & 8)
 			{
-				_u32 * place=canvas+(gfx_screensizex*(ilv1+y)+horizontal-1);
-				if ((horizontal>0))
+				if ((ilv1 & 4)==0) goto skipbecausebeziery;
+			}
+			else
+			{
+				skipbecausebeziery:;
+				canvas[gfx_screensizex*(ilv1+y)+horizontal]=SDL_color;
+				if (SDL_linestyle & 4)
 				{
-					*place=SDL_color;
-				}
-				place+=2;
-				if (horizontal<(gfx_canvassizex-1))
-				{
-					*place=SDL_color;
+					_u32 * place=canvas+(gfx_screensizex*(ilv1+y)+horizontal-1);
+					if ((horizontal>0))
+					{
+						*place=SDL_color;
+					}
+					place+=2;
+					if (horizontal<(gfx_canvassizex-1))
+					{
+						*place=SDL_color;
+					}
 				}
 			}
 		}
@@ -471,6 +496,10 @@ void gfx_expressarc_enhanced(float centerx,float centery,float radiusx,float rad
 	for (int ilv1=(isteps*startangle)/(Pi*2);ilv1<(isteps*endangle)/(Pi*2);ilv1++)
 	{
 		float tlangle=(ilv1/float(isteps))*2*Pi;
+		if (SDL_linestyle & 8)
+		{
+			if (ilv1 & 0x4) goto skip_because_dashed;
+		}
 		if (SDL_linestyle & 4)
 		{
 			fatpixel(centerx+tlsaxx*radiusx*cos(tlangle)-tlsaxy*radiusy*sin(tlangle),centery+tlsaxy*radiusx*cos(tlangle)+tlsaxx*radiusy*sin(tlangle));
@@ -479,6 +508,7 @@ void gfx_expressarc_enhanced(float centerx,float centery,float radiusx,float rad
 		{
 			putpixel(centerx+tlsaxx*radiusx*cos(tlangle)-tlsaxy*radiusy*sin(tlangle),centery+tlsaxy*radiusx*cos(tlangle)+tlsaxx*radiusy*sin(tlangle));
 		}
+		skip_because_dashed:;
 	}
 }
 SDL_Surface *video;
@@ -1434,7 +1464,15 @@ void gfx_expressspinellipse(float ix,float iy,float radiusx,float radiusy, float
 		for (int ilv1=0;ilv1<isteps;ilv1++)
 		{
 			float tlangle=(ilv1/float(isteps))*2*Pi;
+			if (SDL_linestyle & 8)
+			{
+				if (ilv1 & 0x10)
+				{
+					goto skip_because_dashed;
+				}
+			}
 			putpixel(ix+tlsaxx*radiusx*cos(tlangle)-tlsaxy*radiusy*sin(tlangle),iy+tlsaxy*radiusx*cos(tlangle)+tlsaxx*radiusy*sin(tlangle));
+			skip_because_dashed:;
 		}
 	}
 }

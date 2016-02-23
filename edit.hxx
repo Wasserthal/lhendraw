@@ -4791,29 +4791,32 @@ int edit_flexicopy(int undostep_no,multilist<n_instance> * n_target,multilist<b_
 		{
 			if (iselection[ilv1] & icompare)
 			{
-				if ((iselection[bond_actual_node[ilv1].start] & (1<<STRUCTURE_OBJECTTYPE_n)) && (iselection[bond_actual_node[ilv1].end] & (1<<STRUCTURE_OBJECTTYPE_n)))
+				if (b_target->filllevel<b_target->getmaxitems())
 				{
-					memcpy((b_target->bufferlist())+(b_target->filllevel),b_input+ilv1,sizeof(b_instance));
-					(b_target->bufferlist())[b_target->filllevel].B+=(*i_deltaback);
-					(b_target->bufferlist())[b_target->filllevel].E+=(*i_deltaback);
-					b_target->filllevel++;
-				}
-				else
-				{
-					if (iselection[bond_actual_node[ilv1].start] & (1<<STRUCTURE_OBJECTTYPE_n))
+					if ((iselection[bond_actual_node[ilv1].start] & (1<<STRUCTURE_OBJECTTYPE_n)) && (iselection[bond_actual_node[ilv1].end] & (1<<STRUCTURE_OBJECTTYPE_n)))
 					{
 						memcpy((b_target->bufferlist())+(b_target->filllevel),b_input+ilv1,sizeof(b_instance));
 						(b_target->bufferlist())[b_target->filllevel].B+=(*i_deltaback);
-						b_target->filllevel++;
-					}
-					if (iselection[bond_actual_node[ilv1].end] & (1<<STRUCTURE_OBJECTTYPE_n))
-					{
-						memcpy((b_target->bufferlist())+(b_target->filllevel),b_input+ilv1,sizeof(b_instance));
 						(b_target->bufferlist())[b_target->filllevel].E+=(*i_deltaback);
 						b_target->filllevel++;
 					}
+					else
+					{
+						if (iselection[bond_actual_node[ilv1].start] & (1<<STRUCTURE_OBJECTTYPE_n))
+						{
+							memcpy((b_target->bufferlist())+(b_target->filllevel),b_input+ilv1,sizeof(b_instance));
+							(b_target->bufferlist())[b_target->filllevel].B+=(*i_deltaback);
+							b_target->filllevel++;
+						}
+						if (iselection[bond_actual_node[ilv1].end] & (1<<STRUCTURE_OBJECTTYPE_n))
+						{
+							memcpy((b_target->bufferlist())+(b_target->filllevel),b_input+ilv1,sizeof(b_instance));
+							(b_target->bufferlist())[b_target->filllevel].E+=(*i_deltaback);
+							b_target->filllevel++;
+						}
+					}
 				}
-
+				else memory_overflow_hook();
 			}
 		}
 	}
@@ -4848,21 +4851,25 @@ int edit_flexicopy(int undostep_no,multilist<n_instance> * n_target,multilist<b_
 						}
 						else
 						{
-							memcpy(((char*)(tlmultilist->pointer))+(tlmultilist->filllevel)*isize,ioldbufferpos+(isize*ilv2),isize);
-							if (ilv1==STRUCTURE_OBJECTTYPE_n)
+							if (tlmultilist->filllevel<tlmultilist->getmaxitems())
 							{
-								((n_instance*)(ibufferpos+isize*(tlmultilist->filllevel)))->id+=(*i_deltaback);
+								memcpy(((char*)(tlmultilist->pointer))+(tlmultilist->filllevel)*isize,ioldbufferpos+(isize*ilv2),isize);
+								if (ilv1==STRUCTURE_OBJECTTYPE_n)
+								{
+									((n_instance*)(ibufferpos+isize*(tlmultilist->filllevel)))->id+=(*i_deltaback);
+								}
+								placepoints_basic(((basic_instance*)(ibufferpos+isize*(tlmultilist->filllevel))),tl_x,tl_y,tl_z,0,ilv1);
+								((basic_instance_propertybuffer*)(ibufferpos+isize*(tlmultilist->filllevel)))->pos_in_buffer=(glob_contentbuffer+ilv1)->count;
+								char * tl_pos_in_old_buffer=undo_retrievecontentbuffer(undostep_no,ilv1)->buffer+((basic_instance_propertybuffer*)(ioldbufferpos+isize*ilv2))->pos_in_buffer;
+								if (*(_i32*)(tl_pos_in_old_buffer+4)==ilv2)
+								{
+									memcpy((glob_contentbuffer+ilv1)->buffer+(glob_contentbuffer+ilv1)->count,tl_pos_in_old_buffer,*(_i32*)tl_pos_in_old_buffer);
+									*(((_i32*)((glob_contentbuffer+ilv1)->buffer+(glob_contentbuffer+ilv1)->count))+1)=tlmultilist->filllevel;
+									(glob_contentbuffer+ilv1)->count+=*(_i32*)tl_pos_in_old_buffer;//TODO: limit
+								}
+								tlmultilist->filllevel++;
 							}
-							placepoints_basic(((basic_instance*)(ibufferpos+isize*(tlmultilist->filllevel))),tl_x,tl_y,tl_z,0,ilv1);
-							((basic_instance_propertybuffer*)(ibufferpos+isize*(tlmultilist->filllevel)))->pos_in_buffer=(glob_contentbuffer+ilv1)->count;
-							char * tl_pos_in_old_buffer=undo_retrievecontentbuffer(undostep_no,ilv1)->buffer+((basic_instance_propertybuffer*)(ioldbufferpos+isize*ilv2))->pos_in_buffer;
-							if (*(_i32*)(tl_pos_in_old_buffer+4)==ilv2)
-							{
-								memcpy((glob_contentbuffer+ilv1)->buffer+(glob_contentbuffer+ilv1)->count,tl_pos_in_old_buffer,*(_i32*)tl_pos_in_old_buffer);
-								*(((_i32*)((glob_contentbuffer+ilv1)->buffer+(glob_contentbuffer+ilv1)->count))+1)=tlmultilist->filllevel;
-								(glob_contentbuffer+ilv1)->count+=*(_i32*)tl_pos_in_old_buffer;//TODO: limit
-							}
-							tlmultilist->filllevel++;
+							else memory_overflow_hook();
 						}
 					}
 					else

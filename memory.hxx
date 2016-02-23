@@ -175,3 +175,7 @@ void memory_spacecheck()//checks for space lack and raises memory when needed
 {
 	//TODO
 }
+void memory_overflow_hook()
+{
+	//TODO
+}

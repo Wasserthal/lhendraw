@@ -118,6 +118,10 @@ void svg_expressbezier(float x1,float y1,float x2,float y2,float x3,float y3,flo
 {
 	fprintf(outfile,"<path d=\"M %f %f C %f %f %f %f %f %f \" %s/>\n",x1+SVG_currentshiftx,y1+SVG_currentshifty,x2+SVG_currentshiftx,y2+SVG_currentshifty,x3+SVG_currentshiftx,y3+SVG_currentshifty,x4+SVG_currentshiftx,y4+SVG_currentshifty,stylestring);
 }
+void svg_expressbezier2(float x1,float y1,float x2,float y2,float x3,float y3)
+{
+	fprintf(outfile,"<path d=\"M %f %f Q %f %f %f %f \" %s/>\n",x1+SVG_currentshiftx,y1+SVG_currentshifty,x2+SVG_currentshiftx,y2+SVG_currentshifty,x3+SVG_currentshiftx,y3+SVG_currentshifty,stylestring);
+}
 
 void svg_expressxbezier(int icount,...)
 {

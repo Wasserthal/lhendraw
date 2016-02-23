@@ -24,6 +24,9 @@ void ps_expressarc_enhanced(float centerx,float centery,float radiusx,float radi
 void ps_expressbezier(float x1,float y1,float x2,float y2,float x3,float y3,float x4,float y4)
 {
 }
+void ps_expressbezier2(float x1,float y1,float x2,float y2,float x3,float y3)
+{
+}
 void ps_expressbow(float ileft,float itop,float iright,float ibottom,float irelradius)
 {
 }

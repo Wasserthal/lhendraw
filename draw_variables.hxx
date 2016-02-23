@@ -46,7 +46,7 @@ float getangle(float dx,float dy)
 	return val;
 }
 float bonddist=4;
-float boldwidth=3;
+float boldwidth=6;
 float xboldwidth=15;
 float arrowheadlength=15;
 float arrowthickness=5;

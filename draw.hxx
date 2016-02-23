@@ -44,14 +44,26 @@ void MACRO_DRAWPREFIX(expresscdxcircle)(float ileft,float itop,float radius)
 	MACRO_DRAWPREFIX(expressellipse)(ileft,itop,fabs(radius),fabs(radius));
 }
 #define dashdist 3
-void MACRO_DRAWPREFIX(expresshashangle)(float cangle,float ix1,float iy1,float ix2,float iy2,float bonddist3,float bonddist4)
+void MACRO_DRAWPREFIX(expresshashangle)(float cangle,float ix1,float iy1,float ix2,float iy2,float bonddist3,float bonddist4,char mode)//0:hash 1:wavy
 {
 	float ilength=sqrt((ix2-ix1)*(ix2-ix1)+(iy2-iy1)*(iy2-iy1));
+	char bcounter=0;
 	for (float ilv1=0;ilv1<ilength;ilv1+=dashdist)
 	{
 		float share=(ilv1/ilength);
 		float share2=share*bonddist3+(1-share)*bonddist4;
-		MACRO_DRAWPREFIX(expressline)(ix1*(1-share)+ix2*share+cos(cangle)*share2,iy1*(1-share)+iy2*share+sin(cangle)*share2,ix1*(1-share)+ix2*share-cos(cangle)*share2,iy1*(1-share)+iy2*share-sin(cangle)*share2);
+		if (mode==0)
+		{
+			MACRO_DRAWPREFIX(expressline)(ix1*(1-share)+ix2*share+cos(cangle)*share2,iy1*(1-share)+iy2*share+sin(cangle)*share2,ix1*(1-share)+ix2*share-cos(cangle)*share2,iy1*(1-share)+iy2*share-sin(cangle)*share2);
+		}
+		else
+		{
+			float share3=((ilv1+(dashdist*0.5))/ilength);
+			float share4=((ilv1+dashdist)/ilength);
+			bcounter^=1;
+			if (bcounter) share2=-share2*2; else share2*=2;
+			MACRO_DRAWPREFIX(expressbezier2)(ix1*(1-share)+ix2*share,iy1*(1-share)+iy2*share,ix1*(1-share3)+ix2*share3+cos(cangle)*share2,iy1*(1-share3)+iy2*share3+sin(cangle)*share2,ix1*(1-share4)+ix2*share4,iy1*(1-share4)+iy2*share4);
+		}
 	}
 }
 void MACRO_DRAWPREFIX(expresstriangle)(float ifx1,float ify1,float ifx2,float ify2,float ifx3,float ify3)
@@ -1375,13 +1387,13 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,char hatches)
 			if ((bond_actual_node[index_in_buffer]).leftdefined & 2) {tllefttan2=tan(Pi/2-bond_actual_node[index_in_buffer].cotanleft[1]);}else{if ((bond_actual_node[index_in_buffer]).rightdefined & 2){tllefttan2=tan(bond_actual_node[index_in_buffer].xcotanright[1]/2);}}
 			if ((bond_actual_node[index_in_buffer]).rightdefined & 2) {tlrighttan2=tan(Pi/2-bond_actual_node[index_in_buffer].cotanright[1]);}else{if ((bond_actual_node[index_in_buffer]).leftdefined & 2){tlrighttan2=tan(bond_actual_node[index_in_buffer].xcotanleft[1]/2);}}
 		}
-		if ((iDisplaytype1==2) || (iDisplaytype1==3) || (iDisplaytype1==4))
+		if ((iDisplaytype1==3) || (iDisplaytype1==4) || (iDisplaytype1==11) || (iDisplaytype1==12))
 		{
 			MACRO_DRAWPREFIX(expresshashangle)(cangle,
 			iBBX.right+ibonddist2*cos(cangle),iBBX.bottom+ibonddist2*sin(cangle),
 			iBBX.left+ibonddist2*cos(cangle),iBBX.top+ibonddist2*sin(cangle),
 			ibonddist3,ibonddist4
-			);
+			,iDisplaytype1>7);
 		}
 		else
 		{
@@ -1398,24 +1410,38 @@ iBBX.right+ibonddist2*cos(cangle)+ibonddist4*(cos(cangle)-(cos(langle)*tlrightta
 	}
 	else
 	{
-		if (iDisplaytype1==2)
+		if ((iDisplaytype1==2)||(((iDisplaytype1==8) && ((*i_b_instance).Order<=16))))
 		{
 			MACRO_DRAWPREFIX(expresshashangle)(cangle,
 			iBBX.right,iBBX.bottom,
 			iBBX.left,iBBX.top,
 			4,4
-			);
+			,iDisplaytype1==8);
 		}
 		else
 		{
 			MACRO_DRAWPREFIX(stylegenestring)(((iDisplaytype1==1) ?8:0) | 1);
-			MACRO_DRAWPREFIX(expressline)(iBBX.left+ibonddist2*cos(cangle),iBBX.top+ibonddist2*sin(cangle),iBBX.right+ibonddist2*cos(cangle),iBBX.bottom+ibonddist2*sin(cangle));
+			if (iDisplaytype1!=8)
+			{
+				MACRO_DRAWPREFIX(expressline)(iBBX.left+ibonddist2*cos(cangle),iBBX.top+ibonddist2*sin(cangle),iBBX.right+ibonddist2*cos(cangle),iBBX.bottom+ibonddist2*sin(cangle));
+			}
+			else
+			{
+				MACRO_DRAWPREFIX(expressline)(iBBX.left+ibonddist2*cos(cangle),iBBX.top+ibonddist2*sin(cangle),iBBX.right+ibonddist*cos(cangle),iBBX.bottom+ibonddist*sin(cangle));
+			}
 		}
 	}
 	if ((*i_b_instance).Order>16)
 	{
 		MACRO_DRAWPREFIX(stylegenestring)((((*glob_b_multilist)[index_in_buffer].Display2==1)?8:0)|1);
-		MACRO_DRAWPREFIX(expressline)(iBBX.left+ibonddist*cos(cangle),iBBX.top+ibonddist*sin(cangle),iBBX.right+ibonddist*cos(cangle),iBBX.bottom+ibonddist*sin(cangle));
+		if (iDisplaytype1!=8)
+		{
+			MACRO_DRAWPREFIX(expressline)(iBBX.left+ibonddist*cos(cangle),iBBX.top+ibonddist*sin(cangle),iBBX.right+ibonddist*cos(cangle),iBBX.bottom+ibonddist*sin(cangle));
+		}
+		else
+		{
+			MACRO_DRAWPREFIX(expressline)(iBBX.left+ibonddist*cos(cangle),iBBX.top+ibonddist*sin(cangle),iBBX.right+ibonddist2*cos(cangle),iBBX.bottom+ibonddist2*sin(cangle));
+		}
 		if ((*i_b_instance).Order>32)
 		{
 			MACRO_DRAWPREFIX(expressline)(iBBX.left-ibonddist*cos(cangle),iBBX.top-ibonddist*sin(cangle),iBBX.right-ibonddist*cos(cangle),iBBX.bottom-ibonddist*sin(cangle));

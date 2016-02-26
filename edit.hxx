@@ -4364,7 +4364,7 @@ int menu_itembyname(const char * name,int * menu=NULL,int * index=NULL);
 void edit_filesort(char i_buffer[constants_maxlistentries][256],_u32 * i_attribs,structenum * i_filememory)
 {
 	int diffresult=0;
-	for (int ilv1=0;ilv1<control_filememory.count-1;ilv1++)
+	for (int ilv1=0;ilv1<(*i_filememory).count-1;ilv1++)
 	{
 		for (int ilv2=ilv1+1;ilv2<(*i_filememory).count;ilv2++)
 		{

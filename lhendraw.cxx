@@ -168,6 +168,11 @@ int main(int argc,char * * argv)
 	{
 		error("Conceptual programming error, Helpstructure t > structure t");
 	}
+	if (setjmp(debug_crashhandler)>0)
+	{
+		error("Crash cannot be handled during startup! - config files too long? Then compile with a larger blocksize\n");
+	}
+	memcpy(memory_catch_overflow,debug_crashhandler,sizeof(jmp_buf));
 	memory_init();
 	memory_alloc(&tagnamestring,10);
 	memory_alloc(&parameterstring,10);
@@ -219,7 +224,13 @@ int main(int argc,char * * argv)
 	{0xFFFFFFFF,0x0,0x0,0x0,0x0,0x0,0x0,0xFFFFFFFF}};tl_clickabilitymatrix;});
 	conv_config_internalconfig();
 	FILE_NEW(NULL,NULL);
+	if (setjmp(debug_crashhandler)>0)
+	{
+		error_reset();
+	}
+	memcpy(memory_catch_overflow,debug_crashhandler,sizeof(jmp_buf));
 	cmdline(argc,argv);
+	print("LISTSIZE:%i,MAX:%i\n",glob_CONFIGBRIDGE_Hotkey_multilist->filllevel,glob_CONFIGBRIDGE_Hotkey_multilist->getmaxitems());
 	if (control_GUI)
 	{
 		svg_findaround();

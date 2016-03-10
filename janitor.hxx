@@ -278,12 +278,12 @@ void initZlist()
 							{
 								multi_objref_ _={ilv1,ilv2};
 								objectZorderlist[objectZorderlist_count++]=_;
-							printf("Zorderbroken:%i of %i #%i\n",tlthisZ,ilv1,ilv2);
+							print("Zorderbroken:%i of %i #%i\n",tlthisZ,ilv1,ilv2);
 								iZorderbroken=1;
 							}
 							else
 							{
-								fprintf(stderr,"memory overflow");
+								memory_overflow_hook();
 							}
 						}
 					}

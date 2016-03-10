@@ -130,7 +130,7 @@ int janitor_getmaxid(_u32 ino)
 }
 int edit_getnewZ()
 {
-	if (janitor_maxZ>0) {janitor_maxZ++;printf("ret:%i\n",janitor_maxZ);return janitor_maxZ;}
+	if (janitor_maxZ>0) {janitor_maxZ++;print("ret:%i\n",janitor_maxZ);return janitor_maxZ;}
 	janitor_maxZ=0;
 	_u32 icompare;
 	CDXMLREAD_functype dummy;
@@ -160,7 +160,7 @@ int edit_getnewZ()
 		hasnoZ:;
 	}
 	janitor_maxZ+=1;
-	printf("ret:%i\n",janitor_maxZ);
+	print("ret:%i\n",janitor_maxZ);
 	return janitor_maxZ;
 }
 void janitor_biasids(int i_bias)
@@ -1763,6 +1763,10 @@ n_instance * edit_summonatom(_i32 * inr=NULL)
 		}
 		return tlinstance;
 	}
+	else
+	{
+		memory_overflow_hook();
+	}
 	return NULL;
 }
 graphic_instance * edit_summongraphic(_i32 * inr=NULL)
@@ -1788,6 +1792,10 @@ graphic_instance * edit_summongraphic(_i32 * inr=NULL)
 			*inr=tl_nr;
 		}
 		return tlinstance;
+	}
+	else
+	{
+		memory_overflow_hook();
 	}
 	return NULL;
 }
@@ -1838,6 +1846,10 @@ tlcplate_instance * edit_summontlcplate(int * nr=NULL)
 			*nr=tl_nr;
 		}
 		return tlinstance;
+	}
+	else
+	{
+		memory_overflow_hook();
 	}
 	return NULL;
 }
@@ -1910,6 +1922,10 @@ arrow_instance * edit_summonarrow(int * inr=NULL)
 		}
 		return tlinstance;
 	}
+	else
+	{
+		memory_overflow_hook();
+	}
 	return NULL;
 }
 b_instance * edit_summonbond(int i_id_begin,int i_id_end,int i_nr_begin,int i_nr_end)
@@ -1936,6 +1952,10 @@ b_instance * edit_summonbond(int i_id_begin,int i_id_end,int i_nr_begin,int i_nr
 		(*glob_b_multilist).maxid++;
 		return tlinstance;
 	}
+	else
+	{
+		memory_overflow_hook();
+	}
 	return NULL;
 }
 t_instance * edit_summontext(int * inr=NULL)
@@ -1955,6 +1975,10 @@ t_instance * edit_summontext(int * inr=NULL)
 			*inr=tl_nr;
 		}
 		return tlinstance;
+	}
+	else
+	{
+		memory_overflow_hook();
 	}
 	return NULL;
 }
@@ -1986,6 +2010,10 @@ curve_instance * edit_summoncurve(int * inr=NULL)
 			*inr=tl_nr;
 		}
 		return tlinstance;
+	}
+	else
+	{
+		memory_overflow_hook();
 	}
 	return NULL;
 }
@@ -2539,7 +2567,7 @@ catalogized_command_funcdef(SETITEMVARIABLES)
 				ioffset=(*tl_multilist)._->properties[ilv1].ref;
 				if (iparametersize>100)
 				{
-					imemoryp=(char*)malloc(iparametersize);
+					imemoryp=(char*)malloc(iparametersize);//temporary alloc
 				}
 				else
 				{
@@ -2574,7 +2602,7 @@ catalogized_command_funcdef(SETITEMVARIABLES)
 		}
 		if (iparametersize>100)
 		{
-			free(imemoryp);
+			free(imemoryp);//temporary alloc
 		}
 		iskip:;
 	}

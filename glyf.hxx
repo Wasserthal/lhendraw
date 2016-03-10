@@ -53,7 +53,11 @@ minx:%i\
 miny:%i\
 maxx:%i\
 maxy:%i\
-\n",units,minx,miny,maxx,maxy);
+maxcount:%i\
+unicode:%i\
+offsetx:%i\
+offsety:%i\
+\n",units,minx,miny,maxx,maxy,maxcount,unicode,offsetx,offsety);
 		if (units>0)
 		{
 			for (int ilv1=0;ilv1<units;ilv1++)
@@ -159,6 +163,7 @@ void do_inglyph(glyf_ * inglyph,FILE * infile)
 	debug_expectedbytes=ftell(infile);
 	fread(&bytes,4,1,infile);
 	fread(&((*inglyph).unicode),4,1,infile);
+	(*inglyph).maxcount=0;//because it is an _i32, but read as _i16
 	fread(&((*inglyph).maxcount),2,1,infile);
 	fread(&((*inglyph).offsetx),2,1,infile);
 	fread(&((*inglyph).offsety),2,1,infile);

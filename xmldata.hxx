@@ -237,6 +237,10 @@ template <class whatabout> class multilist : public basicmultilist
 	void * insert(whatabout input,intl position,intl mynumber)//position must be given to allow later refills
 	{
 		//TODO: check what's going on here!
+		if (filllevel>=getmaxitems()-1)
+		{
+			memory_overflow_hook();
+		}
 		for (int ilv1=filllevel;ilv1>position;ilv1--)
 		{
 			memcpy(bufferlist()+ilv1,bufferlist()+ilv1-1,sizeof(whatabout));//Thats why oop sucks!
@@ -281,7 +285,7 @@ template <class whatabout> class multilist : public basicmultilist
 	}
 	~multilist()
 	{
-		free(pointer);
+		//memory free removed because it is never destroyed during runtime
 	};
 };
 

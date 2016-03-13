@@ -44,7 +44,7 @@ void selection_SUBTRACTselection(selection_ iselection,selection_ iselection2)
 {
 	for (int ilv1=0;ilv1<selection_max;ilv1++)
 	{
-		iselection[ilv1]&=~iselection2[ilv1];
+		iselection[ilv1]&=~(iselection2[ilv1]);
 	}
 }
 void selection_XORselection(selection_ iselection,selection_ iselection2)
@@ -380,6 +380,94 @@ void select_fragment_by_atom(int start)
 				selection_clickselection[ilv1]|=icompare_b;
 				selection_fragmentselection[ilv1]|=icompare_b;
 			}
+		}
+	}
+}
+int selection_grow(selection_datatype * i_selection,int bondno,int aim)//set bondno and aim both to -1 to prevent aborts on cyclisation
+{
+	int side=0;
+	char changed;
+	selection_datatype icompare_n=1<<STRUCTURE_OBJECTTYPE_n;
+	selection_datatype icompare_b=1<<STRUCTURE_OBJECTTYPE_b;
+	iback:;
+	changed=0;
+	for (int ilv1=0;ilv1<(*glob_b_multilist).filllevel;ilv1++)
+	{
+		if ((*glob_b_multilist).bufferlist()[ilv1].exist)
+		{
+			if (i_selection[ilv1]&icompare_b)
+			{
+				if (ilv1!=bondno)
+				{
+					if (bond_actual_node[ilv1].start==aim)
+					{
+						return 1;
+					}
+					if (bond_actual_node[ilv1].end==aim)
+					{
+						return 1;
+					}
+				}
+				side=bond_actual_node[ilv1].start;
+				isideback:;
+				if ((i_selection[side]&icompare_n)==0)
+				{
+					i_selection[side]|=icompare_n;
+					for (int ilv2=0;ilv2<atom_actual_node[side].bondcount;ilv2++)
+					{
+						if ((i_selection[atom_actual_node[side].bonds[ilv2]]&icompare_b)==0)
+						{
+							i_selection[atom_actual_node[side].bonds[ilv2]]|=icompare_b;
+							changed=1;
+						}
+					}
+				}
+				if (side!=bond_actual_node[ilv1].end)
+				{
+					side=bond_actual_node[ilv1].end;
+					goto isideback;
+				}
+			}
+		}
+	}
+	if (changed) goto iback;
+	return 0;
+}
+int selection_check_loopbond(int bondno)
+{
+	selection_clearselection(selection_clickselection);
+	selection_clickselection[bondno]|=1<<STRUCTURE_OBJECTTYPE_b;
+	selection_clickselection[bond_actual_node[bondno].start]|=1<<STRUCTURE_OBJECTTYPE_n;
+	return (selection_grow(selection_clickselection,bondno,bond_actual_node[bondno].start));
+}
+void selection_select_rings(selection_datatype * i_selection)
+{
+	for (int ilv1=0;ilv1<glob_b_multilist->filllevel;ilv1++)
+	{
+		if (glob_b_multilist->bufferlist()[ilv1].exist)
+		{
+			if (i_selection[ilv1]&(1<<STRUCTURE_OBJECTTYPE_b))
+			{
+				if (selection_check_loopbond(ilv1)<=0) i_selection[ilv1]&=~(1<<STRUCTURE_OBJECTTYPE_b);
+			}
+		}
+	}
+	return;
+}
+void selection_unselectfreestandingatoms(selection_datatype * i_selection)
+{
+	selection_datatype i_b_compare=1<<STRUCTURE_OBJECTTYPE_b;
+	for (int ilv1=0;ilv1<glob_n_multilist->filllevel;ilv1++)
+	{
+		n_instance * tl_n_instance=glob_n_multilist->bufferlist()+ilv1;
+		if ((*tl_n_instance).exist)
+		{
+			for (int ilv2=0;ilv2<atom_actual_node[ilv1].bondcount;ilv2++)
+			{
+				if (i_selection[atom_actual_node[ilv1].bonds[ilv2]]&i_b_compare) goto dontoffthis;
+			}
+			i_selection[ilv1]&=~(1<<STRUCTURE_OBJECTTYPE_n);
+			dontoffthis:;
 		}
 	}
 }

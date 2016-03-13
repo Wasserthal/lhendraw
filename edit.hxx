@@ -2261,6 +2261,261 @@ catalogized_command_iterated_funcdef(SETITEMVARIABLE)
 	}
 	return 0;
 }
+catalogized_command_funcdef(SELECTGROW)
+{
+	int backval=0;
+	selection_copyselection(selection_clickselection,selection_currentselection);
+	backval=selection_grow(selection_clickselection,-1,-1);
+	selection_copyselection(selection_currentselection,selection_clickselection);
+	return backval;
+}
+catalogized_command_funcdef(SELECTRINGS)
+{
+	selection_select_rings(selection_currentselection);
+	selection_unselectfreestandingatoms(selection_currentselection);
+	return 0;
+}
+double edit_evaluate_collision_badness(selection_datatype * ithisselection,selection_datatype * ipartnerselection)
+{
+	selection_datatype i_n_compare=1<<STRUCTURE_OBJECTTYPE_n;
+	selection_datatype i_b_compare=1<<STRUCTURE_OBJECTTYPE_b;
+	double retval=0;
+	for (int ilv1=0;ilv1<glob_n_multilist->filllevel;ilv1++)
+	{
+		if ((*glob_n_multilist)[ilv1].exist)
+		{
+			if (ithisselection[ilv1]&i_n_compare)
+			{
+				for (int ilv2=0;ilv2<glob_n_multilist->filllevel;ilv2++)
+				{
+					if ((*glob_n_multilist)[ilv2].exist)
+					{
+						if (ipartnerselection[ilv2]&i_n_compare)
+						{
+							n_instance * tl_this=(n_instance*)&(glob_n_multilist[ilv1]);
+							n_instance * tl_partner=(n_instance*)&(glob_n_multilist[ilv2]);
+							double idist=fsqr(tl_this->xyz.x-tl_partner->xyz.x)+fsqr(tl_this->xyz.y-tl_partner->xyz.y);
+							if (idist<400)
+							{
+								retval+=400-idist;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return retval;
+}
+_small * edit_freebondindex;
+_small edit_freebondindex_count;
+_small * edit_freeatomindex;
+_small edit_freeatomindex_count;
+selection_datatype * oldselection;
+selection_datatype * objectselection;
+selection_datatype * ringselection;
+selection_datatype * growselection;
+selection_datatype * partnerselection;
+void edit_flip_bond(_small i_bond_to_switch,_small i_atom_to_keep)
+{
+	selection_clearselection(selection_currentselection);
+	selection_currentselection[i_bond_to_switch]|=(1<<STRUCTURE_OBJECTTYPE_b);
+	selection_currentselection[i_atom_to_keep]|=(1<<STRUCTURE_OBJECTTYPE_n);
+	selection_grow(selection_currentselection,-1,-1);
+	PIVOT_SCALEX("rel","+2");
+}
+void edit_cleanupatom(_small i_atomnumber)
+{
+	char firstside=0;
+	if (atom_actual_node[i_atomnumber].bondcount==1) return;
+	if ((atom_actual_node[i_atomnumber].bondcount>=2) && (atom_actual_node[i_atomnumber].bondcount<=3))
+	{
+		int other=getother(i_atomnumber,atom_actual_node[i_atomnumber].bonds[0]);
+		int other2=getother(i_atomnumber,atom_actual_node[i_atomnumber].bonds[1]);
+		n_instance * tl_n_instance=glob_n_multilist->bufferlist()+i_atomnumber;
+		n_instance * tl_n_instance2=glob_n_multilist->bufferlist()+other;
+		n_instance * tl_n_instance3=glob_n_multilist->bufferlist()+other2;
+		double imainangle=getangle(tl_n_instance2->xyz.x-tl_n_instance->xyz.x,tl_n_instance2->xyz.y-tl_n_instance->xyz.y);
+		double isecondangle=getangle(tl_n_instance3->xyz.x-tl_n_instance->xyz.x,tl_n_instance3->xyz.y-tl_n_instance->xyz.y)-imainangle;
+		if (isecondangle>Pi)isecondangle-=2*Pi;
+		if (isecondangle<0)isecondangle+=2*Pi;
+		if (isecondangle<Pi) {firstside=1;isecondangle+=4*Pi/3;}else {firstside=0;isecondangle+=2*Pi/3;}
+		selection_clearselection(selection_currentselection);
+		selection_currentselection[i_atomnumber]|=1<<STRUCTURE_OBJECTTYPE_n;
+		selection_currentselection[atom_actual_node[i_atomnumber].bonds[1]]|=1<<STRUCTURE_OBJECTTYPE_b;
+		selection_grow(selection_currentselection,-1,-1);
+		char tl_efftrnstring[100];
+		sprintf(tl_efftrnstring,"%.8f",-isecondangle);
+		PIVOT_TURNZ("",tl_efftrnstring);
+		if (atom_actual_node[i_atomnumber].bondcount==3)
+		{
+			int other2=getother(i_atomnumber,atom_actual_node[i_atomnumber].bonds[2]);
+			tl_n_instance3=glob_n_multilist->bufferlist()+other2;
+			isecondangle=getangle(tl_n_instance3->xyz.x-tl_n_instance->xyz.x,tl_n_instance3->xyz.y-tl_n_instance->xyz.y)-imainangle;
+			if (isecondangle>Pi)isecondangle-=2*Pi;
+			if (isecondangle<0)isecondangle+=2*Pi;
+			if (firstside==1) {isecondangle+=2*Pi/3;}else {isecondangle+=4*Pi/3;}
+			selection_clearselection(selection_currentselection);
+			selection_currentselection[i_atomnumber]|=1<<STRUCTURE_OBJECTTYPE_n;
+			selection_currentselection[atom_actual_node[i_atomnumber].bonds[2]]|=1<<STRUCTURE_OBJECTTYPE_b;
+			selection_grow(selection_currentselection,-1,-1);
+			sprintf(tl_efftrnstring,"%.8f",-isecondangle);
+			PIVOT_TURNZ("",tl_efftrnstring);
+		}
+	}
+}
+void edit_cleanupbond(_small i_bondnumber)
+{
+	int other=bond_actual_node[i_bondnumber].start;
+	int other2=bond_actual_node[i_bondnumber].end;
+	n_instance * tl_n_instance=glob_n_multilist->bufferlist()+other;
+	n_instance * tl_n_instance2=glob_n_multilist->bufferlist()+other2;
+	double distance=sqrt(fsqr(tl_n_instance2->xyz.x-tl_n_instance->xyz.x)+fsqr(tl_n_instance2->xyz.y-tl_n_instance->xyz.y));
+	distance/=(constants_bondlength);
+	double vectorx=tl_n_instance->xyz.x-tl_n_instance2->xyz.x;
+	double vectory=tl_n_instance->xyz.y-tl_n_instance2->xyz.y;
+	vectorx/=distance;
+	vectory/=distance;
+	distance-=1;
+	vectorx*=distance;
+	vectory*=distance;
+	selection_clearselection(selection_currentselection);
+	selection_currentselection[i_bondnumber]|=1<<STRUCTURE_OBJECTTYPE_b;
+	selection_currentselection[other]|=1<<STRUCTURE_OBJECTTYPE_n;
+	selection_grow(selection_currentselection,-1,-1);
+	selection_currentselection[other]&=~(1<<STRUCTURE_OBJECTTYPE_n);
+	for (int ilv1=0;ilv1<glob_n_multilist->filllevel;ilv1++)
+	{
+		if (selection_currentselection[ilv1]&(1<<STRUCTURE_OBJECTTYPE_n))
+		{
+			n_instance * tl_n_instance3=glob_n_multilist->bufferlist()+ilv1;
+			(*tl_n_instance3).xyz.x+=vectorx;
+			(*tl_n_instance3).xyz.y+=vectory;
+		}
+	}
+}
+catalogized_command_funcdef(CLEANUP)
+{
+	double average_x=0;
+	double average_y=0;
+	double average_z=0;
+	_small atom_count=0;
+	char abort=0;
+	_small mosthorizontalbondindex=-1;
+	memory_alloc((char**)&oldselection,6);
+	memory_alloc((char**)&objectselection,6);
+	memory_alloc((char**)&ringselection,6);
+	memory_alloc((char**)&growselection,6);
+	memory_alloc((char**)&partnerselection,6);
+	memory_alloc((char**)&edit_freebondindex,5);
+	memory_alloc((char**)&edit_freeatomindex,5);
+	edit_freebondindex_count=0;
+	edit_freeatomindex_count=0;
+	selection_copyselection(oldselection,selection_currentselection);
+	selection_copyselection(objectselection,selection_currentselection);
+	for (int ilv1=0;ilv1<glob_n_multilist->filllevel;ilv1++)
+	{
+		objectselection[ilv1]&=~(1<<STRUCTURE_OBJECTTYPE_n);
+	}
+	selection_grow(objectselection,-1,-1);//engulfs the whole objects of the objectselection
+	for (int ilv1=0;ilv1<glob_n_multilist->filllevel;ilv1++)
+	{
+		if (objectselection[ilv1]&(1<<STRUCTURE_OBJECTTYPE_n))
+		{
+			if (glob_n_multilist->bufferlist()[ilv1].exist)
+			{
+				average_x+=glob_n_multilist->bufferlist()[ilv1].xyz.x;
+				average_y+=glob_n_multilist->bufferlist()[ilv1].xyz.y;
+				average_z+=glob_n_multilist->bufferlist()[ilv1].xyz.z;
+				atom_count++;
+			}
+		}
+	}
+	selection_copyselection(ringselection,objectselection);
+	selection_select_rings(ringselection);
+	for (int ilv1=0;ilv1<glob_b_multilist->filllevel;ilv1++)
+	{
+		if ((objectselection[ilv1]&(1<<STRUCTURE_OBJECTTYPE_b)))//belonging to the object to clean up...
+		{
+			if (glob_b_multilist->bufferlist()[ilv1].exist)
+			{
+				if ((ringselection[ilv1]&(1<<STRUCTURE_OBJECTTYPE_b))==0)//but not to rings
+				{
+					edit_freebondindex[edit_freebondindex_count++]=ilv1;
+				}
+			}
+		}
+	}
+	for (int ilv1=0;ilv1<glob_n_multilist->filllevel;ilv1++)
+	{
+		if ((objectselection[ilv1]&(1<<STRUCTURE_OBJECTTYPE_n)))//belonging to the object to clean up...
+		{
+			if (glob_n_multilist->bufferlist()[ilv1].exist)
+			{
+				for (int ilv2=0;ilv2<atom_actual_node[ilv1].bondcount;ilv2++)
+				{
+					if ((ringselection[atom_actual_node[ilv1].bonds[ilv2]]&(1<<STRUCTURE_OBJECTTYPE_b))==0)//but one bond is not-ring
+					{
+						edit_freeatomindex[edit_freeatomindex_count++]=ilv1;
+						goto idone;
+					}
+				}
+				idone:;
+			}
+		}
+	}
+	for (int ilv1=0;ilv1<edit_freeatomindex_count;ilv1++)
+	{
+		edit_cleanupatom(edit_freeatomindex[ilv1]);
+	}
+	for (int ilv1=0;ilv1<edit_freebondindex_count;ilv1++)
+	{
+		edit_cleanupbond(edit_freebondindex[ilv1]);
+	}
+	while (abort==0)
+	{
+		abort=1;
+	}
+	for (int ilv1=0;ilv1<glob_n_multilist->filllevel;ilv1++)
+	{
+		if (objectselection[ilv1]&(1<<STRUCTURE_OBJECTTYPE_n))
+		{
+			if (glob_n_multilist->bufferlist()[ilv1].exist)
+			{
+				average_x-=glob_n_multilist->bufferlist()[ilv1].xyz.x;
+				average_y-=glob_n_multilist->bufferlist()[ilv1].xyz.y;
+				average_z-=glob_n_multilist->bufferlist()[ilv1].xyz.z;
+			}
+		}
+	}
+	if (atom_count>0)
+	{
+		average_x/=atom_count;
+		average_y/=atom_count;
+		average_z/=atom_count;
+		for (int ilv1=0;ilv1<glob_n_multilist->filllevel;ilv1++)
+		{
+			if (objectselection[ilv1]&(1<<STRUCTURE_OBJECTTYPE_n))
+			{
+				if (glob_n_multilist->bufferlist()[ilv1].exist)
+				{
+					glob_n_multilist->bufferlist()[ilv1].xyz.x+=average_x;
+					glob_n_multilist->bufferlist()[ilv1].xyz.y+=average_y;
+					glob_n_multilist->bufferlist()[ilv1].xyz.z+=average_z;
+				}
+			}
+		}
+	}
+	selection_copyselection(selection_currentselection,oldselection);
+	memory_free((char*)edit_freeatomindex);
+	memory_free((char*)edit_freebondindex);
+	memory_free((char*)partnerselection);
+	memory_free((char*)growselection);
+	memory_free((char*)ringselection);
+	memory_free((char*)objectselection);
+	memory_free((char*)oldselection);
+	return 1;
+}
 catalogized_command_funcdef(SETITEMVARIABLES)
 {
 	char imemory[100];
@@ -4597,92 +4852,6 @@ catalogized_command_funcdef(WARN_HYPERC)
 	}
 	if (ifound==0){edit_current5bondcarbon=0;ifound=1;goto iback;}
 	return 0;
-}
-catalogized_command_funcdef(CLEANUP)
-{
-	//TODO: make 3D!
-	char changed;
-	int count=0;
-	_u32 icompare=1<<STRUCTURE_OBJECTTYPE_b;
-	iback:;
-	changed=0;
-	count++;
-	for (int ilv1=0;ilv1<glob_b_multilist->filllevel;ilv1++)
-	{
-		if (selection_currentselection[ilv1] & icompare)
-		{
-			b_instance * iinstance=(*glob_b_multilist).bufferlist()+ilv1;
-			n_instance * iinstance1=glob_n_multilist->bufferlist()+bond_actual_node[ilv1].start;
-			n_instance * iinstance2=glob_n_multilist->bufferlist()+bond_actual_node[ilv1].end;
-			float length=fsqr(iinstance2->xyz.x-iinstance1->xyz.x)+fsqr(iinstance2->xyz.y-iinstance1->xyz.y);
-			float idirection=getangle(iinstance2->xyz.x-iinstance1->xyz.x,iinstance2->xyz.y-iinstance1->xyz.y);
-			if (length>=fsqr(constants_bondlength+0.02))
-			{
-				iinstance1->xyz.x+=cos(idirection)*0.01;
-				iinstance2->xyz.x-=cos(idirection)*0.01;
-				iinstance1->xyz.y+=sin(idirection)*0.01;
-				iinstance2->xyz.y-=sin(idirection)*0.01;
-				changed=1;
-			}
-			if (length<=fsqr(constants_bondlength-0.02))
-			{
-				iinstance1->xyz.x-=cos(idirection)*0.01;
-				iinstance2->xyz.x+=cos(idirection)*0.01;
-				iinstance1->xyz.y-=sin(idirection)*0.01;
-				iinstance2->xyz.y+=sin(idirection)*0.01;
-				changed=1;
-			}
-		}
-	}
-/*	icompare=1<<STRUCTURE_OBJECTTYPE_n;
-	for (int ilv1=0;ilv1<glob_n_multilist->filllevel;ilv1++)
-	{
-		if (selection_currentselection[ilv1] & icompare)
-		{
-			n_instance * iinstance=(*glob_n_multilist).bufferlist()+ilv1;
-			for (int ilv2=0;ilv2<atom_actual_node[ilv1].bondcount;ilv2++)
-			{
-//TODO: ignore bondorder-0 bonds				b_instance * i_b_instance1=glob_b_multilist->bufferlist()+atom_actual_node[ilv1].bonds[ilv2];
-				n_instance * i_n_instance1=glob_n_multilist->bufferlist()+getother(ilv1,atom_actual_node[ilv1].bonds[ilv2]);
-				for (int ilv3=ilv2+1;ilv3<atom_actual_node[ilv1].bondcount;ilv3++)
-				{
-//					b_instance * iinstance2=glob_b_multilist->bufferlist()+atom_actual_node[ilv1].bonds[ilv3];
-					n_instance * i_n_instance2=glob_n_multilist->bufferlist()+getother(ilv1,atom_actual_node[ilv1].bonds[ilv3]);
-					float angle1=getangle(i_n_instance1->xyz.x-iinstance->xyz.x,i_n_instance1->xyz.y-iinstance->xyz.y);
-					float angle2=getangle(i_n_instance2->xyz.x-iinstance->xyz.x,i_n_instance2->xyz.y-iinstance->xyz.y);
-					float iangle=fmod(angle2-angle1+4*Pi,Pi/12);
-					float idirection1,idirection2;
-					if (iangle>Pi/24) iangle-=Pi/12;
-					if (fabs(iangle)>(Pi/3000))
-					{
-						float force=0.01;
-						if ((fabs(iangle)>Pi/300))
-						{
-							force=0.11-0.1/(fabs(iangle)/(Pi/12));
-						}
-						force=0.01-0.0099*(fabs(iangle)/(Pi/12));
-						if (iangle>0)
-						{
-							idirection1=angle1+Pi/2;
-							idirection2=angle2-Pi/2;
-						}
-						else
-						{
-							idirection1=angle1-Pi/2;
-							idirection2=angle2+Pi/2;
-						}
-						i_n_instance1->xyz.x+=cos(idirection1)*force;
-						i_n_instance2->xyz.x+=cos(idirection2)*force;
-						i_n_instance1->xyz.y+=sin(idirection1)*force;
-						i_n_instance2->xyz.y+=sin(idirection2)*force;
-						changed=1;
-					}
-				}
-			}
-		}
-	}*/
-	if ((changed) && (count<1000000)) goto iback;
-	return 1;
 }
 catalogized_command_funcdef(REVERSEBEZIER)
 {

@@ -5583,6 +5583,8 @@ int edit_moleculesearch_findtemplate(int from)
 int edit_moleculesearch_findnext()
 {
 	int retval;
+	if (edit_atoms_in_check==currentatom_in_check) return 1;
+	if (edit_atoms_in_check<=1) return 0;
 	edit_searchbuffer[edit_orderbuffer[currentatom_in_check]]=-1;
 	iback:;
 	retval=edit_getunclicked(edit_searchbuffer[edit_orderbuffer[edit_branchbuffer[currentatom_in_check]]],&(edit_searchbuffer[edit_orderbuffer[currentatom_in_check]]),0);

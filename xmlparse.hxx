@@ -22,7 +22,7 @@ void entertag()
 	}
 	else
 	{
-		#ifndef NODEBUG
+		#ifdef DEBUG
 		printf("%s vs. %s !\n",tagnamestring,currentinstance->getName());
 		#endif
 		if (strcmp(currentinstance->getName(),"gummydummy")==0)
@@ -450,14 +450,14 @@ int input_recursion(FILE * infile)
 	if (tl_name)
 	{
 		strcpy(tagnamestring,tl_name);
-		#ifndef NODEBUG
+		#ifdef DEBUG
 		printf("\e[31m%s:\e[0m%i\n",tl_name,iid);
 		#endif
 	}
 	else
 	{
 		strcpy(tagnamestring,"gummydummy");
-		#ifndef NODEBUG
+		#ifdef DEBUG
 		printf("\e[31m%04hX:\e[0m%i\n",itype,iid);
 		#endif
 	}
@@ -466,7 +466,7 @@ int input_recursion(FILE * infile)
 	strcpy(parameterstring,"id");memcpy(paramvaluestring,(char*)&iid,4);
 	scoopparam_bin();
 	indent();
-	#ifndef NODEBUG
+	#ifdef DEBUG
 	printf("you are in a %s\n",(*currentinstance).getName());
 	#endif
 	backval=1;
@@ -610,7 +610,7 @@ int output_object_bin(FILE * outfile,basic_instance * iinstance)
 			{
 				goto ignore_item;
 			}
-			#ifndef NODEBUG
+			#ifdef DEBUG
 			printf("Unknown number of Element named %s\n",name);
 			#endif
 			goto ignore_item;

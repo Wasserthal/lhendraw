@@ -280,7 +280,7 @@ int storeundo(_u32 flags,const char * iname)
 				undosteps[undosteps_count].handles[ilv1].contentbuffer=NULL;
 			}
 			//set buffer_max here when not using LHENDRAW_buffersize
-			#ifndef NODEBUG
+			#ifdef DEBUG
 			undosteps[undosteps_count].handles[ilv1].bufferhead.buffer=NULL;
 			#else
 			undosteps[undosteps_count].handles[ilv1].bufferhead.buffer=undosteps[undosteps_count].handles[ilv1].contentbuffer;
@@ -353,7 +353,7 @@ int restoreundo(_u32 flags,_u32 orderflags/*bit0: restore count only*/)//doesn't
 				glob_contentbuffer[ilv1].count=undosteps[currentundostep].handles[ilv1].bufferhead.count;
 			}
 			//set buffer_max here when not using LHENDRAW_buffersize
-			#ifdef NODEBUG
+			#ifdef DEBUG
 			undosteps[currentundostep].handles[ilv1].bufferhead.buffer=NULL;
 			#else
 			undosteps[currentundostep].handles[ilv1].bufferhead.buffer=undosteps[currentundostep].handles[ilv1].contentbuffer;
@@ -415,4 +415,15 @@ void printundostats()
 	{
 		printf("O%s%2i,l%p=%p,b%p=%p:%lli\n",(ilv1==currentundostep)?"\e[32m:\e[0m":"\e[0m:",undosteps[ilv1].parent,undosteps[ilv1].handles[1].buffer,((basicmultilist*)(undosteps[ilv1].handles[1].imultilist))->pointer,undosteps[ilv1].handles[1].contentbuffer,undosteps[ilv1].handles[1].bufferhead.buffer,((basicmultilist*)(undosteps[ilv1].handles[1].imultilist))->filllevel);
 	}
+}
+int undo_storcatch(_u32 flags,const char * iname)
+{
+	int backval=storeundo(flags,iname);
+	if (setjmp(memory_catch_overflow)>=1)
+	{
+		restoreundo(~0,1);
+		error_reset();
+		getatoms();
+	}
+	return backval;
 }

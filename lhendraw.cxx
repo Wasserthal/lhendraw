@@ -9,7 +9,7 @@ LLLLLL H   H EEEEE N    N DDD   R  R A     A    W     W
 
 */
 #include <new>
-#ifndef NODEBUG
+#ifdef DEBUG
 #include <signal.h>
 #endif
 #define _XOPEN_SOURCE 700
@@ -21,12 +21,19 @@ LLLLLL H   H EEEEE N    N DDD   R  R A     A    W     W
 #include <string.h>
 #include <stdarg.h>
 #include <math.h>
+#include <setjmp.h>
 #ifndef NOCLIPBOARD
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
 #include <X11/Xmu/Atoms.h>
 #endif
 #include <SDL.h>
+#include <time.h>
+#ifndef NOPOSIX
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
+#endif
 #include "lendefs.h"
 #include "debug.hxx"
 #define CAMBRIDGEPREFIX(content) CAMBRIDGE_ ## content
@@ -53,12 +60,6 @@ int undo_getbufferfromstructure(basicmultilist * input,TELESCOPE_buffer * * buff
 #include "janitor.hxx"
 #include "ellipeq.h"
 #include "quartic.hxx"
-#include <time.h>
-#ifndef NOPOSIX
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <unistd.h>
-#endif
 #include "draw_variables.hxx"
 void automatic_init() {
 #include "./generated/initialization_lhendraw.hxx"
@@ -72,7 +73,7 @@ superconstellation_directory AUTOSTRUCTURE_ctype_directory[]={
 #include "text.h"
 #include "text_freetype.h"
 
-#ifndef NODEBUG
+#ifdef DEBUG
 #include <time.h>
 struct timespec ts;
 long long counter1=0;
@@ -94,10 +95,11 @@ extern int edit_getBoundingBoxMode(graphic_instance * iinstance);
 #include "conv_cambridge_internal.hxx"
 #include "conv_internal_cambridge.hxx"
 #include "conv_bkchem_internal.hxx"
-int storeundo(_u32 flags,const char * iname);
-int restoreundo(_u32 flags,_u32 orderflags);
-int undo_trackundo();
-int undo_trackredo(int variable);
+extern int storeundo(_u32 flags,const char * iname);
+extern int restoreundo(_u32 flags,_u32 orderflags);
+extern int undo_trackundo();
+extern int undo_trackredo(int variable);
+extern int undo_storcatch(_u32 flags,const char * iname);
 #include "analysis.hxx"
 #include "HQ.h"
 #include "edit.hxx"
@@ -148,7 +150,7 @@ structenum * searchreflectedstruct(const char * input)
 }
 int main(int argc,char * * argv)
 {
-#ifndef NODEBUG
+#ifdef DEBUG
 	progname=argv[0];
 	signal(SIGSEGV,&Signal);
 	signal(SIGILL,&Signal);
@@ -180,7 +182,7 @@ int main(int argc,char * * argv)
 	memory_alloc((char**)&atom_actual_node,4);
 	memory_alloc((char**)&bond_actual_node,4);
 	memory_alloc((char**)&text_actual_node,4);
-	#ifndef NODEBUG
+	#ifdef DEBUG
 	clock_getcpuclockid(getpid(),&clockid);
 	#endif
 	multilist_count=sizeof(multilistlist)/sizeof(multilistlist_);
@@ -235,6 +237,11 @@ int main(int argc,char * * argv)
 	{
 		svg_findaround();
 		sdl_init();
+		if (setjmp(debug_crashhandler)>0)
+		{
+			error_reset();
+		}
+		memcpy(memory_catch_overflow,debug_crashhandler,sizeof(jmp_buf));
 #ifndef SDL2
 		SDL_WM_SetCaption(control_filenamehead,control_filenamehead);
 		resources_set_icon();
@@ -303,7 +310,7 @@ int main(int argc,char * * argv)
 		if (!LHENDRAW_leave) goto mainloop;
 		sdl_outit();
 		
-		#ifndef NODEBUG
+		#ifdef DEBUG
 		printf("Time consumption:\nInit:%llX\nfindaround:%llX\ngetatoms:%llX\ninitZlist:%llX\ndrawing:%llX\n",counter1,counter2,counter3,counter4,counter5);
 		#endif
 	}

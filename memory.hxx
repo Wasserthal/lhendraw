@@ -34,6 +34,7 @@
 //Adjust max undo steps when told to care about that
 //Zero new memory in certain cases!
 //
+jmp_buf memory_catch_overflow;
 intl LHENDRAW_buffersize=1048576;
 struct memory_bufferstructure_
 {
@@ -57,6 +58,9 @@ void memory_init()
 }
 void memory_alloc(char ** address,int itype)
 {
+	#ifdef DEBUG
+	mcheck_pedantic(debug_abortfunc);
+	#endif
 	if (memory_bufferstructure==NULL)
 	{
 		memory_init();
@@ -175,7 +179,10 @@ void memory_spacecheck()//checks for space lack and raises memory when needed
 {
 	//TODO
 }
+extern int error_code;
 void memory_overflow_hook()
 {
-	//TODO
+	memory_realloc_x2();
+	error_code=1;
+	longjmp(memory_catch_overflow,1);
 }

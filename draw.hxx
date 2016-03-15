@@ -640,7 +640,6 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,char hatches)
 		}
 		if (tlElement==constants_Element_implicitcarbon)
 		{
-			#ifndef DEBUG
 			if (atom_actual_node[index_in_buffer].bondcount==2)
 			{
 				if ((*glob_b_multilist)[atom_actual_node[index_in_buffer].bonds[0]].Order==(*glob_b_multilist)[atom_actual_node[index_in_buffer].bonds[1]].Order)
@@ -653,13 +652,10 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,char hatches)
 					while (tl_auxangle>=Pi) tl_auxangle-=2*Pi;
 					if (fabs(tl_auxangle)<0.1)
 					{
-			#endif
 						MACRO_DRAWPREFIX(expresscdxcircle)((*i_n_instance).xyz.x,(*i_n_instance).xyz.y,2);
-			#ifndef DEBUG
 					}
 				}
 			}
-			#endif
 		}
 		else
 		{

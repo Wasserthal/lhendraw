@@ -1,5 +1,6 @@
 //defines and processes internal variables
 char LHENDRAW_clipboardmode=0;//0: no clipboardmode 1: lhendraw is providing a X11 clipboard content
+int error_code=0;
 char LHENDRAW_filedlgmode=0;//Requires reset
 char LHENDRAW_warndlgmode=0;
 int LHENDRAW_userdecision=0;
@@ -207,6 +208,16 @@ int getbufferfromstructure(basicmultilist * input,TELESCOPE_buffer * * bufferptr
 	undo_getbufferfromstructure(input,bufferptr);
 	(*bufferptr)=NULL;
 	return 0;
+}
+void error_reset()
+{
+	LHENDRAW_filedlgmode=0;
+	LHENDRAW_warndlgmode=0;
+	LHENDRAW_userdecision=0;
+	LHENDRAW_leave=0;
+	edit_fileoperationrefersonlytopartofdocument=0;
+	edit_file_always_overwrite=0;
+	fprintf(stderr,"Error code %+i detected...resetting",error_code);
 }
 extern char * gfx_linewisebuffer;
 extern char * selection_lassobuffer;

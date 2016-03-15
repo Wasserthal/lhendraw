@@ -1728,7 +1728,7 @@ void gfx_controlprocedure(bool irestriction,char hatches);
 void gfx_output(int mode=0)
 {
 	framenumber++;
-	#ifndef NODEBUG
+	#ifdef DEBUG
 	clock_gettime(clockid,&ts);
 	counter1-=ts.tv_nsec+1000000000*ts.tv_sec;
 	clock_gettime(clockid,&ts);
@@ -1737,21 +1737,21 @@ void gfx_output(int mode=0)
 	counter2-=ts.tv_nsec+1000000000*ts.tv_sec;
 	#endif
 	svg_findaround();
-	#ifndef NODEBUG
+	#ifdef DEBUG
 	clock_gettime(clockid,&ts);
 	counter2+=ts.tv_nsec+1000000000*ts.tv_sec;
 	clock_gettime(clockid,&ts);
 	counter3-=ts.tv_nsec+1000000000*ts.tv_sec;
 	#endif
 	getatoms();
-	#ifndef NODEBUG
+	#ifdef DEBUG
 	clock_gettime(clockid,&ts);
 	counter3+=ts.tv_nsec+1000000000*ts.tv_sec;
 	clock_gettime(clockid,&ts);
 	counter4-=ts.tv_nsec+1000000000*ts.tv_sec;
 	#endif
 	initZlist();
-	#ifndef NODEBUG
+	#ifdef DEBUG
 	clock_gettime(clockid,&ts);
 	counter4+=ts.tv_nsec+1000000000*ts.tv_sec;
 	clock_gettime(clockid,&ts);
@@ -1766,7 +1766,7 @@ void gfx_output(int mode=0)
 		gfx_controlprocedure(0,1);
 		gfx_controlprocedure(0,0);
 	}
-	#ifndef NODEBUG
+	#ifdef DEBUG
 	clock_gettime(clockid,&ts);
 	counter5+=ts.tv_nsec+1000000000*ts.tv_sec;
 	clock_gettime(clockid,&ts);

@@ -2589,7 +2589,7 @@ catalogized_command_funcdef(SETITEMVARIABLES)
 				{
 					if (selectfound==0)
 					{
-						storeundo(~0,namestring);
+						storeundo(~0,namestring);//Overflow is impossible, and catch, on the other hand, too, because it's a loop
 						selectfound=1;
 					}
 					tl_pointer=((char*)tl_basic_instance)+ioffset;
@@ -3196,7 +3196,7 @@ catalogized_command_funcdef(PASTE)
 	}
 	else
 	{
-		storeundo(~0,"PASTE");
+		undo_storcatch(~0,"PASTE");
 		char control_totalfilename[stringlength+1];
 		system("clipboard -r .cdx 2>/dev/null");//asks clipboard for cdx file
 		sprintf(control_totalfilename,"%s/.clipboard/clipboard.cdx",getenv("HOME"));
@@ -4704,7 +4704,7 @@ catalogized_command_funcdef(FILEDLG_FILE_LOAD)
 	char retval=-30;
 	if (DD)
 	{
-		storeundo(~0,"LOAD");
+		undo_storcatch(~0,"LOAD");
 		sprintf(control_totalfilename,"%s/%s",control_currentdirectory,control_filenamehead);
 		FILE_NEW("","");
 		retval=LOAD_TYPE(control_totalfilename,"");//TODO: insert selected type
@@ -4727,7 +4727,7 @@ catalogized_command_funcdef(FILEDLG_FILE_IMPORT)
 	char retval=-30;
 	if (DD)
 	{
-		storeundo(~0,"IMPORT");
+		undo_storcatch(~0,"IMPORT");
 		sprintf(control_totalfilename,"%s/%s",control_currentdirectory_port,control_filenamehead_port);
 		edit_fileoperationrefersonlytopartofdocument=1;
 		retval=LOAD_TYPE(control_totalfilename,"");//TODO: insert selected type
@@ -4748,7 +4748,7 @@ catalogized_command_funcdef(SET_ALL_ITEMS)//TODO: works for _i32 only, right now
 	_u32 iwert=atoi(value);
 	char namestring[80];
 	snprintf(namestring,79,"SET_ALL_ITEMS=%s",parameter);
-	storeundo(~0,namestring);
+	undo_storcatch(~0,namestring);
 	for (int ilv1=1;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
 	{
 		basicmultilist * tl_multilist=findmultilist(STRUCTURE_OBJECTTYPE_List[ilv1].name);
@@ -5768,7 +5768,7 @@ catalogized_command_funcdef(SEARCH)
 catalogized_command_funcdef(SEARCHFILE)
 {
 	int retval;
-	storeundo(~0,"SRCHDUMP");
+	undo_storcatch(~0,"SRCHDUMP");
 	selection_clearselection(selection_currentselection);
 	SELECTALL("","1");
 	edit_fileoperationrefersonlytopartofdocument=1;

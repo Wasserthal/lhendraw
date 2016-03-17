@@ -16,6 +16,7 @@ void control_filedlg_datastorages()
 {
 	#ifndef NOPOSIX
 	_u8 ihv1;
+	int tl_ascii;
 	FILE * tl_POSIXFILE=fopen("/proc/mounts","r");
 	control_devicememory_buffer[0][0]='/';control_devicememory_buffer[0][1]=0;
 	control_devicememory.count=1;
@@ -34,7 +35,7 @@ void control_filedlg_datastorages()
 				if (backval==0) { goto i_POSIX_done;}
 				if (tl_mode==0)
 				{
-					if (ihv1==10) {tl_mode=2; goodline=0;}
+					if (ihv1==10) {tl_mode=2; goodline=0;goto OK;}
 					if (ihv1==' ')
 					{
 						tl_mode=1;
@@ -47,6 +48,7 @@ void control_filedlg_datastorages()
 				}
 				else if (tl_mode==1)
 				{
+					if (ihv1=='\\') {tl_mode=3;tl_precounter=0;tl_ascii=0;goto OK;}
 					if (ihv1==10) {goto i_POSIX_linedone;}
 					if (ihv1==' ')
 					{
@@ -54,8 +56,25 @@ void control_filedlg_datastorages()
 					}
 					else
 					{
+						character_input_shunt:;
 						control_devicememory_buffer[control_devicememory.count][tl_counter]=ihv1;
 						tl_counter++;
+						ihv1=9;//TO PREVENT PREMATURE ABORT
+					}
+				}
+				else if (tl_mode==3)
+				{
+					if ((ihv1<'0')||(ihv1>'9')){goodline=0;tl_mode=2;goto OK;}
+					tl_ascii+=ihv1-'0';
+					tl_precounter++;
+					if (tl_precounter==3)
+					{
+						ihv1=tl_ascii;
+						tl_mode=1;goto character_input_shunt;
+					}
+					else
+					{
+						tl_ascii*=8;//octal system
 					}
 				}
 				if (tl_counter>63)
@@ -63,6 +82,7 @@ void control_filedlg_datastorages()
 					goodline=0;
 					tl_mode=2;
 				}
+				OK:;
 			}
 			i_POSIX_linedone:;
 			if (goodline) {control_devicememory_buffer[control_devicememory.count][tl_counter]=0;control_devicememory.count++;}

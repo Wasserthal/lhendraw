@@ -2983,7 +2983,7 @@ int save_image(FILE * ifile,const char * value)
 	target.zoomy=1;
 	target.depth=4;
 	gfx_restore_bufferset(&target);
-	screenclear(0xFFFFFFFF);
+	screenclear(control_export.transparent?0xFFFFFFFF:0xFFFFFF);
 	gfx_output();
 	for (int ilv1=0;ilv1<width*height;ilv1++)
 	{

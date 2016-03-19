@@ -110,7 +110,7 @@ void getcaptions(float * right,float * bottom,float * left,float * top)
 	multilist<t_instance> * i_t_multilist=retrievemultilist<t_instance>();
 	for (int ilv1=0;ilv1<(*i_t_multilist).filllevel;ilv1++)
 	{
-		if ((*i_t_multilist)[ilv1].exist)
+		if (((*i_t_multilist)[ilv1].exist) && ((edit_fileoperationrefersonlytopartofdocument==0)||(selection_currentselection[ilv1]&(1<<STRUCTURE_OBJECTTYPE_t))))
 		{
 		#ifdef LENNARD_HACK
 		if ((text_actual_node[ilv1].owner!=-1) || (LENNARD_HACK_dokilltext==0))
@@ -145,7 +145,7 @@ void getcaptions(float * right,float * bottom,float * left,float * top)
 	}
 	for (int ilv1=0;ilv1<(*i_n_multilist).filllevel;ilv1++)
 	{
-		if ((*i_n_multilist)[ilv1].exist)
+		if (((*i_n_multilist)[ilv1].exist) && ((edit_fileoperationrefersonlytopartofdocument==0)||(selection_currentselection[ilv1]&(1<<STRUCTURE_OBJECTTYPE_n))))
 		{
 		i_n_instance=(*i_n_multilist).bufferlist()+ilv1;
 		if ((*i_n_instance).xyz.x>maxx)
@@ -168,7 +168,8 @@ void getcaptions(float * right,float * bottom,float * left,float * top)
 	}
 	for (int ilv1=0;ilv1<(*i_graphic_multilist).filllevel;ilv1++)
 	{
-		if ((*i_graphic_multilist)[ilv1].exist)
+		if (((*i_graphic_multilist)[ilv1].exist) && ((edit_fileoperationrefersonlytopartofdocument==0)||(selection_currentselection[ilv1]&(1<<STRUCTURE_OBJECTTYPE_graphic))))
+
 		{
 		i_graphic_instance=(*i_graphic_multilist).bufferlist()+ilv1;
 		if ((*i_graphic_instance).BoundingBox.left>maxx)

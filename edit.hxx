@@ -2424,6 +2424,7 @@ void edit_cleanupbond(_small i_bondnumber)
 }
 catalogized_command_funcdef(CLEANUP)
 {
+	storeundo((1<<STRUCTURE_OBJECTTYPE_n)+(1<<STRUCTURE_OBJECTTYPE_b),"CLEANUP");
 	double average_x=0;
 	double average_y=0;
 	double average_z=0;
@@ -2534,6 +2535,8 @@ catalogized_command_funcdef(CLEANUP)
 			}
 		}
 	}
+	//TODO: ring systems
+	storeundo((1<<STRUCTURE_OBJECTTYPE_n)+(1<<STRUCTURE_OBJECTTYPE_b),"TEMP");
 	selection_copyselection(selection_currentselection,oldselection);
 	memory_free((char*)edit_freeatomindex);
 	memory_free((char*)edit_freebondindex);

@@ -30,9 +30,9 @@ commandline: ./generated/filestructure.hxx ./generated/internalstructure.hxx par
 	./tools/filestructure -m1 filestructure.draft ./generated/cambridgestructure.hxx ./generated/initialization_lhendraw.hxx CAMBRIDGE
 	./tools/filestructure -m1 bkchem.draft ./generated/bkchemstructure.hxx ./generated/initialization_lhendraw.hxx BKCHEM
 	./tools/filestructure -m2 configfile.draft ./generated/configfilestructure.hxx ./generated/initialization_lhendraw.hxx CONFIGBRIDGE
-./generated/reflection.hxx: ./tools/reflection_enums ./internal_enum.hxx ./tools/reflection edit.hxx sdlctrl.hxx filedlg.hxx pivot.hxx janitor.hxx
+./generated/reflection.hxx: ./tools/reflection_enums ./internal_enum.hxx ./tools/reflection edit.hxx sdlctrl.hxx filedlg.hxx pivot.hxx janitor.hxx selection.hxx
 	./tools/reflection_enums
-	./tools/reflection edit.hxx sdlctrl.hxx filedlg.hxx pivot.hxx
+	./tools/reflection edit.hxx sdlctrl.hxx filedlg.hxx pivot.hxx selection.hxx
 makeinf_test: makeinf.hxx makeinf_test.cxx cdxdata.hxx lendefs.h
 	g++ -g -O0 -std=c++0x -Wno-invalid-offsetof makeinf_test.cxx -o makeinftest -D DEBUG -Wno-format
 lhendraw: ./generated/structure.hxx ./generated/reflection.hxx lendefs.h xmldata.hxx xmlparse.hxx cdxdata.hxx conv_cambridge_internal.hxx enums.hxx definitionlist.h janitor.hxx draw.hxx sdlgfx.hxx lhendraw.cxx draw_variables.hxx ./generated/pullout_stringfile.hxx ./generated/reflection_headers.hxx edit.hxx sdlctrl.hxx selection.hxx conv_config_internalconfig.hxx resources_init.hxx filedlg.hxx ps.hxx elements.hxx variables.hxx ellipeq.h analysis.hxx clipboard.hxx memory.hxx menugfx.hxx pivot.hxx quartic.hxx svg.hxx telescope.hxx text_freetype.h undo.hxx glyf.hxx hatch.hxx help.hxx internal_enum.hxx cmdline.hxx conv_internal_cambridge.hxx text.h debug.hxx HQ.h bkchemdata.hxx conv_bkchem_internal.hxx undotree.hxx

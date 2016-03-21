@@ -433,12 +433,90 @@ int selection_grow(selection_datatype * i_selection,int bondno,int aim)//set bon
 	if (changed) goto iback;
 	return 0;
 }
+int selection_grow_by_one(selection_datatype * i_selection,int bondno,int aim)//set bondno and aim both to -1 to prevent aborts on cyclisation
+{
+	char retval=0;
+	int side=0;
+	char changed;
+	selection_datatype icompare_n=1<<STRUCTURE_OBJECTTYPE_n;
+	selection_datatype icompare_b=1<<STRUCTURE_OBJECTTYPE_b;
+	iback:;
+	changed=0;
+	for (int ilv1=0;ilv1<(*glob_b_multilist).filllevel;ilv1++)
+	{
+		if ((*glob_b_multilist).bufferlist()[ilv1].exist)
+		{
+			if (i_selection[ilv1]&icompare_b)
+			{
+				if (ilv1!=bondno)
+				{
+					if (bond_actual_node[ilv1].start==aim)
+					{
+						retval|=1;
+					}
+					if (bond_actual_node[ilv1].end==aim)
+					{
+						retval|=1;
+					}
+				}
+				side=bond_actual_node[ilv1].start;
+				isideback:;
+				if ((i_selection[side]&icompare_n)==0)
+				{
+					i_selection[side]|=icompare_n;
+				}
+				if (side!=bond_actual_node[ilv1].end)
+				{
+					side=bond_actual_node[ilv1].end;
+					goto isideback;
+				}
+			}
+		}
+	}
+	for (int ilv1=0;ilv1<(*glob_n_multilist).filllevel;ilv1++)
+	{
+		if (i_selection[ilv1]&icompare_n)
+		{
+			if (ilv1!=aim)
+			{
+				if (glob_n_multilist->bufferlist()[ilv1].exist)
+				{
+					for (int ilv2=0;ilv2<atom_actual_node[ilv1].bondcount;ilv2++)
+					{
+						if ((i_selection[atom_actual_node[ilv1].bonds[ilv2]]&icompare_b)==0)
+						{
+							i_selection[atom_actual_node[ilv1].bonds[ilv2]]|=icompare_b;
+							changed=1;
+						}
+					}
+				}
+			}
+		}
+	}
+	return retval;
+}
+catalogized_command_funcdef(SELECTION_GROW)
+{
+	selection_grow_by_one(selection_currentselection,-1,-1);
+	return 1;
+}
 int selection_check_loopbond(int bondno)
 {
 	selection_clearselection(selection_clickselection);
 	selection_clickselection[bondno]|=1<<STRUCTURE_OBJECTTYPE_b;
 	selection_clickselection[bond_actual_node[bondno].start]|=1<<STRUCTURE_OBJECTTYPE_n;
 	return (selection_grow(selection_clickselection,bondno,bond_actual_node[bondno].start));
+}
+int selection_check_loopnbond_counted(int bondno,int count)
+{
+	selection_clearselection(selection_clickselection);
+	selection_clickselection[bondno]|=1<<STRUCTURE_OBJECTTYPE_b;
+	selection_clickselection[bond_actual_node[bondno].start]|=1<<STRUCTURE_OBJECTTYPE_n;
+	for (int ilv1=0;ilv1<count-1;ilv1++)
+	{
+		selection_grow_by_one(selection_clickselection,bondno,bond_actual_node[bondno].start);
+	}
+	return selection_grow_by_one(selection_clickselection,bondno,bond_actual_node[bondno].start);
 }
 void selection_select_rings(selection_datatype * i_selection)
 {
@@ -453,6 +531,32 @@ void selection_select_rings(selection_datatype * i_selection)
 		}
 	}
 	return;
+}
+void selection_select_rings_members(selection_datatype * i_selection,int members)
+{
+	for (int ilv1=0;ilv1<glob_b_multilist->filllevel;ilv1++)
+	{
+		if (glob_b_multilist->bufferlist()[ilv1].exist)
+		{
+			if (i_selection[ilv1]&(1<<STRUCTURE_OBJECTTYPE_b))
+			{
+				if (selection_check_loopnbond_counted(ilv1,members)<=0) i_selection[ilv1]&=~(1<<STRUCTURE_OBJECTTYPE_b);
+			}
+		}
+	}
+	return;
+}
+catalogized_command_funcdef(SELECT_TRIANGLES)
+{
+	int count=3;
+	if (strcmp(value,"")!=0)
+	{
+		printf("%s\n",value);
+		count=atoi(value);
+		if (count==0) count=3;
+	}
+	selection_select_rings_members(selection_currentselection,count);
+	return 1;
 }
 void selection_unselectfreestandingatoms(selection_datatype * i_selection)
 {

@@ -562,4 +562,14 @@ menuitem pullout_toolbox[]={
 "CLEANUP","CLEANUP",
 0x00FF00,
 },
+{4,7,
+155,//Picture
+"just some experimental button",
+3,3,
+0,
+"do not click this button, it's developer's stuff only",
+"",
+"SELECT_TRIANGLES","SELECTION_GROW",
+0x00FF00,
+},
 };

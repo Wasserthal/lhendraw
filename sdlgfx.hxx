@@ -537,7 +537,7 @@ int gfx()
 	window=SDL_CreateWindow("Lhendraw",0,0,gfx_STANDARDX,gfx_STANDARDY,0);
 	video=SDL_GetWindowSurface(window);
 	#else
-	video=SDL_SetVideoMode(gfx_screensizex,gfx_screensizey,32,SDL_SWSURFACE);
+	video=SDL_SetVideoMode(gfx_screensizex,gfx_screensizey,32,SDL_SWSURFACE|SDL_RESIZABLE);
 	#endif
 	#ifndef NOCLIPBOARD
 	gfx_Display=XOpenDisplay(NULL);
@@ -1774,4 +1774,26 @@ void gfx_output(int mode=0)
 	clock_gettime(clockid,&ts);
 	counter1+=ts.tv_nsec+1000000000*ts.tv_sec;
 	#endif
+}
+void gfx_resize_video(int ix,int iy)
+{
+	gfx_screensizex=ix;
+	gfx_screensizey=iy;
+	gfx_screensizex=32*(gfx_screensizex>>5);
+	gfx_screensizey+=8;
+	gfx_screensizey=32*(gfx_screensizey>>5);
+	gfx_screensizey-=8;
+	if (gfx_screensizex<576)gfx_screensizex=576;
+	if (gfx_screensizey<444)gfx_screensizey=444;
+	video=SDL_SetVideoMode(gfx_screensizex,gfx_screensizey,32,SDL_HWSURFACE|SDL_RESIZABLE);
+	gfx_canvassizex=gfx_screensizex-320;
+	gfx_canvassizey=gfx_screensizey-240;
+	gfx_canvasminx=160;
+	gfx_canvasminy=120;
+	gfx_canvasmaxx=gfx_screensizex-160;
+	gfx_canvasmaxy=gfx_screensizey-120;
+	while (LHENDRAW_buffersize<gfx_screensizex*gfx_screensizey)//is only correct if all auxiliary screen buffers have at most 8bpp
+	{
+		memory_realloc_x2();
+	}
 }

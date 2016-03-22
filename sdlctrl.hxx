@@ -3964,6 +3964,13 @@ void control_normal()
 				LHENDRAW_leave=1;
 				break;
 			}
+			#ifndef SDL2
+			case SDL_VIDEORESIZE:
+			{
+				gfx_resize_video(control_Event.resize.w,control_Event.resize.h);
+				break;
+			}
+			#endif
 		}
 		if (irepeat)
 		{

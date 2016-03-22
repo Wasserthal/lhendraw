@@ -146,6 +146,13 @@ void control_filedlg()
 			case SDL_QUIT:
 			CANCEL(NULL,NULL);
 			break;
+			#ifndef SDL2
+			case SDL_VIDEORESIZE:
+			{
+				gfx_resize_video(control_Event.resize.w,control_Event.resize.h);
+				break;
+			}
+			#endif
 			case SDL_KEYUP:
 			{
 				idirection=0;

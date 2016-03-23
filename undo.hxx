@@ -375,18 +375,18 @@ intl undo_memory_needs()
 		{
 			tl_multilist=((basicmultilist*)&(undosteps[ilv1].handles[ilv2].imultilist));
 			current=(*tl_multilist).itemsize*(*tl_multilist).filllevel;
-			if (current>needs) needs=current;
+			if (needs<current) needs=current;
 			current=(undosteps[ilv1].handles[ilv2].bufferhead.count);
-			if (current>needs) needs=current;
+			if (needs<current) needs=current;
 		}
 	}
-	for (int ilv2=1;ilv2<STRUCTURE_OBJECTTYPE_ListSize;ilv2++)
+	for (int ilv1=1;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
 	{
 		tl_multilist=findmultilist(STRUCTURE_OBJECTTYPE_List[ilv1].name);
 		current=(*tl_multilist).itemsize*(*tl_multilist).filllevel;
-		if (current>needs) needs=current;
-		current=glob_contentbuffer[ilv2].count;
-		if (current>needs) needs=current;
+		if (needs<current) needs=current;
+		current=glob_contentbuffer[ilv1].count;
+		if (needs<current) needs=current;
 	}
 /*	for (int ilv1=0;ilv1<memory_bufferstructure_count;ilv1++)
 	{

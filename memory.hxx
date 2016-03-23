@@ -36,6 +36,7 @@
 //
 jmp_buf memory_catch_overflow;
 intl LHENDRAW_buffersize=1048576;
+intl memory_memmanagementbuffersize;
 struct memory_bufferstructure_
 {
 	char * baseaddress;
@@ -45,15 +46,14 @@ struct memory_bufferstructure_
 };
 memory_bufferstructure_ * memory_bufferstructure=NULL;
 int memory_bufferstructure_count=0;
-int memory_bufferstructure_max=0;
 void memory_init()
 {
 	if (memory_bufferstructure!=NULL) return;
-	memory_bufferstructure_max=LHENDRAW_buffersize/sizeof(memory_bufferstructure_);
 	memory_bufferstructure=(memory_bufferstructure_*)malloc(LHENDRAW_buffersize);
 	memory_bufferstructure[0].baseaddress=(char*)memory_bufferstructure;
 	memory_bufferstructure[0].baseaddressaddress=(char**)&memory_bufferstructure;
 	memory_bufferstructure[0].allocsize=LHENDRAW_buffersize;
+	memory_memmanagementbuffersize=LHENDRAW_buffersize;
 	memory_bufferstructure_count=1;
 }
 void memory_alloc(char ** address,int itype)
@@ -65,9 +65,16 @@ void memory_alloc(char ** address,int itype)
 	{
 		memory_init();
 	}
-	if (memory_bufferstructure_count>=memory_bufferstructure_max-1)
+	if (memory_bufferstructure_count>=(memory_memmanagementbuffersize/sizeof(memory_bufferstructure_))-1)
 	{
-		error("Programming error! Not enough memspace for all structures!");
+		void * tl_newaddress=malloc(memory_memmanagementbuffersize*2);
+		memcpy(tl_newaddress,memory_bufferstructure,memory_memmanagementbuffersize);
+		void * tl_oldaddress=memory_bufferstructure;
+		memory_bufferstructure=(memory_bufferstructure_*)tl_newaddress;
+		free(tl_oldaddress);
+		memory_memmanagementbuffersize*=2;
+		memory_bufferstructure[0].baseaddress=(char*)memory_bufferstructure;
+		memory_bufferstructure[0].baseaddressaddress=(char**)&memory_bufferstructure;
 	}
 	(*address)=(char*)malloc(LHENDRAW_buffersize);
 	memory_bufferstructure[memory_bufferstructure_count].baseaddress=(*address);
@@ -146,17 +153,20 @@ int memory_realloc_down(int newsize)
 		}
 	}
 	LHENDRAW_buffersize=newsize;
+	memory_memmanagementbuffersize=newsize;
 	return 1;
 }
 int memory_realloc_up(int newsize)
 {
 	char * oldaddress;
+	intl oldsize=memory_memmanagementbuffersize;
+	if (newsize<memory_memmanagementbuffersize) newsize=memory_memmanagementbuffersize;
 	for (int ilv1=0;ilv1<memory_bufferstructure_count;ilv1++)
 	{
 		char * newaddress=(char*)malloc(newsize);
-		if (newaddress==NULL) {memory_realloc_down(LHENDRAW_buffersize);return 0;}
+		if (newaddress==NULL) {error("CANNOT ALLOCATE ANY FURTHER MEMORY");}
 		memory_bufferstructure[ilv1].allocsize=newsize;
-		memcpy(newaddress,memory_bufferstructure[ilv1].baseaddress,LHENDRAW_buffersize);
+		memcpy(newaddress,memory_bufferstructure[ilv1].baseaddress,ilv1?LHENDRAW_buffersize:oldsize);
 		oldaddress=memory_bufferstructure[ilv1].baseaddress;
 		*(memory_bufferstructure[ilv1].baseaddressaddress)=newaddress;
 		memory_bufferstructure[ilv1].baseaddress=newaddress;
@@ -164,6 +174,7 @@ int memory_realloc_up(int newsize)
 		memory_areamoved(oldaddress,newaddress,LHENDRAW_buffersize);
 	}
 	LHENDRAW_buffersize=newsize;
+	memory_memmanagementbuffersize=newsize;
 	return 1;
 }
 int memory_realloc_x2()

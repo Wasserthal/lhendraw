@@ -1,11 +1,3 @@
-#define selection_max 20000
-typedef selection_datatype selection_[selection_max];//a 32bit int gives selection masks for 32 layers. TODO: make this grow to the current buffer size.
-selection_ selection_currentselection;//The ordinary selection, more precisely the current state of it.
-_u32 selection_currentselection_found;
-selection_ selection_clickselection;//All elements caught with the current click, or another likewise action of the mouse.
-_u32 selection_clickselection_found;
-selection_ selection_fragmentselection;//A fragment
-_u32 selection_fragmentselection_found;
 typedef struct clickabilitymatrix_
 {
 	int mode;//0: groups //1 whole objects 2: manipulators(default) 3: fragments, such as bezierpoints
@@ -21,42 +13,48 @@ clickabilitymatrix_ selection_clickabilitymatrix={2,0,0,
 {0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF}};
 void selection_clearselection(selection_ iselection)
 {
-	for (int ilv1=0;ilv1<selection_max;ilv1++)
+	int tl_max=LHENDRAW_buffersize/sizeof(selection_datatype);
+	for (int ilv1=0;ilv1<tl_max;ilv1++)
 	{
 		iselection[ilv1]=0;
 	}
 }
 void selection_copyselection(selection_ iselection,selection_ iselection2)
 {
-	for (int ilv1=0;ilv1<selection_max;ilv1++)
+	int tl_max=LHENDRAW_buffersize/sizeof(selection_datatype);
+	for (int ilv1=0;ilv1<tl_max;ilv1++)
 	{
 		iselection[ilv1]=iselection2[ilv1];
 	}
 }
 void selection_ORselection(selection_ iselection,selection_ iselection2)
 {
-	for (int ilv1=0;ilv1<selection_max;ilv1++)
+	int tl_max=LHENDRAW_buffersize/sizeof(selection_datatype);
+	for (int ilv1=0;ilv1<tl_max;ilv1++)
 	{
 		iselection[ilv1]|=iselection2[ilv1];
 	}
 }
 void selection_SUBTRACTselection(selection_ iselection,selection_ iselection2)
 {
-	for (int ilv1=0;ilv1<selection_max;ilv1++)
+	int tl_max=LHENDRAW_buffersize/sizeof(selection_datatype);
+	for (int ilv1=0;ilv1<tl_max;ilv1++)
 	{
 		iselection[ilv1]&=~(iselection2[ilv1]);
 	}
 }
 void selection_XORselection(selection_ iselection,selection_ iselection2)
 {
-	for (int ilv1=0;ilv1<selection_max;ilv1++)
+	int tl_max=LHENDRAW_buffersize/sizeof(selection_datatype);
+	for (int ilv1=0;ilv1<tl_max;ilv1++)
 	{
 		iselection[ilv1]^=iselection2[ilv1];
 	}
 }
 void selection_ANDselection(selection_ iselection,selection_ iselection2)
 {
-	for (int ilv1=0;ilv1<selection_max;ilv1++)
+	int tl_max=LHENDRAW_buffersize/sizeof(selection_datatype);
+	for (int ilv1=0;ilv1<tl_max;ilv1++)
 	{
 		iselection[ilv1]&=iselection2[ilv1];
 	}
@@ -383,7 +381,7 @@ void select_fragment_by_atom(int start)
 		}
 	}
 }
-int selection_grow(selection_datatype * i_selection,int bondno,int aim)//set bondno and aim both to -1 to prevent aborts on cyclisation
+int selection_grow(selection_ i_selection,int bondno,int aim)//set bondno and aim both to -1 to prevent aborts on cyclisation
 {
 	int side=0;
 	char changed;
@@ -433,7 +431,7 @@ int selection_grow(selection_datatype * i_selection,int bondno,int aim)//set bon
 	if (changed) goto iback;
 	return 0;
 }
-int selection_grow_by_one(selection_datatype * i_selection,int bondno,int aim)//set bondno and aim both to -1 to prevent aborts on cyclisation
+int selection_grow_by_one(selection_ i_selection,int bondno,int aim)//set bondno and aim both to -1 to prevent aborts on cyclisation
 {
 	char retval=0;
 	int side=0;
@@ -518,7 +516,7 @@ int selection_check_loopnbond_counted(int bondno,int count)
 	}
 	return selection_grow_by_one(selection_clickselection,bondno,bond_actual_node[bondno].start);
 }
-void selection_select_rings(selection_datatype * i_selection)
+void selection_select_rings(selection_ i_selection)
 {
 	for (int ilv1=0;ilv1<glob_b_multilist->filllevel;ilv1++)
 	{
@@ -532,7 +530,7 @@ void selection_select_rings(selection_datatype * i_selection)
 	}
 	return;
 }
-void selection_select_rings_members(selection_datatype * i_selection,int members)
+void selection_select_rings_members(selection_ i_selection,int members)
 {
 	for (int ilv1=0;ilv1<glob_b_multilist->filllevel;ilv1++)
 	{
@@ -558,7 +556,7 @@ catalogized_command_funcdef(SELECT_TRIANGLES)
 	selection_select_rings_members(selection_currentselection,count);
 	return 1;
 }
-void selection_unselectfreestandingatoms(selection_datatype * i_selection)
+void selection_unselectfreestandingatoms(selection_ i_selection)
 {
 	selection_datatype i_b_compare=1<<STRUCTURE_OBJECTTYPE_b;
 	for (int ilv1=0;ilv1<glob_n_multilist->filllevel;ilv1++)

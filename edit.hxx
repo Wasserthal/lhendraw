@@ -2339,11 +2339,6 @@ _small * edit_freebondindex;
 _small edit_freebondindex_count;
 _small * edit_freeatomindex;
 _small edit_freeatomindex_count;
-selection_datatype * oldselection;
-selection_datatype * objectselection;
-selection_datatype * ringselection;
-selection_datatype * growselection;
-selection_datatype * partnerselection;
 void edit_flip_bond(_small i_bond_to_switch,_small i_atom_to_keep)
 {
 	selection_clearselection(selection_currentselection);
@@ -2431,25 +2426,23 @@ catalogized_command_funcdef(CLEANUP)
 	_small atom_count=0;
 	char abort=0;
 	_small mosthorizontalbondindex=-1;
-	memory_alloc((char**)&oldselection,6);
-	memory_alloc((char**)&objectselection,6);
-	memory_alloc((char**)&ringselection,6);
-	memory_alloc((char**)&growselection,6);
-	memory_alloc((char**)&partnerselection,6);
+	memory_alloc((char**)&selection_objectselection,6);
+	memory_alloc((char**)&selection_ringselection,6);
+	memory_alloc((char**)&selection_growselection,6);
 	memory_alloc((char**)&edit_freebondindex,5);
 	memory_alloc((char**)&edit_freeatomindex,5);
 	edit_freebondindex_count=0;
 	edit_freeatomindex_count=0;
-	selection_copyselection(oldselection,selection_currentselection);
-	selection_copyselection(objectselection,selection_currentselection);
+	selection_copyselection(selection_oldselection,selection_currentselection);
+	selection_copyselection(selection_objectselection,selection_currentselection);
 	for (int ilv1=0;ilv1<glob_n_multilist->filllevel;ilv1++)
 	{
-		objectselection[ilv1]&=~(1<<STRUCTURE_OBJECTTYPE_n);
+		selection_objectselection[ilv1]&=~(1<<STRUCTURE_OBJECTTYPE_n);
 	}
-	selection_grow(objectselection,-1,-1);//engulfs the whole objects of the objectselection
+	selection_grow(selection_objectselection,-1,-1);//engulfs the whole objects of the objectselection
 	for (int ilv1=0;ilv1<glob_n_multilist->filllevel;ilv1++)
 	{
-		if (objectselection[ilv1]&(1<<STRUCTURE_OBJECTTYPE_n))
+		if (selection_objectselection[ilv1]&(1<<STRUCTURE_OBJECTTYPE_n))
 		{
 			if (glob_n_multilist->bufferlist()[ilv1].exist)
 			{
@@ -2460,15 +2453,15 @@ catalogized_command_funcdef(CLEANUP)
 			}
 		}
 	}
-	selection_copyselection(ringselection,objectselection);
-	selection_select_rings(ringselection);
+	selection_copyselection(selection_ringselection,selection_objectselection);
+	selection_select_rings(selection_ringselection);
 	for (int ilv1=0;ilv1<glob_b_multilist->filllevel;ilv1++)
 	{
-		if ((objectselection[ilv1]&(1<<STRUCTURE_OBJECTTYPE_b)))//belonging to the object to clean up...
+		if ((selection_objectselection[ilv1]&(1<<STRUCTURE_OBJECTTYPE_b)))//belonging to the object to clean up...
 		{
 			if (glob_b_multilist->bufferlist()[ilv1].exist)
 			{
-				if ((ringselection[ilv1]&(1<<STRUCTURE_OBJECTTYPE_b))==0)//but not to rings
+				if ((selection_ringselection[ilv1]&(1<<STRUCTURE_OBJECTTYPE_b))==0)//but not to rings
 				{
 					edit_freebondindex[edit_freebondindex_count++]=ilv1;
 				}
@@ -2477,13 +2470,13 @@ catalogized_command_funcdef(CLEANUP)
 	}
 	for (int ilv1=0;ilv1<glob_n_multilist->filllevel;ilv1++)
 	{
-		if ((objectselection[ilv1]&(1<<STRUCTURE_OBJECTTYPE_n)))//belonging to the object to clean up...
+		if ((selection_objectselection[ilv1]&(1<<STRUCTURE_OBJECTTYPE_n)))//belonging to the object to clean up...
 		{
 			if (glob_n_multilist->bufferlist()[ilv1].exist)
 			{
 				for (int ilv2=0;ilv2<atom_actual_node[ilv1].bondcount;ilv2++)
 				{
-					if ((ringselection[atom_actual_node[ilv1].bonds[ilv2]]&(1<<STRUCTURE_OBJECTTYPE_b))==0)//but one bond is not-ring
+					if ((selection_ringselection[atom_actual_node[ilv1].bonds[ilv2]]&(1<<STRUCTURE_OBJECTTYPE_b))==0)//but one bond is not-ring
 					{
 						edit_freeatomindex[edit_freeatomindex_count++]=ilv1;
 						goto idone;
@@ -2507,7 +2500,7 @@ catalogized_command_funcdef(CLEANUP)
 	}
 	for (int ilv1=0;ilv1<glob_n_multilist->filllevel;ilv1++)
 	{
-		if (objectselection[ilv1]&(1<<STRUCTURE_OBJECTTYPE_n))
+		if (selection_objectselection[ilv1]&(1<<STRUCTURE_OBJECTTYPE_n))
 		{
 			if (glob_n_multilist->bufferlist()[ilv1].exist)
 			{
@@ -2524,7 +2517,7 @@ catalogized_command_funcdef(CLEANUP)
 		average_z/=atom_count;
 		for (int ilv1=0;ilv1<glob_n_multilist->filllevel;ilv1++)
 		{
-			if (objectselection[ilv1]&(1<<STRUCTURE_OBJECTTYPE_n))
+			if (selection_objectselection[ilv1]&(1<<STRUCTURE_OBJECTTYPE_n))
 			{
 				if (glob_n_multilist->bufferlist()[ilv1].exist)
 				{
@@ -2537,14 +2530,12 @@ catalogized_command_funcdef(CLEANUP)
 	}
 	//TODO: ring systems
 	storeundo((1<<STRUCTURE_OBJECTTYPE_n)+(1<<STRUCTURE_OBJECTTYPE_b),"TEMP");
-	selection_copyselection(selection_currentselection,oldselection);
+	selection_copyselection(selection_currentselection,selection_oldselection);
 	memory_free((char*)edit_freeatomindex);
 	memory_free((char*)edit_freebondindex);
-	memory_free((char*)partnerselection);
-	memory_free((char*)growselection);
-	memory_free((char*)ringselection);
-	memory_free((char*)objectselection);
-	memory_free((char*)oldselection);
+	memory_free((char*)selection_growselection);
+	memory_free((char*)selection_ringselection);
+	memory_free((char*)selection_objectselection);
 	return 1;
 }
 catalogized_command_funcdef(SETITEMVARIABLES)
@@ -3579,8 +3570,10 @@ catalogized_command_funcdef(WARNING_OK)
 	LHENDRAW_warndlgmode=0;
 	return 1;
 }
+extern char undo_selectionstored;
 catalogized_command_funcdef(UNDO)
 {
+	if (undo_selectionstored) selection_copyselection(selection_currentselection,selection_oldselection);
 	if (undo_undodirty) {storeundo(~0,"UNDO");}
 	undo_trackundo();
 	restoreundo(~0,0);

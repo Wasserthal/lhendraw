@@ -340,7 +340,7 @@ void janitor_bufferresort()
 	}
 	return;
 }
-extern selection_datatype selection_currentselection[];
+extern selection_datatype * selection_currentselection;
 void janitor_memoryresort()
 {
 	for (int ilv1=1;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)

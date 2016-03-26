@@ -19,6 +19,7 @@ struct undo_undostep_
 undo_undostep_ undosteps[constants_undostep_max];
 TELESCOPE_buffer glob_contentbuffer[sizeof(STRUCTURE_OBJECTTYPE_List)/sizeof(trienum)];
 char undo_nextcommandname[80]="ROOT";
+char undo_selectionstored=0;
 char * undo_retrievebuffer(intl start,intl list)
 {
 	intl current=start;
@@ -230,6 +231,7 @@ int slayundo()
 }
 int storeundo(_u32 flags,const char * iname)
 {
+	undo_selectionstored=0;
 	if (undo_undodirty==0)
 	{
 		undo_undodirty=1;
@@ -361,6 +363,7 @@ int restoreundo(_u32 flags,_u32 orderflags/*bit0: restore count only*/)//doesn't
 		}
 	}
 	undo_undodirty=0;
+	undo_selectionstored=0;
 	return 1;
 }
 intl undo_memory_needs()
@@ -388,24 +391,6 @@ intl undo_memory_needs()
 		current=glob_contentbuffer[ilv1].count;
 		if (needs<current) needs=current;
 	}
-/*	for (int ilv1=0;ilv1<memory_bufferstructure_count;ilv1++)
-	{
-		intl current=0;
-		switch(memory_bufferstructure[ilv1].type)
-		{
-			case 0: 
-			current=memory_bufferstructure_count*sizeof(memory_bufferstructure_);
-			break;
-			case 1: 
-			//TODO urgent
-			break;
-			case 2: 
-//			current=(basicmultilist*)//How the fuck can I sync them ???? _._ °n°
-			//I guess, I better sync "backwards"
-			break;
-		}
-		if (current>needs) needs=current;
-	}*/
 	return needs;
 }
 void printundostats()

@@ -130,7 +130,7 @@ int memory_yell(void * ibaseaddress)
 	fprintf(stderr,"DEBUG ERROR, NOT FOUND%p\n",ibaseaddress);exit(1);
 	return 0;
 }
-intl undo_memory_needs();
+extern intl undo_memory_needs();
 int memory_realloc_down(int newsize)
 {
 	char * oldaddress;

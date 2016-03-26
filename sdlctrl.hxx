@@ -545,6 +545,8 @@ catalogized_command_funcdef(ISSUEDELETE)
 	selection_recheck(selection_currentselection,&selection_currentselection_found);
 	if (selection_currentselection_found)
 	{
+		selection_copyselection(selection_oldselection,selection_currentselection);
+		undo_selectionstored=1;
 		_u32 itemselection=((selection_currentselection_found>>STRUCTURE_OBJECTTYPE_ListSize) & ((1<<STRUCTURE_OBJECTTYPE_ListSize)-1));
 		for (int ilv1=1;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
 		{
@@ -662,6 +664,8 @@ catalogized_command_funcdef(ISSUEDELETE)
 	}
 	successful:;
 	checkupinconsistencies();
+	janitor_memoryresort();
+	janitor_bufferresort();
 	return isuccessful;
 }
 _u32 upfrom(int input)

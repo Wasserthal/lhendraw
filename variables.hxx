@@ -30,6 +30,18 @@ float glob_subpoint_clickradius=50;
 #else
 #define constants_Directoryslash '\\'
 #endif
+_u32 selection_max=LHENDRAW_buffersize/sizeof(selection_datatype);
+typedef selection_datatype * selection_;
+selection_datatype * selection_currentselection;//The ordinary selection, more precisely the current state of it.
+_u32 selection_currentselection_found;
+selection_datatype * selection_clickselection;//All elements caught with the current click, or another likewise action of the mouse.
+_u32 selection_clickselection_found;
+selection_datatype * selection_fragmentselection;//A fragment
+_u32 selection_fragmentselection_found;
+selection_datatype * selection_oldselection;
+selection_datatype * selection_objectselection;
+selection_datatype * selection_ringselection;
+selection_datatype * selection_growselection;
 #ifdef SDL2
 #define SDLK_LSUPER SDLK_LGUI
 #define SDLK_RSUPER SDLK_RGUI
@@ -229,6 +241,10 @@ int initmemory()
 	filestructure_curve_buffer.count=0;
 	memory_alloc(&(gfx_linewisebuffer),7);
 	memory_alloc(&(selection_lassobuffer),7);
+	memory_alloc((char**)&(selection_currentselection),6);
+	memory_alloc((char**)&(selection_clickselection),6);
+	memory_alloc((char**)&(selection_fragmentselection),6);
+	memory_alloc((char**)&(selection_oldselection),6);
 	if ((filestructure_text_buffer.buffer!=NULL) && (filestructure_curve_buffer.buffer!=NULL)) return 1;
 	return -1;
 }

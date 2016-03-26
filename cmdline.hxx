@@ -106,14 +106,11 @@ void executeparameter(const char which,int parameter,int posinparameter,int argc
 				}//or it was a --, so not interpreted.
 				return;
 				break;
-		case 'c' :      for (int ilv1=0;ilv1<REFLECTION_FUNCTION_ListSize;ilv1++)
-				{
-					if (strcmp(REFLECTION_FUNCTION_List[ilv1].name,getparameter(parameter,posinparameter,parameter_cmd1,parameter_cmd2,argc,argv))==0)
-					{
-						REFLECTION_FUNCTION_List[ilv1].function(parameter_cmd1,parameter_cmd2);
-					}
+		case 'c' :      {
+					char * tl_parameter=getparameter(parameter,posinparameter,parameter_cmd1,parameter_cmd2,argc,argv);
+					REFLECTION_FUNCTION_execute(tl_parameter,parameter_cmd1,parameter_cmd2);
+					break;
 				}
-				break;
 		case 'N' :      FILE_NEW("","");break;
 		case 'n' :	parameter_filetype=NULL;parameter_filename=getparameter(parameter,posinparameter,parameter_filetype,NULL,argc,argv);
 				if (SEARCHFILE(parameter_filename,parameter_filetype)>0) {printf("%s\n",parameter_filename);}

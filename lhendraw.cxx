@@ -45,6 +45,17 @@ LLLLLL H   H EEEEE N    N DDD   R  R A     A    W     W
 #include "cdxdata.hxx"
 #include "bkchemdata.hxx"
 #include "./generated/reflection_headers.hxx"
+int REFLECTION_FUNCTION_execute(const char * name,const char * parameter,const char * variable)
+{
+	for (int ilv1=0;ilv1<REFLECTION_FUNCTION_ListSize;ilv1++)
+	{
+		if (strcmp(REFLECTION_FUNCTION_List[ilv1].name,name)==0)
+		{
+			return REFLECTION_FUNCTION_List[ilv1].function(parameter,variable);
+		}
+	}
+	return -1;
+}
 #include "telescope.hxx"
 #include "xmlparse.hxx"
 #include "internal_enum.hxx"
@@ -256,7 +267,14 @@ int main(int argc,char * * argv)
 		switch (LHENDRAW_filedlgmode)
 		{
 		case 0:
-			control_normal();
+			if (control_mousestate & 0x80)
+			{
+				control_filedlg();
+			}
+			else
+			{
+				control_normal();
+			}
 			gfx_gfxstart();
 			screenclear(0xFFFFFF);
 			if (control_displayproperties.outofarea==2)

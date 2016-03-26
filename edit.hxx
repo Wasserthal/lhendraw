@@ -53,6 +53,11 @@ struct control_drawproperties_
 	_i32 arrow_ArrowShaftSpacing;
 	_i32 BracketType;
 };
+struct control_turnbar_
+{
+	char rotX[10],rotY[10],rotZ[10];
+	char scaleX[10],scaleY[10],scaleZ[10];
+};
 struct control_searchproperties_
 {
 	int foundbehavior;//0: return filename 1: start new thread, open file 2: start new thread open file and mark 3: start new thread, open file and mark anything 4: iterate, but return the number of overlapping matches 5: iterate, but return the number of non-overlapping matches 6: like 4, but yield no filename 7: like 5, but yield no filename 0x11-0x17: like 1-7, but end after one file!
@@ -64,6 +69,8 @@ struct control_searchproperties_
 struct control_displayproperties_
 {
 	int outofarea;//0: off 1: on 2: reserved for: cannot scroll there 3: dragons
+	int expertmenu;
+	int turntoolmode;//0: numeric 1: sliders
 };
 structenum * searchreflectedstruct(const char * input);
 void applytransform_single(float matrix[3][3],cdx_Point3D * input,cdx_Point3D * output,cdx_Point3D * pivot);
@@ -71,7 +78,8 @@ _small edit_current5bondcarbon=0;
 control_drawproperties_ control_drawproperties={16,0,0,0,0,0,4,0,constants_Element_implicitcarbon,6,1,0,0,0,0,1,0,1,2,1,1,4};
 control_drawproperties_ control_drawproperties_init={16,0,0,0,0,0,4,0,constants_Element_implicitcarbon,6,1,0,0,0,0,1,0,1,1,1,1,4};
 control_searchproperties_ control_searchproperties={0,0,1,1,0};
-control_displayproperties_ control_displayproperties={1};
+control_displayproperties_ control_displayproperties={1,0,1};
+control_turnbar_ control_turnbar={"0","0","0","1","1","1"};
 int control_hotatom=-1;
 //Copies a set of atoms and bonds from one buffer to another. Can take atoms from ANY other buffer
 char * undo_retrievebuffer(intl start,intl list);
@@ -3667,6 +3675,74 @@ catalogized_command_funcdef(TOGGLETEXTATTRIBUTE)
 	printf("TODO***stub\n");
 	return 1;
 }
+catalogized_command_funcdef(TURNBAR_APPLYTX)
+{
+	REFLECTION_FUNCTION_execute("PIVOT_TURNX","deg",control_turnbar.rotX);
+	return 1;
+}
+catalogized_command_funcdef(TURNBAR_APPLYTY)
+{
+	REFLECTION_FUNCTION_execute("PIVOT_TURNY","deg",control_turnbar.rotY);
+	return 1;
+}
+catalogized_command_funcdef(TURNBAR_APPLYTZ)
+{
+	REFLECTION_FUNCTION_execute("PIVOT_TURNZ","deg",control_turnbar.rotZ);
+	return 1;
+}
+catalogized_command_funcdef(TURNBAR_APPLYSX)
+{
+	REFLECTION_FUNCTION_execute("PIVOT_SCALEX","deg",control_turnbar.scaleX);
+	return 1;
+}
+catalogized_command_funcdef(TURNBAR_APPLYSY)
+{
+	REFLECTION_FUNCTION_execute("PIVOT_SCALEY","deg",control_turnbar.scaleY);
+	return 1;
+}
+catalogized_command_funcdef(TURNBAR_APPLYSZ)
+{
+	REFLECTION_FUNCTION_execute("PIVOT_SCALEZ","deg",control_turnbar.scaleZ);
+	return 1;
+}
+catalogized_command_funcdef(TURNBAR_APPLY)
+{
+	undo_storcatch(~0,"TURNBAR");
+	REFLECTION_FUNCTION_execute("PIVOT_TURNX","deg",control_turnbar.rotX);
+	REFLECTION_FUNCTION_execute("PIVOT_TURNY","deg",control_turnbar.rotY);
+	REFLECTION_FUNCTION_execute("PIVOT_TURNZ","deg",control_turnbar.rotZ);
+	REFLECTION_FUNCTION_execute("PIVOT_SCALEX","mul",control_turnbar.scaleX);
+	REFLECTION_FUNCTION_execute("PIVOT_SCALEY","mul",control_turnbar.scaleY);
+	REFLECTION_FUNCTION_execute("PIVOT_SCALEZ","mul",control_turnbar.scaleZ);
+	return 1;
+}
+catalogized_command_funcdef(TURNBAR_OK)
+{
+	undo_storcatch(~0,"TURNBAR");
+	REFLECTION_FUNCTION_execute("PIVOT_TURNX","deg",control_turnbar.rotX);
+	REFLECTION_FUNCTION_execute("PIVOT_TURNY","deg",control_turnbar.rotY);
+	REFLECTION_FUNCTION_execute("PIVOT_TURNZ","deg",control_turnbar.rotZ);
+	REFLECTION_FUNCTION_execute("PIVOT_SCALEX","mul",control_turnbar.scaleX);
+	REFLECTION_FUNCTION_execute("PIVOT_SCALEY","mul",control_turnbar.scaleY);
+	REFLECTION_FUNCTION_execute("PIVOT_SCALEZ","mul",control_turnbar.scaleZ);
+	strcpy(control_turnbar.rotX,"0");
+	strcpy(control_turnbar.rotY,"0");
+	strcpy(control_turnbar.rotZ,"0");
+	strcpy(control_turnbar.scaleX,"1");
+	strcpy(control_turnbar.scaleY,"1");
+	strcpy(control_turnbar.scaleZ,"1");
+	return 1;
+}
+catalogized_command_funcdef(TURNBAR_RESET)
+{
+	strcpy(control_turnbar.rotX,"0");
+	strcpy(control_turnbar.rotY,"0");
+	strcpy(control_turnbar.rotZ,"0");
+	strcpy(control_turnbar.scaleX,"1");
+	strcpy(control_turnbar.scaleY,"1");
+	strcpy(control_turnbar.scaleZ,"1");
+	return 1;
+}
 
 char edit_scoop_atomstring[4];
 int edit_scoop_numhydrogens;
@@ -4851,7 +4927,12 @@ catalogized_command_funcdef(OPTIONS)
 {
 	LHENDRAW_filedlgmode=2;
 	menu_selectedmenuelement=0;
-	return 0;
+	return 1;
+}
+catalogized_command_funcdef(SWITCH_TURNBAR)
+{
+	control_displayproperties.turntoolmode^=1;
+	return 1;
 }
 catalogized_command_funcdef(WARN_HYPERC)
 {

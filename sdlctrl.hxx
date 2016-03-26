@@ -14,7 +14,7 @@ char * menu_matrixsubmenuvariable;
 SDL_Event control_Event;
 int control_firstmenux,control_firstmenuy;
 int control_lastmenux,control_lastmenuy;
-int control_mousestate=0;//0: inactive; 0x1: from tool, mouseclick; 0x2: from special tool, keyboard 0x4: on menu, dragging 0x8: on button_function dependent menu, popup 0x10 popup-menu or PSE, multiple levels 0x20 dragging menuitem 0x40: text editing
+int control_mousestate=0;//0: inactive; 0x1: from tool, mouseclick; 0x2: from special tool, keyboard 0x4: on menu, dragging 0x8: on button_function dependent menu, popup 0x10 popup-menu or PSE, multiple levels 0x20 dragging menuitem 0x40: text editing 0x80 menu-item text-editing
 int control_toolaction=0;//1: move 2: move selection 3: tool specific
 int control_tool=2;//1: Hand 2: 2coordinate Selection 3: Lasso, no matter which 4: Shift tool 5: Magnifying glass 6: Element draw 7: chemdraw draw 8: eraser 9: Arrows 10: attributes 11: text tool 12: curve(bezier) 13: image 14: spectrum 15: tlc plate/gel plate 16: graphic 17: aromatic ring tool 18: Arrow_skip 19: Arrow_situp 20: brackets
 int control_menumode=0;//1: shliderhorz, 2: slidervert 3: colorchooser
@@ -1689,7 +1689,7 @@ int issueclick(int iposx,int iposy)
 			if (selection_clickselection_found & icompare)
 			{
 				control_manipulatedinstance=getclicked(icompare,control_coorsx,control_coorsy);
-				printf("%f\n",(*(arrow_instance*)control_manipulatedinstance).AngularSize);
+				print("%f\n",(*(arrow_instance*)control_manipulatedinstance).AngularSize);
 			}
 			else
 			{
@@ -2591,6 +2591,7 @@ int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int
 	int horzistart;
 	int vertistart;
 	int ihitnr=0;
+	int pos;
 	const char * tl_zerostring="0";
 	AUTOSTRUCT_PULLOUTLISTING_ * ipulloutlisting=NULL;
 	if (starthitnr!=-1)
@@ -2811,6 +2812,16 @@ int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int
 						control_menutexteditcursor=(pixeloriginposx-(*ipulloutlisting).x)/8;
 						break;
 					}
+					case 0x303:
+					{
+						if (control_mousestate==0)
+						{
+							control_menutexteditcursor=(pixeloriginposx-(*ipulloutlisting).x)/8;
+							menu_selectedmenuelement=menu_itembyname((*ipulloutlisting).name);
+							control_mousestate=0x80;
+						}
+						break;
+					}
 					default:
 					{
 						goto idefault;
@@ -2905,6 +2916,43 @@ int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int
 					case 0x302: 
 					{
 						(*(_i32*)(*ipulloutlisting).variable)++;
+						break;
+					}
+					case 0x303:
+					{
+						pos=max(0,(pixeloriginposx-(*ipulloutlisting).x)/8);
+						pos=min(pos,strlen((char*)((*ipulloutlisting).variable)));
+						if (((char*)((*ipulloutlisting).variable))[0]=='-') goto x303_back_dec;
+						x303_back:;
+						if (pos<0) 
+						{
+							x303_overflow:
+							for (int ilv2=strlen((char*)((*ipulloutlisting).variable));ilv2>0;ilv2--)
+							{
+								//TODO URGENT: overflow
+								((char*)((*ipulloutlisting).variable))[ilv2]=((char*)((*ipulloutlisting).variable))[ilv2-1];
+							}
+							((char*)((*ipulloutlisting).variable))[pos+1]='1';
+							break;
+						}
+						switch (((char*)((*ipulloutlisting).variable))[pos])
+						{
+							case '-':
+							goto x303_overflow;
+							case '.':
+							case 0: pos--;
+							goto x303_back;
+							break;
+							case '0':case '1':case '2':case '3':case '4':case '5':case '6':case '7':case '8':
+							((char*)((*ipulloutlisting).variable))[pos]++;
+							break;
+							case '9':
+							((char*)((*ipulloutlisting).variable))[pos]='0';
+							pos--;
+							goto x303_back;
+							break;
+						}
+						break;
 					}
 				}
 				break;
@@ -2923,6 +2971,67 @@ int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int
 					case 0x302: 
 					{
 						(*(_i32*)(*ipulloutlisting).variable)--;
+						break;
+					}
+					case 0x303:
+					{
+						pos=max(0,(pixeloriginposx-(*ipulloutlisting).x)/8);
+						pos=min(pos,strlen((char*)((*ipulloutlisting).variable)));
+						if (((char*)((*ipulloutlisting).variable))[0]=='-') goto x303_back;
+						x303_back_dec:;
+						{//This loop removes preceding zeroes
+							x303_searchforthenextzero:;
+							int ilv2=0;
+							char * tl_hp1=((char*)((*ipulloutlisting).variable))+ilv2;
+							if ((*tl_hp1)=='-') tl_hp1++;
+							if ((*tl_hp1)=='0')
+							{
+								x303_searchforzero:;
+								(*tl_hp1)=(*(tl_hp1+1));
+								if ((*tl_hp1)==0)goto x303_searchforthenextzero;
+								tl_hp1++;
+								goto x303_searchforzero;
+							}
+						}
+						if (pos<0)
+						{
+							x303_overflow_dec:
+							if (((char*)((*ipulloutlisting).variable))[0]=='-')
+							{
+								for (int ilv2=0;ilv2<strlen((char*)((*ipulloutlisting).variable));ilv2++)
+								{
+									((char*)((*ipulloutlisting).variable))[ilv2]=((char*)((*ipulloutlisting).variable))[ilv2+1];
+								}
+							}
+							else
+							{
+								for (int ilv2=strlen((char*)((*ipulloutlisting).variable));ilv2>0;ilv2--)
+								{
+									//TODO URGENT: overflow
+									((char*)((*ipulloutlisting).variable))[ilv2]=((char*)((*ipulloutlisting).variable))[ilv2-1];
+								}
+								((char*)((*ipulloutlisting).variable))[0]='-';
+							}
+							break;
+						}
+						switch (((char*)((*ipulloutlisting).variable))[pos])
+						{
+							case '-':
+							goto x303_overflow_dec;
+							case '.':
+							case 0: pos--;
+							goto x303_back_dec;
+							break;
+							case '1':case '2':case '3':case '4':case '5':case '6':case '7':case '8':case '9':
+							((char*)((*ipulloutlisting).variable))[pos]--;
+							break;
+							case '0':
+							((char*)((*ipulloutlisting).variable))[pos]='9';
+							pos--;
+							goto x303_back_dec;
+							break;
+						}
+						break;
 					}
 				}
 				break;
@@ -3013,6 +3122,7 @@ int issuerectclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int iposx,in
 void issuemenuclicks(int iposx,int iposy,int ibutton)
 {
 	int tlsuccess=0;
+	if (control_mousestate & 0x80) {control_mousestate=0;menu_selectedmenuelement=0;}
 	for (int ilv1=menu_list_count-1;ilv1>=0;ilv1--)
 	{
 		int tl_alignx=menu_list[ilv1].alignx;

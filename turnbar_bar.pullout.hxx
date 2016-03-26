@@ -1,0 +1,32 @@
+menuitem pullout_turnbar_bar[]={
+{5,-3,
+33,//Picture
+"turn",
+0x103,0x103,
+1,
+"drag to rotate\n",
+"",
+"PIVOT_TURNZ","",
+0x000000,
+},
+{5,-2,
+33,//Picture
+"turn",
+0x103,0x103,
+1,
+"drag to rotate\n",
+"",
+"PIVOT_TURNY","",
+0x000008,
+},
+{5,-1,
+33,//Picture
+"turn",
+0x103,0x103,
+1,
+"drag to rotate\n",
+"",
+"PIVOT_TURNX","",
+0x000010,
+},
+};

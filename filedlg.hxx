@@ -1,6 +1,12 @@
 _u8 filedlg_devstring[]="/dev/";
 catalogized_command_funcdef(CANCEL)
 {
+	if (control_mousestate>0)
+	{
+		control_mousestate=0;
+		menu_selectedmenuelement=0;
+		return 1;
+	}
 	if (LHENDRAW_warndlgmode)
 	{
 		LHENDRAW_userdecision=0;
@@ -111,7 +117,7 @@ void control_filedlg()
 			}
 			case SDL_MOUSEBUTTONDOWN:
 			{
-				if ((control_mousestate & (~0x18))==0)
+				if ((control_mousestate & (~0x98))==0)
 				{
 					issuemenuclicks(control_Event.button.x,control_Event.button.y,control_Event.button.button);
 					break;
@@ -124,7 +130,7 @@ void control_filedlg()
 				int tl_menunr,tl_index;
 				menu_itemwadethrough(&menu_selectedmenuelement,&tl_menunr,&tl_index,0);
 				AUTOSTRUCT_PULLOUTLISTING_ * tl_pulloutlisting=((AUTOSTRUCT_PULLOUTLISTING_*)(menu_list[tl_menunr].what.pointer))+tl_index;
-				if (tl_pulloutlisting->lmbmode==0x301)
+				if ((tl_pulloutlisting->lmbmode==0x301)||(tl_pulloutlisting->lmbmode==0x303))
 				{
 					int ilength=strlen(control_Event.text.text);
 					if (control_menutexteditcursor<=strlen(((char*)(tl_pulloutlisting->variable))))
@@ -317,7 +323,7 @@ void control_filedlg()
 							iback:
 							maxruns--;
 							if (maxruns<=0) goto keyprocessed;
-							if (((*tl_pulloutlisting).lmbmode&(0xFFFF))==0x301)
+							if ((((*tl_pulloutlisting).lmbmode&(0xFFFF))==0x301)||(((*tl_pulloutlisting).lmbmode&(0xFFFF))==0x303))
 							{
 								tl_editedstring=((char*)(tl_pulloutlisting->variable));
 							}

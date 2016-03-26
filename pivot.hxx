@@ -222,6 +222,7 @@ void applytransform(float matrix[3][3])
 catalogized_command_funcdef(PIVOT_TURNZ)
 {
 	float angle=atof(value);
+	if (strncmp(parameter,"deg",3)==0)angle/=(180.0/Pi);
 	float matrix[3][3];
 	get_selection_pivot();
 	matrix[0][0]=cos(angle);
@@ -240,6 +241,7 @@ catalogized_command_funcdef(PIVOT_TURNZ)
 catalogized_command_funcdef(PIVOT_TURNX)
 {
 	float angle=atof(value);
+	if (strncmp(parameter,"deg",3)==0)angle/=(180.0/Pi);
 	float matrix[3][3];
 	get_selection_pivot();
 	matrix[0][0]=1;
@@ -258,6 +260,7 @@ catalogized_command_funcdef(PIVOT_TURNX)
 catalogized_command_funcdef(PIVOT_TURNY)
 {
 	float angle=atof(value);
+	if (strncmp(parameter,"deg",3)==0)angle/=(180.0/Pi);
 	float matrix[3][3];
 	get_selection_pivot();
 	matrix[0][0]=cos(angle);
@@ -275,10 +278,11 @@ catalogized_command_funcdef(PIVOT_TURNY)
 }
 catalogized_command_funcdef(PIVOT_SCALEX)
 {
-	float angle=atof(value);
+	float factor=atof(value);
+	if (strncmp(parameter,"mul",3)!=0) factor=(1-factor);
 	float matrix[3][3];
 	get_selection_pivot();
-	matrix[0][0]=1-angle;
+	matrix[0][0]=factor;
 	matrix[0][1]=0;
 	matrix[0][2]=0;
 	matrix[1][0]=0;
@@ -294,14 +298,15 @@ catalogized_command_funcdef(PIVOT_SCALEX)
 }
 catalogized_command_funcdef(PIVOT_SCALEY)
 {
-	float angle=atof(value);
+	float factor=atof(value);
+	if (strncmp(parameter,"mul",3)!=0) factor=(1-factor);
 	float matrix[3][3];
 	get_selection_pivot();
 	matrix[0][0]=1;
 	matrix[0][1]=0;
 	matrix[0][2]=0;
 	matrix[1][0]=0;
-	matrix[1][1]=1-angle;
+	matrix[1][1]=factor;
 	matrix[1][2]=0;
 	matrix[2][0]=0;
 	matrix[2][1]=0;
@@ -312,7 +317,8 @@ catalogized_command_funcdef(PIVOT_SCALEY)
 }
 catalogized_command_funcdef(PIVOT_SCALEZ)
 {
-	float angle=atof(value);
+	float factor=atof(value);
+	if (strncmp(parameter,"mul",3)!=0) factor=(1-factor);
 	float matrix[3][3];
 	get_selection_pivot();
 	matrix[0][0]=1;
@@ -323,7 +329,7 @@ catalogized_command_funcdef(PIVOT_SCALEZ)
 	matrix[1][2]=0;
 	matrix[2][0]=0;
 	matrix[2][1]=0;
-	matrix[2][2]=1-angle;
+	matrix[2][2]=factor;
 	if (strncmp(parameter,"rel",3)==0) vectordependentmatrix(matrix);
 	applytransform(matrix);
 	return 1;

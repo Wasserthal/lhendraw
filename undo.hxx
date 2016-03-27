@@ -20,6 +20,7 @@ undo_undostep_ undosteps[constants_undostep_max];
 TELESCOPE_buffer glob_contentbuffer[sizeof(STRUCTURE_OBJECTTYPE_List)/sizeof(trienum)];
 char undo_nextcommandname[80]="ROOT";
 char undo_selectionstored=0;
+_small undo_retrievedundostep=0;
 char * undo_retrievebuffer(intl start,intl list)
 {
 	intl current=start;
@@ -27,6 +28,7 @@ char * undo_retrievebuffer(intl start,intl list)
 	iback:;
 	if ((wert=undosteps[current].handles[list].buffer)!=NULL)
 	{
+		undo_retrievedundostep=current;
 		return wert;
 	}
 	else
@@ -315,12 +317,18 @@ int restoreundo(_u32 flags,_u32 orderflags/*bit0: restore count only*/)//doesn't
 			{
 				char * ipointer;
 				thatundostep=currentundostep;
+				undo_retrievedundostep=thatundostep;
 				if (orderflags & 1)
 				{
+					tl_buffer=(intl*)(undosteps[currentundostep].handles[ilv1].buffer);
+					if (tl_buffer==NULL)
+					{
+						tl_buffer=(intl*)(undo_retrievebuffer(currentundostep,ilv1));
+					}
 					ipointer=(*tl_multilist).pointer;
 					for (int ilv2=0;ilv2<sizeof(basicmultilist);ilv2++)
 					{
-						((char*)(tl_multilist))[ilv2]=((char*)(undosteps[thatundostep].handles[ilv1].imultilist))[ilv2];
+						((char*)(tl_multilist))[ilv2]=((char*)(undosteps[undo_retrievedundostep].handles[ilv1].imultilist))[ilv2];
 					}
 					(*tl_multilist).pointer=ipointer;
 					goto count_only;
@@ -343,16 +351,16 @@ int restoreundo(_u32 flags,_u32 orderflags/*bit0: restore count only*/)//doesn't
 				ipointer=(*tl_multilist).pointer;
 				for (int ilv2=0;ilv2<sizeof(basicmultilist);ilv2++)
 				{
-					((char*)(tl_multilist))[ilv2]=((char*)(undosteps[thatundostep].handles[ilv1].imultilist))[ilv2];
+					((char*)(tl_multilist))[ilv2]=((char*)(undosteps[undo_retrievedundostep].handles[ilv1].imultilist))[ilv2];
 				}
 				(*tl_multilist).pointer=ipointer;
-				imax=min(LHENDRAW_buffersize,(tl_multilist->itemsize*((basicmultilist*)(undosteps[thatundostep].handles[ilv1].imultilist))->filllevel+sizeof(intl)-1))/sizeof(intl);
+				imax=min(LHENDRAW_buffersize,(tl_multilist->itemsize*((basicmultilist*)(undosteps[undo_retrievedundostep].handles[ilv1].imultilist))->filllevel+sizeof(intl)-1))/sizeof(intl);
 				for (int ilv3=0;ilv3<imax;ilv3++)
 				{
 					((intl*)((*tl_multilist).pointer))[ilv3]=(tl_buffer)[ilv3];
 				}
 				count_only:;
-				glob_contentbuffer[ilv1].count=undosteps[currentundostep].handles[ilv1].bufferhead.count;
+				glob_contentbuffer[ilv1].count=undosteps[undo_retrievedundostep].handles[ilv1].bufferhead.count;
 			}
 			//set buffer_max here when not using LHENDRAW_buffersize
 			#ifdef DEBUG

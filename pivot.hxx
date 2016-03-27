@@ -292,7 +292,6 @@ catalogized_command_funcdef(PIVOT_SCALEX)
 	matrix[2][1]=0;
 	matrix[2][2]=1;
 	if (strncmp(parameter,"rel",3)==0) vectordependentmatrix(matrix);
-	printf("%s\n",parameter);
 	applytransform(matrix);
 	return 1;
 }

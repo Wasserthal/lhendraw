@@ -2347,6 +2347,30 @@ _small * edit_freebondindex;
 _small edit_freebondindex_count;
 _small * edit_freeatomindex;
 _small edit_freeatomindex_count;
+_small * edit_fliplist;
+_small edit_fliplist_count;
+_small * edit_bestfliplist;
+void edit_invert_wedges(selection_ iselection)
+{
+	selection_datatype i_b_compare=1<<STRUCTURE_OBJECTTYPE_b;
+	for (int ilv1=0;ilv1<glob_b_multilist->filllevel;ilv1++)
+	{
+		if (selection_currentselection[ilv1] & (i_b_compare))
+		{
+			b_instance * i_b_instance=glob_b_multilist->bufferlist()+ilv1;
+			if (i_b_instance->exist)
+			{
+				switch (i_b_instance->Display)
+				{
+					case 3:i_b_instance->Display=6;break;
+					case 4:i_b_instance->Display=7;break;
+					case 6:i_b_instance->Display=3;break;
+					case 7:i_b_instance->Display=4;break;
+				}
+			}
+		}
+	}
+}
 void edit_flip_bond(_small i_bond_to_switch,_small i_atom_to_keep)
 {
 	selection_clearselection(selection_currentselection);
@@ -2354,6 +2378,8 @@ void edit_flip_bond(_small i_bond_to_switch,_small i_atom_to_keep)
 	selection_currentselection[i_atom_to_keep]|=(1<<STRUCTURE_OBJECTTYPE_n);
 	selection_grow(selection_currentselection,-1,-1);
 	PIVOT_SCALEX("rel","+2");
+	selection_currentselection[i_bond_to_switch]&=~(1<<STRUCTURE_OBJECTTYPE_b);
+	edit_invert_wedges(selection_currentselection);
 }
 void edit_cleanupatom(_small i_atomnumber)
 {
@@ -2424,6 +2450,96 @@ void edit_cleanupbond(_small i_bondnumber)
 			(*tl_n_instance3).xyz.y+=vectory;
 		}
 	}
+}
+double edit_judgeflip(selection_ iselection)
+{
+	double rating=0;
+	selection_datatype i_n_compare=1<<STRUCTURE_OBJECTTYPE_n;
+	selection_datatype i_b_compare=1<<STRUCTURE_OBJECTTYPE_b;
+	for (int ilv1=0;ilv1<glob_b_multilist->filllevel;ilv1++)
+	{
+		if (glob_b_multilist->bufferlist()[ilv1].exist)
+		{
+			if (iselection[ilv1] & (i_b_compare))
+			{
+				cdx_Point3D startxyz,endxyz;
+				startxyz=(glob_n_multilist->bufferlist()[bond_actual_node[ilv1].start]).xyz;
+				endxyz=(glob_n_multilist->bufferlist()[bond_actual_node[ilv1].end]).xyz;
+				endxyz.x-=startxyz.x;
+				endxyz.y-=startxyz.y;
+				endxyz.z-=startxyz.z;
+				float bondlength=sqrt(fsqr(endxyz.x-startxyz.x)+fsqr(endxyz.y-startxyz.y));
+				endxyz.x/=bondlength;
+				endxyz.y/=bondlength;
+				endxyz.z/=bondlength;
+				for (int ilv2=0;ilv2<glob_b_multilist->filllevel;ilv2++)
+				{
+					if (ilv2!=ilv1)
+					{
+						if (glob_b_multilist->bufferlist()[ilv2].exist)
+						{
+							if (iselection[ilv2] & (i_b_compare))
+							{
+								float achsenabschnitte[2];
+								float achsenabstaende[2];
+								for (int ilv3=0;ilv3<=1;ilv3++)
+								{
+									int tl_thisnumber=ilv3?bond_actual_node[ilv2].start:bond_actual_node[ilv2].end;
+									if (tl_thisnumber==bond_actual_node[ilv1].start) goto break1;
+									if (tl_thisnumber==bond_actual_node[ilv1].end) goto break1;
+									cdx_Point3D tl_thisxyz=glob_n_multilist->bufferlist()[tl_thisnumber].xyz;
+									tl_thisxyz.x-=startxyz.x;
+									tl_thisxyz.y-=startxyz.y;
+									tl_thisxyz.z-=startxyz.z;
+									float achsenabschnitt=endxyz.x*tl_thisxyz.x+endxyz.y*tl_thisxyz.y;
+									float achsenabstand=endxyz.x*tl_thisxyz.y-endxyz.y*tl_thisxyz.x;
+									achsenabschnitte[ilv3]=achsenabschnitt/bondlength;
+									achsenabstaende[ilv3]=achsenabstand/bondlength;
+									if ((achsenabschnitt>=0) && (achsenabschnitt<=bondlength))
+									{
+										if (fabs(achsenabstand)<(constants_bondlength/2)) rating+=(constants_bondlength/2)-fabs(achsenabstand);
+									}
+									else
+									{
+										if ((achsenabschnitt>=-(constants_bondlength/4)) && (achsenabschnitt<=bondlength+(constants_bondlength/4)))
+										{
+											float anteil;
+											if (achsenabschnitt<0)
+											{
+												anteil=(constants_bondlength/4)+achsenabschnitt;
+											}
+											else
+											{
+												anteil=bondlength+(constants_bondlength/4)-achsenabschnitt;
+											}
+											anteil/=(constants_bondlength/4);
+											if (fabs(achsenabstand)<(constants_bondlength/2)*anteil) rating+=anteil*(constants_bondlength/2)-fabs(achsenabstand);
+										}
+									}
+								}
+								if ((achsenabstaende[0]>=0)^(achsenabstaende[1]>=0))
+								{
+									for (int ilv3=0;ilv3<=1;ilv3++)
+									{
+										achsenabstaende[ilv3]=fabs(achsenabstaende[ilv3]);
+										if (achsenabstaende[ilv3]<0.01) achsenabstaende[ilv3]=0.01;
+										achsenabstaende[ilv3]=1.0/achsenabstaende[ilv3];
+									}
+									double intersektionspunkt=((achsenabstaende[0]*achsenabschnitte[0])+(achsenabstaende[1]*achsenabschnitte[1]))/(achsenabstaende[0]+achsenabstaende[1]);
+									if ((intersektionspunkt>-0.1) && (intersektionspunkt<1.1))
+									{
+										rating+=10*constants_bondlength;
+									}
+								}
+							}
+						}
+						break1:;//this bond combination is unscientific
+					}
+				}
+			}
+		}
+	}
+	return rating;
 }
 catalogized_command_funcdef(CLEANUP)
 {
@@ -2537,7 +2653,44 @@ catalogized_command_funcdef(CLEANUP)
 		}
 	}
 	//TODO: ring systems
-	storeundo((1<<STRUCTURE_OBJECTTYPE_n)+(1<<STRUCTURE_OBJECTTYPE_b),"TEMP");
+	memory_alloc((char**)&edit_fliplist,5);
+	memory_alloc((char**)&edit_bestfliplist,5);
+	storeundo((1<<STRUCTURE_OBJECTTYPE_n)|(1<<STRUCTURE_OBJECTTYPE_b),"TEMP");
+	double best_evaluation=edit_judgeflip(selection_objectselection);
+	for (int ilv1=0;ilv1<edit_freebondindex_count;ilv1++)
+	{
+		edit_bestfliplist[ilv1]=0;
+	}
+	for (int ilv0=0;ilv0<40;ilv0++)
+	{
+		restoreundo(~0,0);
+		double current_evaluation=0;
+		for (int ilv1=0;ilv1<edit_freebondindex_count;ilv1++)
+		{
+			edit_fliplist[ilv1]=((rand()%4)==0)?1:0;
+		}
+		for (int ilv1=0;ilv1<edit_freebondindex_count;ilv1++)
+		{
+			if (edit_fliplist[ilv1]) {edit_flip_bond(edit_freebondindex[ilv1],bond_actual_node[edit_freebondindex[ilv1]].start);}
+		}
+		current_evaluation=edit_judgeflip(selection_objectselection);
+		if (current_evaluation<best_evaluation)
+		{
+			best_evaluation=current_evaluation;
+			for (int ilv1=0;ilv1<edit_freebondindex_count;ilv1++)
+			{
+				edit_bestfliplist[ilv1]=edit_fliplist[ilv1];
+			}
+		}
+	}
+	restoreundo(~0,0);
+	undo_undodirty=1;
+	for (int ilv1=0;ilv1<edit_freebondindex_count;ilv1++)
+	{
+		if (edit_bestfliplist[ilv1]) {edit_flip_bond(edit_freebondindex[ilv1],bond_actual_node[edit_freebondindex[ilv1]].start);}
+	}
+	memory_free((char*)edit_bestfliplist);
+	memory_free((char*)edit_fliplist);
 	selection_copyselection(selection_currentselection,selection_oldselection);
 	memory_free((char*)edit_freeatomindex);
 	memory_free((char*)edit_freebondindex);

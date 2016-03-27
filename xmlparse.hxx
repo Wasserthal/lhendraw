@@ -450,25 +450,19 @@ int input_recursion(FILE * infile)
 	if (tl_name)
 	{
 		strcpy(tagnamestring,tl_name);
-		#ifdef DEBUG
-		printf("\e[31m%s:\e[0m%i\n",tl_name,iid);
-		#endif
+		print("\e[31m%s:\e[0m%i\n",tl_name,iid);
 	}
 	else
 	{
 		strcpy(tagnamestring,"gummydummy");
-		#ifdef DEBUG
-		printf("\e[31m%04hX:\e[0m%i\n",itype,iid);
-		#endif
+		print("\e[31m%04hX:\e[0m%i\n",itype,iid);
 	}
 	tagnamestring_length=strlen(tagnamestring);
 	entertag();
 	strcpy(parameterstring,"id");memcpy(paramvaluestring,(char*)&iid,4);
 	scoopparam_bin();
 	indent();
-	#ifdef DEBUG
-	printf("you are in a %s\n",(*currentinstance).getName());
-	#endif
+	print("you are in a %s\n",(*currentinstance).getName());
 	backval=1;
 	while (backval>0)
 	{

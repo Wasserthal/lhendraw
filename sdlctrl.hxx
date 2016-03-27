@@ -1464,8 +1464,8 @@ int issueclick(int iposx,int iposy)
 					(*tl_curve_instance).CurvePoints.count=2;
 					if (control_drawproperties.CURVE_subtool==1)
 					{
-						(*tl_curve_instance).CurvePoints.a[1].x=control_coorsx;
-						(*tl_curve_instance).CurvePoints.a[1].y=control_coorsy;
+						(*tl_curve_instance).CurvePoints.a[2].x=control_coorsx;
+						(*tl_curve_instance).CurvePoints.a[2].y=control_coorsy;
 						(*tl_curve_instance).CurvePoints.count++;
 					}
 					selection_clearselection(selection_currentselection);

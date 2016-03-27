@@ -780,8 +780,22 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,char hatches)
 		iBBX.right=(*i_curve_instance).CurvePoints.a[1].x;
 		iBBX.bottom=(*i_curve_instance).CurvePoints.a[1].y;
 
-		langle=getangle((*i_curve_instance).CurvePoints.a[(*i_curve_instance).CurvePoints.count-3].x-(*i_curve_instance).CurvePoints.a[(*i_curve_instance).CurvePoints.count-2].x,(*i_curve_instance).CurvePoints.a[(*i_curve_instance).CurvePoints.count-3].y-(*i_curve_instance).CurvePoints.a[(*i_curve_instance).CurvePoints.count-2].y);
-		otherlangle=getangle((*i_curve_instance).CurvePoints.a[2].x-(*i_curve_instance).CurvePoints.a[1].x,(*i_curve_instance).CurvePoints.a[2].y-(*i_curve_instance).CurvePoints.a[1].y);
+		draw_relevantothernr=(*i_curve_instance).CurvePoints.count-3;
+		while (((*i_curve_instance).CurvePoints.a[draw_relevantothernr].x==(*i_curve_instance).CurvePoints.a[(*i_curve_instance).CurvePoints.count-2].x)&&((*i_curve_instance).CurvePoints.a[draw_relevantothernr].y==(*i_curve_instance).CurvePoints.a[(*i_curve_instance).CurvePoints.count-2].y))
+		{
+			if (draw_relevantothernr==0) {langle=0;goto svg_main_arrow_forgetaboutthislangle;}
+			draw_relevantothernr--;
+		}
+		langle=getangle((*i_curve_instance).CurvePoints.a[draw_relevantothernr].x-(*i_curve_instance).CurvePoints.a[(*i_curve_instance).CurvePoints.count-2].x,(*i_curve_instance).CurvePoints.a[draw_relevantothernr].y-(*i_curve_instance).CurvePoints.a[(*i_curve_instance).CurvePoints.count-2].y);
+		svg_main_arrow_forgetaboutthislangle:
+		draw_relevantothernr=2;
+		while (((*i_curve_instance).CurvePoints.a[draw_relevantothernr].x==(*i_curve_instance).CurvePoints.a[1].x)&&((*i_curve_instance).CurvePoints.a[draw_relevantothernr].y==(*i_curve_instance).CurvePoints.a[1].y))
+		{
+			if (draw_relevantothernr==((*i_curve_instance).CurvePoints.count-1)) {otherlangle=0;goto svg_main_arrow_forgetaboutthisotherlangle;}
+			draw_relevantothernr++;
+		}
+		otherlangle=getangle((*i_curve_instance).CurvePoints.a[draw_relevantothernr].x-(*i_curve_instance).CurvePoints.a[1].x,(*i_curve_instance).CurvePoints.a[draw_relevantothernr].y-(*i_curve_instance).CurvePoints.a[1].y);
+		svg_main_arrow_forgetaboutthisotherlangle:
 		cangle=langle+Pi/2;
 		othercangle=otherlangle+Pi/2;
 		MACRO_DRAWPREFIX(drawarrheads)(iBBX,langle,cangle,otherlangle,othercangle,currentArrowHeadType,currentArrowHeadTail,currentArrowHeadHead,tllinedist);

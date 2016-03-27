@@ -365,6 +365,7 @@ float tllefttan;
 float tlrighttan;
 float tllefttan2;
 float tlrighttan2;
+_small draw_relevantothernr;
 struct ellipsoid_
 {
 	float majx,majy;

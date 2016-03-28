@@ -111,6 +111,7 @@ void printmenutext(int posx,int posy,const char * iinput,int end,char symbolmode
 	char linebreak;
 	int iposx=posx;
 	int iposy=posy;
+	int backcount;
 	thatwasatemporaryskip:
 	linebreak=0;
 	for (;ilv4<end;ilv4++)
@@ -136,10 +137,11 @@ void printmenutext(int posx,int posy,const char * iinput,int end,char symbolmode
 			linebreak=1;
 			goto skipfornow;
 		}
-		text_output_bitmap(&iposx,&iposy,&fontpixinf[indexfromunicode(((unsigned char)iinput[ilv4]))]);
+		text_output_bitmap(&iposx,&iposy,&fontpixinf[indexfromunicode(utf8resolve((unsigned char*)iinput+ilv4,&backcount))]);
+		ilv4+=backcount-1;
 	}
 	skipfornow:
-	if (linebreak) {if (ilv4<end) {if (symbolmode) {iposx=posx;iposy+=16;}else iposx+=16; goto thatwasatemporaryskip;}}//a line break;
+	if (linebreak) {if (ilv4<end) {if (symbolmode) {iposx=posx;iposy+=16;}else {iposx+=16;end--;} goto thatwasatemporaryskip;}}//a line break;
 }
 int sdl_toolboxitemdraw(int posx,int posy,int gfxno,_u32 state)
 {
@@ -433,6 +435,7 @@ int sdl_listmenudraw(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int count,int xpos=0,
 			}
 			case 0x300:
 			{
+				if (vertistart+ypos+16>=gfx_screensizey) break;
 				char * tl_pointer=(char*)(ilisting[ilv1].variable);
 				int tl_counter;
 				_u32 * iscreen=screen+(ypos+vertistart)*gfx_screensizex+xpos+horzistart;

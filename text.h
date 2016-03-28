@@ -124,6 +124,7 @@ int indexfromunicode(int input)//Weighed approximation
 	int codeat_start=fontpixinf[0].unicode;
 	int codeat_end=fontpixinf[scanner_end].unicode;
 	int searchpos;
+	if (input<0) return 2;
 	iback:
 	if (scanner_end==scanner_start)
 	{

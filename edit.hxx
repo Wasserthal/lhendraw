@@ -2381,6 +2381,79 @@ void edit_flip_bond(_small i_bond_to_switch,_small i_atom_to_keep)
 	selection_currentselection[i_bond_to_switch]&=~(1<<STRUCTURE_OBJECTTYPE_b);
 	edit_invert_wedges(selection_currentselection);
 }
+int edit_rectifypoint(int * icurrentpoint,selection_ iselection,cdx_Point3D ipivot,double * iangle,double idistance,double singleangle)
+{
+	iselection[(*icurrentpoint)]&=~(1<<STRUCTURE_OBJECTTYPE_n);
+	glob_n_multilist->bufferlist()[*icurrentpoint].xyz.x=ipivot.x+cos((*iangle))*idistance;
+	glob_n_multilist->bufferlist()[*icurrentpoint].xyz.y=ipivot.y+sin((*iangle))*idistance;
+	for (int ilv1=0;ilv1<atom_actual_node[(*icurrentpoint)].bondcount;ilv1++)
+	{
+		if (iselection[atom_actual_node[(*icurrentpoint)].bonds[ilv1]]&(1<<STRUCTURE_OBJECTTYPE_b))
+		{
+			printf("BBB:%i\n",ilv1);
+			b_instance * i_b_instance=glob_b_multilist->bufferlist()+atom_actual_node[(*icurrentpoint)].bonds[ilv1];
+			if (i_b_instance->exist)
+			{
+				int otherpoint=getother((*icurrentpoint),atom_actual_node[(*icurrentpoint)].bonds[ilv1]);
+				n_instance * i_n_instance=glob_n_multilist->bufferlist()+otherpoint;
+				if (i_n_instance->exist)
+				{
+					iselection[atom_actual_node[(*icurrentpoint)].bonds[ilv1]]&=~(1<<STRUCTURE_OBJECTTYPE_b);
+					*icurrentpoint=otherpoint;
+					return 1;
+				}
+			}
+		}
+	}
+	printf("\\n\n");
+	return 0;
+}
+void edit_cyclify_cycle(selection_ iselection)
+{
+	cdx_Point3D ipivot;
+	double distance;
+	double singleangle;
+	_small count=selection_n_pivot(iselection,&ipivot);
+	if (count<2) return;
+	singleangle=2.0*Pi/count;
+	distance=(constants_bondlength/2.0)/sin(singleangle/2.0);
+	_small currentpoint;
+	double currentangle;
+	for (int ilv1=0;ilv1<glob_b_multilist->filllevel;ilv1++)
+	{
+		if (iselection[ilv1]&(1<<STRUCTURE_OBJECTTYPE_b))
+		{
+			iselection[ilv1]&=~(1<<STRUCTURE_OBJECTTYPE_b);
+			currentpoint=bond_actual_node[ilv1].start;
+			currentangle=getangle(glob_n_multilist->bufferlist()[currentpoint].xyz.x-ipivot.x,glob_n_multilist->bufferlist()[currentpoint].xyz.y-ipivot.y);
+			goto ifound;
+		}
+	}
+	return;
+	ifound:;
+	while (edit_rectifypoint(&currentpoint,iselection,ipivot,&currentangle,distance,singleangle)>0)
+	{
+		currentangle+=singleangle;
+		printf("CYCLE%i:::%f\n",count,singleangle);
+	}
+}
+void edit_cleanupcycles(selection_ iselection)
+{
+	selection_datatype i_n_compare=1<<STRUCTURE_OBJECTTYPE_n;
+	selection_datatype i_b_compare=1<<STRUCTURE_OBJECTTYPE_b;
+	for (int ilv1=0;ilv1<glob_b_multilist->filllevel;ilv1++)
+	{
+		if (iselection[ilv1]&i_b_compare)
+		{
+			if (selection_check_monocyclic(ilv1,iselection,selection_clickselection))
+			{
+				selection_SUBTRACTselection(iselection,selection_clickselection);
+				selection_copyselection(selection_currentselection,selection_clickselection);
+				edit_cyclify_cycle(selection_clickselection);
+			}
+		}
+	}
+}
 void edit_cleanupatom(_small i_atomnumber)
 {
 	char firstside=0;
@@ -2579,6 +2652,9 @@ catalogized_command_funcdef(CLEANUP)
 	}
 	selection_copyselection(selection_ringselection,selection_objectselection);
 	selection_select_rings(selection_ringselection);
+	edit_cleanupcycles(selection_ringselection);
+	selection_copyselection(selection_ringselection,selection_objectselection);
+	selection_select_rings(selection_ringselection);
 	for (int ilv1=0;ilv1<glob_b_multilist->filllevel;ilv1++)
 	{
 		if ((selection_objectselection[ilv1]&(1<<STRUCTURE_OBJECTTYPE_b)))//belonging to the object to clean up...
@@ -2634,6 +2710,13 @@ catalogized_command_funcdef(CLEANUP)
 			}
 		}
 	}
+	for (int ilv1=0;ilv1<glob_b_multilist->filllevel;ilv1++)
+	{
+		if (selection_objectselection[ilv1]&(1<<STRUCTURE_OBJECTTYPE_b))
+		{
+			//TODO
+		}
+	}
 	if (atom_count>0)
 	{
 		average_x/=atom_count;
@@ -2652,7 +2735,6 @@ catalogized_command_funcdef(CLEANUP)
 			}
 		}
 	}
-	//TODO: ring systems
 	memory_alloc((char**)&edit_fliplist,5);
 	memory_alloc((char**)&edit_bestfliplist,5);
 	storeundo((1<<STRUCTURE_OBJECTTYPE_n)|(1<<STRUCTURE_OBJECTTYPE_b),"TEMP");

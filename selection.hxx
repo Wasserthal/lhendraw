@@ -431,6 +431,36 @@ int selection_grow(selection_ i_selection,int bondno,int aim)//set bondno and ai
 	if (changed) goto iback;
 	return 0;
 }
+int selection_n_pivot(selection_ iselection,cdx_Point3D * ioutput)
+{
+	double sumX=0;
+	double sumY=0;
+	double sumZ=0;
+	_small count=0;
+	selection_datatype i_n_compare=1<<STRUCTURE_OBJECTTYPE_n;
+	for (int ilv1=0;ilv1<glob_n_multilist->filllevel;ilv1++)
+	{
+		if (selection_currentselection[ilv1]&i_n_compare)
+		{
+			n_instance * tl_n_instance=glob_n_multilist->bufferlist()+ilv1;
+			if (tl_n_instance->exist)
+			{
+				count++;
+				(*ioutput).x+=tl_n_instance->xyz.x;
+				(*ioutput).y+=tl_n_instance->xyz.y;
+				(*ioutput).z+=tl_n_instance->xyz.z;
+			}
+		}
+	}
+	if (count>0)
+	{
+		(*ioutput).x/=count;
+		(*ioutput).y/=count;
+		(*ioutput).z/=count;
+		return count;
+	}
+	return 0;
+}
 int selection_grow_by_one(selection_ i_selection,int bondno,int aim)//set bondno and aim both to -1 to prevent aborts on cyclisation
 {
 	char retval=0;
@@ -446,7 +476,7 @@ int selection_grow_by_one(selection_ i_selection,int bondno,int aim)//set bondno
 		{
 			if (i_selection[ilv1]&icompare_b)
 			{
-				if (ilv1!=bondno)
+				if ((ilv1!=bondno)&&(bondno!=-2))
 				{
 					if (bond_actual_node[ilv1].start==aim)
 					{
@@ -485,6 +515,11 @@ int selection_grow_by_one(selection_ i_selection,int bondno,int aim)//set bondno
 						{
 							i_selection[atom_actual_node[ilv1].bonds[ilv2]]|=icompare_b;
 							changed=1;
+							if (bondno==-2)
+							{
+								printf("NN:%i\n",ilv1);
+								retval++;
+							}
 						}
 					}
 				}
@@ -492,6 +527,20 @@ int selection_grow_by_one(selection_ i_selection,int bondno,int aim)//set bondno
 		}
 	}
 	return retval;
+}
+int selection_check_monocyclic(_small ibondno,selection_ iselection,selection_ ioutput)
+{
+	int count;
+	int backval=0;
+	selection_clearselection(ioutput);
+	ioutput[ibondno]|=(1<<STRUCTURE_OBJECTTYPE_b);
+	ioutput[bond_actual_node[ibondno].start]|=(1<<STRUCTURE_OBJECTTYPE_n);
+	iback:;
+	backval=selection_grow_by_one(ioutput,-2,bond_actual_node[ibondno].start);
+	printf("BACKVAL:%i\n",backval);
+	if (backval>=2) return 0;
+	if (backval==1){count++;goto iback;}
+	return count;
 }
 catalogized_command_funcdef(SELECTION_GROW)
 {

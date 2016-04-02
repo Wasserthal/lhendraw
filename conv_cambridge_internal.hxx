@@ -134,7 +134,29 @@ void CAMBRIDGECONV_atom()
 		//TODO: ExternalConnectionType, and respecting this enumerated property in draw
 		tl_n_instance.id=(*tl_CAMBRIDGE_n_instance).id;
 		CAMBRIDGECONV_FIXID(n)
+		int tl_atomindex=glob_n_multilist->filllevel;
 		(*tl_n_multilist).ADD(&tl_n_instance);
+		if (AUTOSTRUCT_EXISTS(CAMBRIDGE_n_instance,(*tl_CAMBRIDGE_n_instance),ExternalConnectionType))
+		{
+			glob_n_multilist->bufferlist()[tl_atomindex].Element=-2;
+			if ((*tl_CAMBRIDGE_n_instance).ExternalConnectionType!=4)
+			{
+				TELESCOPE_aggressobject(glob_n_multilist,tl_atomindex);
+				wildcard_instance tl_wildcard_instance;
+				tl_wildcard_instance.length=sizeof(wildcard_instance)+4;
+				tl_wildcard_instance.Type=1;
+				tl_wildcard_instance.type=TELESCOPE_ELEMENTTYPE_wildcard;
+				if (TELESCOPE_add(TELESCOPE_ELEMENTTYPE_wildcard,(char*)&((*tl_CAMBRIDGE_n_instance).ExternalConnectionType),4)>0)
+				{
+					*((wildcard_instance*)TELESCOPE_getproperty())=tl_wildcard_instance;
+				}
+				else
+				{
+					memory_overflow_hook();
+					exit(1);
+				}
+			}
+		}
 	}
 }
 
@@ -366,8 +388,8 @@ int CAMBRIDGECONV_represent(CAMBRIDGE_graphic_instance * tl_CAMBRIDGE_graphic_in
 		}
 		else
 		{
-			//TODO: else, warn that there is not enough memory.
-			return 0;
+			memory_overflow_hook();
+			exit(1);
 		}
 		return 1;
 	}

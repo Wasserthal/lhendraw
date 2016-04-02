@@ -126,13 +126,15 @@ bienum CDXML_propertycodes_List[]={
 {"MinorAxisEnd3D",0x20F},
 {"colortable",0x300},
 {"color",0x301},
+{"NodeType",0x400},
+{"Element",0x402},
 {"Charge",0x421},
 {"Geometry",0x430},
-{"BS",0x437},
 {"NumHydrogens",0x42B},
+{"BS",0x437},
+{"ExternalConnectionType",0x440},
 {"s",0x700},
 
-{"Element",0x402},
 
 {"Order",0x600},
 {"Display",0x601},

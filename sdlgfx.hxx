@@ -167,11 +167,11 @@ void gfx_expressbeziertrack(cdx_Bezierpoints * ipoints)
 	float ishare;
 	float iminusshare;
 	int ix,iy;
-	for (int ilv1=0;ilv1<(*ipoints).count;ilv1+=3)
+	for (int ilv1=0;ilv1<(*ipoints).count-3;ilv1+=3)
 	{
 		float stepsbecausex=2*(abs((*ipoints).a[ilv1+3].x-(*ipoints).a[ilv1].x)+abs((*ipoints).a[ilv1+2].x-(*ipoints).a[ilv1+1].x));
 		float stepsbecausey=2*(abs((*ipoints).a[ilv1+3].y-(*ipoints).a[ilv1].y)+abs((*ipoints).a[ilv1+2].y-(*ipoints).a[ilv1+1].y));
-		if (stepsbecausey>stepsbecausex) {stepsbecausex=stepsbecausey;}
+		if (stepsbecausex<stepsbecausey) {stepsbecausex=stepsbecausey;}
 		for (int ilv2=0;ilv2<stepsbecausex;ilv2++)
 		{
 			ishare=(float(ilv2)/stepsbecausex);

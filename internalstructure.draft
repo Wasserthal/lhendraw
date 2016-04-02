@@ -14,3 +14,4 @@ tlcplate;0 tlclane ;0 color 0 Z 4 BoundingBox 2 TopLeft 2 TopRight 2 BottomLeft 
 !Bezierpoint;3 pos ;0 count ;
 !ID_Reference;;0 Purpose 1 Id ;
 !tlclane;;;
+!wildcard;;0 Type ;

@@ -2027,6 +2027,7 @@ curve_instance * edit_summoncurve(int * inr=NULL)
 }
 int atom_addsymbol(int inr,int itype)
 {
+	if ((*glob_n_multilist)[inr].Element>=element_max) return 0;
 	switch (itype)
 	{
 		case 2: case 4: case 8:
@@ -2050,7 +2051,7 @@ int atom_addsymbol(int inr,int itype)
 		(*glob_n_multilist)[inr].charge-=1;
 		break;
 	}
-	if (((itype>=2) && (itype<=5)) || ((itype>=8) && (itype<=9)))
+	if ((((itype>=2) && (itype<=5)) || ((itype>=8) && (itype<=9))) && ((*glob_n_multilist)[inr].Element>=0))
 	{
 		int tl_Element=(*glob_n_multilist)[inr].Element;
 		if ((*glob_n_multilist)[inr].charge>0)
@@ -2212,6 +2213,12 @@ int edit_setelement(int i_Elementnr,n_instance * iinstance,int iindex)
 		TELESCOPE_clear_item();
 		goto iback;
 	}
+	if (i_Elementnr==-2)
+	{
+		(*(n_instance*)iinstance).protons=0;
+		(*(n_instance*)iinstance).Element=-2;
+		return 1;
+	}
 	if ((*(n_instance*)iinstance).Element!=i_Elementnr)
 	{
 		if ((element[i_Elementnr].maxbonds!=element[(*(n_instance*)iinstance).Element].maxbonds) || (element[i_Elementnr].hasVE!=element[(*(n_instance*)iinstance).Element].hasVE))
@@ -2247,6 +2254,7 @@ int edit_setelement(int i_Elementnr,n_instance * iinstance,int iindex)
 }
 catalogized_command_iterated_funcdef(LABELTEXT)
 {
+	if (strcmp(value,"~")==0) {edit_setelement(-2,(n_instance*)iinstance,iindex);return 1;}
 	for (int ilv1=0;ilv1<sizeof(element)/sizeof(element_);ilv1++)
 	{
 		if (strcmp(value,element[ilv1].name)==0)

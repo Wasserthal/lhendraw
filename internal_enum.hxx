@@ -38,6 +38,8 @@
 //a charge symbol placed next to the atom
 #define TELESCOPE_ELEMENTTYPE_tlclane 11
 //a TLC or electrophoresis lane
+#define TELESCOPE_ELEMENTTYPE_wildcard 12
+//attribute that this position can match multiple different element types
 //--TELESCOPE_IDPURPOSE
 #define TELESCOPE_IDPURPOSE_None 0
 //better do not use ...
@@ -49,3 +51,14 @@
 //For selection groups or something.
 #define TELESCOPE_IDPURPOSE_TextField 4
 //Textfield id for this atom
+//--TELESCOPE_WILDCARD
+#define TELESCOPE_WILDCARD_UNDEFINED 0
+//better do not use ...
+#define TELESCOPE_WILDCARD_SYMBOL 1
+//A Symbol for chemical wildcard belongs here. see enums.hxx, ExternalConnectionType enum for values in the following 32-bit integer
+#define TELESCOPE_WILDCARD_NUMBERED 2
+//A Symbol with a number on it, to tell them from each other. See above for structure
+#define TELESCOPE_WILDCARD_BOOKSTAVE 3
+//A string like "R" or "X" or "Ar" that tells what type of atoms the wildcard means. NUL-terminated String follows.
+#define TELESCOPE_WILDCARD_SLASHLIST 4
+//A slash-separated list of possible matchings. NUL-terminated String follows.

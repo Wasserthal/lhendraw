@@ -609,6 +609,7 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,char hatches)
 	{
 		i_n_instance=(n_instance*)&((*glob_n_multilist)[index_in_buffer]);
 		int tlElement=((*i_n_instance).Element);
+		if (tlElement==-2) goto svg_main_loop;
 		MACRO_DRAWPREFIX(stylegenestring)(3);
 		colornr=(*i_n_instance).color;
 		MACRO_DRAWPREFIX(get_colorstring)(colornr);
@@ -1361,8 +1362,8 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,char hatches)
 	{
 		calcdelta(&textdeltax,&textdeltay,(*endnode).xyz.x-(*startnode).xyz.x,(*endnode).xyz.y-(*startnode).xyz.y);
 	}
-	specialS=((*glob_n_multilist)[inr_S].Element!=constants_Element_implicitcarbon);
-	specialE=((*glob_n_multilist)[inr_E].Element!=constants_Element_implicitcarbon);
+	specialS=(((*glob_n_multilist)[inr_S].Element!=constants_Element_implicitcarbon)&&((*glob_n_multilist)[inr_S].Element!=-2));
+	specialE=(((*glob_n_multilist)[inr_E].Element!=constants_Element_implicitcarbon)&&((*glob_n_multilist)[inr_E].Element!=-2));
 	iBBX.left=(*startnode).xyz.x+textdeltax*specialS;
 	iBBX.top=(*startnode).xyz.y+textdeltay*specialS;
 	iDisplaytype1=((*glob_b_multilist)[index_in_buffer].Display);
@@ -1466,16 +1467,77 @@ iBBX.right+ibonddist2*cos(cangle)+ibonddist4*(cos(cangle)-(cos(langle)*tlrightta
 		n_instance * tlnode=(ilv0/2)?startnode:endnode;
 		MACRO_DRAWPREFIX(get_colorstring)((*tlnode).color);
 		MACRO_DRAWPREFIX(stylegenestring)(1);
-/*		if ((*tlnode).ExternalConnectionType==4)
+		if ((*tlnode).Element==-2)
 		{
 			float tlposx=(*tlnode).xyz.x;
 			float tlposy=(*tlnode).xyz.y;
-			float tlsin=sin(langle+((ilv0%2)?(Pi/2):(-Pi/2)))*4;
-			float tlcos=cos(langle+((ilv0%2)?(Pi/2):(-Pi/2)))*4;
-			MACRO_DRAWPREFIX(expressxbezier)(10,tlposx,tlposy,tlposx+tlsin,tlposy-tlcos,tlposx+tlsin+tlcos,tlposy-tlcos+tlsin,tlposx+tlcos,tlposy+tlsin,
-tlposx+tlcos-tlsin,tlposy+tlsin+tlcos,tlposx+2*tlcos-tlsin,tlposy+2*tlsin+tlcos,tlposx+2*tlcos,tlposy+2*tlsin
-,tlposx+2*tlcos+0.25*tlsin,tlposy+2*tlsin-0.25*tlcos,tlposx+2.25*tlcos+0.5*tlsin,tlposy+2.25*tlsin-0.5*tlcos,tlposx+2.5*tlcos+0.5*tlsin,tlposy+2.5*tlsin-0.5*tlcos);
-		}*///TODO SUBJECT: Buffered external connection Type
+			TELESCOPE_aggressobject(glob_n_multilist,(ilv0/2)?inr_S:inr_E);
+			_i32 tlbackval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_wildcard);
+			if (tlbackval>0)
+			{
+				wildcard_instance * tl_wildcard=(wildcard_instance*)TELESCOPE_getproperty();
+				if (tl_wildcard->Type==1)
+				{
+					_u32 ino=*(_u32*)TELESCOPE_getproperty_contents();
+					switch (ino)
+					{
+						case 1: 
+						{
+							//TODO: usually, the diamond must be numbered, make the load routine number it
+							MACRO_DRAWPREFIX(stylegenestring)(2);
+							if (MACRO_DRAWPREFIX(expressgeometry_start)(tlposx-10,tlposy-10,tlposx+10,tlposy+10))
+							{
+								MACRO_DRAWPREFIX(expressgeometry_begin)(tlposx,tlposy-10);
+								MACRO_DRAWPREFIX(expressgeometry_line)(tlposx+10,tlposy);
+								MACRO_DRAWPREFIX(expressgeometry_line)(tlposx,tlposy+10);
+								MACRO_DRAWPREFIX(expressgeometry_line)(tlposx-10,tlposy);
+								MACRO_DRAWPREFIX(expressgeometry_line)(tlposx,tlposy);
+								MACRO_DRAWPREFIX(expressgeometry_line)(tlposx,tlposy-10);
+								MACRO_DRAWPREFIX(expressgeometry_end)();
+							}
+							MACRO_DRAWPREFIX(expressline)(tlposx,tlposy-10,tlposx-10,tlposy);
+							break;
+						}
+						case 2:
+						{
+							MACRO_DRAWPREFIX(express_txinit)(2,tlposx,tlposy,atomfontheight,0);
+							MACRO_DRAWPREFIX(draw_printformatted)("*","",0,0,strlen("*"));
+							MACRO_DRAWPREFIX(express_text_tail)();
+							break;
+						}
+						case 3: 
+						{
+							//TODO: THIS IS THE BUSY WHIRL! Make it look more like a polymer bead
+							for (int ilv2=-10;ilv2<=10;ilv2++)
+							{
+								for (int ilv3=-10;ilv3<=10;ilv3++)
+								{
+									if (((ilv2*ilv2+ilv3*ilv3)<100)&((rand()%40)<1))
+									{
+										MACRO_DRAWPREFIX(stylegenestring)(2);
+										MACRO_DRAWPREFIX(get_colorstring)((ilv0%2)?0xFFFF00:0x7F7F00);
+										MACRO_DRAWPREFIX(expresscdxcircle)(tlposx+ilv2,tlposy+ilv3,3);
+									}
+								}
+							}
+							break;
+						}
+						case 4: goto svg_main_b_wildcard_wavy;
+						default:
+						goto svg_main_b_wildcard_wavy;
+					}
+				}
+			}
+			else
+			{
+				svg_main_b_wildcard_wavy:;
+				float tlsin=sin(langle+((ilv0%2)?(Pi/2):(-Pi/2)))*4;
+				float tlcos=cos(langle+((ilv0%2)?(Pi/2):(-Pi/2)))*4;
+				MACRO_DRAWPREFIX(expressxbezier)(10,tlposx,tlposy,tlposx+tlsin,tlposy-tlcos,tlposx+tlsin+tlcos,tlposy-tlcos+tlsin,tlposx+tlcos,tlposy+tlsin,
+	tlposx+tlcos-tlsin,tlposy+tlsin+tlcos,tlposx+2*tlcos-tlsin,tlposy+2*tlsin+tlcos,tlposx+2*tlcos,tlposy+2*tlsin
+	,tlposx+2*tlcos+0.25*tlsin,tlposy+2*tlsin-0.25*tlcos,tlposx+2.25*tlcos+0.5*tlsin,tlposy+2.25*tlsin-0.5*tlcos,tlposx+2.5*tlcos+0.5*tlsin,tlposy+2.5*tlsin-0.5*tlcos);
+			}
+		}
 	}
 	goto svg_main_loop;
 	svg_main_t:

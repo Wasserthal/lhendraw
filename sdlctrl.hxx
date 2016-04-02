@@ -1279,7 +1279,7 @@ int issueclick(int iposx,int iposy)
 								control_textedit_index=ilv1;
 								control_textedit_selectmode=0;
 								TELESCOPE_aggressobject(glob_n_multilist,ilv1);
-								if (tl_n_instance->Element!=-1)
+								if (tl_n_instance->Element>=0)
 								{
 									float i_bond_sum=0;
 									for (int ilv2=0;ilv2<atom_actual_node[ilv1].bondcount;ilv2++)
@@ -1351,7 +1351,7 @@ int issueclick(int iposx,int iposy)
 									tl_n_instance->Element=-1;
 								}
 								tl_backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_s);
-								if (tl_backval==0) {tl_backval=TELESCOPE_add(TELESCOPE_ELEMENTTYPE_s,"",1);}
+								if (tl_backval==0) {tl_backval=TELESCOPE_add(TELESCOPE_ELEMENTTYPE_s,(tl_n_instance->Element==-2)?"~":"",1);}
 								if (tl_backval==0) {control_mousestate=0;return 0;}
 								TELESCOPE_insertintoproperties_offset((char*)"\uE000",3,-1);
 								(*glob_n_multilist)[ilv1].Element=-1;

@@ -4,7 +4,7 @@ jmp_buf debug_crashhandler;
 void debug_abortfunc(mcheck_status istatus)
 {
 	printf("Mcheck failed!\n");exit(1);
-
+}
 #endif
 #ifdef DEBUG
 #define print(...) printf(__VA_ARGS__)

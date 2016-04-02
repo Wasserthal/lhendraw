@@ -334,8 +334,8 @@ void janitor_bufferresort()
 			else
 			{
 				tl_object=itelescope->owner;
+				tl_writepos+=length;
 			}
-			tl_writepos+=length;
 		}
 	}
 	return;

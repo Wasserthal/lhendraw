@@ -439,6 +439,59 @@ int selection_grow(selection_ i_selection,int bondno,int aim)//set bondno and ai
 	if (changed) goto iback;
 	return 0;
 }
+int selection_growin(selection_ i_selection,selection_ i_masterselection,int bondno,int aim)//set bondno and aim both to -1 to prevent aborts on cyclisation
+{
+	int side=0;
+	char changed;
+	selection_datatype icompare_n=1<<STRUCTURE_OBJECTTYPE_n;
+	selection_datatype icompare_b=1<<STRUCTURE_OBJECTTYPE_b;
+	iback:;
+	changed=0;
+	for (int ilv1=0;ilv1<(*glob_b_multilist).filllevel;ilv1++)
+	{
+		if ((*glob_b_multilist).bufferlist()[ilv1].exist)
+		{
+			if (i_selection[ilv1]&icompare_b)
+			{
+				if (ilv1!=bondno)
+				{
+					if (bond_actual_node[ilv1].start==aim)
+					{
+						return 1;
+					}
+					if (bond_actual_node[ilv1].end==aim)
+					{
+						return 1;
+					}
+				}
+				side=bond_actual_node[ilv1].start;
+				isideback:;
+				if ((i_selection[side]&icompare_n)==0)
+				{
+					i_selection[side]|=icompare_n;
+					for (int ilv2=0;ilv2<atom_actual_node[side].bondcount;ilv2++)
+					{
+						if ((i_selection[atom_actual_node[side].bonds[ilv2]]&icompare_b)==0)
+						{
+							if (i_masterselection[atom_actual_node[side].bonds[ilv2]]&icompare_b)
+							{
+								i_selection[atom_actual_node[side].bonds[ilv2]]|=icompare_b;
+							}
+							changed=1;
+						}
+					}
+				}
+				if (side!=bond_actual_node[ilv1].end)
+				{
+					side=bond_actual_node[ilv1].end;
+					goto isideback;
+				}
+			}
+		}
+	}
+	if (changed) goto iback;
+	return 0;
+}
 int selection_n_pivot(selection_ iselection,cdx_Point3D * ioutput)
 {
 	double sumX=0;

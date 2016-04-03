@@ -2649,6 +2649,147 @@ double edit_judgeflip(selection_ iselection)
 	}
 	return rating;
 }
+cdx_Point2D*edit_atomimpulse;
+void edit_stretch_mechanic(int startno,int endno,int itargetlength)
+{
+	n_instance * startatom=glob_n_multilist->bufferlist()+startno;
+	n_instance * endatom=glob_n_multilist->bufferlist()+endno;
+	double tl_angle=getangle(endatom->xyz.x-startatom->xyz.x,endatom->xyz.y-startatom->xyz.y);
+	double tl_length=sqrt(fsqr(startatom->xyz.x-endatom->xyz.x)+fsqr(startatom->xyz.y-endatom->xyz.y));
+	if (tl_length>itargetlength+1)
+	{
+		tl_length-=itargetlength+0.8;
+		edit_atomimpulse[startno].x+=cos(tl_angle)*tl_length;
+		edit_atomimpulse[startno].y+=sin(tl_angle)*tl_length;
+		edit_atomimpulse[endno].x-=cos(tl_angle)*tl_length;
+		edit_atomimpulse[endno].y-=sin(tl_angle)*tl_length;
+	}
+	else
+	{
+		if (tl_length<itargetlength-1)
+		{
+			tl_length=itargetlength-0.8-tl_length;
+			edit_atomimpulse[startno].x-=cos(tl_angle)*tl_length;
+			edit_atomimpulse[startno].y-=sin(tl_angle)*tl_length;
+			edit_atomimpulse[endno].x+=cos(tl_angle)*tl_length;
+			edit_atomimpulse[endno].y+=sin(tl_angle)*tl_length;
+		}
+	}
+}
+void edit_clean_mechanic(selection_ iselection)
+{
+	selection_datatype i_n_compare=1<<STRUCTURE_OBJECTTYPE_n;
+	selection_datatype i_b_compare=1<<STRUCTURE_OBJECTTYPE_b;
+
+	double average_x=0;
+	double average_y=0;
+	double average_z=0;
+	_small atom_count=0;
+	for (int ilv1=0;ilv1<glob_n_multilist->filllevel;ilv1++)
+	{
+		if (iselection[ilv1]&(1<<STRUCTURE_OBJECTTYPE_n))
+		{
+			if (glob_n_multilist->bufferlist()[ilv1].exist)
+			{
+				average_x+=glob_n_multilist->bufferlist()[ilv1].xyz.x;
+				average_y+=glob_n_multilist->bufferlist()[ilv1].xyz.y;
+				average_z+=glob_n_multilist->bufferlist()[ilv1].xyz.z;
+				atom_count++;
+			}
+		}
+	}
+
+	for (int ilv1=0;ilv1<glob_n_multilist->filllevel;ilv1++)
+	{
+		edit_atomimpulse[ilv1].x=0;
+		edit_atomimpulse[ilv1].y=0;
+	}
+	for (int ilv0=0;ilv0<2000;ilv0++)
+	{
+		for (int ilv1=0;ilv1<glob_b_multilist->filllevel;ilv1++)
+		{
+			if (iselection[ilv1]&(i_b_compare))
+			{
+				if (glob_b_multilist->bufferlist()[ilv1].exist)
+				{
+					_small startno=bond_actual_node[ilv1].start;
+					_small endno=bond_actual_node[ilv1].end;
+					edit_stretch_mechanic(startno,endno,constants_bondlength);
+				}
+			}
+		}
+		for (int ilv1=0;ilv1<glob_n_multilist->filllevel;ilv1++)
+		{
+			if (iselection[ilv1]&(i_n_compare))
+			{
+				if (glob_n_multilist->bufferlist()[ilv1].exist)
+				{
+					if (atom_actual_node[ilv1].bondcount==2)
+					{
+						_small startno=getother(ilv1,atom_actual_node[ilv1].bonds[0]);
+						_small endno=getother(ilv1,atom_actual_node[ilv1].bonds[1]);
+						edit_stretch_mechanic(startno,endno,constants_bondlength*1.732050808);
+					}
+					if (atom_actual_node[ilv1].bondcount==3)
+					{
+						_small startno=getother(ilv1,atom_actual_node[ilv1].bonds[0]);
+						_small endno=getother(ilv1,atom_actual_node[ilv1].bonds[1]);
+						edit_stretch_mechanic(startno,endno,constants_bondlength*1.732050808);
+						startno=getother(ilv1,atom_actual_node[ilv1].bonds[0]);
+						endno=getother(ilv1,atom_actual_node[ilv1].bonds[2]);
+						edit_stretch_mechanic(startno,endno,constants_bondlength*1.732050808);
+						startno=getother(ilv1,atom_actual_node[ilv1].bonds[1]);
+						endno=getother(ilv1,atom_actual_node[ilv1].bonds[2]);
+						edit_stretch_mechanic(startno,endno,constants_bondlength*1.732050808);
+					}
+				}
+			}
+		}
+		for (int ilv1=0;ilv1<glob_n_multilist->filllevel;ilv1++)
+		{
+			if (iselection[ilv1]&(i_n_compare))
+			{
+				if (glob_n_multilist->bufferlist()[ilv1].exist)
+				{
+					edit_atomimpulse[ilv1].x/=5.0;//make them less effective and dampen them at the same time
+					edit_atomimpulse[ilv1].y/=5.0;
+					glob_n_multilist->bufferlist()[ilv1].xyz.x+=edit_atomimpulse[ilv1].x/3.0;
+					glob_n_multilist->bufferlist()[ilv1].xyz.y+=edit_atomimpulse[ilv1].y/3.0;
+				}
+			}
+		}
+	}
+	for (int ilv1=0;ilv1<glob_n_multilist->filllevel;ilv1++)
+	{
+		if (iselection[ilv1]&(1<<STRUCTURE_OBJECTTYPE_n))
+		{
+			if (glob_n_multilist->bufferlist()[ilv1].exist)
+			{
+				average_x-=glob_n_multilist->bufferlist()[ilv1].xyz.x;
+				average_y-=glob_n_multilist->bufferlist()[ilv1].xyz.y;
+				average_z-=glob_n_multilist->bufferlist()[ilv1].xyz.z;
+			}
+		}
+	}
+	if (atom_count>0)
+	{
+		average_x/=atom_count;
+		average_y/=atom_count;
+		average_z/=atom_count;
+		for (int ilv1=0;ilv1<glob_n_multilist->filllevel;ilv1++)
+		{
+			if (iselection[ilv1]&(1<<STRUCTURE_OBJECTTYPE_n))
+			{
+				if (glob_n_multilist->bufferlist()[ilv1].exist)
+				{
+					glob_n_multilist->bufferlist()[ilv1].xyz.x+=average_x;
+					glob_n_multilist->bufferlist()[ilv1].xyz.y+=average_y;
+					glob_n_multilist->bufferlist()[ilv1].xyz.z+=average_z;
+				}
+			}
+		}
+	}
+}
 catalogized_command_funcdef(CLEANUP)
 {
 	storeundo((1<<STRUCTURE_OBJECTTYPE_n)+(1<<STRUCTURE_OBJECTTYPE_b),"CLEANUP");
@@ -2733,6 +2874,29 @@ catalogized_command_funcdef(CLEANUP)
 	{
 		abort=1;
 	}
+	for (int ringsize=3;ringsize<=20;ringsize++)
+	{
+		selection_copyselection(selection_ringselection,selection_objectselection);
+		selection_select_rings_members(selection_ringselection,ringsize);
+		edit_cleanupcycles(selection_ringselection);
+		selection_select_rings_members(selection_ringselection,ringsize);
+		memory_alloc((char**)&edit_atomimpulse,6);
+		for (int ilv1=0;ilv1<glob_b_multilist->filllevel;ilv1++)
+		{
+			if (selection_ringselection[ilv1]&(1<<STRUCTURE_OBJECTTYPE_b))
+			{
+				if (glob_b_multilist->bufferlist()[ilv1].exist)
+				{
+					selection_clearselection(selection_clickselection);
+					selection_clickselection[ilv1]|=1<<STRUCTURE_OBJECTTYPE_b;
+					selection_growin(selection_clickselection,selection_ringselection,-1,-1);
+					edit_clean_mechanic(selection_clickselection);
+					selection_SUBTRACTselection(selection_ringselection,selection_clickselection);
+				}
+			}
+		}
+		memory_free(edit_atomimpulse);
+	}
 	for (int ilv1=0;ilv1<glob_n_multilist->filllevel;ilv1++)
 	{
 		if (selection_objectselection[ilv1]&(1<<STRUCTURE_OBJECTTYPE_n))
@@ -2743,13 +2907,6 @@ catalogized_command_funcdef(CLEANUP)
 				average_y-=glob_n_multilist->bufferlist()[ilv1].xyz.y;
 				average_z-=glob_n_multilist->bufferlist()[ilv1].xyz.z;
 			}
-		}
-	}
-	for (int ilv1=0;ilv1<glob_b_multilist->filllevel;ilv1++)
-	{
-		if (selection_objectselection[ilv1]&(1<<STRUCTURE_OBJECTTYPE_b))
-		{
-			//TODO
 		}
 	}
 	if (atom_count>0)

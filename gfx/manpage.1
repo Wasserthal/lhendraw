@@ -1,0 +1,60 @@
+.\"                                      Hey, EMACS: -*- nroff -*-
+.\" (C) Copyright 2015 lw <lw@debian.ldrawdeb>,
+.\"
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH LHENDRAW 1 "November 22, 2015"
+.\" Please adjust this date whenever revising the manpage.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for manpage-specific macros, see man(7)
+.SH NAME
+lhendraw \- chemical drawing program
+.SH SYNOPSIS
+.B lhendraw
+.RI [ options ] " files" ...
+.br
+.B bar
+.RI [ options ] " files" ...
+.SH DESCRIPTION
+This manual page documents briefly the
+.B lhendraw
+command.
+.PP
+.\" TeX users may be more comfortable with the \fB<whatever>\fP and
+.\" \fI<whatever>\fP escape sequences to invode bold face and italics,
+.\" respectively.
+\fBlhendraw\fP is a program that provides you with a editing-GUI and a search function for cdx- and cdxml-files
+.SH OPTIONS
+These programs follow the usual GNU command line syntax, with long
+options starting with two dashes (`-').
+A summary of options is included below.
+For a complete description, see the \-h command
+For documentation of the GUI-mode, see the questionmark button in the GUI.
+.TP
+.B \-h,
+Show summary of options.
+.B \-I,
+Disables GUI.
+.B \-F,
+Suppresses all warnings, both in GUI and command line mode.
+.B \-\-search
+All following arguments are treated as filenames to be searched for the formula loaded before.
+in GUI mode, a extra process window for any found file is opened. In command-line mode, only the names are printed with newlines in-between
+.TP
+.B \-v,
+Show version of program.
+.SH SEE ALSO
+.BR bkchem (1),
+.BR xdrawchem (1).
+.br
+The program is documented fully by the \-h command, the Help button of the GUI and the README File in the source code together.

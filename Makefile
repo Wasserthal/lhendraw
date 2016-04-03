@@ -70,4 +70,4 @@ install:
 	cp *.lennardfont -t $(DESTDIR)/usr/share/lhendraw
 	cp *.bin -t $(DESTDIR)/usr/share/lhendraw
 	mkdir -p $(DESTDIR)/usr/share/man/man1
-	gzip -c debian/manpage.1 > $(DESTDIR)/usr/share/man/man1/lhendraw.1.gz
+	gzip -c gfx/manpage.1 > $(DESTDIR)/usr/share/man/man1/lhendraw.1.gz

@@ -2409,6 +2409,7 @@ void edit_invert_wedges(selection_ iselection)
 }
 void edit_flip_bond(_small i_bond_to_switch,_small i_atom_to_keep)
 {
+	if ((glob_b_multilist->bufferlist()[i_bond_to_switch].Order>16)&&(glob_b_multilist->bufferlist()[i_bond_to_switch].Display!=8))return;
 	selection_clearselection(selection_currentselection);
 	selection_currentselection[i_bond_to_switch]|=(1<<STRUCTURE_OBJECTTYPE_b);
 	selection_currentselection[i_atom_to_keep]|=(1<<STRUCTURE_OBJECTTYPE_n);

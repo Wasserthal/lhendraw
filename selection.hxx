@@ -19,6 +19,14 @@ void selection_clearselection(selection_ iselection)
 		iselection[ilv1]=0;
 	}
 }
+void selection_fillselection(selection_ iselection)
+{
+	int tl_max=LHENDRAW_buffersize/sizeof(selection_datatype);
+	for (int ilv1=0;ilv1<tl_max;ilv1++)
+	{
+		iselection[ilv1]=~0;
+	}
+}
 void selection_copyselection(selection_ iselection,selection_ iselection2)
 {
 	int tl_max=LHENDRAW_buffersize/sizeof(selection_datatype);

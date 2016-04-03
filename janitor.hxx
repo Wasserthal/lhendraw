@@ -228,6 +228,52 @@ void reenumerate()
 		}
 	}
 }
+void janitor_getZrange(int * outmin,int * outmax,selection_ iselection,int delta)
+{
+	int minZ=2000000000;
+	int maxZ=-1;
+	for (int ilv1=1;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
+	{
+		CDXMLREAD_functype thisfunc;
+		int propertypos;
+		basicmultilist * imultilist=findmultilist(STRUCTURE_OBJECTTYPE_List[ilv1].name);
+		if (imultilist)
+		{
+			selection_datatype icompare=1<<ilv1;
+			int itemsize=imultilist->itemsize;
+			propertypos=imultilist->getproperties("Z",&thisfunc);
+			if (propertypos!=-1)
+			{
+				char * tl_pointer=imultilist->pointer;
+				tl_pointer+=propertypos;
+				for (int ilv2=0;ilv2<(*imultilist).filllevel;ilv2++)
+				{
+					if ((iselection[ilv2]&icompare)!=0)
+					{
+						if ((*imultilist)[ilv2].exist)
+						{
+							if (delta!=0) {(*(int*)tl_pointer)+=delta;}
+							int tlthisZ=*(int*)tl_pointer;
+							if (minZ>tlthisZ) minZ=tlthisZ;
+							if (maxZ<tlthisZ) maxZ=tlthisZ;
+						}
+					}
+					tl_pointer+=itemsize;
+				}
+			}
+		}
+	}
+	if ((maxZ<0)||(minZ==2000000000))
+	{
+		*outmin=1;
+		*outmax=2;
+	}
+	else
+	{
+		*outmin=minZ;
+		*outmax=maxZ;
+	}
+}
 
 void initZlist()
 {

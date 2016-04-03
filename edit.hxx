@@ -2426,7 +2426,7 @@ int edit_rectifypoint(int * icurrentpoint,selection_ iselection,cdx_Point3D ipiv
 	{
 		if (iselection[atom_actual_node[(*icurrentpoint)].bonds[ilv1]]&(1<<STRUCTURE_OBJECTTYPE_b))
 		{
-			printf("BBB:%i\n",ilv1);
+			print("BBB:%i\n",ilv1);
 			b_instance * i_b_instance=glob_b_multilist->bufferlist()+atom_actual_node[(*icurrentpoint)].bonds[ilv1];
 			if (i_b_instance->exist)
 			{
@@ -2441,7 +2441,7 @@ int edit_rectifypoint(int * icurrentpoint,selection_ iselection,cdx_Point3D ipiv
 			}
 		}
 	}
-	printf("\\n\n");
+	print("\\n\n");
 	return 0;
 }
 void edit_cyclify_cycle(selection_ iselection)
@@ -2470,7 +2470,6 @@ void edit_cyclify_cycle(selection_ iselection)
 	while (edit_rectifypoint(&currentpoint,iselection,ipivot,&currentangle,distance,singleangle)>0)
 	{
 		currentangle+=singleangle;
-		printf("CYCLE%i:::%f\n",count,singleangle);
 	}
 }
 void edit_cleanupcycles(selection_ iselection)
@@ -2879,6 +2878,35 @@ catalogized_command_funcdef(SETITEMVARIABLES)
 		}
 		iskip:;
 	}
+	return 1;
+}
+catalogized_command_funcdef(BRINGTOFRONT)
+{
+	_small Zmin,Zmax;
+	_small Zmin2,Zmax2;
+	_small dummy1,dummy2;
+	_small delta;
+	selection_fillselection(selection_clickselection);
+	selection_SUBTRACTselection(selection_clickselection,selection_currentselection);
+	janitor_getZrange(&Zmin,&Zmax,selection_clickselection,0);
+	janitor_getZrange(&Zmin2,&Zmax2,selection_currentselection,0);
+	if (strcmp(value,"True")==0)
+	{
+		if (Zmin2<=Zmax)
+		{
+			delta+=Zmax-Zmin2+1;
+			janitor_getZrange(&dummy1,&dummy2,selection_currentselection,delta);
+		}
+	}
+	else
+	{
+		if (Zmax2>=Zmin)
+		{
+			delta+=Zmax2-Zmin+1;
+			janitor_getZrange(&dummy1,&dummy2,selection_clickselection,delta);
+		}
+	}
+	initZlist();
 	return 1;
 }
 catalogized_command_funcdef(RESETBONDSTYLE)
@@ -5116,6 +5144,7 @@ catalogized_command_funcdef(SET_ALL_ITEMS)//TODO: works for _i32 only, right now
 	}
 	for (int ilv1=1;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
 	{
+		if (!((ilv1==STRUCTURE_OBJECTTYPE_n)||(ilv1==STRUCTURE_OBJECTTYPE_t))) continue;
 		int follower3=0;
 		basicmultilist * tl_multilist=findmultilist(STRUCTURE_OBJECTTYPE_List[ilv1].name);
 		char * ibufferpos=(*tl_multilist).pointer;

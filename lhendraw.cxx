@@ -243,7 +243,7 @@ int main(int argc,char * * argv)
 	}
 	memcpy(memory_catch_overflow,debug_crashhandler,sizeof(jmp_buf));
 	cmdline(argc,argv);
-	print("LISTSIZE:%i,MAX:%i\n",glob_CONFIGBRIDGE_Hotkey_multilist->filllevel,glob_CONFIGBRIDGE_Hotkey_multilist->getmaxitems());
+	print("LISTSIZE:%lli,MAX:%lli\n",glob_CONFIGBRIDGE_Hotkey_multilist->filllevel,glob_CONFIGBRIDGE_Hotkey_multilist->getmaxitems());
 	if (control_GUI)
 	{
 		svg_findaround();

@@ -1075,6 +1075,34 @@ int issueclick(int iposx,int iposy)
 							{
 								tlatom=(*glob_n_multilist).bufferlist()+ilv2;
 								edit_setelement(control_drawproperties.Element,tlatom,ilv2);
+								if (control_drawproperties.WildcardType!=0)
+								{
+									(*tlatom).Element=-2;
+									(*tlatom).protons=0;
+									if (control_drawproperties.WildcardType!=4)
+									{
+										if (control_drawproperties.WildcardType==-1)
+										{
+											edit_setelement(control_drawproperties.Element,tlatom,ilv2);
+										}
+										else
+										{
+											TELESCOPE_aggressobject(glob_n_multilist,ilv2);
+											wildcard_instance tl_wildcard_instance;
+											tl_wildcard_instance.length=sizeof(wildcard_instance)+4;
+											tl_wildcard_instance.Type=1;
+											tl_wildcard_instance.type=TELESCOPE_ELEMENTTYPE_wildcard;
+											if (TELESCOPE_add(TELESCOPE_ELEMENTTYPE_wildcard,(char*)&(control_drawproperties.WildcardType),4)>0)
+											{
+												*((wildcard_instance*)TELESCOPE_getproperty())=tl_wildcard_instance;
+											}
+											else
+											{
+												memory_overflow_hook();
+											}
+										}
+									}
+								}
 							}
 						}
 					}
@@ -1089,6 +1117,34 @@ int issueclick(int iposx,int iposy)
 						(*tlatom).xyz.y=control_coorsy;
 						(*tlatom).xyz.z=0;
 						edit_setelement(control_drawproperties.Element,tlatom,atomnr);
+						if (control_drawproperties.WildcardType!=0)
+						{
+							(*tlatom).Element=-2;
+							(*tlatom).protons=0;
+							if (control_drawproperties.WildcardType!=4)
+							{
+								if (control_drawproperties.WildcardType==-1)
+								{
+									edit_setelement(control_drawproperties.Element,tlatom,atomnr);
+								}
+								else
+								{
+									TELESCOPE_aggressobject(glob_n_multilist,atomnr);
+									wildcard_instance tl_wildcard_instance;
+									tl_wildcard_instance.length=sizeof(wildcard_instance)+4;
+									tl_wildcard_instance.Type=1;
+									tl_wildcard_instance.type=TELESCOPE_ELEMENTTYPE_wildcard;
+									if (TELESCOPE_add(TELESCOPE_ELEMENTTYPE_wildcard,(char*)&(control_drawproperties.WildcardType),4)>0)
+									{
+										*((wildcard_instance*)TELESCOPE_getproperty())=tl_wildcard_instance;
+									}
+									else
+									{
+										memory_overflow_hook();
+									}
+								}
+							}
+						}
 					}
 				}
 			}
@@ -1345,6 +1401,14 @@ int issueclick(int iposx,int iposy)
 									{
 										TELESCOPE_clear_item();
 										tl_backval=TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_s_f);
+
+									}
+									TELESCOPE_aggressobject(glob_n_multilist,ilv1);
+									tl_backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_wildcard);
+									while (tl_backval)
+									{
+										TELESCOPE_clear_item();
+										tl_backval=TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_wildcard);
 
 									}
 									TELESCOPE_aggressobject(glob_n_multilist,ilv1);
@@ -1857,7 +1921,7 @@ void issuedrag(int iposx,int iposy)
 				}
 				else
 				{
-					//TODO: overflow
+					memory_overflow_hook();
 				}
 			}
 			if (MODIFIER_KEYS.ALT==0)
@@ -1903,6 +1967,34 @@ void issuedrag(int iposx,int iposy)
 					(*tlatom2).xyz.x=control_coorsx;
 					(*tlatom2).xyz.y=control_coorsy;
 					(*tlatom2).xyz.z=(*tlatom).xyz.z;
+					if (control_drawproperties.WildcardType!=0)
+					{
+						(*tlatom2).Element=-2;
+						(*tlatom2).protons=0;
+						if (control_drawproperties.WildcardType!=4)
+						{
+							if (control_drawproperties.WildcardType==-1)
+							{
+								edit_setelement(control_drawproperties.Element,tlatom2,atomnr2);
+							}
+							else
+							{
+								TELESCOPE_aggressobject(glob_n_multilist,atomnr2);
+								wildcard_instance tl_wildcard_instance;
+								tl_wildcard_instance.length=sizeof(wildcard_instance)+4;
+								tl_wildcard_instance.Type=1;
+								tl_wildcard_instance.type=TELESCOPE_ELEMENTTYPE_wildcard;
+								if (TELESCOPE_add(TELESCOPE_ELEMENTTYPE_wildcard,(char*)&(control_drawproperties.WildcardType),4)>0)
+								{
+									*((wildcard_instance*)TELESCOPE_getproperty())=tl_wildcard_instance;
+								}
+								else
+								{
+									memory_overflow_hook();
+								}
+							}
+						}
+					}
 				}
 			}
 			if ((tlatom) && (tlatom2))
@@ -2097,7 +2189,7 @@ void issuedrag(int iposx,int iposy)
 				(*tl_arrow).MinorAxisEnd3D.x=(*tl_arrow).Center3D.x-(control_coorsy-(*tl_arrow).Center3D.y);
 				(*tl_arrow).MinorAxisEnd3D.y=(*tl_arrow).Center3D.y+(control_coorsx-(*tl_arrow).Center3D.x);
 				(*tl_arrow).MinorAxisEnd3D.z=0;
-				(*tl_arrow).Z=0;//TODO: pretty urgent
+				(*tl_arrow).Z=edit_getnewZ();
 			}
 			break;
 		}
@@ -2518,14 +2610,44 @@ void issuerelease()
 		{
 			if (control_dragged==0)
 			{
-				int tlatom=0;
+				int tl_atomnr=0;
+				int tl_atomnr2=0;
 				if (control_id!=-1)
 				{
 					madeitmyself1:
-					if (edit_locatebyid(STRUCTURE_OBJECTTYPE_n,control_id,&tlatom))
+					if (edit_locatebyid(STRUCTURE_OBJECTTYPE_n,control_id,&tl_atomnr))
 					{
-						control_hotatom=tlatom;
-						edit_errichten(tlatom);
+						control_hotatom=tl_atomnr;
+						tl_atomnr2=edit_errichten(tl_atomnr);
+						n_instance * tl_atom2=glob_n_multilist->bufferlist()+tl_atomnr2;
+						if (control_drawproperties.WildcardType!=0)
+						{
+							(*tl_atom2).Element=-2;
+							(*tl_atom2).protons=0;
+							if (control_drawproperties.WildcardType!=4)
+							{
+								if (control_drawproperties.WildcardType==-1)
+								{
+									edit_setelement(control_drawproperties.Element,tl_atom2,tl_atomnr2);
+								}
+								else
+								{
+									TELESCOPE_aggressobject(glob_n_multilist,tl_atomnr2);
+									wildcard_instance tl_wildcard_instance;
+									tl_wildcard_instance.length=sizeof(wildcard_instance)+4;
+									tl_wildcard_instance.Type=1;
+									tl_wildcard_instance.type=TELESCOPE_ELEMENTTYPE_wildcard;
+									if (TELESCOPE_add(TELESCOPE_ELEMENTTYPE_wildcard,(char*)&(control_drawproperties.WildcardType),4)>0)
+									{
+										*((wildcard_instance*)TELESCOPE_getproperty())=tl_wildcard_instance;
+									}
+									else
+									{
+										memory_overflow_hook();
+									}
+								}
+							}
+						}
 					}
 				}
 				else
@@ -3046,50 +3168,20 @@ int issuepseclick(int x,int y,int ibutton)
 {
 	for (int ilv1=0;ilv1<sizeof(element)/sizeof(element_);ilv1++)
 	{
-		if ((x==element[ilv1].PSEX) && (y==element[ilv1].PSEY))
+		if ((x==element[ilv1].PSEX) && ((y/2)==element[ilv1].PSEY))
 		{
 			control_drawproperties.Element=ilv1;
-			control_mousestate&=(~0x10);
-			int icompare=(1<<STRUCTURE_OBJECTTYPE_n);
-			if (ibutton==SDL_BUTTON_LEFT)
-			{
-				selection_recheck(selection_currentselection,&selection_currentselection_found);
-				if (selection_currentselection_found & icompare)
-				{
-					undo_storcatch(icompare,"PSE");
-					for (int ilv2=0;ilv2<(*glob_n_multilist).filllevel;ilv2++)
-					{
-						if (selection_currentselection[ilv2] & icompare)
-						{
-							if (((*glob_n_multilist).bufferlist()+ilv2)->exist)
-							{
-								edit_setelement(ilv1,(*glob_n_multilist).bufferlist()+ilv2,ilv2);
-								//It is by reason that uninterpreted text labels are not overwritten!
-							}
-						}
-					}
-					return 1;
-				}
-				if ((control_tool==7) && (control_hotatom!=-1))
-				{
-					if (control_hotatom>(*glob_n_multilist).filllevel)
-					{
-						if (((*glob_n_multilist).bufferlist()+control_hotatom)->exist)
-						{
-							edit_setelement(ilv1,(*glob_n_multilist).bufferlist()+control_hotatom,control_hotatom);
-							return 1;
-						}
-					}
-				}
-				control_tool=6;
-				selection_clickabilitymatrix=control_clickabilitymatrixes[control_tool];
-			}
-			else
-			{
-				control_tool=6;
-				selection_clickabilitymatrix=control_clickabilitymatrixes[control_tool];
-			}
-			return 1;
+			control_drawproperties.WildcardType=0;
+			goto pse_nachbearbeitung;
+		}
+	}
+	for (int ilv1=1;ilv1<sizeof(element_wildcards)/sizeof(element_);ilv1++)
+	{
+		if ((x==element_wildcards[ilv1].PSEX) && (y==element_wildcards[ilv1].PSEY))
+		{
+			control_drawproperties.Element=constants_Element_implicitcarbon;
+			control_drawproperties.WildcardType=ilv1;
+			goto pse_nachbearbeitung;
 		}
 	}
 	control_mousestate&=(~0x10);
@@ -3098,6 +3190,38 @@ int issuepseclick(int x,int y,int ibutton)
 		control_drawproperties.Element=constants_Element_implicitcarbon;
 	}
 	return 0;
+	pse_nachbearbeitung:;
+	control_mousestate&=(~0x10);
+	int icompare=(1<<STRUCTURE_OBJECTTYPE_n);
+	if (ibutton==SDL_BUTTON_LEFT)
+	{
+		selection_recheck(selection_currentselection,&selection_currentselection_found);
+		if (selection_currentselection_found & icompare)
+		{
+			undo_storcatch(icompare,"PSE");
+			for (int ilv2=0;ilv2<(*glob_n_multilist).filllevel;ilv2++)
+			{
+				if (selection_currentselection[ilv2] & icompare)
+				{
+					if (((*glob_n_multilist).bufferlist()+ilv2)->exist)
+					{
+						edit_setelement(ilv1,(*glob_n_multilist).bufferlist()+ilv2,ilv2);
+						//It is by reason that uninterpreted text labels are not overwritten!
+					}
+				}
+			}
+			return 1;
+		}
+		control_tool=6;
+		selection_clickabilitymatrix=control_clickabilitymatrixes[control_tool];
+	}
+	else
+	{
+		control_tool=7;
+		if (control_drawproperties.WildcardType==0) control_drawproperties.WildcardType=-1;
+		selection_clickabilitymatrix=control_clickabilitymatrixes[control_tool];
+	}
+	return 1;
 }
 int menu_unbound(int invalue,char xy);
 int issuerectclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int iposx,int iposy,int ibutton)
@@ -3135,7 +3259,7 @@ void issuemenuclicks(int iposx,int iposy,int ibutton)
 			{
 				case 0:tlsuccess|=issuemenuclick((AUTOSTRUCT_PULLOUTLISTING_*)menu_list[ilv1].what.pointer,menu_list[ilv1].what.count,(iposx-tl_alignx)/32,(iposy-tl_aligny)/32,ibutton,iposx,iposy);break;
 				case 1:tlsuccess|=issuemenuclick((AUTOSTRUCT_PULLOUTLISTING_*)menu_list[ilv1].what.pointer,menu_list[ilv1].what.count,(iposx-tl_alignx)/192,(iposy-tl_aligny)/16,ibutton,iposx,iposy);break;
-				case 2: tlsuccess|=issuepseclick((iposx-tl_alignx)/32,(iposy-tl_aligny)/48,ibutton);break;
+				case 2: tlsuccess|=issuepseclick((iposx-tl_alignx)/32,(iposy-tl_aligny)/24,ibutton);break;
 				case 3: tlsuccess|=issuerectclick((AUTOSTRUCT_PULLOUTLISTING_*)menu_list[ilv1].what.pointer,menu_list[ilv1].what.count,iposx-tl_alignx,iposy-tl_aligny,ibutton);break;
 				case 4: tlsuccess|=issuerectclick((AUTOSTRUCT_PULLOUTLISTING_*)menu_list[ilv1].what.pointer,menu_list[ilv1].what.count,iposx-tl_alignx,iposy-tl_aligny,ibutton);break;
 			}

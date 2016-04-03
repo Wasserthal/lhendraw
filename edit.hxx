@@ -52,6 +52,7 @@ struct control_drawproperties_
 	_i32 arrow_ArrowheadTail;
 	_i32 arrow_ArrowShaftSpacing;
 	_i32 BracketType;
+	_i32 WildcardType;
 };
 struct control_turnbar_
 {
@@ -65,6 +66,8 @@ struct control_searchproperties_
 	int resolvelabels;//0: exact match things like R, ~ or * 1: interpret their MEANING in the search pattern.
 	_i32 expand_haystack_atoms;
 	_i32 expand_template_atoms;
+	int wildcardsliteral;//0: use the wildcards as intended 1: match wildcard on the same wildcard only 2: like 1, but ~ matches any wildcard
+	int implicithydrogensarewildcards;//0: explicit wildcards only 1: on implicit carbons, any free position may have substituents
 };
 struct control_displayproperties_
 {
@@ -75,9 +78,9 @@ struct control_displayproperties_
 structenum * searchreflectedstruct(const char * input);
 void applytransform_single(float matrix[3][3],cdx_Point3D * input,cdx_Point3D * output,cdx_Point3D * pivot);
 _small edit_current5bondcarbon=0;
-control_drawproperties_ control_drawproperties={16,0,0,0,0,0,4,0,constants_Element_implicitcarbon,6,1,0,0,0,0,1,0,1,2,1,1,4};
-control_drawproperties_ control_drawproperties_init={16,0,0,0,0,0,4,0,constants_Element_implicitcarbon,6,1,0,0,0,0,1,0,1,1,1,1,4};
-control_searchproperties_ control_searchproperties={0,0,1,1,0};
+control_drawproperties_ control_drawproperties={16,0,0,0,0,0,4,0,constants_Element_implicitcarbon,6,1,0,0,0,0,1,0,1,2,1,1,4,0};
+control_drawproperties_ control_drawproperties_init={16,0,0,0,0,0,4,0,constants_Element_implicitcarbon,6,1,0,0,0,0,1,0,1,1,1,1,4,0};
+control_searchproperties_ control_searchproperties={0,0,1,1,0,0,0};
 control_displayproperties_ control_displayproperties={1,0,1};
 control_turnbar_ control_turnbar={"0","0","0","1","1","1"};
 int control_hotatom=-1;
@@ -90,6 +93,22 @@ int getbondsum(intl inumber)
 	for (int ilv2=0;ilv2<atom_actual_node[inumber].bondcount;ilv2++)
 	{
 		i_bond_sum+=(*glob_b_multilist)[atom_actual_node[inumber].bonds[ilv2]].Order/16.0;
+	}
+	if (fmod(i_bond_sum,1.0)>0.4)
+	{
+		i_bond_sum=trunc(i_bond_sum)+1;
+	}
+	return i_bond_sum;
+}
+int getbondsumwithoutprotons(intl inumber)
+{
+	float i_bond_sum=0;
+	for (int ilv2=0;ilv2<atom_actual_node[inumber].bondcount;ilv2++)
+	{
+		if (glob_n_multilist->bufferlist()[getother(inumber,atom_actual_node[inumber].bonds[ilv2])].Element!=constants_Element_hydrogen)
+		{
+			i_bond_sum+=(*glob_b_multilist)[atom_actual_node[inumber].bonds[ilv2]].Order/16.0;
+		}
 	}
 	if (fmod(i_bond_sum,1.0)>0.4)
 	{
@@ -2205,13 +2224,22 @@ catalogized_command_iterated_funcdef(SPROUT)
 }
 int edit_setelement(int i_Elementnr,n_instance * iinstance,int iindex)
 {
+	int tl_backval;
 	iback:;
 	TELESCOPE_aggressobject(glob_n_multilist,iindex);
-	int tl_backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_s);
-	if (tl_backval>0)
+	tl_backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_wildcard);
+	while (tl_backval)
 	{
 		TELESCOPE_clear_item();
 		goto iback;
+	}
+	iback2:;
+	TELESCOPE_aggressobject(glob_n_multilist,iindex);
+	tl_backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_s);
+	if (tl_backval>0)
+	{
+		TELESCOPE_clear_item();
+		goto iback2;
 	}
 	if (i_Elementnr==-2)
 	{
@@ -5787,8 +5815,10 @@ int edit_readfonttablefrombuffer(char * input)
 	return 0;
 }
 //atom1 is the atom in the template, atom2 is the one that is supposed to "match" on the template, so the latter may have special properties the former hasn't
-int edit_atom_fits(n_instance * atom1,n_instance * atom2)
+int edit_atom_fits(_small ino1,_small ino2)
 {
+	n_instance * atom1=glob_n_multilist->bufferlist()+ino1;
+	n_instance * atom2=glob_n_multilist->bufferlist()+ino2;
 	if (atom1->Element==atom2->Element)
 	{
 		goto chargecheck;
@@ -5802,11 +5832,27 @@ int edit_atom_fits(n_instance * atom1,n_instance * atom2)
 				goto chargecheck;
 			}
 		}
+		if (atom2->Element==constants_Element_implicitcarbon)
+		{
+			if (atom1->Element==constants_Element_implicitcarbon+1)
+			{
+				goto chargecheck;
+			}
+		}
+	}
+	if ((atom1->Element==-2) && (control_searchproperties.wildcardsliteral==0))
+	{
+		//Charges are ignored.
+		return 1;
 	}
 	return 0;
 	chargecheck:;
 	if ((atom1->charge>0) && (atom2->charge<atom1->charge)) return 0;
 	if ((atom1->charge<0) && (atom2->charge>atom1->charge)) return 0;
+	if ((atom1->Element!=constants_Element_implicitcarbon)||(control_searchproperties.implicithydrogensarewildcards==0))
+	{
+		if ((atom1->protons-getbondsumwithoutprotons(ino1))>(atom2->protons-getbondsumwithoutprotons(ino2))) return 0;
+	}
 	return 1;
 }
 int edit_bond_fits(b_instance * bond1,b_instance * bond2)
@@ -5909,7 +5955,7 @@ int edit_moleculesearch_findnext()
 	iback:;
 	retval=edit_getunclicked(edit_searchbuffer[edit_orderbuffer[edit_branchbuffer[currentatom_in_check]]],&(edit_searchbuffer[edit_orderbuffer[currentatom_in_check]]),0);
 	if (retval<=0) return 0;//means: abandon this
-	if (edit_atom_fits(glob_n_multilist->bufferlist()+edit_orderbuffer[currentatom_in_check],glob_n_multilist->bufferlist()+edit_searchbuffer[edit_orderbuffer[currentatom_in_check]])>0)
+	if (edit_atom_fits(edit_orderbuffer[currentatom_in_check],edit_searchbuffer[edit_orderbuffer[currentatom_in_check]])>0)
 	{
 		selection_clickselection[edit_searchbuffer[edit_orderbuffer[currentatom_in_check]]]|=(1<<STRUCTURE_OBJECTTYPE_n);
 		currentatom_in_check++;
@@ -5925,7 +5971,7 @@ int edit_moleculesearch_findother()
 	selection_clickselection[edit_searchbuffer[edit_orderbuffer[currentatom_in_check-1]]]&=~(1<<STRUCTURE_OBJECTTYPE_n);
 	retval=edit_getunclicked(edit_searchbuffer[edit_orderbuffer[edit_branchbuffer[currentatom_in_check-1]]],&(edit_searchbuffer[edit_orderbuffer[currentatom_in_check-1]]),0);
 	if (retval<=0) return 0;//means: abandon this
-	if (edit_atom_fits(glob_n_multilist->bufferlist()+edit_orderbuffer[currentatom_in_check-1],glob_n_multilist->bufferlist()+edit_searchbuffer[edit_orderbuffer[currentatom_in_check-1]])>0)
+	if (edit_atom_fits(edit_orderbuffer[currentatom_in_check-1],edit_searchbuffer[edit_orderbuffer[currentatom_in_check-1]])>0)
 	{
 		selection_clickselection[edit_searchbuffer[edit_orderbuffer[currentatom_in_check-1]]]|=(1<<STRUCTURE_OBJECTTYPE_n);
 		return 1;
@@ -5943,8 +5989,11 @@ int edit_moleculesearch_findlast()
 	retval=edit_getunclicked(edit_searchbuffer[edit_orderbuffer[edit_branchbuffer[currentatom_in_check-1]]],&(edit_searchbuffer[edit_orderbuffer[currentatom_in_check-1]]),0);
 	if (retval>0)
 	{
-		selection_clickselection[edit_searchbuffer[edit_orderbuffer[currentatom_in_check-1]]]|=(1<<STRUCTURE_OBJECTTYPE_n);
-		return 1;
+		if (edit_atom_fits(edit_orderbuffer[currentatom_in_check-1],edit_searchbuffer[edit_orderbuffer[currentatom_in_check-1]])>0)
+		{
+			selection_clickselection[edit_searchbuffer[edit_orderbuffer[currentatom_in_check-1]]]|=(1<<STRUCTURE_OBJECTTYPE_n);
+			return 1;
+		}
 	}
 	goto iback;
 }
@@ -5989,7 +6038,7 @@ int edit_moleculesearch()
 			n_instance * iinstance=glob_n_multilist->bufferlist()+ilv1;
 			if (iinstance->exist)
 			{
-				if (edit_atom_fits(glob_n_multilist->bufferlist()+edit_orderbuffer[0],iinstance)>0)
+				if (edit_atom_fits(edit_orderbuffer[0],ilv1)>0)
 				{
 					selection_clickselection[ilv1]|=(1<<STRUCTURE_OBJECTTYPE_n);
 					edit_searchbuffer[edit_orderbuffer[0]]=ilv1;
@@ -6085,6 +6134,7 @@ int edit_moleculesearch()
 catalogized_command_funcdef(SEARCH)
 {
 	checkupinconsistencies();
+	getatoms();
 	return edit_moleculesearch();
 }
 catalogized_command_funcdef(SEARCHFILE)

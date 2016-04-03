@@ -786,6 +786,32 @@ void sdl_psedraw(int istartx,int istarty)
 		SDL_color=0;
 		printmenutext(istartx+element[ilv1].PSEX*32+10,istarty+element[ilv1].PSEY*48+24,element[ilv1].name,strlen(element[ilv1].name));
 	}
+	for (int ilv1=1;ilv1<sizeof(element_wildcards)/sizeof(element_);ilv1++)
+	{
+		int borderx=istartx+element_wildcards[ilv1].PSEX*32;
+		int bordery=istarty+element_wildcards[ilv1].PSEY*24;
+		int bordercolor=0;
+		if (ilv1==control_drawproperties.WildcardType)
+		{
+			bordercolor=0xFF0000;
+		}
+		for (int ilv2=bordery;ilv2<bordery+24;ilv2++)
+		{
+			for (int ilv3=borderx;ilv3<borderx+32;ilv3++)
+			{
+				screen[ilv2*gfx_screensizex+ilv3]=0xFFFFFF;
+			}
+			screen[ilv2*gfx_screensizex+borderx+31]=bordercolor;
+			screen[ilv2*gfx_screensizex+borderx]=bordercolor;
+		}
+		for (int ilv2=borderx;ilv2<borderx+32;ilv2++)
+		{
+			screen[bordery*gfx_screensizex+ilv2]=bordercolor;
+			screen[(bordery+23)*gfx_screensizex+ilv2]=bordercolor;
+		}
+		SDL_color=0xFF0000;
+		printmenutext(istartx+element_wildcards[ilv1].PSEX*32+10,istarty+element_wildcards[ilv1].PSEY*24+4,element_wildcards[ilv1].name,strlen(element_wildcards[ilv1].name));
+	}
 }
 void sdl_analysisdraw(int alignx,int aligny)
 {

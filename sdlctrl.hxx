@@ -104,6 +104,23 @@ control_toolinfo_ control_toolinfo[]=
 	{(_u32)~0,0,0},//Arrow
 };
 
+void CONTROL_ZOOMIN(float ifactor,char i_direction)
+{
+       if (i_direction==1)
+       {
+               SDL_zoomx/=ifactor;
+               SDL_zoomy/=ifactor;
+               SDL_scrollx+=(control_Event.button.x-gfx_canvasminx)*((1/ifactor)-1)/SDL_zoomx;
+               SDL_scrolly+=(control_Event.button.y-gfx_canvasminy)*((1/ifactor)-1)/SDL_zoomy;
+       }
+       else
+       {
+               SDL_zoomx*=ifactor;
+               SDL_zoomy*=ifactor;
+               SDL_scrollx+=(control_Event.button.x-gfx_canvasminx)*(ifactor-1)/SDL_zoomx;
+               SDL_scrolly+=(control_Event.button.y-gfx_canvasminy)*(ifactor-1)/SDL_zoomy;
+       }
+}
 void checkupinconsistencies()
 {
 	for (int ilv1=0;ilv1<(*glob_t_multilist).filllevel;ilv1++)
@@ -3654,13 +3671,13 @@ void control_normal()
 						control_doublekeypressenergy=0;
 						if (MODIFIER_KEYS.CTRL)
 						{
-							char * tl_factor;
-							tl_factor=(char*)"1.414213562";
+							double tl_factor;
+							tl_factor=1.414213562;
 							if (MODIFIER_KEYS.ALT)
 							{
-								tl_factor=(char*)"1.090507733";
+								tl_factor=1.090507733;
 							}
-							ZOOM((idirection>0)?"-":"+",tl_factor);
+							CONTROL_ZOOMIN(tl_factor,idirection);
 							break;
 						}
 						if (MODIFIER_KEYS.SHIFT)

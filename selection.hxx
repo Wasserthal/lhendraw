@@ -501,7 +501,7 @@ int selection_n_pivot(selection_ iselection,cdx_Point3D * ioutput)
 	selection_datatype i_n_compare=1<<STRUCTURE_OBJECTTYPE_n;
 	for (int ilv1=0;ilv1<glob_n_multilist->filllevel;ilv1++)
 	{
-		if (selection_currentselection[ilv1]&i_n_compare)
+		if (iselection[ilv1]&i_n_compare)
 		{
 			n_instance * tl_n_instance=glob_n_multilist->bufferlist()+ilv1;
 			if (tl_n_instance->exist)
@@ -591,14 +591,14 @@ int selection_grow_by_one(selection_ i_selection,int bondno,int aim)//set bondno
 }
 int selection_check_monocyclic(_small ibondno,selection_ iselection,selection_ ioutput)
 {
-	int count;
+	int count=0;
 	int backval=0;
 	selection_clearselection(ioutput);
 	ioutput[ibondno]|=(1<<STRUCTURE_OBJECTTYPE_b);
 	ioutput[bond_actual_node[ibondno].start]|=(1<<STRUCTURE_OBJECTTYPE_n);
 	iback:;
 	backval=selection_grow_by_one(ioutput,-2,bond_actual_node[ibondno].start);
-	printf("BACKVAL:%i\n",backval);
+	print("BACKVAL-count:%i\n",count);
 	if (backval>=2) return 0;
 	if (backval==1){count++;goto iback;}
 	return count;
@@ -680,6 +680,22 @@ void selection_unselectfreestandingatoms(selection_ i_selection)
 			}
 			i_selection[ilv1]&=~(1<<STRUCTURE_OBJECTTYPE_n);
 			dontoffthis:;
+		}
+	}
+}
+void selection_selectunfreestandingatoms(selection_ i_selection)
+{
+	selection_datatype i_b_compare=1<<STRUCTURE_OBJECTTYPE_b;
+	for (int ilv1=0;ilv1<glob_b_multilist->filllevel;ilv1++)
+	{
+		b_instance * tl_b_instance=glob_b_multilist->bufferlist()+ilv1;
+		if ((*tl_b_instance).exist)
+		{
+			if (i_selection[ilv1]&i_b_compare)
+			{
+				i_selection[bond_actual_node[ilv1].start]|=(1<<STRUCTURE_OBJECTTYPE_n);
+				i_selection[bond_actual_node[ilv1].end]|=(1<<STRUCTURE_OBJECTTYPE_n);
+			}
 		}
 	}
 }

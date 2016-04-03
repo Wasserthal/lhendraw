@@ -2483,7 +2483,7 @@ void edit_cleanupcycles(selection_ iselection)
 			if (selection_check_monocyclic(ilv1,iselection,selection_clickselection))
 			{
 				selection_SUBTRACTselection(iselection,selection_clickselection);
-				selection_copyselection(selection_currentselection,selection_clickselection);
+				selection_selectunfreestandingatoms(iselection);
 				edit_cyclify_cycle(selection_clickselection);
 			}
 		}
@@ -2892,6 +2892,7 @@ catalogized_command_funcdef(CLEANUP)
 					selection_growin(selection_clickselection,selection_ringselection,-1,-1);
 					edit_clean_mechanic(selection_clickselection);
 					selection_SUBTRACTselection(selection_ringselection,selection_clickselection);
+					selection_selectunfreestandingatoms(selection_ringselection);
 				}
 			}
 		}

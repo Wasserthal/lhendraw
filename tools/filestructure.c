@@ -323,12 +323,9 @@ int __attribute__((sysv_abi))CDXMLWRITE_ENUM_%s(char * input,void * output)\n{\n
 	}
 	if ((internalmode&2) && (!(linemode)))
 	{
-		if (contents_count>0)
-		{
-			sprintf(helpbufferpos,"	TELESCOPE_buffer * ibuffer;\n	getbufferfromstructure(retrievemultilist<%s%s_instance>(),&ibuffer);\n	pos_in_buffer=(*ibuffer).count;\n%n",datablockstring,name,&helpbufferreturnvalue);
-			helpbufferpos+=helpbufferreturnvalue;
-			(*helpbufferpos)=0;
-		}
+		sprintf(helpbufferpos,"	TELESCOPE_buffer * ibuffer;\n	getbufferfromstructure(retrievemultilist<%s%s_instance>(),&ibuffer);\n	pos_in_buffer=(*ibuffer).count;\n%n",datablockstring,name,&helpbufferreturnvalue);
+		helpbufferpos+=helpbufferreturnvalue;
+		(*helpbufferpos)=0;
 	}
 	for (int ilv1=0;ilv1<properties_count;ilv1++)
 	{

@@ -233,6 +233,7 @@ int slayundo()
 }
 int storeundo(_u32 flags,const char * iname)
 {
+	if (control_mousestate&0x20) return 0;//because we do not want to spoil all our undo stores with a dynamic storeundo
 	undo_selectionstored=0;
 	if (undo_undodirty==0)
 	{

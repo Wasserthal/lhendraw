@@ -538,7 +538,6 @@ void CAMBRIDGECONV_graphic()
 				break;
 			}
 		}
-
 		CAMBRIDGECONV_EXISTSTHEN(graphic,id);//TODO: possibly not needed. Remove?
 		CAMBRIDGECONV_FIXID(graphic)
 		CAMBRIDGECONV_EXISTSTHEN(graphic,Z);
@@ -601,6 +600,55 @@ void CAMBRIDGECONV_curve()
 		(*tl_curve_multilist).ADD(&tl_curve_instance);
 	}
 }
+void CAMBRIDGECONV_tlcplate()
+{
+	multilist<CAMBRIDGE_tlcplate_instance> * tl_CAMBRIDGE_tlcplate_multilist=retrievemultilist<CAMBRIDGE_tlcplate_instance>();
+	multilist<CAMBRIDGE_tlclane_instance> * tl_CAMBRIDGE_tlclane_multilist=retrievemultilist<CAMBRIDGE_tlclane_instance>();
+	multilist<CAMBRIDGE_tlcspot_instance> * tl_CAMBRIDGE_tlcspot_multilist=retrievemultilist<CAMBRIDGE_tlcspot_instance>();
+	multilist<tlcplate_instance> * tl_tlcplate_multilist=retrievemultilist<tlcplate_instance>();
+	for (int ilv1=0;ilv1<(*tl_CAMBRIDGE_tlcplate_multilist).filllevel;ilv1++)
+	{
+		CAMBRIDGE_tlcplate_instance * tl_CAMBRIDGE_tlcplate_instance=(*tl_CAMBRIDGE_tlcplate_multilist).bufferlist()+ilv1;
+		tlcplate_instance tl_tlcplate_instance;
+		tl_tlcplate_instance=tlcplate_instance();
+		CAMBRIDGECONV_COLORCONV(tlcplate);
+		CAMBRIDGECONV_EXISTSTHEN(tlcplate,Z);
+		CAMBRIDGECONV_EXISTSTHEN(tlcplate,TopLeft);
+		CAMBRIDGECONV_EXISTSTHEN(tlcplate,TopRight);
+		CAMBRIDGECONV_EXISTSTHEN(tlcplate,BottomLeft);
+		CAMBRIDGECONV_EXISTSTHEN(tlcplate,BottomRight);
+		(*tl_tlcplate_multilist).ADD(&tl_tlcplate_instance);
+		for (int ilv2=(*((*tl_CAMBRIDGE_tlcplate_instance).tlclane)).start_in_it;ilv2<(*((*tl_CAMBRIDGE_tlcplate_instance).tlclane)).start_in_it+(*((*tl_CAMBRIDGE_tlcplate_instance).tlclane)).count_in_it;ilv2++)
+		{
+			CAMBRIDGE_tlclane_instance * tl_CAMBRIDGE_tlclane_instance=(*tl_CAMBRIDGE_tlclane_multilist).bufferlist()+ilv2;
+			cdx_tlcspot tl_tlcspot_instance;
+			tlclane_instance tl_tlclane_instance;
+			intl tl_tlcspot_count=(*((*tl_CAMBRIDGE_tlclane_instance).tlcspot)).count_in_it;
+			if (TELESCOPE_aggressobject(glob_tlcplate_multilist,ilv1)>0)
+			{
+				tl_tlclane_instance.length=sizeof(tlclane_instance)+sizeof(cdx_tlcspot)*tl_tlcspot_count;
+				tl_tlclane_instance.type=TELESCOPE_ELEMENTTYPE_tlclane;
+				tl_tlcspot_instance.Rf=0.0;
+				tl_tlcspot_instance.color=0x00FF00;
+				tl_tlcspot_instance.CurveType=1;
+				if (TELESCOPE_add(TELESCOPE_ELEMENTTYPE_tlclane,(char*)NULL,sizeof(cdx_tlcspot)*tl_tlcspot_count)>0)
+				{
+					cdx_tlcspot * itlcspotinput=(cdx_tlcspot*)TELESCOPE_getproperty_contents();
+					int tl_tlcspotcounter=0;
+					for (int ilv3=(*((*tl_CAMBRIDGE_tlclane_instance).tlcspot)).start_in_it;ilv3<(*((*tl_CAMBRIDGE_tlclane_instance).tlcspot)).start_in_it+(*((*tl_CAMBRIDGE_tlclane_instance).tlcspot)).count_in_it;ilv3++)
+					{
+						CAMBRIDGE_tlcspot_instance * tl_CAMBRIDGE_tlcspot_instance=(*tl_CAMBRIDGE_tlcspot_multilist).bufferlist()+ilv3;
+						CAMBRIDGECONV_COLORCONV(tlcspot);
+						CAMBRIDGECONV_EXISTSTHEN(tlcspot,Rf);
+						CAMBRIDGECONV_EXISTSTHEN(tlcspot,CurveType);
+						itlcspotinput[tl_tlcspotcounter]=tl_tlcspot_instance;
+						tl_tlcspotcounter++;
+					}
+				}
+			}
+		}
+	}
+}
 
 extern int janitor_getmaxid(_u32 ino);
 void CAMBRIDGECONV_maintointernal()
@@ -612,5 +660,6 @@ void CAMBRIDGECONV_maintointernal()
 	CAMBRIDGECONV_graphic();
 	CAMBRIDGECONV_arrow();
 	CAMBRIDGECONV_curve();
+	CAMBRIDGECONV_tlcplate();
 	janitor_getmaxid(0);//You never know what must be done with them next.
 }

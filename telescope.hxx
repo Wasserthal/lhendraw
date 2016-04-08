@@ -387,9 +387,12 @@ int TELESCOPE_add(int tag,const char * iinput,int ilength)//Like insertintoprope
 	}
 	if (TELESCOPE_stretch_buffer(TELESCOPE_tempvar.multilist,ilength,tag)==-1) {return -1;}
 	char * ilv1b=(*TELESCOPE_tempvar.buffer).buffer+TELESCOPE_tempvar.pos+TELESCOPE_tempvar.subpos2;
-	for (int ilv1=0;ilv1<ilength;ilv1++,ilv1b++)//TODO: faster...
+	if (iinput!=NULL)
 	{
-		(*ilv1b)=(*(iinput+ilv1));
+		for (int ilv1=0;ilv1<ilength;ilv1++,ilv1b++)//TODO: faster...
+		{
+			(*ilv1b)=(*(iinput+ilv1));
+		}
 	}
 	return 1;
 }

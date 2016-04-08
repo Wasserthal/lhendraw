@@ -1845,7 +1845,7 @@ tlcplate_instance * edit_summontlcplate(int * nr=NULL)
 		tl_tlclane_instance.type=TELESCOPE_ELEMENTTYPE_tlclane;
 		itlcspot.Rf=0.3;
 		itlcspot.color=0x00FF00;
-		itlcspot.Curve_Type=1;
+		itlcspot.CurveType=1;
 		TELESCOPE_add(TELESCOPE_ELEMENTTYPE_tlclane,(char*)&itlcspot,sizeof(cdx_tlcspot)*3);
 		TELESCOPE_measure(TELESCOPE_ELEMENTTYPE_tlclane,& glob_contentbuffer[STRUCTURE_OBJECTTYPE_tlcplate]);
 		cdx_tlcspot * spots=(cdx_tlcspot*)TELESCOPE_getproperty_contents();
@@ -3765,7 +3765,7 @@ catalogized_command_funcdef(SAVE_TYPE)
 	fprintf(ifile,"<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n");
 	fprintf(ifile,"<!DOCTYPE CDXML SYSTEM \"http://www.cambridgesoft.com/xml/cdxml.dtd\" >\n");
 	fprintf(ifile,"%s","<CDXML\n"
-" CreationProgram=\"ChemDraw 12.0.2.1076\"\n"
+" CreationProgram=\"lhendraw 0.6.1\"\n"
 " Name=\"whocares.cdxml\"\n"
 " BoundingBox=\"5.5 155.04 724.05 736.75\"\n"
 " WindowPosition=\"-1073741824 1073741824\"\n"

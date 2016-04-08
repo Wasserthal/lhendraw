@@ -78,7 +78,7 @@ struct cdx_tlcspot
 {
 	float Rf;
 	_u32 color;
-	_u32 Curve_Type;
+	_u32 CurveType;
 };
 
 inline void clear_cdx_String(cdx_String & input)

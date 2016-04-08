@@ -1,6 +1,6 @@
 Total_Document;CDXML ;;
 CDXML;colortable page fonttable LENHACK_ANNOTATION annotation color font ;4 BoundingBox s Comment : colortable : fonttable 1 BondLength ;
-page;group fragment t graphic arrow curve annotation ;0 id 4 BoundingBox 1 Width 1 Height 1 HeaderPosition 1 FooterPosition 1 PageOverlap ! PrintTrimMarks 0 HeightPages 0 WidthPages ! DrawingSpace ;
+page;group fragment t graphic arrow curve tlcplate annotation ;0 id 4 BoundingBox 1 Width 1 Height 1 HeaderPosition 1 FooterPosition 1 PageOverlap ! PrintTrimMarks 0 HeightPages 0 WidthPages ! DrawingSpace ;
 group;annotation group fragment t graphic arrow curve ;;
 fragment;annotation n b t graphic arrow curve ;4 BoundingBox ;
 n;t annotation ;! NodeType 0 Element 0 id 0 NumHydrogens 0 Charge 0 color 2 p 3 xyz 0 Z ! ExternalConnectionType ;
@@ -17,5 +17,8 @@ graphic;represent annotation ;0 id 0 color 0 SupersededBy 4 BoundingBox 0 Z ! Gr
 represent;;! attribute 0 object ;
 annotation;;s Keyword S Content ;
 curve;;0 id 0 color 0 Z # ArrowheadType # ArrowheadHead # ArrowheadTail ~ CurvePoints ! FillType 0 CurveType ! Closed 0 FadePercent ;
+tlcplate;tlclane ;0 Z 0 id 0 color 2 TopLeft 2 TopRight 2 BottomRight 2 BottomLeft 1 OriginFraction 1 SolventFrontFraction ;
+tlclane;tlcspot ;0 id ;
+tlcspot;;0 id 0 color 1 Rf 0 CurveType ;
 LENHACK_ANNOTATION;;0 IgnoreTextboxes ;
 moleculefill;;0 clockwise 0 Z 4 BoundingBox T Points 0 RGB ;

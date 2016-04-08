@@ -102,9 +102,9 @@ bienum CDXML_objectcodes_List[]={
 {"ReactionScheme",0x800D},
 {"ReactionStep",0x800E},
 {"Spectrum",0x8010},
-{"tlcplate",0x8023},
-{"tlclane",0x8024},
-{"tlcspot",0x8025},
+{"tlcplate",0x801D},
+{"tlclane",0x801E},
+{"tlcspot",0x801F},
 };
 int CDXML_objectcodes_ListSize=sizeof(CDXML_objectcodes_List)/sizeof(CDXML_objectcodes_List[0]);
 bienum CDXML_propertycodes_List[]={
@@ -121,6 +121,10 @@ bienum CDXML_propertycodes_List[]={
 {"BoundingBox",0x204},
 {"Head3D",0x207},
 {"Tail3D",0x208},
+{"TopLeft",0x209},
+{"TopRight",0x20A},
+{"BottomRight",0x20B},
+{"BottomLeft",0x20C},
 {"Center3D",0x20D},
 {"MajorAxisEnd3D",0x20E},
 {"MinorAxisEnd3D",0x20F},
@@ -167,8 +171,8 @@ bienum CDXML_propertycodes_List[]={
 {"ArrowheadHead",0xA35},
 {"ArrowheadTail",0xA36},
 {"FillType",0xA37},
-{"TLCRf",0xAB0},
-{"TLCTail",0xAB1},
+{"Rf",0xAB0},
+{"Tail",0xAB1},
 
 {"SpectrumXSpacing",0xA80},
 {"SpectrumXLow",0xA81},

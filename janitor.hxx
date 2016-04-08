@@ -376,6 +376,7 @@ void janitor_bufferresort()
 						(*iinstance).pos_in_buffer-=length;
 					}
 				}
+				tl_readpos=tl_writepos;
 			}
 			else
 			{

@@ -823,7 +823,6 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,char hatches)
 		TELESCOPE_aggressobject(glob_tlcplate_multilist,index_in_buffer);
 		int tlbackval;
 		int tlclanecount=0;
-		TELESCOPE_measure(TELESCOPE_ELEMENTTYPE_tlclane,glob_contentbuffer+STRUCTURE_OBJECTTYPE_tlcplate);
 		tlbackval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_tlclane);
 		while (tlbackval>0)
 		{

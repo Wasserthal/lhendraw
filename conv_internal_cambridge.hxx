@@ -614,6 +614,55 @@ void CONVCAMBRIDGE_curve(CAMBRIDGE_page_instance * master)
 	}
 }
 
+void CONVCAMBRIDGE_tlcplate(CAMBRIDGE_page_instance * master)
+{
+	multilist<CAMBRIDGE_tlcplate_instance> * tl_CAMBRIDGE_tlcplate_multilist=retrievemultilist<CAMBRIDGE_tlcplate_instance>();
+	multilist<tlcplate_instance> * tl_tlcplate_multilist=retrievemultilist<tlcplate_instance>();
+	for (int ilv1=0;ilv1<(*tl_tlcplate_multilist).filllevel;ilv1++)
+	{
+		if (edit_fileoperationrefersonlytopartofdocument)
+		{
+			if ((selection_currentselection[ilv1] & (1<<STRUCTURE_OBJECTTYPE_tlcplate))==0)
+			{
+				continue;
+			}
+		}
+		tlcplate_instance * tl_tlcplate_instance=(*tl_tlcplate_multilist).bufferlist()+ilv1;
+		if (tl_tlcplate_instance->exist)
+		{
+			print("PLATE\n");
+			int tl_backval=0;
+			ADD_TO_MULTILISTREFERENCE(master,tlcplate);
+			CONVCAMBRIDGE_COLORCONV(tlcplate);
+			(*tl_CAMBRIDGE_tlcplate_instance).Z=(*tl_tlcplate_instance).Z;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_tlcplate_instance,Z);
+			(*tl_CAMBRIDGE_tlcplate_instance).TopLeft=(*tl_tlcplate_instance).TopLeft;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_tlcplate_instance,TopLeft);
+			(*tl_CAMBRIDGE_tlcplate_instance).TopRight=(*tl_tlcplate_instance).TopRight;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_tlcplate_instance,TopRight);
+			(*tl_CAMBRIDGE_tlcplate_instance).BottomLeft=(*tl_tlcplate_instance).BottomLeft;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_tlcplate_instance,BottomLeft);
+			(*tl_CAMBRIDGE_tlcplate_instance).BottomRight=(*tl_tlcplate_instance).BottomRight;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_tlcplate_instance,BottomRight);
+/*			(*tl_CAMBRIDGE_tlcplate_instance).OriginFraction=(*tl_tlcplate_instance).OriginFraction;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_tlcplate_instance,OriginFraction);
+			(*tl_CAMBRIDGE_tlcplate_instance).SolventFrontFraction=(*tl_tlcplate_instance).SolventFrontFraction;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_tlcplate_instance,SolventFrontFraction);*/
+			TELESCOPE_aggressobject(tl_tlcplate_multilist,ilv1);
+			tl_backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_tlclane);
+			while (tl_backval>0)
+			{
+				print("LANE\n");
+				ADD_TO_MULTILISTREFERENCE(tl_CAMBRIDGE_tlcplate_instance,tlclane);
+				tlclane_instance * tl_tlclane_instance=(tlclane_instance*)TELESCOPE_getproperty();
+				for (int ilv2=0;ilv2<tl_tlclane_instance->length;ilv2+=sizeof(cdx_tlcspot))
+				{
+					cdx_tlcspot * tl_tlcspot_instance=(cdx_tlcspot*)((char*)TELESCOPE_getproperty_contents()+ilv2);
+					ADD_TO_MULTILISTREFERENCE(tl_CAMBRIDGE_tlclane_instance,tlcspot);
+					CONVCAMBRIDGE_COLORCONV(tlcspot);
+					(*tl_CAMBRIDGE_tlcspot_instance).Rf=(*tl_tlcspot_instance).Rf;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_tlcspot_instance,Rf);
+					(*tl_CAMBRIDGE_tlcspot_instance).CurveType=(*tl_tlcspot_instance).CurveType;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_tlcspot_instance,CurveType);
+					print("SPOT\n");
+				}
+				tl_backval=TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_tlclane);
+			}
+		}
+	}
+}
+
 void CONVCAMBRIDGE_internaltomain(CAMBRIDGE_page_instance * master)
 {
 	filestructure_text_buffer.count=0;
@@ -624,4 +673,5 @@ void CONVCAMBRIDGE_internaltomain(CAMBRIDGE_page_instance * master)
 	CONVCAMBRIDGE_graphic(master);
 	CONVCAMBRIDGE_Symbol(master);
 	CONVCAMBRIDGE_curve(master);
+	CONVCAMBRIDGE_tlcplate(master);
 }

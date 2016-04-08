@@ -74,14 +74,14 @@ void TELESCOPE_measure(int tag,TELESCOPE_buffer * ibuffer)
 		goto idontgoback;
 	}
 	share+=tl_telescope_element->length;
-	if (tl_telescope_element->length==0) {printf("Zero-Length Element at %i:\n",share);return;}
+	if (tl_telescope_element->length<=0) {printf("Zero-Length Element at %i:\n",share);exit(1);return;}
 	if (share<start->length-sizeof(TELESCOPE))
 	{
 		goto iback2;
 	}
 	idontgoback:
 	total+=start->length;
-	if (start->length==0) {printf("Zero-Length Object at %i:\n",total);return;}
+	if (start->length<=0) {printf("Zero-Length Object at %i:\n",total);exit(1);return;}
 	if (total<(*ibuffer).count)
 	{
 		goto iback;

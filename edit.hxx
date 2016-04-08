@@ -1847,7 +1847,6 @@ tlcplate_instance * edit_summontlcplate(int * nr=NULL)
 		itlcspot.color=0x00FF00;
 		itlcspot.CurveType=1;
 		TELESCOPE_add(TELESCOPE_ELEMENTTYPE_tlclane,(char*)&itlcspot,sizeof(cdx_tlcspot)*3);
-		TELESCOPE_measure(TELESCOPE_ELEMENTTYPE_tlclane,& glob_contentbuffer[STRUCTURE_OBJECTTYPE_tlcplate]);
 		cdx_tlcspot * spots=(cdx_tlcspot*)TELESCOPE_getproperty_contents();
 		itlcspot.Rf=0.2;
 		itlcspot.color=0x00FF00;
@@ -1862,7 +1861,6 @@ tlcplate_instance * edit_summontlcplate(int * nr=NULL)
 		itlcspot.Rf=0.2;
 		itlcspot.color=0x00FF00;
 		TELESCOPE_add(TELESCOPE_ELEMENTTYPE_tlclane,(char*)&itlcspot,sizeof(cdx_tlcspot)*2);
-		TELESCOPE_measure(TELESCOPE_ELEMENTTYPE_tlclane,& glob_contentbuffer[STRUCTURE_OBJECTTYPE_tlcplate]);
 		spots=(cdx_tlcspot*)TELESCOPE_getproperty_contents();
 		itlcspot.Rf=0.1;
 		itlcspot.color=0x00FF00;

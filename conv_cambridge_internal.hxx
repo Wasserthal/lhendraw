@@ -288,6 +288,7 @@ void CAMBRIDGECONV_text()
 		i_n_only:;
 		for (int ilv2=(*((*tl_CAMBRIDGE_t_instance).s)).start_in_it;ilv2<(*((*tl_CAMBRIDGE_t_instance).s)).start_in_it+(*((*tl_CAMBRIDGE_t_instance).s)).count_in_it;ilv2++)
 		{
+			int tl_add_backval=0;
 			CAMBRIDGE_s_instance * tl_CAMBRIDGE_s_instance=(*tl_CAMBRIDGE_s_multilist).bufferlist()+ilv2;
 			if ((*tl_CAMBRIDGE_s_instance).PCTEXT.a==NULL)
 			{
@@ -323,21 +324,21 @@ void CAMBRIDGECONV_text()
 					}
 					if (ilv1==0)
 					{
-						TELESCOPE_add(TELESCOPE_ELEMENTTYPE_s,tl_text,strlen(tl_text)+((ilv1+1==tl_length)?1:0));
+						tl_add_backval=TELESCOPE_add(TELESCOPE_ELEMENTTYPE_s,tl_text,strlen(tl_text)+((ilv1+1==tl_length)?1:0));
 					}
 					else
 					{
-						TELESCOPE_insertintoproperties(TELESCOPE_ELEMENTTYPE_s,tl_text,strlen(tl_text)+((ilv1+1==tl_length)?1:0));
+						tl_add_backval=TELESCOPE_insertintoproperties(TELESCOPE_ELEMENTTYPE_s,tl_text,strlen(tl_text)+((ilv1+1==tl_length)?1:0));
 					}
-					tl_s_instance.length+=strlen(tl_text);
+					if (tl_add_backval>0) tl_s_instance.length+=strlen(tl_text);
 				}
 			}
 			else
 			{
 				tl_s_instance.length=sizeof(s_instance)+strlen((*tl_CAMBRIDGE_s_instance).PCTEXT.a)+1;//trailing 0
-				TELESCOPE_add(TELESCOPE_ELEMENTTYPE_s,(*tl_CAMBRIDGE_s_instance).PCTEXT.a,tl_s_instance.length-sizeof(s_instance));
+				tl_add_backval=TELESCOPE_add(TELESCOPE_ELEMENTTYPE_s,(*tl_CAMBRIDGE_s_instance).PCTEXT.a,tl_s_instance.length-sizeof(s_instance));
 			}
-			*((s_instance*)TELESCOPE_getproperty())=tl_s_instance;
+			if (tl_add_backval>0) *((s_instance*)TELESCOPE_getproperty())=tl_s_instance;
 			s_element_was_empty:;
 		}
 		if (atommode)
@@ -624,7 +625,7 @@ void CAMBRIDGECONV_tlcplate()
 			cdx_tlcspot tl_tlcspot_instance;
 			tlclane_instance tl_tlclane_instance;
 			intl tl_tlcspot_count=(*((*tl_CAMBRIDGE_tlclane_instance).tlcspot)).count_in_it;
-			if (TELESCOPE_aggressobject(glob_tlcplate_multilist,ilv1)>0)
+			if (TELESCOPE_aggressobject(glob_tlcplate_multilist,ilv1)>=0)
 			{
 				tl_tlclane_instance.length=sizeof(tlclane_instance)+sizeof(cdx_tlcspot)*tl_tlcspot_count;
 				tl_tlclane_instance.type=TELESCOPE_ELEMENTTYPE_tlclane;

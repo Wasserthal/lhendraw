@@ -3507,18 +3507,15 @@ extern char arbitrarycursorstring[4];
 catalogized_command_funcdef(COPY)
 {
 	int control_textedit_cursor2;
-	if (LHENDRAW_clipboardmode)
-	{
-		#ifndef NOCLIPBOARD
-		service_clipboard();
-		#endif
-		if (LHENDRAW_clipboardmode)
-		{
-			free(LHENDRAW_clipboardbuffer);
-		}
-	}
 	if (control_mousestate==0x40)
 	{
+		if (LHENDRAW_clipboardmode)
+		{
+			#ifndef NOCLIPBOARD
+			service_clipboard();
+			#endif
+			free(LHENDRAW_clipboardbuffer);
+		}
 		if (control_textedit_selectmode)
 		{
 			if (control_aggresstextcursor(NULL))
@@ -3586,6 +3583,24 @@ catalogized_command_funcdef(COPY)
 		return 1;
 	}
 	return 1;
+}
+catalogized_command_funcdef(PRINT)
+{
+	char control_totalfilename[stringlength+1];
+	sprintf(control_totalfilename,"mkdir -p %s/.clipboard",getenv("HOME"));
+	system(control_totalfilename);
+	edit_fileoperationrefersonlytopartofdocument=1;
+	edit_file_always_overwrite=1;
+	system("clipboard -n 2>/dev/null");//new
+	sprintf(control_totalfilename,"%s/.clipboard/clipboard.png",getenv("HOME"));
+	SAVE_TYPE(control_totalfilename,".png");
+	system("clipboard -w 2>/dev/null");//write
+	edit_fileoperationrefersonlytopartofdocument=0;
+	edit_file_always_overwrite=0;
+	LHENDRAW_clipboardmode=0;
+	sprintf(control_totalfilename,"lp %s/.clipboard/clipboard.png",getenv("HOME"));
+	system(control_totalfilename);
+	return 1;//printed
 }
 extern int control_aggresstextcursor(const char *);
 extern int control_squashselection();

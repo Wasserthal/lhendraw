@@ -332,6 +332,16 @@ menuitem pullout_toolbox[]={
 "ONETOONE","",
 0xFFFF00,
 },
+{7,1,
+92,//Picture
+"PRINT",
+3,0,
+4,
+"prints ONLY THE CURRENT SELECTION",
+"",
+"PRINT","",
+0xFFFF00,
+},
 {4,2,
 43,//Picture
 "Save Immediately",

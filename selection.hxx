@@ -578,7 +578,6 @@ int selection_grow_by_one(selection_ i_selection,int bondno,int aim)//set bondno
 							changed=1;
 							if (bondno==-2)
 							{
-								printf("NN:%i\n",ilv1);
 								retval++;
 							}
 						}
@@ -659,7 +658,6 @@ catalogized_command_funcdef(SELECT_TRIANGLES)
 	int count=3;
 	if (strcmp(value,"")!=0)
 	{
-		printf("%s\n",value);
 		count=atoi(value);
 		if (count==0) count=3;
 	}

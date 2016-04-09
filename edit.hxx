@@ -3562,6 +3562,10 @@ catalogized_command_funcdef(COPY)
 				LHENDRAW_clipboardbuffer_count=elapsed;
 			}
 		}
+		#ifndef NOCLIPBOARD
+		XSetSelectionOwner(gfx_Display,clipboard_sseln,gfx_Window,CurrentTime);
+		LHENDRAW_clipboardmode=1;
+		#endif
 	}
 	else
 	{
@@ -3572,21 +3576,15 @@ catalogized_command_funcdef(COPY)
 		edit_file_always_overwrite=1;
 		system("clipboard -n 2>/dev/null");//new
 		sprintf(control_totalfilename,"%s/.clipboard/clipboard.cdx",getenv("HOME"));
-		printf("%s",control_totalfilename);
 		SAVE_TYPE(control_totalfilename,".cdx");
 		sprintf(control_totalfilename,"%s/.clipboard/clipboard.cdxml",getenv("HOME"));
-		printf("%s",control_totalfilename);
 		SAVE_TYPE(control_totalfilename,".cdxml");
 		system("clipboard -w 2>/dev/null");//write
 		edit_fileoperationrefersonlytopartofdocument=0;
 		edit_file_always_overwrite=0;
 		LHENDRAW_clipboardmode=0;
-		return 0;
+		return 1;
 	}
-	#ifndef NOCLIPBOARD
-	XSetSelectionOwner(gfx_Display,clipboard_sseln,gfx_Window,CurrentTime);
-	LHENDRAW_clipboardmode=1;
-	#endif
 	return 1;
 }
 extern int control_aggresstextcursor(const char *);
@@ -3660,7 +3658,6 @@ catalogized_command_funcdef(PASTE)
 		char control_totalfilename[stringlength+1];
 		system("clipboard -r .cdx 2>/dev/null");//asks clipboard for cdx file
 		sprintf(control_totalfilename,"%s/.clipboard/clipboard.cdx",getenv("HOME"));
-		printf("%s",control_totalfilename);
 		edit_fileoperationrefersonlytopartofdocument=1;
 		LOAD_TYPE(control_totalfilename,".cdx");
 		system("clipboard -q 2>/dev/null");//closes clipboard
@@ -3808,7 +3805,7 @@ fprintf(ifile,"%s","</colortable><fonttable>\n"
 		fprintf(ifile,"VjCD0100\4\3\2\1");
 		_u16 iu16=0;
 		for (int ilv1=0;ilv1<5;ilv1++)fwrite(&iu16,2,1,ifile);
-		printf("SAVING CDX\n");
+		print("SAVING CDX\n");
 	}
 	janitor_biasids(4);
 	//TODO: all subobjects of page must get filllevel=0 before add!

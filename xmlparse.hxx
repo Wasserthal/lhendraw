@@ -22,9 +22,7 @@ void entertag()
 	}
 	else
 	{
-		#ifdef DEBUG
-		printf("%s vs. %s !\n",tagnamestring,currentinstance->getName());
-		#endif
+		print("%s vs. %s !\n",tagnamestring,currentinstance->getName());
 		if (strcmp(currentinstance->getName(),"gummydummy")==0)
 		{
 			scrunity++;
@@ -604,9 +602,7 @@ int output_object_bin(FILE * outfile,basic_instance * iinstance)
 			{
 				goto ignore_item;
 			}
-			#ifdef DEBUG
-			printf("Unknown number of Element named %s\n",name);
-			#endif
+			print("Unknown number of Element named %s\n",name);
 			goto ignore_item;
 			idone:;
 			(*iinstance)._->properties[ilv1].binwritedelegate(((char*)iinstance)+ipropertypos,outfile);

@@ -150,6 +150,8 @@ bienum CDXML_propertycodes_List[]={
 {"CircularBondOrdering",0x60B},
 
 {"BondLength",0x805},
+{"Width",0x812},
+{"Height",0x813},
 
 {"GraphicType",0xA00},
 {"LineType",0xA01},
@@ -171,6 +173,8 @@ bienum CDXML_propertycodes_List[]={
 {"ArrowheadHead",0xA35},
 {"ArrowheadTail",0xA36},
 {"FillType",0xA37},
+{"OriginFraction",0xAA0},
+{"SolventFrontFraction",0xAA1},
 {"Rf",0xAB0},
 {"Tail",0xAB1},
 

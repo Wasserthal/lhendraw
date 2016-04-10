@@ -7,7 +7,7 @@ curve;;0 color 0 Z ! LineType # ArrowheadType # ArrowheadHead # ArrowheadTail c 
 moleculefill;;0 id 0 color 0 Z ;
 matrix;0 matrixpicture ;0 Z ;
 spectrum;0 spectrumpicture ;0 Z ;
-tlcplate;0 tlclane ;0 color 0 Z 4 BoundingBox 2 TopLeft 2 TopRight 2 BottomLeft 2 BottomRight ! LineType ;
+tlcplate;0 tlclane ;0 color 0 Z 4 BoundingBox 2 TopLeft 2 TopRight 2 BottomLeft 2 BottomRight 1 OriginFraction 1 SolventFrontFraction ! LineType ;
 !s;c PCTEXT ;0 color 0 size 0 font c face c connect c effface ;
 !s_f;;c valids ;
 !Symbol;;3 dxyz 0 SymbolType 0 color ;

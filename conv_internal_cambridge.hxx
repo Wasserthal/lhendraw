@@ -648,7 +648,7 @@ void CONVCAMBRIDGE_tlcplate(CAMBRIDGE_page_instance * master)
 				print("LANE\n");
 				ADD_TO_MULTILISTREFERENCE(tl_CAMBRIDGE_tlcplate_instance,tlclane);
 				tlclane_instance * tl_tlclane_instance=(tlclane_instance*)TELESCOPE_getproperty();
-				for (int ilv2=0;ilv2<tl_tlclane_instance->length;ilv2+=sizeof(cdx_tlcspot))
+				for (int ilv2=0;ilv2<tl_tlclane_instance->length-sizeof(tlclane_instance);ilv2+=sizeof(cdx_tlcspot))
 				{
 					cdx_tlcspot * tl_tlcspot_instance=(cdx_tlcspot*)((char*)TELESCOPE_getproperty_contents()+ilv2);
 					ADD_TO_MULTILISTREFERENCE(tl_CAMBRIDGE_tlclane_instance,tlcspot);

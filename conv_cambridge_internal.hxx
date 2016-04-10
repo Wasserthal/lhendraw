@@ -594,6 +594,8 @@ void CAMBRIDGECONV_curve()
 		CAMBRIDGECONV_EXISTSTHEN(curve,CurvePoints);
 		CAMBRIDGECONV_EXISTSTHEN(curve,FillType);
 		CAMBRIDGECONV_EXISTSTHEN(curve,Closed);
+		CAMBRIDGECONV_EXISTSTHEN2(curve,CurveType,LineType);
+		tl_curve_instance.LineType=((tl_curve_instance.LineType&6)>>1)|((tl_curve_instance.LineType&512)>>7);
 		if (AUTOSTRUCT_EXISTS(CAMBRIDGE_curve_instance,(*tl_CAMBRIDGE_curve_instance),FadePercent))
 		{
 			if (tl_curve_instance.FillType==0) tl_curve_instance.FillType=1;

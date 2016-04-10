@@ -195,7 +195,7 @@ bienum CDXML_LineType[]={
 	{{"Solid"},0x0},
 	{{"Dashed"},0x1},
 	{{"Bold"},0x2},
-	{{"Wavy"},0x4},
+	{{"Wavy"},0x4},//or doubled in tlcspot and curve
 };
 int CDXML_LineType_max=sizeof(CDXML_LineType)/sizeof(CDXML_LineType[0]);
 bienum CDXML_FillType[]={

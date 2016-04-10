@@ -285,8 +285,8 @@ menuitem pullout_toolbox[]={
 {14,1,
 100,//Picture
 "Bold",
-8,6,
-2,
+10,6,
+1,
 "Bold",
 "control_drawproperties.LineType",
 "","",
@@ -295,8 +295,8 @@ menuitem pullout_toolbox[]={
 {15,1,
 156,//Picture
 "Dashed",
-8,6,
-1,
+10,6,
+0,
 "Dashed",
 "control_drawproperties.LineType",
 "","",

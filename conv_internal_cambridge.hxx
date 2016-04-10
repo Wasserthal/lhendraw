@@ -610,6 +610,7 @@ void CONVCAMBRIDGE_curve(CAMBRIDGE_page_instance * master)
 			(*tl_CAMBRIDGE_curve_instance).CurvePoints=(*tl_curve_instance).CurvePoints;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_curve_instance,CurvePoints);
 			(*tl_CAMBRIDGE_curve_instance).FillType=(*tl_curve_instance).FillType;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_curve_instance,FillType);
 			(*tl_CAMBRIDGE_curve_instance).Closed=(*tl_curve_instance).Closed;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_curve_instance,Closed);
+			(*tl_CAMBRIDGE_curve_instance).CurveType=(((*tl_curve_instance).LineType&3)<<1)|(((*tl_curve_instance).LineType&4)<<7);AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_curve_instance,CurveType);
 		}
 	}
 }

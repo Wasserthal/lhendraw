@@ -5281,6 +5281,22 @@ catalogized_command_funcdef(FILEDLG_FILE_IMPORT)
 	}
 	return retval;
 }
+int edit_bienum_multi_string(bienum * ibienum,char * output,intl imax,intl value)
+{
+	output[0]=0;
+	for (int ilv1=0;ilv1<imax;ilv1++)
+	{
+		if ((ibienum[ilv1].number & value)==ibienum[ilv1].number)
+		{
+			if (stringlength>strlen(output)+strlen(ibienum[ilv1].name)+1)
+			{
+				strcat(output,ibienum[ilv1].name);
+				strcat(output," ");
+			}
+		}
+	}
+	return 0;
+};
 catalogized_command_funcdef(SET_ALL_ITEMS)//TODO: works for _i32 only, right now
 {
 	intl suboffset=0;

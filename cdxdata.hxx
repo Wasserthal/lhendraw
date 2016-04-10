@@ -6,11 +6,6 @@
 extern int getbufferfromstructure(basicmultilist * input,TELESCOPE_buffer * * bufferptr);
 extern basic_instance * currentinstance;
 #define arcfloat float
-struct cdx_enum
-{
-	int a;
-};
-
 struct cdx_Point2D
 {
 	float x,y;

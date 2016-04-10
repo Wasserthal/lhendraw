@@ -2873,14 +2873,36 @@ int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int
 						tl_name+=strlen(tl_name)-1;
 						while ((*tl_name!='_') && (*tl_name!='.')) tl_name--;
 						tl_name++;
+						undo_storcatch(~0,(*ipulloutlisting).name);
 						if ((*ipulloutlisting).LMB_function!=NULL)
 						{
-							undo_storcatch(~0,(*ipulloutlisting).name);
-							(*ipulloutlisting).LMB_function(tl_name,tl_on?((*ipulloutlisting).name):"0");
+							(*ipulloutlisting).LMB_function(tl_name,tl_on?((*ipulloutlisting).name):tl_zerostring);
 						}
 						else
 						{
-							SETITEMVARIABLES(tl_name,tl_on?((*ipulloutlisting).name):"0");
+							SETITEMVARIABLES(tl_name,tl_on?((*ipulloutlisting).name):tl_zerostring);
+						}
+						break;
+					}
+					case 10:
+					{
+						int * tl_variable_p=((_i32*)((*ipulloutlisting).variable));
+						char tl_on;
+						(*tl_variable_p)^=(1<<(*ipulloutlisting).toolnr);
+						char * tl_name=(char*)(*ipulloutlisting).variablename;
+						char tl_value[1024]="";
+						tl_name+=strlen(tl_name)-1;
+						edit_bienum_multi_string(CDXML_LineType,tl_value,CDXML_LineType_max,*tl_variable_p);
+						while ((*tl_name!='_') && (*tl_name!='.')) tl_name--;
+						tl_name++;
+						undo_storcatch(~0,(*ipulloutlisting).name);
+						if ((*ipulloutlisting).LMB_function!=NULL)
+						{
+							(*ipulloutlisting).LMB_function(tl_name,tl_value);
+						}
+						else
+						{
+							SETITEMVARIABLES(tl_name,tl_value);
 						}
 						break;
 					}

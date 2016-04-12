@@ -82,7 +82,6 @@ superconstellation_directory AUTOSTRUCTURE_ctype_directory[]={
 #include "./generated/propertydirectory_lhendraw.hxx"
 };
 #include "text.h"
-#include "text_freetype.h"
 
 #ifdef DEBUG
 #include <time.h>

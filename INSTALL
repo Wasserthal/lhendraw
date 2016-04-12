@@ -1,6 +1,5 @@
 dependencies:
 - SDL - in any distro. be sure to install the sdl-dev, too!
-- freetype - in any distro be sure to install freetype-dev, too!
 - gcc - check your distro
 - g++ - check your distro
 - glibc/math (should be present anyway)
@@ -12,7 +11,7 @@ dependencies:
 how to install
 type 
 
-make sdl
+make lhendraw
 sudo make install
 
 if compiling worked, there should be a executable file called lhendraw.

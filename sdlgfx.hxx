@@ -1550,7 +1550,7 @@ inline char text_print_bitmap_enhanced_getpos(int posx,int posy,char * memory,in
 {
 	if ((posx>=0) && (posy>=0) && (posx<maxx) && (posy<maxy))
 	{
-		return ((memory[posy*skip+posx] & 0x80)!=0);
+		return ((memory[posy] & (1<<posx))!=0);
 	}
 	return 0;
 }
@@ -1630,9 +1630,8 @@ void text_print_bitmap_enhanced(int * posx,int * posy,fontpixinf_ * ifontpixinf,
 }
 void text_print_bitmap(int * posx,int * posy,fontpixinf_ * ifontpixinf,int imode)
 {
-	imode&=~0x1A;
-	_u8 startfactor=1;
 	if (imode & 0x1A) return text_print_bitmap_enhanced(posx,posy,ifontpixinf,imode);
+	_u8 startfactor=1;
 	int ilv1,ilv2;
 	int scanx,scany;
 	int maxx,maxy;

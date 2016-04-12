@@ -4274,3 +4274,59 @@ void control_normal()
 		#endif
 	}
 }
+void control_fontedit()
+{
+	SDL_Event control_Event;
+	while ( SDL_PollEvent(&control_Event) ) 
+	{
+		switch (control_Event.type) 
+		{
+			case SDL_MOUSEBUTTONDOWN:
+			{
+				int x=(control_mousex-gfx_canvasminx)/20;
+				int y=(control_mousey-gfx_canvasminy)/20;
+				editfont.x=x;
+				editfont.y=y;
+			}
+			break;
+			case SDL_MOUSEMOTION:
+			{
+				control_mousex=control_Event.motion.x;
+				control_mousey=control_Event.motion.y;
+			}
+			break;
+			case SDL_KEYDOWN:
+			{
+				switch (control_Event.key.keysym.sym)
+				{
+					case SDLK_F2:
+					{
+						FILE * tl_file1=fopen("text.bin","w");
+						text_store(tl_file1);
+					}
+					break;
+					case SDLK_F3:
+					{
+						FILE * tl_file1=fopen("text.bin","r");
+						text_load(tl_file1);
+					}
+					break;
+					case SDLK_ESCAPE:
+					LHENDRAW_filedlgmode=0;
+					break;
+					case SDLK_PAGEUP:
+					editfont.number--;
+					break;
+					case SDLK_PAGEDOWN:
+					editfont.number++;
+					break;
+					case SDLK_SPACE:
+					fontpixinf[editfont.number].memstart[editfont.y]^=(1<<+editfont.x);
+					break;
+				}
+				break;
+			}
+			break;
+		}
+	}
+}

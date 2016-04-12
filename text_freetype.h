@@ -5,9 +5,9 @@
 #include FT_FREETYPE_H
 void fontpixinf_add(FT_GlyphSlot islot,int iunicode)
 {
-	int length=((*islot).bitmap).width;
+	int length;
 	fontpixinf[fontpixinf_count].sizex=((*islot).bitmap).width;
-	length*=((*islot).bitmap).rows;
+	length=((*islot).bitmap).rows;
 	fontpixinf[fontpixinf_count].sizey=((*islot).bitmap).rows;
 	fontpixinf[fontpixinf_count].deltax=(*islot).advance.x>>6;
 	fontpixinf[fontpixinf_count].deltay=(*islot).advance.y>>6;
@@ -15,9 +15,17 @@ void fontpixinf_add(FT_GlyphSlot islot,int iunicode)
 	fontpixinf[fontpixinf_count].pivoty=-(*islot).bitmap_top;
 	fontpixinf[fontpixinf_count].memstart=fontpixbuffer_count+fontpixbuffer;
 	fontpixinf[fontpixinf_count].unicode=iunicode;
-	for (int ilv1=0;ilv1<length;ilv1++)
+	for (int ilv1=0;ilv1<fontpixinf[fontpixinf_count].sizey;ilv1++)
 	{
-		fontpixbuffer[fontpixbuffer_count++]=(((_u8)(*islot).bitmap.buffer[ilv1])>65)?0x80:0;
+		fontpixbuffer[fontpixbuffer_count]=0;
+		for (int ilv2=0;ilv2<fontpixinf[fontpixinf_count].sizex;ilv2++)
+		{
+			if (((_u8)(*islot).bitmap.buffer[(ilv1*fontpixinf[fontpixinf_count].sizex)+ilv2])>65)
+			{
+				fontpixbuffer[fontpixbuffer_count]|=(1<<ilv2);
+			}
+		}
+		fontpixbuffer_count++;
 	}
 	fontpixinf_count++;
 }

@@ -318,6 +318,13 @@ int main(int argc,char * * argv)
 			draw_undotree(0);
 			draw_reticle();
 		break;
+		case 4:
+			control_fontedit();
+			gfx_gfxstart();
+			screenclear(0xFFFFFF);
+			text_printbigfont();
+			draw_reticle();
+		break;
 		}
 		gfx_gfxstop();
 		usleep(1000);

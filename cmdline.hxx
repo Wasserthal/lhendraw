@@ -103,6 +103,19 @@ void executeparameter(const char which,int parameter,int posinparameter,int argc
 							text_store(outfile);
 						}
 					}
+					if (strcmp(argv[parameter]+posinparameter,"importfontfrombin")==0)
+					{
+						for (int ilv1=parameter+1;ilv1<argc;ilv1++)
+						{
+							parameter_filename=argv[ilv1];
+							FILE * outfile=fopen(parameter_filename,"w");
+							text_store(outfile);
+						}
+					}
+					if (strcmp(argv[parameter]+posinparameter,"fontedit")==0)
+					{
+						LHENDRAW_filedlgmode=4;
+					}
 				}//or it was a --, so not interpreted.
 				return;
 				break;

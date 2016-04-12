@@ -191,3 +191,7 @@ void text_store(FILE * outfile)
 	}
 	fclose(outfile);
 }
+struct editfont
+{
+	int number;int x;int y;
+}editfont={4,0,0};

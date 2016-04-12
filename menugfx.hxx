@@ -11,6 +11,7 @@ _i32 menu_addxifneg(_i32 input)
 }
 void text_output_bitmap(int * posx,int * posy,fontpixinf_ * ifontpixinf)
 {
+	_u8 startpos=1;
 	int ilv1,ilv2;
 	int scanx,scany;
 	int maxx,maxy;
@@ -22,8 +23,8 @@ void text_output_bitmap(int * posx,int * posy,fontpixinf_ * ifontpixinf)
 	scany=(*posy)+(*ifontpixinf).pivoty+12;
 	maxx=(*ifontpixinf).sizex+scanx;
 	maxy=(*ifontpixinf).sizey+scany;
-	if (scanx<0) {mempos-=scanx;scanx=0;}
-	if (scany<0) {mempos-=scany*skip;scany=0;}
+	if (scanx<0) {startpos<<=-scanx;scanx=0;}
+	if (scany<0) {mempos-=scany;scany=0;}
 	if (maxx>=gfx_screensizex) maxx=gfx_screensizex-1;
 	if (maxy>=gfx_screensizey) maxy=gfx_screensizey-1;
 	skip-=(*ifontpixinf).sizex;
@@ -37,16 +38,17 @@ void text_output_bitmap(int * posx,int * posy,fontpixinf_ * ifontpixinf)
 	iscreenskip-=(*ifontpixinf).sizex;
 	for (ilv1=scany;ilv1<maxy;ilv1++)
 	{
+		_u8 xcounter=startpos;
 		for (ilv2=scanx;ilv2<maxx;ilv2++)
 		{
-			if (*(mempos) & 0x80)
+			if (*(mempos) & xcounter)
 			{
 				*(iscreen)=SDL_color;
 			}
+			xcounter<<=1;
 			iscreen++;
-			mempos++;
 		}
-		mempos+=skip;
+		mempos++;
 		iscreen+=iscreenskip;
 	}
 }
@@ -1150,4 +1152,26 @@ void sdl_outofareadraw()
 			dwpx(ilv1,ilv2,shiftx,shifty,0xFFFF00);
 		}
 	}
+}
+void text_printbigfont()
+{
+	fontpixinf_ ifontpixinf=fontpixinf[editfont.number];
+	for (int ilv1=0;ilv1<ifontpixinf.sizey;ilv1++)
+	{
+		for (int ilv2=0;ilv2<ifontpixinf.sizex;ilv2++)
+		{
+			_u32 currentcolor=(ifontpixinf.memstart[ilv1]&(1<<ilv2))?0:0xFFFFFF;
+			if ((editfont.x==ilv2)&&(editfont.y==ilv1))currentcolor^=0xFF;
+			for (int ilv3=0;ilv3<20;ilv3++)
+			{
+				for (int ilv4=0;ilv4<20;ilv4++)
+				{
+					canvas[(ilv3+ilv1*20)*gfx_screensizex+(ilv4+ilv2*20)]=currentcolor;
+				}
+			}
+		}
+	}
+	char tl_menuout[stringlength+1]="";
+	sprintf(tl_menuout,"0x%X",(_u32)ifontpixinf.unicode);
+	printmenutext(20,20,tl_menuout,strlen(tl_menuout));
 }

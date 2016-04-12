@@ -1630,6 +1630,8 @@ void text_print_bitmap_enhanced(int * posx,int * posy,fontpixinf_ * ifontpixinf,
 }
 void text_print_bitmap(int * posx,int * posy,fontpixinf_ * ifontpixinf,int imode)
 {
+	imode&=~0x1A;
+	_u8 startfactor=1;
 	if (imode & 0x1A) return text_print_bitmap_enhanced(posx,posy,ifontpixinf,imode);
 	int ilv1,ilv2;
 	int scanx,scany;
@@ -1643,8 +1645,8 @@ void text_print_bitmap(int * posx,int * posy,fontpixinf_ * ifontpixinf,int imode
 	maxx=(*ifontpixinf).sizex+scanx;
 	maxy=(*ifontpixinf).sizey+scany;
 	int larger=((imode & 1)==1)*1;
-	if (scanx<0) {mempos-=scanx;scanx=0;}
-	if (scany<0) {mempos-=scany*skip;scany=0;}
+	if (scanx<0) {startfactor<<=-scanx;scanx=0;}
+	if (scany<0) {mempos-=scany;scany=0;}
 	if (maxx>=gfx_canvassizex) maxx=gfx_canvassizex-1-larger;
 	if (maxy>=gfx_canvassizey) maxy=gfx_canvassizey-1;
 	skip-=maxx-scanx;
@@ -1666,17 +1668,18 @@ void text_print_bitmap(int * posx,int * posy,fontpixinf_ * ifontpixinf,int imode
 	icanvasskip-=maxx-scanx;
 	for (ilv1=scany;ilv1<maxy;ilv1++)
 	{
+		_u8 xcounter=startfactor;
 		for (ilv2=scanx;ilv2<maxx;ilv2++)
 		{
-			if (*(mempos) & 0x80)
+			if (*(mempos) & xcounter)
 			{
 				*(icanvas)=SDL_color;
 				if (imode & 1) *(icanvas+1)=SDL_color;
 			}
+			xcounter<<=1;
 			icanvas++;
-			mempos++;
 		}
-		mempos+=skip;
+		mempos++;
 		icanvas+=icanvasskip;
 	}
 }

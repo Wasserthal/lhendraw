@@ -921,22 +921,24 @@ int set_bienum_multi(bienum * ibienum,FILE * output,intl imax,intl value)
 intl get_bienum_multi(bienum * ibienum,const char * input,intl count)
 {
 	intl ilv1;
+	intl length;
 	intl wert=0;
 	char again;
 	char * currentpos=(char*)input;
 	char * tlbackvalue;
 	iback:
 	again=0;
+	length=strlen(currentpos);
 	tlbackvalue=strchr(currentpos,' ');
 	if (tlbackvalue!=NULL)
 	{
-		*tlbackvalue=0;
+		length=tlbackvalue-currentpos;
 		again=1;
 	}
 	if (currentpos[0]==0) return wert;
 	for (ilv1=0;ilv1<count;ilv1++)
 	{
-		if (strcmp(currentpos,ibienum[ilv1].name)==0)
+		if (strncmp(currentpos,ibienum[ilv1].name,length)==0)
 		{
 			wert|=ibienum[ilv1].number;
 			goto ifound;

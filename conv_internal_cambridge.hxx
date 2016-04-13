@@ -567,7 +567,10 @@ void CONVCAMBRIDGE_Symbol(CAMBRIDGE_page_instance * master)
 				(*tl_CAMBRIDGE_graphic_instance).BoundingBox.top=tl_cdx_Point3D.y;
 				(*tl_CAMBRIDGE_graphic_instance).BoundingBox.right=tl_cdx_Point3D.x;
 				(*tl_CAMBRIDGE_graphic_instance).BoundingBox.bottom=tl_cdx_Point3D.y+10;
-				//TODO: Major/Minor axis
+				(*tl_CAMBRIDGE_graphic_instance).MajorAxisEnd3D.x=tl_cdx_Point3D.x+10;
+				(*tl_CAMBRIDGE_graphic_instance).MajorAxisEnd3D.y=tl_cdx_Point3D.y;
+				(*tl_CAMBRIDGE_graphic_instance).MinorAxisEnd3D.y=tl_cdx_Point3D.x;
+				(*tl_CAMBRIDGE_graphic_instance).MinorAxisEnd3D.y=tl_cdx_Point3D.y-10;
 				(*tl_CAMBRIDGE_graphic_instance).SymbolType=(*tl_Symbol_instance).SymbolType;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_graphic_instance,SymbolType);
 				(*tl_CAMBRIDGE_graphic_instance).GraphicType=7;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_graphic_instance,GraphicType);
 				int iid=*((_i32*)(((char*)((*tl_multilist).pointer))+tl_size*ilv2+i_id_offset))+janitor_id_list[ilv1-1];

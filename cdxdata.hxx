@@ -310,7 +310,6 @@ int __attribute__((sysv_abi))CDXMLWRITE__i32(char * input,void * output)
 	fprintf((FILE*)output,"%i",*((_i32*)input));
 	return 0;
 }
-//TODO: angular size*10, READ+WRITE BIN
 int __attribute__((sysv_abi))CDXMLREAD_BIN__i32(char * input,void * output)
 {
 	*((_i32*)output)=*((_i32*)input);
@@ -805,7 +804,7 @@ int __attribute__((sysv_abi))CDXMLWRITE_BIN_cdx_Point3D(char * input,void * outp
 	iz=wert.z*65536.0;
 	ix=wert.x*65536.0;
 	iy=wert.y*65536.0;
-	ilv1=CDXMLWRITE_BIN__i32_headerless((ix),(FILE*)output);//TODO: urgent: omit size prefix!
+	ilv1=CDXMLWRITE_BIN__i32_headerless((ix),(FILE*)output);
 	ilv1+=CDXMLWRITE_BIN__i32_headerless((iy),(FILE*)output);
 	ilv1+=CDXMLWRITE_BIN__i32_headerless((iz),(FILE*)output);
 	return ilv1;

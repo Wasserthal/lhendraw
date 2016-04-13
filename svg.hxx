@@ -1,6 +1,7 @@
 #define svg_text_buffer_max 1048576
 char svg_text_buffer[svg_text_buffer_max+1];
 int svg_text_buffer_count=0;
+float svg_startx,svg_starty;
 int svg_get_colorstringv(int number)
 {
 	sprintf(colorstring,"%06X",number);
@@ -285,22 +286,30 @@ int svg_main(FILE * ifile)
 	svg_tail();
 	return 1;
 }
-//TODO SUBJECT: TEXT ist completely broken now without a buffer to read it from.
 int __attribute__((warn_unused_result)) svg_expressgeometry_start(float left,float top,float right,float bottom)
 {
-	//TODO
-	return 0;
+	fprintf(outfile,"<path d=\"");
+	return 1;
 }
 void svg_expressgeometry_begin(float x,float y)
 {
-	//TODO
+	svg_startx=x;
+	svg_starty=y;
+	fprintf(outfile,"M %f,%f ",x,y);
 }
 void svg_expressgeometry_arc_enhanced(float centerx,float centery,float radiusx,float radiusy,float startangle,float endangle,float tiltangle)
 {
+	float startx,starty;
+	float endx,endy;
+	startx=centerx+(radiusx*cos(startangle)*cos(tiltangle)-radiusy*sin(startangle)*sin(tiltangle))+SVG_currentshiftx;
+	starty=centery+(radiusy*sin(startangle)*cos(tiltangle)+radiusx*cos(startangle)*sin(tiltangle))+SVG_currentshifty;
+	endx=centerx+(radiusx*cos(endangle)*cos(tiltangle)-radiusy*sin(endangle)*sin(tiltangle))+SVG_currentshiftx;
+	endy=centery+(radiusy*sin(endangle)*cos(tiltangle)+radiusx*cos(endangle)*sin(tiltangle))+SVG_currentshifty;
+	fprintf(outfile,"M %f,%f A %f,%f %i %i %i %f %f ",startx,starty,radiusx,radiusy,(int)(tiltangle*180.0/Pi),(int)(fabs(startangle-endangle)>=Pi),(int)(startangle-endangle)<0,endx,endy);
 }
 void svg_expressgeometry_end()
 {
-	//TODO
+	fprintf(outfile,"\" %s/>\n",stylestring);
 }
 void svg_expressgeometry_line(float x,float y)
 {
@@ -316,5 +325,5 @@ void svg_expressgeometry_bezier3(float x1,float y1,float x2,float y2,float x3,fl
 }
 void svg_expressgeometry_backline()
 {
-	//TODO
+	fprintf(outfile,"L %f,%f ",svg_startx,svg_starty);
 }

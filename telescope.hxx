@@ -334,7 +334,7 @@ void TELESCOPE_rushtoend()
 }
 #define TELESCOPE_item ((TELESCOPE_element*)((*(TELESCOPE_tempvar.buffer)).buffer+TELESCOPE_tempvar.pos+TELESCOPE_tempvar.subpos))
 #define TELESCOPE_item_1(PARAM) ((PARAM ## _instance*)((*(TELESCOPE_tempvar.buffer)).buffer+TELESCOPE_tempvar.pos+TELESCOPE_tempvar.subpos))
-int TELESCOPE_insertintoproperties(int tag,const char * iinput,int ilength)//TODO: memory overflow handling
+int TELESCOPE_insertintoproperties(int tag,const char * iinput,int ilength)
 {
 	if (TELESCOPE_searchthroughobject(tag))
 	{
@@ -343,22 +343,21 @@ int TELESCOPE_insertintoproperties(int tag,const char * iinput,int ilength)//TOD
 		}
 		TELESCOPE_rushtoend();
 	}
-	if (TELESCOPE_stretch_buffer(TELESCOPE_tempvar.multilist,ilength,tag)==-1) {return -1;}
-	char * ilv1b=(*TELESCOPE_tempvar.buffer).buffer+TELESCOPE_tempvar.pos+TELESCOPE_tempvar.subpos2/*TODO: what if an object HAD to be inserted?*/;
-	//TODO: what if an object HAD to be inserted???
+	if (TELESCOPE_stretch_buffer(TELESCOPE_tempvar.multilist,ilength,tag)<=-1) {memory_overflow_hook();exit(1);}
+	char * ilv1b=(*TELESCOPE_tempvar.buffer).buffer+TELESCOPE_tempvar.pos+TELESCOPE_tempvar.subpos2;
 	for (int ilv1=0;ilv1<ilength;ilv1++,ilv1b++)//TODO: faster...
 	{
 		(*ilv1b)=(*(iinput+ilv1));
 	}
 	return 1;
 }
-int TELESCOPE_insertintoproperties_offset(const char * iinput,int ilength,int ioffset)//TODO: memory overflow handling
+int TELESCOPE_insertintoproperties_offset(const char * iinput,int ilength,int ioffset)
 {
 	TELESCOPE_element * tl_element=((TELESCOPE_element*)((*(TELESCOPE_tempvar.buffer)).buffer+TELESCOPE_tempvar.pos+TELESCOPE_tempvar.subpos));
 	int tl_elementlength=tl_element->length-TELESCOPE_ELEMENTTYPE_List[tl_element->type].size;
 	TELESCOPE_rushtoend();
-	if (TELESCOPE_stretch_buffer(TELESCOPE_tempvar.multilist,ilength,tl_element->type)==-1) {return -1;}
-	if (abs(ioffset)>tl_elementlength) return -1;
+	if (TELESCOPE_stretch_buffer(TELESCOPE_tempvar.multilist,ilength,tl_element->type)<=-1) {memory_overflow_hook();exit(1);}
+	if (abs(ioffset)>tl_elementlength) {error("Programming error, inserted data behind length of element!\n");exit(1);}
 	if (ioffset>=0)
 	{
 		ioffset-=tl_elementlength;
@@ -385,7 +384,7 @@ int TELESCOPE_add(int tag,const char * iinput,int ilength)//Like insertintoprope
 		TELESCOPE_tempvar.subpos2=TELESCOPE_tempvar.subpos;
 		TELESCOPE_tempvar.inside_TELESCOPE_element=0;
 	}
-	if (TELESCOPE_stretch_buffer(TELESCOPE_tempvar.multilist,ilength,tag)==-1) {return -1;}
+	if (TELESCOPE_stretch_buffer(TELESCOPE_tempvar.multilist,ilength,tag)==-1) {memory_overflow_hook();exit(1);}
 	char * ilv1b=(*TELESCOPE_tempvar.buffer).buffer+TELESCOPE_tempvar.pos+TELESCOPE_tempvar.subpos2;
 	if (iinput!=NULL)
 	{
@@ -406,7 +405,7 @@ int TELESCOPE_split(int ipos,const char * iadditive_input,int ilength)
 	TELESCOPE_rushtoend();
 	int ideltaplus2=ilength+TELESCOPE_ELEMENTTYPE_List[itype].size;
 	int isecondlength=(*tl_Element).length-ipos-TELESCOPE_ELEMENTTYPE_List[itype].size;
-	if ((*(TELESCOPE_tempvar.buffer)).count+ideltaplus2>=LHENDRAW_buffersize) return -1;
+	if ((*(TELESCOPE_tempvar.buffer)).count+ideltaplus2>=LHENDRAW_buffersize) {memory_overflow_hook();exit(1);}
 	for (ilv1=(*(TELESCOPE_tempvar.buffer)).count+ideltaplus2-1;ilv1>=TELESCOPE_tempvar.subpos+TELESCOPE_tempvar.pos+TELESCOPE_ELEMENTTYPE_List[itype].size+(*tl_Element).length-isecondlength;ilv1--)//stretches buffer and copies end
 	{
 		(*(TELESCOPE_tempvar.buffer)).buffer[ilv1]=(*(TELESCOPE_tempvar.buffer)).buffer[ilv1-ideltaplus2];

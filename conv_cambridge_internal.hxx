@@ -131,7 +131,6 @@ void CAMBRIDGECONV_atom()
 		{
 			tl_n_instance.xyz=(*tl_CAMBRIDGE_n_instance).xyz;
 		}
-		//TODO: ExternalConnectionType, and respecting this enumerated property in draw
 		tl_n_instance.id=(*tl_CAMBRIDGE_n_instance).id;
 		CAMBRIDGECONV_FIXID(n)
 		int tl_atomindex=glob_n_multilist->filllevel;

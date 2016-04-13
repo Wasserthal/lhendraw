@@ -4740,7 +4740,7 @@ char edit_resortstring(basicmultilist * imultilist,int iinstance) // resorts che
 			itelescope->effface=itelescope->face&~0x60;
 			fsm=5;
 		}
-		if ((ihv1=='+') || (ihv1=='-'))
+		if ((ihv1=='+') || (ihv1=='-') || (ihv1=='='))
 		{
 			L_SEPARATE;
 			itelescope->connect=1;

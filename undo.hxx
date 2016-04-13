@@ -307,7 +307,6 @@ int restoreundo(_u32 flags,_u32 orderflags/*bit0: restore count only*/)//doesn't
 	basicmultilist * tl_multilist;
 	if (currentundostep==-1) return -1;
 	intl * tl_buffer=NULL;
-	intl thatundostep;//TODO: this variable is unnecessary
 //	printf("\e[34m%i\e[0m\n",currentundostep);
 	for (int ilv1=1;ilv1<sizeof(STRUCTURE_OBJECTTYPE_List)/sizeof(trienum);ilv1++)
 	{
@@ -317,8 +316,7 @@ int restoreundo(_u32 flags,_u32 orderflags/*bit0: restore count only*/)//doesn't
 			if (flags & (1<<ilv1))
 			{
 				char * ipointer;
-				thatundostep=currentundostep;
-				undo_retrievedundostep=thatundostep;
+				undo_retrievedundostep=currentundostep;
 				if (orderflags & 1)
 				{
 					tl_buffer=(intl*)(undosteps[currentundostep].handles[ilv1].buffer);

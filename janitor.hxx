@@ -349,7 +349,7 @@ void janitor_bufferresort()
 	{
 		basicmultilist * imultilist=findmultilist(STRUCTURE_OBJECTTYPE_List[ilv1].name);
 		int isize=STRUCTURE_OBJECTTYPE_List[ilv1].size;
-		int tl_object=0;
+		int tl_object=-1;
 		int tl_readpos=0;
 		int tl_writepos=0;
 		int length;
@@ -371,7 +371,7 @@ void janitor_bufferresort()
 				for (int ilv3=tl_object+1;ilv3<(*imultilist).filllevel;ilv3++)
 				{
 					basic_instance_propertybuffer * iinstance=(basic_instance_propertybuffer*)(((char*)((*imultilist).pointer))+(isize*ilv3));
-					if ((*iinstance).pos_in_buffer>=tl_readpos)
+					if ((*iinstance).pos_in_buffer>=tl_writepos)
 					{
 						(*iinstance).pos_in_buffer-=length;
 					}
@@ -408,7 +408,7 @@ void janitor_memoryresort()
 			{
 				if (tl_difference!=0)
 				{
-					if (TELESCOPE_aggressobject(imultilist,ilv2+tl_difference))
+					if (TELESCOPE_aggressobject(imultilist,ilv2+tl_difference)>0)
 					{
 						TELESCOPE_reindex(ilv2);
 					}

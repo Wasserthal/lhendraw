@@ -330,7 +330,8 @@ void getatoms()//makes some preprocessing
 			}
 			if ((diagnose_foundstart ==0) | (diagnose_foundend==0))
 			{
-				error("Error: No start/end found on bond!");
+				(*glob_b_multilist)[ilv1].exist=0;
+				printf("Error: No start/end found on bond!\n");
 			}
 		}
 	}
@@ -6412,5 +6413,14 @@ catalogized_command_funcdef(DUMPCLICKABMAT)
 	fprintf(clickabilitymatrixfile,"control_clickabilitymatrixes[%i]=({clickabilitymatrix_ tl_clickabilitymatrix={%i,%i,%i,\n"
 "{0x%X,0x%X,0x%X,0x%X,0x%X,0x%X,0x%X,0x%X}};tl_clickabilitymatrix;});\n",control_tool,selection_clickabilitymatrix.mode,selection_clickabilitymatrix.level0,selection_clickabilitymatrix.types1,selection_clickabilitymatrix.types2[0],selection_clickabilitymatrix.types2[1],selection_clickabilitymatrix.types2[2],selection_clickabilitymatrix.types2[3],selection_clickabilitymatrix.types2[4],selection_clickabilitymatrix.types2[5],selection_clickabilitymatrix.types2[6],selection_clickabilitymatrix.types2[7]);
 	fclose(clickabilitymatrixfile);
+	return 1;
+}
+catalogized_command_funcdef(STORECFGFILE)
+{
+	char outstring[stringlength+1]="";
+	sprintf(outstring,"mkdir %s/.lhendraw 2>/dev/null",getenv("HOME"));
+	system(outstring);
+	sprintf(outstring,"%s/.lhendraw/hotkeys.xml",getenv("HOME"));
+	conv_internalconfig_config(outstring);
 	return 1;
 }

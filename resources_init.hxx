@@ -34,11 +34,16 @@ void resources_set_icon()
 FILE * criticalfilename(char * idirectorystring,const char * iname)
 {
 	FILE * thefile=NULL;
+
+	sprintf(idirectorystring,"%s/.lhendraw",getenv("HOME"));
+	strcat(idirectorystring,iname);
+	thefile=fopen(idirectorystring,"r");
+	if (thefile!=NULL) return thefile;
+
 	strcpy(idirectorystring,"/usr/share/lhendraw");
 	strcat(idirectorystring,iname);
-	
 	thefile=fopen(idirectorystring,"r");
-	if (thefile==NULL){printf("File not found: %s\n",idirectorystring);}
+	if (thefile==NULL){error("File not found: %s\n",idirectorystring);}
 	return thefile;
 }
 void bitmap_init(FILE * bitmapfile)

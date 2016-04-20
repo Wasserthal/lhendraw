@@ -100,6 +100,7 @@ int clockid=0;
 #include "clipboard.hxx"
 #endif
 #include "conv_config_internalconfig.hxx"
+#include "conv_internalconfig_config.hxx"
 #include "selection.hxx"
 extern int edit_getBoundingBoxMode(graphic_instance * iinstance);
 #include "conv_cambridge_internal.hxx"

@@ -82,7 +82,7 @@ int CONVCAMBRIDGE_latin_vs_greek(CAMBRIDGE_t_instance * master,s_instance * tl_s
 		if (strncmp(list_greeklist[ilv2].output,ibufferptr+(*icursor),strlen(list_greeklist[ilv2].output))==0)
 		{
 			if (currenttype==0) {currenttype=2;}else{if ((currenttype)!=2){thereismore=1;goto done;}}
-			printf("2");
+			print("2");
 			currenttype=2;
 			(*icursor)+=strlen(list_greeklist[ilv2].output);
 			goto ifound;

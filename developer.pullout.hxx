@@ -19,6 +19,16 @@ menuitem pullout_developer[]={
 "DUMPCLICKABMAT","",
 0x00FF00,
 },
+{-2,-2,
+6,//Picture
+"store configuration file",
+3,0,
+0,
+"store configuration file",
+"",
+"STORECFGFILE","",
+0x00FF00,
+},
 {-6,0,
 50,//Picture
 "more mem",

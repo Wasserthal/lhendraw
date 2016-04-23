@@ -3866,6 +3866,7 @@ catalogized_command_funcdef(SAVEAS)
 	LHENDRAW_filedlgmode=1;
 	control_filemenu_mode=1;
 	menu_selectedmenuelement=0;
+	control_mousestate=0;
 	return 1;
 }
 catalogized_command_funcdef(EXPORTAS)
@@ -3873,6 +3874,7 @@ catalogized_command_funcdef(EXPORTAS)
 	LHENDRAW_filedlgmode=1;
 	control_filemenu_mode=2;
 	menu_selectedmenuelement=0;
+	control_mousestate=0;
 	return 1;
 }
 catalogized_command_funcdef(IMPORTAS)
@@ -3880,6 +3882,7 @@ catalogized_command_funcdef(IMPORTAS)
 	LHENDRAW_filedlgmode=1;
 	control_filemenu_mode=3;
 	menu_selectedmenuelement=0;
+	control_mousestate=0;
 	return 1;
 }
 catalogized_command_funcdef(SEARCHAS)
@@ -3887,6 +3890,7 @@ catalogized_command_funcdef(SEARCHAS)
 	LHENDRAW_filedlgmode=1;
 	control_filemenu_mode=4;
 	menu_selectedmenuelement=0;
+	control_mousestate=0;
 	return 1;
 }
 int edit_bondsum(int nr,int dir)
@@ -4029,6 +4033,7 @@ catalogized_command_funcdef(LOADAS)
 	LHENDRAW_filedlgmode=1;
 	control_filemenu_mode=0;
 	menu_selectedmenuelement=0;
+	control_mousestate=0;
 	return 1;
 }
 catalogized_command_funcdef(SAVE)

@@ -52,6 +52,7 @@ void conv_config_internalconfig()
 		hotkeylist[currenthotkey].variable[19]=0;
 		strncpy(hotkeylist[currenthotkey].value,(*glob_CONFIGBRIDGE_Hotkey_multilist)[ilv1].value.a,20);
 		hotkeylist[currenthotkey].value[19]=0;
+		currenthotkey++;
 		we_had_such_a_combination_already:;
 	}
 	hotkeylist_count=ilv1;

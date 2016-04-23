@@ -7,6 +7,7 @@ menuitem pullout_submenu_toolbox_M2[]={
 "Empty",
 "selection_clickabilitymatrix.types2[2]",
 "","",
+0,192,
 },
 {0,1,
 0,//Picture
@@ -16,6 +17,7 @@ menuitem pullout_submenu_toolbox_M2[]={
 "Empty",
 "selection_clickabilitymatrix.types2[2]",
 "","",
+0,192,
 },
 {0,2,
 0,//Picture
@@ -25,6 +27,7 @@ menuitem pullout_submenu_toolbox_M2[]={
 "Empty",
 "selection_clickabilitymatrix.types2[2]",
 "","",
+0,192,
 },
 {0,3,
 0,//Picture
@@ -34,6 +37,7 @@ menuitem pullout_submenu_toolbox_M2[]={
 "Empty",
 "selection_clickabilitymatrix.types2[2]",
 "","",
+0,192,
 },
 {0,4,
 0,//Picture
@@ -43,6 +47,7 @@ menuitem pullout_submenu_toolbox_M2[]={
 "Empty",
 "selection_clickabilitymatrix.types2[2]",
 "","",
+0,192,
 },
 {0,5,
 0,//Picture
@@ -52,6 +57,7 @@ menuitem pullout_submenu_toolbox_M2[]={
 "Empty",
 "selection_clickabilitymatrix.types2[2]",
 "","",
+0,192,
 },
 {0,6,
 0,//Picture
@@ -61,6 +67,7 @@ menuitem pullout_submenu_toolbox_M2[]={
 "Empty",
 "selection_clickabilitymatrix.types2[2]",
 "","",
+0,192,
 },
 {0,7,
 0,//Picture
@@ -70,6 +77,7 @@ menuitem pullout_submenu_toolbox_M2[]={
 "Empty",
 "selection_clickabilitymatrix.types2[2]",
 "","",
+0,192,
 },
 {0,8,
 0,//Picture
@@ -79,6 +87,7 @@ menuitem pullout_submenu_toolbox_M2[]={
 "Empty",
 "selection_clickabilitymatrix.types2[2]",
 "","",
+0,192,
 },
 {0,9,
 0,//Picture
@@ -88,5 +97,6 @@ menuitem pullout_submenu_toolbox_M2[]={
 "Empty",
 "selection_clickabilitymatrix.types2[2]",
 "","",
+0,192,
 },
 };

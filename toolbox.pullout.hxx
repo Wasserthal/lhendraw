@@ -215,7 +215,7 @@ menuitem pullout_toolbox[]={
 "Export",
 3,0,
 0,
-"Export"
+"Export selected stuff\n"
 "Enter new filename",
 "",
 "EXPORTAS","",
@@ -226,7 +226,7 @@ menuitem pullout_toolbox[]={
 "Import",
 3,0,
 0,
-"Import"
+"Load into current file\n"
 "Enter new filename",
 "",
 "IMPORTAS","",

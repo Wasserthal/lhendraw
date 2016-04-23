@@ -5,6 +5,9 @@ struct menuref_
 	structenum what;//The structenum
 	int alignx,aligny;//The position
 };
+AUTOSTRUCT_PULLOUTLISTING_ menu_dynamic_menu[10];
+structenum menu_dynamic_menu_handle=
+{{"dynamic_menu"},0,255,&menu_dynamic_menu,0,sizeof(AUTOSTRUCT_PULLOUTLISTING_),0,0};
 char control_keycombotextinput[40]="";
 int control_keyboardormousemode=0;//0: Keyboard mode; 1: Mouse mode
 int control_analysis_window=1;
@@ -2687,7 +2690,7 @@ void issuerelease()
 	control_mousestate=0;
 	return;
 }
-void control_issuemenuhover(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int posy)
+int control_issuemenuhover(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int posy)
 {
 	int horzistart;
 	int vertistart;
@@ -2723,7 +2726,9 @@ void control_issuemenuhover(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int
 	if (ipulloutlisting)
 	{
 		strcpy(menugfx_menudescription,ipulloutlisting->explanation);
+		return 1;
 	}
+	return 0;
 }
 int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int posy,int button,int pixeloriginposx,int pixeloriginposy,int starthitnr=-1)
 {
@@ -2936,6 +2941,34 @@ int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int
 							}
 						}
 						break;
+					}
+					case 0x50:
+					{
+						_i8 pars[4];
+						memcpy(pars,&((*ipulloutlisting).toolnr),4);
+						menu_matrixsubmenuvariable=(char*)"";
+						menu_dynamic_menu_handle.count=0;
+						for (int ilv1=0;ilv1<menu_list_count;ilv1++)
+						{
+							if (menu_list[ilv1].type==0)
+							{
+								for (int ilv2=0;ilv2<menu_list[ilv1].what.count;ilv2++)
+								{
+									AUTOSTRUCT_PULLOUTLISTING_ * ilisting=((AUTOSTRUCT_PULLOUTLISTING_*)menu_list[ilv1].what.pointer)+ilv2;
+									if (((*ilisting).x>=pars[0]) && ((*ilisting).y>=pars[1]) && ((*ilisting).x<=pars[2]) && ((*ilisting).y<=pars[3]))
+									{
+										menu_dynamic_menu[menu_dynamic_menu_handle.count]=*ilisting;
+										menu_dynamic_menu[menu_dynamic_menu_handle.count].x=ihitnr;
+										menu_dynamic_menu[menu_dynamic_menu_handle.count].maxx=128;
+										menu_dynamic_menu[menu_dynamic_menu_handle.count].y=menu_dynamic_menu_handle.count;
+										menu_dynamic_menu_handle.count++;
+
+									}
+								}
+							}
+						}
+						control_mousestate=8;
+						return 1;
 					}
 					case 0x103:
 					{
@@ -3297,7 +3330,7 @@ void issuemenuclicks(int iposx,int iposy,int ibutton)
 			switch (menu_list[ilv1].type)
 			{
 				case 0:tlsuccess|=issuemenuclick((AUTOSTRUCT_PULLOUTLISTING_*)menu_list[ilv1].what.pointer,menu_list[ilv1].what.count,(iposx-tl_alignx)/32,(iposy-tl_aligny)/32,ibutton,iposx,iposy);break;
-				case 1:tlsuccess|=issuemenuclick((AUTOSTRUCT_PULLOUTLISTING_*)menu_list[ilv1].what.pointer,menu_list[ilv1].what.count,(iposx-tl_alignx)/192,(iposy-tl_aligny)/16,ibutton,iposx,iposy);break;
+				case 1:tlsuccess|=issuemenuclick((AUTOSTRUCT_PULLOUTLISTING_*)menu_list[ilv1].what.pointer,menu_list[ilv1].what.count,(iposx-tl_alignx)/(*(AUTOSTRUCT_PULLOUTLISTING_*)menu_list[ilv1].what.pointer).maxx,(iposy-tl_aligny)/16,ibutton,iposx,iposy);break;
 				case 2: tlsuccess|=issuepseclick((iposx-tl_alignx)/32,(iposy-tl_aligny)/24,ibutton);break;
 				case 3: tlsuccess|=issuerectclick((AUTOSTRUCT_PULLOUTLISTING_*)menu_list[ilv1].what.pointer,menu_list[ilv1].what.count,iposx-tl_alignx,iposy-tl_aligny,ibutton);break;
 				case 4: tlsuccess|=issuerectclick((AUTOSTRUCT_PULLOUTLISTING_*)menu_list[ilv1].what.pointer,menu_list[ilv1].what.count,iposx-tl_alignx,iposy-tl_aligny,ibutton);break;
@@ -3539,6 +3572,7 @@ void control_issuemenuhovers(int iposx,int iposy)
 			switch (menu_list[ilv1].type)
 			{
 				case 0: control_issuemenuhover((AUTOSTRUCT_PULLOUTLISTING_*)menu_list[ilv1].what.pointer,menu_list[ilv1].what.count,(iposx-tl_alignx)/32,(iposy-tl_aligny)/32);break;
+				case 1: if (control_issuemenuhover((AUTOSTRUCT_PULLOUTLISTING_*)menu_list[ilv1].what.pointer,menu_list[ilv1].what.count,(iposx-tl_alignx)/(*(AUTOSTRUCT_PULLOUTLISTING_*)menu_list[ilv1].what.pointer).maxx,(iposy-tl_aligny)/16)) return; break;
 			}
 		}
 	}
@@ -3858,6 +3892,10 @@ void control_normal()
 							control_mousestate=0;
 						}
 						if (control_mousestate==0x10)
+						{
+							control_mousestate=0;
+						}
+						if (control_mousestate==8)
 						{
 							control_mousestate=0;
 						}

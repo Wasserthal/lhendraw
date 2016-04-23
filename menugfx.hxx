@@ -270,39 +270,59 @@ int quersum(_u32 input,int max=32)
 	}
 	return wert;
 }
-int sdl_textmenudraw(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int count,int xpos=0,int ypos=0)
+int sdl_textmenudraw(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int count,int xpos=0,int ypos=0,int imark=-1)
 {
 	for (int ilv1=0;ilv1<count;ilv1++)
 	{
+		int sizex=ilisting[ilv1].maxx;
+		_u32 * iscreen=screen+(ypos+ilisting[ilv1].y*16)*gfx_screensizex+xpos+ilisting[ilv1].x*sizex;
 		switch (ilisting[ilv1].lmbmode)
 		{
+			case 3:
+			case 0x50:
+			{
+				SDL_color=(imark==ilv1)?0xFFFF00:0xDFDFDF;
+				for (int ilv2=0;ilv2<16;ilv2++)
+				{
+					for (int ilv3=0;ilv3<sizex;ilv3++)
+					{
+						*(iscreen)=SDL_color;
+						if ((ilv3==0)||(ilv2==0)||(ilv2==15)||(ilv3==sizex-1))
+						*(iscreen)=0x5F5F5F;
+						iscreen++;
+					}
+					iscreen+=gfx_screensizex-sizex;
+				}
+				SDL_color=0;
+				break;
+			}
 			case 5:
 			{
-				_u32 * iscreen=screen+(ypos+ilisting[ilv1].y*16)*gfx_screensizex+xpos+ilisting[ilv1].x*192;
 				if ((*((_u32*)ilisting[ilv1].variable)) & (1<<ilv1))
 				{
 					SDL_color=0xFFFFFF;
 					for (int ilv2=0;ilv2<16;ilv2++)
 					{
-						for (int ilv3=0;ilv3<192;ilv3++)
+						for (int ilv3=0;ilv3<sizex;ilv3++)
 						{
 							*(iscreen)=0;
 							iscreen++;
 						}
-						iscreen+=gfx_screensizex-192;
+						iscreen+=gfx_screensizex-sizex;
 					}
 				}
 				else
 				{
+					elsejump:;
 					SDL_color=0x000000;
 					for (int ilv2=0;ilv2<16;ilv2++)
 					{
-						for (int ilv3=0;ilv3<192;ilv3++)
+						for (int ilv3=0;ilv3<sizex;ilv3++)
 						{
 							*(iscreen)=0xFFFFFF;
 							iscreen++;
 						}
-						iscreen+=gfx_screensizex-192;
+						iscreen+=gfx_screensizex-sizex;
 					}
 				}
 			}
@@ -310,7 +330,7 @@ int sdl_textmenudraw(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int count,int xpos=0,
 			default:
 			SDL_color=0x000000;
 		}
-		printmenutext(ilisting[ilv1].x*192+xpos,ilisting[ilv1].y*16+ypos,ilisting[ilv1].name,strlen(ilisting[ilv1].name));
+		printmenutext(ilisting[ilv1].x*sizex+xpos,ilisting[ilv1].y*16+ypos,ilisting[ilv1].name,strlen(ilisting[ilv1].name));
 	}
 	return 1;
 }
@@ -606,6 +626,15 @@ int addmenu(const char * name,int type,int alignx=0,int aligny=0)
 	}
 	return 0;
 }
+int addartificialmenu(int type,int alignx=0,int aligny=0)
+{
+	menu_list[menu_list_count].type=type;
+	menu_list[menu_list_count].what=menu_dynamic_menu_handle;
+	menu_list[menu_list_count].alignx=alignx;
+	menu_list[menu_list_count].aligny=aligny;
+	menu_list_count++;
+	return 1;
+}
 extern int control_tool;
 void sdl_warndlgcommon()
 {
@@ -680,6 +709,7 @@ void sdl_commonmenucommon()
 	}
 	else
 	{
+		addmenu("menu",1,128,0);
 		addmenu("toolbox",0);
 		if (control_displayproperties.expertmenu)
 		{
@@ -742,8 +772,15 @@ void sdl_commonmenucommon()
 	submenunotfound:;
 	if (control_mousestate & 8)
 	{
-		sprintf(tlstring,"submenu_%s",menu_matrixsubmenuvariable);
-		addmenu(tlstring,1,256,96);
+		if (strcmp(menu_matrixsubmenuvariable,"")!=0)
+		{
+			sprintf(tlstring,"submenu_%s",menu_matrixsubmenuvariable);
+			addmenu(tlstring,1,256,96);
+		}
+		else
+		{
+			addartificialmenu(1,128,16);
+		}
 	}
 	if (control_mousestate & 0x10)
 	{
@@ -897,7 +934,7 @@ int sdl_menudraw()
 		}
 		if (menu_list[ilv1].type==1)
 		{
-			sdl_textmenudraw((AUTOSTRUCT_PULLOUTLISTING_*)menu_list[ilv1].what.pointer,menu_list[ilv1].what.count,menu_list[ilv1].alignx,menu_list[ilv1].aligny);
+			sdl_textmenudraw((AUTOSTRUCT_PULLOUTLISTING_*)menu_list[ilv1].what.pointer,menu_list[ilv1].what.count,menu_list[ilv1].alignx,menu_list[ilv1].aligny,menu_list[ilv1].what.number);
 		}
 		if (menu_list[ilv1].type==2)
 		{
@@ -978,6 +1015,7 @@ int sdl_selectiondraw()
 	_u32 icompare;
 	int isize;
 	char * ibufferpos;
+	#ifdef DEBUG
 	for (int ilv0=0;ilv0<5;ilv0++)
 	{
 		for (int ilv1=0;ilv1<100;ilv1++)
@@ -1000,6 +1038,7 @@ int sdl_selectiondraw()
 			}
 		}
 	}
+	#endif
 	if (control_mousestate==1)
 	{
 		if ((control_tool==2) || (control_tool==5))

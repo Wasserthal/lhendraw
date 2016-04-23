@@ -86,6 +86,7 @@ void resources_init()
 	bitmap_init(resource_file);
 	fclose(resource_file);
 	resource_file=criticalfilename(idirectorystring,"/hotkeys.xml");
+	printf("%s\n",idirectorystring);
 	config_init(resource_file);
 	fclose(resource_file);
 	resource_file=criticalfilename(idirectorystring,"/LiberationMono-Regular.bin");

@@ -12,7 +12,7 @@ menuitem pullout_toolbox[]={
 },
 {1,0,
 9,//Picture
-"Rectangular selection",
+"Select RECTangle",
 1,0,
 2,//Toolmode
 "Click-drag to create selection\n"
@@ -461,5 +461,15 @@ menuitem pullout_toolbox[]={
 "",
 "SWITCH_TURNBAR","SWITCH_TURNBAR",
 0x00FF00,
+},
+{2,0,
+177,
+"End",
+3,3,
+0,
+"End Program",
+"",
+"EXIT","EXIT",
+0xFF0000,
 },
 };

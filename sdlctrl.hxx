@@ -5,7 +5,7 @@ struct menuref_
 	structenum what;//The structenum
 	int alignx,aligny;//The position
 };
-AUTOSTRUCT_PULLOUTLISTING_ menu_dynamic_menu[10];
+AUTOSTRUCT_PULLOUTLISTING_ menu_dynamic_menu[20];
 structenum menu_dynamic_menu_handle=
 {{"dynamic_menu"},0,255,&menu_dynamic_menu,0,sizeof(AUTOSTRUCT_PULLOUTLISTING_),0,0};
 char control_keycombotextinput[40]="";
@@ -62,6 +62,9 @@ int control_doublekeypressenergy=0;
 basic_instance * control_manipulatedinstance;
 basic_instance * control_manipulatedinstance2;
 int control_manipulatedsubno;
+#ifndef NOFISCHERMENU
+int control_menuopenmode=0;
+#endif
 #define KEYDEPENDENTSELECTION \
 {\
 	__label__ tl_found;\
@@ -2952,17 +2955,20 @@ int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int
 						{
 							if (menu_list[ilv1].type==0)
 							{
-								for (int ilv2=0;ilv2<menu_list[ilv1].what.count;ilv2++)
+								if ((menu_list[ilv1].alignx==0) && (menu_list[ilv1].aligny==0))
 								{
-									AUTOSTRUCT_PULLOUTLISTING_ * ilisting=((AUTOSTRUCT_PULLOUTLISTING_*)menu_list[ilv1].what.pointer)+ilv2;
-									if (((*ilisting).x>=pars[0]) && ((*ilisting).y>=pars[1]) && ((*ilisting).x<=pars[2]) && ((*ilisting).y<=pars[3]))
+									for (int ilv2=0;ilv2<menu_list[ilv1].what.count;ilv2++)
 									{
-										menu_dynamic_menu[menu_dynamic_menu_handle.count]=*ilisting;
-										menu_dynamic_menu[menu_dynamic_menu_handle.count].x=ihitnr;
-										menu_dynamic_menu[menu_dynamic_menu_handle.count].maxx=128;
-										menu_dynamic_menu[menu_dynamic_menu_handle.count].y=menu_dynamic_menu_handle.count;
-										menu_dynamic_menu_handle.count++;
+										AUTOSTRUCT_PULLOUTLISTING_ * ilisting=((AUTOSTRUCT_PULLOUTLISTING_*)menu_list[ilv1].what.pointer)+ilv2;
+										if (((*ilisting).x>=pars[0]) && ((*ilisting).y>=pars[1]) && ((*ilisting).x<=pars[2]) && ((*ilisting).y<=pars[3]))
+										{
+											menu_dynamic_menu[menu_dynamic_menu_handle.count]=*ilisting;
+											menu_dynamic_menu[menu_dynamic_menu_handle.count].x=ihitnr;
+											menu_dynamic_menu[menu_dynamic_menu_handle.count].maxx=128;
+											menu_dynamic_menu[menu_dynamic_menu_handle.count].y=menu_dynamic_menu_handle.count;
+											menu_dynamic_menu_handle.count++;
 
+										}
 									}
 								}
 							}
@@ -3349,6 +3355,9 @@ void issuemenuclicks(int iposx,int iposy,int ibutton)
 			control_mousestate=control_mousestate & (~8);
 		}
 	}
+	#ifdef NOFISCHERMENU
+	control_menuopenmode=0;
+	#endif
 }
 int textedit_left()
 {
@@ -3818,16 +3827,64 @@ void control_normal()
 					{
 						issuedrag(control_mousex-gfx_canvasminx, control_mousey-gfx_canvasminy);
 						control_mousestate=0;
-						break;
+						goto control_key_interpreted;
 					}
 				}
-				goto sdl_keyup_fallthrough;
-				break;
-				sdl_keyup_fallthrough:;
 				idirection=0;
 			}
 			case SDL_KEYDOWN://FALLTHROUGH
 			{
+				#ifndef NOFISCHERMENU
+				if (control_Event.key.keysym.sym!=SDLK_LALT)
+				{
+					if (control_menuopenmode<2) control_menuopenmode=0;
+				}
+				if (control_menuopenmode>=2)
+				{
+					control_mousestate=8;
+					if (idirection==1)
+					{
+						switch (control_Event.key.keysym.sym)
+						{
+							case SDLK_ESCAPE:
+							{
+								control_menuopenmode=0;
+								control_mousestate=0;
+								goto control_key_interpreted;
+							}
+							case SDLK_LEFT:
+							{
+								if (searchreflectedstruct("menu")->number>0)searchreflectedstruct("menu")->number--;
+								issuemenuclick((AUTOSTRUCT_PULLOUTLISTING_*)searchreflectedstruct("menu")->pointer,searchreflectedstruct("menu")->count,searchreflectedstruct("menu")->number,0,SDL_BUTTON_LEFT,0,0);
+								break;
+							}
+							case SDLK_RIGHT:
+							{
+								if (searchreflectedstruct("menu")->number<searchreflectedstruct("menu")->count-1)searchreflectedstruct("menu")->number++;
+								issuemenuclick((AUTOSTRUCT_PULLOUTLISTING_*)searchreflectedstruct("menu")->pointer,searchreflectedstruct("menu")->count,searchreflectedstruct("menu")->number,0,SDL_BUTTON_LEFT,0,0);
+								break;
+							}
+							case SDLK_UP:
+							{
+								if (menu_dynamic_menu_handle.number>0)menu_dynamic_menu_handle.number--;
+								break;
+							}
+							case SDLK_DOWN:
+							{
+								if (menu_dynamic_menu_handle.number<menu_dynamic_menu_handle.count-1)menu_dynamic_menu_handle.number++;
+								break;
+							}
+							case SDLK_RETURN:
+							{
+								issuemenuclick(menu_dynamic_menu,menu_dynamic_menu_handle.count,menu_dynamic_menu[0].x,menu_dynamic_menu_handle.number,SDL_BUTTON_LEFT,0,0);
+								control_mousestate=0;
+								control_menuopenmode=0;
+								break;
+							}
+						}
+					}
+				}
+				#endif
 				switch (control_Event.key.keysym.sym)
 				{
 					case SDLK_RCTRL:
@@ -3844,6 +3901,15 @@ void control_normal()
 					case SDLK_LALT://FALLTHROUGH
 					{
 						MODIFIER_KEYS.LALT=idirection;
+						#ifndef NOFISCHERMENU
+						control_menuopenmode++;
+						if (control_menuopenmode==2)
+						{
+							searchreflectedstruct("menu")->number=0;
+							issuemenuclick((AUTOSTRUCT_PULLOUTLISTING_*)searchreflectedstruct("menu")->pointer,searchreflectedstruct("menu")->count,searchreflectedstruct("menu")->number,0,SDL_BUTTON_LEFT,0,0);
+							control_menuopenmode=3;
+						}
+						#endif
 						fallthrough:
 						MODIFIER_KEYS.ALT=idirection;
 						break;

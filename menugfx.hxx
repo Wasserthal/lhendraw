@@ -278,10 +278,11 @@ int sdl_textmenudraw(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int count,int xpos=0,
 		_u32 * iscreen=screen+(ypos+ilisting[ilv1].y*16)*gfx_screensizex+xpos+ilisting[ilv1].x*sizex;
 		switch (ilisting[ilv1].lmbmode)
 		{
+			case 1:
 			case 3:
 			case 0x50:
 			{
-				SDL_color=(imark==ilv1)?0xFFFF00:0xDFDFDF;
+				SDL_color=((imark==ilv1) && (control_menuopenmode>=2))?0xFFFF00:0xDFDFDF;
 				for (int ilv2=0;ilv2<16;ilv2++)
 				{
 					for (int ilv3=0;ilv3<sizex;ilv3++)
@@ -709,7 +710,9 @@ void sdl_commonmenucommon()
 	}
 	else
 	{
+		#ifndef NOFISCHERMENU
 		addmenu("menu",1,128,0);
+		#endif
 		addmenu("toolbox",0);
 		if (control_displayproperties.expertmenu)
 		{

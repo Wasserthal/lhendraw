@@ -3067,6 +3067,11 @@ catalogized_command_funcdef(BRINGTOFRONT)
 	initZlist();
 	return 1;
 }
+catalogized_command_funcdef(EXIT)
+{
+	LHENDRAW_leave=1;
+	return 1;
+}
 catalogized_command_funcdef(RESETBONDSTYLE)
 {
 	control_drawproperties.bond_Order=16;

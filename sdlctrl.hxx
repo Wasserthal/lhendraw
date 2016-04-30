@@ -852,14 +852,10 @@ void control_orhogonizegraphic(graphic_instance * iinstance)//This is not unders
 }
 void control_orthogonizetlcplate(tlcplate_instance * iinstance)
 {
-	(*iinstance).TopLeft.x=(*iinstance).BoundingBox.left;
-	(*iinstance).TopLeft.y=(*iinstance).BoundingBox.top;
-	(*iinstance).TopRight.x=(*iinstance).BoundingBox.right;
-	(*iinstance).TopRight.y=(*iinstance).BoundingBox.top;
-	(*iinstance).BottomLeft.x=(*iinstance).BoundingBox.left;
-	(*iinstance).BottomLeft.y=(*iinstance).BoundingBox.bottom;
-	(*iinstance).BottomRight.x=(*iinstance).BoundingBox.right;
-	(*iinstance).BottomRight.y=(*iinstance).BoundingBox.bottom;
+	(*iinstance).TopRight.y=(*iinstance).TopLeft.y;
+	(*iinstance).BottomLeft.x=(*iinstance).TopLeft.x;
+	(*iinstance).BottomLeft.y=(*iinstance).BottomRight.y;
+	(*iinstance).TopRight.x=(*iinstance).BottomRight.x;
 }
 void issuetextclick(int iposx,int iposy,const char * whichcursor="\uE000")
 {
@@ -1570,10 +1566,10 @@ int issueclick(int iposx,int iposy)
 			control_manipulatedinstance=edit_summontlcplate();
 			if (control_manipulatedinstance)
 			{
-				(*(tlcplate_instance*)control_manipulatedinstance).BoundingBox.left=control_coorsx;
-				(*(tlcplate_instance*)control_manipulatedinstance).BoundingBox.right=control_coorsx;
-				(*(tlcplate_instance*)control_manipulatedinstance).BoundingBox.top=control_coorsy;
-				(*(tlcplate_instance*)control_manipulatedinstance).BoundingBox.bottom=control_coorsy;
+				(*(tlcplate_instance*)control_manipulatedinstance).TopLeft.x=control_coorsx;
+				(*(tlcplate_instance*)control_manipulatedinstance).TopLeft.y=control_coorsy;
+				(*(tlcplate_instance*)control_manipulatedinstance).BottomRight.x=control_coorsx;
+				(*(tlcplate_instance*)control_manipulatedinstance).BottomRight.y=control_coorsy;
 				control_orthogonizetlcplate((tlcplate_instance*)control_manipulatedinstance);
 			}
 			else
@@ -2230,8 +2226,8 @@ void issuedrag(int iposx,int iposy)
 		}
 		case 15:
 		{
-			(*(tlcplate_instance*)control_manipulatedinstance).BoundingBox.right=control_coorsx;
-			(*(tlcplate_instance*)control_manipulatedinstance).BoundingBox.bottom=control_coorsy;
+			(*(tlcplate_instance*)control_manipulatedinstance).BottomRight.x=control_coorsx;
+			(*(tlcplate_instance*)control_manipulatedinstance).BottomRight.y=control_coorsy;
 			control_orthogonizetlcplate((tlcplate_instance*)control_manipulatedinstance);
 			break;
 		}

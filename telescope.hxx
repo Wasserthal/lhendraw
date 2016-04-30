@@ -515,6 +515,22 @@ int TELESCOPE_clear_item()//clears one item. leaves the cursor system at its pos
 	(*(TELESCOPE_tempvar.buffer)).count-=ilength;
 	return 1;
 }
+int TELESCOPE_count_elements(_u32 tag)
+{
+	int result=0;
+	char * currentpointer=(((char*)((*TELESCOPE_tempvar.buffer).buffer))+TELESCOPE_tempvar.pos);
+	int length=*(_i32*)(currentpointer);
+	char * lastpointer=currentpointer+length;
+	currentpointer+=sizeof(TELESCOPE);
+	while (currentpointer<lastpointer)
+	{
+		length=*(_i32*)currentpointer;
+		_u32 tl_tag=(*(TELESCOPE_element*)currentpointer).type;
+		if ((1<<tl_tag)&tag) result++;
+		currentpointer+=length;
+	}
+	return result;
+}
 void * TELESCOPE_getproperty()//returns the pointer to the current content, and it should be named TELESCOPE_getcontent
 {
 	return (void*)((*TELESCOPE_tempvar.buffer).buffer+TELESCOPE_tempvar.pos+TELESCOPE_tempvar.subpos);

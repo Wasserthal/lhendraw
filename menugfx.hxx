@@ -913,7 +913,7 @@ void sdl_analysisdraw(int alignx,int aligny)
 	}
 	sprintf(analysis_string,"Weight=%6.2f g/mol",analysis_mass());
 	printmenutext(alignx,aligny+32,analysis_string,strlen(analysis_string));
-	sprintf(analysis_string,"Exact=%7.3f g/mol",analysis_ExactMass);
+	sprintf(analysis_string,"Exact=%7.4f g/mol",analysis_ExactMass);
 	printmenutext(alignx,aligny+48,analysis_string,strlen(analysis_string));
 	analysis_MS();
 	for (int ilv1=0;ilv1<64;ilv1++)

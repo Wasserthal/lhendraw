@@ -812,12 +812,12 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,char hatches)
 		MACRO_DRAWPREFIX(expressline)((*i_tlcplate_instance).TopLeft.x,(*i_tlcplate_instance).TopLeft.y,(*i_tlcplate_instance).BottomLeft.x,(*i_tlcplate_instance).BottomLeft.y);
 		MACRO_DRAWPREFIX(expressline)((*i_tlcplate_instance).TopRight.x,(*i_tlcplate_instance).TopRight.y,(*i_tlcplate_instance).BottomRight.x,(*i_tlcplate_instance).BottomRight.y);
 		double tl_x1,tl_y1,tl_x2,tl_y2;
-		draw_getposintlcplate(&tl_x1,&tl_y1,i_tlcplate_instance,0,0.85);
-		draw_getposintlcplate(&tl_x2,&tl_y2,i_tlcplate_instance,1,0.85);
+		draw_getposintlcplate(&tl_x1,&tl_y1,i_tlcplate_instance,0,(1-i_tlcplate_instance->OriginFraction));
+		draw_getposintlcplate(&tl_x2,&tl_y2,i_tlcplate_instance,1,(1-i_tlcplate_instance->OriginFraction));
 		MACRO_DRAWPREFIX(get_colorstring)(0x7F7F7F);
 		MACRO_DRAWPREFIX(expressline)(tl_x1,tl_y1,tl_x2,tl_y2);
-		draw_getposintlcplate(&tl_x1,&tl_y1,i_tlcplate_instance,0,0.1);
-		draw_getposintlcplate(&tl_x2,&tl_y2,i_tlcplate_instance,1,0.1);
+		draw_getposintlcplate(&tl_x1,&tl_y1,i_tlcplate_instance,0,(1-i_tlcplate_instance->SolventFrontFraction));
+		draw_getposintlcplate(&tl_x2,&tl_y2,i_tlcplate_instance,1,(1-i_tlcplate_instance->SolventFrontFraction));
 		MACRO_DRAWPREFIX(get_colorstring)(0x7F7F7F);
 		MACRO_DRAWPREFIX(expressline)(tl_x1,tl_y1,tl_x2,tl_y2);
 		TELESCOPE_aggressobject(glob_tlcplate_multilist,index_in_buffer);
@@ -838,7 +838,7 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,char hatches)
 			int count=TELESCOPE_getproperty_contentlength()/sizeof(cdx_tlcspot);
 			for (int ilv1=0;ilv1<count;ilv1++)
 			{
-				draw_getposintlcplate(&tl_x1,&tl_y1,i_tlcplate_instance,(tlclaneno-0.5)/tlclanecount,0.1*(*itlcspot).Rf+0.85*(1-(*itlcspot).Rf));
+				draw_getposintlcplate(&tl_x1,&tl_y1,i_tlcplate_instance,(tlclaneno-0.5)/tlclanecount,(1-i_tlcplate_instance->SolventFrontFraction)*(*itlcspot).Rf+(1-i_tlcplate_instance->OriginFraction)*(1-(*itlcspot).Rf));
 				MACRO_DRAWPREFIX(get_colorstring)((*itlcspot).color);
 				MACRO_DRAWPREFIX(expresscdxcircle)(tl_x1,tl_y1,3);
 				itlcspot++;

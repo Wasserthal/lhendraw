@@ -1,5 +1,6 @@
 //defines and processes internal variables
 char LHENDRAW_clipboardmode=0;//0: no clipboardmode 1: lhendraw is providing a X11 clipboard content
+char LHENDRAW_wassaved=1;//0 if the file was modified after the last save
 int error_code=0;
 char LHENDRAW_filedlgmode=0;//Requires reset
 char LHENDRAW_warndlgmode=0;

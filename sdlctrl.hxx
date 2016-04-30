@@ -49,10 +49,7 @@ int control_menudragintx=0;
 int control_menudraginty=0;
 clickabilitymatrix_ control_clickabilitymatrixes[control_toolcount];
 
-char control_filename[stringlength*2+2]="";
-char control_filetype[stringlength]=".cdx";
-char control_nextfilename[stringlength*2+2]="";
-char control_nextfiletype[stringlength]=".cdx";
+char * control_filename;
 int control_force=0;
 int control_interactive=1;
 int control_saveuponexit=0;
@@ -4366,7 +4363,8 @@ void control_normal()
 	iloopendlabel:;
 	if (LHENDRAW_leave==1)
 	{
-		LHENDRAW_leave=userwarning("\n\n  Quit without saving?");
+		if (LHENDRAW_wassaved==0)
+			LHENDRAW_leave=userwarning("\n\n  Quit without saving?");
 	}
 	if (LHENDRAW_leave==1)
 	{

@@ -411,6 +411,7 @@ void printundostats()
 int undo_storcatch(_u32 flags,const char * iname)
 {
 	int backval=storeundo(flags,iname);
+	LHENDRAW_wassaved=0;
 	if (setjmp(memory_catch_overflow)>=1)
 	{
 		restoreundo(~0,1);

@@ -71,15 +71,14 @@ char * getparameter(int parameter,int ioffset,char * commandout_1,const char * c
 }
 void executeparameter(const char which,int parameter,int posinparameter,int argc,char ** argv)
 {
-	posinparameter++;
 	switch(which)
 	{
 		case 'I' :      control_GUI=0; control_interactive=0;break;
 		case 'i' :	control_interactive=1;break;
 		case 'F' :      control_force|=1;break;
 		case 'O' :	control_saveuponexit=0;break;
-		case 'o' :      strncpy(control_filename,getparameter(parameter,posinparameter,parameter_filetype,NULL,argc,argv),stringlength-1);control_filename[stringlength-1]=0;strncpy(control_filetype,parameter_filetype,stringlength-1);control_filetype[stringlength-1]=0;control_saveuponexit=1;if (control_setfilename(control_filename)<=0) {fprintf(stderr,"Warning! Cannot set filename!\n");}break;
-		case 'f' :      strncpy(control_filename,getparameter(parameter,posinparameter,parameter_filetype,NULL,argc,argv),stringlength-1);control_filename[stringlength-1]=0;strncpy(control_filetype,parameter_filetype,stringlength-1);control_filetype[stringlength-1]=0;if (control_setfilename(control_filename)<=0) {fprintf(stderr,"Warning! Cannot set filename!\n");}break;
+		case 'o' :      control_filename=getparameter(parameter,posinparameter,parameter_filetype,NULL,argc,argv);control_saveuponexit=1;if (control_setfilename(control_filename)<=0) {fprintf(stderr,"Warning! Cannot set filename!\n");}break;
+		case 'f' :      control_filename=getparameter(parameter,posinparameter,parameter_filetype,NULL,argc,argv);if (control_setfilename(control_filename)<=0) {fprintf(stderr,"Warning! Cannot set filename!\n");}break;
 		case 'w' :      parameter_filetype=NULL;parameter_filename=getparameter(parameter,posinparameter,parameter_filetype,NULL,argc,argv);SAVE_TYPE(parameter_filename,parameter_filetype);break;
 		case 'l' :      parameter_filetype=NULL;parameter_filename=getparameter(parameter,posinparameter,parameter_filetype,NULL,argc,argv);LOAD_TYPE(parameter_filename,parameter_filetype);break;
 		case 'e' :      parameter_filetype=NULL;parameter_filename=getparameter(parameter,posinparameter,parameter_filetype,NULL,argc,argv);LOAD_TYPE(parameter_filename,parameter_filetype);break;
@@ -166,7 +165,7 @@ void executeparameter(const char which,int parameter,int posinparameter,int argc
 				);
 				exit(0);
 				break;
-		case 'q' : exit(0);break;
+		case 'q' : if (control_saveuponexit)SAVE("","f");exit(0);break;
 	}
 }
 
@@ -205,6 +204,7 @@ void cmdline(int argc,char ** argv)
 				{
 					for (int ilv2=1;argv[ilv1][ilv2]!=0;ilv2++)
 					{
+						int paramaddress=ilv2;
 						if (strchr(parametersthatwantfilename,argv[ilv1][ilv2]))
 						{
 							ilv2++;
@@ -231,9 +231,9 @@ void cmdline(int argc,char ** argv)
 								wfn=1;
 							}
 						}
-						if (strchr(parametersexecutedimmediately,argv[ilv1][ilv2]))
+						if (strchr(parametersexecutedimmediately,argv[ilv1][paramaddress]))
 						{
-							executeparameter(argv[ilv1][ilv2],ilv1,ilv2,argc,argv);
+							executeparameter(argv[ilv1][paramaddress],ilv1,ilv2,argc,argv);
 						}
 						if (wfn==1) goto ifertig;
 					}
@@ -271,7 +271,7 @@ void cmdline(int argc,char ** argv)
 			{
 				if (strchr(parametersexecutedimmediately,argv[ilv1][ilv2])==NULL)
 				{
-					executeparameter(argv[ilv1][ilv2],ilv1,ilv2,argc,argv);
+					executeparameter(argv[ilv1][ilv2],ilv1,ilv2+1,argc,argv);
 				}
 				if (strchr(parametersthatwantfilename,argv[ilv1][ilv2]))
 				{

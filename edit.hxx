@@ -26,7 +26,6 @@
 		LOCALMACRO_1(arrow)\
 		LOCALMACRO_1(t)\
 		LOCALMACRO_1(curve)
-extern char control_filename[stringlength*2+2];
 extern int control_saveuponexit;
 struct control_drawproperties_
 {
@@ -3751,8 +3750,8 @@ catalogized_command_funcdef(SAVE_TYPE)
 	}
 	if (edit_fileoperationrefersonlytopartofdocument==0)
 	{
-		strncpy(control_filename,parameter,stringlength*2);
 		control_setfilename(parameter);
+		LHENDRAW_wassaved=1;
 	}
 	for (int ilv1=0;ilv1<multilist_count;ilv1++)
 	{
@@ -3963,8 +3962,6 @@ catalogized_command_funcdef(LOAD_TYPE)
 	}
 	infile=fopen(parameter,"r");
 	if (infile==NULL) return 0;
-	control_saveuponexit=0;
-	strncpy(control_filename,parameter,511);control_filename[511]=0;
 	FORCEEXTENSION
 	LHENDRAW_loadmemoryoverflow=0;
 	filestructure_text_buffer.count=0;
@@ -3997,8 +3994,8 @@ catalogized_command_funcdef(LOAD_TYPE)
 		currentinstance=new(CAMBRIDGEPREFIX(Total_Document_instance));//TODO mem: leaks
 		if (edit_fileoperationrefersonlytopartofdocument==0)
 		{
-			strncpy(control_filename,parameter,stringlength*2);
 			control_setfilename(parameter);
+			LHENDRAW_wassaved=1;
 		}
 		if (strcmp(value,".cdxml")==0)
 		{
@@ -4045,9 +4042,12 @@ catalogized_command_funcdef(SAVE)
 {
 	char istring[3*stringlength+3];
 	sprintf(istring,"\n\n  OVERWRITE file named\n  %s,%s?",control_currentdirectory,control_filenamehead);
+	if (strcmp(value,"f")==0) goto definitely;
 	if (userwarning(istring))
 	{
-		SAVE_TYPE(control_filename,"");
+		definitely:;
+		sprintf(istring,"%s/%s",control_currentdirectory,control_filenamehead);
+		SAVE_TYPE(istring,"");
 	}
 	return 1;
 }
@@ -5214,7 +5214,6 @@ catalogized_command_funcdef(FILEDLG_FILE_SAVE)
 		{
 			retval=1;
 			LHENDRAW_filedlgmode=0;
-			strcpy(control_filename,control_totalfilename);
 		}
 		closedir(DD);
 	}
@@ -5250,7 +5249,6 @@ catalogized_command_funcdef(FILEDLG_FILE_LOAD)
 	{
 		return -41;
 	}
-	control_saveuponexit=0;
 	DIR * DD=opendir(control_currentdirectory);
 	char retval=-30;
 	if (DD)
@@ -5262,7 +5260,6 @@ catalogized_command_funcdef(FILEDLG_FILE_LOAD)
 		if (retval>=1)
 		{
 			LHENDRAW_filedlgmode=0;
-			strcpy(control_filename,control_totalfilename);
 		}
 		closedir(DD);
 	}

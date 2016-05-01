@@ -850,13 +850,6 @@ void control_orhogonizegraphic(graphic_instance * iinstance)//This is not unders
 		}
 	}
 }
-void control_orthogonizetlcplate(tlcplate_instance * iinstance)
-{
-	(*iinstance).TopRight.y=(*iinstance).TopLeft.y;
-	(*iinstance).BottomLeft.x=(*iinstance).TopLeft.x;
-	(*iinstance).BottomLeft.y=(*iinstance).BottomRight.y;
-	(*iinstance).TopRight.x=(*iinstance).BottomRight.x;
-}
 void issuetextclick(int iposx,int iposy,const char * whichcursor="\uE000")
 {
 	control_posx=iposx;

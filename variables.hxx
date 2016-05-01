@@ -218,7 +218,7 @@ int getbufferfromstructure(basicmultilist * input,TELESCOPE_buffer * * bufferptr
 			}
 		}
 	}
-	undo_getbufferfromstructure(input,bufferptr);
+	if (undo_getbufferfromstructure(input,bufferptr)) return 1;
 	(*bufferptr)=NULL;
 	return 0;
 }

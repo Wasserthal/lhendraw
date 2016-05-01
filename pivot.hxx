@@ -153,6 +153,7 @@ void applytransform(float matrix[3][3])
 	cdx_Point3D xyz;
 	int internalpointcount,manipulationpointcount;
 	char iAllofthem=0;
+	_i32 follower3;
 	for (int ilv1=0;ilv1<(*glob_n_multilist).filllevel;ilv1++)
 	{
 		n_instance * tl_n_instance=(*glob_n_multilist).bufferlist()+ilv1;
@@ -173,6 +174,7 @@ void applytransform(float matrix[3][3])
 	{
 		internalpointcount=retrieveprops_basic(-1,ilv1);
 		manipulationpointcount=retrieveprops_basic(1,ilv1);
+		follower3=0;
 		icompare=1<<ilv1;
 		int isize= STRUCTURE_OBJECTTYPE_List[ilv1].size;
 		basicmultilist * tlmultilist=findmultilist(STRUCTURE_OBJECTTYPE_List[ilv1].name);
@@ -183,7 +185,7 @@ void applytransform(float matrix[3][3])
 		{
 			if ((*((basic_instance*)(ibufferpos+isize*ilv2))).exist)
 			{
-				iAllofthem=((selection_currentselection[ilv2]) & icompare);
+				iAllofthem=(((selection_currentselection[ilv2]) & icompare)>0);
 				if ((iAllofthem))
 				{
 					for (int ilv3=-1+(internalpointcount==0)*1;retrievepoints_basic(((basic_instance*)(ibufferpos+isize*ilv2)),&tl_x,&tl_y,&tl_z,ilv3,ilv1)>0;ilv3--)
@@ -196,12 +198,17 @@ void applytransform(float matrix[3][3])
 						tl_z=xyz.x*matrix[0][2]+xyz.y*matrix[1][2]+xyz.z*matrix[2][2]+edit_pivot.z;
 						placepoints_basic(((basic_instance*)(ibufferpos+isize*ilv2)),tl_x,tl_y,tl_z,ilv3,ilv1);
 					}
+					for (int ilv3=1;retrievepoints_basic(((basic_instance*)(ibufferpos+isize*ilv2)),&tl_x,&tl_y,&tl_z,ilv3,ilv1)>0;ilv3++)
+					{
+						follower3++;
+					}
 				}
 				else
 				{
 					for (int ilv3=1;retrievepoints_basic(((basic_instance*)(ibufferpos+isize*ilv2)),&tl_x,&tl_y,&tl_z,ilv3,ilv1)>0;ilv3++)
 					{
-						if ((selection_currentselection[ilv2*manipulationpointcount+ilv3-1] & (1<<(STRUCTURE_OBJECTTYPE_ListSize+ilv1))))
+						if (follower3>selection_max) memory_overflow_hook();
+						if ((selection_currentselection[(manipulationpointcount!=-1)?(ilv2*manipulationpointcount+ilv3-1):follower3] & (1<<(STRUCTURE_OBJECTTYPE_ListSize+ilv1))))
 						{
 							xyz.x=tl_x-edit_pivot.x;
 							xyz.y=tl_y-edit_pivot.y;
@@ -211,6 +218,7 @@ void applytransform(float matrix[3][3])
 							tl_z=xyz.x*matrix[0][2]+xyz.y*matrix[1][2]+xyz.z*matrix[2][2]+edit_pivot.z;
 							placepoints_basic(((basic_instance*)(ibufferpos+isize*ilv2)),tl_x,tl_y,tl_z,ilv3,ilv1);
 						}
+						follower3++;
 					}
 				}
 			}

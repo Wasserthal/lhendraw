@@ -25,7 +25,8 @@
 		LOCALMACRO_1(graphic)\
 		LOCALMACRO_1(arrow)\
 		LOCALMACRO_1(t)\
-		LOCALMACRO_1(curve)
+		LOCALMACRO_1(curve)\
+		LOCALMACRO_1(tlcplate)
 extern int control_saveuponexit;
 struct control_drawproperties_
 {
@@ -720,6 +721,10 @@ inline int retrieveprops_tlcplate(int what)
 	{
 		return -1;
 	}
+	if (what==-1)
+	{
+		return 4;
+	}
 	return 0;
 }
 inline int removepoints(n_instance * iinstance,int inumber,basicmultilist * imultilist=NULL)
@@ -1017,6 +1022,20 @@ inline int retrievepoints(tlcplate_instance * iinstance,float * ix,float * iy,fl
 	}
 	if (inumber==-2)
 	{
+		(*ix)=(*iinstance).TopRight.x;
+		(*iy)=(*iinstance).TopRight.y;
+		(*iz)=0;
+		return 1;
+	}
+	if (inumber==-3)
+	{
+		(*ix)=(*iinstance).BottomLeft.x;
+		(*iy)=(*iinstance).BottomLeft.y;
+		(*iz)=0;
+		return 1;
+	}
+	if (inumber==-4)
+	{
 		(*ix)=(*iinstance).BottomRight.x;
 		(*iy)=(*iinstance).BottomRight.y;
 		(*iz)=0;
@@ -1027,7 +1046,7 @@ inline int retrievepoints(tlcplate_instance * iinstance,float * ix,float * iy,fl
 		int tl_backval=0;
 		int ilv1=0;
 		if (imultilist==NULL) imultilist=glob_tlcplate_multilist;
-		tl_backval=TELESCOPE_aggressobject(imultilist,iinstance-((multilist<tlcplate_instance>*)imultilist)->bufferlist());
+		tl_backval=TELESCOPE_aggressobject(imultilist,iinstance-(((multilist<tlcplate_instance>*)imultilist)->bufferlist()));
 		tl_backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_tlclane);
 		int currentlane=0;
 		inumber--;
@@ -1051,6 +1070,8 @@ inline int retrievepoints(tlcplate_instance * iinstance,float * ix,float * iy,fl
 			currentlane++;
 			goto iback;
 		}
+		inumber-=ilv1;
+//		if (inumber==0) goto bottomrightcorner;
 		return 0;
 	}
 	return 0;
@@ -1529,8 +1550,101 @@ inline int placepoints(curve_instance * iinstance,float ix,float iy,float iz,int
 	}
 	return 0;
 }
+void control_orthogonizetlcplate(tlcplate_instance * iinstance)
+{
+	(*iinstance).TopRight.y=(*iinstance).TopLeft.y;
+	(*iinstance).BottomLeft.x=(*iinstance).TopLeft.x;
+	(*iinstance).BottomLeft.y=(*iinstance).BottomRight.y;
+	(*iinstance).TopRight.x=(*iinstance).BottomRight.x;
+}
 inline int placepoints(tlcplate_instance * iinstance,float ix,float iy,float iz,int inumber,basicmultilist * imultilist=NULL)
 {
+	if ((inumber==0))
+	{
+		ix-=(*iinstance).TopLeft.x;
+		iy-=(*iinstance).TopLeft.y;
+//		iy-=(*iinstance).TopLeft.y;//TODO
+		(*iinstance).TopLeft.x+=ix;
+		(*iinstance).BottomLeft.x+=ix;
+		(*iinstance).TopRight.x+=ix;
+		(*iinstance).BottomRight.x+=ix;
+		(*iinstance).TopLeft.y+=iy;
+		(*iinstance).BottomLeft.y+=iy;
+		(*iinstance).TopRight.y+=iy;
+		(*iinstance).BottomRight.y+=iy;
+		return 1;
+	}
+	if ((inumber==-1))
+	{
+		(*iinstance).TopLeft.x=ix;
+		(*iinstance).TopLeft.y=iy;
+//		(*iinstance).TopLeft.z=iz;//TODO
+		return 1;
+	}
+	if (inumber==-2)
+	{
+		(*iinstance).TopRight.x=ix;
+		(*iinstance).TopRight.y=iy;
+//		(*iinstance).TopRight.z=iz;//TODO
+		return 1;
+	}
+	if (inumber==-3)
+	{
+		(*iinstance).BottomLeft.x=ix;
+		(*iinstance).BottomLeft.y=iy;
+//		(*iinstance).BottomLeft.z=iz;//TODO
+		return 1;
+	}
+	if (inumber==-4)
+	{
+		(*iinstance).BottomRight.x=ix;
+		(*iinstance).BottomRight.y=iy;
+//		(*iinstance).BottomRight.z=iz;//TODO
+		return 1;
+	}
+	if (inumber>0)
+	{
+		int tl_backval=0;
+		int ilv1=0;
+		if (imultilist==NULL) imultilist=glob_tlcplate_multilist;
+		tl_backval=TELESCOPE_aggressobject(imultilist,iinstance-((multilist<tlcplate_instance>*)imultilist)->bufferlist());
+		tl_backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_tlclane);
+		int currentlane=0;
+		inumber--;
+		iback:;
+		if (tl_backval>0)
+		{
+			int tl_pointcount=TELESCOPE_getproperty_contentlength()/sizeof(cdx_tlcspot);
+			ilv1+=tl_pointcount;
+			if (ilv1>inumber)
+			{
+				ilv1-=tl_pointcount;
+				cdx_tlcspot * itlcspot=((cdx_tlcspot*)TELESCOPE_getproperty_contents())+inumber-ilv1;
+				double tl_ix,tl_iy,tl_iz;
+				double tl_ix2,tl_iy2,tl_iz2;
+				draw_getposintlcplate(&tl_ix,&tl_iy,iinstance,(currentlane+0.5)/((float)TELESCOPE_count_elements(1<<TELESCOPE_ELEMENTTYPE_tlclane)),(1-iinstance->SolventFrontFraction));
+				draw_getposintlcplate(&tl_ix2,&tl_iy2,iinstance,(currentlane+0.5)/((float)TELESCOPE_count_elements(1<<TELESCOPE_ELEMENTTYPE_tlclane)),(1-iinstance->OriginFraction));
+				double tl_ix3=ix-tl_ix2;
+				double tl_iy3=iy-tl_iy2;
+				tl_ix-=tl_ix2;
+				tl_iy-=tl_iy2;
+				double tl_length=sqrt(fsqr(tl_ix)+fsqr(tl_iy));
+				tl_ix/=tl_length;
+				tl_iy/=tl_length;
+				tl_ix3/=tl_length;
+				tl_iy3/=tl_length;
+				itlcspot->Rf=tl_ix*tl_ix3+tl_iy*tl_iy3;
+				return 1;
+			}
+			tl_backval=TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_tlclane);
+			currentlane++;
+			goto iback;
+		}
+		inumber-=ilv1;
+//		if (inumber==0) goto bottomrightcorner;
+		return 0;
+	}
+	return 0;
 	return 0;
 }
 #define LOCALMACRO_1(whatabout) case STRUCTURE_OBJECTTYPE_ ## whatabout: return retrieveprops_ ## whatabout(what);break;
@@ -5729,7 +5843,7 @@ int edit_flexicopy(int undostep_no,multilist<n_instance> * n_target,multilist<b_
 						{
 							follower=ilv2*internalpointcount;
 						}
-						if (follower<(LHENDRAW_buffersize/sizeof(selection_datatype)))
+						if (follower<selection_max)
 						{
 							for (int ilv3=1;retrievepoints_basic((basic_instance*)(ioldbufferpos+isize*ilv2),&tl_x,&tl_y,&tl_z,ilv3,ilv1,tloldmultilist/*must be retrieved by undo_retrievehandle to obtain correct pointer*/)>0;ilv3++)
 							{

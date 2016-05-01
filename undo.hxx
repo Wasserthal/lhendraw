@@ -59,9 +59,8 @@ undo_singlebuffer * undo_retrievehandle(intl start,intl list)
 TELESCOPE_buffer * undo_retrievecontentbuffer(intl start,intl list)
 {
 	intl current=start;
-	char * wert;
 	iback:;
-	if ((wert=undosteps[current].handles[list].contentbuffer)!=NULL)
+	if ((undosteps[current].handles[list].contentbuffer)!=NULL)
 	{
 		undosteps[current].handles[list].bufferhead.buffer=undosteps[current].handles[list].contentbuffer;
 		//set buffer_max here when not using LHENDRAW_buffersize
@@ -76,9 +75,11 @@ TELESCOPE_buffer * undo_retrievecontentbuffer(intl start,intl list)
 }
 int undo_getbufferfromstructure(basicmultilist * input,TELESCOPE_buffer * * bufferptr)
 {
-	for (int ilv1=0;ilv1<undosteps_count;ilv1++)
+	int ilv1=(((char*)input)-((char*)undosteps))/sizeof(undo_undostep_);
+	int ilv2=(((char*)input)-((char*)&(undosteps[ilv1].handles[0])))/sizeof(undo_singlebuffer);
+	if ((ilv1>=0) && (ilv1<undosteps_count))
 	{
-		for (int ilv2=1;ilv2<STRUCTURE_OBJECTTYPE_ListSize;ilv2++)
+		if ((ilv2>=1) && (ilv2<STRUCTURE_OBJECTTYPE_ListSize))
 		{
 			if ((undosteps[ilv1].handles[ilv2].imultilist)==(char*)input)
 			{

@@ -24,8 +24,7 @@ struct glyf_
 	{
 		_u16 endpoints[255];
 		_i16 instructionlength;
-//		_u8 instructions[65536];
-		glyf_coordinate_ donecoordinates[65536];
+		glyf_coordinate_ donecoordinates[512];
 	} simple;
 	struct
 	{
@@ -187,11 +186,11 @@ void do_inglyph(glyf_ * inglyph,FILE * infile)
 	int ibasecount=0;
 	int lastoff=0;
 	debug_expectedbytes+=bytes;
-	if ((*inglyph).maxcount>300) error("Error: font import runs unstable with too mach points in glyph");
 	_i16 forelastx=0;
 	_i16 forelasty=0;
 	_i16 lastx=0;
 	_i16 lasty=0;
+	if (((*inglyph).maxcount)>=512) error("Error: font file too complex\n");
 	for (int ilv2=0;ilv2<(*inglyph).maxcount;ilv2++)
 	{
 		_u8 ihv0;

@@ -193,6 +193,8 @@ int main(int argc,char * * argv)
 	memory_alloc((char**)&atom_actual_node,4);
 	memory_alloc((char**)&bond_actual_node,4);
 	memory_alloc((char**)&text_actual_node,4);
+	memory_alloc((char**)&janitor_atomsbyid,5);
+	memory_alloc((char**)&janitor_atomsbyid_other,5);
 	#ifdef DEBUG
 	clock_getcpuclockid(getpid(),&clockid);
 	#endif
@@ -276,6 +278,12 @@ int main(int argc,char * * argv)
 				control_normal();
 			}
 			gfx_gfxstart();
+			if (setjmp(debug_crashhandler)>0)
+			{
+				gfx_gfxstop();
+				error_reset();
+				gfx_gfxstart();
+			}
 			screenclear(0xFFFFFF);
 			if (control_displayproperties.outofarea==2)
 			{
@@ -283,6 +291,7 @@ int main(int argc,char * * argv)
 				if (SDL_scrolly<0) SDL_scrolly=0;
 			}
 			if (control_displayproperties.outofarea & 1) sdl_outofareadraw();
+			memcpy(memory_catch_overflow,debug_crashhandler,sizeof(jmp_buf));
 			gfx_output();
 			sdl_canvasframedraw();
 			sdl_commonmenucommon();

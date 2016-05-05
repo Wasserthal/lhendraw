@@ -47,7 +47,7 @@ If it is filled from PCDATA, its name is PCDATA*/
 struct cdx_Buffered_String /*can be filled both by Property value and inter-Object-Text.
 If it is filled from PCDATA, its name is PCDATA*/
 {
-	char * a;//TODO: remove NULL-termination. or rather: collapse this entire structure type to a propertylist trail.
+	char * a;
 	int count;
 };
 
@@ -153,17 +153,20 @@ int writefrombuffer(FILE * output,cdx_Buffered_String * input)
 	}
 	return 0;
 }
-int copytobuffer(TELESCOPE_buffer * ibuffer,char * input)//TODO: what if string is longer than 2147483647 bytes?
+int copytobuffer(TELESCOPE_buffer * ibuffer,char * input)
 {
 	int ilv2;
 	int maxlength=LHENDRAW_buffersize-2;
-	int icount=(*ibuffer).count;
-	for (int ilv1=0;input[ilv1]!=0;ilv1++)
+	_u32 icount=(*ibuffer).count;
+	if (icount>2147483648) icount=2147483648;
+	for (_u32 ilv1=0;input[ilv1]!=0;ilv1++)
 	{
 		if (input[ilv1]!='&')
 		{
-			if (icount>=maxlength)
+			if (icount>=maxlength-1)
 			{
+				(*ibuffer).buffer[icount++]=0;
+				(*ibuffer).count=icount;
 				return -1;
 			}
 			(*ibuffer).buffer[icount++]=input[ilv1];
@@ -188,8 +191,10 @@ int copytobuffer(TELESCOPE_buffer * ibuffer,char * input)//TODO: what if string 
 						}
 						else
 						{
-							if (icount>=maxlength)
+							if (icount>=maxlength-1)
 							{
+								(*ibuffer).buffer[icount++]=0;
+								(*ibuffer).count=icount;
 								return -1;
 							}
 							(*ibuffer).buffer[icount++]=list_xml[ilv3].unicode[ilv4];

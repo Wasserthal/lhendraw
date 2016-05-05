@@ -486,16 +486,6 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,char hatches)
 			index_in_buffer=objectZorderlist[ilv1].nr;
 			tlcurrentinstance=((char*)((*tlcurrentmultilist).pointer))+((*tlcurrentmultilist).itemsize)*index_in_buffer;
 			if ((*(basic_instance*)tlcurrentinstance).exist==0){goto svg_main_loop;}
-			{//TODO**** delete instance in findaround after implementing delete routines
-				ipropertyoffset=(tlcurrentmultilist)->getproperties("SupersededBy",(CDXMLREAD_functype*)&dummy);
-				if (ipropertyoffset!=-1)
-				{
-					if ((*(int*)(((char*)tlcurrentinstance)+ipropertyoffset))>0)
-					{
-						goto svg_main_loop;
-					}
-				}
-			}
 			if (((tlcurrentmultilist==glob_moleculefill_multilist) && (hatches==0)) || ((tlcurrentmultilist!=glob_moleculefill_multilist) && (hatches==1)))
 			{
 				goto svg_main_loop;
@@ -708,10 +698,6 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,char hatches)
 					case 2 : sprintf(istring,"%c",element[tlElement].name[2]);break;
 					case 3 : sprintf(istring,"%s",((*i_n_instance).protons-i_bond_sum<=0)?"":"H");break;
 					case 4 : if ((*i_n_instance).protons-i_bond_sum>1) sprintf(istring,"%i",(*i_n_instance).protons-i_bond_sum); else istring[0]=0;break;
-					case 5 :
-/*					if ((*i_n_instance).charge<0) {sprintf(istring,"%i-",-(*i_n_instance).charge);break;}
-					if ((*i_n_instance).charge>0) {sprintf(istring,"%i+",(*i_n_instance).charge);break;}Charges are drawn separately with icons. TODO: add these icons if missing
-					if ((*i_n_instance).charge==0) {istring[0]=0;break;}*///
 					istring[0]=0;break;
 				}
 				if ((atom_actual_node[index_in_buffer].labelside==1) && (actual>=3))

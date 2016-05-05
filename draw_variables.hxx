@@ -96,6 +96,118 @@ struct text_actual_node_
 	_small owner;
 };
 text_actual_node_ * text_actual_node;
+_u32 * janitor_atomsbyid;
+_u32 * janitor_atomsbyid_other;
+int janitor_atomsbyid_count;
+_u32 getbigger(_u32 * source,_u32 no)
+{
+	if (no>=janitor_atomsbyid_count) return 0xFFFFFFFF;
+	else
+	{
+		return glob_n_multilist->bufferlist()[*(source+no)].id;
+	}
+}
+int janitor_listatomsbyid_recursion(_u32 * target,_u32 * source,int span,int max)
+{
+	_u32 value1,value2;
+	int leftstack,rightstack;
+	if (span>max/2)
+	{
+		return 0;
+	}
+	for (int ilv1=0;ilv1<max;ilv1+=span*2)
+	{
+		leftstack=0;
+		rightstack=0;
+		for (int ilv2=0;ilv2<span*2;ilv2++)
+		{
+			if (leftstack<span)
+			{
+				value1=getbigger(source,ilv1+leftstack);
+			}
+			else
+			{
+				value1=0xFFFFFFFF;
+			}
+			if (rightstack<span)
+			{
+				value2=getbigger(source,ilv1+span+rightstack);
+			}
+			else
+			{
+				value2=0xFFFFFFFF;
+			}
+			if ((value1==0xFFFFFFFF)&&(value2==0xFFFFFFFF))
+			{
+				goto we_are_at_the_end;
+			}
+			if (value1<value2)
+			{
+				target[ilv1+ilv2]=source[ilv1+leftstack];
+				leftstack++;
+			}
+			else
+			{
+				target[ilv1+ilv2]=source[ilv1+span+rightstack];
+				rightstack++;
+			}
+		}
+		we_are_at_the_end:;
+	}
+	return 1;
+}
+void janitor_listatomsbyid()//creates a list that lists atom indexes. This index list is sorted by the atom's id's. Not-existing atoms come at the end.
+{
+	janitor_atomsbyid_count=0;
+	_u32 * tl_janitor_atomsbyid=janitor_atomsbyid;
+	_u32 * tl_janitor_atomsbyid_other=janitor_atomsbyid_other;
+	for (int ilv1=0;ilv1<glob_n_multilist->filllevel;ilv1++)
+	{
+		if (glob_n_multilist->bufferlist()[janitor_atomsbyid_count].exist)
+		{
+			janitor_atomsbyid[janitor_atomsbyid_count]=ilv1;
+			janitor_atomsbyid_count++;
+		}
+	}
+	int tl_max=LHENDRAW_buffersize/sizeof(_u32);
+	int tl_max2;
+	ibitsearchback:;
+	if (tl_max==1) return;
+	tl_max2=tl_max>>1;
+	if (tl_max2>=janitor_atomsbyid_count) { tl_max=tl_max2; goto ibitsearchback;}
+	int span=1;
+	while (janitor_listatomsbyid_recursion(tl_janitor_atomsbyid_other,tl_janitor_atomsbyid,span,tl_max))
+	{
+		_u32 * tl_swap;
+		tl_swap=tl_janitor_atomsbyid_other;
+		tl_janitor_atomsbyid_other=tl_janitor_atomsbyid;
+		tl_janitor_atomsbyid=tl_swap;
+		span*=2;
+	}
+}
+int edit_getatombyid(_u32 id)//Works only after a recent call of janitor_listatomsbyid. recent means that the atoms may not be relevantly changed in between.
+{
+	int tl_max=LHENDRAW_buffersize/sizeof(_u32);
+	int upperrim=janitor_atomsbyid_count;
+	printf("count%i\n",janitor_atomsbyid_count);
+	int lowerrim=0;
+	int middle;
+	iback:;
+	middle=(upperrim+lowerrim)/2;
+	if (id==getbigger(janitor_atomsbyid,middle)) return middle;
+	if (id<getbigger(janitor_atomsbyid,middle))
+	{
+		if (upperrim<=middle) return -1;
+		upperrim=middle;
+	}
+	else
+	{
+		if (lowerrim>=middle) return -1;
+		lowerrim=middle;
+	}
+	goto iback;
+	return -1;
+}
 void getcaptions(float * right,float * bottom,float * left,float * top)
 {
 	float minx=maxfloat;
@@ -112,31 +224,23 @@ void getcaptions(float * right,float * bottom,float * left,float * top)
 	{
 		if (((*i_t_multilist)[ilv1].exist) && ((edit_fileoperationrefersonlytopartofdocument==0)||(selection_currentselection[ilv1]&(1<<STRUCTURE_OBJECTTYPE_t))))
 		{
-		#ifdef LENNARD_HACK
-		if ((text_actual_node[ilv1].owner!=-1) || (LENNARD_HACK_dokilltext==0))
-		{
-		#endif
-		t_instance * i_t_instance=(*i_t_multilist).bufferlist()+ilv1;
-		if ((*i_t_instance).BoundingBox.top<miny)
-		{
-			miny=(*i_t_instance).BoundingBox.top;
-		}
-		if ((*i_t_instance).BoundingBox.bottom>maxy)
-		{
-			maxy=(*i_t_instance).BoundingBox.bottom;
-		}
-		if ((*i_t_instance).BoundingBox.left<minx)
-		{
-			minx=(*i_t_instance).BoundingBox.left;
-		}
-		if ((*i_t_instance).BoundingBox.right>maxx)
-		{
-			maxx=(*i_t_instance).BoundingBox.right;
-		}
-		#ifdef LENNARD_HACK
-
-		}
-		#endif
+			t_instance * i_t_instance=(*i_t_multilist).bufferlist()+ilv1;
+			if ((*i_t_instance).BoundingBox.top<miny)
+			{
+				miny=(*i_t_instance).BoundingBox.top;
+			}
+			if ((*i_t_instance).BoundingBox.bottom>maxy)
+			{
+				maxy=(*i_t_instance).BoundingBox.bottom;
+			}
+			if ((*i_t_instance).BoundingBox.left<minx)
+			{
+				minx=(*i_t_instance).BoundingBox.left;
+			}
+			if ((*i_t_instance).BoundingBox.right>maxx)
+			{
+				maxx=(*i_t_instance).BoundingBox.right;
+			}
 		}
 	}
 	for (int ilv1=0;ilv1<(*i_curve_multilist).filllevel;ilv1++)
@@ -147,23 +251,23 @@ void getcaptions(float * right,float * bottom,float * left,float * top)
 	{
 		if (((*i_n_multilist)[ilv1].exist) && ((edit_fileoperationrefersonlytopartofdocument==0)||(selection_currentselection[ilv1]&(1<<STRUCTURE_OBJECTTYPE_n))))
 		{
-		i_n_instance=(*i_n_multilist).bufferlist()+ilv1;
-		if ((*i_n_instance).xyz.x>maxx)
-		{
-			maxx=(*i_n_instance).xyz.x;
-		}
-		if ((*i_n_instance).xyz.y>maxy)
-		{
-			maxy=(*i_n_instance).xyz.y;
-		}
-		if ((*i_n_instance).xyz.x<minx)
-		{
-			minx=(*i_n_instance).xyz.x;
-		}
-		if ((*i_n_instance).xyz.y<miny)
-		{
-			miny=(*i_n_instance).xyz.y;
-		}
+			i_n_instance=(*i_n_multilist).bufferlist()+ilv1;
+			if ((*i_n_instance).xyz.x>maxx)
+			{
+				maxx=(*i_n_instance).xyz.x;
+			}
+			if ((*i_n_instance).xyz.y>maxy)
+			{
+				maxy=(*i_n_instance).xyz.y;
+			}
+			if ((*i_n_instance).xyz.x<minx)
+			{
+				minx=(*i_n_instance).xyz.x;
+			}
+			if ((*i_n_instance).xyz.y<miny)
+			{
+				miny=(*i_n_instance).xyz.y;
+			}
 		}
 	}
 	for (int ilv1=0;ilv1<(*i_graphic_multilist).filllevel;ilv1++)
@@ -171,39 +275,39 @@ void getcaptions(float * right,float * bottom,float * left,float * top)
 		if (((*i_graphic_multilist)[ilv1].exist) && ((edit_fileoperationrefersonlytopartofdocument==0)||(selection_currentselection[ilv1]&(1<<STRUCTURE_OBJECTTYPE_graphic))))
 
 		{
-		i_graphic_instance=(*i_graphic_multilist).bufferlist()+ilv1;
-		if ((*i_graphic_instance).BoundingBox.left>maxx)
-		{
-			maxx=(*i_graphic_instance).BoundingBox.left;
-		}
-		if ((*i_graphic_instance).BoundingBox.top>maxy)
-		{
-			maxy=(*i_graphic_instance).BoundingBox.top;
-		}
-		if ((*i_graphic_instance).BoundingBox.left<minx)
-		{
-			minx=(*i_graphic_instance).BoundingBox.left;
-		}
-		if ((*i_graphic_instance).BoundingBox.top<miny)
-		{
-			miny=(*i_graphic_instance).BoundingBox.top;
-		}
-		if ((*i_graphic_instance).BoundingBox.right>maxx)
-		{
-			maxx=(*i_graphic_instance).BoundingBox.right;
-		}
-		if ((*i_graphic_instance).BoundingBox.bottom>maxy)
-		{
-			maxy=(*i_graphic_instance).BoundingBox.bottom;
-		}
-		if ((*i_graphic_instance).BoundingBox.right<minx)
-		{
-			minx=(*i_graphic_instance).BoundingBox.right;
-		}
-		if ((*i_graphic_instance).BoundingBox.bottom<miny)
-		{
-			miny=(*i_graphic_instance).BoundingBox.bottom;
-		}
+			i_graphic_instance=(*i_graphic_multilist).bufferlist()+ilv1;
+			if ((*i_graphic_instance).BoundingBox.left>maxx)
+			{
+				maxx=(*i_graphic_instance).BoundingBox.left;
+			}
+			if ((*i_graphic_instance).BoundingBox.top>maxy)
+			{
+				maxy=(*i_graphic_instance).BoundingBox.top;
+			}
+			if ((*i_graphic_instance).BoundingBox.left<minx)
+			{
+				minx=(*i_graphic_instance).BoundingBox.left;
+			}
+			if ((*i_graphic_instance).BoundingBox.top<miny)
+			{
+				miny=(*i_graphic_instance).BoundingBox.top;
+			}
+			if ((*i_graphic_instance).BoundingBox.right>maxx)
+			{
+				maxx=(*i_graphic_instance).BoundingBox.right;
+			}
+			if ((*i_graphic_instance).BoundingBox.bottom>maxy)
+			{
+				maxy=(*i_graphic_instance).BoundingBox.bottom;
+			}
+			if ((*i_graphic_instance).BoundingBox.right<minx)
+			{
+				minx=(*i_graphic_instance).BoundingBox.right;
+			}
+			if ((*i_graphic_instance).BoundingBox.bottom<miny)
+			{
+				miny=(*i_graphic_instance).BoundingBox.bottom;
+			}
 		}
 	}
 	(*right)=maxx;
@@ -305,20 +409,6 @@ void calcdelta(float * x1,float * y1,float inputx,float inputy)
 
 void svg_findaround()
 {
-	#ifdef LENNARD_HACK
-	LENNARD_HACK_dokilltext=0;
-	LENNARD_HACK_colormode=0;
-	{
-		multilist<LENHACK_ANNOTATION_instance> * tl_LENHACK_ANNOTATION_MULTILIST=retrievemultilist<LENHACK_ANNOTATION_instance>();
-		for (int ilv1=0;ilv1<(*tl_LENHACK_ANNOTATION_MULTILIST).filllevel;ilv1++)
-		{
-			if ((*tl_LENHACK_ANNOTATION_MULTILIST).bufferlist[ilv1].IgnoreTextboxes)
-			{
-				LENNARD_HACK_dokilltext=1;
-			}
-		}
-	}
-	#endif
 	/*Piece from getatoms information needed also when there are no graphics form bound calculation*/
 	for (int ilv1=0;ilv1<glob_n_multilist->filllevel;ilv1++)
 	{

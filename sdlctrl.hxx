@@ -169,15 +169,6 @@ void checkupinconsistencies()
 				(*tl_b_instance).exist=0;
 				goto i_b_destroyed;
 			}
-			//TODO:URGENT this calls edit_locatebyid, therefore consumes square time, put into getatoms and threat better
-			for (char ilv2=0;ilv2<2;ilv2++)//destroys bonds with one side missing
-			{
-				if (!edit_locatebyid(STRUCTURE_OBJECTTYPE_n,ilv2?((*tl_b_instance).B):((*tl_b_instance).E),NULL))
-				{
-					(*tl_b_instance).exist=0;
-					goto i_b_destroyed;
-				}
-			}
 			if ((*tl_b_instance).Order<=10)
 			{
 				(*tl_b_instance).Display=1;
@@ -210,9 +201,12 @@ void checkupinconsistencies()
 			{
 				if ((*tl_n_instance).Element==constants_Element_implicitcarbon)
 				{
-					TELESCOPE_aggressobject(glob_n_multilist,ilv1);
-					TELESCOPE_clear();
-					(*tl_n_instance).exist=0;
+					if ((*tl_n_instance).charge==0)
+					{
+						TELESCOPE_aggressobject(glob_n_multilist,ilv1);
+						TELESCOPE_clear();
+						(*tl_n_instance).exist=0;
+					}
 				}
 			}
 			else
@@ -220,6 +214,18 @@ void checkupinconsistencies()
 				if ((*tl_n_instance).Element==constants_Element_implicitcarbon)
 				{
 					(*tl_n_instance).protons=4-abs((*tl_n_instance).charge);
+				}
+				if (((*tl_n_instance).charge)!=0)
+				{
+					TELESCOPE_aggressobject(glob_n_multilist,ilv1);
+					int tl_backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_Symbol);
+					if (tl_backval<=0)
+					{
+						for (int ilv2=0;ilv2<abs((*tl_n_instance).charge);ilv2++)
+						{
+							atom_addsymbol(ilv1,((*tl_n_instance).charge>0)?4:5);
+						}
+					}
 				}
 			}
 		}

@@ -284,6 +284,7 @@ char getleftof(cdx_Point3D * istart,cdx_Point3D * iend,cdx_Point3D * ikink)
 }
 void getatoms()//makes some preprocessing
 {
+	janitor_listatomsbyid();
 	float theside,thelevel;
 	float tl_angle;
 	for (int ilv1=0;ilv1<glob_n_multilist->filllevel;ilv1++)
@@ -310,25 +311,22 @@ void getatoms()//makes some preprocessing
 			bond_actual_node[ilv1].rightdefined=0;
 			char diagnose_foundstart,diagnose_foundend;
 			diagnose_foundstart=0;diagnose_foundend=0;
-			for (int ilv2=0;ilv2<(*glob_n_multilist).filllevel;ilv2++)
+			int ilv2;
+			ilv2=edit_getatombyid(((*glob_b_multilist))[ilv1].E);
+			if (ilv2>=0)
 			{
-				if (((*glob_n_multilist))[ilv2].exist)
-				{
-					if (((*glob_n_multilist))[ilv2].id==((*glob_b_multilist))[ilv1].E)
-					{
-						bond_actual_node[ilv1].end=ilv2;
-						atom_actual_node[ilv2]+=ilv1;
-						diagnose_foundstart=1;
-					}
-					if (((*glob_n_multilist))[ilv2].id==((*glob_b_multilist))[ilv1].B)
-					{
-						bond_actual_node[ilv1].start=ilv2;
-						atom_actual_node[ilv2]+=ilv1;
-						diagnose_foundend=1;
-					}
-				}
+				bond_actual_node[ilv1].end=ilv2;
+				atom_actual_node[ilv2]+=ilv1;
+				diagnose_foundstart=1;
 			}
-			if ((diagnose_foundstart ==0) | (diagnose_foundend==0))
+			ilv2=edit_getatombyid(((*glob_b_multilist))[ilv1].B);
+			if (ilv2>=0)
+			{
+				bond_actual_node[ilv1].start=ilv2;
+				atom_actual_node[ilv2]+=ilv1;
+				diagnose_foundend=1;
+			}
+			if ((diagnose_foundstart==0) || (diagnose_foundend==0))
 			{
 				(*glob_b_multilist)[ilv1].exist=0;
 				printf("Error: No start/end found on bond!\n");

@@ -20,7 +20,6 @@ void conv_internalconfig_config(const char * filename)
 			if (hotkeylist[ilv2].type==thistype)
 			{
 				(*glob_CONFIGBRIDGE_Hotkey_multilist)[ilv2].INTERNALPropertyexistflags=0;
-				(*glob_CONFIGBRIDGE_Hotkey_multilist)[ilv2].UNDO=hotkeylist[ilv2].UNDO;
 				(*glob_CONFIGBRIDGE_Hotkey_multilist)[ilv2].modifiers=hotkeylist[ilv2].modifiers;
 				strncpy((*glob_CONFIGBRIDGE_Hotkey_multilist)[ilv2].key.a,hotkeylist[ilv2].key,4);
 				if (hotkeylist[ilv2].command!=NULL)
@@ -38,8 +37,11 @@ void conv_internalconfig_config(const char * filename)
 				ifound:;
 				strncpy((*glob_CONFIGBRIDGE_Hotkey_multilist)[ilv2].value.a,hotkeylist[ilv2].value,20);
 				strncpy((*glob_CONFIGBRIDGE_Hotkey_multilist)[ilv2].variable.a,hotkeylist[ilv2].variable,20);
-				if (hotkeylist[ilv1].UNDO!=1)
-				(*glob_CONFIGBRIDGE_Hotkey_multilist)[ilv2].UNDO=hotkeylist[ilv2].UNDO;
+				if (hotkeylist[ilv2].UNDO!=1)
+				{
+					(*glob_CONFIGBRIDGE_Hotkey_multilist)[ilv2].UNDO=hotkeylist[ilv2].UNDO;
+					AUTOSTRUCT_EXISTS_SET_NAME((glob_CONFIGBRIDGE_Hotkey_multilist->bufferlist()+ilv2),UNDO);
+				}
 				if (hotkeylist[ilv2].variable[0]!=0)
 				AUTOSTRUCT_EXISTS_SET_NAME((glob_CONFIGBRIDGE_Hotkey_multilist->bufferlist()+ilv2),variable);
 				AUTOSTRUCT_EXISTS_SET_NAME((glob_CONFIGBRIDGE_Hotkey_multilist->bufferlist()+ilv2),value);

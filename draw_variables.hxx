@@ -189,7 +189,6 @@ int edit_getatombyid(_u32 id)//Works only after a recent call of janitor_listato
 {
 	int tl_max=LHENDRAW_buffersize/sizeof(_u32);
 	int upperrim=janitor_atomsbyid_count;
-	printf("count%i\n",janitor_atomsbyid_count);
 	int lowerrim=0;
 	int middle;
 	iback:;

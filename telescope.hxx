@@ -18,15 +18,6 @@ struct TELESCOPE_element
 {
 	int length;//starting from beginning of this structure
 	int type;//see telescopeelementtype
-	int getcontents(char * name)//TODO: remove this function. I also have to change the content list to a property list in linemode=1
-	{
-		return -1;
-	};
-	int getproperties(const char * name,CDXMLREAD_functype * delegateoutput,int * posoutput=NULL)
-	{
-		return -1;
-	};
-	const char * getName(){return 0;}
 };
 struct TELESCOPE//one for each object
 {
@@ -345,10 +336,7 @@ int TELESCOPE_insertintoproperties(int tag,const char * iinput,int ilength)
 	}
 	if (TELESCOPE_stretch_buffer(TELESCOPE_tempvar.multilist,ilength,tag)<=-1) {memory_overflow_hook();exit(1);}
 	char * ilv1b=(*TELESCOPE_tempvar.buffer).buffer+TELESCOPE_tempvar.pos+TELESCOPE_tempvar.subpos2;
-	for (int ilv1=0;ilv1<ilength;ilv1++,ilv1b++)//TODO: faster...
-	{
-		(*ilv1b)=(*(iinput+ilv1));
-	}
+	memcpy(ilv1b,iinput,ilength);
 	return 1;
 }
 int TELESCOPE_insertintoproperties_offset(const char * iinput,int ilength,int ioffset)
@@ -368,10 +356,7 @@ int TELESCOPE_insertintoproperties_offset(const char * iinput,int ilength,int io
 		(*ilv1b)=(*(ilv1b-ilength));
 	}
 	ilv1b=(*TELESCOPE_tempvar.buffer).buffer+TELESCOPE_tempvar.pos+TELESCOPE_tempvar.subpos2+ioffset;
-	for (int ilv1=0;ilv1<ilength;ilv1++,ilv1b++)//TODO: faster...
-	{
-		(*ilv1b)=(*(iinput+ilv1));
-	}
+	memcpy(ilv1b,iinput,ilength);
 	return 1;
 }
 int TELESCOPE_add(int tag,const char * iinput,int ilength)//Like insertintoproperties, but unconditionally creates a NEW TELESCOPE_element
@@ -388,10 +373,7 @@ int TELESCOPE_add(int tag,const char * iinput,int ilength)//Like insertintoprope
 	char * ilv1b=(*TELESCOPE_tempvar.buffer).buffer+TELESCOPE_tempvar.pos+TELESCOPE_tempvar.subpos2;
 	if (iinput!=NULL)
 	{
-		for (int ilv1=0;ilv1<ilength;ilv1++,ilv1b++)//TODO: faster...
-		{
-			(*ilv1b)=(*(iinput+ilv1));
-		}
+		memcpy(ilv1b,iinput,ilength);
 	}
 	return 1;
 }
@@ -473,7 +455,7 @@ int TELESCOPE_shrink(int ipos,int ilength)
 	int itype=(*tl_Element).type;
 	int tl_length=(*tl_Element).length-TELESCOPE_ELEMENTTYPE_List[itype].size;
 	if (abs(ipos)>tl_length) return -1;
-	if (ipos<0) ipos+=tl_length;//TODO: convert to offset-type for better understandability
+	if (ipos<0) ipos+=tl_length;//pos<0 means measuring from the upper end.
 	if (ilength+ipos>tl_length) return -1;
 	int ideltaminus2=ilength;
 	for (ilv1=((char*)tl_Element)+TELESCOPE_ELEMENTTYPE_List[itype].size+ipos;ilv1<(*TELESCOPE_tempvar.buffer).buffer+(*TELESCOPE_tempvar.buffer).count-ideltaminus2;ilv1++)//compresses buffer

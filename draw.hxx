@@ -268,27 +268,6 @@ tlArrowTopx+cos(tllangle)*arrowheadlength+tllinedist*cos(tlcangle),tlArrowTopy+s
 }
 
 
-#ifdef LENNARD_HACK
-void LENNARD_HACK_killtext()
-{
-	int tl_t_number=-1;
-	for (int ilv1=0;ilv1<multilist_count;ilv1++)
-	{
-		if (multilistlist[ilv1].instance==glob_t_multilist)
-		{
-			tl_t_number=ilv1;
-		}
-	}
-	for (int ilv1=0;ilv1<(*glob_t_multilist).filllevel;ilv1++)
-	{
-		if (text_actual_node[ilv1].owner==-1)
-		{
-			deletefromZlist(tl_t_number,ilv1);
-		}
-	}
-}
-#endif
-
 void MACRO_DRAWPREFIX(draw_Symbol)(int SymbolType)
 {
 	float tl_angle;
@@ -1164,7 +1143,6 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,char hatches)
 	skiparrows:
 	if ((*i_graphic_instance).GraphicType==3)
 	{
-		//TODO SUBJECT make LENHACK Frame omissions in conversion, not in draw
 		MACRO_DRAWPREFIX(stylegenestring)(stylefromattrs((*i_graphic_instance).LineType,(*i_graphic_instance).FillType));
 		float tl_corn=(*i_graphic_instance).CornerRadius;
 		if ((*i_graphic_instance).CornerRadius>0)

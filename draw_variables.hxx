@@ -163,7 +163,7 @@ void janitor_listatomsbyid()//creates a list that lists atom indexes. This index
 	_u32 * tl_janitor_atomsbyid_other=janitor_atomsbyid_other;
 	for (int ilv1=0;ilv1<glob_n_multilist->filllevel;ilv1++)
 	{
-		if (glob_n_multilist->bufferlist()[janitor_atomsbyid_count].exist)
+		if (glob_n_multilist->bufferlist()[ilv1].exist)
 		{
 			janitor_atomsbyid[janitor_atomsbyid_count]=ilv1;
 			janitor_atomsbyid_count++;
@@ -187,13 +187,13 @@ void janitor_listatomsbyid()//creates a list that lists atom indexes. This index
 }
 int edit_getatombyid(_u32 id)//Works only after a recent call of janitor_listatomsbyid. recent means that the atoms may not be relevantly changed in between.
 {
-	int tl_max=LHENDRAW_buffersize/sizeof(_u32);
 	int upperrim=janitor_atomsbyid_count;
 	int lowerrim=0;
 	int middle;
 	iback:;
-	middle=(upperrim+lowerrim)/2;
-	if (id==getbigger(janitor_atomsbyid,middle)) return middle;
+	if ((upperrim<0) || (lowerrim>=janitor_atomsbyid_count)) return -1;
+	middle=(upperrim+lowerrim)>>1;
+	if (id==getbigger(janitor_atomsbyid,middle)) return janitor_atomsbyid[middle];
 	if (id<getbigger(janitor_atomsbyid,middle))
 	{
 		if (upperrim<=middle) return -1;
@@ -202,7 +202,7 @@ int edit_getatombyid(_u32 id)//Works only after a recent call of janitor_listato
 	else
 	{
 		if (lowerrim>=middle) return -1;
-		lowerrim=middle;
+		lowerrim=middle+1;
 	}
 	goto iback;
 	return -1;
@@ -244,7 +244,32 @@ void getcaptions(float * right,float * bottom,float * left,float * top)
 	}
 	for (int ilv1=0;ilv1<(*i_curve_multilist).filllevel;ilv1++)
 	{
-		//TODO SUBJECT to new memory structure
+		curve_instance * i_curve_instance=(*i_curve_multilist).bufferlist()+ilv1;
+		if (i_curve_instance->exist)
+		{
+			float tl_x,tl_y,tl_z;
+			for (int ilv2=0;ilv2<i_curve_instance->CurvePoints.count;ilv2++)
+			{
+				tl_x=i_curve_instance->CurvePoints.a[ilv2].x;
+				tl_y=i_curve_instance->CurvePoints.a[ilv2].y;
+				if (tl_y<miny)
+				{
+					miny=tl_y;
+				}
+				if (tl_y>maxy)
+				{
+					maxy=tl_y;
+				}
+				if (tl_x<minx)
+				{
+					minx=tl_x;
+				}
+				if (tl_x>maxx)
+				{
+					maxx=tl_x;
+				}
+			}
+		}
 	}
 	for (int ilv1=0;ilv1<(*i_n_multilist).filllevel;ilv1++)
 	{

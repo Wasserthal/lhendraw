@@ -311,25 +311,28 @@ void getatoms()//makes some preprocessing
 			bond_actual_node[ilv1].rightdefined=0;
 			char diagnose_foundstart,diagnose_foundend;
 			diagnose_foundstart=0;diagnose_foundend=0;
-			int ilv2;
-			ilv2=edit_getatombyid(((*glob_b_multilist))[ilv1].E);
-			if (ilv2>=0)
+			int tl_startatom,tl_endatom;
+			tl_endatom=edit_getatombyid(((*glob_b_multilist))[ilv1].E);
+			if (tl_endatom>=0)
 			{
-				bond_actual_node[ilv1].end=ilv2;
-				atom_actual_node[ilv2]+=ilv1;
 				diagnose_foundstart=1;
 			}
-			ilv2=edit_getatombyid(((*glob_b_multilist))[ilv1].B);
-			if (ilv2>=0)
+			tl_startatom=edit_getatombyid(((*glob_b_multilist))[ilv1].B);
+			if (tl_startatom>=0)
 			{
-				bond_actual_node[ilv1].start=ilv2;
-				atom_actual_node[ilv2]+=ilv1;
 				diagnose_foundend=1;
 			}
 			if ((diagnose_foundstart==0) || (diagnose_foundend==0))
 			{
 				(*glob_b_multilist)[ilv1].exist=0;
-				printf("Error: No start/end found on bond!\n");
+				print("Error: No start/end found on bond!\n");
+			}
+			else
+			{
+				bond_actual_node[ilv1].end=tl_endatom;
+				atom_actual_node[tl_endatom]+=ilv1;
+				bond_actual_node[ilv1].start=tl_startatom;
+				atom_actual_node[tl_startatom]+=ilv1;
 			}
 		}
 	}
@@ -418,34 +421,37 @@ void getatoms()//makes some preprocessing
 	for (int ilv1=0;ilv1<(*glob_b_multilist).filllevel;ilv1++)//refines undefined double bonds
 	{
 		b_instance * currentbondinstance=&((*glob_b_multilist)[ilv1]);
-		int i_side_orvariable;
-		int i_side_orvariable2;
-		i_side_orvariable=0;
-		i_side_orvariable2=0;
-		if (((*currentbondinstance).DoublePosition & 0x100)==0)
+		if (currentbondinstance->exist)
 		{
-			for (int ilv2=0;ilv2<atom_actual_node[bond_actual_node[ilv1].start].bondcount;ilv2++)//or operation
+			int i_side_orvariable;
+			int i_side_orvariable2;
+			i_side_orvariable=0;
+			i_side_orvariable2=0;
+			if (((*currentbondinstance).DoublePosition & 0x100)==0)
 			{
-				i_side_orvariable|=getleftof(&((*glob_n_multilist)[bond_actual_node[ilv1].start].xyz),&((*glob_n_multilist)[bond_actual_node[ilv1].end].xyz),&((*glob_n_multilist)[getother((bond_actual_node[ilv1].start),atom_actual_node[bond_actual_node[ilv1].start].bonds[ilv2])].xyz));
+				for (int ilv2=0;ilv2<atom_actual_node[bond_actual_node[ilv1].start].bondcount;ilv2++)//or operation
+				{
+					i_side_orvariable|=getleftof(&((*glob_n_multilist)[bond_actual_node[ilv1].start].xyz),&((*glob_n_multilist)[bond_actual_node[ilv1].end].xyz),&((*glob_n_multilist)[getother((bond_actual_node[ilv1].start),atom_actual_node[bond_actual_node[ilv1].start].bonds[ilv2])].xyz));
+				}
+				if (i_side_orvariable==3)
+				{
+					i_side_orvariable=0;
+				}
+				for (int ilv2=0;ilv2<atom_actual_node[bond_actual_node[ilv1].end].bondcount;ilv2++)//or operation
+				{
+					i_side_orvariable2|=getleftof(&((*glob_n_multilist)[bond_actual_node[ilv1].start].xyz),&((*glob_n_multilist)[bond_actual_node[ilv1].end].xyz),&((*glob_n_multilist)[getother((bond_actual_node[ilv1].end),atom_actual_node[bond_actual_node[ilv1].end].bonds[ilv2])].xyz));
+				}
+				if (i_side_orvariable2==3)
+				{
+					i_side_orvariable2=0;
+				}
+				i_side_orvariable|=i_side_orvariable2;
+				if (i_side_orvariable==3)
+				{
+					i_side_orvariable=2;
+				}
+				(*currentbondinstance).DoublePosition=i_side_orvariable;
 			}
-			if (i_side_orvariable==3)
-			{
-				i_side_orvariable=0;
-			}
-			for (int ilv2=0;ilv2<atom_actual_node[bond_actual_node[ilv1].end].bondcount;ilv2++)//or operation
-			{
-				i_side_orvariable2|=getleftof(&((*glob_n_multilist)[bond_actual_node[ilv1].start].xyz),&((*glob_n_multilist)[bond_actual_node[ilv1].end].xyz),&((*glob_n_multilist)[getother((bond_actual_node[ilv1].end),atom_actual_node[bond_actual_node[ilv1].end].bonds[ilv2])].xyz));
-			}
-			if (i_side_orvariable2==3)
-			{
-				i_side_orvariable2=0;
-			}
-			i_side_orvariable|=i_side_orvariable2;
-			if (i_side_orvariable==3)
-			{
-				i_side_orvariable=2;
-			}
-			(*currentbondinstance).DoublePosition=i_side_orvariable;
 		}
 	}
 }

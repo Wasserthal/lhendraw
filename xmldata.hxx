@@ -322,7 +322,8 @@ template <class whatabout> multilist<whatabout> * registermultilist(const char *
 			return (multilist<whatabout> *) multilistlist[ilv1].instance;
 		}
 	}
-	multilistlist[multilist_count].instance=new(multilist<whatabout>);//TODO mem: leaks
+	error("Unregistered multilist detected! Unintended for this version of lhendraw! Please remove this hint if you changed something\n");
+	multilistlist[multilist_count].instance=new(multilist<whatabout>);//Code will never reach this point.
 	strcpy(multilistlist[multilist_count].name,thetypesname);
 	(*((multilistlist[multilist_count].instance))).index=multilist_count;
 	return (multilist<whatabout> *) multilistlist[multilist_count++].instance;

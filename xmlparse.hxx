@@ -5,7 +5,7 @@ basic_instance * currentinstance;
 #ifdef DEBUG
 intl debugcounter=0;
 #endif
-int scrunity=0;
+int input_scrunity=0;
 
 void entertag()
 {
@@ -25,12 +25,12 @@ void entertag()
 		print("%s vs. %s !\n",tagnamestring,currentinstance->getName());
 		if (strcmp(currentinstance->getName(),"gummydummy")==0)
 		{
-			scrunity++;
+			input_scrunity++;
 		}
 		else
 		{
 			gummydummy_instance.master=currentinstance;
-			scrunity=1;
+			input_scrunity=1;
 		}
 		nextinstance=&gummydummy_instance;
 	}
@@ -117,8 +117,8 @@ void exittag()
 	basic_instance * lastinstance=currentinstance;
 	if (strcmp(lastinstance->getName(),"gummydummy")==0)
 	{
-		scrunity--;
-		if (scrunity==0) goto exittag_master;
+		input_scrunity--;
+		if (input_scrunity==0) goto exittag_master;
 	}
 	else
 	{
@@ -134,16 +134,14 @@ void exittag()
 #define CHECKLENGTHRESTRICTION(ADDITION)\
 if (paramvaluestring_length>=LHENDRAW_buffersize-ADDITION)\
 {\
-	if (memory_realloc_x2()==0)\
-	{\
-		error("overflow error!");\
-	}\
+	memory_overflow_hook();\
 }
 void input_fsm(FILE* infile)
 {
 	intl fsmint=0; //0: in_nothing. 1: bracket-opening 2: Tagreading 3: parameterstringreading 4: bracket-closing,i.e. start PCTEXT reading 5: Qmark-ignoring 7: waiting_for_tag_end 8: Addstring - Hyphenation 9: After equals symbol 10 PCTEXTstringreading.
 	char ichar='A';
 	bool bexittag=0;
+	input_scrunity=0;
 	tagnamestring_length=0;
 	parameterstring_length=0;
 	paramvaluestring_length=0;
@@ -371,7 +369,6 @@ void input_fsm(FILE* infile)
 			{
 				CHECKLENGTHRESTRICTION(1);
 				parameterstring[parameterstring_length++]=ichar;
-//TODO:				upon length restriction, don't forget that ampersand escapes may not be interrupted.
 			}
 		break;
 		default:

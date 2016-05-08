@@ -155,7 +155,6 @@ class basicmultilist
 		filllevel=0;
 		ourcount=0;
 		maxid=0;
-		//TODO: move buffer reset here, especially when dealing with more buffers
 	}
 	inline basic_instance & operator[](int ino)
 	{
@@ -214,7 +213,6 @@ template <class whatabout> class multilist : public basicmultilist
 {
 	public:
 	inline whatabout * bufferlist(){return (whatabout*)pointer;}
-	//TODO: split off the non-contentbuffer "CAMBRIDGE" items-multilist as new data type, carrying the dependants, so this large variable is not stored in the undo steps. Turn it into an own buffer later!
 	multilistreference<whatabout> * dependants;//needed to point to contained objects from another list, while still being able to move items in this mulitilist (this in the sense of this-pointer)
 	inline whatabout & operator[](int ino)
 	{
@@ -248,21 +246,21 @@ template <class whatabout> class multilist : public basicmultilist
 	}
 	void * insert(whatabout input,intl position,intl mynumber)//position must be given to allow later refills
 	{
-		//TODO: check what's going on here!
+		//This is the sole reason for the multilistreference... To update the master entries if the master is shifted
 		if (filllevel>=getmaxitems()-1)
 		{
 			memory_overflow_hook();
 		}
 		for (int ilv1=filllevel;ilv1>position;ilv1--)
 		{
-			memcpy(bufferlist()+ilv1,bufferlist()+ilv1-1,sizeof(whatabout));//Thats why oop sucks!
-			for (int ilv2=0;ilv2<sizeof(whatabout::contents)/sizeof(superconstellation);ilv2++)
+			memcpy(bufferlist()+ilv1,bufferlist()+ilv1-1,sizeof(whatabout));//copying the higher objects to a higher position
+			for (int ilv2=0;ilv2<sizeof(whatabout::contents)/sizeof(superconstellation);ilv2++)//For each possible type of content of that object
 			{
 				basicmultilistreference * tl_multilistreference=*(basicmultilistreference**)(((char*)(&(bufferlist()[ilv1])))+whatabout::contents[ilv2].ref);
 				for (int ilv3=(*tl_multilistreference).start_in_it;ilv3<(*tl_multilistreference).start_in_it+(*tl_multilistreference).count_in_it;ilv3++)
 				{
 					basic_instance_nested * tl_basic_instance=(basic_instance_nested*)(((char*)((*((*tl_multilistreference).instances)).pointer))+(*((*tl_multilistreference).instances)).itemsize*ilv3);
-					(*tl_basic_instance).master=(basic_instance_nested*)(&(bufferlist()[ilv1]));
+					(*tl_basic_instance).master=(basic_instance_nested*)(&(bufferlist()[ilv1]));//Refreshing master entries,because master is shifted now
 				}
 			}
 		}
@@ -270,8 +268,7 @@ template <class whatabout> class multilist : public basicmultilist
 		{
 			dependants[ilv1].start_in_it++;
 		}
-		bufferlist()[position]=input;
-		(*(intl*)&(bufferlist()[position]))=*(intl*)&input;//hack for bug in gcc: vtable index not copied to array //not TODO checked if it has to be intl
+		memcpy(bufferlist()+position,&input,sizeof(whatabout));
 		filllevel++;
 		return &(bufferlist()[position]);
 	}

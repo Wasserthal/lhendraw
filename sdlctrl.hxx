@@ -556,6 +556,7 @@ int control_findhotatomfrommouse()
 }
 catalogized_command_funcdef(ISSUEDELETE)
 {
+	//upon deletion of objects and stuff, the selection does not get adapted to the new state, because everything that remains should be unselected.
 	_u32 icompare;
 	int isize;
 	int ioffset;
@@ -589,15 +590,18 @@ catalogized_command_funcdef(ISSUEDELETE)
 					if (((basic_instance*)(ibufferpos+isize*ilv2))->exist)
 					{
 						float tl_x,tl_y,tl_z;
-						//TODO: retrieve point count instead
-						for (int ilv3=1;retrievepoints_basic(((basic_instance*)(ibufferpos+isize*ilv2)),&tl_x,&tl_y,&tl_z,ilv3,ilv1);ilv3++)
+						for (int ilv3=1;retrievepoints_basic(((basic_instance*)(ibufferpos+isize*ilv2)),&tl_x,&tl_y,&tl_z,ilv3,ilv1);ilv3++)//for each point
 						{
 							if ((selection_currentselection[follower3] & (icompare<<STRUCTURE_OBJECTTYPE_ListSize)))
 							{
 								removepoints_basic((basic_instance*)(ibufferpos+isize*ilv2),ilv3,ilv1);
 								ilv3--;
 							}
-							follower3++;//TODO: overflow check
+							follower3++;
+							if (follower3>=LHENDRAW_buffersize/sizeof(selection_datatype))
+							{
+								memory_overflow_hook();
+							}
 						}
 					}
 				}
@@ -2453,7 +2457,6 @@ void issuerelease()
 		}
 		case 3:
 		{
-			//TODO: what if not moved
 			selection_lassotrail(control_posx,control_posy,selection_lassostartx,selection_lassostarty);
 			if (selection_lasso_up==2) selection_lasso_putpixel(selection_lassostartx,selection_lassostarty,1);
 			selection_lassofill();

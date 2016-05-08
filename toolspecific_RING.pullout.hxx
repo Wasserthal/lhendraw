@@ -74,7 +74,7 @@ menuitem pullout_toolspecific_RING[]={
 "aromatic",
 6,6,
 1,
-"cyclononane",
+"aromatic+unsaturated",
 "control_drawproperties.ring_unsaturation",
 "","",
 0xFFFF,

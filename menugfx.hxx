@@ -787,7 +787,6 @@ void sdl_commonmenucommon()
 	}
 	if (control_mousestate & 0x10)
 	{
-		//TODO: insert ordinary popups here and tell between PSE
 		menu_list[menu_list_count].type=2;
 		menu_list[menu_list_count].alignx=160;
 		menu_list[menu_list_count].aligny=160;

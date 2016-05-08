@@ -370,7 +370,7 @@ void janitor_bufferresort()
 				//shifts the buffer pointers of the other objects.
 				for (int ilv3=tl_object+1;ilv3<(*imultilist).filllevel;ilv3++)
 				{
-					basic_instance_propertybuffer * iinstance=(basic_instance_propertybuffer*)(((char*)((*imultilist).pointer))+(isize*ilv3));
+					basic_instance * iinstance=(basic_instance*)(((char*)((*imultilist).pointer))+(isize*ilv3));
 					if ((*iinstance).pos_in_buffer>=tl_writepos)
 					{
 						(*iinstance).pos_in_buffer-=length;
@@ -399,7 +399,7 @@ void janitor_memoryresort()
 		TELESCOPE_buffer * ibuffer=glob_contentbuffer+ilv1;
 		for (int ilv2=0;ilv2+tl_difference<(*imultilist).filllevel;)
 		{
-			basic_instance_propertybuffer * iinstance=(basic_instance_propertybuffer*)(((char*)((*imultilist).pointer))+(isize*(ilv2+tl_difference)));
+			basic_instance * iinstance=(basic_instance*)(((char*)((*imultilist).pointer))+(isize*(ilv2+tl_difference)));
 			if ((*iinstance).exist==0)
 			{
 				tl_difference+=1;

@@ -1,6 +1,6 @@
 //this is the xml parsing unit. requires xmldata.hxx
 //few routines are also needed for binary cdx.
-basic_instance * currentinstance;
+basic_instance_nested * currentinstance;
 
 #ifdef DEBUG
 intl debugcounter=0;
@@ -11,13 +11,13 @@ void entertag()
 {
 	intl suboffset;
 	basicmultilistreference * nextinstance_list;
-	basic_instance * nextinstance;
+	basic_instance_nested * nextinstance;
 	tagnamestring[tagnamestring_length]=0;
 	suboffset=(currentinstance->getcontents(tagnamestring));
 	if (suboffset!=-1)
 	{
 		nextinstance_list=*(basicmultilistreference**)(((char*)currentinstance)+suboffset);
-		nextinstance=(basic_instance*)nextinstance_list->addnew();
+		nextinstance=(basic_instance_nested*)nextinstance_list->addnew();
 		(*nextinstance).master=currentinstance;
 	}
 	else
@@ -114,7 +114,7 @@ void scoopparam_bin()
 
 void exittag()
 {
-	basic_instance * lastinstance=currentinstance;
+	basic_instance_nested * lastinstance=currentinstance;
 	if (strcmp(lastinstance->getName(),"gummydummy")==0)
 	{
 		input_scrunity--;
@@ -478,7 +478,7 @@ void input_bin(FILE* infile)
 	while (input_recursion(infile)==0){};
 }
 long long fullu64=0xFFFFFFFFFFFFFFFF;
-void output_object(FILE * outfile,basic_instance * iinstance)
+void output_object(FILE * outfile,basic_instance_nested * iinstance)
 {
 	char hadhadcontent=0;
 	char haspctext=0;
@@ -538,7 +538,7 @@ void output_object(FILE * outfile,basic_instance * iinstance)
 	}
 	return;
 }
-int output_object_bin(FILE * outfile,basic_instance * iinstance)
+int output_object_bin(FILE * outfile,basic_instance_nested * iinstance)
 {
 	char * PCTEXT_pointer;
 	intl dummy=0;
@@ -552,7 +552,7 @@ int output_object_bin(FILE * outfile,basic_instance * iinstance)
 	dummy=get_bienum(CDXML_objectcodes_List,(*iinstance).getName(),CDXML_objectcodes_ListSize);
 	if (dummy==0)
 	{
-		basic_instance * imaster=(*iinstance).master;
+		basic_instance_nested * imaster=(*iinstance).master;
 		isuperconstellation=getsuperconstellation_p(imaster->_,(*iinstance).getName(),NULL);
 		if (isuperconstellation) 
 		{
@@ -630,7 +630,7 @@ void output_fsm(FILE * outfile,int usage)
 		{
 			for (int ilv2=0;ilv2<multilistlist[ilv1].instance->filllevel;ilv2++)
 			{
-				output_object(outfile,&((*(multilistlist[ilv1].instance))[ilv2]));
+				output_object(outfile,(basic_instance_nested*)&((*(multilistlist[ilv1].instance))[ilv2]));
 			}
 		}
 	}
@@ -643,7 +643,7 @@ void output_fsm_bin(FILE * outfile,int usage)
 		{
 			for (int ilv2=0;ilv2<multilistlist[ilv1].instance->filllevel;ilv2++)
 			{
-				output_object_bin(outfile,&((*(multilistlist[ilv1].instance))[ilv2]));
+				output_object_bin(outfile,(basic_instance_nested*)&((*(multilistlist[ilv1].instance))[ilv2]));
 			}
 		}
 	}

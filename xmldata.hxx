@@ -22,7 +22,7 @@ typedef int __attribute__((sysv_abi))(*CDXMLREAD_functype)(char * input,void * o
 typedef int __attribute__((sysv_abi))(*CDXMLREAD_TOBUFFER_functype)(TELESCOPE_buffer ibuffer,char * input,void * output);
 //This is vomittingly expensive. Why cant I make the contents[] "virtual static" ? :G
 typedef int __attribute__((sysv_abi))(*catalogized_command_functype)(const char * parameter,const char * value);
-struct basicmultilist;struct basic_instance;
+struct basicmultilist;struct basic_basic_instance;struct basic_instance;struct basic_instance_nested;
 typedef int __attribute__((sysv_abi))(*catalogized_command_iterated_functype)(const char * parameter,const char * value,basicmultilist * imultilist,basic_instance * iinstance,int iindex);
 //This has some speciality. It is being iterated only over the object which it is intended for. But if it is for generic, it gets iterated over all of them
 typedef int __attribute__((sysv_abi))(*AUTOSTRUCT_GETSET_FUNCTYPE)(char state,int input);//1: set 2: get 4: toggle\n
@@ -162,14 +162,14 @@ class basicmultilistreference
 	intl count_in_it;
 	intl mynumber;
 	virtual void * addnew(){return 0;};
-	basic_instance * operator [](int ino)
+	basic_instance_nested * operator [](int ino)
 	{
-		return (basic_instance*)(((char*)((*instances).pointer))+(ino+start_in_it)*((*instances).itemsize));
+		return (basic_instance_nested*)(((char*)((*instances).pointer))+(ino+start_in_it)*((*instances).itemsize));
 	}
 	basicmultilistreference(){};
 	~basicmultilistreference(){};
 };
-struct basic_instance
+struct basic_basic_instance
 {
 	public:
 	virtual int getcontents(const char * name)
@@ -184,15 +184,19 @@ struct basic_instance
 	virtual const char * getFullName(){return 0;}
 	virtual _u32 * getINTERNALPropertyexistflags(){return NULL;}
 	AUTOSTRUCT_cstyle_vtable * _;
-	basic_instance * master;
 	virtual int hit(float ix,float iy){return 0;};
 /*	int & operator [] (O_int which)///TODO: enum NEEDED for each datatype
 	{
 		return *(int*)(((char*)this)+(*(((int*)_)+which)));
 	}*/
-	char exist;
-	basic_instance(){master=NULL;exist=1;};//TODO put exist into basic_instance_propertybuffer
-	~basic_instance(){};
+	basic_basic_instance(){};
+	~basic_basic_instance(){};
+};
+struct basic_instance_nested : public basic_basic_instance
+{
+	basic_instance_nested * master;
+	basic_instance_nested(){master=NULL;};
+	~basic_instance_nested(){};
 };
 #define dependantlistsize 8192
 template <class whatabout> class multilist : public basicmultilist
@@ -230,10 +234,6 @@ template <class whatabout> class multilist : public basicmultilist
 			return -1;
 		}
 	}
-	void REMOVE(intl index)//without dependants, use item buffer instead
-	{
-		bufferlist()[index].exist=0;
-	}
 	void * insert(whatabout input,intl position,intl mynumber)//position must be given to allow later refills
 	{
 		//TODO: check what's going on here!
@@ -249,8 +249,8 @@ template <class whatabout> class multilist : public basicmultilist
 				basicmultilistreference * tl_multilistreference=*(basicmultilistreference**)(((char*)(&(bufferlist()[ilv1])))+whatabout::contents[ilv2].ref);
 				for (int ilv3=(*tl_multilistreference).start_in_it;ilv3<(*tl_multilistreference).start_in_it+(*tl_multilistreference).count_in_it;ilv3++)
 				{
-					basic_instance * tl_basic_instance=(basic_instance*)(((char*)((*((*tl_multilistreference).instances)).pointer))+(*((*tl_multilistreference).instances)).itemsize*ilv3);
-					(*tl_basic_instance).master=(basic_instance*)(&(bufferlist()[ilv1]));
+					basic_instance_nested * tl_basic_instance=(basic_instance_nested*)(((char*)((*((*tl_multilistreference).instances)).pointer))+(*((*tl_multilistreference).instances)).itemsize*ilv3);
+					(*tl_basic_instance).master=(basic_instance_nested*)(&(bufferlist()[ilv1]));
 				}
 			}
 		}
@@ -354,18 +354,13 @@ template <class whatabout> class multilistreference : public basicmultilistrefer
 	~multilistreference(){};
 };
 
-/*struct basic_instance_multilistreference:basic_instance
-{
-	public:
-	basic_instance * master;
-	basic_instance_multilistreference(){master=NULL;};
-	~basic_instance_multilistreference(){};
-};*/
 
-//TODO: call that following contentbuffer, not propertybuffer! or better, call THIS basic_instance, the old one basic_basic_instance, and all instances of basic_instance in xmlparse.hxx to basic_instance_multilistreference. or, however, to basic_basic_instance in the case the call has nothing to do with masters. Good that multilists do not care about the listed datastructure's referencing type.
-struct basic_instance_propertybuffer:basic_instance
+struct basic_instance:basic_basic_instance
 {
+	char exist;
 	intl pos_in_buffer;//set to the place where it WOULD be if empty
+	basic_instance(){exist=1;};
+	~basic_instance(){};
 };
 
 //This is a hack:
@@ -373,7 +368,7 @@ struct basic_instance_propertybuffer:basic_instance
 //3. Offsetof with inherited objects.
 //4. Initialization of static list members in order to obtain self-reflecting code.
 AUTOSTRUCT_cstyle_vtable gummydummy_instance_vtable={NULL,0,NULL,0,(char*)"CAMBRIDGE_gummydummy",(char*)"gummydummy"};
-struct gummydummy_instance_: basic_instance
+struct gummydummy_instance_: basic_instance_nested
 {
 	public:
 	const char * getName(){static char name[]="gummydummy"; return(char*)&name;}

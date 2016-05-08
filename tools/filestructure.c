@@ -224,7 +224,7 @@ int main(int argc,char * * argv)
 	properties_count++;
 	goto propertiesback;
 	propertiesdone:
-	fprintf(outfile,"#define STRUCTUREDEFINED_%s%s_instance\nstruct %s%s_instance:%s\n{\n        static inline const char * INTERNALgetname(){return \"%s%s\";}\n        const char * getName(){return INTERNALgetname()+%i;}\n        const char * getFullName(){return INTERNALgetname();}\n",datablockstring,name,datablockstring,name,(linemode)?"TELESCOPE_element":((internalmode&1)?"basic_instance":"basic_instance_propertybuffer"),datablockstring,name,(int)strlen(datablockstring));
+	fprintf(outfile,"#define STRUCTUREDEFINED_%s%s_instance\nstruct %s%s_instance:%s\n{\n        static inline const char * INTERNALgetname(){return \"%s%s\";}\n        const char * getName(){return INTERNALgetname()+%i;}\n        const char * getFullName(){return INTERNALgetname();}\n",datablockstring,name,datablockstring,name,(linemode)?"TELESCOPE_element":((internalmode&1)?"basic_instance_nested":"basic_instance"),datablockstring,name,(int)strlen(datablockstring));
 	fprintf(outfile,"	const static int INTERNALPropertycount=%i;\n",properties_count);
 	if (internalmode&1)
 	{

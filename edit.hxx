@@ -3370,7 +3370,7 @@ catalogized_command_funcdef(BONDDATA)
 	}
 	return 1;
 }
-void edit_scoopcolors(basic_instance * master)
+void edit_scoopcolors(basic_instance_nested * master)
 {
 	int ilv1,ilv2,ilv3;
 	_u32 icolor;
@@ -5828,8 +5828,8 @@ int edit_flexicopy(int undostep_no,multilist<n_instance> * n_target,multilist<b_
 									((n_instance*)(ibufferpos+isize*(tlmultilist->filllevel)))->id+=(*i_deltaback);
 								}
 								placepoints_basic(((basic_instance*)(ibufferpos+isize*(tlmultilist->filllevel))),tl_x,tl_y,tl_z,0,ilv1);
-								((basic_instance_propertybuffer*)(ibufferpos+isize*(tlmultilist->filllevel)))->pos_in_buffer=(glob_contentbuffer+ilv1)->count;
-								char * tl_pos_in_old_buffer=undo_retrievecontentbuffer(undostep_no,ilv1)->buffer+((basic_instance_propertybuffer*)(ioldbufferpos+isize*ilv2))->pos_in_buffer;
+								((basic_instance*)(ibufferpos+isize*(tlmultilist->filllevel)))->pos_in_buffer=(glob_contentbuffer+ilv1)->count;
+								char * tl_pos_in_old_buffer=undo_retrievecontentbuffer(undostep_no,ilv1)->buffer+((basic_instance*)(ioldbufferpos+isize*ilv2))->pos_in_buffer;
 								if (*(_i32*)(tl_pos_in_old_buffer+4)==ilv2)
 								{
 									memcpy((glob_contentbuffer+ilv1)->buffer+(glob_contentbuffer+ilv1)->count,tl_pos_in_old_buffer,*(_i32*)tl_pos_in_old_buffer);
@@ -5944,7 +5944,7 @@ int edit_readsfrombuffer(char * input)
 	icount=*(_i16*)input;
 	intl istartpos=2;
 	int currentpos=0;
-	basic_instance * lastcurrentinstance=currentinstance;
+	basic_instance_nested * lastcurrentinstance=currentinstance;
 	iback:;
 	int best=-1;
 	int bestval=2000000000;

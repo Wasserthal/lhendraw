@@ -106,7 +106,7 @@ int TELESCOPE_verify_objectcorrect()//-1: error 0: end of list 1: object 2: empt
 		{
 			error("TELESCOPE invalid object number%i of %lli",TELESCOPE_debugvar.objectpos,(*(TELESCOPE_debugvar.multilist)).filllevel);
 		}
-		basic_instance_propertybuffer * i_basic_instance=((basic_instance_propertybuffer*)(((char*)((*(TELESCOPE_debugvar.multilist)).pointer))+(TELESCOPE_debugvar.objectsize*TELESCOPE_debugvar.objectpos)));
+		basic_instance * i_basic_instance=((basic_instance*)(((char*)((*(TELESCOPE_debugvar.multilist)).pointer))+(TELESCOPE_debugvar.objectsize*TELESCOPE_debugvar.objectpos)));
 		if ((*i_basic_instance).exist==0)
 		{
 			error("TELESCOPE owned by dead object");
@@ -179,7 +179,7 @@ int TELESCOPE_stretch_buffer(basicmultilist * imultilist,int ideltaplus,int ityp
 	//shifts the buffer pointers of the other objects.
 	for (int ilv1=TELESCOPE_tempvar.objectpos+1;ilv1<(*imultilist).filllevel;ilv1++)
 	{
-		(*((basic_instance_propertybuffer*)(((char*)((*imultilist).pointer))+(TELESCOPE_tempvar.objectsize*ilv1)))).pos_in_buffer+=ideltaplus2;
+		(*((basic_instance*)(((char*)((*imultilist).pointer))+(TELESCOPE_tempvar.objectsize*ilv1)))).pos_in_buffer+=ideltaplus2;
 	}
 	(*ibuffer).count+=ideltaplus2;
 	return 1;
@@ -194,7 +194,7 @@ int TELESCOPE_aggressobject(basicmultilist * imultilist,int objectpos)
 	TELESCOPE_tempvar.objectpos=objectpos;
 	TELESCOPE_tempvar.subpos=0;
 	TELESCOPE_tempvar.subpos2=0;
-	TELESCOPE_tempvar.pos=(*((basic_instance_propertybuffer*)(((char*)((*imultilist).pointer))+(TELESCOPE_tempvar.objectsize*TELESCOPE_tempvar.objectpos)))).pos_in_buffer;
+	TELESCOPE_tempvar.pos=(*((basic_instance*)(((char*)((*imultilist).pointer))+(TELESCOPE_tempvar.objectsize*TELESCOPE_tempvar.objectpos)))).pos_in_buffer;
 	return TELESCOPE_verify_objectpresent();
 }
 void TELESCOPE_reindex(int newnumber)
@@ -404,7 +404,7 @@ int TELESCOPE_split(int ipos,const char * iadditive_input,int ilength)
 	}
 	for (int ilv1=TELESCOPE_tempvar.objectpos+1;ilv1<(*TELESCOPE_tempvar.multilist).filllevel;ilv1++)
 	{
-		(*((basic_instance_propertybuffer*)(((char*)((*TELESCOPE_tempvar.multilist).pointer))+(TELESCOPE_tempvar.objectsize*ilv1)))).pos_in_buffer+=ideltaplus2;
+		(*((basic_instance*)(((char*)((*TELESCOPE_tempvar.multilist).pointer))+(TELESCOPE_tempvar.objectsize*ilv1)))).pos_in_buffer+=ideltaplus2;
 	}
 	(*(TELESCOPE_tempvar.buffer)).count+=ideltaplus2;
 	(*tl_Element).length=ipos+ilength+TELESCOPE_ELEMENTTYPE_List[itype].size;
@@ -440,7 +440,7 @@ int TELESCOPE_merge(int ipos,int ilength)
 	(*tl_SecondElement).length=isecondlength+TELESCOPE_ELEMENTTYPE_List[itype].size;
 	for (int ilv1=TELESCOPE_tempvar.objectpos+1;ilv1<(*TELESCOPE_tempvar.multilist).filllevel;ilv1++)
 	{
-		(*((basic_instance_propertybuffer*)(((char*)((*TELESCOPE_tempvar.multilist).pointer))+(TELESCOPE_tempvar.objectsize*ilv1)))).pos_in_buffer-=ideltaminus2;
+		(*((basic_instance*)(((char*)((*TELESCOPE_tempvar.multilist).pointer))+(TELESCOPE_tempvar.objectsize*ilv1)))).pos_in_buffer-=ideltaminus2;
 	}
 	(*(TELESCOPE_tempvar.buffer)).count-=ideltaminus2;
 	(*tl_Element).length+=isecondlength-ilength;
@@ -464,7 +464,7 @@ int TELESCOPE_shrink(int ipos,int ilength)
 	}
 	for (int ilv1=TELESCOPE_tempvar.objectpos+1;ilv1<(*TELESCOPE_tempvar.multilist).filllevel;ilv1++)
 	{
-		(*((basic_instance_propertybuffer*)(((char*)((*TELESCOPE_tempvar.multilist).pointer))+(TELESCOPE_tempvar.objectsize*ilv1)))).pos_in_buffer-=ideltaminus2;
+		(*((basic_instance*)(((char*)((*TELESCOPE_tempvar.multilist).pointer))+(TELESCOPE_tempvar.objectsize*ilv1)))).pos_in_buffer-=ideltaminus2;
 	}
 	(*(TELESCOPE_tempvar.buffer)).count-=ideltaminus2;
 	(*tl_Element).length-=ilength;
@@ -492,7 +492,7 @@ int TELESCOPE_clear_item()//clears one item. leaves the cursor system at its pos
 	(*((TELESCOPE*)(((*(TELESCOPE_tempvar.buffer)).buffer)+TELESCOPE_tempvar.pos))).length-=ilength;
 	for (int ilv1=TELESCOPE_tempvar.objectpos+1;ilv1<(*(TELESCOPE_tempvar.multilist)).filllevel;ilv1++)
 	{
-		(*((basic_instance_propertybuffer*)(((char*)((*(TELESCOPE_tempvar.multilist)).pointer))+(TELESCOPE_tempvar.objectsize*ilv1)))).pos_in_buffer-=ilength;
+		(*((basic_instance*)(((char*)((*(TELESCOPE_tempvar.multilist)).pointer))+(TELESCOPE_tempvar.objectsize*ilv1)))).pos_in_buffer-=ilength;
 	}
 	(*(TELESCOPE_tempvar.buffer)).count-=ilength;
 	return 1;

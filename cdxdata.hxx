@@ -4,7 +4,7 @@
 #define bezierpointmax 128
 /* This unit contains the readers for all datatypes that are no xml tags */
 extern int getbufferfromstructure(basicmultilist * input,TELESCOPE_buffer * * bufferptr);
-extern basic_instance * currentinstance;
+extern basic_instance_nested * currentinstance;
 #define arcfloat float
 struct cdx_Point2D
 {

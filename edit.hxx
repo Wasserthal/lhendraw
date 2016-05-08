@@ -6021,7 +6021,19 @@ int edit_readsfrombuffer(char * input)
 	tl_CAMBRIDGE_s_instance->size=icurrentstylerun.size/20;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_s_instance,size);
 	tl_CAMBRIDGE_s_instance->color=icurrentstylerun.color;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_s_instance,color);
 	currentinstance=tl_CAMBRIDGE_s_instance;
-	concludepctext();
+	{
+		parameterstring[parameterstring_length]=0;
+		parameterstring_length=0;
+		CDXMLREAD_functype thisfunc;
+		int txtoffset=currentinstance->getproperties("PCTEXT",&thisfunc);
+		if (txtoffset==-1)
+		{
+			goto do_not_memorize_text_but_read_it;
+		}
+		char * txtpos=((char*)currentinstance)+txtoffset;
+		CDXMLREAD_BIN_cdx_Buffered_String(parameterstring,txtpos);
+	}
+	do_not_memorize_text_but_read_it:;
 	currentinstance=lastcurrentinstance;
 	currentpos=icurrentstylerun2.startpos;
 	goto iback;

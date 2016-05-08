@@ -394,7 +394,6 @@ void indent()
 }
 int input_recursion(FILE * infile)
 {
-	//TODO: cdx generic list
 	_i16 itype=0;
 	_i32 iid=0;
 	paramvaluestring_length=0;

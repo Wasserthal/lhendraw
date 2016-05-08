@@ -211,6 +211,26 @@ int copytobuffer(TELESCOPE_buffer * ibuffer,char * input)
 	(*ibuffer).count=icount;
 	return 0;
 }
+int copytobuffer_unconverted(TELESCOPE_buffer * ibuffer,char * input)
+{
+	int ilv2;
+	int maxlength=LHENDRAW_buffersize-2;
+	_u32 icount=(*ibuffer).count;
+	if (icount>2147483648) icount=2147483648;
+	for (_u32 ilv1=0;input[ilv1]!=0;ilv1++)
+	{
+		if (icount>=maxlength-1)
+		{
+			(*ibuffer).buffer[icount++]=0;
+			(*ibuffer).count=icount;
+			return -1;
+		}
+		(*ibuffer).buffer[icount++]=input[ilv1];
+	}
+	(*ibuffer).buffer[icount++]=0;
+	(*ibuffer).count=icount;
+	return 0;
+}
 int __attribute__((sysv_abi))CDXMLWRITE_cdx_Buffered_String(char * input,void * output)
 {
 	return writefrombuffer((FILE*)output,((cdx_Buffered_String*)input));
@@ -227,9 +247,10 @@ int __attribute__((sysv_abi))CDXMLREAD_cdx_Buffered_String(char * input,void * o
 		if (getbufferfromstructure(findmultilist((*currentinstance).getFullName()),&buffer))
 		{
 			(*((cdx_Buffered_String*)output)).a=(*buffer).buffer+((*buffer).count);
-			int tl_backval=copytobuffer(buffer,input);//TODO: reading bin files requires no conversion.
+			int tl_backval=copytobuffer(buffer,input);
 			if (tl_backval<0)
 			{
+				(*((cdx_Buffered_String*)output)).count=0;
 				(*((cdx_Buffered_String*)output)).a=NULL;
 			}
 			return tl_backval;
@@ -257,7 +278,44 @@ int __attribute__((sysv_abi))CDXMLREAD_cdx_Buffered_String(char * input,void * o
 }
 int __attribute__((sysv_abi))CDXMLREAD_BIN_cdx_Buffered_String(char * input,void * output)
 {
-	return CDXMLREAD_cdx_Buffered_String(input,output);
+	if ((*((cdx_Buffered_String*)output)).a!=NULL)
+	{
+		goto found;
+	}
+	else
+	{
+		TELESCOPE_buffer * buffer;
+		if (getbufferfromstructure(findmultilist((*currentinstance).getFullName()),&buffer))
+		{
+			(*((cdx_Buffered_String*)output)).a=(*buffer).buffer+((*buffer).count);
+			int tl_backval=copytobuffer_unconverted(buffer,input);
+			if (tl_backval<0)
+			{
+				(*((cdx_Buffered_String*)output)).count=0;
+				(*((cdx_Buffered_String*)output)).a=NULL;
+			}
+			return tl_backval;
+		}
+		else
+		{
+			return -2;
+		}
+		return 0;
+	}
+	found:
+	TELESCOPE_buffer * buffer;
+	if (getbufferfromstructure(findmultilist((*currentinstance).getFullName()),&buffer))
+	{
+		if ((*((cdx_Buffered_String*)output)).a+strlen((*((cdx_Buffered_String*)output)).a)==(*buffer).buffer+(*buffer).count-1)
+		{
+			return copytobuffer_unconverted(buffer,input);
+		}
+	}
+	else
+	{
+		return -2;
+	}
+	return 0;
 }
 int __attribute__((sysv_abi))CDXMLWRITE_BIN_cdx_Buffered_String(char * input,void * output)
 {

@@ -78,6 +78,19 @@ struct AUTOSTRUCT_cstyle_vtable
 		} \
 		return -1; \
 	}
+#define AUTOSTRUCT_cstyle_PROPERTY_ROUTINE(MACROPARAM,MACROPARAM_COUNT)\
+        int getproperties(const char * name,CDXMLREAD_functype * delegateoutput)\
+	{\
+		for (int ilv1=0;ilv1<MACROPARAM_COUNT;ilv1++)\
+		{\
+			if (strcmp(name,MACROPARAM::properties[ilv1].name)==0)\
+			{\
+				*(delegateoutput)=MACROPARAM::properties[ilv1].delegate;\
+				return MACROPARAM::properties[ilv1].ref;\
+			}\
+		}\
+		return -1;\
+	}
 superconstellation * getsuperconstellation_p(AUTOSTRUCT_cstyle_vtable * ivtable,const char * name,int * posoutput)
 {
 	for (int ilv1=0;ilv1<ivtable->properties_count;ilv1++)
@@ -171,6 +184,16 @@ class basicmultilistreference
 };
 struct basic_basic_instance
 {
+	AUTOSTRUCT_cstyle_vtable * _;
+/*	int & operator [] (O_int which)///TODO: enum NEEDED for each datatype
+	{
+		return *(int*)(((char*)this)+(*(((int*)_)+which)));
+	}*/
+	basic_basic_instance(){};
+	~basic_basic_instance(){};
+};
+struct basic_instance_nested : public basic_basic_instance
+{
 	public:
 	virtual int getcontents(const char * name)
 	{
@@ -183,28 +206,16 @@ struct basic_basic_instance
 	virtual const char * getName(){return 0;}
 	virtual const char * getFullName(){return 0;}
 	virtual _u32 * getINTERNALPropertyexistflags(){return NULL;}
-	AUTOSTRUCT_cstyle_vtable * _;
-	virtual int hit(float ix,float iy){return 0;};
-/*	int & operator [] (O_int which)///TODO: enum NEEDED for each datatype
-	{
-		return *(int*)(((char*)this)+(*(((int*)_)+which)));
-	}*/
-	basic_basic_instance(){};
-	~basic_basic_instance(){};
-};
-struct basic_instance_nested : public basic_basic_instance
-{
 	basic_instance_nested * master;
 	basic_instance_nested(){master=NULL;};
 	~basic_instance_nested(){};
 };
-#define dependantlistsize 8192
 template <class whatabout> class multilist : public basicmultilist
 {
 	public:
 	inline whatabout * bufferlist(){return (whatabout*)pointer;}
 	//TODO: split off the non-contentbuffer "CAMBRIDGE" items-multilist as new data type, carrying the dependants, so this large variable is not stored in the undo steps. Turn it into an own buffer later!
-	multilistreference<whatabout> dependants[8192];//needed to point to contained objects from another list, while still being able to move items in this mulitilist (this in the sense of this-pointer)
+	multilistreference<whatabout> * dependants;//needed to point to contained objects from another list, while still being able to move items in this mulitilist (this in the sense of this-pointer)
 	inline whatabout & operator[](int ino)
 	{
 		return *((whatabout*)(((char*)pointer)+(ino*itemsize)));
@@ -218,6 +229,7 @@ template <class whatabout> class multilist : public basicmultilist
 		memory_alloc(&pointer,2);
 		itemsize=sizeof(whatabout);
 		_=&((*(whatabout*)0).INTERNAL_cstyle_vtable);
+		memory_alloc((char**)&dependants,1);
 		return;
 	}
 	int ADD(whatabout * iwhatabout)//without dependants, use item buffer instead
@@ -267,15 +279,15 @@ template <class whatabout> class multilist : public basicmultilist
 	{
 		(*input).start_in_it=filllevel;
 		(*input).count_in_it=0;
-		if (ourcount<dependantlistsize)
+		if (ourcount<LHENDRAW_buffersize/sizeof(multilistreference<whatabout>))
 		{
 			memcpy(dependants+ourcount,input,sizeof(multilistreference<whatabout>));
 			dependants[ourcount].mynumber=ourcount;
 			ourcount++;
 		}
 		else
-		{//TODO: Prevent memory overflow, better: 
-			error("Memory overflow on multilistreference_creation\n");
+		{
+			memory_overflow_hook();
 		}
 		return &(dependants[ourcount-1]);
 	}
@@ -359,6 +371,18 @@ struct basic_instance:basic_basic_instance
 {
 	char exist;
 	intl pos_in_buffer;//set to the place where it WOULD be if empty
+        int getproperties(const char * name,CDXMLREAD_functype * delegateoutput)
+	{
+		for (int ilv1=0;ilv1<_->properties_count;ilv1++)
+		{
+			if (strcmp(name,_->properties[ilv1].name)==0)
+			{
+				*(delegateoutput)=_->properties[ilv1].delegate;
+				return _->properties[ilv1].ref;
+			}
+		}
+		return -1;
+	}
 	basic_instance(){exist=1;};
 	~basic_instance(){};
 };

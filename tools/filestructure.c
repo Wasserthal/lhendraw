@@ -244,15 +244,19 @@ int main(int argc,char * * argv)
 	
 	if (!linemode)
 	{
-		fprintf(outfile,"        static AUTOSTRUCT_cstyle_vtable INTERNAL_cstyle_vtable;\n	AUTOSTRUCT_GET_ROUTINE(contents,%i)\n        AUTOSTRUCT_PROPERTY_ROUTINE(%i)\n        %s%s_instance();\n        ~%s%s_instance(){}\n};\nAUTOSTRUCT_cstyle_vtable %s%s_instance::INTERNAL_cstyle_vtable={%s%s_instance::properties,%i,%s%s_instance::contents,%i};\nsuperconstellation %s%s_instance::contents[]={\n",contents_count,properties_count,datablockstring,name,datablockstring,name,datablockstring,name,datablockstring,name,properties_count,datablockstring,name,contents_count,datablockstring,name);
+		if ((internalmode&1)==0)
+		{
+			fprintf(outfile,"        static AUTOSTRUCT_cstyle_vtable INTERNAL_cstyle_vtable;\n      static superconstellation properties[];\n      AUTOSTRUCT_cstyle_PROPERTY_ROUTINE(%s%s_instance,%i);\n       %s%s_instance();\n        ~%s%s_instance(){}\n};\nAUTOSTRUCT_cstyle_vtable %s%s_instance::INTERNAL_cstyle_vtable={%s%s_instance::properties,%i,NULL,0};\n",datablockstring,name,properties_count,datablockstring,name,datablockstring,name,datablockstring,name,datablockstring,name,properties_count);
+		}
 		if (internalmode&1)
 		{
+			fprintf(outfile,"        static AUTOSTRUCT_cstyle_vtable INTERNAL_cstyle_vtable;\n      AUTOSTRUCT_GET_ROUTINE(contents,%i)\n        AUTOSTRUCT_PROPERTY_ROUTINE(%i)\n        %s%s_instance();\n        ~%s%s_instance(){}\n};\nAUTOSTRUCT_cstyle_vtable %s%s_instance::INTERNAL_cstyle_vtable={%s%s_instance::properties,%i,%s%s_instance::contents,%i};\nsuperconstellation %s%s_instance::contents[]={\n",contents_count,properties_count,datablockstring,name,datablockstring,name,datablockstring,name,datablockstring,name,properties_count,datablockstring,name,contents_count,datablockstring,name);
 			for (int ilv1=0;ilv1<contents_count;ilv1++)
 			{
 				fprintf(outfile,"{\"%s\",offsetof(%s%s_instance,%s)}%s\n",contents[ilv1],datablockstring,name,contents[ilv1],(ilv1==contents_count-1) ? "" : ",");
 			}
+			fprintf(outfile,"};\n");
 		}
-		fprintf(outfile,"};\n");
 	}
 	else
 	{

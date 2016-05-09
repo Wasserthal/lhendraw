@@ -3352,7 +3352,7 @@ void issuemenuclicks(int iposx,int iposy,int ibutton)
 			control_mousestate=control_mousestate & (~8);
 		}
 	}
-	#ifdef NOFISCHERMENU
+	#ifndef NOFISCHERMENU
 	control_menuopenmode=0;
 	#endif
 }
@@ -3874,6 +3874,12 @@ void control_normal()
 							case SDLK_RETURN:
 							{
 								issuemenuclick(menu_dynamic_menu,menu_dynamic_menu_handle.count,menu_dynamic_menu[0].x,menu_dynamic_menu_handle.number,SDL_BUTTON_LEFT,0,0);
+								control_mousestate=0;
+								control_menuopenmode=0;
+								break;
+							}
+							default:
+							{
 								control_mousestate=0;
 								control_menuopenmode=0;
 								break;

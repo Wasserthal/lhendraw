@@ -1953,7 +1953,7 @@ basic_instance * getclicked(int imap,float clckx,float clcky,int * backtype=NULL
 							}
 							else
 							{
-								//TODO: evaluate buffer shortage
+								memory_overflow_hook();
 							}
 						}
 					}
@@ -3317,7 +3317,6 @@ catalogized_command_funcdef(FILE_NEW)
 		{
 			(*tlmultilist).filllevel=0;
 			glob_contentbuffer[ilv1].count=0;
-			//TODO: undo: buffer lists!
 		}
 	}
 	for (int ilv1=0;ilv1<sizeof(janitor_id_list)/sizeof(int);ilv1++)
@@ -3959,7 +3958,7 @@ catalogized_command_funcdef(SAVE_TYPE)
 	{
 		if (multilistlist[ilv1].usage==1)
 		{
-			(*(multilistlist[ilv1].instance)).filllevel=0;
+			(*(multilistlist[ilv1].instance)).reset();
 		}
 	}
 	CAMBRIDGE_colortable_instance i_CAMBRIDGE_colortable_instance=CAMBRIDGE_colortable_instance();
@@ -4028,7 +4027,6 @@ fprintf(ifile,"%s","</colortable><fonttable>\n"
 		print("SAVING CDX\n");
 	}
 	janitor_biasids(4);
-	//TODO: all subobjects of page must get filllevel=0 before add!
 	glob_CAMBRIDGE_CDXML_multilist->filllevel=0;
 	CAMBRIDGE_CDXML_instance i_CAMBRIDGE_CDXML_instance=CAMBRIDGE_CDXML_instance();
 	i_CAMBRIDGE_CDXML_instance.BondLength=30;AUTOSTRUCT_EXISTS_SET_NAME(&i_CAMBRIDGE_CDXML_instance,BondLength);
@@ -4177,7 +4175,8 @@ catalogized_command_funcdef(LOAD_TYPE)
 	}
 	if (strcmp(value,".cdml")==0)
 	{
-		currentinstance=new(BKCHEM_Total_Document_instance);//TODO mem: leaks
+		currentinstance=new(&(glob_BKCHEM_Total_Document_multilist->bufferlist()[0])) BKCHEM_Total_Document_instance;
+		glob_BKCHEM_Total_Document_multilist->filllevel=1;
 		bkchemids_count=0;
 		input_fsm(infile);
 		for (int ilv1=1;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)

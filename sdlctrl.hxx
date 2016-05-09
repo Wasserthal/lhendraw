@@ -221,9 +221,11 @@ void checkupinconsistencies()
 					int tl_backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_Symbol);
 					if (tl_backval<=0)
 					{
-						for (int ilv2=0;ilv2<abs((*tl_n_instance).charge);ilv2++)
+						int tl_oldcharge=(*tl_n_instance).charge;
+						(*tl_n_instance).charge=0;
+						for (int ilv2=0;ilv2<abs(tl_oldcharge);ilv2++)
 						{
-							atom_addsymbol(ilv1,((*tl_n_instance).charge>0)?4:5);
+							atom_addsymbol(ilv1,(tl_oldcharge>0)?4:5);
 						}
 					}
 				}

@@ -13,6 +13,7 @@ void BKCHEMCONV_atom()
 		tl_n_instance.protons=4;
 		tl_n_instance.color=0;
 		tl_n_instance.id=(*tl_BKCHEM_atom_instance).id+1;
+		tl_n_instance.charge=(*tl_BKCHEM_atom_instance).charge;
 		CAMBRIDGECONV_FIXID(n)
 		if ((*tl_BKCHEM_atom_instance).name<bkchemids_count)
 		{
@@ -21,6 +22,18 @@ void BKCHEMCONV_atom()
 				if (strcmp(element[ilv2].name,bkchemids[(*tl_BKCHEM_atom_instance).name].name)==0)
 				{
 					tl_n_instance.Element=ilv2;
+					tl_n_instance.protons=element[ilv2].maxbonds;
+					if (element[ilv2].maxbonds!=-1)
+					{
+						if (tl_n_instance.protons>8-(element[ilv2].hasVE-tl_n_instance.charge))
+						{
+							tl_n_instance.protons=8-(element[ilv2].hasVE-tl_n_instance.charge);
+						}
+						if (tl_n_instance.protons>element[ilv2].hasVE-tl_n_instance.charge)
+						{
+							tl_n_instance.protons=element[ilv2].hasVE-tl_n_instance.charge;
+						}
+					}
 					goto elementfound;
 				}
 			}
@@ -45,7 +58,7 @@ void BKCHEMCONV_bond()
 		BKCHEM_bond_instance * tl_BKCHEM_bond_instance=(*tl_BKCHEM_bond_multilist).bufferlist()+ilv1;
 		b_instance tl_b_instance;
 		tl_b_instance=b_instance();
-		tl_b_instance.Order=16;
+		tl_b_instance.Order=tl_BKCHEM_bond_instance->type;
 		tl_b_instance.B=tl_BKCHEM_bond_instance->start+1+glob_n_multilist->maxid;
 		tl_b_instance.E=tl_BKCHEM_bond_instance->end+1+glob_n_multilist->maxid;
 		(*tl_b_multilist).ADD(&tl_b_instance);

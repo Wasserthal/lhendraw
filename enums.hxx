@@ -325,6 +325,10 @@ bienum CDXML_type[]={
 	{{"None"},0x10000},
 	{{"Some"},0x20000},
 	{{"Continuous"},0x40000},
+	{{"n1"},16},//TODO: other prefixes! This is for bkchem, the other for hotkeys.xml!
+	{{"n2"},32},
+	{{"n3"},48},
+	{{"n4"},64},
 };
 int CDXML_type_max=sizeof(CDXML_type)/sizeof(CDXML_type[0]);
 bienum CDXML_attribute[]={

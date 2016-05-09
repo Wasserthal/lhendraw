@@ -677,6 +677,7 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,char hatches)
 					case 2 : sprintf(istring,"%c",element[tlElement].name[2]);break;
 					case 3 : sprintf(istring,"%s",((*i_n_instance).protons-i_bond_sum<=0)?"":"H");break;
 					case 4 : if ((*i_n_instance).protons-i_bond_sum>1) sprintf(istring,"%i",(*i_n_instance).protons-i_bond_sum); else istring[0]=0;break;
+					case 5 :
 					istring[0]=0;break;
 				}
 				if ((atom_actual_node[index_in_buffer].labelside==1) && (actual>=3))

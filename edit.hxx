@@ -2111,9 +2111,9 @@ catalogized_command_funcdef(EQUILIBRIUM_ARROWS)
 	control_drawproperties.arrow_ArrowShaftSpacing=0;
 	if (strcmp(parameter,"1")==0)
 	{
-		SETITEMVARIABLES("ArrowheadType",lookup_bienum(CDXML_ArrowheadType,CDXML_ArrowheadType_max,to_value));
-		SETITEMVARIABLES("ArrowheadHead",lookup_bienum(CDXML_ArrowheadHead,CDXML_ArrowheadHead_max,control_drawproperties.arrow_ArrowheadHead));
-		SETITEMVARIABLES("ArrowheadTail",lookup_bienum(CDXML_ArrowheadTail,CDXML_ArrowheadTail_max,control_drawproperties.arrow_ArrowheadTail));
+		SETITEMVARIABLES("ArrowheadType",lookup_bienum(CAMBRIDGE_ArrowheadType,CAMBRIDGE_ArrowheadType_max,to_value));
+		SETITEMVARIABLES("ArrowheadHead",lookup_bienum(CAMBRIDGE_ArrowheadHead,CAMBRIDGE_ArrowheadHead_max,control_drawproperties.arrow_ArrowheadHead));
+		SETITEMVARIABLES("ArrowheadTail",lookup_bienum(CAMBRIDGE_ArrowheadTail,CAMBRIDGE_ArrowheadTail_max,control_drawproperties.arrow_ArrowheadTail));
 		SETITEMVARIABLES("ArrowShaftSpacing","0");
 	}
 	return 1;

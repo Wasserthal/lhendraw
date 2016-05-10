@@ -29,6 +29,7 @@ char resetmode_outline[][31]={{"%1$n"},{"%2$s=0;\n%1$n"},{"clear_%3$s(%2$s);\n%1
 //ATTENTION: the second matrix array size is critical: if it is too low, the strings are simply cut off!
 char * helpbufferpos;
 char datablockstring[255];
+char datablockstring2[255];
 int internalmode=0;//switches between multilist-contents and buffer-contents. only set once in a runtime of filestructure_maker.
 char linemode;//tells if the line is a buffer entry
 #define uniread \
@@ -93,11 +94,17 @@ int main(int argc,char * * argv)
 		directoryfile=fopen(argv[7],"a");
 	}
 	datablockstring[0]=0;
+	datablockstring2[0]=0;
 	if (argc>=6)
 	{
 		if (argv[5][0]!=0)
 		{
 			sprintf(datablockstring,"%s_",argv[5]);
+			strcpy(datablockstring2,datablockstring);
+		}
+		else
+		{
+			sprintf(datablockstring2,"CAMBRIDGE_");
 		}
 	}
 	helpbufferpos=&helpbuffer[0];
@@ -268,10 +275,10 @@ int main(int argc,char * * argv)
 		{
 			if (register_enum(properties[ilv1]))
 			{
-				fprintf(outfile,"#ifndef FUNCTIONDEFINED_AUTOMATICALLY_CDXMLREAD_ENUM_%s\n#define FUNCTIONDEFINED_AUTOMATICALLY_CDXMLREAD_ENUM_%s\nint __attribute__((sysv_abi))CDXMLREAD_ENUM_%s(char * input,void * output)\n{\n        \
-	*((_i32 *)output)=get_bienum%s(CDXML_%s,input,CDXML_%s_max);\n	return 0;\n}\n\
-int __attribute__((sysv_abi))CDXMLWRITE_ENUM_%s(char * input,void * output)\n{\n        \
-	return set_bienum%s(CDXML_%s,(FILE*)output,CDXML_%s_max,*((_i32 *)input));\n}\n#endif\n",properties[ilv1],properties[ilv1],properties[ilv1],(properties_type_nrs[ilv1]==7)?"_multi":"",properties[ilv1],properties[ilv1],properties[ilv1],(properties_type_nrs[ilv1]==7)?"_multi":"",properties[ilv1],properties[ilv1]);
+				fprintf(outfile,"#ifndef FUNCTIONDEFINED_AUTOMATICALLY_CDXMLREAD_ENUM_%s%s\n#define FUNCTIONDEFINED_AUTOMATICALLY_CDXMLREAD_ENUM_%s%s\nint __attribute__((sysv_abi))CDXMLREAD_ENUM_%s%s(char * input,void * output)\n{\n        \
+	*((_i32 *)output)=get_bienum%s(%s%s,input,%s%s_max);\n	return 0;\n}\n\
+int __attribute__((sysv_abi))CDXMLWRITE_ENUM_%s%s(char * input,void * output)\n{\n        \
+	return set_bienum%s(%s%s,(FILE*)output,%s%s_max,*((_i32 *)input));\n}\n#endif\n",datablockstring2,properties[ilv1],datablockstring2,properties[ilv1],datablockstring2,properties[ilv1],(properties_type_nrs[ilv1]==7)?"_multi":"",datablockstring2,properties[ilv1],datablockstring2,properties[ilv1],datablockstring2,properties[ilv1],(properties_type_nrs[ilv1]==7)?"_multi":"",datablockstring2,properties[ilv1],datablockstring2,properties[ilv1]);
 			}
 		}
 	}
@@ -299,7 +306,7 @@ int __attribute__((sysv_abi))CDXMLWRITE_ENUM_%s(char * input,void * output)\n{\n
 		else
 		if ((properties_type_nrs[ilv1]==5) || (properties_type_nrs[ilv1]==4) || (properties_type_nrs[ilv1]==7))
 		{
-			fprintf(thisfile,"{\"%s\",offsetof(%s%s_instance,%s),sizeof(%s),CDXMLREAD_ENUM_%s,CDXMLWRITE_ENUM_%s,CDXMLREAD_BIN__i32,CDXMLWRITE_BIN__i16},\n",properties[ilv1],datablockstring,name,properties[ilv1],properties_types[ilv1],properties[ilv1],properties[ilv1]);
+			fprintf(thisfile,"{\"%s\",offsetof(%s%s_instance,%s),sizeof(%s),CDXMLREAD_ENUM_%s%s,CDXMLWRITE_ENUM_%s%s,CDXMLREAD_BIN__i32,CDXMLWRITE_BIN__i16},\n",properties[ilv1],datablockstring,name,properties[ilv1],properties_types[ilv1],datablockstring2,properties[ilv1],datablockstring2,properties[ilv1]);
 		}
 		else
 		{

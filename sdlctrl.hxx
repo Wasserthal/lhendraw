@@ -2897,7 +2897,7 @@ int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int
 						char * tl_name=(char*)(*ipulloutlisting).variablename;
 						char tl_value[1024]="";
 						tl_name+=strlen(tl_name)-1;
-						edit_bienum_multi_string(CDXML_LineType,tl_value,CDXML_LineType_max,*tl_variable_p);
+						edit_bienum_multi_string(CAMBRIDGE_LineType,tl_value,CAMBRIDGE_LineType_max,*tl_variable_p);
 						while ((*tl_name!='_') && (*tl_name!='.')) tl_name--;
 						tl_name++;
 						undo_storcatch(~0,(*ipulloutlisting).name);

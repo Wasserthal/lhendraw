@@ -176,6 +176,7 @@ void janitor_listatomsbyid()//creates a list that lists atom indexes. This index
 	tl_max2=tl_max>>1;
 	if (tl_max2>=janitor_atomsbyid_count) { tl_max=tl_max2; goto ibitsearchback;}
 	int span=1;
+	int swapped=0;
 	while (janitor_listatomsbyid_recursion(tl_janitor_atomsbyid_other,tl_janitor_atomsbyid,span,tl_max))
 	{
 		_u32 * tl_swap;
@@ -183,6 +184,14 @@ void janitor_listatomsbyid()//creates a list that lists atom indexes. This index
 		tl_janitor_atomsbyid_other=tl_janitor_atomsbyid;
 		tl_janitor_atomsbyid=tl_swap;
 		span*=2;
+		swapped^=1;
+	}
+	if (swapped)
+	{
+		for (int ilv1=0;ilv1<janitor_atomsbyid_count;ilv1++)
+		{
+			janitor_atomsbyid[ilv1]=janitor_atomsbyid_other[ilv1];
+		}
 	}
 }
 int edit_getatombyid(_u32 id)//Works only after a recent call of janitor_listatomsbyid. recent means that the atoms may not be relevantly changed in between.

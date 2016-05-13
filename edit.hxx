@@ -317,10 +317,18 @@ void getatoms()//makes some preprocessing
 			{
 				diagnose_foundstart=1;
 			}
+			else
+			{
+				print("searched for End id=%i on bond %i\n",((*glob_b_multilist))[ilv1].E,ilv1);
+			}
 			tl_startatom=edit_getatombyid(((*glob_b_multilist))[ilv1].B);
 			if (tl_startatom>=0)
 			{
 				diagnose_foundend=1;
+			}
+			else
+			{
+				print("searched for Begin id=%i on bond %i\n",((*glob_b_multilist))[ilv1].B,ilv1);
 			}
 			if ((diagnose_foundstart==0) || (diagnose_foundend==0))
 			{

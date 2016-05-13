@@ -3597,6 +3597,7 @@ void control_normal()
 		{
 			case SDL_MOUSEMOTION:
 			{
+				if (control_menuopenmode==1) control_menuopenmode=0;
 				control_keyboardormousemode=1;
 				control_doubleclickenergy=0;
 				control_doublekeypressenergy=0;
@@ -3639,6 +3640,7 @@ void control_normal()
 			#ifdef SDL2
 			case SDL_MOUSEWHEEL:
 			{
+				if (control_menuopenmode==1) control_menuopenmode=0;
 				if (control_Event.wheel.y-control_Event.wheel.x!=0)
 				{
 					control_Event.button.type=SDL_MOUSEBUTTONDOWN;
@@ -3655,6 +3657,7 @@ void control_normal()
 			case SDL_MOUSEBUTTONDOWN:
 			{
 				SDL_MOUSEBUTTONDOWN_FROM_MOUSEWHEEL:;
+				if (control_menuopenmode==1) control_menuopenmode=0;
 				control_keyboardormousemode=1;
 				if ((control_mousestate & (~0x58))==0)
 				{
@@ -3757,6 +3760,7 @@ void control_normal()
 			}
 			case SDL_MOUSEBUTTONUP:
 			{
+				if (control_menuopenmode==1) control_menuopenmode=0;
 				switch (control_Event.button.button)
 				{
 					case SDL_BUTTON_RIGHT:
@@ -3832,6 +3836,7 @@ void control_normal()
 			case SDL_KEYDOWN://FALLTHROUGH
 			{
 				#ifndef NOFISCHERMENU
+				if (control_mousestate&(~8)) control_menuopenmode=0;
 				if (control_Event.key.keysym.sym!=SDLK_LALT)
 				{
 					if (control_menuopenmode<2) control_menuopenmode=0;
@@ -3853,30 +3858,30 @@ void control_normal()
 							{
 								if (searchreflectedstruct("menu")->number>0)searchreflectedstruct("menu")->number--;
 								issuemenuclick((AUTOSTRUCT_PULLOUTLISTING_*)searchreflectedstruct("menu")->pointer,searchreflectedstruct("menu")->count,searchreflectedstruct("menu")->number,0,SDL_BUTTON_LEFT,0,0);
-								break;
+								goto control_key_interpreted;
 							}
 							case SDLK_RIGHT:
 							{
 								if (searchreflectedstruct("menu")->number<searchreflectedstruct("menu")->count-1)searchreflectedstruct("menu")->number++;
 								issuemenuclick((AUTOSTRUCT_PULLOUTLISTING_*)searchreflectedstruct("menu")->pointer,searchreflectedstruct("menu")->count,searchreflectedstruct("menu")->number,0,SDL_BUTTON_LEFT,0,0);
-								break;
+								goto control_key_interpreted;
 							}
 							case SDLK_UP:
 							{
 								if (menu_dynamic_menu_handle.number>0)menu_dynamic_menu_handle.number--;
-								break;
+								goto control_key_interpreted;
 							}
 							case SDLK_DOWN:
 							{
 								if (menu_dynamic_menu_handle.number<menu_dynamic_menu_handle.count-1)menu_dynamic_menu_handle.number++;
-								break;
+								goto control_key_interpreted;
 							}
 							case SDLK_RETURN:
 							{
 								issuemenuclick(menu_dynamic_menu,menu_dynamic_menu_handle.count,menu_dynamic_menu[0].x,menu_dynamic_menu_handle.number,SDL_BUTTON_LEFT,0,0);
 								control_mousestate=0;
 								control_menuopenmode=0;
-								break;
+								goto control_key_interpreted;
 							}
 							default:
 							{

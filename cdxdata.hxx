@@ -411,6 +411,7 @@ int __attribute__((sysv_abi))CDXMLREAD_BIN__x8(char * input,void * output)
 }
 int __attribute__((sysv_abi))CDXMLREAD__i32(char * input,void * output)
 {
+	int factor=10;
 	int ilv1;
 	_i32 wert=0;
 	ilv1=0;
@@ -424,15 +425,27 @@ int __attribute__((sysv_abi))CDXMLREAD__i32(char * input,void * output)
 		ilv1++;
 		negative^=1;
 	}
+	if (input[ilv1]=='#')
+	{
+		ilv1++;
+		factor=16;
+	}
+	if (input[ilv1]=='-')
+	{
+		ilv1++;
+		negative^=1;
+	}
 	iback:
-	if (!((input[ilv1]<48) || (input[ilv1]>=58)))
+	if ((input[ilv1]>='A') && (input[ilv1]<='F')) input+='0'-'A';
+	if ((input[ilv1]>='a') && (input[ilv1]<='f')) input+='0'-'a';
+	if (!((input[ilv1]<48) || (input[ilv1]>=(48+factor))))
 	{
 		wert+=input[ilv1]-48;
 	}
 	ilv1++;
-	if ((input[ilv1]>=48) && (input[ilv1]<58))
+	if ((input[ilv1]>=48) && (input[ilv1]<(48+factor)))
 	{
-		wert*=10;
+		wert*=factor;
 		goto iback;
 	}
 	if (negative) wert=-wert;

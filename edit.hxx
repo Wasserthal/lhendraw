@@ -4175,6 +4175,7 @@ catalogized_command_funcdef(LOAD_TYPE)
 	}
 	if (strcmp(value,".cdml")==0)
 	{
+		bkchem_undiscriminate();
 		currentinstance=new(&(glob_BKCHEM_Total_Document_multilist->bufferlist()[0])) BKCHEM_Total_Document_instance;
 		glob_BKCHEM_Total_Document_multilist->filllevel=1;
 		bkchemids_count=0;

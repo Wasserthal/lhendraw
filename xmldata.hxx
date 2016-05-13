@@ -48,8 +48,8 @@ struct AUTOSTRUCT_cstyle_vtable
 	int properties_count;
 	superconstellation * contents;
 	int contents_count;
-	char * FullName;//Points into a static object-specific string.
-	char * Name;//Points into FullName.
+	const char * FullName;//Points into a static object-specific string.
+	const char * Name;//Points into FullName.
 
 };
 #define AUTOSTRUCT_GET_ROUTINE(AUTOSTRUCT_MACRONAME,COUNT_MACROPARAM) static superconstellation AUTOSTRUCT_MACRONAME[]; \
@@ -165,6 +165,7 @@ class basicmultilist
 		error("Programming error! You asked for the properties of a basic multilist!");
 	}
 	~basicmultilist(){};
+	void * dependants;//needed to point to contained objects from another list, while still being able to move items in this mulitilist (this in the sense of this-pointer)
 };
 class basicmultilistreference
 {
@@ -209,11 +210,11 @@ struct basic_instance_nested : public basic_basic_instance
 	basic_instance_nested(){master=NULL;};
 	~basic_instance_nested(){};
 };
+int bkchem_discriminated=1;
 template <class whatabout> class multilist : public basicmultilist
 {
 	public:
 	inline whatabout * bufferlist(){return (whatabout*)pointer;}
-	multilistreference<whatabout> * dependants;//needed to point to contained objects from another list, while still being able to move items in this mulitilist (this in the sense of this-pointer)
 	inline whatabout & operator[](int ino)
 	{
 		return *((whatabout*)(((char*)pointer)+(ino*itemsize)));
@@ -224,13 +225,17 @@ template <class whatabout> class multilist : public basicmultilist
 		filllevel=0;
 		ourcount=0;
 		maxid=0;
-		memory_alloc(&pointer,2);
 		itemsize=sizeof(whatabout);
 		_=&((*(whatabout*)0).INTERNAL_cstyle_vtable);
-		memory_alloc((char**)&dependants,1);
+		if ((strncmp(_->FullName,"BKCHEM_",strlen("BKCHEM_"))==0) && (bkchem_discriminated))
+		{
+			pointer=NULL;dependants=NULL;return;
+		}
+		memory_alloc(&pointer,2);
+		memory_alloc((char**)&(dependants),1);
 		return;
 	}
-	int ADD(whatabout * iwhatabout)//without dependants, use item buffer instead
+	int ADD(whatabout * iwhatabout)//without ((multilistreference<whatabout>*)dependants), use item buffer instead
 	{
 		if (filllevel<getmaxitems())
 		{
@@ -266,7 +271,7 @@ template <class whatabout> class multilist : public basicmultilist
 		}
 		for (int ilv1=mynumber+1;ilv1<ourcount;ilv1++)
 		{
-			dependants[ilv1].start_in_it++;
+			((multilistreference<whatabout>*)dependants)[ilv1].start_in_it++;
 		}
 		memcpy(bufferlist()+position,&input,sizeof(whatabout));
 		filllevel++;
@@ -278,15 +283,15 @@ template <class whatabout> class multilist : public basicmultilist
 		(*input).count_in_it=0;
 		if (ourcount<LHENDRAW_buffersize/sizeof(multilistreference<whatabout>))
 		{
-			memcpy(dependants+ourcount,input,sizeof(multilistreference<whatabout>));
-			dependants[ourcount].mynumber=ourcount;
+			memcpy(((multilistreference<whatabout>*)dependants)+ourcount,input,sizeof(multilistreference<whatabout>));
+			((multilistreference<whatabout>*)dependants)[ourcount].mynumber=ourcount;
 			ourcount++;
 		}
 		else
 		{
 			memory_overflow_hook();
 		}
-		return &(dependants[ourcount-1]);
+		return &(((multilistreference<whatabout>*)dependants)[ourcount-1]);
 	}
 	virtual int getproperties(const char * name,CDXMLREAD_functype * delegateoutput)
 	{

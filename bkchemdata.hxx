@@ -40,3 +40,15 @@ int __attribute__((sysv_abi))CDXMLREAD_BIN_bkchem_id(char * input,void * output)
 {
 	error("what is a BINARY cdml file that you want to read????");
 }
+void bkchem_undiscriminate()
+{
+	for (int ilv1=0;ilv1<multilist_count;ilv1++)
+	{
+		if (multilistlist[ilv1].instance->pointer==NULL)
+		{
+			basicmultilist * tl_multilist=multilistlist[ilv1].instance;
+			memory_alloc(&(tl_multilist->pointer),2);
+			memory_alloc((char**)&(tl_multilist->dependants),1);
+		}
+	}
+}

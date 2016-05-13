@@ -366,5 +366,39 @@ bienum BKCHEM_type[]={
 	{{"n2"},32},
 	{{"n3"},48},
 	{{"n4"},64},
+	{{"biradical"},0x101},
+	{{"electronpair"},0x102},
+	{{"radical"},0x103},
+	{{"equilibrium"},0x201},
+	{{"retro"},0x202},
+	{{"retro2"},0x203},
+	{{"electron"},0x204},
 };
 int BKCHEM_type_max=sizeof(BKCHEM_type)/sizeof(bienum);
+#define BKCHEM_type_biradical 0x101
+#define BKCHEM_type_electronpair 0x102
+#define BKCHEM_type_radical 0x103
+#define BKCHEM_type_equilibrium 0x201
+#define BKCHEM_type_retro 0x202
+#define BKCHEM_type_retro2 0x203
+#define BKCHEM_type_electron 0x204
+bienum BKCHEM_draw_circle[]={
+	{{"no"},0},
+	{{"yes"},1},
+};
+int BKCHEM_draw_circle_max=sizeof(BKCHEM_draw_circle)/sizeof(bienum);
+bienum BKCHEM_end[]={
+	{{"no"},0},
+	{{"yes"},1},
+};
+int BKCHEM_end_max=sizeof(BKCHEM_end)/sizeof(bienum);
+bienum BKCHEM_start[]={
+	{{"no"},0},
+	{{"yes"},1},
+};
+int BKCHEM_start_max=sizeof(BKCHEM_start)/sizeof(bienum);
+bienum BKCHEM_spline[]={
+	{{"no"},0},
+	{{"yes"},1},
+};
+int BKCHEM_spline_max=sizeof(BKCHEM_spline)/sizeof(bienum);

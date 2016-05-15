@@ -135,8 +135,7 @@ void BKCHEMCONV_arrow()
 					}
 					double tl_distance=iorthovector.x*ilast.x+iorthovector.y*ilast.y+iorthovector.z*ilast.z;
 					(tl_arrow_instance).AngularSize=-atan(tl_distance/tl_length)*2*180.0/Pi;
-					double tl_centerdistance=-tl_length*tl_length/tl_distance;
-					printf("CD:%f\n",tl_centerdistance);
+					double tl_centerdistance=-tl_length*tl_length/tl_distance*0.25;
 					double tl_radius=fabs(tl_distance)+fabs(tl_centerdistance);
 					(tl_arrow_instance).Center3D.x+=iorthovector.x*tl_centerdistance;
 					(tl_arrow_instance).Center3D.y+=iorthovector.y*tl_centerdistance;
@@ -174,8 +173,75 @@ void BKCHEMCONV_arrow()
 		else
 		{
 			curve_instance tl_curve_instance;
-			//TODO curve-arrows
-			continue;
+			tl_curve_instance.CurvePoints.count=0;
+			tl_curve_instance=curve_instance();
+			for (int ilv2=(*tl_BKCHEM_point_multilistreference).start_in_it;ilv2<(*tl_BKCHEM_point_multilistreference).start_in_it+(*tl_BKCHEM_point_multilistreference).count_in_it;ilv2++)
+			{
+				if (tl_curve_instance.CurvePoints.count<bezierpointmax-3)
+				{
+					tl_curve_instance.CurvePoints.a[tl_curve_instance.CurvePoints.count].x=(*glob_BKCHEM_point_multilist)[ilv2].x;
+					tl_curve_instance.CurvePoints.a[tl_curve_instance.CurvePoints.count].y=(*glob_BKCHEM_point_multilist)[ilv2].y;
+					tl_curve_instance.CurvePoints.a[tl_curve_instance.CurvePoints.count+1]=tl_curve_instance.CurvePoints.a[tl_curve_instance.CurvePoints.count];
+					tl_curve_instance.CurvePoints.a[tl_curve_instance.CurvePoints.count+2]=tl_curve_instance.CurvePoints.a[tl_curve_instance.CurvePoints.count];
+					tl_curve_instance.CurvePoints.count+=3;
+				}
+			}
+			int tl_headtype=2;
+			switch ((tl_BKCHEM_arrow_instance)->type)
+			{
+				case BKCHEM_type_equilibrium: tl_curve_instance.ArrowShaftSpacing=4; tl_curve_instance.ArrowheadType=1;tl_headtype=3;tl_curve_instance.ArrowheadHead=tl_headtype;tl_curve_instance.ArrowheadTail=tl_headtype;break;
+				case BKCHEM_type_retro2:
+				case BKCHEM_type_retro: tl_curve_instance.ArrowShaftSpacing=8; tl_curve_instance.ArrowheadType=3;break;
+				case BKCHEM_type_electron: tl_headtype=3;break;
+			}
+			if (tl_BKCHEM_arrow_instance->start==1)
+			{
+				tl_curve_instance.ArrowheadTail=tl_headtype;
+			}
+			if (tl_BKCHEM_arrow_instance->end==1)
+			{
+				tl_curve_instance.ArrowheadHead=tl_headtype;
+			}
+			if (tl_BKCHEM_arrow_instance->spline==1)
+			{
+				for (int ilv2=0;ilv2<tl_curve_instance.CurvePoints.count;ilv2+=3)
+				{
+					cdx_Point2D vector0,vector1,vector2;
+					cdx_Point2D current=tl_curve_instance.CurvePoints.a[ilv2+1];
+					vector1=current;
+					vector2=current;
+					if (ilv2>0)
+					{
+						vector1.x=-tl_curve_instance.CurvePoints.a[ilv2-2].x;
+						vector1.y=-tl_curve_instance.CurvePoints.a[ilv2-2].y;
+					}
+					if (ilv2<tl_curve_instance.CurvePoints.count-5)
+					{
+						vector2.x=tl_curve_instance.CurvePoints.a[ilv2+4].x;
+						vector2.y=tl_curve_instance.CurvePoints.a[ilv2+4].y;
+					}
+					vector0.x=vector1.x+vector2.x;
+					vector0.y=vector1.y+vector2.y;
+					vector1.x+=current.x;
+					vector1.y+=current.y;
+					vector2.x-=current.x;
+					vector2.y-=current.y;
+					double length0=sqrt(fsqr(vector0.x)+fsqr(vector0.y));
+					double length1=sqrt(fsqr(vector1.x)+fsqr(vector1.y))/4.0;
+					double length2=sqrt(fsqr(vector2.x)+fsqr(vector2.y))/4.0;
+					if (length0<0.1) length0=0.1;
+					if (length1<0.1) length1=0.1;
+					if (length2<0.1) length2=0.1;
+					vector0.x/=length0;
+					vector0.y/=length0;
+					tl_curve_instance.CurvePoints.a[ilv2].x-=vector0.x*length1;
+					tl_curve_instance.CurvePoints.a[ilv2].y-=vector0.y*length1;
+					tl_curve_instance.CurvePoints.a[ilv2+2].x+=vector0.x*length2;
+					tl_curve_instance.CurvePoints.a[ilv2+2].y+=vector0.y*length2;
+				}
+			}
+			tl_curve_instance.color=tl_BKCHEM_arrow_instance->color;
+			(*tl_curve_multilist).ADD(&tl_curve_instance);
 		}
 	}
 }

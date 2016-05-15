@@ -3,7 +3,7 @@ CDXML;colortable page fonttable color font ;4 BoundingBox s Comment : colortable
 page;group fragment t graphic arrow curve tlcplate ;0 id 4 BoundingBox 1 Width 1 Height 1 HeaderPosition 1 FooterPosition 1 PageOverlap ! PrintTrimMarks 0 HeightPages 0 WidthPages ! DrawingSpace ;
 group;group fragment t graphic arrow curve ;;
 fragment;n b t graphic arrow curve ;4 BoundingBox ;
-n;t ;! NodeType 0 Element 0 id 0 NumHydrogens 0 Charge 0 color 2 p 3 xyz 0 Z ! ExternalConnectionType ;
+n;t objecttag ;! NodeType 0 Element 0 id 0 NumHydrogens 0 Charge 0 color 2 p 3 xyz 0 Z ! ExternalConnectionType ;
 b;;0 id 0 color 0 B 0 E 0 Z ‼ Order ! Display ! Display2 ! DoublePosition ;
 t;s ;0 id 0 Z 4 BoundingBox ! Justification ! LabelAlignment 0 WordWrapWidth 0 color 2 p 3 xyz 0 relN 0 RotationAngle : s ;
 s;;0 color 0 font 0 face 1 size 0 PCTEXTcounter S PCTEXT ;
@@ -21,3 +21,4 @@ tlclane;tlcspot ;0 id ;
 tlcspot;;0 id 0 color 1 Rf 0 CurveType ;
 LENHACK_ANNOTATION;;0 IgnoreTextboxes ;
 moleculefill;;0 clockwise 0 Z 4 BoundingBox T Points 0 RGB ;
+objecttag;t ;;

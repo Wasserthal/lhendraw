@@ -102,6 +102,7 @@ bienum CDXML_objectcodes_List[]={
 {"ReactionScheme",0x800D},
 {"ReactionStep",0x800E},
 {"Spectrum",0x8010},
+{"objecttag",0x8011},
 {"tlcplate",0x801D},
 {"tlclane",0x801E},
 {"tlcspot",0x801F},

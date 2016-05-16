@@ -200,8 +200,15 @@ void input_fsm(FILE* infile)
 		case 2:
 			if (sentenumeric(ichar))
 			{
-				tagnamestring[tagnamestring_length]=ichar;
-				tagnamestring_length++;
+				if (tagnamestring_length<LHENDRAW_buffersize-2)
+				{
+					tagnamestring[tagnamestring_length]=ichar;
+					tagnamestring_length++;
+				}
+				else
+				{
+					memory_overflow_hook();
+				}
 				break;
 			}
 			else
@@ -277,7 +284,14 @@ void input_fsm(FILE* infile)
 			}
 			if (!spaciatic(ichar))
 			{
-				parameterstring[parameterstring_length++]=ichar;
+				if (parameterstring_length<LHENDRAW_buffersize-1)
+				{
+					parameterstring[parameterstring_length++]=ichar;
+				}
+				else
+				{
+					memory_overflow_hook();
+				}
 			}
 		break;
 		case 8:
@@ -293,6 +307,7 @@ void input_fsm(FILE* infile)
 			}
 			else
 			{
+				CHECKLENGTHRESTRICTION(1);
 				paramvaluestring[paramvaluestring_length++]=ichar;
 			}
 		break;
@@ -367,8 +382,14 @@ void input_fsm(FILE* infile)
 			}
 			else
 			{
-				CHECKLENGTHRESTRICTION(1);
-				parameterstring[parameterstring_length++]=ichar;
+				if (parameterstring_length<LHENDRAW_buffersize-1)
+				{
+					parameterstring[parameterstring_length++]=ichar;
+				}
+				else
+				{
+					memory_overflow_hook();
+				}
 			}
 		break;
 		default:

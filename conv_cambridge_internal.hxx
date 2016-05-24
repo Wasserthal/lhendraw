@@ -619,6 +619,10 @@ void CAMBRIDGECONV_tlcplate()
 		CAMBRIDGECONV_EXISTSTHEN(tlcplate,TopRight);
 		CAMBRIDGECONV_EXISTSTHEN(tlcplate,BottomLeft);
 		CAMBRIDGECONV_EXISTSTHEN(tlcplate,BottomRight);
+		tl_tlcplate_instance.OriginFraction=0.1;
+		tl_tlcplate_instance.SolventFrontFraction=0.1;
+		CAMBRIDGECONV_EXISTSTHEN(tlcplate,OriginFraction);
+		CAMBRIDGECONV_EXISTSTHEN(tlcplate,SolventFrontFraction);
 		(*tl_tlcplate_multilist).ADD(&tl_tlcplate_instance);
 		for (int ilv2=(*((*tl_CAMBRIDGE_tlcplate_instance).tlclane)).start_in_it;ilv2<(*((*tl_CAMBRIDGE_tlcplate_instance).tlclane)).start_in_it+(*((*tl_CAMBRIDGE_tlcplate_instance).tlclane)).count_in_it;ilv2++)
 		{

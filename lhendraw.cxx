@@ -237,6 +237,11 @@ int main(int argc,char * * argv)
 	{0xFFFFFFFF,0x0,0x0,0x0,0x0,0x0,0x0,0xFFFFFFFF}};tl_clickabilitymatrix;});
 	control_clickabilitymatrixes[1]=({clickabilitymatrix_ tl_clickabilitymatrix={2,0,0,
 	{0xFFFFFFFF,0x0,0x0,0x0,0x0,0x0,0x0,0xFFFFFFFF}};tl_clickabilitymatrix;});
+	for (int ilv1=21;ilv1<=27;ilv1++)
+	{
+		control_clickabilitymatrixes[ilv1]=({clickabilitymatrix_ tl_clickabilitymatrix={2,0,0,
+		{0xFFFFFFFF,0x200,0x200,0x200,0x200,0x200,0x200,0xFFFFFFFF}};tl_clickabilitymatrix;});
+	}
 	conv_config_internalconfig();
 	FILE_NEW(NULL,NULL);
 	if (setjmp(debug_crashhandler)>0)

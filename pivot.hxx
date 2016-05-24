@@ -104,6 +104,7 @@ void get_selection_pivot()
 	}
 	for (int ilv1=2;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
 	{
+		intl follower3=0;
 		internalpointcount=retrieveprops_basic(1,ilv1);
 		icompare=1<<ilv1;
 		int isize= STRUCTURE_OBJECTTYPE_List[ilv1].size;
@@ -118,12 +119,17 @@ void get_selection_pivot()
 				iAllofthem=((selection_currentselection[ilv2]) & icompare)>0;
 				for (int ilv3=1-(internalpointcount==0)*1;retrievepoints_basic(((basic_instance*)(ibufferpos+isize*ilv2)),&tl_x,&tl_y,&tl_z,ilv3,ilv1)>0;ilv3++)
 				{
-					if ((selection_currentselection[ilv2*internalpointcount+ilv3-1] & (1<<(STRUCTURE_OBJECTTYPE_ListSize+ilv1))) || (iAllofthem))
+					if ((selection_currentselection[(internalpointcount>0)?(ilv2*internalpointcount+ilv3-1):(follower3)] & (1<<(STRUCTURE_OBJECTTYPE_ListSize+ilv1))) || (iAllofthem))
 					{
 						edit_pivot.x+=tl_x;
 						edit_pivot.y+=tl_y;
 						edit_pivot.z+=tl_z;
 						edit_pivot_counter++;
+					}
+					follower3++;
+					if (follower3>=selection_max)
+					{
+						memory_overflow_hook();
 					}
 				}
 			}
@@ -133,6 +139,9 @@ void get_selection_pivot()
 	edit_pivot.x/=edit_pivot_counter;
 	edit_pivot.y/=edit_pivot_counter;
 	edit_pivot.z/=edit_pivot_counter;
+	if (isnan(edit_pivot.x)) edit_pivot.x=0;
+	if (isnan(edit_pivot.y)) edit_pivot.y=0;
+	if (isnan(edit_pivot.z)) edit_pivot.z=0;
 }
 void applytransform_single(float matrix[3][3],cdx_Point3D * input,cdx_Point3D * output,cdx_Point3D * pivot)//input and output may be the same
 {

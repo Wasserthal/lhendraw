@@ -246,6 +246,7 @@ void gfx_expressbezier(float x1,float y1,float x2,float y2,float x3,float y3,flo
 	y4=((y4-SDL_scrolly)*SDL_zoomy);
 	float stepsbecausex=3.3*max(max(x1,x2),max(x3,x4))-min(min(x1,x2),min(x3,x4));
 	float stepsbecausey=3.3*max(max(y1,y2),max(y3,y4))-min(min(y1,y2),min(y3,y4));
+	if (isnan(stepsbecausex)||isnan(stepsbecausey)) return;
 	if (stepsbecausey>stepsbecausex) {stepsbecausex=stepsbecausey;}
 	for (int ilv2=0;ilv2<stepsbecausex;ilv2++)
 	{
@@ -1726,7 +1727,7 @@ void sdl_outit()
 }
 void svg_findaround();
 void getatoms();
-void gfx_controlprocedure(bool irestriction,char hatches);
+void gfx_controlprocedure(bool irestriction,char clickcollisioncheck);
 void gfx_output(int mode=0)
 {
 	framenumber++;
@@ -1759,15 +1760,7 @@ void gfx_output(int mode=0)
 	clock_gettime(clockid,&ts);
 	counter5-=ts.tv_nsec+1000000000*ts.tv_sec;
 	#endif
-	if (mode)
-	{
-		gfx_controlprocedure(0,2);
-	}
-	else
-	{
-		gfx_controlprocedure(0,1);
-		gfx_controlprocedure(0,0);
-	}
+	gfx_controlprocedure(0,mode);
 	#ifdef DEBUG
 	clock_gettime(clockid,&ts);
 	counter5+=ts.tv_nsec+1000000000*ts.tv_sec;

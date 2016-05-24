@@ -4,7 +4,7 @@ menuitem pullout_toolbox[]={
 "HAND",
 1,0,
 1,
-"Click-drag to move\n"
+"Click-drag to pan view\n"
 "RMB goes to origin\n",
 "",
 "","",
@@ -254,7 +254,7 @@ menuitem pullout_toolbox[]={
 },
 {0,9,
 78,//Picture
-"TLC Plates",
+"TLCPLATE",
 1,0,
 15,
 "Click-drag to make tlc plate\n",

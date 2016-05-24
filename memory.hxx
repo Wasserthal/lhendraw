@@ -197,3 +197,40 @@ void memory_overflow_hook()
 	error_code=1;
 	longjmp(memory_catch_overflow,1);
 }
+void memory_cyclicmotion(char * first,char * second,intl propertylength2)
+//Some kind of "deep magic" procedure that rotates a memory block in one step
+//It does this by putting any value swap-overwritten into the position where it belongs, swap-overwriting the next one until a cycle is complete. If the size of the total memory block and the shift have no common divisor, the order of memory transfer will be chaotic. Otherwise, a repeating chaotic transfer pattern will be applied multiple times with 1 byte distance. The detection of a loop occurs by noticing that the last value was at the same position as the first one.
+{
+	int propertylength;
+	int oldpos;
+	int nextpos;
+	int firstpos;
+	char started;
+	char swap=0;
+	char swap2=0;
+	int counter=0;
+	propertylength=second-first;
+	for (int ilv1=0;(ilv1<propertylength2)&&(ilv1<propertylength);ilv1++)
+	{
+		printf("%i---%i\n",ilv1,counter);
+		firstpos=(propertylength2<propertylength)?ilv1:(propertylength2+ilv1);
+		oldpos=firstpos;
+		swap='0';
+		started=0;
+		iback:;
+		if (oldpos<propertylength) nextpos=oldpos+propertylength2;else nextpos=oldpos-propertylength;
+		swap2=first[oldpos];
+		first[oldpos]=swap;
+		swap=swap2;
+		counter++;
+		if (counter>=propertylength+propertylength2+1) return;
+		switch (started)
+		{
+			case 0:firstpos=oldpos;started=1;break;
+			case 1:if (oldpos==firstpos) {counter-=1;goto loopdone;}break;
+		}
+		oldpos=nextpos;
+		goto iback;
+		loopdone:;
+	}
+}

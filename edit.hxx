@@ -1072,7 +1072,7 @@ inline int retrievepoints(tlcplate_instance * iinstance,float * ix,float * iy,fl
 				ilv1-=tl_pointcount;
 				cdx_tlcspot * itlcspot=((cdx_tlcspot*)TELESCOPE_getproperty_contents())+inumber-ilv1;
 				double tl_ix,tl_iy,tl_iz;
-				draw_getposintlcplate(&tl_ix,&tl_iy,iinstance,(currentlane+0.5)/((float)TELESCOPE_count_elements(1<<TELESCOPE_ELEMENTTYPE_tlclane)),(1-iinstance->SolventFrontFraction)*(*itlcspot).Rf+(1-iinstance->OriginFraction)*(1-(*itlcspot).Rf));
+				draw_getposintlcplate(&tl_ix,&tl_iy,iinstance,(currentlane+0.5)/((float)TELESCOPE_count_elements(1<<TELESCOPE_ELEMENTTYPE_tlclane)),(iinstance->SolventFrontFraction)*(*itlcspot).Rf+(1-iinstance->OriginFraction)*(1-(*itlcspot).Rf));
 				(*ix)=tl_ix;
 				(*iy)=tl_iy;
 				(*iz)=0;
@@ -1634,7 +1634,7 @@ inline int placepoints(tlcplate_instance * iinstance,float ix,float iy,float iz,
 				cdx_tlcspot * itlcspot=((cdx_tlcspot*)TELESCOPE_getproperty_contents())+inumber-ilv1;
 				double tl_ix,tl_iy,tl_iz;
 				double tl_ix2,tl_iy2,tl_iz2;
-				draw_getposintlcplate(&tl_ix,&tl_iy,iinstance,(currentlane+0.5)/((float)TELESCOPE_count_elements(1<<TELESCOPE_ELEMENTTYPE_tlclane)),(1-iinstance->SolventFrontFraction));
+				draw_getposintlcplate(&tl_ix,&tl_iy,iinstance,(currentlane+0.5)/((float)TELESCOPE_count_elements(1<<TELESCOPE_ELEMENTTYPE_tlclane)),(iinstance->SolventFrontFraction));
 				draw_getposintlcplate(&tl_ix2,&tl_iy2,iinstance,(currentlane+0.5)/((float)TELESCOPE_count_elements(1<<TELESCOPE_ELEMENTTYPE_tlclane)),(1-iinstance->OriginFraction));
 				double tl_ix3=ix-tl_ix2;
 				double tl_iy3=iy-tl_iy2;
@@ -1771,6 +1771,28 @@ _u32 clickfor(float ix,float iy,int objecttype,float iclickradius=constants_clic
 }
 #undef LOCALMACRO_1
 
+void edit_getposintlcplate_reversed(tlcplate_instance * itlcplateinstance,double coorsx,double coorsy,double * resultx,double * resulty)
+{
+	cdx_Point2D basisvector;
+	cdx_Point2D endvector;
+	cdx_Point2D starttoendvector;
+	basisvector.x=itlcplateinstance->TopRight.x-itlcplateinstance->TopLeft.x;
+	basisvector.y=itlcplateinstance->TopRight.y-itlcplateinstance->TopLeft.y;
+	endvector.x=itlcplateinstance->BottomRight.x-itlcplateinstance->BottomLeft.x;
+	endvector.y=itlcplateinstance->BottomRight.y-itlcplateinstance->BottomLeft.y;
+	starttoendvector.x=itlcplateinstance->BottomLeft.x-itlcplateinstance->TopLeft.x;
+	starttoendvector.y=itlcplateinstance->BottomLeft.y-itlcplateinstance->TopLeft.y;
+	double basisvector_length=sqrt(fsqr(basisvector.x)+fsqr(basisvector.y));basisvector.x/=basisvector_length;basisvector.y/=basisvector_length;
+	double endvector_length=sqrt(fsqr(endvector.x)+fsqr(endvector.y));endvector.x/=endvector_length;endvector.y/=endvector_length;
+	double starttoendvector_length=sqrt(fsqr(starttoendvector.x)+fsqr(starttoendvector.y));starttoendvector.x/=starttoendvector_length;starttoendvector.y/=starttoendvector_length;
+	coorsx-=itlcplateinstance->TopLeft.x;
+	coorsy-=itlcplateinstance->TopLeft.y;
+	double starttoendshare=(coorsx*starttoendvector.x+coorsy*starttoendvector.y)/starttoendvector_length;
+	double basisshare=(coorsx*basisvector.x+coorsy*basisvector.y)/basisvector_length;
+	double endshare=(coorsx*endvector.x+coorsy*endvector.y)/endvector_length;
+	*resultx=endshare*starttoendshare+basisshare*(1-starttoendshare);
+	*resulty=starttoendshare;
+}
 char edit_atommatch(n_instance * iinstance1,n_instance * iinstance2)
 {
 	if ((fsqr((*iinstance1).xyz.x-(*iinstance2).xyz.x)+fsqr((*iinstance1).xyz.y-(*iinstance2).xyz.y))<9)
@@ -1884,84 +1906,87 @@ basic_instance * getclicked(int imap,float clckx,float clcky,int * backtype=NULL
 							bestvalue=thisvalue;
 						}
 					}
-					if (internalpointcount>=0)
+					if (necessary & 2)
 					{
-						for (int ilv2=0;ilv2<internalpointcount;ilv2++)
+						if (internalpointcount>=0)
 						{
-							if ((selection_clickselection[ilv1*internalpointcount+ilv2] & (compare<<STRUCTURE_OBJECTTYPE_ListSize)) && (necessary & 2))
+							for (int ilv2=0;ilv2<internalpointcount;ilv2++)
 							{
-								retrievepoints_basic(tlinstance,&ix,&iy,&iz,ilv2+1,ilv0);
-								thisvalue=fsqr(ix-clckx)+fsqr(iy-clcky);
-								if (thisvalue<bestvalue)
+								if ((selection_clickselection[ilv1*internalpointcount+ilv2] & (compare<<STRUCTURE_OBJECTTYPE_ListSize)))
 								{
-									bestinstance=tlinstance;
-									if (backtype!=NULL)
-									{
-										*backtype=ilv0+STRUCTURE_OBJECTTYPE_ListSize;
-									}
-									if (backindex!=NULL)
-									{
-										*backindex=ilv1*internalpointcount+ilv2;
-									}
-									if (backvalue!=NULL)
-									{
-										*backvalue=thisvalue;
-									}
-									if (backsubnr!=NULL)
-									{
-										(*backsubnr)=ilv2+1;
-									}
-									bestvalue=thisvalue;
-								}
-							}
-						}
-					}
-					else
-					{
-						TELESCOPE_aggressobject(tlmultilist,ilv1);
-						int tl_backval;
-						int ilv2=0;
-						tl_backval=retrievepoints_basic(tlinstance,&ix,&iy,&iz,ilv2+1,ilv0);
-						while (tl_backval)
-						{
-							if (follower3<(LHENDRAW_buffersize/sizeof(selection_datatype)))
-							{
-								if (selection_clickselection[follower3] & (compare<<STRUCTURE_OBJECTTYPE_ListSize))
-								{
+									retrievepoints_basic(tlinstance,&ix,&iy,&iz,ilv2+1,ilv0);
 									thisvalue=fsqr(ix-clckx)+fsqr(iy-clcky);
 									if (thisvalue<bestvalue)
 									{
-										bestinstance=(basic_instance*)(tlmultilist->pointer+isize*ilv1);
+										bestinstance=tlinstance;
 										if (backtype!=NULL)
 										{
 											*backtype=ilv0+STRUCTURE_OBJECTTYPE_ListSize;
 										}
 										if (backindex!=NULL)
 										{
-											*backindex=follower3;
-										}
-										if (backsub!=NULL)
-										{
-											*backsub=(basic_instance*)TELESCOPE_getproperty();//Note that TELESCOPE_tempval gets set by retrievepoints_basic!
-										}
-										if (backsubnr!=NULL)
-										{
-											(*backsubnr)=ilv2+1;
+											*backindex=ilv1*internalpointcount+ilv2;
 										}
 										if (backvalue!=NULL)
 										{
 											*backvalue=thisvalue;
 										}
+										if (backsubnr!=NULL)
+										{
+											(*backsubnr)=ilv2+1;
+										}
 										bestvalue=thisvalue;
 									}
 								}
-								follower3++;
-								ilv2++;
-								tl_backval=retrievepoints_basic(tlinstance,&ix,&iy,&iz,ilv2+1,ilv0);
 							}
-							else
+						}
+						else
+						{
+							TELESCOPE_aggressobject(tlmultilist,ilv1);
+							int tl_backval;
+							int ilv2=0;
+							tl_backval=retrievepoints_basic(tlinstance,&ix,&iy,&iz,ilv2+1,ilv0);
+							while (tl_backval)
 							{
-								memory_overflow_hook();
+								if (follower3<(LHENDRAW_buffersize/sizeof(selection_datatype)))
+								{
+									if (selection_clickselection[follower3] & (compare<<STRUCTURE_OBJECTTYPE_ListSize))
+									{
+										thisvalue=fsqr(ix-clckx)+fsqr(iy-clcky);
+										if (thisvalue<bestvalue)
+										{
+											bestinstance=(basic_instance*)(tlmultilist->pointer+isize*ilv1);
+											if (backtype!=NULL)
+											{
+												*backtype=ilv0+STRUCTURE_OBJECTTYPE_ListSize;
+											}
+											if (backindex!=NULL)
+											{
+												*backindex=follower3;
+											}
+											if (backsub!=NULL)
+											{
+												*backsub=(basic_instance*)TELESCOPE_getproperty();//Note that TELESCOPE_tempval gets set by retrievepoints_basic!
+											}
+											if (backsubnr!=NULL)
+											{
+												(*backsubnr)=ilv2+1;
+											}
+											if (backvalue!=NULL)
+											{
+												*backvalue=thisvalue;
+											}
+											bestvalue=thisvalue;
+										}
+									}
+									follower3++;
+									ilv2++;
+									tl_backval=retrievepoints_basic(tlinstance,&ix,&iy,&iz,ilv2+1,ilv0);
+								}
+								else
+								{
+									memory_overflow_hook();
+								}
 							}
 						}
 					}
@@ -2047,7 +2072,7 @@ tlcplate_instance * edit_summontlcplate(int * nr=NULL)
 		(*tlinstance).LineType=control_drawproperties.LineType;
 		((*glob_tlcplate_multilist).filllevel)++;
 		(*tlinstance).OriginFraction=0.1;
-		(*tlinstance).SolventFrontFraction=0.9;
+		(*tlinstance).SolventFrontFraction=0.1;
 		cdx_tlcspot itlcspot;
 		tlclane_instance tl_tlclane_instance;
 		TELESCOPE_aggressobject(glob_tlcplate_multilist,tl_nr);
@@ -3691,7 +3716,7 @@ int save_image(FILE * ifile,const char * value)
 	gfx_restore_bufferset(&gfx_old_bufferset);
 	return 1;
 }
-void ps_controlprocedure(bool irestriction,char hatches);
+void ps_controlprocedure(bool irestriction,char clickcollisioncheck);
 int save_postscript(FILE * ifile,const char * value)
 {
 	outfile=ifile;
@@ -3704,7 +3729,6 @@ int save_postscript(FILE * ifile,const char * value)
 	SVG_currentfringex=((unsigned int)-1)>>1;
 	SVG_currentfringey=((unsigned int)-1)>>1;
 	initZlist();
-	ps_controlprocedure(0,1);
 	ps_controlprocedure(0,0);
 	fprintf(ifile,"showpage\n");
 	fclose(ifile);
@@ -5813,9 +5837,9 @@ int edit_flexicopy(int undostep_no,multilist<n_instance> * n_target,multilist<b_
 			ibufferpos=(char*)((*tlmultilist).pointer);
 			ioldbufferpos=undo_retrievehandle(undostep_no,ilv1)->buffer;
 			cdx_Point2D * tlpoint2d;
-			for (int ilv2=0;ilv2<(*tlmultilist).filllevel;ilv2++)
+			for (int ilv2=0;ilv2<(*tloldmultilist).filllevel;ilv2++)
 			{
-				if ((*((basic_instance*)(ibufferpos+isize*ilv2))).exist)
+				if ((*((basic_instance*)(ioldbufferpos+isize*ilv2))).exist)
 				{
 					if ((selection_currentselection[ilv2]) & icompare)
 					{

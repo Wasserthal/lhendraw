@@ -207,12 +207,12 @@ int TELESCOPE_searchthroughobject_multi(_u32 tag)
 	if (TELESCOPE_verify_objectpresent())
 	{
 		TELESCOPE_tempvar.inside_TELESCOPE=1;
-		ilength=(*((TELESCOPE*)((*TELESCOPE_tempvar.buffer).buffer+TELESCOPE_tempvar.pos))).length-sizeof(TELESCOPE);
+		ilength=(*((TELESCOPE*)((*TELESCOPE_tempvar.buffer).buffer+TELESCOPE_tempvar.pos))).length;
 		TELESCOPE_tempvar.subpos=sizeof(TELESCOPE);
 		while (TELESCOPE_tempvar.subpos<ilength)
 		{
 			TELESCOPE_element * iTELESCOPE_element=(TELESCOPE_element*)((*(TELESCOPE_tempvar.buffer)).buffer+TELESCOPE_tempvar.pos+TELESCOPE_tempvar.subpos);
-			if (tag & (1<<(*iTELESCOPE_element).type)) {TELESCOPE_tempvar.inside_TELESCOPE_element=1;TELESCOPE_tempvar.subpos2=TELESCOPE_tempvar.subpos2=0;return 1;};
+			if (tag & (1<<(*iTELESCOPE_element).type)) {TELESCOPE_tempvar.inside_TELESCOPE_element=1;TELESCOPE_tempvar.subpos2=0;return 1;};
 			TELESCOPE_tempvar.subpos+=(*iTELESCOPE_element).length;
 			TELESCOPE_tempvar.subpos2=TELESCOPE_tempvar.subpos;
 		}
@@ -241,6 +241,7 @@ int TELESCOPE_buffercheck(basicmultilist * imultilist)
 	{
 		TELESCOPE_debugvar.inside_TELESCOPE=1;
 		ilength=(*((TELESCOPE*)((*TELESCOPE_debugvar.buffer).buffer+TELESCOPE_debugvar.pos))).length;
+		print("POS:%i\n",TELESCOPE_debugvar.pos);
 		TELESCOPE_debugvar.subpos=sizeof(TELESCOPE);
 		if (ilength<=sizeof(TELESCOPE))
 		{
@@ -255,14 +256,28 @@ int TELESCOPE_buffercheck(basicmultilist * imultilist)
 	if (backval & 1)
 	{
 		TELESCOPE_element * iTELESCOPE_element;
+		print("SUBPOS:%i\n",TELESCOPE_debugvar.subpos);
 		while (TELESCOPE_debugvar.subpos<ilength)
 		{
+			if (ilength-TELESCOPE_debugvar.subpos<sizeof(TELESCOPE_element))
+			{
+				error("TELESCOPE cropped: only %i left",ilength-TELESCOPE_debugvar.subpos);
+			}
+			printf("left:%i.\n",ilength-TELESCOPE_debugvar.subpos);
 			iTELESCOPE_element=(TELESCOPE_element*)((*(TELESCOPE_debugvar.buffer)).buffer+TELESCOPE_debugvar.pos+TELESCOPE_debugvar.subpos);
 			if (((*iTELESCOPE_element).type<0) || ((*iTELESCOPE_element).type>=TELESCOPE_ELEMENTTYPE_ListSize))
 			{
 				error("TELESCOPE bad element type%i",(*iTELESCOPE_element).type);
 			}
-			print("%s",((*(TELESCOPE_debugvar.buffer)).buffer+TELESCOPE_debugvar.pos+TELESCOPE_debugvar.subpos)+TELESCOPE_ELEMENTTYPE_List[(*iTELESCOPE_element).type].size);
+			print(" T:%i,L:%i,", (*iTELESCOPE_element).type,(*iTELESCOPE_element).length);
+			if ((*iTELESCOPE_element).type!=11)
+			{
+				print("%s",((*(TELESCOPE_debugvar.buffer)).buffer+TELESCOPE_debugvar.pos+TELESCOPE_debugvar.subpos)+TELESCOPE_ELEMENTTYPE_List[(*iTELESCOPE_element).type].size);
+			}
+			else
+			{
+				print("%f",*(float*)(((*(TELESCOPE_debugvar.buffer)).buffer+TELESCOPE_debugvar.pos+TELESCOPE_debugvar.subpos)+TELESCOPE_ELEMENTTYPE_List[(*iTELESCOPE_element).type].size));
+			}
 			print(" %i",(int)((*iTELESCOPE_element).length-TELESCOPE_ELEMENTTYPE_List[(*iTELESCOPE_element).type].size));
 			TELESCOPE_debugvar.subpos+=(*iTELESCOPE_element).length;
 			TELESCOPE_debugvar.subpos2=TELESCOPE_debugvar.subpos;

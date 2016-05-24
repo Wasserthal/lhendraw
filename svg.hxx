@@ -262,7 +262,7 @@ int svg_text_rewind(const _u8 * sizestring,int length,int imode)
 	svg_text_buffer_count++;
 	return 1;
 }
-void svg_controlprocedure(bool irestriction,char hatches);
+void svg_controlprocedure(bool irestriction,char clickcollisioncheck);
 int svg_main(FILE * ifile)
 {
 	svg_findaround();
@@ -281,7 +281,6 @@ int svg_main(FILE * ifile)
 		LENNARD_HACK_killtext();
 	}
 	#endif
-	svg_controlprocedure(0,1);
 	svg_controlprocedure(0,0);
 	svg_tail();
 	return 1;

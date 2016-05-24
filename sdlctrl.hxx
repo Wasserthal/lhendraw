@@ -19,10 +19,10 @@ int control_firstmenux,control_firstmenuy;
 int control_lastmenux,control_lastmenuy;
 int control_mousestate=0;//0: inactive; 0x1: from tool, mouseclick; 0x2: from special tool, keyboard 0x4: on menu, dragging 0x8: on button_function dependent menu, popup 0x10 popup-menu or PSE, multiple levels 0x20 dragging menuitem 0x40: text editing 0x80 menu-item text-editing
 int control_toolaction=0;//1: move 2: move selection 3: tool specific
-int control_tool=2;//1: Hand 2: 2coordinate Selection 3: Lasso, no matter which 4: Shift tool 5: Magnifying glass 6: Element draw 7: chemdraw draw 8: eraser 9: Arrows 10: attributes 11: text tool 12: curve(bezier) 13: image 14: spectrum 15: tlc plate/gel plate 16: graphic 17: aromatic ring tool 18: Arrow_skip 19: Arrow_situp 20: brackets
+int control_tool=2;//1: Hand 2: 2coordinate Selection 3: Lasso, no matter which 4: Shift tool 5: Magnifying glass 6: Element draw 7: chemdraw draw 8: eraser 9: Arrows 10: attributes 11: text tool 12: curve(bezier) 13: image 14: spectrum 15: tlc plate/gel plate 16: graphic 17: aromatic ring tool 18: Arrow_skip 19: Arrow_situp 20: brackets 21: TLCPLATE ADD SPOT 22: TLCPLATE DEL SPOT 23: TLCPLATE ADD LANE 24: TLCPLATE DEL LANE 25: TLCPLATE MOVE LANE 26: TLCPLATE MOVE STARTLINE OR ENDLINE 27: change shape of TLC PLATE
 int control_menumode=0;//1: shliderhorz, 2: slidervert 3: colorchooser
 AUTOSTRUCT_PULLOUTLISTING_ * control_menuitem=NULL;
-#define control_toolcount 21
+#define control_toolcount 28
 int control_keycombotool=0;//as above, but only valid if (mousestate & 2)
 _i32 control_toolstartkeysym;
 int control_lastinterpret=-1;
@@ -62,6 +62,8 @@ int control_manipulatedsubno;
 #ifndef NOFISCHERMENU
 int control_menuopenmode=0;
 #endif
+int control_current_tlcplate_lane=0;
+tlclane_instance * control_current_tlclane_instance=0;
 #define KEYDEPENDENTSELECTION \
 {\
 	__label__ tl_found;\
@@ -916,6 +918,15 @@ int issueclick(int iposx,int iposy)
 	}
 	switch (control_tool)
 	{
+		case 1:
+		{
+			if (control_lastmousebutton==SDL_BUTTON_RIGHT)
+			{
+				SDL_scrollx=0;
+				SDL_scrolly=0;
+			}
+			break;
+		}
 		case 2:
 		{
 			if (control_lastmousebutton==SDL_BUTTON_LEFT)
@@ -939,7 +950,7 @@ int issueclick(int iposx,int iposy)
 					else
 					{
 						try_subpoint:;
-						control_manipulatedinstance=getclicked(~0,control_coorsx,control_coorsy,&backtype,&backindex);
+						control_manipulatedinstance=getclicked(~0,control_coorsx,control_coorsy,&backtype,&backindex);//TODO Urgent: backindex used wrongly
 						if (control_manipulatedinstance!=NULL)
 						{
 							goto twopointselection_wantthem;
@@ -1010,7 +1021,7 @@ int issueclick(int iposx,int iposy)
 					}
 					else
 					{
-						control_manipulatedinstance=getclicked(~0,control_coorsx,control_coorsy,&backtype,&backindex);
+						control_manipulatedinstance=getclicked(~0,control_coorsx,control_coorsy,&backtype,&backindex);//TODO Urgent: getclicked backindex used wrongly
 						if (control_manipulatedinstance!=NULL)
 						{
 							goto lasso_wantthem;
@@ -1778,6 +1789,128 @@ int issueclick(int iposx,int iposy)
 			}
 			else
 			{
+				control_mousestate=0;
+				return 0;
+			}
+			break;
+		}
+		case 21:
+		case 22:
+		case 23:
+		case 24:
+		case 25:
+		{
+			double tl_backx,tl_backy;
+			int ibacknr=-1;
+			control_current_tlcplate_lane=0;
+			control_manipulatedinstance=getclicked((1<<STRUCTURE_OBJECTTYPE_tlcplate),control_coorsx,control_coorsy,NULL,&ibacknr);
+			if (control_manipulatedinstance==NULL) goto fail21;
+			edit_getposintlcplate_reversed((tlcplate_instance*)control_manipulatedinstance,control_coorsx,control_coorsy,&tl_backx,&tl_backy);
+			if (TELESCOPE_aggressobject(glob_tlcplate_multilist,ibacknr)>0)
+			{
+				int tl_lane_count=TELESCOPE_count_elements(1<<TELESCOPE_ELEMENTTYPE_tlclane);
+				if (tl_lane_count>=1)
+				{
+					control_current_tlcplate_lane=trunc(tl_backx*tl_lane_count);
+					if ((control_current_tlcplate_lane<0) || (control_current_tlcplate_lane>=tl_lane_count)) goto fail21;
+					TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_tlclane);
+					for (int ilv1=0;ilv1<control_current_tlcplate_lane;ilv1++)
+					{
+						TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_tlclane);
+					}
+					control_current_tlclane_instance=(tlclane_instance*)TELESCOPE_getproperty();
+					switch (control_tool)
+					{
+						case 21:
+						{
+							cdx_tlcspot tl_tlcspot;
+							tl_tlcspot.Rf=1-tl_backy;
+							tl_tlcspot.Rf-=((tlcplate_instance*)control_manipulatedinstance)->OriginFraction;
+							tl_tlcspot.Rf/=1-((tlcplate_instance*)control_manipulatedinstance)->OriginFraction-((tlcplate_instance*)control_manipulatedinstance)->SolventFrontFraction;
+							tl_tlcspot.color=control_drawproperties.color;
+							tl_tlcspot.CurveType=0;
+							TELESCOPE_buffercheck(glob_tlcplate_multilist);
+							TELESCOPE_insertintoproperties_offset((char*)&tl_tlcspot,sizeof(cdx_tlcspot),control_current_tlclane_instance->length-sizeof(tlclane_instance));
+							control_mousestate=0;
+							TELESCOPE_buffercheck(glob_tlcplate_multilist);
+							return 1;
+							break;
+						}
+						case 22:
+						{
+							cdx_tlcspot tl_tlcspot;
+							double Rf;
+							Rf=1-tl_backy;
+							Rf-=((tlcplate_instance*)control_manipulatedinstance)->OriginFraction;
+							Rf/=1-((tlcplate_instance*)control_manipulatedinstance)->OriginFraction-((tlcplate_instance*)control_manipulatedinstance)->SolventFrontFraction;
+							double bestdist=2e127;
+							int besttlcspot=-1;
+							for (ilv1=0;ilv1<(control_current_tlclane_instance->length-sizeof(control_current_tlclane_instance))/sizeof(cdx_tlcspot);ilv1++)
+							{
+								cdx_tlcspot * tl_tlcspot=(cdx_tlcspot*)(((char*)control_current_tlclane_instance)+sizeof(tlclane_instance)+ilv1*sizeof(cdx_tlcspot));
+								double currentdist=fabs(Rf-tl_tlcspot->Rf);
+								if (currentdist<bestdist)
+								{
+									bestdist=currentdist;
+									besttlcspot=ilv1;
+								}
+							}
+							if (besttlcspot!=-1)
+							{
+								TELESCOPE_shrink(besttlcspot*sizeof(cdx_tlcspot),sizeof(cdx_tlcspot));
+							}
+							control_mousestate=0;
+							return 1;
+							break;
+						}
+						case 23:
+						{
+							TELESCOPE_add(TELESCOPE_ELEMENTTYPE_tlclane,NULL,0);
+							control_mousestate=0;
+							return 1;
+							break;
+						}
+						case 24:
+						{
+							TELESCOPE_clear_item();
+							control_mousestate=0;
+							return 1;
+							break;
+						}
+					}
+				}
+				else
+				{
+					if (TELESCOPE_aggressobject(glob_tlcplate_multilist,ibacknr)>=0)
+					{
+						if (control_tool==23)
+						{
+							TELESCOPE_add(TELESCOPE_ELEMENTTYPE_tlclane,NULL,0);
+							(*(TELESCOPE_element*)TELESCOPE_getproperty()).type=TELESCOPE_ELEMENTTYPE_tlclane;
+							(*(TELESCOPE_element*)TELESCOPE_getproperty()).length=sizeof(TELESCOPE_element);
+							control_mousestate=0;
+							return 1;
+						}
+					}
+					goto fail21;
+				}
+			}
+			else
+			{
+				if (TELESCOPE_aggressobject(glob_tlcplate_multilist,ibacknr)>=0)
+				{
+					if (control_tool==23)
+					{
+						TELESCOPE_add(TELESCOPE_ELEMENTTYPE_tlclane,NULL,0);
+						(*(TELESCOPE_element*)TELESCOPE_getproperty()).type=TELESCOPE_ELEMENTTYPE_tlclane;
+						(*(TELESCOPE_element*)TELESCOPE_getproperty()).length=sizeof(TELESCOPE_element);
+						control_mousestate=0;
+							TELESCOPE_buffercheck(glob_tlcplate_multilist);
+							exit(1);
+						return 1;
+					}
+				}
+				fail21:;
 				control_mousestate=0;
 				return 0;
 			}
@@ -2684,6 +2817,56 @@ void issuerelease()
 				}
 			}
 			checkupinconsistencies();
+			break;
+		}
+		case 25:
+		{
+			double tl_backx,tl_backy;
+			int tl_tlclane_nr=0;
+			edit_getposintlcplate_reversed((tlcplate_instance*)control_manipulatedinstance,control_coorsx,control_coorsy,&tl_backx,&tl_backy);
+			if (TELESCOPE_aggressobject(glob_tlcplate_multilist,((tlcplate_instance*)control_manipulatedinstance)-glob_tlcplate_multilist->bufferlist())>0)
+			{
+				int tl_lane_count=TELESCOPE_count_elements(1<<TELESCOPE_ELEMENTTYPE_tlclane);
+				tlclane_instance * tl_tlclane_instance;
+				if (tl_lane_count>=2)
+				{
+					tl_tlclane_nr=trunc(tl_backx*tl_lane_count);
+					if ((tl_tlclane_nr<0) || (tl_tlclane_nr>=tl_lane_count)) goto fail21;
+					TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_tlclane);
+					for (int ilv1=0;ilv1<tl_tlclane_nr;ilv1++)
+					{
+						TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_tlclane);
+					}
+					tl_tlclane_instance=(tlclane_instance*)TELESCOPE_getproperty();
+				}
+				else goto fail21;
+				char * tl_first;
+				char * tl_second;
+				int propertylength2;
+				if (control_lastmousebutton==SDL_BUTTON_LEFT)
+				{
+					if (tl_tlclane_instance>control_current_tlclane_instance)
+					{
+						propertylength2=tl_tlclane_instance->length;
+						tl_first=(char*)control_current_tlclane_instance;
+						tl_second=tl_first+control_current_tlclane_instance->length;
+						propertylength2=((char*)tl_tlclane_instance)-tl_second+tl_tlclane_instance->length;
+					}
+					else
+					{
+						propertylength2=control_current_tlclane_instance->length;
+						tl_first=(char*)tl_tlclane_instance;
+						tl_second=(char*)control_current_tlclane_instance;
+					}
+					memory_cyclicmotion(tl_first,tl_second,propertylength2);
+				}
+			}
+			else
+			{
+				fail21:;
+				control_mousestate=0;
+				return;
+			}
 			break;
 		}
 	}

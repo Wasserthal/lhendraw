@@ -459,7 +459,6 @@ void svg_main2(const char * filename,int count,char * * args)
 			LENNARD_HACK_killtext();
 		}
 		#endif
-		svg_controlprocedure(1,1);
 		svg_controlprocedure(1,0);
 		#ifdef LENNARD_HACK
 		if ((count>1) && (!tlKLUDGEdontenumerate))

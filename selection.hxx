@@ -10,7 +10,7 @@ typedef struct clickabilitymatrix_
 //The actual object has number 0. Auxpoints are numbered with positive numbers, internal coordinate system data with negative numbers.
 //The selection bits from STRUCTURE_OBJECTTYPE_ListSize upwards list auxpoints, in a row for the same object
 clickabilitymatrix_ selection_clickabilitymatrix={2,0,0,
-{0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF}};
+{0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0x0,0xFFFFFFFF,0xFFFFFFFF}};
 void selection_clearselection(selection_ iselection)
 {
 	int tl_max=LHENDRAW_buffersize/sizeof(selection_datatype);

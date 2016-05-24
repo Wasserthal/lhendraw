@@ -643,8 +643,8 @@ void CONVCAMBRIDGE_tlcplate(CAMBRIDGE_page_instance * master)
 			(*tl_CAMBRIDGE_tlcplate_instance).TopRight=(*tl_tlcplate_instance).TopRight;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_tlcplate_instance,TopRight);
 			(*tl_CAMBRIDGE_tlcplate_instance).BottomLeft=(*tl_tlcplate_instance).BottomLeft;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_tlcplate_instance,BottomLeft);
 			(*tl_CAMBRIDGE_tlcplate_instance).BottomRight=(*tl_tlcplate_instance).BottomRight;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_tlcplate_instance,BottomRight);
-/*			(*tl_CAMBRIDGE_tlcplate_instance).OriginFraction=(*tl_tlcplate_instance).OriginFraction;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_tlcplate_instance,OriginFraction);
-			(*tl_CAMBRIDGE_tlcplate_instance).SolventFrontFraction=(*tl_tlcplate_instance).SolventFrontFraction;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_tlcplate_instance,SolventFrontFraction);*/
+			(*tl_CAMBRIDGE_tlcplate_instance).OriginFraction=(*tl_tlcplate_instance).OriginFraction;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_tlcplate_instance,OriginFraction);
+			(*tl_CAMBRIDGE_tlcplate_instance).SolventFrontFraction=(*tl_tlcplate_instance).SolventFrontFraction;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_tlcplate_instance,SolventFrontFraction);
 			TELESCOPE_aggressobject(tl_tlcplate_multilist,ilv1);
 			tl_backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_tlclane);
 			while (tl_backval>0)

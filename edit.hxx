@@ -1857,8 +1857,15 @@ n_instance * snapatom_short(float iposx,float iposy,_small * iatomnr=NULL,int id
 	}
 	return NULL;
 }
-
-basic_instance * getclicked(int imap,float clckx,float clcky,int * backtype=NULL,int * backindex=NULL,basic_instance ** backsub=NULL,float * backvalue=NULL,int * backsubnr=NULL)
+ struct edit_clickresult
+{
+	int backtype;
+	int backindex;
+	basic_instance * backsub;
+	float backdistance;
+	float backsubnr;
+}edit_clickresult;
+basic_instance * getclicked(int imap,float clckx,float clcky)
 {
 	basic_instance * bestinstance=NULL;
 	float bestvalue=0x2000000000;
@@ -1887,22 +1894,10 @@ basic_instance * getclicked(int imap,float clckx,float clcky,int * backtype=NULL
 						if (thisvalue<bestvalue)
 						{
 							bestinstance=tlinstance;
-							if (backtype!=NULL)
-							{
-								*backtype=ilv0;
-							}
-							if (backindex!=NULL)
-							{
-								*backindex=ilv1;
-							}
-							if (backsub!=NULL)
-							{
-								(*backsub)=NULL;
-							}
-							if (backsubnr!=NULL)
-							{
-								(*backsubnr)=0;
-							}
+							edit_clickresult.backtype=ilv0;
+							edit_clickresult.backindex=ilv1;
+							edit_clickresult.backsub=NULL;
+							edit_clickresult.backsubnr=0;
 							bestvalue=thisvalue;
 						}
 					}
@@ -1919,22 +1914,10 @@ basic_instance * getclicked(int imap,float clckx,float clcky,int * backtype=NULL
 									if (thisvalue<bestvalue)
 									{
 										bestinstance=tlinstance;
-										if (backtype!=NULL)
-										{
-											*backtype=ilv0+STRUCTURE_OBJECTTYPE_ListSize;
-										}
-										if (backindex!=NULL)
-										{
-											*backindex=ilv1*internalpointcount+ilv2;
-										}
-										if (backvalue!=NULL)
-										{
-											*backvalue=thisvalue;
-										}
-										if (backsubnr!=NULL)
-										{
-											(*backsubnr)=ilv2+1;
-										}
+										edit_clickresult.backtype=ilv0+STRUCTURE_OBJECTTYPE_ListSize;
+										edit_clickresult.backindex=ilv1;
+										edit_clickresult.backdistance=thisvalue;
+										edit_clickresult.backsubnr=ilv2+1;
 										bestvalue=thisvalue;
 									}
 								}
@@ -1956,26 +1939,11 @@ basic_instance * getclicked(int imap,float clckx,float clcky,int * backtype=NULL
 										if (thisvalue<bestvalue)
 										{
 											bestinstance=(basic_instance*)(tlmultilist->pointer+isize*ilv1);
-											if (backtype!=NULL)
-											{
-												*backtype=ilv0+STRUCTURE_OBJECTTYPE_ListSize;
-											}
-											if (backindex!=NULL)
-											{
-												*backindex=follower3;
-											}
-											if (backsub!=NULL)
-											{
-												*backsub=(basic_instance*)TELESCOPE_getproperty();//Note that TELESCOPE_tempval gets set by retrievepoints_basic!
-											}
-											if (backsubnr!=NULL)
-											{
-												(*backsubnr)=ilv2+1;
-											}
-											if (backvalue!=NULL)
-											{
-												*backvalue=thisvalue;
-											}
+											edit_clickresult.backtype=ilv0+STRUCTURE_OBJECTTYPE_ListSize;
+											edit_clickresult.backindex=ilv1;
+											edit_clickresult.backsub=(basic_instance*)TELESCOPE_getproperty();//Note that TELESCOPE_tempval gets set by retrievepoints_basic!
+											edit_clickresult.backsubnr=ilv2+1;
+											edit_clickresult.backdistance=thisvalue;
 											bestvalue=thisvalue;
 										}
 									}

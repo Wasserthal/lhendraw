@@ -432,8 +432,10 @@ int interpretkey(int listnr=-1)
 			clickforthem();
 			if (selection_clickselection_found)
 			{
-				if (getclicked((1<<STRUCTURE_OBJECTTYPE_ListSize)-1,control_coorsx,control_coorsy,&ihot_list,&ihot_instance))
+				if (getclicked((1<<STRUCTURE_OBJECTTYPE_ListSize)-1,control_coorsx,control_coorsy))
 				{
+					ihot_list=edit_clickresult.backtype;
+					ihot_instance=edit_clickresult.backindex;
 					i_selectedtypes=1<<ihot_list;
 					ihot=1;
 				}
@@ -556,7 +558,15 @@ int control_findhotatomfrommouse()
 {
 	selection_clearselection(selection_clickselection);
 	_u32 tlfound=clickfor((control_mousex-gfx_canvasminx)/SDL_zoomx+SDL_scrollx,(control_mousey-gfx_canvasminy)/SDL_zoomy+SDL_scrolly,STRUCTURE_OBJECTTYPE_n,constants_clickradius,1)>0;
-	return NULL!=getclicked(1<<STRUCTURE_OBJECTTYPE_n,(control_mousex-gfx_canvasminx)/SDL_zoomx+SDL_scrollx,(control_mousey-gfx_canvasminy)/SDL_zoomy+SDL_scrolly,NULL,&control_hotatom);
+	edit_clickresult.backindex=-1;
+	getclicked(1<<STRUCTURE_OBJECTTYPE_n,(control_mousex-gfx_canvasminx)/SDL_zoomx+SDL_scrollx,(control_mousey-gfx_canvasminy)/SDL_zoomy+SDL_scrolly);
+	if (edit_clickresult.backindex!=-1)
+	{
+		control_hotatom=edit_clickresult.backindex;
+		return 1;
+	}
+	return 0;
+
 }
 catalogized_command_funcdef(ISSUEDELETE)
 {
@@ -651,17 +661,16 @@ catalogized_command_funcdef(ISSUEDELETE)
 		{
 			if (control_keyboardormousemode==1) 
 			{
-				_i32 backtype,backindex;
 				if (control_findhotatomfrommouse())
 				{
 					goto foundhot;
 				}
 				clickforthem();
-				basic_instance * tl_instance=getclicked((1<<STRUCTURE_OBJECTTYPE_ListSize)-1,control_coorsx,control_coorsy,&backtype,&backindex);
+				basic_instance * tl_instance=getclicked((1<<STRUCTURE_OBJECTTYPE_ListSize)-1,control_coorsx,control_coorsy);
 				if (tl_instance)
 				{
-					basicmultilist * tlmultilist=findmultilist(STRUCTURE_OBJECTTYPE_List[backtype%STRUCTURE_OBJECTTYPE_ListSize].name);
-					TELESCOPE_aggressobject(tlmultilist,backindex);
+					basicmultilist * tlmultilist=findmultilist(STRUCTURE_OBJECTTYPE_List[edit_clickresult.backtype%STRUCTURE_OBJECTTYPE_ListSize].name);
+					TELESCOPE_aggressobject(tlmultilist,edit_clickresult.backindex);
 					TELESCOPE_clear();
 					tl_instance->exist=0;
 					goto successful;
@@ -939,18 +948,17 @@ int issueclick(int iposx,int iposy)
 					control_startx=control_coorsx;
 					control_starty=control_coorsy;
 					control_usingmousebutton=control_lastmousebutton;
-					int backtype,backindex;
-					float backdistance=2000000000;
-					control_manipulatedinstance=getclicked((1<<STRUCTURE_OBJECTTYPE_ListSize)-1,control_coorsx,control_coorsy,&backtype,&backindex,NULL,&backdistance);
+					edit_clickresult.backdistance=2000000000;
+					control_manipulatedinstance=getclicked((1<<STRUCTURE_OBJECTTYPE_ListSize)-1,control_coorsx,control_coorsy);
 					if (control_manipulatedinstance!=NULL)
 					{
-						if (backdistance*SDL_zoomx*SDL_zoomy>400) goto try_subpoint;
+						if (edit_clickresult.backdistance*SDL_zoomx*SDL_zoomy>400) goto try_subpoint;
 						goto twopointselection_wantthem;
 					}
 					else
 					{
 						try_subpoint:;
-						control_manipulatedinstance=getclicked(~0,control_coorsx,control_coorsy,&backtype,&backindex);//TODO Urgent: backindex used wrongly
+						control_manipulatedinstance=getclicked(~0,control_coorsx,control_coorsy);
 						if (control_manipulatedinstance!=NULL)
 						{
 							goto twopointselection_wantthem;
@@ -969,12 +977,12 @@ int issueclick(int iposx,int iposy)
 							}
 						}
 						selection_clearselection(selection_currentselection);
-						selection_currentselection_found=1<<backtype;
-						selection_currentselection[backindex]|=1<<backtype;
+						selection_currentselection_found=1<<edit_clickresult.backtype;
+						selection_currentselection[edit_clickresult.backindex]|=1<<edit_clickresult.backtype;
 						return 0;
 					}
 					KEYDEPENDENTSELECTION;
-					edit_judgeselection(backindex);
+					edit_judgeselection(edit_clickresult.backindex);
 					control_mousestate=0;
 					return 0;
 				}
@@ -1012,16 +1020,14 @@ int issueclick(int iposx,int iposy)
 					control_startx=control_coorsx;
 					control_starty=control_coorsy;
 					control_usingmousebutton=control_lastmousebutton;
-					int backtype,backindex;
-					control_manipulatedinstance=getclicked((1<<STRUCTURE_OBJECTTYPE_n),control_coorsx,control_coorsy);
-					control_manipulatedinstance=getclicked((1<<STRUCTURE_OBJECTTYPE_ListSize)-1,control_coorsx,control_coorsy,&backtype,&backindex);
+					control_manipulatedinstance=getclicked((1<<STRUCTURE_OBJECTTYPE_ListSize)-1,control_coorsx,control_coorsy);
 					if (control_manipulatedinstance!=NULL)
 					{
 						goto lasso_wantthem;
 					}
 					else
 					{
-						control_manipulatedinstance=getclicked(~0,control_coorsx,control_coorsy,&backtype,&backindex);//TODO Urgent: getclicked backindex used wrongly
+						control_manipulatedinstance=getclicked(~0,control_coorsx,control_coorsy);
 						if (control_manipulatedinstance!=NULL)
 						{
 							goto lasso_wantthem;
@@ -1040,12 +1046,12 @@ int issueclick(int iposx,int iposy)
 							}
 						}
 						selection_clearselection(selection_currentselection);
-						selection_currentselection_found=1<<backtype;
-						selection_currentselection[backindex]|=1<<backtype;
+						selection_currentselection_found=1<<edit_clickresult.backtype;
+						selection_currentselection[edit_clickresult.backindex]|=1<<edit_clickresult.backtype;
 						return 0;
 					}
 					KEYDEPENDENTSELECTION;
-					edit_judgeselection(backindex);
+					edit_judgeselection(edit_clickresult.backindex);
 					control_mousestate=0;
 					return 0;
 				}
@@ -1282,7 +1288,8 @@ int issueclick(int iposx,int iposy)
 				icompare=(1<<(STRUCTURE_OBJECTTYPE_n+STRUCTURE_OBJECTTYPE_ListSize));
 				if (selection_clickselection_found & icompare)
 				{
-					control_manipulatedinstance2=getclicked(icompare,control_coorsx,control_coorsy,NULL,NULL,&control_manipulatedinstance);
+					control_manipulatedinstance2=getclicked(icompare,control_coorsx,control_coorsy);
+					control_manipulatedinstance=edit_clickresult.backsub;
 					if (control_manipulatedinstance2!=NULL) goto ifertig;
 				}
 			}
@@ -1491,8 +1498,9 @@ int issueclick(int iposx,int iposy)
 			}
 			if (selection_clickselection_found & (1<<(STRUCTURE_OBJECTTYPE_curve+STRUCTURE_OBJECTTYPE_ListSize)))
 			{
-				int tl_subno=0;
-				curve_instance * tl_curve_instance=(curve_instance*)getclicked(1<<(STRUCTURE_OBJECTTYPE_curve+STRUCTURE_OBJECTTYPE_ListSize),control_coorsx,control_coorsy,NULL,NULL,NULL,NULL,&tl_subno);
+				edit_clickresult.backsubnr=0;
+				curve_instance * tl_curve_instance=(curve_instance*)getclicked(1<<(STRUCTURE_OBJECTTYPE_curve+STRUCTURE_OBJECTTYPE_ListSize),control_coorsx,control_coorsy);
+				edit_clickresult.backsubnr;
 				if (tl_curve_instance!=NULL)
 				{
 					selection_clearselection(selection_currentselection);
@@ -1501,8 +1509,8 @@ int issueclick(int iposx,int iposy)
 					selection_currentselection[inumber]|=1<<STRUCTURE_OBJECTTYPE_curve;
 					selection_currentselection_found|=1<<STRUCTURE_OBJECTTYPE_curve;
 					control_manipulatedinstance=tl_curve_instance;
-					control_manipulatedsubno=tl_subno-1;
-					if (tl_subno<2)
+					control_manipulatedsubno=edit_clickresult.backsubnr-1;
+					if (edit_clickresult.backsubnr<2)
 					{
 						REVERSEBEZIER("","");
 						control_mousestate=0;return 0;
@@ -1801,12 +1809,12 @@ int issueclick(int iposx,int iposy)
 		case 25:
 		{
 			double tl_backx,tl_backy;
-			int ibacknr=-1;
+			edit_clickresult.backindex=-1;
 			control_current_tlcplate_lane=0;
-			control_manipulatedinstance=getclicked((1<<STRUCTURE_OBJECTTYPE_tlcplate),control_coorsx,control_coorsy,NULL,&ibacknr);
+			control_manipulatedinstance=getclicked((1<<STRUCTURE_OBJECTTYPE_tlcplate),control_coorsx,control_coorsy);
 			if (control_manipulatedinstance==NULL) goto fail21;
 			edit_getposintlcplate_reversed((tlcplate_instance*)control_manipulatedinstance,control_coorsx,control_coorsy,&tl_backx,&tl_backy);
-			if (TELESCOPE_aggressobject(glob_tlcplate_multilist,ibacknr)>0)
+			if (TELESCOPE_aggressobject(glob_tlcplate_multilist,edit_clickresult.backindex)>0)
 			{
 				int tl_lane_count=TELESCOPE_count_elements(1<<TELESCOPE_ELEMENTTYPE_tlclane);
 				if (tl_lane_count>=1)
@@ -1881,7 +1889,7 @@ int issueclick(int iposx,int iposy)
 				}
 				else
 				{
-					if (TELESCOPE_aggressobject(glob_tlcplate_multilist,ibacknr)>=0)
+					if (TELESCOPE_aggressobject(glob_tlcplate_multilist,edit_clickresult.backindex)>=0)
 					{
 						if (control_tool==23)
 						{
@@ -1897,7 +1905,7 @@ int issueclick(int iposx,int iposy)
 			}
 			else
 			{
-				if (TELESCOPE_aggressobject(glob_tlcplate_multilist,ibacknr)>=0)
+				if (TELESCOPE_aggressobject(glob_tlcplate_multilist,edit_clickresult.backindex)>=0)
 				{
 					if (control_tool==23)
 					{
@@ -1905,8 +1913,6 @@ int issueclick(int iposx,int iposy)
 						(*(TELESCOPE_element*)TELESCOPE_getproperty()).type=TELESCOPE_ELEMENTTYPE_tlclane;
 						(*(TELESCOPE_element*)TELESCOPE_getproperty()).length=sizeof(TELESCOPE_element);
 						control_mousestate=0;
-							TELESCOPE_buffercheck(glob_tlcplate_multilist);
-							exit(1);
 						return 1;
 					}
 				}
@@ -4179,7 +4185,6 @@ void control_normal()
 						{
 							if (control_tool==12)
 							{
-								int tl_subno=0;
 								selection_copyselection(selection_clickselection,selection_currentselection);
 								selection_clickselection_found=selection_currentselection_found;
 								curve_instance * tl_curve_instance=(curve_instance*)getclicked(1<<STRUCTURE_OBJECTTYPE_curve,control_coorsx,control_coorsy);

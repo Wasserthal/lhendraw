@@ -12,6 +12,7 @@
 #define STRUCTURE_OBJECTTYPE_matrix 7
 #define STRUCTURE_OBJECTTYPE_spectrum 8
 #define STRUCTURE_OBJECTTYPE_tlcplate 9
+#define STRUCTURE_OBJECTTYPE_hatch 10
 //--TELESCOPE_ELEMENTTYPE
 //Numbers may not have interruption, but dummies are allowed.
 #define TELESCOPE_ELEMENTTYPE_None 0

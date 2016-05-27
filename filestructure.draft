@@ -20,5 +20,5 @@ tlcplate;tlclane ;0 Z 0 id 0 color 2 TopLeft 2 TopRight 2 BottomRight 2 BottomLe
 tlclane;tlcspot ;0 id ;
 tlcspot;;0 id 0 color 1 Rf 0 CurveType ;
 LENHACK_ANNOTATION;;0 IgnoreTextboxes ;
-moleculefill;;0 clockwise 0 Z 4 BoundingBox T Points 0 RGB ;
+hatch;;0 clockwise 0 Z T Points 0 RGB ;
 objecttag;t ;;

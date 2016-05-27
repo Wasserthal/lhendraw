@@ -536,7 +536,7 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,char clickcollisionche
 									if (multilistlist[objectZorderlist[ilv1].listnr].instance==glob_t_multilist) goto svg_main_t;
 									if (multilistlist[objectZorderlist[ilv1].listnr].instance==glob_arrow_multilist) goto svg_main_arrow;
 									if (multilistlist[objectZorderlist[ilv1].listnr].instance==glob_tlcplate_multilist) goto svg_main_tlcplate;
-									if (multilistlist[objectZorderlist[ilv1].listnr].instance==glob_moleculefill_multilist) goto svg_main_moleculefill;
+									if (multilistlist[objectZorderlist[ilv1].listnr].instance==glob_hatch_multilist) goto svg_main_hatch;
 									LENNARD_HACK_REPEAT:
 									LENNARD_HACK_REPEATHOOK=0;
 									SVG_currentshiftx=LENNARD_HACK_svgcurrentshiftx;
@@ -557,7 +557,7 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,char clickcollisionche
 			if (multilistlist[objectZorderlist[ilv1].listnr].instance==glob_b_multilist) goto svg_main_b;
 			if (multilistlist[objectZorderlist[ilv1].listnr].instance==glob_t_multilist) goto svg_main_t;
 			if (multilistlist[objectZorderlist[ilv1].listnr].instance==glob_arrow_multilist) goto svg_main_arrow;
-			if (multilistlist[objectZorderlist[ilv1].listnr].instance==glob_moleculefill_multilist) goto svg_main_moleculefill;
+			if (multilistlist[objectZorderlist[ilv1].listnr].instance==glob_hatch_multilist) goto svg_main_hatch;
 		}
 		svg_main_loop:
 		;
@@ -1795,34 +1795,47 @@ iBBX.right+ibonddist2*cos(cangle)+ibonddist4*(cos(cangle)-(cos(langle)*tlrightta
 	
 	//TODO SUBJECT: TEXT ist completely broken now without a buffer to read it from.
 	goto svg_main_loop;
-	svg_main_moleculefill:
-/*	{
-		moleculefill_instance * tlmoleculefill=&((*glob_moleculefill_multilist)[index_in_buffer]);
-		fprintf(outfile,"<path d=\" ");
-		for (int ilv2=0;ilv2<(*tlmoleculefill).Points.count;ilv2++)
+	svg_main_hatch:
+	{
+		double startx,starty;
+		int tl_started=0;
+		hatch_instance * tlhatch=&((*glob_hatch_multilist)[index_in_buffer]);
+		MACRO_DRAWPREFIX(stylegenestring)(stylefromattrs((*tlhatch).LineType,(*tlhatch).FillType));
+		MACRO_DRAWPREFIX(expressgeometry_start)(0,0,640,480);
+		SDL_color=tlhatch->color;
+		if (TELESCOPE_aggressobject(glob_hatch_multilist,index_in_buffer))
 		{
-			int iid=(*tlmoleculefill).Points.a[ilv2];
-			int ilv3;
-			for (ilv3=0;ilv3<(*glob_n_multilist).filllevel;ilv3++)
+			int backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_ContentList);
+			while (backval>0)
 			{
-				if ((*glob_n_multilist)[ilv3].id==iid)
+				int * tl_ContentList=(int*)TELESCOPE_getproperty_contents();
+				for (int ilv2=0;ilv2<(TELESCOPE_getproperty_contentlength()>>2);ilv2++)
 				{
-					goto ifertig;
+					int tl_Pointnr=tl_ContentList[ilv2];
+					int atomindex=edit_getatombyid(tl_Pointnr);
+					if (atomindex==-1) goto dontputthispoint;
+					{
+						n_instance * i_n_instance=&((*glob_n_multilist)[atomindex]);
+						double currentx=i_n_instance->xyz.x;
+						double currenty=i_n_instance->xyz.y;
+						if (tl_started==0)
+						{
+							MACRO_DRAWPREFIX(expressgeometry_begin)(currentx,currenty);
+							tl_started=1;
+						}
+						else
+						{
+							MACRO_DRAWPREFIX(expressgeometry_line)(currentx,currenty);
+						}
+					}
+					dontputthispoint:;
+					backval=TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_ContentList);
 				}
 			}
-			goto dontputthispoint;
-			ifertig:
-			;
-			{
-				n_instance * i_n_instance=&((*glob_n_multilist)[ilv3]);
-				
-				fprintf(outfile,"%c %f,%f ",(ilv2==0)?'M':'L',(*i_n_instance).xyz.x+SVG_currentshiftx,(*i_n_instance).xyz.y+SVG_currentshifty);
-			}
-			dontputthispoint:
-			;
 		}
-		fprintf(outfile,"z \" style=\"fill:#%06X;color:none;\" opacity=\"0.9\"/>\n",(*tlmoleculefill).RGB);
-	}*///TODO SUBJECT: MOLECULEFILL must also use a buffer to list its points.
+		MACRO_DRAWPREFIX(expressgeometry_backline)();
+		MACRO_DRAWPREFIX(expressgeometry_end)();
+	}
 	goto svg_main_loop;
 	svg_main_end:
 	;

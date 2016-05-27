@@ -19,10 +19,10 @@ int control_firstmenux,control_firstmenuy;
 int control_lastmenux,control_lastmenuy;
 int control_mousestate=0;//0: inactive; 0x1: from tool, mouseclick; 0x2: from special tool, keyboard 0x4: on menu, dragging 0x8: on button_function dependent menu, popup 0x10 popup-menu or PSE, multiple levels 0x20 dragging menuitem 0x40: text editing 0x80 menu-item text-editing
 int control_toolaction=0;//1: move 2: move selection 3: tool specific
-int control_tool=2;//1: Hand 2: 2coordinate Selection 3: Lasso, no matter which 4: Shift tool 5: Magnifying glass 6: Element draw 7: chemdraw draw 8: eraser 9: Arrows 10: attributes 11: text tool 12: curve(bezier) 13: image 14: spectrum 15: tlc plate/gel plate 16: graphic 17: aromatic ring tool 18: Arrow_skip 19: Arrow_situp 20: brackets 21: TLCPLATE ADD SPOT 22: TLCPLATE DEL SPOT 23: TLCPLATE ADD LANE 24: TLCPLATE DEL LANE 25: TLCPLATE MOVE LANE 26: TLCPLATE MOVE STARTLINE OR ENDLINE 27: change shape of TLC PLATE
+int control_tool=2;//1: Hand 2: 2coordinate Selection 3: Lasso, no matter which 4: Shift tool 5: Magnifying glass 6: Element draw 7: chemdraw draw 8: eraser 9: Arrows 10: attributes 11: text tool 12: curve(bezier) 13: image 14: spectrum 15: tlc plate/gel plate 16: graphic 17: aromatic ring tool 18: Arrow_skip 19: Arrow_situp 20: brackets 21: TLCPLATE ADD SPOT 22: TLCPLATE DEL SPOT 23: TLCPLATE ADD LANE 24: TLCPLATE DEL LANE 25: TLCPLATE MOVE LANE 26: TLCPLATE MOVE STARTLINE OR ENDLINE 27: change shape of TLC PLATE 28: moleculefill
 int control_menumode=0;//1: shliderhorz, 2: slidervert 3: colorchooser
 AUTOSTRUCT_PULLOUTLISTING_ * control_menuitem=NULL;
-#define control_toolcount 28
+#define control_toolcount 29
 int control_keycombotool=0;//as above, but only valid if (mousestate & 2)
 _i32 control_toolstartkeysym;
 int control_lastinterpret=-1;
@@ -64,6 +64,7 @@ int control_menuopenmode=0;
 #endif
 int control_current_tlcplate_lane=0;
 tlclane_instance * control_current_tlclane_instance=0;
+int control_hatch_lastatom;
 #define KEYDEPENDENTSELECTION \
 {\
 	__label__ tl_found;\
@@ -608,8 +609,10 @@ catalogized_command_funcdef(ISSUEDELETE)
 						{
 							if ((selection_currentselection[follower3] & (icompare<<STRUCTURE_OBJECTTYPE_ListSize)))
 							{
-								removepoints_basic((basic_instance*)(ibufferpos+isize*ilv2),ilv3,ilv1);
-								ilv3--;
+								if (removepoints_basic((basic_instance*)(ibufferpos+isize*ilv2),ilv3,ilv1))
+								{
+									ilv3--;
+								}
 							}
 							follower3++;
 							if (follower3>=LHENDRAW_buffersize/sizeof(selection_datatype))
@@ -978,7 +981,7 @@ int issueclick(int iposx,int iposy)
 						}
 						selection_clearselection(selection_currentselection);
 						selection_currentselection_found=1<<edit_clickresult.backtype;
-						selection_currentselection[edit_clickresult.backindex]|=1<<edit_clickresult.backtype;
+						selection_currentselection[edit_clickresult.follower3]|=1<<edit_clickresult.backtype;
 						return 0;
 					}
 					KEYDEPENDENTSELECTION;
@@ -1047,7 +1050,7 @@ int issueclick(int iposx,int iposy)
 						}
 						selection_clearselection(selection_currentselection);
 						selection_currentselection_found=1<<edit_clickresult.backtype;
-						selection_currentselection[edit_clickresult.backindex]|=1<<edit_clickresult.backtype;
+						selection_currentselection[edit_clickresult.follower3]|=1<<edit_clickresult.backtype;
 						return 0;
 					}
 					KEYDEPENDENTSELECTION;
@@ -1922,6 +1925,52 @@ int issueclick(int iposx,int iposy)
 			}
 			break;
 		}
+		case 28:
+		{
+			control_manipulatedinstance=NULL;
+			int current_hatch_index=0;
+			for (int ilv1=0;ilv1<glob_hatch_multilist->filllevel;ilv1++)
+			{
+				if (glob_hatch_multilist->bufferlist()[ilv1].exist)
+				{
+					if (selection_currentselection[ilv1] & (1<<STRUCTURE_OBJECTTYPE_hatch))
+					{
+						control_manipulatedinstance=(basic_instance*)(glob_hatch_multilist->bufferlist()+ilv1);
+						current_hatch_index=ilv1;
+					}
+				}
+			}
+			if (control_manipulatedinstance!=NULL)
+			{
+				int tl_backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_ContentList);
+				int control_hatch_lastatom_id=0;
+				while (tl_backval>0)
+				{
+					if (TELESCOPE_getproperty_contentlength()>=4)
+					{
+						control_hatch_lastatom_id=*(int*)(((char*)TELESCOPE_getproperty_contents())+TELESCOPE_getproperty_contentlength()-4);
+					}
+					tl_backval=TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_ContentList);
+				}
+				control_hatch_lastatom=edit_getatombyid(tl_backval);
+				if (control_hatch_lastatom==-1)
+				{
+					control_mousestate=0;
+					return 0;
+				}
+				break;
+			}
+			n_instance * tl_n_instance=(n_instance*)getclicked(1<<STRUCTURE_OBJECTTYPE_n,control_coorsx,control_coorsy);
+			if (tl_n_instance!=NULL)
+			{
+				control_manipulatedinstance=(basic_instance*)edit_summonhatch();
+				current_hatch_index=((hatch_instance*)control_manipulatedinstance)-glob_hatch_multilist->bufferlist();
+				TELESCOPE_aggressobject(glob_hatch_multilist,current_hatch_index);
+				TELESCOPE_add(TELESCOPE_ELEMENTTYPE_ContentList,(char*)&((tl_n_instance)->id),sizeof(int));
+				control_hatch_lastatom=edit_clickresult.backindex;
+			}
+			break;
+		}
 	}
 	ifertig:;
 	control_mousestate=1;
@@ -2475,6 +2524,25 @@ void issuedrag(int iposx,int iposy)
 				{
 					(*(arrow_instance*)control_manipulatedinstance).Head3D.x=mx+sin(tl_angle2)*sinus_x+cos(tl_angle2)*cosinus_x;
 					(*(arrow_instance*)control_manipulatedinstance).Head3D.y=my+sin(tl_angle2)*sinus_y+cos(tl_angle2)*cosinus_y;
+				}
+			}
+			break;
+		}
+		case 28:
+		{
+			if (control_manipulatedinstance==NULL)
+			{
+				break;
+			}
+			clickforthem();
+			n_instance * tl_n_instance=(n_instance*)getclicked(1<<STRUCTURE_OBJECTTYPE_n,control_coorsx,control_coorsy);
+			if (tl_n_instance==NULL) break;
+			if (edit_clickresult.backindex!=control_hatch_lastatom)
+			{
+				if (TELESCOPE_aggressobject(glob_hatch_multilist,((hatch_instance*)control_manipulatedinstance)-((hatch_instance*)glob_hatch_multilist->bufferlist()))>0)
+				{
+					TELESCOPE_add(TELESCOPE_ELEMENTTYPE_ContentList,(char*)&((tl_n_instance)->id),sizeof(int));
+					control_hatch_lastatom=edit_clickresult.backindex;
 				}
 			}
 			break;

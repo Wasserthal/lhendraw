@@ -4,7 +4,7 @@ t;s buffer ;0 id 0 Z 4 BoundingBox ! Justification ! LabelAlignment 0 color 3 xy
 arrow;0 annotation ;0 color 3 Head3D 3 Tail3D 3 Center3D ‼ LineType ! FillType ¢ AngularSize 3 MajorAxisEnd3D 3 MinorAxisEnd3D # ArrowheadType # ArrowheadHead # ArrowheadTail 0 Z c ArrowShaftSpacing ;
 graphic;0 owner 0 annotation ;0 id 0 color 4 BoundingBox 0 Z ! GraphicType ! SymbolType ! FillType ‼ LineType ! BracketType 1 CornerRadius 3 Center3D 3 MajorAxisEnd3D 3 MinorAxisEnd3D ;
 curve;;0 color 0 Z ‼ LineType # ArrowheadType # ArrowheadHead # ArrowheadTail c ArrowShaftSpacing ~ CurvePoints 0 Closed ! FillType ;
-moleculefill;;0 id 0 color 0 Z ;
+hatch;;0 id 0 color 0 Z ! LineType ! FillType ;
 matrix;0 matrixpicture ;0 Z ;
 spectrum;0 spectrumpicture ;0 Z ;
 tlcplate;0 tlclane ;0 color 0 Z 2 TopLeft 2 TopRight 2 BottomLeft 2 BottomRight 1 OriginFraction 1 SolventFrontFraction ‼ LineType ;
@@ -13,5 +13,6 @@ tlcplate;0 tlclane ;0 color 0 Z 2 TopLeft 2 TopRight 2 BottomLeft 2 BottomRight 
 !Symbol;;3 dxyz 0 SymbolType 0 color ;
 !Bezierpoint;3 pos ;0 count ;
 !ID_Reference;;0 Purpose 1 Id ;
+!ContentList;;;
 !tlclane;;;
 !wildcard;;0 Type ;

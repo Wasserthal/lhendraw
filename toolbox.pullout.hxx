@@ -262,6 +262,16 @@ menuitem pullout_toolbox[]={
 "","",
 0x00FF00,
 },
+{1,9,
+152,//Picture
+"HATCH",
+1,0,
+28,
+"Click-drag to hatch chemical cycle\n",
+"",
+"","",
+0x00FF00,
+},
 {12,1,
 98,//Picture
 "Solid",

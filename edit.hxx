@@ -26,7 +26,8 @@
 		LOCALMACRO_1(arrow)\
 		LOCALMACRO_1(t)\
 		LOCALMACRO_1(curve)\
-		LOCALMACRO_1(tlcplate)
+		LOCALMACRO_1(tlcplate)\
+		LOCALMACRO_1(hatch)
 extern int control_saveuponexit;
 struct control_drawproperties_
 {
@@ -739,6 +740,10 @@ inline int retrieveprops_tlcplate(int what)
 	}
 	return 0;
 }
+inline int retrieveprops_hatch(int what)
+{
+	return 0;
+}
 inline int removepoints(n_instance * iinstance,int inumber,basicmultilist * imultilist=NULL)
 {
 	if (inumber>0)
@@ -775,6 +780,7 @@ inline int removepoints(n_instance * iinstance,int inumber,basicmultilist * imul
 			tl_backval=TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_Symbol);
 			goto iback;
 		}
+		return 1;
 	}
 	return 0;
 }
@@ -807,10 +813,15 @@ inline int removepoints(curve_instance * iinstance,int inumber,basicmultilist * 
 			}
 			iinstance->CurvePoints.count--;
 		}
+		return 1;
 	}
 	return 0;
 }
 inline int removepoints(tlcplate_instance * iinstance,int inumber,basicmultilist * imultilist=NULL)
+{
+	return 0;
+}
+inline int removepoints(hatch_instance * iinstance,int inumber,basicmultilist * imultilist=NULL)
 {
 	return 0;
 }
@@ -853,7 +864,11 @@ inline int retrievepoints(b_instance * iinstance,float * ix,float * iy,float * i
 	if (inumber<0) return 0;
 	n_instance *iinstance1=NULL;
 	n_instance *iinstance2=NULL;
-	if (imultilist!=NULL) return 0;//Not handled!(TODO?)
+	if ((imultilist!=NULL) && (imultilist!=glob_b_multilist))
+	{
+		*ix=0;*iy=0;*iz=0;
+		return 0;//Not handled!(TODO?)
+	}
 	for (int ilv1=0;ilv1<(*glob_n_multilist).filllevel;ilv1++)
 	{
 		n_instance * tlinstance=&((*glob_n_multilist)[ilv1]);
@@ -1088,6 +1103,52 @@ inline int retrievepoints(tlcplate_instance * iinstance,float * ix,float * iy,fl
 	}
 	return 0;
 }
+inline int retrievepoints(hatch_instance * iinstance,float * ix,float * iy,float * iz,int inumber,basicmultilist * imultilist=NULL)
+{
+	if (inumber==0)
+	{
+		if ((imultilist==NULL) || (imultilist==glob_hatch_multilist))
+		{
+			if (TELESCOPE_aggressobject(glob_hatch_multilist,iinstance-glob_hatch_multilist->bufferlist()))
+			{
+				double currentx=0;
+				double currenty=0;
+				double currentz=0;
+				int sum=0;
+				int backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_ContentList);
+				while (backval>0)
+				{
+					int * tl_ContentList=(int*)TELESCOPE_getproperty_contents();
+					for (int ilv2=0;ilv2<(TELESCOPE_getproperty_contentlength()>>2);ilv2++)
+					{
+						int tl_Pointnr=tl_ContentList[ilv2];
+						int atomindex=edit_getatombyid(tl_Pointnr);
+						if (atomindex!=-1)
+						{
+							n_instance * i_n_instance=&((*glob_n_multilist)[atomindex]);
+							currentx+=i_n_instance->xyz.x;
+							currenty+=i_n_instance->xyz.y;
+							currentz+=i_n_instance->xyz.z;
+							sum++;
+						}
+					}
+					backval=TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_ContentList);
+				}
+				if (sum>0)
+				{
+					currentx/=sum;
+					currenty/=sum;
+					currentz/=sum;
+					*ix=currentx;
+					*iy=currenty;
+					*iz=currentz;
+					return 1;
+				}
+			}
+		}
+	}
+	return 0;
+}
 int hit(n_instance * iinstance,float ix,float iy,int ino)
 {
 	float idistance;
@@ -1227,6 +1288,22 @@ int hit(curve_instance * iinstance,float ix,float iy, int ino)
 	return -1;
 }
 int hit(tlcplate_instance * iinstance,float ix,float iy, int ino)
+{
+	float tl_x,tl_y,tl_z;
+	if (retrievepoints(iinstance,&tl_x,&tl_y,&tl_z,ino)>0)
+	{
+		if ((sqr(ix-tl_x)+sqr(iy-tl_y))<glob_clickradius)
+		{
+			return 1;
+		}
+		else
+		{
+			return 0;
+		}
+	}
+	return -1;
+}
+int hit(hatch_instance * iinstance,float ix,float iy, int ino)
 {
 	float tl_x,tl_y,tl_z;
 	if (retrievepoints(iinstance,&tl_x,&tl_y,&tl_z,ino)>0)
@@ -1659,6 +1736,10 @@ inline int placepoints(tlcplate_instance * iinstance,float ix,float iy,float iz,
 	return 0;
 	return 0;
 }
+inline int placepoints(hatch_instance * iinstance,float ix,float iy,float iz,int inumber,basicmultilist * imultilist=NULL)
+{
+	return 0;
+}
 #define LOCALMACRO_1(whatabout) case STRUCTURE_OBJECTTYPE_ ## whatabout: return retrieveprops_ ## whatabout(what);break;
 int retrieveprops_basic(int what,int objecttype)
 {
@@ -1857,13 +1938,14 @@ n_instance * snapatom_short(float iposx,float iposy,_small * iatomnr=NULL,int id
 	}
 	return NULL;
 }
- struct edit_clickresult
+ struct edit_clickresult_
 {
 	int backtype;
 	int backindex;
 	basic_instance * backsub;
 	float backdistance;
 	float backsubnr;
+	intl follower3;
 }edit_clickresult;
 basic_instance * getclicked(int imap,float clckx,float clcky)
 {
@@ -1898,6 +1980,7 @@ basic_instance * getclicked(int imap,float clckx,float clcky)
 							edit_clickresult.backindex=ilv1;
 							edit_clickresult.backsub=NULL;
 							edit_clickresult.backsubnr=0;
+							edit_clickresult.follower3=0;
 							bestvalue=thisvalue;
 						}
 					}
@@ -1918,6 +2001,7 @@ basic_instance * getclicked(int imap,float clckx,float clcky)
 										edit_clickresult.backindex=ilv1;
 										edit_clickresult.backdistance=thisvalue;
 										edit_clickresult.backsubnr=ilv2+1;
+										edit_clickresult.follower3=ilv1*internalpointcount+ilv2;
 										bestvalue=thisvalue;
 									}
 								}
@@ -1944,6 +2028,7 @@ basic_instance * getclicked(int imap,float clckx,float clcky)
 											edit_clickresult.backsub=(basic_instance*)TELESCOPE_getproperty();//Note that TELESCOPE_tempval gets set by retrievepoints_basic!
 											edit_clickresult.backsubnr=ilv2+1;
 											edit_clickresult.backdistance=thisvalue;
+											edit_clickresult.follower3=follower3;
 											bestvalue=thisvalue;
 										}
 									}
@@ -2073,6 +2158,33 @@ tlcplate_instance * edit_summontlcplate(int * nr=NULL)
 		{
 			*nr=tl_nr;
 		}
+		return tlinstance;
+	}
+	else
+	{
+		memory_overflow_hook();
+	}
+	return NULL;
+}
+hatch_instance * edit_summonhatch(int * nr=NULL)
+{
+	if ((*glob_hatch_multilist).filllevel<(*glob_hatch_multilist).getmaxitems())
+	{
+		int tl_nr=-1;
+		hatch_instance * tlinstance;
+		if (janitor_getmaxid(STRUCTURE_OBJECTTYPE_hatch)<0) memory_overflow_hook();
+		tl_nr=(*glob_hatch_multilist).filllevel;
+		tlinstance=new(&((*glob_hatch_multilist)[tl_nr])) hatch_instance;
+		(*tlinstance).color=control_drawproperties.color;
+		(*tlinstance).Z=1;
+		initZlist();
+		selection_currentselection[tl_nr]&=(~(1<<STRUCTURE_OBJECTTYPE_hatch));
+		((*glob_hatch_multilist).filllevel)++;
+		(*tlinstance).LineType=control_drawproperties.LineType;
+		(*tlinstance).FillType=control_drawproperties.FillType;
+		if ((*tlinstance).FillType==0) (*tlinstance).FillType=1;
+		(*tlinstance).id=(*glob_hatch_multilist).maxid+1;
+		(*glob_hatch_multilist).maxid++;
 		return tlinstance;
 	}
 	else

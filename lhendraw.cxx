@@ -30,9 +30,11 @@ LLLLLL H   H EEEEE N    N DDD   R  R A     A    W     W
 #include <SDL.h>
 #include <time.h>
 #ifndef NOPOSIX
+#include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <fcntl.h>
 #endif
 #include "lendefs.h"
 #include "debug.hxx"
@@ -121,6 +123,7 @@ extern int undo_storcatch(_u32 flags,const char * iname);
 #include "sdlctrl.hxx"
 #include "menugfx.hxx"
 #include "filedlg.hxx"
+#include "popup.hxx"
 #define MACRO_DRAWPREFIX(content) gfx_ ## content
 #include "draw.hxx"
 #undef MACRO_DRAWPREFIX
@@ -168,6 +171,7 @@ int main(int argc,char * * argv)
 	signal(SIGFPE,&Signal);
 	signal(SIGSYS,&Signal);
 	signal(SIGPIPE,&Signal);
+	signal(SIGBUS,&Signal);
 #endif
 	if (sizeof(bond_actual_node_)>sizeof(b_instance))
 	{
@@ -302,7 +306,6 @@ int main(int argc,char * * argv)
 			sdl_commonmenucommon();
 			sdl_menudraw();
 			sdl_selectiondraw();
-			draw_reticle();
 		break;
 		case 1:
 			control_filedlg_datastorages();
@@ -313,7 +316,6 @@ int main(int argc,char * * argv)
 			sdl_filemenucommon();
 			sdl_menudraw();
 			sdl_menuframe();
-			draw_reticle();
 		break;
 		case 2:
 			sdl_optionsmenucommon();
@@ -323,23 +325,31 @@ int main(int argc,char * * argv)
 			sdl_optionsmenucommon();
 			sdl_menudraw();
 			sdl_menuframe();
-			draw_reticle();
 		break;
 		case 3:
 			control_undotree();
 			gfx_gfxstart();
 			screenclear(0xFFFFFF);
 			draw_undotree(0);
-			draw_reticle();
 		break;
 		case 4:
 			control_fontedit();
 			gfx_gfxstart();
 			screenclear(0xFFFFFF);
 			text_printbigfont();
-			draw_reticle();
+		break;
+		case 5:
+			control_filedlg();
+			gfx_gfxstart();
+			screenclear(0xFFFFFF);
+			gfx_output();
+			sdl_popupmenucommon();
+			draw_popupmenuinfo();
+			sdl_menudraw();
+			sdl_canvasframedraw();
 		break;
 		}
+		draw_reticle();
 		gfx_gfxstop();
 		usleep(1000);
 		control_doubleclickenergy-=1;

@@ -4303,6 +4303,14 @@ void control_normal()
 						if ((idirection) && (control_mousestate==0)) issueshift(0,+1);
 						break;
 					}
+					case SDLK_MENU:
+					{
+						if ((idirection==1) && (control_mousestate==0))
+						{
+							LHENDRAW_filedlgmode=5;
+						}
+						break;
+					}
 					default:
 					if (idirection==1)
 					{

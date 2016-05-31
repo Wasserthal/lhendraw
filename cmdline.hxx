@@ -1,7 +1,7 @@
 //Processes the commandline parameters
 char argmeanings[1000];//0: filename which is wanted 1: interpret this 2: Filename, to be read at start
-char parametersthatwantfilename[]={"oslcnwf-"};
-char parametersexecutedimmediately[]={"IFioh"};
+char parametersthatwantfilename[]={"Oslcnwfo-"};
+char parametersexecutedimmediately[]={"IFiOh"};
 char * parameter_filename;
 char * parameter_filetype;
 int parameter_argc;
@@ -76,12 +76,25 @@ void executeparameter(const char which,int parameter,int posinparameter,int argc
 		case 'I' :      control_GUI=0; control_interactive=0;break;
 		case 'i' :	control_interactive=1;break;
 		case 'F' :      control_force|=1;break;
-		case 'O' :	control_saveuponexit=0;break;
-		case 'o' :      control_filename=getparameter(parameter,posinparameter,parameter_filetype,NULL,argc,argv);control_saveuponexit=1;if (control_setfilename(control_filename)<=0) {fprintf(stderr,"Warning! Cannot set filename!\n");}break;
-		case 'f' :      control_filename=getparameter(parameter,posinparameter,parameter_filetype,NULL,argc,argv);if (control_setfilename(control_filename)<=0) {fprintf(stderr,"Warning! Cannot set filename!\n");}break;
-		case 'w' :      parameter_filetype=NULL;parameter_filename=getparameter(parameter,posinparameter,parameter_filetype,NULL,argc,argv);SAVE_TYPE(parameter_filename,parameter_filetype);break;
-		case 'l' :      parameter_filetype=NULL;parameter_filename=getparameter(parameter,posinparameter,parameter_filetype,NULL,argc,argv);LOAD_TYPE(parameter_filename,parameter_filetype);break;
-		case 'e' :      parameter_filetype=NULL;parameter_filename=getparameter(parameter,posinparameter,parameter_filetype,NULL,argc,argv);LOAD_TYPE(parameter_filename,parameter_filetype);break;
+		case '/' :	control_saveuponexit=0;break;
+		case 'o' :	
+		{
+			char * tl_equals=NULL;
+			char * tl_input=getparameter(parameter,posinparameter,NULL,NULL,argc,argv);
+			tl_equals=strstr(tl_input,"=");
+			if ((tl_equals)!=NULL)
+			{
+				*tl_equals=0;
+				tl_equals++;
+				EDIT_SETOPTION(tl_input,tl_equals);
+			}
+			break;
+		}
+		case 'O' :      control_filename=getparameter(parameter,posinparameter,NULL,NULL,argc,argv);control_saveuponexit=1;if (control_setfilename(control_filename)<=0) {fprintf(stderr,"Warning! Cannot set filename!\n");}break;
+		case 'f' :      control_filename=getparameter(parameter,posinparameter,NULL,NULL,argc,argv);if (control_setfilename(control_filename)<=0) {fprintf(stderr,"Warning! Cannot set filename!\n");}break;
+		case 'w' :      parameter_filetype=NULL;parameter_filename=getparameter(parameter,posinparameter,NULL,NULL,argc,argv);SAVE_TYPE(parameter_filename,parameter_filetype);break;
+		case 'l' :      parameter_filetype=NULL;parameter_filename=getparameter(parameter,posinparameter,NULL,NULL,argc,argv);LOAD_TYPE(parameter_filename,parameter_filetype);break;
+		case 'e' :      parameter_filetype=NULL;parameter_filename=getparameter(parameter,posinparameter,NULL,NULL,argc,argv);LOAD_TYPE(parameter_filename,parameter_filetype);break;
 		case '5' :	WARN_HYPERC("","");
 		case '-' :      if ((argv[parameter][posinparameter])!=0)
 				{
@@ -124,22 +137,24 @@ void executeparameter(const char which,int parameter,int posinparameter,int argc
 					break;
 				}
 		case 'N' :      FILE_NEW("","");break;
-		case 'n' :	parameter_filetype=NULL;parameter_filename=getparameter(parameter,posinparameter,parameter_filetype,NULL,argc,argv);
+		case 'n' :	parameter_filetype=NULL;parameter_filename=getparameter(parameter,posinparameter,NULL,NULL,argc,argv);
 				if (SEARCHFILE(parameter_filename,parameter_filetype)>0) {printf("%s\n",parameter_filename);}
 				break;
 		case 'h' :      printf(
 "Usage:\n"
-"lhendraw [-I] [-o output] [-<parameter> <parameter_filename>] (...) <filename> (...) [--search] <filenames>\n"
+"lhendraw [-I] [-O output] [-<parameter> <parameter_filename>] (...) <filename> (...) [--search] <filenames>\n"
 "filenames and parameter_filename combinations may be mixed\n"
 "the \"output\" file is always saved when the program exits\n"
 "Its name is stored in the same register as the \"current\"\n"
 "The -I command prevents loading the graphical user interface, making the program all command-line type.\n"
-"All filenames stored outside the registers are read in additively, merging those documents\n"
+"All filenames stored apart from commands are read in additively, merging those documents\n"
 "All other parameters are processed AFTERWARDS(sic)\n"
 "\n"
 "Parameters:\n"
 "-I      : No gui. Doesn't run interactively\n"
-"-o<fn>  : specify output-filename/filetype. Will be saved at end. Is stored as the current document's filename\n"
+"-O<fn>  : specify output-filename/filetype. Will be saved at end. Is stored as the current document's filename\n"
+"-o<struct>.<option>=<value>  : give some option from the options-menu an other value\n"
+"          example -o control_searchproperties.wildcardsliteral=1 \n"
 "-F      : Doesn't ask questions. Overwrites files. Use with more caution\n"
 "-i      : Run interactively. No meaning in the current situation\n"
 "Commands, processed in order:\n"

@@ -1980,7 +1980,7 @@ basic_instance * getclicked(int imap,float clckx,float clcky)
 							edit_clickresult.backindex=ilv1;
 							edit_clickresult.backsub=NULL;
 							edit_clickresult.backsubnr=0;
-							edit_clickresult.follower3=0;
+							edit_clickresult.follower3=ilv1;
 							bestvalue=thisvalue;
 						}
 					}
@@ -3349,6 +3349,27 @@ catalogized_command_funcdef(SETITEMVARIABLES)
 			free(imemoryp);//temporary alloc
 		}
 		iskip:;
+	}
+	return 1;
+}
+catalogized_command_funcdef(EDIT_SETOPTION)
+{
+	int maxcount;
+	AUTOSTRUCT_PULLOUTLISTING_ * ipulloutlisting;
+	structenum * tlstructenum;
+	tlstructenum=searchreflectedstruct("options");
+	if (tlstructenum)
+	{
+		maxcount=tlstructenum->count;
+		ipulloutlisting=(AUTOSTRUCT_PULLOUTLISTING_*)tlstructenum->pointer;
+	}
+	for (int ilv1=0;ilv1<maxcount;ilv1++)
+	{
+		printf("%s vs.%s\n",ipulloutlisting[ilv1].variablename,parameter);
+		if (strcmp(ipulloutlisting[ilv1].variablename,parameter)==0)
+		{
+			*(int*)(ipulloutlisting[ilv1].variable)=atoi(value);
+		}
 	}
 	return 1;
 }

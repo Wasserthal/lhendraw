@@ -6,7 +6,13 @@ typedef struct fontpixinf_
 	int sizex,sizey;
 	int pivotx,pivoty;
 	char * memstart;
+	#ifdef BITMODE32
+	int four_byte_dummy;
+	#endif
 	int unicode;
+	#ifdef BITMODE32
+	int four_byte_dummy2;
+	#endif
 } fontpixinf_;
 int fontpixinf_count;
 fontpixinf_ fontpixinf[10000];

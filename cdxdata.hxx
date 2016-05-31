@@ -1024,3 +1024,22 @@ intl get_bienum_multi(bienum * ibienum,const char * input,intl count)
 	if (again){currentpos=tlbackvalue+1; goto iback;}
 	return wert;
 };
+typedef struct AUTOSTRUCT_PULLOUTLISTING_
+{
+	int x,y;
+	int picno;
+	const char * name;
+	int lmbmode;
+	int rmbmode;
+	int toolnr;
+	const char * explanation;
+	const char * variablename;
+	const char * LMBfunction;
+	const char * RMBfunction;
+	catalogized_command_functype LMB_function;
+	catalogized_command_functype RMB_function;
+	int bgcolor;
+	void * variable;
+//Either char, at 2 or _u32 at 4 
+	int maxx,maxy;
+}AUTOSTRUCT_PULLOUTLISTING_;

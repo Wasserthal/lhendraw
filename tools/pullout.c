@@ -126,7 +126,7 @@ int main(int argc,char ** argv)
 	stringfile=fopen("./generated/pullout_stringfile.hxx","w+");
 	structfile=fopen("./generated/pullout_structfile.hxx","w+");
 	reflectfile=fopen("./generated/pullout_reflectfile.hxx","w+");
-	fprintf(structfile,"%s",pulloutlisting_string);
+	fprintf(structfile,"_i32 nope;");
 	fprintf(stringfile,"char AUTOSTRUCT_STRINGLIST_PULLOUT[]=\n");
 #include "../generated/pulloutmatic.hxx"
 	fprintf(stringfile,";\n");

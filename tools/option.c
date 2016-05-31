@@ -36,7 +36,7 @@ fprintf(outfile,"\n\
 //	int toolnr;\n\
 	\"%s\",\n\
 //	char * explanation;\n\
-	\"%s\",\n\
+	\"%s.%s\",\n\
 //	char * variablename;\n\
 	\"%s\",\n\
 //	char * LMBfunction;\n\
@@ -52,7 +52,7 @@ fprintf(outfile,"\n\
 //	void * variable;\n\
 	480,%i,\n\
 //	int maxx,maxy;\n\
-},",currentitemcount*16,substring,substring,substring,substring,substring,variablename,(currentitemcount+1)*16);
+},",currentitemcount*16,substring,substring,structname,substring,substring,substring,variablename,(currentitemcount+1)*16);
 
 }
 int main(int argc,char**argv)

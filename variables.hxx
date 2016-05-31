@@ -21,6 +21,7 @@ typedef _u32 selection_datatype;
 #define constants_Element_lonepair 1
 #define constants_Element_hydrogen 2
 #define constants_Element_implicitcarbon 9
+#define constants_VALUEREPRESENTATION_BUFFERSIZE 4096
 //It is assumed that the actual carbon is constants_Element_implicitcarbon+1
 float glob_clickradius=225;
 float glob_subpoint_clickradius=50;

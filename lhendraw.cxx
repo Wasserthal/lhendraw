@@ -1,3 +1,4 @@
+#define LHENDRAW_VERSIONSTRING "0.6.1"
 /*THIS IS THE MAIN PROGRAM
 
 L      H   H EEEEE N    N DDD   RRR     A    W           W

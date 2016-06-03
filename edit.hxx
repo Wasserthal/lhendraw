@@ -2625,11 +2625,6 @@ catalogized_command_iterated_funcdef(LABELTEXT)
 	(*(n_instance*)iinstance).Element=-1;
 	return 1;
 }
-catalogized_command_iterated_funcdef(LASTLABELTEXT)
-{
-	LABELTEXT(parameter,element[control_drawproperties.Element].name,imultilist,iinstance,iindex);
-	return 1;
-}
 catalogized_command_iterated_funcdef(SETITEMVARIABLE)
 {
 	for (int ilv1=0;ilv1<(*iinstance)._->properties_count;ilv1++)
@@ -4102,7 +4097,7 @@ catalogized_command_funcdef(SAVE_TYPE)
 	fprintf(ifile,"<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n");
 	fprintf(ifile,"<!DOCTYPE CDXML SYSTEM \"http://www.cambridgesoft.com/xml/cdxml.dtd\" >\n");
 	fprintf(ifile,"%s","<CDXML\n"
-" CreationProgram=\"lhendraw 0.6.1\"\n"
+" CreationProgram=\"lhendraw " LHENDRAW_VERSIONSTRING "\"\n"
 " Name=\"whocares.cdxml\"\n"
 " BoundingBox=\"5.5 155.04 724.05 736.75\"\n"
 " WindowPosition=\"-1073741824 1073741824\"\n"

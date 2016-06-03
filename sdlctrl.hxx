@@ -19,7 +19,38 @@ int control_firstmenux,control_firstmenuy;
 int control_lastmenux,control_lastmenuy;
 int control_mousestate=0;//0: inactive; 0x1: from tool, mouseclick; 0x2: from special tool, keyboard 0x4: on menu, dragging 0x8: on button_function dependent menu, popup 0x10 popup-menu or PSE, multiple levels 0x20 dragging menuitem 0x40: text editing 0x80 menu-item text-editing
 int control_toolaction=0;//1: move 2: move selection 3: tool specific
-int control_tool=2;//1: Hand 2: 2coordinate Selection 3: Lasso, no matter which 4: Shift tool 5: Magnifying glass 6: Element draw 7: chemdraw draw 8: eraser 9: Arrows 10: attributes 11: text tool 12: curve(bezier) 13: image 14: spectrum 15: tlc plate/gel plate 16: graphic 17: aromatic ring tool 18: Arrow_skip 19: Arrow_situp 20: brackets 21: TLCPLATE ADD SPOT 22: TLCPLATE DEL SPOT 23: TLCPLATE ADD LANE 24: TLCPLATE DEL LANE 25: TLCPLATE MOVE LANE 26: TLCPLATE MOVE STARTLINE OR ENDLINE 27: change shape of TLC PLATE 28: moleculefill
+int control_tool=2;
+enum ENUM_TOOL 
+{
+	ENUM_TOOL_HAND=1,//1: Hand
+	ENUM_TOOL_2COORDINATE_SELECTION=2,//2coordinate Selection
+	ENUM_TOOL_LASSO=3,//Lasso, no matter which
+	ENUM_TOOL_SHIFT=4,//Shift tool
+	ENUM_TOOL_MAGNIFYING_GLASS=5,//Magnifying glass
+	ENUM_TOOL_ELEMENT_DRAW=6,//Element draw
+	ENUM_TOOL_BOND=7,//chemdraw draw
+	ENUM_TOOL_ERASER=8,//eraser
+	ENUM_TOOL_ARROW=9,//Arrows
+	ENUM_TOOL_ATTRIBUTES=10,//attributes
+	ENUM_TOOL_TEXT=11,//text tool
+	ENUM_TOOL_CURVE_BEZIER=12,//curve(bezier)
+	ENUM_TOOL_IMAGE=13,//image
+	ENUM_TOOL_SPECTRUM=14,//spectrum
+	ENUM_TOOL_TLCPLATE=15,//tlc plate/gel plate
+	ENUM_TOOL_GRAPHIC=16,//graphic
+	ENUM_TOOL_AROMATIC_RING_TOOL=17,//aromatic ring tool
+	ENUM_TOOL_ARROW_SKIP=18,//Arrow_skip
+	ENUM_TOOL_ARROW_SITUP=19,//Arrow_situp
+	ENUM_TOOL_BRACKETS=20,//brackets
+	ENUM_TOOL_TLCPLATE_ADD_SPOT=21,//TLCPLATE ADD SPOT
+	ENUM_TOOL_TLCPLATE_DEL_SPOT=22,//TLCPLATE DEL SPOT
+	ENUM_TOOL_TLCPLATE_ADD_LANE=23,//TLCPLATE ADD LANE
+	ENUM_TOOL_TLCPLATE_DEL_LANE=24,//TLCPLATE DEL LANE
+	ENUM_TOOL_TLCPLATE_MOVE_LANE=25,//TLCPLATE MOVE LANE
+	ENUM_TOOL_TLCPLATE_MOVE_STARTLINE_OR_ENDLINE=26,//TLCPLATE MOVE STARTLINE OR ENDLINE
+	ENUM_TOOL_CHANGE_SHAPE_OF_TLC_PLATE=27,//change shape of TLC PLATE
+	ENUM_TOOL_HATCH_CREATE=28,//draw hatches
+};
 int control_menumode=0;//1: shliderhorz, 2: slidervert 3: colorchooser
 AUTOSTRUCT_PULLOUTLISTING_ * control_menuitem=NULL;
 #define control_toolcount 29
@@ -553,6 +584,15 @@ catalogized_command_funcdef(UNDOTREE)
 	LHENDRAW_filedlgmode=3;
 	control_filemenu_mode=0;
 	menu_selectedmenuelement=0;
+	return 1;
+}
+catalogized_command_iterated_funcdef(LASTLABELTEXT)
+{
+	LABELTEXT(parameter,element[control_drawproperties.Element].name,imultilist,iinstance,iindex);
+	if (control_tool==ENUM_TOOL_BOND)
+	{
+		if (control_drawproperties.WildcardType==-1) control_drawproperties.WildcardType=0;
+	}
 	return 1;
 }
 int control_findhotatomfrommouse()

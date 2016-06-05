@@ -3304,6 +3304,7 @@ int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int
 					{
 						menu_selectedmenuelement=menu_itembyname((*ipulloutlisting).name);
 						control_menutexteditcursor=(pixeloriginposx-(*ipulloutlisting).x)/8;
+						control_menutextedithorziscroll=0;
 						break;
 					}
 					case 0x303:
@@ -3328,6 +3329,7 @@ int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int
 				tl_mbmode=((*ipulloutlisting).rmbmode);
 				switch (tl_mbmode)
 				{
+					case 0: break;
 					case 1: goto selecttool;break;
 					case 2: *((char*)(*ipulloutlisting).variable)&=~1;break;
 					case 7: //fallthrough
@@ -4347,6 +4349,7 @@ void control_normal()
 					{
 						if ((idirection==1) && (control_mousestate==0))
 						{
+							popup_popupmenubuild();
 							LHENDRAW_filedlgmode=5;
 						}
 						break;

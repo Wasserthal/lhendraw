@@ -121,10 +121,10 @@ extern int undo_storcatch(_u32 flags,const char * iname);
 #include "./generated/pullout_stringfile.hxx"
 #include "./generated/pullout_structfile.hxx"
 #include "help.hxx"
+#include "popup.hxx"
 #include "sdlctrl.hxx"
 #include "menugfx.hxx"
 #include "filedlg.hxx"
-#include "popup.hxx"
 #define MACRO_DRAWPREFIX(content) gfx_ ## content
 #include "draw.hxx"
 #undef MACRO_DRAWPREFIX
@@ -345,7 +345,6 @@ int main(int argc,char * * argv)
 			screenclear(0xFFFFFF);
 			gfx_output();
 			sdl_popupmenucommon();
-			draw_popupmenuinfo();
 			sdl_menudraw();
 			sdl_canvasframedraw();
 		break;

@@ -13,6 +13,12 @@ int userwarning(const char*warning);
 _i32 janitor_maxZ=0;
 _small LHENDRAW_maxbuttons=74;
 typedef _u32 selection_datatype;
+char constants_turnXname[]="turn X→";
+char constants_turnYname[]="turn Y→";
+char constants_turnZname[]="turn Z→";
+char constants_scaleXname[]="scale X→";
+char constants_scaleYname[]="scale Y→";
+char constants_scaleZname[]="scale Z→";
 #define constants_buttonsize 32
 #define constants_bondlength 30
 #define constants_angular_distance 2.094395102

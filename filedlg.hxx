@@ -241,7 +241,14 @@ void control_filedlg()
 									}
 									else
 									{
-										(*tl_pulloutlisting).LMB_function("","");
+										if ((*tl_pulloutlisting).lmbmode==0x301)
+										{
+											(*tl_pulloutlisting).LMB_function((*tl_pulloutlisting).name,(char*)((*tl_pulloutlisting).variable));
+										}
+										else
+										{
+											(*tl_pulloutlisting).LMB_function("","");
+										}
 									}
 								}
 								goto keyprocessed;

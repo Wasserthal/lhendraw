@@ -419,7 +419,7 @@ int sdl_listmenudraw(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int count,int xpos=0,
 						}
 					}
 				}
-				char * tl_pointer=(char*)(ilisting[ilv1].name);
+				char * tl_pointer=(char*)(ilisting[ilv1].variable);
 				printmenutext(horzistart+xpos,(vertistart)+ypos,tl_pointer,min(strlen(tl_pointer),(horziend-horzistart)/8));
 				break;
 			}
@@ -637,6 +637,15 @@ int addartificialmenu(int type,int alignx=0,int aligny=0)
 	return 1;
 }
 extern int control_tool;
+extern structenum dynamicmenustructenum;
+void sdl_popupmenucommon()
+{
+	menu_list[0].type=3;
+	menu_list[0].what=dynamicmenustructenum;
+	menu_list[0].alignx=0;
+	menu_list[0].aligny=0;
+	menu_list_count=1;
+}
 void sdl_warndlgcommon()
 {
 	menu_list_count=0;

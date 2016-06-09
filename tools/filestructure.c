@@ -203,6 +203,7 @@ int main(int argc,char * * argv)
 			case 0x203c: strcpy(properties_types[properties_count],"_i32");properties_type_nrs[properties_count]=7;break;//an ENUM with two possibilities
 			case 0xe7: strcpy(properties_types[properties_count],"_i8");properties_type_nrs[properties_count]=5;break;//8 bit enum
 			case 0xA2: strcpy(properties_types[properties_count],"arcfloat");properties_type_nrs[properties_count]=2;break;//bin as Integer
+			case 0xB0: strcpy(properties_types[properties_count],"cdx_ObjectIDArray");properties_type_nrs[properties_count]=2;break;
 			default:
 			printf("Something went wrong defining %s - unknown symbol 0x%04X! ",name,tlbackvalue);exit(1);
 		}

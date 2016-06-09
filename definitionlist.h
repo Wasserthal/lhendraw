@@ -97,7 +97,6 @@ bienum CDXML_objectcodes_List[]={
 {"annotation",0x802B},
 {"curve",0x8008},
 {"LENHACK_ANNOTATION",0},
-{"moleculefill",0},
 {"EmbeddedObject",0x8009},
 {"ReactionScheme",0x800D},
 {"ReactionStep",0x800E},
@@ -106,6 +105,10 @@ bienum CDXML_objectcodes_List[]={
 {"tlcplate",0x801D},
 {"tlclane",0x801E},
 {"tlcspot",0x801F},
+{"gelplate",0x802C},
+{"gelspot",0x802D},
+{"hatch",0x802E},
+{"gellane",0x802F},
 };
 int CDXML_objectcodes_ListSize=sizeof(CDXML_objectcodes_List)/sizeof(CDXML_objectcodes_List[0]);
 bienum CDXML_propertycodes_List[]={
@@ -131,6 +134,9 @@ bienum CDXML_propertycodes_List[]={
 {"MinorAxisEnd3D",0x20F},
 {"colortable",0x300},
 {"color",0x301},
+{"bgcolor",0x302},
+{"RGB",0x303},
+{"bgRGB",0x304},
 {"NodeType",0x400},
 {"Element",0x402},
 {"Charge",0x421},

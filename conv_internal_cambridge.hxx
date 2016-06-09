@@ -666,6 +666,55 @@ void CONVCAMBRIDGE_tlcplate(CAMBRIDGE_page_instance * master)
 		}
 	}
 }
+void CONVCAMBRIDGE_hatch(CAMBRIDGE_page_instance * master)
+{
+	multilist<CAMBRIDGE_hatch_instance> * tl_CAMBRIDGE_hatch_multilist=retrievemultilist<CAMBRIDGE_hatch_instance>();
+	multilist<hatch_instance> * tl_hatch_multilist=retrievemultilist<hatch_instance>();
+	for (int ilv1=0;ilv1<(*tl_hatch_multilist).filllevel;ilv1++)
+	{
+		if (edit_fileoperationrefersonlytopartofdocument)
+		{
+			if ((selection_currentselection[ilv1] & (1<<STRUCTURE_OBJECTTYPE_hatch))==0)
+			{
+				continue;
+			}
+		}
+		hatch_instance * tl_hatch_instance=(*tl_hatch_multilist).bufferlist()+ilv1;
+		if (tl_hatch_instance->exist)
+		{
+			ADD_TO_MULTILISTREFERENCE(master,hatch);
+			(*tl_CAMBRIDGE_hatch_instance).RGB=(*tl_hatch_instance).color;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_hatch_instance,RGB);
+			(*tl_CAMBRIDGE_hatch_instance).Z=(*tl_hatch_instance).Z;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_hatch_instance,Z);
+			(*tl_CAMBRIDGE_hatch_instance).FillType=(*tl_hatch_instance).FillType;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_hatch_instance,FillType);
+			(*tl_CAMBRIDGE_hatch_instance).LineType=(*tl_hatch_instance).LineType;AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_hatch_instance,LineType);
+			(*tl_CAMBRIDGE_hatch_instance).CircularBondOrdering.a=NULL;
+			(*tl_CAMBRIDGE_hatch_instance).CircularBondOrdering.count=0;
+			if (TELESCOPE_aggressobject(tl_hatch_multilist,ilv1)>=0)
+			{
+				int tl_backval=0;
+				TELESCOPE_buffer * ibuffer;
+				getbufferfromstructure(tl_CAMBRIDGE_hatch_multilist,&ibuffer);
+				tl_backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_ContentList);
+				if (tl_backval>0)
+				{
+					AUTOSTRUCT_EXISTS_SET_NAME(tl_CAMBRIDGE_hatch_instance,CircularBondOrdering);
+					(*tl_CAMBRIDGE_hatch_instance).CircularBondOrdering.a=(_i32*)(ibuffer->buffer+ibuffer->count);
+					iback:;
+					int tl_count=TELESCOPE_getproperty_contentlength()>>2;
+					memcpy(ibuffer->buffer+ibuffer->count,(char*)TELESCOPE_getproperty_contents(),TELESCOPE_getproperty_contentlength());
+					for (int ilv1=0;ilv1<tl_count;ilv1++)
+					{
+						((int*)(ibuffer->buffer+ibuffer->count))[ilv1]+=janitor_id_list[STRUCTURE_OBJECTTYPE_n-1];
+					}
+					ibuffer->count+=TELESCOPE_getproperty_contentlength();
+					tl_backval=TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_ContentList);
+					(*tl_CAMBRIDGE_hatch_instance).CircularBondOrdering.count+=tl_count;
+					if (tl_backval>0) goto iback;
+				}
+			}
+		}
+	}
+}
 
 void CONVCAMBRIDGE_internaltomain(CAMBRIDGE_page_instance * master)
 {
@@ -678,4 +727,5 @@ void CONVCAMBRIDGE_internaltomain(CAMBRIDGE_page_instance * master)
 	CONVCAMBRIDGE_Symbol(master);
 	CONVCAMBRIDGE_curve(master);
 	CONVCAMBRIDGE_tlcplate(master);
+	CONVCAMBRIDGE_hatch(master);
 }

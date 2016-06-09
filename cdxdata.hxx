@@ -50,12 +50,23 @@ If it is filled from PCDATA, its name is PCDATA*/
 	char * a;
 	int count;
 };
+struct cdx_ObjectIDArray
+{
+	int * a;
+	int count;
+};
 
 inline void clear_cdx_Buffered_String(cdx_Buffered_String & input) /*can be filled both by Property value and inter-Object-Text.
 If it is filled from PCDATA, its name is PCDATA*/
 {
 	input.a=NULL;
+	input.count=0;
 };
+inline void clear_cdx_ObjectIDArray(cdx_ObjectIDArray & input)
+{
+	input.a=NULL;
+	input.count=0;
+}
 
 struct cdx_Bezierpoints
 {
@@ -325,6 +336,83 @@ int __attribute__((sysv_abi))CDXMLWRITE_BIN_cdx_Buffered_String(char * input,voi
 	static char zero=0;
 	fwrite(&zero,1,1,(FILE*)output);
 	return strlen(input)+1;
+}
+int __attribute__((sysv_abi))CDXMLREAD_cdx_ObjectIDArray(char * input,void * output)
+{
+	TELESCOPE_buffer * buffer;
+	cdx_ObjectIDArray * icdx_ObjectIDArray=(cdx_ObjectIDArray*)output;
+	if (getbufferfromstructure(findmultilist((*currentinstance).getFullName()),&buffer))
+	{
+		int bufferleft=(LHENDRAW_buffersize-(*buffer).count)/4;
+		icdx_ObjectIDArray->a=(int*)((*buffer).buffer+(*buffer).count);
+		_i32 tl_count=strlen(input);
+		int reading=0;
+		_u32 currentno=0;
+		(icdx_ObjectIDArray->count)=0;
+		for (int ilv2=0;ilv2<=tl_count;ilv2++)
+		{
+			if ((input[ilv2]==' ') || (input[ilv2]==0))
+			{
+				if (reading)
+				{
+					icdx_ObjectIDArray->a[(icdx_ObjectIDArray->count)]=currentno;
+					(icdx_ObjectIDArray->count)++;
+					if (((icdx_ObjectIDArray->count)==bufferleft) || (input[ilv2]==0))
+					{
+						return 1;
+					}
+					currentno=0;
+					reading=0;
+				}
+				goto skip;
+			}
+			else
+			{
+				currentno*=10;
+				currentno+=input[ilv2]-'0';
+				reading=1;
+			}
+			skip:;
+		}
+	}
+	return 0;
+}
+int __attribute__((sysv_abi))CDXMLREAD_BIN_cdx_ObjectIDArray(char * input,void * output)
+{
+	TELESCOPE_buffer * buffer;
+	cdx_ObjectIDArray * icdx_ObjectIDArray=(cdx_ObjectIDArray*)output;
+	if (getbufferfromstructure(findmultilist((*currentinstance).getFullName()),&buffer))
+	{
+		int bufferleft=(LHENDRAW_buffersize-(*buffer).count)/4;
+		int tl_count=paramvaluestring_length/4;//Well this is just as hacky as the file format itself...
+		if (bufferleft<tl_count) tl_count=bufferleft;
+		if (tl_count<0)tl_count=0;
+		memcpy((buffer->buffer+buffer->count),input,tl_count*4);
+		icdx_ObjectIDArray->count=tl_count;
+		icdx_ObjectIDArray->a=(_i32*)(buffer->buffer+buffer->count);
+		buffer->count+=tl_count*4;
+	}
+	return 0;
+}
+int __attribute__((sysv_abi))CDXMLWRITE_cdx_ObjectIDArray(char * input,void * output)
+{
+	cdx_ObjectIDArray * icdx_ObjectIDArray=(cdx_ObjectIDArray*)input;
+	for (int ilv1=0;ilv1<icdx_ObjectIDArray->count;ilv1++)
+	{
+		fprintf((FILE*)output,"%i ",icdx_ObjectIDArray->a[ilv1]);
+	}
+	return 0;
+}
+int __attribute__((sysv_abi))CDXMLWRITE_BIN_cdx_ObjectIDArray(char * input,void * output)
+{
+	cdx_ObjectIDArray * icdx_ObjectIDArray=(cdx_ObjectIDArray*)input;
+	_u16 length=4*(icdx_ObjectIDArray->count);
+	fwrite(&length,2,1,(FILE*)output);
+	for (int ilv1=0;ilv1<icdx_ObjectIDArray->count;ilv1++)
+	{
+		fwrite(icdx_ObjectIDArray->a+ilv1,4,1,(FILE*)output);
+	}
+	return 4;
 }
 
 

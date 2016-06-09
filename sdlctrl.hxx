@@ -518,7 +518,7 @@ int interpretkey(int listnr=-1)
 									return 1;
 								}
 							}
-							if (hotkeylist[ilv1].command!=NULL)
+							if ((hotkeylist[ilv1].command!=NULL) && (tltype!=0))
 							{
 								basicmultilist * tl_multilist=findmultilist(STRUCTURE_OBJECTTYPE_List[tltype & 0xFFFF].name);
 								_u32 icompare=(1<<(tltype & 0xFFFF));

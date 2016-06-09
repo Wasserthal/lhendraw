@@ -3446,6 +3446,7 @@ catalogized_command_funcdef(FILE_NEW)
 		{
 			(*tlmultilist).filllevel=0;
 			glob_contentbuffer[ilv1].count=0;
+			(*tlmultilist).maxid=0;
 		}
 	}
 	for (int ilv1=0;ilv1<sizeof(janitor_id_list)/sizeof(int);ilv1++)

@@ -186,6 +186,11 @@ int getbufferfromstructure(basicmultilist * input,TELESCOPE_buffer * * bufferptr
 		(*bufferptr)=&filestructure_text_buffer;
 		return 1;
 	}
+	if (input==CAMBRIDGEPREFIX2(glob,hatch_multilist))
+	{
+		(*bufferptr)=&filestructure_text_buffer;
+		return 1;
+	}
 	if (input==CAMBRIDGEPREFIX2(glob,curve_multilist))
 	{
 		(*bufferptr)=&filestructure_curve_buffer;

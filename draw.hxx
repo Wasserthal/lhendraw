@@ -1798,11 +1798,15 @@ iBBX.right+ibonddist2*cos(cangle)+ibonddist4*(cos(cangle)-(cos(langle)*tlrightta
 	svg_main_hatch:
 	{
 		double startx,starty;
+		double minx,miny,maxx,maxy;
 		int tl_started=0;
 		hatch_instance * tlhatch=&((*glob_hatch_multilist)[index_in_buffer]);
 		MACRO_DRAWPREFIX(stylegenestring)(stylefromattrs((*tlhatch).LineType,(*tlhatch).FillType));
-		MACRO_DRAWPREFIX(expressgeometry_start)(0,0,640,480);
-		SDL_color=tlhatch->color;
+		//AND NOW: ONLY TO CALCULATE THE AREA:
+		minx=maxfloat;
+		maxx=minfloat;
+		miny=maxfloat;
+		maxy=minfloat;
 		if (TELESCOPE_aggressobject(glob_hatch_multilist,index_in_buffer))
 		{
 			int backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_ContentList);
@@ -1813,22 +1817,52 @@ iBBX.right+ibonddist2*cos(cangle)+ibonddist4*(cos(cangle)-(cos(langle)*tlrightta
 				{
 					int tl_Pointnr=tl_ContentList[ilv2];
 					int atomindex=edit_getatombyid(tl_Pointnr);
-					if (atomindex==-1) goto dontputthispoint;
+					if (atomindex==-1) goto dontputthispoint_prepare;
 					{
 						n_instance * i_n_instance=&((*glob_n_multilist)[atomindex]);
 						double currentx=i_n_instance->xyz.x;
 						double currenty=i_n_instance->xyz.y;
-						if (tl_started==0)
-						{
-							MACRO_DRAWPREFIX(expressgeometry_begin)(currentx,currenty);
-							tl_started=1;
-						}
-						else
-						{
-							MACRO_DRAWPREFIX(expressgeometry_line)(currentx,currenty);
-						}
+						if (currentx<minx) minx=currentx;
+						if (currenty<miny) miny=currenty;
+						if (currentx>maxx) maxx=currentx;
+						if (currenty>maxy) maxy=currenty;
 					}
-					dontputthispoint:;
+					dontputthispoint_prepare:;
+				}
+				backval=TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_ContentList);
+			}
+		}
+		//AND NOW, THE AREA IS CALCULATED
+		if (MACRO_DRAWPREFIX(expressgeometry_start)(minx,miny,maxx,maxy))
+		{
+			SDL_color=tlhatch->color;
+			if (TELESCOPE_aggressobject(glob_hatch_multilist,index_in_buffer))
+			{
+				int backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_ContentList);
+				while (backval>0)
+				{
+					int * tl_ContentList=(int*)TELESCOPE_getproperty_contents();
+					for (int ilv2=0;ilv2<(TELESCOPE_getproperty_contentlength()>>2);ilv2++)
+					{
+						int tl_Pointnr=tl_ContentList[ilv2];
+						int atomindex=edit_getatombyid(tl_Pointnr);
+						if (atomindex==-1) goto dontputthispoint;
+						{
+							n_instance * i_n_instance=&((*glob_n_multilist)[atomindex]);
+							double currentx=i_n_instance->xyz.x;
+							double currenty=i_n_instance->xyz.y;
+							if (tl_started==0)
+							{
+								MACRO_DRAWPREFIX(expressgeometry_begin)(currentx,currenty);
+								tl_started=1;
+							}
+							else
+							{
+								MACRO_DRAWPREFIX(expressgeometry_line)(currentx,currenty);
+							}
+						}
+						dontputthispoint:;
+					}
 					backval=TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_ContentList);
 				}
 			}

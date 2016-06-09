@@ -40,7 +40,7 @@ menuitem pullout_toolspecific_TLCPLATE[]={
 0xFF00,
 },
 {4,0,
-7,//Picture
+198,//Picture
 "TLCPLATE MOVE LANE",
 1,0,
 25,

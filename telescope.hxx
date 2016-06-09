@@ -68,6 +68,7 @@ void TELESCOPE_measure(int tag,TELESCOPE_buffer * ibuffer)
 	if (tl_telescope_element->length<=0) {printf("Zero-Length Element at %i:\n",share);exit(1);return;}
 	if (share<start->length-sizeof(TELESCOPE))
 	{
+		printf("LITTLE_BACK\n");
 		goto iback2;
 	}
 	idontgoback:
@@ -75,6 +76,7 @@ void TELESCOPE_measure(int tag,TELESCOPE_buffer * ibuffer)
 	if (start->length<=0) {printf("Zero-Length Object at %i:\n",total);exit(1);return;}
 	if (total<(*ibuffer).count)
 	{
+		printf("BIG-BACK\n");
 		goto iback;
 	}
 	return;

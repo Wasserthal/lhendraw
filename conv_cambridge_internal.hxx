@@ -655,6 +655,64 @@ void CAMBRIDGECONV_tlcplate()
 		}
 	}
 }
+void CAMBRIDGECONV_hatch()
+{
+	_i32 buffer_of_ten[10];
+	_i32 currentbufferoftenpos;
+	multilist<CAMBRIDGE_hatch_instance> * tl_CAMBRIDGE_hatch_multilist=retrievemultilist<CAMBRIDGE_hatch_instance>();
+	multilist<hatch_instance> * tl_hatch_multilist=retrievemultilist<hatch_instance>();
+	for (int ilv1=0;ilv1<(*tl_CAMBRIDGE_hatch_multilist).filllevel;ilv1++)
+	{
+		CAMBRIDGE_hatch_instance * tl_CAMBRIDGE_hatch_instance=(*tl_CAMBRIDGE_hatch_multilist).bufferlist()+ilv1;
+		hatch_instance tl_hatch_instance;
+		tl_hatch_instance=hatch_instance();
+		CAMBRIDGECONV_EXISTSTHEN(hatch,Z);
+		CAMBRIDGECONV_EXISTSTHEN(hatch,FillType);
+		CAMBRIDGECONV_EXISTSTHEN(hatch,LineType);
+		CAMBRIDGECONV_EXISTSTHEN2(hatch,RGB,color);
+		(*tl_hatch_multilist).ADD(&tl_hatch_instance);
+		if (TELESCOPE_aggressobject(tl_hatch_multilist,tl_hatch_multilist->filllevel-1)>=0)
+		{
+			int * tl_PCTEXT=tl_CAMBRIDGE_hatch_instance->CircularBondOrdering.a;
+			_i32 tl_count=tl_CAMBRIDGE_hatch_instance->CircularBondOrdering.count;
+			TELESCOPE_add(TELESCOPE_ELEMENTTYPE_ContentList,(char*)tl_PCTEXT,4*tl_count);
+			_u32 * target=(_u32*)TELESCOPE_getproperty_contents();
+			for (int ilv2=0;ilv2<tl_count;ilv2++)
+			{
+				target[ilv2]+=glob_n_multilist->maxid;
+			}
+/*			int reading=0;
+			_i32 currentno=0;
+			currentbufferoftenpos=0;
+			for (int ilv2=0;ilv2<=tl_count;ilv2++)
+			{
+				if ((tl_PCTEXT[ilv2]==' ') || (tl_PCTEXT[ilv2]==0))
+				{
+					if (reading)
+					{
+						buffer_of_ten[currentbufferoftenpos]=currentno;
+						currentbufferoftenpos++;
+						if ((currentbufferoftenpos==10) || (tl_PCTEXT[ilv2]==0))
+						{
+							TELESCOPE_add(TELESCOPE_ELEMENTTYPE_ContentList,(char*)&buffer_of_ten,40);
+							currentbufferoftenpos=0;
+						}
+						currentno=0;
+						reading=0;
+					}
+					goto skip;
+				}
+				else
+				{
+					currentno*=10;
+					currentno+=tl_PCTEXT[ilv2]-'0';
+					reading=1;
+				}
+				skip:;
+			}*/
+		}
+	}
+}
 
 extern int janitor_getmaxid(_u32 ino);
 void CAMBRIDGECONV_maintointernal()
@@ -667,5 +725,6 @@ void CAMBRIDGECONV_maintointernal()
 	CAMBRIDGECONV_arrow();
 	CAMBRIDGECONV_curve();
 	CAMBRIDGECONV_tlcplate();
+	CAMBRIDGECONV_hatch();
 	janitor_getmaxid(0);//You never know what must be done with them next.
 }

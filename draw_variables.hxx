@@ -643,6 +643,16 @@ char emptystring[1]="";
 char semicolonstring[2]=";";
 int stylefromline(int input) {return 1|((input & 1)?8:0)|((input & 2)?4:0);}
 int stylefromrectangle(int input) {return 1|((input & 0x10)?8:0)|((input & 0x20)?4:0)|((input & 0x8)?2:0);}
+_u32 draw_CurveTypeToStyle(_u32 input)
+{
+	return (1^(((input & 0x80)!=0)*3))|(((input & 2)>0)*8)|(input & 4);
+}
+_u32 draw_CurveTypeFromAttrs(_i32 LineType,_i32 FillType)
+{
+	_i32 wert;
+	wert=((FillType==0)?1:0)|((LineType & 1)?2:0)|((LineType & 2)?4:0)|((LineType & 4)?512:0)|((FillType==1)?128:0);
+	return wert;
+}
 int stylefromattrs(_i32 LineType,_i32 FillType)
 {
 	_i32 wert=((FillType==0)?1:0)|((LineType & 1)?8:0)|((LineType & 2)?4:0)|((FillType==1)?2:0);

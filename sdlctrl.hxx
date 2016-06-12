@@ -50,10 +50,11 @@ enum ENUM_TOOL
 	ENUM_TOOL_TLCPLATE_MOVE_STARTLINE_OR_ENDLINE=26,//TLCPLATE MOVE STARTLINE OR ENDLINE
 	ENUM_TOOL_CHANGE_SHAPE_OF_TLC_PLATE=27,//change shape of TLC PLATE
 	ENUM_TOOL_HATCH_CREATE=28,//draw hatches
+	ENUM_TOOL_HATCH_SWAPPOINTS=29,//swap two points of the hatches
 };
 int control_menumode=0;//1: shliderhorz, 2: slidervert 3: colorchooser
 AUTOSTRUCT_PULLOUTLISTING_ * control_menuitem=NULL;
-#define control_toolcount 29
+#define control_toolcount 30
 int control_keycombotool=0;//as above, but only valid if (mousestate & 2)
 _i32 control_toolstartkeysym;
 int control_lastinterpret=-1;
@@ -124,21 +125,41 @@ int control_hatch_lastatom;
 typedef struct control_toolinfo_
 {
 	_u32 undoes;//for BOTH mouse buttons, unless using other tool
-	char forcedrag;//two bits, one for lmb and one for rmb, higher two bits of precise_drag: lower lmb, higher rmb.
+	char forcedrag;//two bits, one for lmb and one for rmb, higher two bits of precise_drag: lower lmb, higher rmb.Next two higher bits: drag after click
 	int rmbfunction;//0: use popup; -1: tool-specific, use lmb -2: tool-specific, add 0x10000 -3: use rmb function of menu >0: tool-specific, use other tool
 } control_toolinfo_;
 control_toolinfo_ control_toolinfo[]=
 {
 	{0,0,0},//0: none
 	{0,0,0},//1: Hand
-	{0,1,0},//2: 2Coordinate selection
-	{0,0,0},//3: Lasso
-	{(_u32)~0,1,1},//4: Shift tool
+	{0,3,0},//2: 2Coordinate selection
+	{0,3,0},//3: Lasso
+	{(_u32)~0,3,1},//4: Shift tool
 	{0,0,-1},//5: Magnifying glass
 	{1<<STRUCTURE_OBJECTTYPE_n,0,-3},//Element put
 	{(_u32)~0,0,0},//Chemdraw draw
 	{(_u32)~0,7,-1},//eraser
 	{(_u32)~0,0,0},//Arrow
+	{1<<STRUCTURE_OBJECTTYPE_n,0,-1},//attributes
+	{1<<STRUCTURE_OBJECTTYPE_t,0,-1},//text tool
+	{1<<STRUCTURE_OBJECTTYPE_curve,0,-1},//curve(bezier)
+	{(_u32)~0,0,-1},//image
+	{(_u32)~0,0,-1},//spectrum
+	{1<<STRUCTURE_OBJECTTYPE_tlcplate,0,-1},//tlc plate/gel plate
+	{1<<STRUCTURE_OBJECTTYPE_graphic,0,-1},//graphic
+	{(1<<STRUCTURE_OBJECTTYPE_n)|(1<<STRUCTURE_OBJECTTYPE_b),0,-1},//aromatic ring tool
+	{1<<STRUCTURE_OBJECTTYPE_arrow,0x33,-1},//Arrow_skip
+	{1<<STRUCTURE_OBJECTTYPE_arrow,0x33,-1},//Arrow_situp
+	{1<<STRUCTURE_OBJECTTYPE_graphic,0,-1},//brackets
+	{1<<STRUCTURE_OBJECTTYPE_tlcplate,0,-1},//TLCPLATE ADD SPOT
+	{1<<STRUCTURE_OBJECTTYPE_tlcplate,0,-1},//TLCPLATE DEL SPOT
+	{1<<STRUCTURE_OBJECTTYPE_tlcplate,0,-1},//TLCPLATE ADD LANE
+	{1<<STRUCTURE_OBJECTTYPE_tlcplate,0,-1},//TLCPLATE DEL LANE
+	{1<<STRUCTURE_OBJECTTYPE_tlcplate,0,-1},//TLCPLATE MOVE LANE
+	{1<<STRUCTURE_OBJECTTYPE_tlcplate,0x33,-1},//TLCPLATE MOVE STARTLINE OR ENDLINE
+	{1<<STRUCTURE_OBJECTTYPE_tlcplate,0x33,-1},//change shape of TLC PLATE
+	{1<<STRUCTURE_OBJECTTYPE_hatch,0,-1},//draw hatches
+	{1<<STRUCTURE_OBJECTTYPE_hatch,0,-1},//swap two points of the hatches
 };
 
 void CONTROL_ZOOMIN(float ifactor,char i_direction)
@@ -1879,7 +1900,7 @@ int issueclick(int iposx,int iposy)
 							tl_tlcspot.Rf-=((tlcplate_instance*)control_manipulatedinstance)->OriginFraction;
 							tl_tlcspot.Rf/=1-((tlcplate_instance*)control_manipulatedinstance)->OriginFraction-((tlcplate_instance*)control_manipulatedinstance)->SolventFrontFraction;
 							tl_tlcspot.color=control_drawproperties.color;
-							tl_tlcspot.CurveType=0;
+							tl_tlcspot.CurveType=draw_CurveTypeFromAttrs(control_drawproperties.LineType,1);
 							TELESCOPE_buffercheck(glob_tlcplate_multilist);
 							TELESCOPE_insertintoproperties_offset((char*)&tl_tlcspot,sizeof(cdx_tlcspot),control_current_tlclane_instance->length-sizeof(tlclane_instance));
 							control_mousestate=0;
@@ -1916,7 +1937,14 @@ int issueclick(int iposx,int iposy)
 						}
 						case 23:
 						{
-							TELESCOPE_add(TELESCOPE_ELEMENTTYPE_tlclane,NULL,0);
+							if (trunc(tl_backx*tl_lane_count*2)>=(tl_lane_count*2-1))
+							{
+								TELESCOPE_add(TELESCOPE_ELEMENTTYPE_tlclane,NULL,0);
+							}
+							else
+							{
+								TELESCOPE_add_sub(TELESCOPE_ELEMENTTYPE_tlclane,NULL,0);
+							}
 							control_mousestate=0;
 							return 1;
 							break;
@@ -1965,6 +1993,16 @@ int issueclick(int iposx,int iposy)
 			}
 			break;
 		}
+		case 26:
+		{
+			control_manipulatedinstance=getclicked((1<<STRUCTURE_OBJECTTYPE_tlcplate),control_coorsx,control_coorsy);
+			break;
+		}
+		case 27:
+		{
+			control_manipulatedinstance=getclicked((1<<STRUCTURE_OBJECTTYPE_tlcplate),control_coorsx,control_coorsy);
+			break;
+		}
 		case 28:
 		{
 			control_manipulatedinstance=NULL;
@@ -2010,6 +2048,17 @@ int issueclick(int iposx,int iposy)
 				control_hatch_lastatom=edit_clickresult.backindex;
 			}
 			break;
+		}
+		case 29:
+		{
+			n_instance * tl_n_instance=(n_instance*)getclicked(1<<STRUCTURE_OBJECTTYPE_n,control_coorsx,control_coorsy);
+			if (tl_n_instance!=NULL)
+			{
+				control_manipulatedinstance=tl_n_instance;
+				break;
+			}
+			control_mousestate=0;
+			return 0;
 		}
 	}
 	ifertig:;
@@ -2457,7 +2506,8 @@ void issuedrag(int iposx,int iposy)
 			interpretkey(control_lastinterpret);
 			break;
 		}
-		case 15:
+		case 26://FALLTHROUGH
+		case 15://FALLTHROUGH
 		{
 			(*(tlcplate_instance*)control_manipulatedinstance).BottomRight.x=control_coorsx;
 			(*(tlcplate_instance*)control_manipulatedinstance).BottomRight.y=control_coorsy;
@@ -2565,6 +2615,21 @@ void issuedrag(int iposx,int iposy)
 					(*(arrow_instance*)control_manipulatedinstance).Head3D.x=mx+sin(tl_angle2)*sinus_x+cos(tl_angle2)*cosinus_x;
 					(*(arrow_instance*)control_manipulatedinstance).Head3D.y=my+sin(tl_angle2)*sinus_y+cos(tl_angle2)*cosinus_y;
 				}
+			}
+			break;
+		}
+		case 27:
+		{
+			double tl_backx,tl_backy;
+			if (control_manipulatedinstance==NULL) break;
+			edit_getposintlcplate_reversed((tlcplate_instance*)control_manipulatedinstance,control_coorsx,control_coorsy,&tl_backx,&tl_backy);
+			if (control_usingmousebutton==SDL_BUTTON_LEFT)
+			{
+				((tlcplate_instance*)control_manipulatedinstance)->SolventFrontFraction=tl_backy;
+			}
+			else
+			{
+				((tlcplate_instance*)control_manipulatedinstance)->OriginFraction=1-tl_backy;
 			}
 			break;
 		}
@@ -2961,7 +3026,6 @@ void issuerelease()
 				{
 					if (tl_tlclane_instance>control_current_tlclane_instance)
 					{
-						propertylength2=tl_tlclane_instance->length;
 						tl_first=(char*)control_current_tlclane_instance;
 						tl_second=tl_first+control_current_tlclane_instance->length;
 						propertylength2=((char*)tl_tlclane_instance)-tl_second+tl_tlclane_instance->length;
@@ -2974,6 +3038,21 @@ void issuerelease()
 					}
 					memory_cyclicmotion(tl_first,tl_second,propertylength2);
 				}
+				else
+				{
+					if (tl_tlclane_instance>control_current_tlclane_instance)
+					{
+						tlclane_instance * swap_tlclane_instance;
+						swap_tlclane_instance=tl_tlclane_instance;
+						tl_tlclane_instance=control_current_tlclane_instance;
+						control_current_tlclane_instance=swap_tlclane_instance;
+					}
+					tl_first=(char*)tl_tlclane_instance;
+					tl_second=tl_first+control_current_tlclane_instance->length;
+					propertylength2=((char*)control_current_tlclane_instance)-tl_second;
+					memory_cyclicmotion(tl_first,tl_second,propertylength2);
+					memory_cyclicmotion(tl_first,(char*)control_current_tlclane_instance,control_current_tlclane_instance->length);
+				}
 			}
 			else
 			{
@@ -2983,6 +3062,53 @@ void issuerelease()
 			}
 			break;
 		}
+		case 29:
+		{
+			selection_recheck(selection_currentselection,&selection_currentselection_found);
+			clickforthem();
+			n_instance * tl_n_instance=(n_instance*)getclicked(1<<STRUCTURE_OBJECTTYPE_n,control_coorsx,control_coorsy);
+			if (tl_n_instance)
+			{
+				int id1=((n_instance*)control_manipulatedinstance)->id;
+				int id2=tl_n_instance->id;
+				for (int ilv1=0;ilv1<glob_hatch_multilist->filllevel;ilv1++)
+				{
+					if (((selection_currentselection_found & (1<<STRUCTURE_OBJECTTYPE_hatch))==0)||(selection_currentselection[ilv1] & (1<<STRUCTURE_OBJECTTYPE_hatch)))
+					{
+						hatch_instance * tl_hatch_instance=glob_hatch_multilist->bufferlist()+ilv1;
+						if (tl_hatch_instance->exist)
+						{
+							printf("EXIST%i,%i\n",id1,id2);
+							if (TELESCOPE_aggressobject(glob_hatch_multilist,ilv1))
+							{
+								int backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_ContentList);
+								while (backval>0)
+								{
+									int * tl_ContentList=(int*)TELESCOPE_getproperty_contents();
+									for (int ilv2=0;ilv2<(TELESCOPE_getproperty_contentlength()>>2);ilv2++)
+									{
+										if (tl_ContentList[ilv2]==id1)
+										{
+											tl_ContentList[ilv2]=id2;
+										}
+										else
+										{
+											if (tl_ContentList[ilv2]==id2)
+											{
+												tl_ContentList[ilv2]=id1;
+											}
+										}
+									}
+									backval=TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_ContentList);
+								}
+							}
+						}
+					}
+				}
+			}
+			break;
+		}
+		break;
 	}
 	control_mousestate=0;
 	return;
@@ -4015,6 +4141,13 @@ void control_normal()
 						if (control_mousestate==0)
 						{
 							issueclick(control_Event.button.x-gfx_canvasminx,control_Event.button.y-gfx_canvasminy);
+							if (control_mousestate&3)
+							{
+								if (control_toolinfo[control_tool].forcedrag&((control_usingmousebutton==SDL_BUTTON_LEFT)*0x10|(control_usingmousebutton==SDL_BUTTON_RIGHT)*0x20))
+								{
+									issuedrag(control_Event.button.x-gfx_canvasminx,control_Event.button.y-gfx_canvasminy);
+								}
+							}
 						}
 						else
 						{

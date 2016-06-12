@@ -819,6 +819,33 @@ inline int removepoints(curve_instance * iinstance,int inumber,basicmultilist * 
 }
 inline int removepoints(tlcplate_instance * iinstance,int inumber,basicmultilist * imultilist=NULL)
 {
+	if (inumber>0)
+	{
+		int tl_backval=0;
+		int ilv1=0;
+		if (imultilist==NULL) imultilist=glob_tlcplate_multilist;
+		tl_backval=TELESCOPE_aggressobject(imultilist,iinstance-(((multilist<tlcplate_instance>*)imultilist)->bufferlist()));
+		tl_backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_tlclane);
+		int currentlane=0;
+		inumber--;
+		iback:;
+		if (tl_backval>0)
+		{
+			int tl_pointcount=TELESCOPE_getproperty_contentlength()/sizeof(cdx_tlcspot);
+			ilv1+=tl_pointcount;
+			if (ilv1>inumber)
+			{
+				ilv1-=tl_pointcount;
+				TELESCOPE_shrink((inumber-ilv1)*sizeof(cdx_tlcspot),sizeof(cdx_tlcspot));
+				return 1;
+			}
+			tl_backval=TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_tlclane);
+			currentlane++;
+			goto iback;
+		}
+		inumber-=ilv1;
+		return 0;
+	}
 	return 0;
 }
 inline int removepoints(hatch_instance * iinstance,int inumber,basicmultilist * imultilist=NULL)
@@ -1086,6 +1113,7 @@ inline int retrievepoints(tlcplate_instance * iinstance,float * ix,float * iy,fl
 			{
 				ilv1-=tl_pointcount;
 				cdx_tlcspot * itlcspot=((cdx_tlcspot*)TELESCOPE_getproperty_contents())+inumber-ilv1;
+				TELESCOPE_tempvar.currentnumberintelescopeelementcontents=inumber-ilv1;
 				double tl_ix,tl_iy,tl_iz;
 				draw_getposintlcplate(&tl_ix,&tl_iy,iinstance,(currentlane+0.5)/((float)TELESCOPE_count_elements(1<<TELESCOPE_ELEMENTTYPE_tlclane)),(iinstance->SolventFrontFraction)*(*itlcspot).Rf+(1-iinstance->OriginFraction)*(1-(*itlcspot).Rf));
 				(*ix)=tl_ix;
@@ -1098,7 +1126,6 @@ inline int retrievepoints(tlcplate_instance * iinstance,float * ix,float * iy,fl
 			goto iback;
 		}
 		inumber-=ilv1;
-//		if (inumber==0) goto bottomrightcorner;
 		return 0;
 	}
 	return 0;
@@ -2129,31 +2156,12 @@ tlcplate_instance * edit_summontlcplate(int * nr=NULL)
 		cdx_tlcspot itlcspot;
 		tlclane_instance tl_tlclane_instance;
 		TELESCOPE_aggressobject(glob_tlcplate_multilist,tl_nr);
-		tl_tlclane_instance.length=sizeof(tlclane_instance)+sizeof(cdx_tlcspot)*3;
+		tl_tlclane_instance.length=sizeof(tlclane_instance)+sizeof(cdx_tlcspot);
 		tl_tlclane_instance.type=TELESCOPE_ELEMENTTYPE_tlclane;
-		itlcspot.Rf=0.3;
+		itlcspot.Rf=-0.05;
 		itlcspot.color=0x00FF00;
-		itlcspot.CurveType=1;
-		TELESCOPE_add(TELESCOPE_ELEMENTTYPE_tlclane,(char*)&itlcspot,sizeof(cdx_tlcspot)*3);
-		cdx_tlcspot * spots=(cdx_tlcspot*)TELESCOPE_getproperty_contents();
-		itlcspot.Rf=0.2;
-		itlcspot.color=0x00FF00;
-		spots[1]=itlcspot;
-		itlcspot.Rf=0.1;
-		itlcspot.color=0x00FF00;
-		spots[2]=itlcspot;
-		*((tlclane_instance*)TELESCOPE_getproperty())=tl_tlclane_instance;
-		TELESCOPE_aggressobject(glob_tlcplate_multilist,tl_nr);
-		tl_tlclane_instance.length=sizeof(tlclane_instance)+sizeof(cdx_tlcspot)*2;
-		tl_tlclane_instance.type=TELESCOPE_ELEMENTTYPE_tlclane;
-		itlcspot.Rf=0.2;
-		itlcspot.color=0x00FF00;
-		TELESCOPE_add(TELESCOPE_ELEMENTTYPE_tlclane,(char*)&itlcspot,sizeof(cdx_tlcspot)*2);
-		spots=(cdx_tlcspot*)TELESCOPE_getproperty_contents();
-		itlcspot.Rf=0.1;
-		itlcspot.color=0x00FF00;
-		spots[1]=itlcspot;
-		*((tlclane_instance*)TELESCOPE_getproperty())=tl_tlclane_instance;
+		itlcspot.CurveType=draw_CurveTypeFromAttrs(control_drawproperties.LineType,1);
+		TELESCOPE_add(TELESCOPE_ELEMENTTYPE_tlclane,(char*)&itlcspot,sizeof(cdx_tlcspot));
 		if (nr!=NULL)
 		{
 			*nr=tl_nr;
@@ -5668,7 +5676,7 @@ catalogized_command_funcdef(SET_ALL_ITEMS)//TODO: works for _i32 only, right now
 	}
 	for (int ilv1=1;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
 	{
-		if (!((ilv1==STRUCTURE_OBJECTTYPE_n)||(ilv1==STRUCTURE_OBJECTTYPE_t))) continue;
+		if (!((ilv1==STRUCTURE_OBJECTTYPE_n)||(ilv1==STRUCTURE_OBJECTTYPE_t)||(ilv1==STRUCTURE_OBJECTTYPE_tlcplate))) continue;
 		int follower3=0;
 		basicmultilist * tl_multilist=findmultilist(STRUCTURE_OBJECTTYPE_List[ilv1].name);
 		char * ibufferpos=(*tl_multilist).pointer;
@@ -5688,6 +5696,11 @@ catalogized_command_funcdef(SET_ALL_ITEMS)//TODO: works for _i32 only, right now
 						{
 							case TELESCOPE_ELEMENTTYPE_Symbol:
 							((Symbol_instance*)TELESCOPE_getproperty())->color=iwert;
+							break;
+							case TELESCOPE_ELEMENTTYPE_tlclane:
+							_u32 length=TELESCOPE_getproperty_contentlength()/sizeof(cdx_tlcspot);
+							cdx_tlcspot * tl_cdx_tlcspot=(cdx_tlcspot*)TELESCOPE_getproperty_contents();
+							tl_cdx_tlcspot[TELESCOPE_tempvar.currentnumberintelescopeelementcontents].color=iwert;
 							break;
 						}
 					}

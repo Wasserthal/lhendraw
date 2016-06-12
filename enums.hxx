@@ -198,6 +198,13 @@ bienum CAMBRIDGE_LineType[]={
 	{{"Wavy"},0x4},//or doubled in tlcspot and curve
 };
 int CAMBRIDGE_LineType_max=sizeof(CAMBRIDGE_LineType)/sizeof(bienum);
+bienum CAMBRIDGE_CurveType[]={
+	{{"dashed"},0x2},
+	{{"filled"},0x80},
+	{{"bold"},0x4},
+	{{"doubled"},0x200},
+};
+int CAMBRIDGE_CurveType_max=sizeof(CAMBRIDGE_CurveType)/sizeof(bienum);
 bienum CAMBRIDGE_FillType[]={
 	{{"None"},0x0},
 	{{"Solid"},0x1},//warning! 

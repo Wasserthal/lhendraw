@@ -38,6 +38,7 @@ struct TELESCOPE_tempvar_
 	char inside_TELESCOPE;
 	char inside_TELESCOPE_element;
 	basicmultilist * multilist;
+	_u32 currentnumberintelescopeelementcontents;
 };
 TELESCOPE_tempvar_ TELESCOPE_tempvar;
 TELESCOPE_tempvar_ TELESCOPE_debugvar;
@@ -383,6 +384,23 @@ int TELESCOPE_add(int tag,const char * iinput,int ilength)//Like insertintoprope
 	if (TELESCOPE_tempvar.inside_TELESCOPE)
 	{
 		TELESCOPE_tempvar.subpos=(*((TELESCOPE*)((*TELESCOPE_tempvar.buffer).buffer+TELESCOPE_tempvar.pos))).length;
+		TELESCOPE_tempvar.subpos2=TELESCOPE_tempvar.subpos;
+		TELESCOPE_tempvar.inside_TELESCOPE_element=0;
+	}
+	if (TELESCOPE_stretch_buffer(TELESCOPE_tempvar.multilist,ilength,tag)==-1) {memory_overflow_hook();exit(1);}
+	char * ilv1b=(*TELESCOPE_tempvar.buffer).buffer+TELESCOPE_tempvar.pos+TELESCOPE_tempvar.subpos2;
+	if (iinput!=NULL)
+	{
+		memcpy(ilv1b,iinput,ilength);
+	}
+	return 1;
+}
+int TELESCOPE_add_sub(int tag,const char * iinput,int ilength)//Like insertintoproperties, but unconditionally creates a NEW TELESCOPE_element
+{
+	//This NEW TELESCOPE_element, or derived structure, must be obtained with TELESCOPE_getproperty and written later.
+	TELESCOPE_tempvar.inside_TELESCOPE=TELESCOPE_verify_objectpresent();//TODO: such calls in aggressobject and nowhere else
+	if (TELESCOPE_tempvar.inside_TELESCOPE)
+	{
 		TELESCOPE_tempvar.subpos2=TELESCOPE_tempvar.subpos;
 		TELESCOPE_tempvar.inside_TELESCOPE_element=0;
 	}

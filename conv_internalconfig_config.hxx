@@ -13,7 +13,7 @@ void conv_internalconfig_config(const char * filename)
 		{
 			if (hotkeylist[ilv2].type==thistype) goto had_type_already;
 		}
-		edit_bienum_multi_string(BKCHEM_type,objecttypestring,BKCHEM_type_max,thistype);
+		edit_bienum_multi_string(CONFIGBRIDGE_type,objecttypestring,CONFIGBRIDGE_type_max,thistype);
 		fprintf(outfile,"<Object type=\"%s\">\n<Hotkeys>\n",objecttypestring);
 		for (int ilv2=ilv1;ilv2<hotkeylist_count;ilv2++)
 		{

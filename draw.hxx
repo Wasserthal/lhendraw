@@ -842,7 +842,13 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,char clickcollisionche
 			{
 				draw_getposintlcplate(&tl_x1,&tl_y1,i_tlcplate_instance,(tlclaneno-0.5)/tlclanecount,(i_tlcplate_instance->SolventFrontFraction)*(*itlcspot).Rf+(1-i_tlcplate_instance->OriginFraction)*(1-(*itlcspot).Rf));
 				MACRO_DRAWPREFIX(get_colorstring)((*itlcspot).color);
-				MACRO_DRAWPREFIX(expresscdxcircle)(tl_x1,tl_y1,3);
+				MACRO_DRAWPREFIX(stylegenestring)(draw_CurveTypeToStyle((*itlcspot).CurveType));
+				MACRO_DRAWPREFIX(expresscdxcircle)(tl_x1,tl_y1,3+((*itlcspot).CurveType & 4)/2);
+				MACRO_DRAWPREFIX(stylegenestring)(draw_CurveTypeToStyle((*itlcspot).CurveType)&(~0x2));
+				if ((*itlcspot).CurveType & 0x200)
+				{
+					MACRO_DRAWPREFIX(expresscdxcircle)(tl_x1,tl_y1,6);
+				}
 				itlcspot++;
 			}
 			tlbackval=TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_tlclane);

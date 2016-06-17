@@ -478,7 +478,6 @@ _small owner;
 float othercangle;
 float otherlangle;
 int index_in_buffer;
-int ilv1;
 int currentArrowHeadType;
 int currentArrowHeadTail;
 int currentArrowHeadHead;

@@ -34,9 +34,9 @@ void vectordependentmatrix(float input[3][3])
 	}
 	if (edit_endatom_count==2)
 	{
-		submatrix[1][ilv1]=glob_n_multilist->bufferlist()[edit_endatom[1]].xyz.x-glob_n_multilist->bufferlist()[edit_endatom[0]].xyz.x;
-		submatrix[1][ilv1]=glob_n_multilist->bufferlist()[edit_endatom[1]].xyz.y-glob_n_multilist->bufferlist()[edit_endatom[0]].xyz.y;
-		submatrix[1][ilv1]=glob_n_multilist->bufferlist()[edit_endatom[1]].xyz.z-glob_n_multilist->bufferlist()[edit_endatom[0]].xyz.z;
+		submatrix[1][0]=glob_n_multilist->bufferlist()[edit_endatom[1]].xyz.x-glob_n_multilist->bufferlist()[edit_endatom[0]].xyz.x;
+		submatrix[1][1]=glob_n_multilist->bufferlist()[edit_endatom[1]].xyz.y-glob_n_multilist->bufferlist()[edit_endatom[0]].xyz.y;
+		submatrix[1][2]=glob_n_multilist->bufferlist()[edit_endatom[1]].xyz.z-glob_n_multilist->bufferlist()[edit_endatom[0]].xyz.z;
 	}
 	normalizevector(&(submatrix[1][0]));
 	crossprod(&(submatrix[0][0]),&(submatrix[1][0]),&(submatrix[2][0]));

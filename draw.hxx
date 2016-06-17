@@ -424,6 +424,7 @@ void MACRO_DRAWPREFIX(doublebracket)(int ibt)
 }
 void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,char clickcollisioncheck)
 {
+	int ilv1;
 	int ilv3,ilv4;
 	void * dummy;
 	cdx_Rectangle tlBoundingBox;

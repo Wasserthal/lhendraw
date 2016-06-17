@@ -51,10 +51,13 @@ enum ENUM_TOOL
 	ENUM_TOOL_CHANGE_SHAPE_OF_TLC_PLATE=27,//change shape of TLC PLATE
 	ENUM_TOOL_HATCH_CREATE=28,//draw hatches
 	ENUM_TOOL_HATCH_SWAPPOINTS=29,//swap two points of the hatches
+	ENUM_TOOL_HATCH_REVERSEHATCH=30,//reverse the hatch
+	ENUM_TOOL_HATCH_DELETE=31,//deletes points from hatch
+	ENUM_TOOL_HATCH_SETSTARTPOINT=32,//sets which point will be the first one
 };
 int control_menumode=0;//1: shliderhorz, 2: slidervert 3: colorchooser
 AUTOSTRUCT_PULLOUTLISTING_ * control_menuitem=NULL;
-#define control_toolcount 30
+#define control_toolcount 33
 int control_keycombotool=0;//as above, but only valid if (mousestate & 2)
 _i32 control_toolstartkeysym;
 int control_lastinterpret=-1;
@@ -1917,7 +1920,7 @@ int issueclick(int iposx,int iposy)
 							Rf/=1-((tlcplate_instance*)control_manipulatedinstance)->OriginFraction-((tlcplate_instance*)control_manipulatedinstance)->SolventFrontFraction;
 							double bestdist=2e127;
 							int besttlcspot=-1;
-							for (ilv1=0;ilv1<(control_current_tlclane_instance->length-sizeof(control_current_tlclane_instance))/sizeof(cdx_tlcspot);ilv1++)
+							for (int ilv1=0;ilv1<(control_current_tlclane_instance->length-sizeof(control_current_tlclane_instance))/sizeof(cdx_tlcspot);ilv1++)
 							{
 								cdx_tlcspot * tl_tlcspot=(cdx_tlcspot*)(((char*)control_current_tlclane_instance)+sizeof(tlclane_instance)+ilv1*sizeof(cdx_tlcspot));
 								double currentdist=fabs(Rf-tl_tlcspot->Rf);
@@ -2030,7 +2033,7 @@ int issueclick(int iposx,int iposy)
 					}
 					tl_backval=TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_ContentList);
 				}
-				control_hatch_lastatom=edit_getatombyid(tl_backval);
+				control_hatch_lastatom=edit_getatombyid(control_hatch_lastatom_id);
 				if (control_hatch_lastatom==-1)
 				{
 					control_mousestate=0;
@@ -2059,6 +2062,169 @@ int issueclick(int iposx,int iposy)
 			}
 			control_mousestate=0;
 			return 0;
+		}
+		case 30:
+		{
+			selection_recheck(selection_currentselection,&selection_currentselection_found);
+			clickforthem();
+			hatch_instance * tl_hatch_instance=(hatch_instance*)getclicked(1<<STRUCTURE_OBJECTTYPE_hatch,control_coorsx,control_coorsy);
+			if (tl_hatch_instance)
+			{
+				int tl_id_list_count=0;
+				if (TELESCOPE_aggressobject(glob_hatch_multilist,edit_clickresult.backindex))
+				{
+					int subno=0;
+					int backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_ContentList);
+					while (backval>0)
+					{
+						int * tl_ContentList=(int*)TELESCOPE_getproperty_contents();
+						int tl_length=(TELESCOPE_getproperty_contentlength()>>2);
+						for (int ilv2=0;ilv2<tl_length;ilv2++)
+						{
+							janitor_id_list[subno]=tl_ContentList[ilv2];
+							subno++;
+							tl_id_list_count++;
+						}
+						backval=TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_ContentList);
+					}
+				}
+				if (TELESCOPE_aggressobject(glob_hatch_multilist,edit_clickresult.backindex))
+				{
+					int subno=0;
+					int backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_ContentList);
+					while (backval>0)
+					{
+						int * tl_ContentList=(int*)TELESCOPE_getproperty_contents();
+						int tl_length=(TELESCOPE_getproperty_contentlength()>>2);
+						for (int ilv2=0;ilv2<tl_length;ilv2++)
+						{
+							tl_ContentList[ilv2]=janitor_id_list[tl_id_list_count-subno-1];
+							subno++;
+						}
+						backval=TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_ContentList);
+					}
+				}
+			}
+			break;
+		}
+		case 31:
+		{
+			selection_recheck(selection_currentselection,&selection_currentselection_found);
+			clickforthem();
+			n_instance * tl_n_instance=(n_instance*)getclicked(1<<STRUCTURE_OBJECTTYPE_n,control_coorsx,control_coorsy);
+			if (tl_n_instance)
+			{
+				int id1=tl_n_instance->id;
+				for (int ilv1=0;ilv1<glob_hatch_multilist->filllevel;ilv1++)
+				{
+					if (((selection_currentselection_found & (1<<STRUCTURE_OBJECTTYPE_hatch))==0)||(selection_currentselection[ilv1] & (1<<STRUCTURE_OBJECTTYPE_hatch)))
+					{
+						hatch_instance * tl_hatch_instance=glob_hatch_multilist->bufferlist()+ilv1;
+						if (tl_hatch_instance->exist)
+						{
+							if (TELESCOPE_aggressobject(glob_hatch_multilist,ilv1))
+							{
+								int backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_ContentList);
+								while (backval>0)
+								{
+									int * tl_ContentList=(int*)TELESCOPE_getproperty_contents();
+									int tl_length=(TELESCOPE_getproperty_contentlength()>>2);
+									for (int ilv2=0;ilv2<tl_length;ilv2++)
+									{
+										if (tl_ContentList[ilv2]==id1)
+										{
+											TELESCOPE_shrink(-(tl_length-ilv2)*sizeof(_u32),4);
+											control_mousestate=0;
+											return 1;
+										}
+									}
+									backval=TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_ContentList);
+								}
+							}
+						}
+					}
+				}
+			}
+			control_mousestate=0;
+			return 0;
+			break;
+		}
+		case 32:
+		{
+			selection_recheck(selection_currentselection,&selection_currentselection_found);
+			clickforthem();
+			n_instance * tl_n_instance=(n_instance*)getclicked(1<<STRUCTURE_OBJECTTYPE_n,control_coorsx,control_coorsy);
+			if (tl_n_instance)
+			{
+				int id1=tl_n_instance->id;
+				for (int ilv1=0;ilv1<glob_hatch_multilist->filllevel;ilv1++)
+				{
+					if (((selection_currentselection_found & (1<<STRUCTURE_OBJECTTYPE_hatch))==0)||(selection_currentselection[ilv1] & (1<<STRUCTURE_OBJECTTYPE_hatch)))
+					{
+						hatch_instance * tl_hatch_instance=glob_hatch_multilist->bufferlist()+ilv1;
+						if (tl_hatch_instance->exist)
+						{
+							if (TELESCOPE_aggressobject(glob_hatch_multilist,ilv1))
+							{
+								int backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_ContentList);
+								int startno=0;
+								while (backval>0)
+								{
+									int * tl_ContentList=(int*)TELESCOPE_getproperty_contents();
+									int tl_length=(TELESCOPE_getproperty_contentlength()>>2);
+									for (int ilv2=0;ilv2<tl_length;ilv2++)
+									{
+										if (tl_ContentList[ilv2]==id1)
+										{
+				int tl_id_list_count=0;
+				if (TELESCOPE_aggressobject(glob_hatch_multilist,ilv1))
+				{
+					int subno=0;
+					int backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_ContentList);
+					while (backval>0)
+					{
+						int * tl_ContentList=(int*)TELESCOPE_getproperty_contents();
+						int tl_length=(TELESCOPE_getproperty_contentlength()>>2);
+						for (int ilv3=0;ilv3<tl_length;ilv3++)
+						{
+							janitor_id_list[subno]=tl_ContentList[ilv3];
+							subno++;
+							tl_id_list_count++;
+						}
+						backval=TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_ContentList);
+					}
+				}
+				if (TELESCOPE_aggressobject(glob_hatch_multilist,ilv1))
+				{
+					int subno=0;
+					int backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_ContentList);
+					while (backval>0)
+					{
+						int * tl_ContentList=(int*)TELESCOPE_getproperty_contents();
+						int tl_length=(TELESCOPE_getproperty_contentlength()>>2);
+						for (int ilv3=0;ilv3<tl_length;ilv3++)
+						{
+							tl_ContentList[ilv3]=janitor_id_list[(subno+startno)%tl_id_list_count];
+							subno++;
+						}
+						backval=TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_ContentList);
+					}
+				}
+											goto hatchstart_hatch_done;
+										}
+										startno++;
+									}
+									backval=TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_ContentList);
+								}
+							}
+						}
+					}
+					hatchstart_hatch_done:;
+				}
+			}
+			control_mousestate=0;
+			return 0;
+			break;
 		}
 	}
 	ifertig:;
@@ -3078,7 +3244,6 @@ void issuerelease()
 						hatch_instance * tl_hatch_instance=glob_hatch_multilist->bufferlist()+ilv1;
 						if (tl_hatch_instance->exist)
 						{
-							printf("EXIST%i,%i\n",id1,id2);
 							if (TELESCOPE_aggressobject(glob_hatch_multilist,ilv1))
 							{
 								int backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_ContentList);
@@ -3705,7 +3870,7 @@ int issuepseclick(int x,int y,int ibutton)
 				{
 					if (((*glob_n_multilist).bufferlist()+ilv2)->exist)
 					{
-						edit_setelement(ilv1,(*glob_n_multilist).bufferlist()+ilv2,ilv2);
+						edit_setelement(control_drawproperties.Element,(*glob_n_multilist).bufferlist()+ilv2,ilv2);
 						//It is by reason that uninterpreted text labels are not overwritten!
 					}
 				}

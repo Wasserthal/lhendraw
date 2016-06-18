@@ -31,3 +31,4 @@ makesdl.sh
 *.temp
 oldhotkeys.xml
 *.eps
+*.mol64

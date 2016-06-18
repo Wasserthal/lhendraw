@@ -4289,6 +4289,7 @@ void edit_correct_bondlength(_small * ilastfilllevels,float factor)
 	applytransform(imatrix);
 	selection_copyselection(selection_currentselection,selection_clickselection);
 }
+extern void binaries_LOAD_mol64(FILE * infile);
 catalogized_command_funcdef(LOAD_TYPE)
 {
 	FILE * infile;
@@ -4309,6 +4310,18 @@ catalogized_command_funcdef(LOAD_TYPE)
 		{
 			multilistlist[ilv1].instance->reset();
 		}
+	}
+	if (strcmp(value,".mol64")==0)
+	{
+		for (int ilv1=1;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
+		{
+			tl_lastfilllevels[ilv1]=findmultilist(STRUCTURE_OBJECTTYPE_List[ilv1].name)->filllevel;
+		}
+		binaries_LOAD_mol64(infile);
+		edit_correct_bondlength(tl_lastfilllevels,300/1.47);
+		svg_findaround();
+		getatoms();
+		return 1;
 	}
 	if (strcmp(value,".cdml")==0)
 	{

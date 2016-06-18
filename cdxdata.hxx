@@ -357,6 +357,7 @@ int __attribute__((sysv_abi))CDXMLREAD_cdx_ObjectIDArray(char * input,void * out
 				{
 					icdx_ObjectIDArray->a[(icdx_ObjectIDArray->count)]=currentno;
 					(icdx_ObjectIDArray->count)++;
+					(*buffer).count+=4;
 					if (((icdx_ObjectIDArray->count)==bufferleft) || (input[ilv2]==0))
 					{
 						return 1;

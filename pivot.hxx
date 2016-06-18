@@ -6,6 +6,10 @@ void crossprod(float result[3],float input1[3],float input2[3])
 	result[1]=input1[2]*input2[0]-input1[0]*input2[2];
 	result[2]=input1[0]*input2[1]-input1[1]*input2[0];
 }
+float scalprod(float input1[3],float input2[3])
+{
+	return input1[0]*input2[0]+input1[1]*input2[1]+input1[2]*input2[2];
+}
 void normalizevector(float invector[3])
 {
 	float size=sqrt(invector[0]*invector[0]+invector[1]*invector[1]+invector[2]*invector[2]);
@@ -348,5 +352,56 @@ catalogized_command_funcdef(PIVOT_SCALEZ)
 	matrix[2][2]=factor;
 	if (strncmp(parameter,"rel",3)==0) vectordependentmatrix(matrix);
 	applytransform(matrix);
+	return 1;
+}
+catalogized_command_funcdef(POLISHHATCHES)
+{
+	for (int ilv1=0;ilv1<glob_hatch_multilist->filllevel;ilv1++)
+	{
+		if (TELESCOPE_aggressobject(glob_hatch_multilist,ilv1))
+		{
+			float tl_list[3][3];
+			int count=0;
+			int backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_ContentList);
+			while (backval>0)
+			{
+				int * tl_ContentList=(int*)TELESCOPE_getproperty_contents();
+				for (int ilv2=0;ilv2<(TELESCOPE_getproperty_contentlength()>>2);ilv2++)
+				{
+					int tl_Pointnr=tl_ContentList[ilv2];
+					int atomindex=edit_getatombyid(tl_Pointnr);
+					if (atomindex!=-1)
+					{
+						n_instance * i_n_instance=&((*glob_n_multilist)[atomindex]);
+						tl_list[count][0]=i_n_instance->xyz.x;
+						tl_list[count][1]=i_n_instance->xyz.y;
+						tl_list[count][2]=i_n_instance->xyz.z;
+						count++;
+						if (count==3) goto thirdonefound;
+					}
+				}
+				backval=TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_ContentList);
+			}
+			goto thishatchdone;
+			thirdonefound:;
+			float mitte[3];
+			tl_list[1][0]-=tl_list[0][0];
+			tl_list[1][1]-=tl_list[0][1];
+			tl_list[1][2]-=tl_list[0][2];
+			tl_list[2][0]-=tl_list[0][0];
+			tl_list[2][1]-=tl_list[0][1];
+			tl_list[2][2]-=tl_list[0][2];
+			crossprod(mitte,&(tl_list[1][0]),&(tl_list[2][0]));
+			normalizevector(mitte);
+			tl_list[0][0]=-2;
+			tl_list[0][1]=-1;
+			tl_list[0][2]=3;
+			normalizevector(&(tl_list[0][0]));
+			float gradlinigkeit=fabs(scalprod(&(tl_list[0][0]),mitte));
+			int icolor=gradlinigkeit*255;
+			glob_hatch_multilist->bufferlist()[ilv1].color=65536*icolor+256*icolor+icolor;
+		}
+		thishatchdone:;
+	}
 	return 1;
 }

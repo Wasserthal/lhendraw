@@ -1363,7 +1363,7 @@ void MACRO_DRAWPREFIX(controlprocedure)(bool irestriction,char clickcollisionche
 	{
 		textdeltax=7;
 		textdeltay=7;
-		return;
+		goto svg_main_loop;
 	}
 	else
 	{

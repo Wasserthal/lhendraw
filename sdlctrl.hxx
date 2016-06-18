@@ -1874,6 +1874,8 @@ int issueclick(int iposx,int iposy)
 		case 23:
 		case 24:
 		case 25:
+		case 26:
+		case 27:
 		{
 			double tl_backx,tl_backy;
 			edit_clickresult.backindex=-1;
@@ -1959,6 +1961,18 @@ int issueclick(int iposx,int iposy)
 							return 1;
 							break;
 						}
+						case 25:
+						{
+							break;
+						}
+						case 26:
+						{
+							break;
+						}
+						case 27:
+						{
+							break;
+						}
 					}
 				}
 				else
@@ -1994,16 +2008,6 @@ int issueclick(int iposx,int iposy)
 				control_mousestate=0;
 				return 0;
 			}
-			break;
-		}
-		case 26:
-		{
-			control_manipulatedinstance=getclicked((1<<STRUCTURE_OBJECTTYPE_tlcplate),control_coorsx,control_coorsy);
-			break;
-		}
-		case 27:
-		{
-			control_manipulatedinstance=getclicked((1<<STRUCTURE_OBJECTTYPE_tlcplate),control_coorsx,control_coorsy);
 			break;
 		}
 		case 28:

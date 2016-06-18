@@ -5946,7 +5946,7 @@ int edit_flexicopy(int undostep_no,multilist<n_instance> * n_target,multilist<b_
 	}
 	for (int ilv1=1;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
 	{
-		if (ilv1!=STRUCTURE_OBJECTTYPE_b)
+		if ((ilv1!=STRUCTURE_OBJECTTYPE_b) && (ilv1!=STRUCTURE_OBJECTTYPE_hatch))
 		{
 			int follower=0;
 			icompare=1<<ilv1;

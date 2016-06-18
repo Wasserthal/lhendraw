@@ -112,7 +112,11 @@ void selection_recheck(selection_ iselection,_u32 * matrix)
 						{
 							(*matrix)|=(icompare<<STRUCTURE_OBJECTTYPE_ListSize);
 						}
-						follower3++;//TODO: overflow
+						follower3++;
+						if (follower3>(LHENDRAW_buffersize/sizeof(selection_datatype)))
+						{
+							memory_overflow_hook();
+						}
 					}
 				}
 			}

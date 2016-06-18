@@ -161,7 +161,7 @@ control_toolinfo_ control_toolinfo[]=
 	{1<<STRUCTURE_OBJECTTYPE_tlcplate,0,-1},//TLCPLATE MOVE LANE
 	{1<<STRUCTURE_OBJECTTYPE_tlcplate,0x33,-1},//TLCPLATE MOVE STARTLINE OR ENDLINE
 	{1<<STRUCTURE_OBJECTTYPE_tlcplate,0x33,-1},//change shape of TLC PLATE
-	{1<<STRUCTURE_OBJECTTYPE_hatch,0,-1},//draw hatches
+	{1<<STRUCTURE_OBJECTTYPE_hatch,0x33,-1},//draw hatches
 	{1<<STRUCTURE_OBJECTTYPE_hatch,0,-1},//swap two points of the hatches
 };
 

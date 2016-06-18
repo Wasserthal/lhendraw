@@ -116,7 +116,6 @@ char control_filememory_port_buffer[constants_maxlistentries][256];
 _u32 control_filememory_port_attribs[constants_maxlistentries];
 char control_filememory_search_buffer[constants_maxlistentries][256];
 _u32 control_filememory_search_attribs[constants_maxlistentries];
-//TODO: how are the attribs connected?
 int menu_selectedmenuelement;
 char control_filemenu_mode=0;
 int undo_undodirty=1;//set when undo was stored just to become immediately modified in the same command, like the storeundo at issueclick

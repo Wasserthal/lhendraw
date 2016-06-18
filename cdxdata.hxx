@@ -74,12 +74,6 @@ struct cdx_Bezierpoints
 	int count;
 };
 
-struct cdx_Pointreferences
-{
-	int a[bezierpointmax]; //TODO**** turn this, and strings, into buffer indices
-	int count;
-};
-
 struct cdx_tlcspot
 {
 	float Rf;
@@ -768,59 +762,6 @@ int __attribute__((sysv_abi))CDXMLREAD_cdx_Bezierpoints(char * input,void * outp
 	while(spaciatic(input[ilv1])) ilv1++;
 	if (input[ilv1]==0) return ilv1;
 	ilv1+=CDXMLREAD_float(input+ilv1,&((*list).a[(*list).count].y));
-	while(spaciatic(input[ilv1])) ilv1++;
-	if (input[ilv1]==0) ended=1;
-	(*list).count++;
-	if (!ended) goto iback;
-	return ilv1;
-}
-
-int __attribute__((sysv_abi))CDXMLREAD_BIN_cdx_Pointreferences(char * input,void * output)
-{
-	//TODO: Buffered!
-	cdx_Pointreferences * list=(cdx_Pointreferences*)output;
-	(*list).count=paramvaluestring_length/4;//Well this is just as hacky as the file format itself...
-	//TODO: Buffered_overflow_check!
-	if ((*list).count>=bezierpointmax) {(*list).count=0;return -1;}
-	for (int ilv1=0;ilv1<(*list).count;ilv1++)
-	{
-		list->a[ilv1]=((_i32*)input)[ilv1];
-	}
-	return 0;
-}
-int __attribute__((sysv_abi))CDXMLWRITE_BIN_cdx_Pointreferences(char * input,void * output)
-{
-	//TODO: Buffered!
-	cdx_Pointreferences * list=(cdx_Pointreferences*)input;
-	(*list).count=paramvaluestring_length/4;//Well this is just as hacky as the file format itself...
-	int length=(*list).count*4;
-	fwrite(&length,2,1,(FILE*)output);
-	for (int ilv1=0;ilv1<(*list).count;ilv1++)
-	{
-		fwrite(&(list->a[ilv1]),4,1,(FILE*)output);
-	}
-	return length;
-}
-int __attribute__((sysv_abi))CDXMLWRITE_cdx_Pointreferences(char * input,void * output)
-{
-	cdx_Pointreferences * list=(cdx_Pointreferences*)input;
-	for (int ilv1=0;ilv1<(*list).count;ilv1++)
-	{
-		fprintf((FILE*)output," %i ",*(((*list).a)+ilv1));
-	}
-	return 0;
-}
-int __attribute__((sysv_abi))CDXMLREAD_cdx_Pointreferences(char * input,void * output)
-{
-	//TODO: Buffered!
-	int ilv1;
-	cdx_Pointreferences * list=(cdx_Pointreferences*)output;
-	char ended=0;
-	(*list).count=0;
-	ilv1=0;
-	iback:
-	if (ilv1>=bezierpointmax-1) {(*list).count=ilv1;return ilv1;}
-	ilv1+=CDXMLREAD__i32(input+ilv1,&((*list).a[(*list).count]));
 	while(spaciatic(input[ilv1])) ilv1++;
 	if (input[ilv1]==0) ended=1;
 	(*list).count++;

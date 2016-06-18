@@ -174,7 +174,6 @@ int main(int argc,char * * argv)
 		case '5' : strcpy(properties_types[properties_count],"cdx_Coordinate");properties_type_nrs[properties_count]=1;break;
 		case '#' : strcpy(properties_types[properties_count],"_i32");properties_type_nrs[properties_count]=4;break;
 		case '~' : strcpy(properties_types[properties_count],"cdx_Bezierpoints");properties_type_nrs[properties_count]=6;break;
-		case 'T' : strcpy(properties_types[properties_count],"cdx_Pointreferences");properties_type_nrs[properties_count]=6;break;
 		case '!' : strcpy(properties_types[properties_count],"_i32");properties_type_nrs[properties_count]=5;break;//an ENUM
 		case ':' : strcpy(properties_types[properties_count],":");properties_type_nrs[properties_count]=0;break;//actually a content
 		case 'i' : strcpy(properties_types[properties_count],"bkchem_id");properties_type_nrs[properties_count]=1;break;//bkchem type id(sucks)

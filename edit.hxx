@@ -3988,18 +3988,18 @@ catalogized_command_funcdef(PASTE)
 	{
 		if (control_aggresstextcursor("\uE000"))
 		{
-			//TODO: check for text mode
 			for (int ilv1=0;ilv1<LHENDRAW_clipboardbuffer_count;ilv1++)
 			{
 				if (LHENDRAW_clipboardbuffer[ilv1]==0)
 				{
 					LHENDRAW_clipboardbuffer_count=ilv1;
+					goto ifound;
 				}
 			}
+			ifound:;
 			//Not needed in this case. is it needed at all?
 			LHENDRAW_clipboardbuffer=(char*)realloc(LHENDRAW_clipboardbuffer,LHENDRAW_clipboardbuffer_count+1);
 			LHENDRAW_clipboardbuffer[LHENDRAW_clipboardbuffer_count]=0;
-			//TODO: overflow check
 			if (control_textedit_selectmode==1)
 			{
 				control_squashselection();

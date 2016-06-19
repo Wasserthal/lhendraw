@@ -426,6 +426,63 @@ void janitor_memoryresort()
 }
 void janitor_tidynumbers()
 {
+	for (int ilv1=0;ilv1<glob_n_multilist->filllevel;ilv1++)
+	{
+		if (glob_n_multilist->bufferlist()[ilv1].exist)
+		{
+			for (int ilv2=ilv1+1;ilv2<glob_n_multilist->filllevel;ilv2++)
+			{
+				if (glob_n_multilist->bufferlist()[ilv2].exist)
+				{
+					if (glob_n_multilist->bufferlist()[ilv2].id<glob_n_multilist->bufferlist()[ilv1].id)
+					{
+						n_instance swap=glob_n_multilist->bufferlist()[ilv1];
+						glob_n_multilist->bufferlist()[ilv1]=glob_n_multilist->bufferlist()[ilv2];
+						glob_n_multilist->bufferlist()[ilv2]=swap;
+					}
+				}
+			}
+		}
+	}
+	for (int ilv1=0;ilv1<glob_n_multilist->filllevel;ilv1++)
+	{
+		if (glob_n_multilist->bufferlist()[ilv1].exist)
+		{
+			if (glob_n_multilist->bufferlist()[ilv1].id>ilv1)
+			{
+				int iid=glob_n_multilist->bufferlist()[ilv1].id;
+				for (int ilv2=0;ilv2<glob_b_multilist->filllevel;ilv2++)
+				{
+					b_instance * tl_b_instance=glob_b_multilist->bufferlist()+ilv2;
+					if (tl_b_instance->exist)
+					{
+						if (tl_b_instance->B==iid) tl_b_instance->B=ilv1;
+						if (tl_b_instance->E==iid) tl_b_instance->E=ilv1;
+					}
+				}
+				for (int ilv2=0;ilv2<glob_hatch_multilist->filllevel;ilv2++)
+				{
+					if (TELESCOPE_aggressobject(glob_hatch_multilist,ilv2))
+					{
+						int tl_backval=TELESCOPE_searchthroughobject(TELESCOPE_ELEMENTTYPE_ContentList);
+						iback:;
+						if (tl_backval)
+						{
+							_u32 * list=(_u32*)TELESCOPE_getproperty_contents();
+							int count=TELESCOPE_getproperty_contentlength()/sizeof(_u32);
+							for (int ilv3=0;ilv3<count;ilv3++)
+							{
+								if (list[ilv3]==iid) list[ilv3]=ilv1;
+							}
+							tl_backval=TELESCOPE_searchthroughobject_next(TELESCOPE_ELEMENTTYPE_ContentList);
+							goto iback;
+						}
+					}
+				}
+				glob_n_multilist->bufferlist()[ilv1].id=ilv1;
+			}
+		}
+	}
 	return;
 }
 extern void checkupinconsistencies();

@@ -420,6 +420,7 @@ int sdl_listmenudraw(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int count,int xpos=0,
 					}
 				}
 				char * tl_pointer=(char*)(ilisting[ilv1].variable);
+				if (ilisting[ilv1].lmbmode==3) tl_pointer=(char*)(ilisting[ilv1].name);
 				printmenutext(horzistart+xpos,(vertistart)+ypos,tl_pointer,min(strlen(tl_pointer),(horziend-horzistart)/8));
 				break;
 			}

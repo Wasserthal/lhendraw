@@ -4523,17 +4523,17 @@ catalogized_command_funcdef(TURNBAR_APPLYTZ)
 }
 catalogized_command_funcdef(TURNBAR_APPLYSX)
 {
-	REFLECTION_FUNCTION_execute("PIVOT_SCALEX","deg",control_turnbar.scaleX);
+	REFLECTION_FUNCTION_execute("PIVOT_SCALEX","mul",control_turnbar.scaleX);
 	return 1;
 }
 catalogized_command_funcdef(TURNBAR_APPLYSY)
 {
-	REFLECTION_FUNCTION_execute("PIVOT_SCALEY","deg",control_turnbar.scaleY);
+	REFLECTION_FUNCTION_execute("PIVOT_SCALEY","mul",control_turnbar.scaleY);
 	return 1;
 }
 catalogized_command_funcdef(TURNBAR_APPLYSZ)
 {
-	REFLECTION_FUNCTION_execute("PIVOT_SCALEZ","deg",control_turnbar.scaleZ);
+	REFLECTION_FUNCTION_execute("PIVOT_SCALEZ","mul",control_turnbar.scaleZ);
 	return 1;
 }
 catalogized_command_funcdef(TURNBAR_APPLY)

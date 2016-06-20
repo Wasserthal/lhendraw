@@ -153,7 +153,7 @@ void executeparameter(const char which,int parameter,int posinparameter,int argc
 "Parameters:\n"
 "-I      : No gui. Doesn't run interactively\n"
 "-O<fn>  : specify output-filename/filetype. Will be saved at end. Is stored as the current document's filename\n"
-"-o<struct>.<option>=<value>  : give some option from the options-menu an other value\n"
+"-o<struct>.<option>=<value>  : set some option from the options-menu to the value\n"
 "          example -o control_searchproperties.wildcardsliteral=1 \n"
 "-F      : Doesn't ask questions. Overwrites files. Use with more caution\n"
 "-i      : Run interactively. No meaning in the current situation\n"

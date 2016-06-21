@@ -3428,7 +3428,9 @@ int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int
 						(*tltl)^=(1<<ihitnr);
 						break;
 					}
-					case 6:
+					case 0x416:
+					control_mousestate=0;//FALLTHROUGH
+					case 6://FALLTHROUGH
 					{
 						if (*((_i32*)((*ipulloutlisting).variable))!=(*ipulloutlisting).toolnr)
 						{
@@ -3612,6 +3614,14 @@ int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int
 						}
 						break;
 					}
+					case 0x400:
+					{
+						if (control_mousestate==0)
+						{
+							control_mousestate=0x10;
+						}
+						break;
+					}
 					default:
 					{
 						goto idefault;
@@ -3745,6 +3755,11 @@ int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int
 						}
 						break;
 					}
+					case 0x400:
+					{
+						if ((*(_u32*)((*ipulloutlisting).variable))>0) (*(_u32*)((*ipulloutlisting).variable))--;
+						break;
+					}
 				}
 				break;
 			}
@@ -3822,6 +3837,11 @@ int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int
 							goto x303_back_dec;
 							break;
 						}
+						break;
+					}
+					case 0x400:
+					{
+						if ((*(_u32*)((*ipulloutlisting).variable))<fileformat_count-1) (*(_u32*)((*ipulloutlisting).variable))++;
 						break;
 					}
 				}

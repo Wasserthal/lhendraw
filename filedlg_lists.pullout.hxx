@@ -1,4 +1,15 @@
 menuitem pullout_filedlg_lists[]={
+{0,-56,
+0,//Picture
+"",
+0x400,0x400,
+0,
+"File ending",
+"control_filememory_ending",
+"","",
+0xFF,
+256,-40,
+},
 {256,0,
 0,//Picture
 "FILEDLG_FILE_PATH",

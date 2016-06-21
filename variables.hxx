@@ -141,10 +141,13 @@ structenum control_filememory_search=
 };
 char control_currentdirectory[1024]="";
 char control_filenamehead[256]="";
+_u32 control_filememory_ending=0;
 char control_currentdirectory_port[1024]="";
 char control_filenamehead_port[256]="";
+_u32 control_filememory_port_ending=0;
 char control_currentdirectory_search[1024]="";
 char control_filenamehead_search[256]="";
+_u32 control_filememory_search_ending=0;
 int control_setfilename(const char * ifilename)
 {
 	int istrpos;

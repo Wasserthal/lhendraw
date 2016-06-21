@@ -272,6 +272,8 @@ int quersum(_u32 input,int max=32)
 }
 int sdl_textmenudraw(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int count,int xpos=0,int ypos=0,int imark=-1)
 {
+	if (ypos<0) ypos+=gfx_screensizey;
+	if (xpos<0) xpos+=gfx_screensizex;
 	for (int ilv1=0;ilv1<count;ilv1++)
 	{
 		int sizex=ilisting[ilv1].maxx;
@@ -328,6 +330,23 @@ int sdl_textmenudraw(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int count,int xpos=0,
 				}
 			}
 			break;
+			case 0x416:
+			{
+				for (int ilv2=0;ilv2<16;ilv2++)
+				{
+					for (int ilv3=0;ilv3<sizex;ilv3++)
+					{
+						*(iscreen)=ilisting[ilv1].bgcolor;
+						iscreen++;
+					}
+					iscreen+=gfx_screensizex-sizex;
+				}
+				SDL_color=ilisting[ilv1].color;
+				xpos+=48;
+				printmenutext(ilisting[ilv1].x*sizex+xpos,ilisting[ilv1].y*16+ypos,ilisting[ilv1].explanation,strlen(ilisting[ilv1].explanation));
+				xpos-=48;
+				break;
+			}
 			default:
 			SDL_color=0x000000;
 		}
@@ -389,6 +408,7 @@ int sdl_textbuttonmenudraw(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int count,int x
 int sdl_listmenudraw(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int count,int xpos=0,int ypos=0,int item=-1)
 {
 	int ilv2;
+	char ichar[20];
 	structenum istructenum;
 	int bgcolor=0;
 	int horzistart,vertistart;
@@ -503,10 +523,32 @@ int sdl_listmenudraw(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int count,int xpos=0,
 					SDL_color=0;
 					printmenutext(horzistart+xpos-160,vertistart+ypos,tl_pointer,min(strlen(tl_pointer),(160)/8));
 					SDL_color=0xFFFFFF;
-					tl_pointer=({char ichar[20];ichar;});
+					tl_pointer=ichar;
 					sprintf(tl_pointer,"%i",*(int*)(ilisting[ilv1].variable));
 				}
 				printmenutext(horzistart+xpos,(vertistart)+ypos,tl_pointer,min(strlen(tl_pointer),(horziend-horzistart)/8));
+				break;
+			}
+			case 0x400:
+			{
+				horziend--;
+				vertiend--;
+				int tlcolor=(item==ilv1)?0xFF7F00:0;
+				for (int ilv1=vertistart;ilv1<vertiend;ilv1++)
+				{
+					for (int ilv2=horzistart;ilv2<horziend;ilv2++)
+					{
+						*(screen+(ilv1*gfx_screensizex+horzistart))=tlcolor;
+						*(screen+(vertistart*gfx_screensizex+ilv2))=tlcolor;
+						*(screen+(ilv1*gfx_screensizex+horziend))=tlcolor;
+						*(screen+(vertiend*gfx_screensizex+ilv2))=tlcolor;
+					}
+				}
+				char * tl_pointer;
+				tl_pointer=fileformat[*(int*)(ilisting[ilv1].variable)].ending;
+				printmenutext(horzistart+xpos,(vertistart)+ypos,tl_pointer,min(strlen(tl_pointer),(horziend-horzistart)/8));
+				tl_pointer=fileformat[*(int*)(ilisting[ilv1].variable)].description;
+				printmenutext(horzistart+xpos+48,(vertistart)+ypos,tl_pointer,min(strlen(tl_pointer),(horziend-horzistart)/8));
 				break;
 			}
 		}
@@ -654,7 +696,46 @@ void sdl_warndlgcommon()
 }
 void sdl_filemenucommon()
 {
+	char idirection=0;
 	menu_list_count=0;
+	if (control_mousestate&0x10)
+	{
+		switch (control_filemenu_mode)
+		{
+			case 1:
+			case 2:
+			idirection=0;
+			goto ifiletypes_directionchosen;
+			case 0:
+			case 3:
+			ifiletypes_directionchosen:;
+			idirection=1;
+			menu_dynamic_menu_handle.count=0;
+			for (int ilv1=0;ilv1<fileformat_count;ilv1++)
+			{
+				if ((idirection)?(fileformat[ilv1].opened):(fileformat[ilv1].saved))
+				{
+					menu_dynamic_menu[menu_dynamic_menu_handle.count].lmbmode=0x416;
+					menu_dynamic_menu[menu_dynamic_menu_handle.count].rmbmode=0x416;
+					menu_dynamic_menu[menu_dynamic_menu_handle.count].variablename="WARNING_THIS_SHOULD_NOT_MATTER";
+					menu_dynamic_menu[menu_dynamic_menu_handle.count].name=fileformat[ilv1].ending;
+					menu_dynamic_menu[menu_dynamic_menu_handle.count].explanation=fileformat[ilv1].description;
+					menu_dynamic_menu[menu_dynamic_menu_handle.count].toolnr=ilv1;
+					menu_dynamic_menu[menu_dynamic_menu_handle.count].variable=&control_filememory_ending;
+					menu_dynamic_menu[menu_dynamic_menu_handle.count].x=0;
+					menu_dynamic_menu[menu_dynamic_menu_handle.count].y=menu_dynamic_menu_handle.count;
+					menu_dynamic_menu[menu_dynamic_menu_handle.count].maxx=256;
+					menu_dynamic_menu[menu_dynamic_menu_handle.count].maxy=0;
+					menu_dynamic_menu[menu_dynamic_menu_handle.count].color=fileformat[ilv1].fcolor;
+					menu_dynamic_menu[menu_dynamic_menu_handle.count].bgcolor=fileformat[ilv1].bgcolor;
+					menu_dynamic_menu_handle.count++;
+				}
+			}
+			addartificialmenu(1,0,-56-(16*fileformat_count));
+			break;
+		}
+	}
+	else
 	switch (control_filemenu_mode)
 	{
 		case 0: addmenu("filedlg_buttons_load",4);addmenu("filedlg_lists",3);break;
@@ -995,6 +1076,7 @@ void menuframeline(int x,int y,int maxx,int maxy)
 void sdl_menuframe()
 {
 	int menunr;int index;
+	if (control_mousestate&0x10) return;
 	menu_itemwadethrough(&menu_selectedmenuelement,&menunr,&index,0);
 	AUTOSTRUCT_PULLOUTLISTING_ * ilisting=(((AUTOSTRUCT_PULLOUTLISTING_*)(menu_list[menunr].what.pointer))+index);
 	menuframeline((*ilisting).x,(*ilisting).y,(*ilisting).maxx,(*ilisting).maxy);

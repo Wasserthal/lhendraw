@@ -99,6 +99,7 @@ int clockid=0;
 
 #include "sdlgfx.hxx"
 #include "glyf.hxx"
+#include "fileformat.hxx"
 #ifndef NOCLIPBOARD
 #include "clipboard.hxx"
 #endif

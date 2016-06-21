@@ -5560,7 +5560,7 @@ catalogized_command_funcdef(FILEDLG_FILE_SAVE)
 	if (DD)
 	{
 		sprintf(control_totalfilename,"%s/%s",control_currentdirectory,control_filenamehead);
-		retval=SAVE_TYPE(control_totalfilename,"");//TODO: insert selected type
+		retval=SAVE_TYPE(control_totalfilename,fileformat[control_filememory_ending].ending);
 
 		if (retval>=1)
 		{
@@ -5583,7 +5583,7 @@ catalogized_command_funcdef(FILEDLG_FILE_EXPORT)
 	{
 		sprintf(control_totalfilename,"%s/%s",control_currentdirectory_port,control_filenamehead_port);
 		edit_fileoperationrefersonlytopartofdocument=1;
-		retval=SAVE_TYPE(control_totalfilename,"");//TODO: insert selected type
+		retval=SAVE_TYPE(control_totalfilename,fileformat[control_filememory_port_ending].ending);
 		edit_fileoperationrefersonlytopartofdocument=0;
 
 		if (retval>=1)
@@ -5608,7 +5608,7 @@ catalogized_command_funcdef(FILEDLG_FILE_LOAD)
 		undo_storcatch(~0,"LOAD");
 		sprintf(control_totalfilename,"%s/%s",control_currentdirectory,control_filenamehead);
 		FILE_NEW("","");
-		retval=LOAD_TYPE(control_totalfilename,"");//TODO: insert selected type
+		retval=LOAD_TYPE(control_totalfilename,fileformat[control_filememory_ending].ending);
 		if (retval>=1)
 		{
 			LHENDRAW_filedlgmode=0;
@@ -5630,7 +5630,7 @@ catalogized_command_funcdef(FILEDLG_FILE_IMPORT)
 		undo_storcatch(~0,"IMPORT");
 		sprintf(control_totalfilename,"%s/%s",control_currentdirectory_port,control_filenamehead_port);
 		edit_fileoperationrefersonlytopartofdocument=1;
-		retval=LOAD_TYPE(control_totalfilename,"");//TODO: insert selected type
+		retval=LOAD_TYPE(control_totalfilename,fileformat[control_filememory_port_ending].ending);
 		edit_import_corrections();
 		edit_fileoperationrefersonlytopartofdocument=0;
 		if (retval>=1)

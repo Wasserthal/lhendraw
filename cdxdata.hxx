@@ -1072,4 +1072,5 @@ typedef struct AUTOSTRUCT_PULLOUTLISTING_
 	void * variable;
 //Either char, at 2 or _u32 at 4 
 	int maxx,maxy;
+	int color;
 }AUTOSTRUCT_PULLOUTLISTING_;

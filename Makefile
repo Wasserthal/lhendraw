@@ -67,7 +67,6 @@ install:
 	install lhendraw $(BIN)
 	cp hotkeys.xml -t $(DESTDIR)/usr/share/lhendraw
 	cp -R gfx -t $(DESTDIR)/usr/share/lhendraw/
-	cp *.ttf -t $(DESTDIR)/usr/share/lhendraw
 	cp *.lennardfont -t $(DESTDIR)/usr/share/lhendraw
 	cp *.bin -t $(DESTDIR)/usr/share/lhendraw
 	mkdir -p $(DESTDIR)/usr/share/man/man1

@@ -4072,7 +4072,7 @@ catalogized_command_funcdef(SAVE_TYPE)
 	}
 	#endif
 	FILE * ifile=fopen(parameter,"w+");
-	if (ifile==NULL) return 0;
+	if (ifile==NULL) return userwarning("\n\n    WRITE ERROR!\n");
 	FORCEEXTENSION
 	if ((strcmp(value,".bmp")==0) || (strcmp(value,".png")==0))
 	{
@@ -5514,7 +5514,7 @@ catalogized_command_funcdef(FILEDLG_FILE_SEL_SEARCH)
 	{
 		control_currentdirectory_search[formerlength]=0;
 		strncpy(control_filenamehead_search,parameter,255);control_filenamehead_search[255]=0;
-		menu_selectedmenuelement=menu_itembyname("FILEDLG_FILE_HEAD_SEARCH");
+		menu_selectedmenuelement=menu_itembyname("Search");
 	}
 	return 1;
 }
@@ -5536,7 +5536,7 @@ catalogized_command_funcdef(FILEDLG_FILE_PATH_SEARCH)
 		readfinished:;
 		control_filememory_search.scroll=0;
 		control_filememory_search.number=0;
-		menu_selectedmenuelement=menu_itembyname("FILEDLG_FILE_HEAD_SEARCH");
+		menu_selectedmenuelement=menu_itembyname("Search");
 		closedir(DD);
 		edit_filesort(control_filememory_search_buffer,control_filememory_search_attribs,&control_filememory_search);
 		return 1;

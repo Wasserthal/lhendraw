@@ -32,15 +32,4 @@ menuitem pullout_filedlg_search_lists[]={
 0xFFFFFF,
 -8,-56,
 },
-{256,-56,
-0,//Picture
-"FILEDLG_FILE_HEAD_SEARCH",
-0x301,0x301,
-0,
-"File Name Head",
-"control_filenamehead_search",
-"FILEDLG_FILE_HEAD_SEARCH","",
-0xFFFFFF,
--8,-40,
-},
 };

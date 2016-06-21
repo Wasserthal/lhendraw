@@ -1,4 +1,4 @@
-char help_menu[]="HELP MENU\n\nPress the corresponding number key to select topic\n\n1: Introduction\n2: other tools\n3: command line\n4: selection tools\n5: atom drawing tools\n6: Bond manipulation\na: About\npress ESCAPE to return to program";
+char help_menu[]="HELP MENU\n\nPress the corresponding number key to select topic\n\n1: Introduction\n2: other tools\n3: command line\n4: selection tools\n5: atom drawing tools\n6: Bond manipulation\n7: geometric manipulation\na: About\npress ESCAPE to return to program";
 char help_introduction[]="Usage\n"
 "The first thing you do is to use the \n\n\e11  tool.\nDraw a carbon chain (which contains implicit hydrogens by default).\n"
 "If you want to draw other elements, use the \n\n\e12  tool.\nSelect an atom or more, then click this tool. A periodic table appears.\n"
@@ -74,13 +74,19 @@ char help_about[]="ABOUT\n\n"
 "\e184  \e185  \n\n"
 "\e186  \e187  \n\n"
 "\e188  \e189  \n\n"
-"License: AFFERO GNU GENERAL PUBLIC LICENSE v.3\n"
+"License: GNU AFFERO GENERAL PUBLIC LICENSE v.3\n"
 "www.lennardwasserthal.de\n"
 "written in C++\n"
 "I also want to thank the alpha-tester, Florian Fischer:\n\n"
 "\e190  \e191  \n\n"
 "\e192  \e193  \n\n"
 "\e194  \e195  \n\n";
+char help_manipulation[]="Manipulation\n\n"
+"Use those three colored bars below the drawing area to turn the object\n\n"
+"The upper one turns them in 2d, the lower ones in 3d along the y- and x- axis\n\n"
+"you can also use the\e46  tool to turn the object and the\e22  tool to scale the object\n\n"
+"To use them, left click them and drag from them\n\n"
+"Left to these three bars is the \e145  symbol, which switches the turning to numeric mode\n\n";
 char * helpstring=help_introduction;
 void printmenutext(int posx,int posy,const char * iinput,int end,char symbolmode=0);
 void control_help()
@@ -101,6 +107,7 @@ void control_help()
 				case SDLK_4: helpstring=help_selectiontools;break;
 				case SDLK_5: helpstring=help_atomtools;break;
 				case SDLK_6: helpstring=help_bondtools;break;
+				case SDLK_7: helpstring=help_manipulation;break;
 				case SDLK_m: helpstring=help_menu;break;
 				case SDLK_a: helpstring=help_about;break;
 				default:

@@ -708,8 +708,8 @@ void sdl_filemenucommon()
 			goto ifiletypes_directionchosen;
 			case 0:
 			case 3:
-			ifiletypes_directionchosen:;
 			idirection=1;
+			ifiletypes_directionchosen:;
 			menu_dynamic_menu_handle.count=0;
 			for (int ilv1=0;ilv1<fileformat_count;ilv1++)
 			{

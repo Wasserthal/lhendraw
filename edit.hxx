@@ -4508,31 +4508,37 @@ catalogized_command_funcdef(TOGGLETEXTATTRIBUTE)
 }
 catalogized_command_funcdef(TURNBAR_APPLYTX)
 {
+	undo_storcatch(~0,"TURNBAR");
 	REFLECTION_FUNCTION_execute("PIVOT_TURNX","deg",control_turnbar.rotX);
 	return 1;
 }
 catalogized_command_funcdef(TURNBAR_APPLYTY)
 {
+	undo_storcatch(~0,"TURNBAR");
 	REFLECTION_FUNCTION_execute("PIVOT_TURNY","deg",control_turnbar.rotY);
 	return 1;
 }
 catalogized_command_funcdef(TURNBAR_APPLYTZ)
 {
+	undo_storcatch(~0,"TURNBAR");
 	REFLECTION_FUNCTION_execute("PIVOT_TURNZ","deg",control_turnbar.rotZ);
 	return 1;
 }
 catalogized_command_funcdef(TURNBAR_APPLYSX)
 {
+	undo_storcatch(~0,"TURNBAR");
 	REFLECTION_FUNCTION_execute("PIVOT_SCALEX","mul",control_turnbar.scaleX);
 	return 1;
 }
 catalogized_command_funcdef(TURNBAR_APPLYSY)
 {
+	undo_storcatch(~0,"TURNBAR");
 	REFLECTION_FUNCTION_execute("PIVOT_SCALEY","mul",control_turnbar.scaleY);
 	return 1;
 }
 catalogized_command_funcdef(TURNBAR_APPLYSZ)
 {
+	undo_storcatch(~0,"TURNBAR");
 	REFLECTION_FUNCTION_execute("PIVOT_SCALEZ","mul",control_turnbar.scaleZ);
 	return 1;
 }

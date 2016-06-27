@@ -1772,6 +1772,9 @@ void gfx_output(int mode=0)
 }
 void gfx_resize_video(int ix,int iy)
 {
+	#ifdef SDL2
+	return;
+	#else
 	gfx_screensizex=ix;
 	gfx_screensizey=iy;
 	gfx_screensizex=32*(gfx_screensizex>>5);
@@ -1791,4 +1794,5 @@ void gfx_resize_video(int ix,int iy)
 	{
 		memory_realloc_x2();
 	}
+	#endif
 }

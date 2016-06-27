@@ -40,7 +40,7 @@ FILE * criticalfilename(char * idirectorystring,const char * iname)
 	thefile=fopen(idirectorystring,"r");
 	if (thefile!=NULL) return thefile;
 
-	strcpy(idirectorystring,"/usr/share/lhendraw");
+	strcpy(idirectorystring,constants_installdirectory);
 	strcat(idirectorystring,iname);
 	thefile=fopen(idirectorystring,"r");
 	if (thefile==NULL){error("File not found: %s\n",idirectorystring);}

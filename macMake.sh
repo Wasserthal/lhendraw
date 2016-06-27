@@ -25,6 +25,6 @@ rm ./generated/pullout_stringfile.hxx
 rm ./generated/pullout_structfile.hxx
 rm ./generated/pullout_reflectfile.hxx
 ./build/Debug/tools/pullout
-./build/Debug/tools/option ./edit.hxx ./parsecdxml_variables.hxx
+./build/Debug/tools/option ./edit.hxx ./variables.hxx
 
 

@@ -148,6 +148,11 @@ _u32 control_filememory_port_ending=0;
 char control_currentdirectory_search[1024]="";
 char control_filenamehead_search[256]="";
 _u32 control_filememory_search_ending=0;
+#ifndef MAC
+char constants_installdirectory[]="/usr/share/lhendraw";
+#else
+char constants_installdirectory[]="/Applications/lhendraw.app";
+#endif
 int control_setfilename(const char * ifilename)
 {
 	int istrpos;

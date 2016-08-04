@@ -233,6 +233,7 @@ int main(int argc,char * * argv)
 	propertiesdone:
 	fprintf(outfile,"#define STRUCTUREDEFINED_%s%s_instance\nstruct %s%s_instance:%s\n{\n        static inline const char * INTERNALgetname(){return \"%s%s\";}\n        const char * getName(){return INTERNALgetname()+%i;}\n        const char * getFullName(){return INTERNALgetname();}\n",datablockstring,name,datablockstring,name,(linemode)?"TELESCOPE_element":((internalmode&1)?"basic_instance_nested":"basic_instance"),datablockstring,name,(int)strlen(datablockstring));
 	fprintf(outfile,"	const static int INTERNALPropertycount=%i;\n",properties_count);
+	fprintf(outfile,"	int getINTERNALPropertycount(){return INTERNALPropertycount;}\n");
 	if (internalmode&1)
 	{
 		fprintf(outfile,"	_u32 INTERNALPropertyexistflags;\n	virtual _u32 * getINTERNALPropertyexistflags(){return &INTERNALPropertyexistflags;}\n");

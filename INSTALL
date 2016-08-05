@@ -50,9 +50,8 @@ This is because some distroes use different includes, and
 
 BUILDING ON XCODE
 use the xcodeproj file.
-compile the tools first.
+compile the tools first by building in the following order:
 
-build in the following order:
 filestructure
 reflection
 reflection_enums
@@ -60,4 +59,7 @@ option
 pulloutmatic
 pullout
 generated
-ilhendraw(first in list)
+ilhendraw(first in list, takes some time)
+bundle (creates the .app folder structure)
+
+You MUST copy lhendraw.app into the /Applications/ Folder, because it's internal structure depends on it and I do not know how to use executable-relative paths on Mac OS X.

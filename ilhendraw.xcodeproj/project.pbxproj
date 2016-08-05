@@ -7,6 +7,17 @@
 	objects = {
 
 /* Begin PBXAggregateTarget section */
+		8454038D1D548AD900C10CD9 /* bundle */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 845403901D548AF700C10CD9 /* Build configuration list for PBXAggregateTarget "bundle" */;
+			buildPhases = (
+				8454038C1D548AD900C10CD9 /* ShellScript */,
+			);
+			dependencies = (
+			);
+			name = bundle;
+			productName = bundle;
+		};
 		DB53C22F1C33DC51003B37B7 /* generated */ = {
 			isa = PBXAggregateTarget;
 			buildConfigurationList = DB53C2321C33DC68003B37B7 /* Build configuration list for PBXAggregateTarget "generated" */;
@@ -56,6 +67,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		845403C51D5492C200C10CD9 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8DD76FB20486AB0100D96B5E /* ilhendraw */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ilhendraw; sourceTree = BUILT_PRODUCTS_DIR; };
 		C6A0FF2C0290799A04C91782 /* ilhendraw.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = ilhendraw.1; sourceTree = "<group>"; };
 		DB53C2351C33DCA1003B37B7 /* macMake.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = macMake.sh; sourceTree = "<group>"; };
@@ -135,6 +147,7 @@
 				C6A0FF2B0290797F04C91782 /* Documentation */,
 				1AB674ADFE9D54B511CA2CBB /* Products */,
 				DBF65E0A1C31BAB40062D6CF /* SDL2.framework */,
+				845403C51D5492C200C10CD9 /* Info.plist */,
 			);
 			name = ilhendraw;
 			sourceTree = "<group>";
@@ -296,11 +309,25 @@
 				DB53C2571C33E6C5003B37B7 /* pulloutmatic */,
 				DB872B271C332EF6006CC256 /* pullout */,
 				DB53C22F1C33DC51003B37B7 /* generated */,
+				8454038D1D548AD900C10CD9 /* bundle */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		8454038C1D548AD900C10CD9 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "chmod ugo+x ./macpack.sh\n./macpack.sh";
+		};
 		DB53C22E1C33DC51003B37B7 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -392,6 +419,7 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
+					MAC,
 					NOCLIPBOARD,
 					SDL2,
 					GFXOUT_SDL,
@@ -468,6 +496,27 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				PREBINDING = NO;
 				SDKROOT = macosx10.6;
+			};
+			name = Release;
+		};
+		8454038E1D548AD900C10CD9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				PRODUCT_NAME = bundle;
+			};
+			name = Debug;
+		};
+		8454038F1D548AD900C10CD9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				PRODUCT_NAME = bundle;
+				ZERO_LINK = NO;
 			};
 			name = Release;
 		};
@@ -740,6 +789,15 @@
 			buildConfigurations = (
 				1DEB928A08733DD80010E9CD /* Debug */,
 				1DEB928B08733DD80010E9CD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		845403901D548AF700C10CD9 /* Build configuration list for PBXAggregateTarget "bundle" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8454038E1D548AD900C10CD9 /* Debug */,
+				8454038F1D548AD900C10CD9 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

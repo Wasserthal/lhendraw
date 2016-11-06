@@ -4064,8 +4064,8 @@ void CONVCAMBRIDGE_splitbracketpairs()
 }
 catalogized_command_funcdef(SAVE_TYPE)
 {
-	struct stat tl_buffer;
 	#ifndef NOPOSIX
+	struct stat tl_buffer;
 	if ((stat(parameter,&tl_buffer)==0) && (edit_file_always_overwrite==0))
 	{
 		if (userwarning("File exists! Overwrite?\n")==0)return 0;
@@ -5306,7 +5306,11 @@ catalogized_command_funcdef(FILEDLG_DEVICE_SEL)
 			if (dirpy==NULL) goto readfinished;
 			strncpy(control_filememory_buffer[ilv1],dirpy->d_name,255);control_filememory_buffer[ilv1][255]=0;
 			strncpy(control_currentdirectory,parameter,255);control_currentdirectory[255]=0;
+			#ifndef NOPOSIX
 			control_filememory_attribs[ilv1]=dirpy->d_type;
+			#else
+			control_filememory_attribs[ilv1]=0;
+			#endif
 			control_filememory.count++;
 		}
 		readfinished:;
@@ -5333,7 +5337,11 @@ catalogized_command_funcdef(FILEDLG_FILE_SEL)
 			dirpy=readdir(DD);
 			if (dirpy==NULL) goto readfinished;
 			strncpy(control_filememory_buffer[ilv1],dirpy->d_name,255);control_filememory_buffer[ilv1][255]=0;
+			#ifndef NOPOSIX
 			control_filememory_attribs[ilv1]=dirpy->d_type;
+			#else
+			control_filememory_attribs[ilv1]=0;
+			#endif
 			control_filememory.count++;
 		}
 		readfinished:;
@@ -5362,7 +5370,11 @@ catalogized_command_funcdef(FILEDLG_FILE_PATH)
 			dirpy=readdir(DD);
 			if (dirpy==NULL) goto readfinished;
 			strncpy(control_filememory_buffer[ilv1],dirpy->d_name,255);control_filememory_buffer[ilv1][255]=0;
+			#ifndef NOPOSIX
 			control_filememory_attribs[ilv1]=dirpy->d_type;
+			#else
+			control_filememory_attribs[ilv1]=0;
+			#endif
 			control_filememory.count++;
 		}
 		readfinished:;
@@ -5393,7 +5405,11 @@ catalogized_command_funcdef(FILEDLG_DEVICE_SEL_PORT)
 			if (dirpy==NULL) goto readfinished;
 			strncpy(control_filememory_port_buffer[ilv1],dirpy->d_name,255);control_filememory_port_buffer[ilv1][255]=0;
 			strncpy(control_currentdirectory_port,parameter,255);control_currentdirectory_port[255]=0;
+			#ifndef NOPOSIX
 			control_filememory_port_attribs[ilv1]=dirpy->d_type;
+			#else
+			control_filememory_port_attribs[ilv1]=0;
+			#endif
 			control_filememory_port.count++;
 		}
 		readfinished:;
@@ -5420,7 +5436,11 @@ catalogized_command_funcdef(FILEDLG_FILE_SEL_PORT)
 			dirpy=readdir(DD);
 			if (dirpy==NULL) goto readfinished;
 			strncpy(control_filememory_port_buffer[ilv1],dirpy->d_name,255);control_filememory_port_buffer[ilv1][255]=0;
+			#ifndef NOPOSIX
 			control_filememory_port_attribs[ilv1]=dirpy->d_type;
+			#else
+			control_filememory_port_attribs[ilv1]=0;
+			#endif
 			control_filememory_port.count++;
 		}
 		readfinished:;
@@ -5449,7 +5469,11 @@ catalogized_command_funcdef(FILEDLG_FILE_PATH_PORT)
 			dirpy=readdir(DD);
 			if (dirpy==NULL) goto readfinished;
 			strncpy(control_filememory_port_buffer[ilv1],dirpy->d_name,255);control_filememory_port_buffer[ilv1][255]=0;
+			#ifndef NOPOSIX
 			control_filememory_port_attribs[ilv1]=dirpy->d_type;
+			#else
+			control_filememory_port_attribs[ilv1]=0;
+			#endif
 			control_filememory_port.count++;
 		}
 		readfinished:;
@@ -5480,7 +5504,11 @@ catalogized_command_funcdef(FILEDLG_DEVICE_SEL_SEARCH)
 			if (dirpy==NULL) goto readfinished;
 			strncpy(control_filememory_search_buffer[ilv1],dirpy->d_name,255);control_filememory_search_buffer[ilv1][255]=0;
 			strncpy(control_currentdirectory_search,parameter,255);control_currentdirectory_search[255]=0;
+			#ifndef NOPOSIX
 			control_filememory_search_attribs[ilv1]=dirpy->d_type;
+			#else
+			control_filememory_search_attribs[ilv1]=0;
+			#endif
 			control_filememory_search.count++;
 		}
 		readfinished:;
@@ -5507,7 +5535,11 @@ catalogized_command_funcdef(FILEDLG_FILE_SEL_SEARCH)
 			dirpy=readdir(DD);
 			if (dirpy==NULL) goto readfinished;
 			strncpy(control_filememory_search_buffer[ilv1],dirpy->d_name,255);control_filememory_search_buffer[ilv1][255]=0;
+			#ifndef NOPOSIX
 			control_filememory_search_attribs[ilv1]=dirpy->d_type;
+			#else
+			control_filememory_search_attribs[ilv1]=0;
+			#endif
 			control_filememory_search.count++;
 		}
 		readfinished:;
@@ -5536,7 +5568,11 @@ catalogized_command_funcdef(FILEDLG_FILE_PATH_SEARCH)
 			dirpy=readdir(DD);
 			if (dirpy==NULL) goto readfinished;
 			strncpy(control_filememory_search_buffer[ilv1],dirpy->d_name,255);control_filememory_search_buffer[ilv1][255]=0;
+			#ifndef NOPOSIX
 			control_filememory_search_attribs[ilv1]=dirpy->d_type;
+			#else
+			control_filememory_search_attribs[ilv1]=0;
+			#endif
 			control_filememory_search.count++;
 		}
 		readfinished:;

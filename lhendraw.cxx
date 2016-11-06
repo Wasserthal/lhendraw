@@ -23,21 +23,27 @@ LLLLLL H   H EEEEE N    N DDD   R  R A     A    W     W
 #include <stdarg.h>
 #include <math.h>
 #include <setjmp.h>
+#include "lendefs.h"
+#ifdef CROFTOIDAL
+#define NOPOSIX
+#define NOCLIPBOARD
+#include "win32native.h"
+#else
+#include <SDL.h>
+#endif
 #ifndef NOCLIPBOARD
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
 #include <X11/Xmu/Atoms.h>
 #endif
-#include <SDL.h>
-#include <time.h>
 #ifndef NOPOSIX
+#include <time.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
 #include <fcntl.h>
 #endif
-#include "lendefs.h"
 #include "debug.hxx"
 #define CAMBRIDGEPREFIX(content) CAMBRIDGE_ ## content
 #define CAMBRIDGEPREFIX2(content,content2) content ## _CAMBRIDGE_ ## content2
@@ -358,7 +364,9 @@ int main(int argc,char * * argv)
 		}
 		draw_reticle();
 		gfx_gfxstop();
+		#ifndef NOPOSIX
 		usleep(1000);
+		#endif
 		control_doubleclickenergy-=1;
 		control_doublekeypressenergy-=1;
 		if (control_doubleclickenergy<0) control_doubleclickenergy=0;

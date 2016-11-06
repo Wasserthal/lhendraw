@@ -1,11 +1,14 @@
 //reads in all files essential for the program
+#ifndef CROFTOIDAL
 _u32 resources_icon[32][8]={{0x8C30000},{0xAEB0000},{0xAEB0000},{0x8C30000},{0x300C000},{0x300C000},{0xC003000},{0xC003000},
 {0x30000C00},{0x35555C00},{0x35555C00},{0x35555C00},{0x35555C00},{0x35555C00},{0x35555C00},{0x35555C00},
 {0x35555C00},{0x35555C00},{0x35555F00},{0x355555C0},{0x35555570},{0xF555457C},{0xD555415C},{0xD555505C},
 {0xD5555517},{0xF5555557},{0x35555557},{0x35555557},{0x3D55557C},{0xF5555F0},{0x3F55FC0},{0x03FFC00}};
 SDL_Color resources_icon_palette[5]={{255,255,255},{0,0,255},{127,127,127},{0,0,0},{255,0,0}};
+#endif
 void resources_set_icon()
 {
+#ifndef CROFTOIDAL
 	for (int hoehe=0;hoehe<32;hoehe++)
 	{
 		_u32 px=resources_icon[hoehe][0];
@@ -30,6 +33,7 @@ void resources_set_icon()
 	SDL_SetSurfacePalette(iSurface,lost_iconpalette);
 	SDL_SetWindowIcon(window,iSurface);
 	#endif
+#endif
 }
 FILE * criticalfilename(char * idirectorystring,const char * iname)
 {

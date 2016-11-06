@@ -159,7 +159,9 @@ void do_inglyph(glyf_ * inglyph,FILE * infile)
 {
 	_u32 bytes;
 	_u32 debug_expectedbytes;
+	#ifndef CROFTOIDAL
 	debug_expectedbytes=ftell(infile);
+	#endif
 	fread(&bytes,4,1,infile);
 	fread(&((*inglyph).unicode),4,1,infile);
 	(*inglyph).maxcount=0;//because it is an _i32, but read as _i16
@@ -194,7 +196,13 @@ void do_inglyph(glyf_ * inglyph,FILE * infile)
 	for (int ilv2=0;ilv2<(*inglyph).maxcount;ilv2++)
 	{
 		_u8 ihv0;
+/*		int debugbeginb=ftell(infile);*/
 		fread(&ihv0,1,1,infile);
+/*		int debugendb=ftell(infile);
+		if ((debugendb-debugbeginb)!=1)
+		{
+			printf("Sigh! Again, I asked the program to read ONE byte but got two. FTW???\n");
+		}*/
 		(*inglyph).simple.donecoordinates[ilv2].flags=(ihv0>>4);
 		for (int ilv1=0;ilv1<2;ilv1++)
 		{
@@ -235,11 +243,12 @@ void do_inglyph(glyf_ * inglyph,FILE * infile)
 		forelastx=lastx;
 		forelasty=lasty;
 	}
+	#ifndef CROFTOIDAL
 	if (ftell(infile)!=debug_expectedbytes) error("Error: loading process behaved strangely during lennardfont import");
+	#endif
 }
 int glyf_init(FILE * infile)
 {
-	fread(&glyphmemory_max,4,1,infile);
 	glyphmemory=(glyf_*)malloc(glyphmemory_max*sizeof(glyf_));
 	glyphmemory_count=0;
 	for (int ilv1=0;ilv1<glyphmemory_max;ilv1++)

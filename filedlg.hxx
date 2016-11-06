@@ -519,7 +519,9 @@ int warndlg_loop(const char*warning)
 		sdl_menuframe();
 		draw_reticle();
 		gfx_gfxstop();
+		#ifndef CROFTOIDAL
 		usleep(1000);
+		#endif
 		control_doubleclickenergy-=1;
 		if (control_doubleclickenergy<0) control_doubleclickenergy=0;
 	}

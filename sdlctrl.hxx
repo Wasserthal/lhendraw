@@ -384,7 +384,6 @@ void clickforthem()
 		}
 	}
 }
-#ifdef GFXOUT_SDL
 int interpretkey(int listnr=-1)
 {
 	_u32 modifierpattern;
@@ -597,7 +596,6 @@ int interpretkey(int listnr=-1)
 	checkupinconsistencies();
 	return 1;
 }
-#endif
 catalogized_command_funcdef(HELP)
 {
 	control_help();

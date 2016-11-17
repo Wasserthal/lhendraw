@@ -1,23 +1,28 @@
 /* This unit contains all windows native stuff
 It is only used for Win32 compatible systems like MS or ReactOS.
 */
-#include <stdio.h>
-#include <stdlib.h>
+//#include <stdio.h>
+//#include <stdlib.h>
 #include <windows.h>
 #define SDL_HWSURFACE 0
 #define SDL_SWSURFACE 0
 #define SDL_RESIZABLE 0
 #define SDL_INIT_VIDEO 0
 #define SDL_FULLSCREEN 1
+HWND W32_window;
+int W32_window_set=0;
 HINSTANCE W32_hInst;
 char szWindowClass[]="WindowMain1";
 _u32 schirm[1000000];
+int W32_painting=0;
 typedef struct
 {
 	_u32 * pixels;
 	_u32 flags;
 }SDL_Surface_;
+extern _u32 * screen;
 SDL_Surface_ W32_surface={schirm,1};
+extern int gfx_screensizex;
 #define SDL_Surface SDL_Surface_
 int W32_Surfacelock=0;
 typedef enum
@@ -282,8 +287,8 @@ KMOD_META,
 }SDLMod;
 typedef enum 
 {
-SDL_BUTTON_RIGHT=1,
-SDL_BUTTON_LEFT,
+SDL_BUTTON_LEFT=1,
+SDL_BUTTON_RIGHT,
 SDL_BUTTON_WHEELUP,
 SDL_BUTTON_WHEELDOWN,
 }SDL_enum_BUTTONS;
@@ -357,18 +362,51 @@ void SDL_WM_SetIcon()
 {
 	//TODO
 }
-int SDL_Init(_uXX i_flags)
-{
-	return 1;
-}
 SDL_Surface * SDL_SetVideoMode(int i_screensizex,int i_screensizey,int i_colordepth,_uXX i_flags)
 {
 	//Do nothing, all is done in SDL_Init
 	return &W32_surface;//Return happy nothing, because that stuff is done in situ in the window redraw procedure
 }
+_u32 * winscreen=(_u32*)malloc(10000000);
 void SDL_UpdateRect(SDL_Surface * i_surface,int i_left,int i_top,int gfx_screensizex,int gfx_screensizey)
 {
-	//TODO: redraw here.
+	PAINTSTRUCT ps;
+	HDC hdc;
+	if (W32_window_set!=0)
+	{
+		W32_painting=1;
+		hdc=BeginPaint(W32_window,&ps);
+		HDC hdcmem=CreateCompatibleDC(hdc);
+		RECT rc;
+		GetClientRect(W32_window,&rc);
+		HBITMAP hbm_memdc=CreateCompatibleBitmap(hdcmem,rc.right,rc.bottom);
+		HBITMAP hbm_memdc_old=(HBITMAP)SelectObject(hdc,hbm_memdc);
+			for (int ilv1=0;ilv1<200;ilv1++)
+		{
+			for (int ilv2=0;ilv2<200;ilv2++)
+			{
+				schirm[ilv2*320+ilv1]=screen[ilv2*gfx_screensizex+ilv1];
+			}
+		}
+		BITMAPINFO iBitmapInfo;
+		iBitmapInfo.bmiHeader.biSize=sizeof(BITMAPINFOHEADER);
+		iBitmapInfo.bmiHeader.biBitCount=32;
+		iBitmapInfo.bmiHeader.biWidth=320;
+		iBitmapInfo.bmiHeader.biHeight=200;
+		iBitmapInfo.bmiHeader.biCompression=0;
+		iBitmapInfo.bmiHeader.biPlanes=1;
+		iBitmapInfo.bmiHeader.biSizeImage=1000000;
+		iBitmapInfo.bmiHeader.biClrUsed=0;
+		iBitmapInfo.bmiHeader.biClrImportant=0;
+		iBitmapInfo.bmiHeader.biXPelsPerMeter=1000;
+		iBitmapInfo.bmiHeader.biYPelsPerMeter=1000;
+		int iret;
+		printf("Upd\n");
+		iret=SetDIBitsToDevice(hdc,0,0,320,200,0,0,0,200,schirm,&iBitmapInfo,DIB_RGB_COLORS);
+		//if (iret=GDI_ERROR) {exit(1);}
+		EndPaint(W32_window, &ps);
+		W32_painting=0;
+	}
 	return;
 }
 const char * SDL_GetError()
@@ -381,6 +419,7 @@ int SDL_MUSTLOCK(SDL_Surface * i_Surface)
 }
 int SDL_LockSurface(SDL_Surface * i_Surface)
 {
+	i_Surface->pixels=winscreen;
 	W32_Surfacelock=1;
 	return 1;
 }
@@ -389,8 +428,38 @@ int SDL_UnlockSurface(SDL_Surface * i_Surface)
 	W32_Surfacelock=0;
 	return 1;
 }
-int SDL_PollEvent(SDL_Event * iEvent)
+int W32_mousex=0;
+int W32_mousey=0;
+int W32_lastbuttonstate=0;
+int SDL_PollEvent(SDL_Event * i_Event)
 {
+	POINT lppoint;
+	GetCursorPos(&lppoint);
+	if ((lppoint.x!=W32_mousex) || (lppoint.y!=W32_mousey))
+	{
+		(*i_Event).type=SDL_MOUSEMOTION;
+		(*i_Event).motion.type=SDL_MOUSEMOTION;
+		(*i_Event).motion.state=W32_lastbuttonstate;
+		(*i_Event).motion.xrel=lppoint.x-W32_mousex;
+		(*i_Event).motion.yrel=lppoint.y-W32_mousey;
+		(*i_Event).motion.x=lppoint.x;
+		(*i_Event).motion.y=lppoint.y;
+		W32_mousex=lppoint.x;
+		W32_mousey=lppoint.y;
+		printf("MV\n");
+		return 1;
+	}
+	int lbuttonstate=(((GetKeyState(VK_LBUTTON)!=0)*1) | ((GetKeyState(VK_RBUTTON)!=0)*2));
+	if (W32_lastbuttonstate!=lbuttonstate)
+	{
+		(*i_Event).type=SDL_MOUSEBUTTONDOWN;
+		(*i_Event).motion.state=0;
+		(*i_Event).motion.xrel=0;
+		(*i_Event).motion.yrel=0;
+		(*i_Event).motion.x=W32_mousex;
+		(*i_Event).motion.y=W32_mousey;
+		return 1;
+	}
 	return 0;//TODO
 }
 void SDL_WarpMouse(int x,int y)
@@ -420,61 +489,43 @@ LRESULT CALLBACK W32_WndProc(HWND hWnd,UINT message,WPARAM wParam,LPARAM lParam)
 		break;
 		case WM_PAINT:
 		{
-			hdc=BeginPaint(hWnd,&ps);
-			HDC hdcmem=CreateCompatibleDC(hdc);
-			RECT rc;
-			GetClientRect(hWnd,&rc);
-			HBITMAP hbm_memdc=CreateCompatibleBitmap(hdcmem,rc.right,rc.bottom);
-			HBITMAP hbm_memdc_old=(HBITMAP)SelectObject(hdc,hbm_memdc);
-			SelectObject(hdc,GetStockObject(DC_PEN));
-			SelectObject(hdc,GetStockObject(DC_BRUSH));
-			SetDCBrushColor(hdc,RGB(255,0,0));
-			SetDCPenColor(hdc,RGB(255,255,0));
-			Ellipse(hdc,10,10,100,100);
-			Rectangle(hdc,-10,-10,10,10);
-			for (int ilv1=0;ilv1<200;ilv1++)
+			if (W32_painting==0)
 			{
-				for (int ilv2=0;ilv2<320;ilv2++)
+				W32_window=hWnd;
+				W32_window_set=1;
+				W32_painting=1;
+				hdc=BeginPaint(hWnd,&ps);
+				HDC hdcmem=CreateCompatibleDC(hdc);
+				RECT rc;
+				GetClientRect(hWnd,&rc);
+				HBITMAP hbm_memdc=CreateCompatibleBitmap(hdcmem,rc.right,rc.bottom);
+				HBITMAP hbm_memdc_old=(HBITMAP)SelectObject(hdc,hbm_memdc);
+				printf("OK!!\n");
+	/*			for (int ilv1=0;ilv1<200;ilv1++)
 				{
-					float lastr=0;
-					float lasti=0;
-					int wert=1;
-					float largest=0;
-					for (int ilv3=0;ilv3<10;ilv3++)
+					for (int ilv2=0;ilv2<200;ilv2++)
 					{
-						float newi=2*lastr*lasti+(ilv1/160.0);
-						float newr=lastr*lastr-lasti*lasti-(ilv2/160.0);
-						if (largest<(lastr*lastr+lasti*lasti))
-						{
-							largest=(lastr*lastr+lasti*lasti);
-						}
-						lastr=newr;
-						lasti=newi;
-						if ((newi==0) && (newr==0))
-						{
-							wert=0;
-						}
+						schirm[ilv2*320+ilv1]=-screen[ilv2*gfx_screensizex+ilv1];
 					}
-					schirm[ilv2*320+ilv1]=RGB(255*((largest)>100),255*(wert==0),0);
-				}
+				}*/
+				BITMAPINFO iBitmapInfo;
+				iBitmapInfo.bmiHeader.biSize=sizeof(BITMAPINFOHEADER);
+				iBitmapInfo.bmiHeader.biBitCount=32;
+				iBitmapInfo.bmiHeader.biWidth=320;
+				iBitmapInfo.bmiHeader.biHeight=200;
+				iBitmapInfo.bmiHeader.biCompression=0;
+				iBitmapInfo.bmiHeader.biPlanes=1;
+				iBitmapInfo.bmiHeader.biSizeImage=1000000;
+				iBitmapInfo.bmiHeader.biClrUsed=0;
+				iBitmapInfo.bmiHeader.biClrImportant=0;
+				iBitmapInfo.bmiHeader.biXPelsPerMeter=1000;
+				iBitmapInfo.bmiHeader.biYPelsPerMeter=1000;
+				int iret;
+				iret=SetDIBitsToDevice(hdc,0,0,320,200,0,0,0,200,schirm,&iBitmapInfo,DIB_RGB_COLORS);
+				//if (iret=GDI_ERROR) {exit(1);}
+				printf("%i",iret);
+				EndPaint(hWnd, &ps);
 			}
-			BITMAPINFO iBitmapInfo;
-			iBitmapInfo.bmiHeader.biSize=sizeof(BITMAPINFOHEADER);
-			iBitmapInfo.bmiHeader.biBitCount=32;
-			iBitmapInfo.bmiHeader.biWidth=320;
-			iBitmapInfo.bmiHeader.biHeight=200;
-			iBitmapInfo.bmiHeader.biCompression=0;
-			iBitmapInfo.bmiHeader.biPlanes=1;
-			iBitmapInfo.bmiHeader.biSizeImage=1000000;
-			iBitmapInfo.bmiHeader.biClrUsed=0;
-			iBitmapInfo.bmiHeader.biClrImportant=0;
-			iBitmapInfo.bmiHeader.biXPelsPerMeter=1000;
-			iBitmapInfo.bmiHeader.biYPelsPerMeter=1000;
-			int iret;
-			iret=SetDIBitsToDevice(hdc,0,0,320,200,0,0,0,200,schirm,&iBitmapInfo,DIB_RGB_COLORS);
-			//if (iret=GDI_ERROR) {exit(1);}
-			printf("%i",iret);
-			EndPaint(hWnd, &ps);
 			break;
 		}
 		default:
@@ -482,6 +533,7 @@ LRESULT CALLBACK W32_WndProc(HWND hWnd,UINT message,WPARAM wParam,LPARAM lParam)
 			return DefWindowProc(hWnd,message,wParam,lParam);
 		}
 	}
+	return 1;
 }
 ATOM W32_MyRegisterClass(HINSTANCE hInstance)
 {
@@ -511,6 +563,17 @@ BOOL W32_InitInstance(HINSTANCE hInstance,int nCmdShow)
 	}
 	ShowWindow(hWnd, nCmdShow);
 	UpdateWindow(hWnd);
+	return 1;
+}
+int SDL_Init(_uXX i_flags)
+{
+	W32_hInst=GetModuleHandle(NULL);
+	if (!W32_InitInstance(W32_hInst,1))
+	{
+		printf("Win32-api init failed");
+		return 0;
+	}
+	printf("OK");
 	return 1;
 }
 /*int main(int argc,char argv)

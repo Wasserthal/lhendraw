@@ -366,6 +366,8 @@ int main(int argc,char * * argv)
 		gfx_gfxstop();
 		#ifndef NOPOSIX
 		usleep(1000);
+		#else
+		Sleep(10);//win32api millisecond sleep
 		#endif
 		control_doubleclickenergy-=1;
 		control_doublekeypressenergy-=1;

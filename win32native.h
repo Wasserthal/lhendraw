@@ -13,7 +13,7 @@ HWND W32_window;
 int W32_window_set=0;
 HINSTANCE W32_hInst;
 char szWindowClass[]="WindowMain1";
-_u32 schirm[1000000];
+_u32 schirm[1400000];
 int W32_painting=0;
 typedef struct
 {
@@ -383,11 +383,11 @@ void SDL_UpdateRect(SDL_Surface * i_surface,int i_left,int i_top,int gfx_screens
 	}
 	if (W32_window_set!=0)
 	{
-		for (int ilv1=0;ilv1<200;ilv1++)
+		for (int ilv1=0;ilv1<480;ilv1++)
 		{
-			for (int ilv2=0;ilv2<200;ilv2++)
+			for (int ilv2=0;ilv2<480;ilv2++)
 			{
-				schirm[(200-ilv2)*320+ilv1]=screen[ilv2*gfx_screensizex+ilv1];
+				schirm[(479-ilv2)*640+ilv1]=screen[ilv2*gfx_screensizex+ilv1];
 			}
 		}
 	}
@@ -484,8 +484,6 @@ LRESULT CALLBACK W32_WndProc(HWND hWnd,UINT message,WPARAM wParam,LPARAM lParam)
 		break;
 		case WM_PAINT:
 		{
-			if (W32_painting==0)
-			{
 				W32_window=hWnd;
 				W32_window_set=1;
 				hdc=BeginPaint(hWnd,&ps);
@@ -494,30 +492,21 @@ LRESULT CALLBACK W32_WndProc(HWND hWnd,UINT message,WPARAM wParam,LPARAM lParam)
 				GetClientRect(hWnd,&rc);
 				HBITMAP hbm_memdc=CreateCompatibleBitmap(hdcmem,rc.right,rc.bottom);
 				HBITMAP hbm_memdc_old=(HBITMAP)SelectObject(hdc,hbm_memdc);
-	/*			for (int ilv1=0;ilv1<200;ilv1++)
-				{
-					for (int ilv2=0;ilv2<200;ilv2++)
-					{
-						schirm[ilv2*320+ilv1]=-screen[ilv2*gfx_screensizex+ilv1];
-					}
-				}*/
 				BITMAPINFO iBitmapInfo;
 				iBitmapInfo.bmiHeader.biSize=sizeof(BITMAPINFOHEADER);
 				iBitmapInfo.bmiHeader.biBitCount=32;
-				iBitmapInfo.bmiHeader.biWidth=320;
-				iBitmapInfo.bmiHeader.biHeight=200;
+				iBitmapInfo.bmiHeader.biWidth=640;
+				iBitmapInfo.bmiHeader.biHeight=480;
 				iBitmapInfo.bmiHeader.biCompression=0;
 				iBitmapInfo.bmiHeader.biPlanes=1;
-				iBitmapInfo.bmiHeader.biSizeImage=1000000;
+				iBitmapInfo.bmiHeader.biSizeImage=1400000;
 				iBitmapInfo.bmiHeader.biClrUsed=0;
 				iBitmapInfo.bmiHeader.biClrImportant=0;
 				iBitmapInfo.bmiHeader.biXPelsPerMeter=1000;
 				iBitmapInfo.bmiHeader.biYPelsPerMeter=1000;
 				int iret;
-				iret=SetDIBitsToDevice(hdc,0,0,320,200,0,0,0,200,schirm,&iBitmapInfo,DIB_RGB_COLORS);
-				//if (iret=GDI_ERROR) {exit(1);}
+				iret=SetDIBitsToDevice(hdc,0,0,640,480,0,0,0,480,schirm,&iBitmapInfo,DIB_RGB_COLORS);
 				EndPaint(hWnd, &ps);
-			}
 			break;
 		}
 		default:
@@ -565,20 +554,6 @@ int SDL_Init(_uXX i_flags)
 		printf("Win32-api init failed");
 		return 0;
 	}
-	return 1;
-}
-/*int main(int argc,char argv)
-{
-	W32_hInst=GetModuleHandle(NULL);
-	if (!W32_InitInstance(W32_hInst,1))
-	{
-		printf("Windows init failed");
-		return 0;
-	}
-	while(1)
-	{
-		Sleep(100);
-	}
 	printf("OK");
 	return 1;
-}*/
+}

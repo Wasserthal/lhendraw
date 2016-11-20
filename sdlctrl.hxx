@@ -4203,14 +4203,12 @@ void control_normal()
 	while ( SDL_PollEvent(&control_Event) ) 
 	{
 		irepeatlabel:;
-		printf("Poll\n");
 		char irepeat=0;
 		char idontrepeat=0;
 		switch (control_Event.type) 
 		{
 			case SDL_MOUSEMOTION:
 			{
-				printf("MOVE:%i,%i\n",control_mousex,control_mousey);
 				if (control_menuopenmode==1) control_menuopenmode=0;
 				control_keyboardormousemode=1;
 				control_doubleclickenergy=0;

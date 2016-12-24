@@ -14,7 +14,7 @@ HWND W32_window;
 int W32_window_set=0;
 HINSTANCE W32_hInst;
 char szWindowClass[]="WindowMain1";
-_u32 schirm[1400000];
+_u32 schirm[2000000];
 int W32_painting=0;
 typedef struct
 {
@@ -23,7 +23,7 @@ typedef struct
 }SDL_Surface_;
 extern _u32 * screen;
 SDL_Surface_ W32_surface={schirm,1};
-extern int gfx_screensizex;
+extern int gfx_screensizex,gfx_screensizey;
 #define SDL_Surface SDL_Surface_
 int W32_Surfacelock=0;
 typedef enum
@@ -31,6 +31,7 @@ typedef enum
 	SDLK_BACKSPACE=0x08,
 	SDLK_TAB=0x09,
 	SDLK_CLEAR=0x0C,
+	SDLK_RETURN=0x0D,
 	SDLK_ENTER=0x0D,
 	SDLK_CAPSLOCK=0x14,
 	SDLK_ESCAPE=0x1B,
@@ -238,7 +239,6 @@ typedef enum
 	SDLK_POWER,
 	SDLK_PRIOR,
 	SDLK_RALT,
-	SDLK_RETURN,
 	SDLK_RETURN2,
 	SDLK_RGUI,
 	SDLK_SCROLLLOCK,
@@ -319,9 +319,9 @@ typedef struct
 typedef struct
 {
 	_u8 type;
-	_u8 button;
 	_u8 state;
 	_u16 x,y;
+	_u8 button;
 }SDL_MouseButtonEvent;
 typedef struct
 {
@@ -388,11 +388,11 @@ void SDL_UpdateRect(SDL_Surface * i_surface,int i_left,int i_top,int gfx_screens
 	}
 	if (W32_window_set!=0)
 	{
-		for (int ilv1=0;ilv1<480;ilv1++)
+		for (int ilv1=0;ilv1<gfx_screensizex;ilv1++)
 		{
-			for (int ilv2=0;ilv2<480;ilv2++)
+			for (int ilv2=0;ilv2<gfx_screensizey;ilv2++)
 			{
-				schirm[(479-ilv2)*640+ilv1]=screen[ilv2*gfx_screensizex+ilv1];
+				schirm[(gfx_screensizey-1-ilv2)*gfx_screensizex+ilv1]=screen[ilv2*gfx_screensizex+ilv1];
 			}
 		}
 	}
@@ -526,17 +526,17 @@ LRESULT CALLBACK W32_WndProc(HWND hWnd,UINT message,WPARAM wParam,LPARAM lParam)
 				BITMAPINFO iBitmapInfo;
 				iBitmapInfo.bmiHeader.biSize=sizeof(BITMAPINFOHEADER);
 				iBitmapInfo.bmiHeader.biBitCount=32;
-				iBitmapInfo.bmiHeader.biWidth=640;
-				iBitmapInfo.bmiHeader.biHeight=480;
+				iBitmapInfo.bmiHeader.biWidth=gfx_screensizex;
+				iBitmapInfo.bmiHeader.biHeight=gfx_screensizey;
 				iBitmapInfo.bmiHeader.biCompression=0;
 				iBitmapInfo.bmiHeader.biPlanes=1;
-				iBitmapInfo.bmiHeader.biSizeImage=1400000;
+				iBitmapInfo.bmiHeader.biSizeImage=2000000;
 				iBitmapInfo.bmiHeader.biClrUsed=0;
 				iBitmapInfo.bmiHeader.biClrImportant=0;
 				iBitmapInfo.bmiHeader.biXPelsPerMeter=1000;
 				iBitmapInfo.bmiHeader.biYPelsPerMeter=1000;
 				int iret;
-				iret=SetDIBitsToDevice(hdc,0,0,640,480,0,0,0,480,schirm,&iBitmapInfo,DIB_RGB_COLORS);
+				iret=SetDIBitsToDevice(hdc,0,0,gfx_screensizex,gfx_screensizey,0,0,0,gfx_screensizey,schirm,&iBitmapInfo,DIB_RGB_COLORS);
 				EndPaint(hWnd, &ps);
 			break;
 		}
@@ -568,7 +568,7 @@ BOOL W32_InitInstance(HINSTANCE hInstance,int nCmdShow)
 {
 	HWND hWnd;
 	W32_MyRegisterClass(hInstance);
-	hWnd=CreateWindow(szWindowClass,"lhendraw",WS_OVERLAPPEDWINDOW,CW_USEDEFAULT,0,CW_USEDEFAULT,0,NULL,NULL,hInstance,NULL);
+	hWnd=CreateWindow(szWindowClass,"lhendraw",WS_OVERLAPPEDWINDOW,0,0,gfx_screensizex,gfx_screensizey,NULL,NULL,hInstance,NULL);
 	if (!hWnd)
 	{
 		return 0;

@@ -4391,7 +4391,7 @@ void control_normal()
 					{
 						if (control_mousestate==0x42)
 						{
-							issuetextclick(control_Event.motion.x-gfx_canvasminx, control_Event.motion.y-gfx_canvasminy,"\uE001");
+							issuetextclick(control_Event.button.x-gfx_canvasminx, control_Event.button.y-gfx_canvasminy,"\uE001");
 							if (control_aggresstextcursor(arbitrarycursorstring))
 							{
 								char * currenttextpointer=((char*)TELESCOPE_getproperty_contents())+control_textedit_cursor+3;
@@ -4412,7 +4412,7 @@ void control_normal()
 						{
 							if (control_usingmousebutton==control_lastmousebutton)//Only when same button up as down
 							{
-								issuedrag(control_Event.motion.x-gfx_canvasminx, control_Event.motion.y-gfx_canvasminy);
+								issuedrag(control_Event.button.x-gfx_canvasminx, control_Event.button.y-gfx_canvasminy);
 								issuerelease();
 							}
 						}
@@ -4420,7 +4420,7 @@ void control_normal()
 						{
 							if (control_usingmousebutton==control_lastmousebutton)//Only when same button up as down
 							{
-								issuemenudrag(control_Event.motion.x,control_Event.motion.y,1);
+								issuemenudrag(control_Event.button.x,control_Event.button.y,1);
 								control_mousestate&=~0x20;
 							}
 						}

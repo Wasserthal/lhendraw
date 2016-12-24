@@ -4,6 +4,7 @@ It is only used for Win32 compatible systems like MS or ReactOS.
 //#include <stdio.h>
 //#include <stdlib.h>
 #include <windows.h>
+#include "lennyWinIo.h"
 #define SDL_HWSURFACE 0
 #define SDL_SWSURFACE 0
 #define SDL_RESIZABLE 0
@@ -27,113 +28,155 @@ extern int gfx_screensizex;
 int W32_Surfacelock=0;
 typedef enum
 {
-	SDLK_0=0,
-	SDLK_1=1,
-	SDLK_2,
-	SDLK_3,
-	SDLK_4,
-	SDLK_5,
-	SDLK_6,
-	SDLK_7,
-	SDLK_8,
-	SDLK_9,
-	SDLK_a,
-	SDLK_AC_BACK,
-	SDLK_AC_BOOKMARKS,
-	SDLK_AC_FORWARD,
-	SDLK_AC_HOME,
-	SDLK_AC_REFRESH,
-	SDLK_AC_SEARCH,
-	SDLK_AC_STOP,
+	SDLK_BACKSPACE=0x08,
+	SDLK_TAB=0x09,
+	SDLK_CLEAR=0x0C,
+	SDLK_ENTER=0x0D,
+	SDLK_CAPSLOCK=0x14,
+	SDLK_ESCAPE=0x1B,
+	SDLK_SPACE=0x20,
+	SDLK_PAGEUP=0x21,
+	SDLK_PAGEDOWN=0x22,
+	SDLK_END=0x23,
+	SDLK_HOME=0x24,
+	SDLK_LEFT=0x25,
+	SDLK_UP=0x26,
+	SDLK_RIGHT=0x27,
+	SDLK_DOWN=0x28,
+	SDLK_PRINTSCREEN=0x2C,
+	SDLK_INSERT=0x2D,
+	SDLK_DELETE=0x2E,
+	SDLK_0=0x30,
+	SDLK_1=0x31,
+	SDLK_2=0x32,
+	SDLK_3=0x33,
+	SDLK_4=0x34,
+	SDLK_5=0x35,
+	SDLK_6=0x36,
+	SDLK_7=0x37,
+	SDLK_8=0x38,
+	SDLK_9=0x39,
+	SDLK_a=0x41,
+	SDLK_b=0x42,
+	SDLK_c=0x43,
+	SDLK_d=0x44,
+	SDLK_e=0x45,
+	SDLK_f=0x46,
+	SDLK_g=0x47,
+	SDLK_h=0x48,
+	SDLK_i=0x49,
+	SDLK_j=0x4A,
+	SDLK_k=0x4B,
+	SDLK_l=0x4C,
+	SDLK_m=0x4D,
+	SDLK_n=0x4E,
+	SDLK_o=0x4F,
+	SDLK_p=0x50,
+	SDLK_q=0x51,
+	SDLK_r=0x52,
+	SDLK_s=0x53,
+	SDLK_t=0x54,
+	SDLK_u=0x55,
+	SDLK_v=0x56,
+	SDLK_w=0x57,
+	SDLK_x=0x58,
+	SDLK_y=0x59,
+	SDLK_z=0x5A,
+	SDLK_LSUPER=0x5B,
+	SDLK_RSUPER=0x5C,
+	SDLK_MENU=0x5D,
+	SDLK_SLEEP=0x5F,
+	SDLK_KP0=0x60,
+	SDLK_KP1=0x61,
+	SDLK_KP2=0x62,
+	SDLK_KP3=0x63,
+	SDLK_KP4=0x64,
+	SDLK_KP5=0x65,
+	SDLK_KP6=0x66,
+	SDLK_KP7=0x67,
+	SDLK_KP8=0x68,
+	SDLK_KP9=0x69,
+	SDLK_F1=0x70,
+	SDLK_F2=0x71,
+	SDLK_F3=0x72,
+	SDLK_F4=0x73,
+	SDLK_F5=0x74,
+	SDLK_F6=0x75,
+	SDLK_F7=0x76,
+	SDLK_F8=0x77,
+	SDLK_F9=0x78,
+	SDLK_F10=0x79,
+	SDLK_F11=0x7A,
+	SDLK_F12=0x7B,
+	SDLK_F13=0x7C,
+	SDLK_F14=0x7D,
+	SDLK_F15=0x7E,
+	SDLK_F16=0x7F,
+	SDLK_F17=0x80,
+	SDLK_F18=0x81,
+	SDLK_F19=0x82,
+	SDLK_F20=0x83,
+	SDLK_F21=0x84,
+	SDLK_F22=0x85,
+	SDLK_F23=0x86,
+	SDLK_F24=0x87,
+	SDLK_LSHIFT=0xA0,
+	SDLK_RSHIFT=0xA1,
+	SDLK_LCTRL=0xA2,
+	SDLK_RCTRL=0xA3,
+	SDLK_AC_BACK=0xA6,
+	SDLK_AC_FORWARD=0xA7,
+	SDLK_AC_REFRESH=0xA8,
+	SDLK_AC_STOP=0xA9,
+	SDLK_AC_SEARCH=0xAA,
+	SDLK_AC_BOOKMARKS=0xAB,
+	SDLK_AC_HOME=0xAC,
+	SDLK_AUDIOMUTE=0xAD,
+	SDLK_VOLUMEDOWN=0xAE,
+	SDLK_VOLUMEUP=0xAF,
+	SDLK_AUTONEXT=0xB0,
+	SDLK_AUDIOPREV=0xB1,
+	SDLK_AUDIOSTOP=0xB2,
+	SDLK_AUDIOPLAY=0xB3,
+	SDLK_MAIL=0xB4,
+	SDLK_MEDIASELECT=0xB5,
+	SDLK_COLON=0xBA,
+	SDLK_PLUS=0xBB,
+	SDLK_COMMA=0xBC,
+	SDLK_MINUS=0xBD,
+	SDLK_PERIOD=0xBE,
+	SDLK_SLASH=0xBF,
+	SDLK_LEFTBRACKET=0xDB,
+	SDLK_RIGHTBRACKET=0xDD,
+	SDLK_QUOTEDBL=0xDE,
+	SDLK_BACKSLASH=0xE2,
 	SDLK_AGAIN,
 	SDLK_ALTERASE,
 	SDLK_QUOTE,
 	SDLK_APPLICATION,
-	SDLK_AUDIOMUTE,
 	SDLK_AUDIONEXT,
-	SDLK_AUDIOPLAY,
-	SDLK_AUDIOPREV,
-	SDLK_AUDIOSTOP,
-	SDLK_b,
-	SDLK_BACKSLASH,
-	SDLK_BACKSPACE,
 	SDLK_BRIGHTNESSDOWN,
 	SDLK_BRIGHTNESSUP,
-	SDLK_c,
 	SDLK_CALCULATOR,
 	SDLK_CANCEL,
-	SDLK_CAPSLOCK,
-	SDLK_CLEAR,
-	SDLK_CLEARAGAIN,
-	SDLK_COMMA,
 	SDLK_COMPUTER,
 	SDLK_COPY,
 	SDLK_CRSEL,
 	SDLK_CURRENCYSUBUNIT,
 	SDLK_CURRENCYUNIT,
 	SDLK_CUT,
-	SDLK_d,
 	SDLK_DECIMALSEPARATOR,
-	SDLK_DELETE,
 	SDLK_DISPLAYSWITCH,
-	SDLK_DOWN,
-	SDLK_e,
 	SDLK_EJECT,
-	SDLK_END,
 	SDLK_EQUALS,
-	SDLK_ESCAPE,
 	SDLK_EXECUTE,
 	SDLK_EXSEL,
-	SDLK_f,
-	SDLK_F1,
-	SDLK_F10,
-	SDLK_F11,
-	SDLK_F12,
-	SDLK_F13,
-	SDLK_F14,
-	SDLK_F15,
-	SDLK_F16,
-	SDLK_F17,
-	SDLK_F18,
-	SDLK_F19,
-	SDLK_F2,
-	SDLK_F20,
-	SDLK_F21,
-	SDLK_F22,
-	SDLK_F23,
-	SDLK_F24,
-	SDLK_F3,
-	SDLK_F4,
-	SDLK_F5,
-	SDLK_F6,
-	SDLK_F7,
-	SDLK_F8,
-	SDLK_F9,
 	SDLK_FIND,
-	SDLK_g,
 	SDLK_BACKQUOTE,
-	SDLK_h,
 	SDLK_HELP,
-	SDLK_HOME,
-	SDLK_i,
-	SDLK_INSERT,
-	SDLK_j,
-	SDLK_k,
 	SDLK_KBDILLUMDOWN,
 	SDLK_KBDILLUMTOGGLE,
 	SDLK_KBDILLUMUP,
-	SDLK_KP0,
-	SDLK_KP00,
-	SDLK_KP000,
-	SDLK_KP1,
-	SDLK_KP2,
-	SDLK_KP3,
-	SDLK_KP4,
-	SDLK_KP5,
-	SDLK_KP6,
-	SDLK_KP7,
-	SDLK_KP8,
-	SDLK_KP9,
 	SDLK_KPA,
 	SDLK_KP_AMPERSAND,
 	SDLK_KP_AT,
@@ -183,89 +226,46 @@ typedef enum
 	SDLK_KP_TAB,
 	SDLK_KP_VERTICALBAR,
 	SDLK_KP_XOR,
-	SDLK_l,
 	SDLK_LALT,
-	SDLK_LCTRL,
-	SDLK_LEFT,
-	SDLK_LEFTBRACKET,
 	SDLK_LGUI,
-	SDLK_LSHIFT,
-	SDLK_m,
-	SDLK_MAIL,
-	SDLK_MEDIASELECT,
-	SDLK_MENU,
-	SDLK_MINUS,
 	SDLK_MODE,
 	SDLK_MUTE,
-	SDLK_n,
 	SDLK_NUMLOCKCLEAR,
-	SDLK_o,
 	SDLK_OPER,
 	SDLK_OUT,
-	SDLK_p,
-	SDLK_PAGEDOWN,
-	SDLK_PAGEUP,
 	SDLK_PASTE,
 	SDLK_PAUSE,
-	SDLK_PERIOD,
 	SDLK_POWER,
-	SDLK_PRINTSCREEN,
 	SDLK_PRIOR,
-	SDLK_q,
-	SDLK_r,
 	SDLK_RALT,
-	SDLK_RCTRL,
 	SDLK_RETURN,
 	SDLK_RETURN2,
 	SDLK_RGUI,
-	SDLK_RIGHT,
-	SDLK_RIGHTBRACKET,
-	SDLK_RSHIFT,
-	SDLK_s,
 	SDLK_SCROLLLOCK,
 	SDLK_SELECT,
 	SDLK_SEMICOLON,
 	SDLK_SEPARATOR,
-	SDLK_SLASH,
-	SDLK_SLEEP,
-	SDLK_SPACE,
 	SDLK_STOP,
 	SDLK_SYSREQ,
-	SDLK_t,
-	SDLK_TAB,
 	SDLK_THOUSANDSSEPARATOR,
-	SDLK_u,
 	SDLK_UNDO,
 	SDLK_UNKNOWN,
-	SDLK_UP,
-	SDLK_v,
-	SDLK_VOLUMEDOWN,
-	SDLK_VOLUMEUP,
-	SDLK_w,
 	SDLK_WWW,
-	SDLK_x,
-	SDLK_y,
-	SDLK_z,
 	SDLK_AMPERSAND,
 	SDLK_ASTERISK,
 	SDLK_AT,
 	SDLK_CARET,
-	SDLK_COLON,
 	SDLK_DOLLAR,
 	SDLK_EXCLAIM,
 	SDLK_GREATER,
 	SDLK_HASH,
-	SDLK_LEFTPAREN,
 	SDLK_LESS,
 	SDLK_PERCENT,
-	SDLK_PLUS,
 	SDLK_QUESTION,
-	SDLK_QUOTEDBL,
-	SDLK_RIGHTPAREN,
 	SDLK_UNDERSCORE,
-	SDLK_LSUPER,
-	SDLK_RSUPER,
+	SDLK_max//No comma to make sure it stays at the end
 }SDLKey;
+_u8 W32_keystates[SDLK_max];//Bit0: current Bit1: last
 typedef enum
 {
 KMOD_NONE=0,
@@ -298,6 +298,11 @@ typedef struct{
 	SDLMod mod;
 	_u16 unicode;
 }SDL_keysym;
+typedef enum
+{
+	SDL_PRESSED=1,
+	SDL_RELEASED,
+}SDL_KEYSTATE;
 typedef struct
 {
 	_u8 type;
@@ -316,7 +321,7 @@ typedef struct
 	_u8 type;
 	_u8 button;
 	_u8 state;
-	_u8 x,y;
+	_u16 x,y;
 }SDL_MouseButtonEvent;
 typedef struct
 {
@@ -423,6 +428,32 @@ int SDL_PollEvent(SDL_Event * i_Event)
 	GetCursorPos(&lppoint);
 	RECT lprect;
 	GetWindowRect(W32_window,&lprect);
+	for (int ilv1=0;ilv1<sizeof(W32_keystates)/sizeof(W32_keystates[0]);ilv1++)
+	{
+		W32_keystates[ilv1]=W32_keystates[ilv1]<<1;
+		if (GetAsyncKeyState(ilv1)&0x8000)
+		{
+			W32_keystates[ilv1]|=1;
+		}
+		if ((W32_keystates[ilv1]&0x3)==1)
+		{
+			(*i_Event).type=SDL_KEYDOWN;
+			(*i_Event).key.state=SDL_PRESSED;
+			(*i_Event).key.keysym.sym=(SDLKey)ilv1;
+			(*i_Event).key.keysym.scancode=ilv1;
+			(*i_Event).key.keysym.unicode=u'Ö';
+			return 1;
+		}
+		if ((W32_keystates[ilv1]&0x3)==2)
+		{
+			(*i_Event).type=SDL_KEYUP;
+			(*i_Event).key.state=SDL_RELEASED;
+			(*i_Event).key.keysym.sym=(SDLKey)ilv1;
+			(*i_Event).key.keysym.scancode=ilv1;
+			(*i_Event).key.keysym.unicode=u'Ö';
+			return 1;
+		}
+	}
 	int border_thicknessy=GetSystemMetrics(SM_CYCAPTION);
 	int border_thicknessx=GetSystemMetrics(SM_CXSIZEFRAME);
 	lppoint.x-=lprect.left+border_thicknessx;
@@ -440,7 +471,7 @@ int SDL_PollEvent(SDL_Event * i_Event)
 		W32_mousey=lppoint.y;
 		return 1;
 	}
-	int lbuttonstate=(((GetAsyncKeyState(VK_LBUTTON)!=0)*(1<<SDL_BUTTON_LEFT)) | ((GetAsyncKeyState(VK_RBUTTON)!=0)*(1<<SDL_BUTTON_RIGHT)));
+	int lbuttonstate=((((GetAsyncKeyState(VK_LBUTTON)&0x8000)!=0)*(1<<SDL_BUTTON_LEFT)) | (((GetAsyncKeyState(VK_RBUTTON)&0x8000)!=0)*(1<<SDL_BUTTON_RIGHT)));
 	for (int ilv1=1;ilv1<3;ilv1++)
 	{
 		if ((W32_lastbuttonstate&(1<<ilv1))!=(lbuttonstate&(1<<ilv1)))
@@ -548,6 +579,10 @@ BOOL W32_InitInstance(HINSTANCE hInstance,int nCmdShow)
 }
 int SDL_Init(_uXX i_flags)
 {
+	for (int ilv1=0;ilv1<sizeof(W32_keystates)/sizeof(W32_keystates[0]);ilv1++)
+	{
+		W32_keystates[ilv1]=0;
+	}
 	W32_hInst=GetModuleHandle(NULL);
 	if (!W32_InitInstance(W32_hInst,1))
 	{

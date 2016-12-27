@@ -117,6 +117,7 @@ void __attribute__((__cdecl__)) text_plot(_i8 input)
 	text_outtext_right++;
 }
 void (*text_output)(_i8)=text_plot;
+char text_nullstring[]="(NULL)";
 int __attribute__((__cdecl__)) text_snprintf(const char ** inputpointer)
 {
 	int nprinted=0;
@@ -125,10 +126,15 @@ int __attribute__((__cdecl__)) text_snprintf(const char ** inputpointer)
 	inputpointer++;
 	const char * input2;
 	int nread2;
+	char i_outputbuffer[25];
+	char i_outputbufferpos;
 	while(input[nread]!=0)
 	{
 		if (input[nread]=='%')
 		{
+			_u8 definemode=0;//spacereserved,precision,commagiven
+			int spacereserved=0;
+			int precision=0;
 			int tl_bytes=4;
 			iback:
 			nread++;
@@ -142,22 +148,63 @@ int __attribute__((__cdecl__)) text_snprintf(const char ** inputpointer)
 				tl_bytes*=2;
 				goto iback;
 			}
-			if (input[nread]=='s')
+			if (input[nread]=='.')
 			{
-				goto skip;
+				definemode|=4;
+				goto iback;
+			}
+			if ((input[nread]>='0') && (input[nread]<='9'))
+			{
+				if (definemode&4)
+				{
+					precision*=10;
+					precision+=input[nread]-'0';
+					definemode|=2;
+				}
+				else
+				{
+					spacereserved*=10;
+					spacereserved=input[nread]-'0';
+					definemode|=1;
+				}
+				goto iback;
+			}
+			if (input[nread]=='*')
+			{
 				input2=*inputpointer;
 				inputpointer++;
+				if (definemode&4)
+				{
+					precision=(int)input2;
+					definemode|=2;
+				}
+				else
+				{
+					spacereserved=(int)input2;
+					definemode|=1;
+				}
+				goto iback;
+			}
+			if (input[nread]=='s')
+			{
+				input2=*inputpointer;
+				inputpointer++;
+				if (input2==NULL) {for (int ilv1=0;ilv1<strlen(text_nullstring);ilv1++) text_output(text_nullstring[ilv1]);goto idone;}
 				nread2=0;
-				while ((input2[nread2]!=0) and (nread2<2))
+				while ((input2[nread2]!=0) and ((nread2<precision)||((definemode&4)==0)))
 				{
 					text_output(input2[nread2]);
 					nread2++;
 				}
-				nread++;
+				idone:;
+			}
+			else if (input[nread]=='c')
+			{
+				text_output(*(char*)inputpointer);
+				inputpointer++;
 			}
 			else if ((input[nread]=='i') || (input[nread]=='u') || (input[nread]=='x') || (input[nread]=='X'))
 			{
-				skip:;
 				int ilv1;
 				input2=(char*)inputpointer;
 				inputpointer++;
@@ -178,11 +225,17 @@ int __attribute__((__cdecl__)) text_snprintf(const char ** inputpointer)
 					tl_zuverwoschtendes=-tl_zuverwoschtendes;
 					text_output('-');
 				}
+				i_outputbufferpos=0;
 				while (tl_zuverwoschtendes>0)
 				{
 					int zahl=(tl_zuverwoschtendes%10);
-					text_output('0'+zahl);
+					i_outputbuffer[i_outputbufferpos]='0'+zahl;
+					i_outputbufferpos++;
 					tl_zuverwoschtendes/=10;
+				}
+				for (int ilv1=i_outputbufferpos-1;ilv1>=0;ilv1--)
+				{
+					text_output(i_outputbuffer[ilv1]);
 				}
 			}
 			else if (input[nread]=='n')//here comes the Endgegner
@@ -193,6 +246,43 @@ int __attribute__((__cdecl__)) text_snprintf(const char ** inputpointer)
 			else if (input[nread]=='%')
 			{
 				text_output('%');
+			}
+			else if (input[nread]=='f')
+			{
+				if ((definemode&2)==0)
+				{
+					precision=10;
+				}
+				double tl_zuverwoschtendes=*(double*)inputpointer;
+				inputpointer++;
+				inputpointer++;
+				if (tl_zuverwoschtendes<0)
+				{
+					tl_zuverwoschtendes=-tl_zuverwoschtendes;
+					text_output('-');
+				}
+				int tl_integral=trunc(tl_zuverwoschtendes);
+				double tl_integralf;
+				double tl_fractional=modf(tl_zuverwoschtendes,&tl_integralf);
+				i_outputbufferpos=0;
+				while (tl_integral>0)
+				{
+					int zahl=(tl_integral%10);
+					i_outputbuffer[i_outputbufferpos]='0'+zahl;
+					i_outputbufferpos++;
+					tl_integral/=10;
+				}
+				for (int ilv1=i_outputbufferpos-1;ilv1>=0;ilv1--)
+				{
+					text_output(i_outputbuffer[ilv1]);
+				}
+				text_output('.');
+				for (int ilv1=0;ilv1<precision;ilv1++)
+				{
+					tl_fractional*=10.0;
+					text_output(((int)trunc(tl_fractional))+'0');
+					tl_fractional=modf(tl_fractional,&tl_integralf);
+				}
 			}
 			else
 			{

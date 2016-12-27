@@ -818,13 +818,18 @@ void sdl_commonmenucommon()
 			addmenu("turnbar_num",3);
 		}
 	}
-	for (int ilv1=0;ilv1<AUTOSTRUCT_PULLOUTLISTING_toolbox_Size;ilv1++)
+int ilv1;
+	for (ilv1=0;ilv1<AUTOSTRUCT_PULLOUTLISTING_toolbox_Size;ilv1++)
 	{
 		if (AUTOSTRUCT_PULLOUTLISTING_toolbox[ilv1].lmbmode==1)
 		{
 			int length=strlen(AUTOSTRUCT_PULLOUTLISTING_toolbox[ilv1].name);
-			int cut=strchr(AUTOSTRUCT_PULLOUTLISTING_toolbox[ilv1].name,' ')-AUTOSTRUCT_PULLOUTLISTING_toolbox[ilv1].name; 
-			if (cut<length)length=cut;
+			const char * cut=strchr(AUTOSTRUCT_PULLOUTLISTING_toolbox[ilv1].name,' ');
+			if (cut!=NULL)
+			{
+				cut=(char*)(cut-AUTOSTRUCT_PULLOUTLISTING_toolbox[ilv1].name);
+				if (((_iXX)cut)<length)length=(_iXX)cut;
+			}
 			snprintf(tlstring,60,"toolspecific_%.*s",length,AUTOSTRUCT_PULLOUTLISTING_toolbox[ilv1].name);
 			tlstring[59]=0;
 			if (AUTOSTRUCT_PULLOUTLISTING_toolbox[ilv1].toolnr==control_tool)
@@ -847,8 +852,12 @@ void sdl_commonmenucommon()
 								if (tl_pulloutlisting[ilv1].toolnr==control_tool)
 								{
 									int length2=strlen(tl_pulloutlisting[ilv1].name);
-									int cut2=strchr(tl_pulloutlisting[ilv1].name,' ')-tl_pulloutlisting[ilv1].name; 
-									if (cut2<length2) length2=cut2;
+									const char * cut2=strchr(tl_pulloutlisting[ilv1].name,' ');
+									if (cut!=NULL)
+									{
+										cut=(char*)(cut-tl_pulloutlisting[ilv1].name);
+										if (((_iXX)cut)<length2) length2=(_iXX)cut2;
+									}
 									snprintf(tlstring2,60,"toolspecific_%.*s",length2,tl_pulloutlisting[ilv1].name);
 									tlstring2[59]=0;
 									goto iknowwhichsubmenu;

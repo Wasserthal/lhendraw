@@ -15,8 +15,8 @@ LLLLLL H   H EEEEE N    N DDD   R  R A     A    W     W
 #endif
 #define _XOPEN_SOURCE 700
 #include <stddef.h>
-#include <stdlib.h>
 #ifndef CROFTOIDAL
+#include <stdlib.h>
 #include <stdio.h>
 #endif
 #include <dirent.h>

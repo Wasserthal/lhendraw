@@ -427,6 +427,10 @@ int fseek(FILE * ifile,int offset,int TYPE)
 }
 _uXX ftell(FILE * ifile)
 {
+	if (ifile==(W32_FILE-1))
+	{
+		return((*ifile).cursor);
+	}
 	if (checkfilevalidity(ifile)<1) exit(2);
 	(*ifile).cursor=SetFilePointer((*ifile).W32handle,0,NULL,1);
 	return (*ifile).cursor;

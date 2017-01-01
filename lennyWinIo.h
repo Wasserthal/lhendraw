@@ -104,6 +104,11 @@ FILE * fopen(const char * name,const char * mode)
 		createmode=CREATE_ALWAYS;
 		readmode=GENERIC_WRITE;
 	}
+	else if (strcmp(mode,"w+")==0)
+	{
+		createmode=CREATE_ALWAYS;
+		readmode=GENERIC_WRITE|GENERIC_READ;
+	}
 	else
 	{
 		__asm__("int3\n");
@@ -159,6 +164,7 @@ void __attribute__((__cdecl__)) text_plot(_i8 input)
 		{
 			DESTRET(text_outtext_right);
 		}
+		text_outtext_left--;
 	}
 	*text_outtext=input;
 	*(++text_outtext)=0;
@@ -180,10 +186,11 @@ int __attribute__((__cdecl__)) text_snprintf(const char ** inputpointer)
 	{
 		if (input[nread]=='%')
 		{
-			_u8 definemode=0;//spacereserved,precision,commagiven
+			_u8 definemode=0;//spacereserved,precision,commagiven,fillwithzeroes
 			int spacereserved=0;
 			int precision=0;
 			int tl_bytes=4;
+			int basis=10;
 			iback:
 			nread++;
 			if (input[nread]=='h')
@@ -203,6 +210,10 @@ int __attribute__((__cdecl__)) text_snprintf(const char ** inputpointer)
 			}
 			if ((input[nread]>='0') && (input[nread]<='9'))
 			{
+				if (((definemode&7)==0) && (input[nread]=='0'))
+				{
+					definemode|=8;
+				}
 				if (definemode&4)
 				{
 					precision*=10;
@@ -212,7 +223,7 @@ int __attribute__((__cdecl__)) text_snprintf(const char ** inputpointer)
 				else
 				{
 					spacereserved*=10;
-					spacereserved=input[nread]-'0';
+					spacereserved+=input[nread]-'0';
 					definemode|=1;
 				}
 				goto iback;
@@ -253,6 +264,10 @@ int __attribute__((__cdecl__)) text_snprintf(const char ** inputpointer)
 			}
 			else if ((input[nread]=='i') || (input[nread]=='u') || (input[nread]=='x') || (input[nread]=='X'))
 			{
+				if ((input[nread]=='x') || (input[nread]=='X'))
+				{
+					basis=16;
+				}
 				int ilv1;
 				input2=(char*)inputpointer;
 				inputpointer++;
@@ -274,12 +289,18 @@ int __attribute__((__cdecl__)) text_snprintf(const char ** inputpointer)
 					text_output('-');
 				}
 				i_outputbufferpos=0;
-				while (tl_zuverwoschtendes>0)
+				do
 				{
-					int zahl=(tl_zuverwoschtendes%10);
-					i_outputbuffer[i_outputbufferpos]='0'+zahl;
+					int zahl=(tl_zuverwoschtendes%basis);
+					_u8 wert='0'+zahl;
+					if (wert>'9') wert+=((input[nread]=='X')?'A':'a')-'9'-1;
+					i_outputbuffer[i_outputbufferpos]=wert;
 					i_outputbufferpos++;
-					tl_zuverwoschtendes/=10;
+					tl_zuverwoschtendes/=basis;
+				} while (tl_zuverwoschtendes>0);
+				for (int ilv1=spacereserved-1;ilv1>=i_outputbufferpos;ilv1--)
+				{
+					text_output((definemode&8)?'0':' ');
 				}
 				for (int ilv1=i_outputbufferpos-1;ilv1>=0;ilv1--)
 				{
@@ -313,13 +334,13 @@ int __attribute__((__cdecl__)) text_snprintf(const char ** inputpointer)
 				double tl_integralf;
 				double tl_fractional=modf(tl_zuverwoschtendes,&tl_integralf);
 				i_outputbufferpos=0;
-				while (tl_integral>0)
+				do
 				{
 					int zahl=(tl_integral%10);
 					i_outputbuffer[i_outputbufferpos]='0'+zahl;
 					i_outputbufferpos++;
 					tl_integral/=10;
-				}
+				} while (tl_integral>0);
 				for (int ilv1=i_outputbufferpos-1;ilv1>=0;ilv1--)
 				{
 					text_output(i_outputbuffer[ilv1]);
@@ -365,7 +386,22 @@ void vsnprintf(char * output,_uXX size,const char * input,va_list ap)
 {
 	int nprinted=0;
 }
-
+FILE * text_printfile=NULL;
+void __attribute__((__cdecl__)) text_plot_to_file(_i8 input)
+{
+	if (text_outtext_left!=-1)
+	{
+		if (text_outtext_left==0)
+		{
+			DESTRET(text_outtext_right);
+		}
+		text_outtext_left--;
+	}
+	long unsigned int num=0;
+	WriteFile((*text_printfile).W32handle,&input,1,&num,NULL);
+	(*text_printfile).cursor+=num;
+	text_outtext_right++;
+}
 int fprintf(FILE * ifile,const char * input,...)
 {
 	if (ifile==stderr)
@@ -374,10 +410,14 @@ int fprintf(FILE * ifile,const char * input,...)
 	}
 	if (checkfilevalidity>0)
 	{
-		__asm__("int3\n");
-		exit(2);
+		text_output=text_plot_to_file;
+		text_printfile=ifile;
+		text_outtext_left=-1;
+		text_outtext_right=0;
+		long unsigned int num=1;
+		return text_snprintf(&input);
 	}
-		__asm__("int3\n");
+	__asm__("int3\n");
 	exit(2);
 }
 _uXX fwrite(const void * buffer,int blocksize,int blockcount,FILE * ifile)

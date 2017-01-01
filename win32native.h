@@ -574,7 +574,9 @@ BOOL W32_InitInstance(HINSTANCE hInstance,int nCmdShow)
 {
 	HWND hWnd;
 	W32_MyRegisterClass(hInstance);
-	hWnd=CreateWindow(szWindowClass,"lhendraw",WS_OVERLAPPEDWINDOW,0,0,gfx_screensizex,gfx_screensizey,NULL,NULL,hInstance,NULL);
+	int border_thicknessy=GetSystemMetrics(SM_CYCAPTION);
+	int border_thicknessx=GetSystemMetrics(SM_CXSIZEFRAME);
+	hWnd=CreateWindow(szWindowClass,"lhendraw",WS_OVERLAPPEDWINDOW,0,0,gfx_screensizex+border_thicknessx*2,gfx_screensizey+border_thicknessy+border_thicknessx,NULL,NULL,hInstance,NULL);
 	if (!hWnd)
 	{
 		return 0;

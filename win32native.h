@@ -424,12 +424,14 @@ int W32_mousey=0;
 int W32_lastbuttonstate=0;
 int SDL_PollEvent(SDL_Event * i_Event)
 {
+	wchar_t resultstring[10];
 	POINT lppoint;
 	GetCursorPos(&lppoint);
 	RECT lprect;
 	GetWindowRect(W32_window,&lprect);
 	for (int ilv1=0;ilv1<sizeof(W32_keystates)/sizeof(W32_keystates[0]);ilv1++)
 	{
+		BYTE kb[256];
 		W32_keystates[ilv1]=W32_keystates[ilv1]<<1;
 		if (GetAsyncKeyState(ilv1)&0x8000)
 		{
@@ -437,20 +439,24 @@ int SDL_PollEvent(SDL_Event * i_Event)
 		}
 		if ((W32_keystates[ilv1]&0x3)==1)
 		{
+			GetKeyboardState(kb);
 			(*i_Event).type=SDL_KEYDOWN;
 			(*i_Event).key.state=SDL_PRESSED;
 			(*i_Event).key.keysym.sym=(SDLKey)ilv1;
-			(*i_Event).key.keysym.scancode=ilv1;
-			(*i_Event).key.keysym.unicode=u'Ö';
+			(*i_Event).key.keysym.scancode=MapVirtualKey(ilv1,0);
+			ToUnicode(ilv1,(*i_Event).key.keysym.scancode,kb,resultstring,10,0);
+			(*i_Event).key.keysym.unicode=resultstring[0];
 			return 1;
 		}
 		if ((W32_keystates[ilv1]&0x3)==2)
 		{
+			GetKeyboardState(kb);
 			(*i_Event).type=SDL_KEYUP;
 			(*i_Event).key.state=SDL_RELEASED;
 			(*i_Event).key.keysym.sym=(SDLKey)ilv1;
-			(*i_Event).key.keysym.scancode=ilv1;
-			(*i_Event).key.keysym.unicode=u'Ö';
+			(*i_Event).key.keysym.scancode=MapVirtualKey(ilv1,0);
+			ToUnicode(ilv1,(*i_Event).key.keysym.scancode,kb,resultstring,10,0);
+			(*i_Event).key.keysym.unicode=resultstring[0];
 			return 1;
 		}
 	}

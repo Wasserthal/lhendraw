@@ -6,17 +6,25 @@ typedef struct FILE
 	_u8 exist=2;
 	HANDLE W32handle;
 	_uXX cursor;
+	char * startposition;
         _iXX length=-1;//-1 means unknown
 }FILE;
+char * internaladdress=NULL;
 #define W32_FILE_max 5
-FILE W32_FILEHEAP[W32_FILE_max+3];
+FILE W32_FILEHEAP[W32_FILE_max+4];
 FILE * W32_FILE=W32_FILEHEAP+3;
-FILE * win_stderr=W32_FILE-2;
-FILE * win_stdout=W32_FILE-1;
-FILE * win_stdin=W32_FILE-3;
+FILE * win_stderr=W32_FILE-3;
+FILE * win_stdout=W32_FILE-2;
+FILE * win_stdin=W32_FILE-4;
+FILE * win_internal=W32_FILE-1;
+extern _i32 _binary_gfx_buttons_bmp[];
+extern _i32 _binary_hotkeys_xml[];
+extern _i32 _binary_LiberationMono_Regular_bin[];
+extern _i32 _binary_LiberationMono_Regular_lennardfont[];
+extern _i32 _binary_hotkeys_xml_size;
 int checkfilevalidity(FILE * ifile)
 {
-	for (int ilv1=-3;ilv1<W32_FILE_max;ilv1++)
+	for (int ilv1=-4;ilv1<W32_FILE_max;ilv1++)
 	{
 		if (ifile==(W32_FILE+ilv1))
 		{
@@ -44,6 +52,46 @@ FILE * fopen(const char * name,const char * mode)
 {
 	int readmode=0;
 	int createmode=0;
+	if ((name[0])==0)
+	{
+		if (strcmp(name+1,"/gfx/buttons.bmp")==0)
+		{
+			W32_FILE[-1].exist=1;
+			W32_FILE[-1].length=-1;
+			W32_FILE[-1].cursor=0;
+			W32_FILE[-1].W32handle=(HANDLE)NULL;
+			W32_FILE[-1].startposition=(char*)_binary_gfx_buttons_bmp;
+			return W32_FILE-1;
+		}
+		if (strcmp(name+1,"/hotkeys.xml")==0)
+		{
+			W32_FILE[-1].exist=1;
+			W32_FILE[-1].length=_binary_hotkeys_xml_size;
+			W32_FILE[-1].cursor=0;
+			W32_FILE[-1].W32handle=(HANDLE)NULL;
+			W32_FILE[-1].startposition=(char*)_binary_hotkeys_xml;
+			return W32_FILE-1;
+		}
+		if (strcmp(name+1,"/LiberationMono-Regular.bin")==0)
+		{
+			W32_FILE[-1].exist=1;
+			W32_FILE[-1].length=-1;
+			W32_FILE[-1].cursor=0;
+			W32_FILE[-1].W32handle=(HANDLE)NULL;
+			W32_FILE[-1].startposition=(char*)_binary_LiberationMono_Regular_bin;
+			return W32_FILE-1;
+		}
+		if (strcmp(name+1,"/LiberationMono-Regular.lennardfont")==0)
+		{
+			W32_FILE[-1].exist=1;
+			W32_FILE[-1].length=-1;
+			W32_FILE[-1].cursor=0;
+			W32_FILE[-1].W32handle=(HANDLE)NULL;
+			W32_FILE[-1].startposition=(char*)_binary_LiberationMono_Regular_lennardfont;
+			return W32_FILE-1;
+		}
+		return NULL;
+	}
 	FILE * wertfile=W32_summonfile();
 	if (wertfile==NULL) return NULL;
 	if (strcmp(mode,"r")==0)
@@ -77,7 +125,6 @@ void fclose(FILE * ifile)
 }
 int feof(FILE * ifile)
 {
-	if (checkfilevalidity(ifile)<1) return 0;
 	if (((*ifile).cursor>=0) && ((*ifile).length>=0))
 	{
 		if ((*ifile).cursor>=(*ifile).length)
@@ -89,6 +136,7 @@ int feof(FILE * ifile)
 			return 0;
 		}
 	}
+	if (checkfilevalidity(ifile)<1) return 0;
 	return 0;
 }
 void printf(const char * input,...)
@@ -343,22 +391,39 @@ _uXX fwrite(const void * buffer,int blocksize,int blockcount,FILE * ifile)
 _uXX fread(void * buffer,int blocksize,int blockcount,FILE * ifile)
 {
 	long unsigned int num=0;
+	if (ifile==(W32_FILE-1))
+	{
+		int num=blocksize*blockcount;
+		if ((*ifile).length!=-1)
+		{
+			if ((*ifile).length-(*ifile).cursor<num)
+			{
+				num=(*ifile).length-(*ifile).cursor;
+			}
+		}
+		memcpy(buffer,(*ifile).startposition+(*ifile).cursor,num);
+		(*ifile).cursor+=num;
+		return num;
+	}
 	if (checkfilevalidity(ifile)<1) return 0;
 	ReadFile((*ifile).W32handle,buffer,blocksize*blockcount,&num,NULL);
 	(*ifile).cursor+=num;
 	return num;
 }
 
-int fseek(FILE * ifile,int TYPE,int offset)
+int fseek(FILE * ifile,int offset,int TYPE)
 {
 	int relationpoint=0;
 	switch (TYPE)
 	{
 		case SEEK_SET: relationpoint=0;(*ifile).cursor=offset;break;
-		case SEEK_CUR: relationpoint=1;(*ifile).cursor=-offset;break;
+		case SEEK_CUR: relationpoint=1;(*ifile).cursor+=offset;break;
 		case SEEK_END: relationpoint=2;if ((*ifile).length==-1) exit(2);(*ifile).cursor=(*ifile).length+offset;break;
 	}
-	SetFilePointer((*ifile).W32handle,(*ifile).cursor,NULL,0);
+	if (ifile>=W32_FILE)
+	{
+		SetFilePointer((*ifile).W32handle,(*ifile).cursor,NULL,0);
+	}
 }
 _uXX ftell(FILE * ifile)
 {

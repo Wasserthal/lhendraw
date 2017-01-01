@@ -824,7 +824,7 @@ int ilv1;
 		if (AUTOSTRUCT_PULLOUTLISTING_toolbox[ilv1].lmbmode==1)
 		{
 			int length=strlen(AUTOSTRUCT_PULLOUTLISTING_toolbox[ilv1].name);
-			const char * cut=strchr(AUTOSTRUCT_PULLOUTLISTING_toolbox[ilv1].name,' ');
+			char* cut=(char*)strchr(AUTOSTRUCT_PULLOUTLISTING_toolbox[ilv1].name,' ');
 			if (cut!=NULL)
 			{
 				cut=(char*)(cut-AUTOSTRUCT_PULLOUTLISTING_toolbox[ilv1].name);
@@ -852,7 +852,7 @@ int ilv1;
 								if (tl_pulloutlisting[ilv1].toolnr==control_tool)
 								{
 									int length2=strlen(tl_pulloutlisting[ilv1].name);
-									const char * cut2=strchr(tl_pulloutlisting[ilv1].name,' ');
+									char * cut2=(char*)strchr(tl_pulloutlisting[ilv1].name,' ');
 									if (cut!=NULL)
 									{
 										cut=(char*)(cut-tl_pulloutlisting[ilv1].name);

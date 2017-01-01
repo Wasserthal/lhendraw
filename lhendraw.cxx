@@ -149,6 +149,9 @@ extern int undo_storcatch(_u32 flags,const char * iname);
 //#include "hatch.hxx" //TODO SUBJECT HATCH needs the moleculefill buffer
 
 
+#ifdef PORTABLE
+#include "bininclude.h"
+#endif
 #include "resources_init.hxx"
 multilistlist_ multilistlist[]=
 {

@@ -652,6 +652,7 @@ int edit_checkclickpixels()
 	}
 	return 1;
 }
+_u32 control_pixelmatrix[36];
 void edit_clickpixels(int posx,int posy)
 {
 	gfx_bufferset_ target;
@@ -664,7 +665,7 @@ void edit_clickpixels(int posx,int posy)
 	target.canvasminy=0;
 	target.canvasmaxx=5;
 	target.canvasmaxy=5;
-	target.screen=screen;
+	target.screen=control_pixelmatrix;
 	target.canvas=target.screen;
 	target.scrollx=SDL_scrollx+(posx-2)/SDL_zoomx;
 	target.scrolly=SDL_scrolly+(posy-2)/SDL_zoomy;

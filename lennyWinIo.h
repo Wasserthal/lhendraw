@@ -244,6 +244,7 @@ int __attribute__((__cdecl__)) text_snprintf(const char ** inputpointer)
 				}
 				goto iback;
 			}
+			if (tl_bytes>4) tl_bytes/=2;//because one l is always swallowed in both 32- and 64-bit mode
 			if (input[nread]=='s')
 			{
 				input2=*inputpointer;

@@ -135,4 +135,5 @@ int main(int argc,char ** argv)
 	fclose(structfile);
 	fclose(stringfile);
 	fclose(reflectfile);
+	return 0;
 }

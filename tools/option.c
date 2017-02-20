@@ -132,4 +132,5 @@ int main(int argc,char**argv)
 	outfile=fopen("./generated/pullout_reflectfile.hxx","a");
 	fprintf(outfile,"{\"options\",%i,%i,&AUTOSTRUCT_PULLOUTLISTING_options,sizeof(AUTOSTRUCT_PULLOUTLISTING_options)},",currentitemcount,currentitemcount);
 	fclose(outfile);
+	return 0;
 }

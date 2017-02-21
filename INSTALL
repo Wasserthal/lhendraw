@@ -1,12 +1,12 @@
 dependencies:
-- SDL - in any distro. be sure to install the sdl-dev, too!
+- SDL1.2 - in any distro. be sure to install the sdl-dev, too! (usually called libsdl1.2-dev)
 - gcc - check your distro
 - g++ - check your distro
 - glibc/math (should be present anyway)
 - make (not totally necessary)
 - 32bit x86 processor(i386), 64bit x86 processor (AMD_K64)
 - X11-dev
-- libXmu-dev
+- libXmu-dev (unless you add -D NOCLIPBOARD to the primary compiling line in the makefile)
 
 how to install
 type 
@@ -63,3 +63,8 @@ ilhendraw(first in list, takes some time)
 bundle (creates the .app folder structure)
 
 You MUST copy lhendraw.app into the /Applications/ Folder, because it's internal structure depends on it and I do not know how to use executable-relative paths on Mac OS X.
+
+WINDOWS-VERSION:
+
+This version requires still that the tools and generated files get generated on linux.
+To compile, use ReactOS (0.4.3 was used) and RosBE (the self-carrying build environment of ReactOS). Execute make.bat in the working directory.

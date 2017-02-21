@@ -590,10 +590,11 @@ int __attribute__((sysv_abi))CDXMLREAD_BIN_float(char * input,void * output)
 }
 int __attribute__((sysv_abi))CDXMLWRITE_BIN_float(char * input,void * output)
 {
-	static int length=sizeof(float);
+	static int length=sizeof(double);
 	fwrite(&length,2,1,(FILE*)output);
-	fwrite(input,sizeof(float),1,(FILE*)output);
-	return sizeof(float);
+	double intermediate=*(float*)input;
+	fwrite(&intermediate,sizeof(double),1,(FILE*)output);
+	return sizeof(double);
 }
 int __attribute__((sysv_abi))CDXMLWRITE_float(char * input,void * output)
 {

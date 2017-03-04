@@ -65,9 +65,10 @@ struct control_export_
 {
 	int bmp_compression;//0: normal 3:ARGB,32bpp only
 	int hires;//0: not 1: use HQ_filter
-	int transparent;
+	int transparent;//0: bmp not transparent 1: bitmap has alpha channel
+	int attachextension;//1: automatically add extension when missing
 };
-control_export_ control_export={0,1,0};
+control_export_ control_export={0,1,0,1};
 typedef struct MODIFIER_KEYS_
 {
 	char CTRL;

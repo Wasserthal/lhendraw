@@ -3427,8 +3427,12 @@ int issuemenuclick(AUTOSTRUCT_PULLOUTLISTING_ * ilisting,int icount,int posx,int
 						break;
 					}
 					case 0x416:
-					control_mousestate=0;//FALLTHROUGH
-					case 6://FALLTHROUGH
+					{
+						control_mousestate=0;
+						*((_i32*)((*ipulloutlisting).variable))=(*ipulloutlisting).toolnr;
+						break;
+					}
+					case 6:
 					{
 						if (*((_i32*)((*ipulloutlisting).variable))!=(*ipulloutlisting).toolnr)
 						{

@@ -19,6 +19,27 @@
 	}\
 	FORCEEXTENSION_finished:;\
 }
+#define MACRO_ATTACHEXTENSION(MACRO_ENDING)\
+if (control_export.attachextension==1)\
+{\
+	const char * parsepos=control_totalfilename+strlen(control_totalfilename);\
+	while ((*parsepos)!='.')\
+	{\
+		if (parsepos==control_totalfilename)\
+		{\
+			if (fileformat[MACRO_ENDING].ending==NULL) goto MACRO_ATTACHEXTENSION_YES;\
+			if (strcmp(fileformat[MACRO_ENDING].ending,"")==0)\
+			{\
+				MACRO_ATTACHEXTENSION_YES:\
+				strcat(control_totalfilename,constants_cdxstring);\
+				goto MACRO_ATTACHEXTENSION_FINISHED;\
+			}\
+			strcat(control_totalfilename,fileformat[MACRO_ENDING].ending);\
+		}\
+		parsepos--;\
+	}\
+	MACRO_ATTACHEXTENSION_FINISHED:;\
+}
 #define LOCALMACROES\
 		LOCALMACRO_1(n)\
 		LOCALMACRO_1(b)\
@@ -5603,6 +5624,7 @@ catalogized_command_funcdef(FILEDLG_FILE_SAVE)
 	if (DD)
 	{
 		sprintf(control_totalfilename,"%s/%s",control_currentdirectory,control_filenamehead);
+		MACRO_ATTACHEXTENSION(control_filememory_ending)
 		retval=SAVE_TYPE(control_totalfilename,fileformat[control_filememory_ending].ending);
 
 		if (retval>=1)
@@ -5626,6 +5648,7 @@ catalogized_command_funcdef(FILEDLG_FILE_EXPORT)
 	{
 		sprintf(control_totalfilename,"%s/%s",control_currentdirectory_port,control_filenamehead_port);
 		edit_fileoperationrefersonlytopartofdocument=1;
+		MACRO_ATTACHEXTENSION(control_filememory_port_ending)
 		retval=SAVE_TYPE(control_totalfilename,fileformat[control_filememory_port_ending].ending);
 		edit_fileoperationrefersonlytopartofdocument=0;
 

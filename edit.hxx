@@ -3469,6 +3469,7 @@ catalogized_command_iterated_funcdef(SWAPDOUBLEPOSITION)
 }
 catalogized_command_funcdef(FILE_NEW)
 {
+	control_setfilename("lhendraw, new file");
 	for (int ilv1=1;ilv1<STRUCTURE_OBJECTTYPE_ListSize;ilv1++)
 	{
 		basicmultilist * tlmultilist=findmultilist(STRUCTURE_OBJECTTYPE_List[ilv1].name);

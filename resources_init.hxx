@@ -45,8 +45,8 @@ FILE * criticalfilename(char * idirectorystring,const char * iname)
 	thefile=fopen(idirectorystring,"r");
 	if (thefile!=NULL) return thefile;
 	#else
-	sprintf(idirectorystring,"A%s",iname);
 	idirectorystring[0]=0;
+	sprintf(idirectorystring+1,"%s",iname);
 	thefile=fopen(idirectorystring,"r");
 	if (thefile!=NULL) return thefile;
 	#endif

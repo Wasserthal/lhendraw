@@ -6,6 +6,7 @@ char LHENDRAW_filedlgmode=0;//Requires reset
 char LHENDRAW_warndlgmode=0;
 int LHENDRAW_userdecision=0;
 char LHENDRAW_leave=0;
+int control_GUI=1;
 int edit_fileoperationrefersonlytopartofdocument=0;//Hidden parameter
 int edit_file_always_overwrite=0;//Hidden parameter
 const char * LHENDRAW_warning=NULL;

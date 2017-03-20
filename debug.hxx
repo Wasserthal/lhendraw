@@ -17,7 +17,6 @@ void print(...)
 #define error2(MACRO_NUMBER,...) {fprintf(stderr,__VA_ARGS__);exit(MACRO_NUMBER);};
 #ifdef DEBUG
 const char *progname=NULL;
-extern int control_GUI;
 extern char control_filenamehead[256];
 void Signal(int signum)
 {

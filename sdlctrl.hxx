@@ -88,7 +88,6 @@ char * control_filename;
 int control_force=0;
 int control_interactive=1;
 int control_saveuponexit=0;
-int control_GUI=1;
 int control_doubleclickenergy=0;
 int control_doublekeypressenergy=0;
 basic_instance * control_manipulatedinstance;

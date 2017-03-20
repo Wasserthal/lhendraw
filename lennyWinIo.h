@@ -17,11 +17,14 @@ FILE * win_stderr=W32_FILE-3;
 FILE * win_stdout=W32_FILE-2;
 FILE * win_stdin=W32_FILE-4;
 FILE * win_internal=W32_FILE-1;
-extern _i32 _binary_gfx_buttons_bmp[];
-extern _i32 _binary_hotkeys_xml[];
-extern _i32 _binary_LiberationMono_Regular_bin[];
-extern _i32 _binary_LiberationMono_Regular_lennardfont[];
-extern _i32 _binary_hotkeys_xml_size;
+extern "C" char binary_gfx_buttons_bmp_start[];
+extern "C" char binary_hotkeys_xml_start[];
+extern "C" char binary_LiberationMono_Regular_bin_start[];
+extern "C" char binary_LiberationMono_Regular_lennardfont_start[];
+extern "C" char binary_gfx_buttons_bmp_end[];
+extern "C" char binary_hotkeys_xml_end[];
+extern "C" char binary_LiberationMono_Regular_bin_end[];
+extern "C" char binary_LiberationMono_Regular_lennardfont_end[];
 int checkfilevalidity(FILE * ifile)
 {
 	for (int ilv1=-4;ilv1<W32_FILE_max;ilv1++)
@@ -48,6 +51,7 @@ FILE * W32_summonfile()
 		}
 	}
 }
+extern "C" int binary_gfx_buttons_bmp_size;
 FILE * fopen(const char * name,const char * mode)
 {
 	int readmode=0;
@@ -57,37 +61,37 @@ FILE * fopen(const char * name,const char * mode)
 		if (strcmp(name+1,"/gfx/buttons.bmp")==0)
 		{
 			W32_FILE[-1].exist=1;
-			W32_FILE[-1].length=-1;
+			W32_FILE[-1].length=&binary_gfx_buttons_bmp_end[0]-&binary_gfx_buttons_bmp_start[0];
 			W32_FILE[-1].cursor=0;
 			W32_FILE[-1].W32handle=(HANDLE)NULL;
-			W32_FILE[-1].startposition=(char*)_binary_gfx_buttons_bmp;
+			W32_FILE[-1].startposition=(char*)binary_gfx_buttons_bmp_start;
 			return W32_FILE-1;
 		}
 		if (strcmp(name+1,"/hotkeys.xml")==0)
 		{
 			W32_FILE[-1].exist=1;
-			W32_FILE[-1].length=_binary_hotkeys_xml_size;
+			W32_FILE[-1].length=&binary_hotkeys_xml_end[0]-&binary_hotkeys_xml_start[0];
 			W32_FILE[-1].cursor=0;
 			W32_FILE[-1].W32handle=(HANDLE)NULL;
-			W32_FILE[-1].startposition=(char*)_binary_hotkeys_xml;
+			W32_FILE[-1].startposition=(char*)binary_hotkeys_xml_start;
 			return W32_FILE-1;
 		}
 		if (strcmp(name+1,"/LiberationMono-Regular.bin")==0)
 		{
 			W32_FILE[-1].exist=1;
-			W32_FILE[-1].length=-1;
+			W32_FILE[-1].length=&binary_LiberationMono_Regular_bin_end[0]-&binary_LiberationMono_Regular_bin_start[0];
 			W32_FILE[-1].cursor=0;
 			W32_FILE[-1].W32handle=(HANDLE)NULL;
-			W32_FILE[-1].startposition=(char*)_binary_LiberationMono_Regular_bin;
+			W32_FILE[-1].startposition=(char*)binary_LiberationMono_Regular_bin_start;
 			return W32_FILE-1;
 		}
 		if (strcmp(name+1,"/LiberationMono-Regular.lennardfont")==0)
 		{
 			W32_FILE[-1].exist=1;
-			W32_FILE[-1].length=-1;
+			W32_FILE[-1].length=&binary_LiberationMono_Regular_lennardfont_start[0]-&binary_LiberationMono_Regular_lennardfont_end[0];
 			W32_FILE[-1].cursor=0;
 			W32_FILE[-1].W32handle=(HANDLE)NULL;
-			W32_FILE[-1].startposition=(char*)_binary_LiberationMono_Regular_lennardfont;
+			W32_FILE[-1].startposition=(char*)binary_LiberationMono_Regular_lennardfont_start;
 			return W32_FILE-1;
 		}
 		return NULL;

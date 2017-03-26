@@ -1,6 +1,7 @@
 #define stderr win_stderr
 #define stdout win_stdout
 #define stdin win_stdin
+HGLOBAL LHENDRAW_clipboardhandle;
 typedef struct FILE
 {
 	_u8 exist=2;
@@ -25,6 +26,7 @@ extern "C" char binary_gfx_buttons_bmp_end[];
 extern "C" char binary_hotkeys_xml_end[];
 extern "C" char binary_LiberationMono_Regular_bin_end[];
 extern "C" char binary_LiberationMono_Regular_lennardfont_end[];
+extern char * LHENDRAW_clipboardbuffer;
 int checkfilevalidity(FILE * ifile)
 {
 	for (int ilv1=-4;ilv1<W32_FILE_max;ilv1++)
@@ -58,6 +60,15 @@ FILE * fopen(const char * name,const char * mode)
 	int createmode=0;
 	if ((name[0])==0)
 	{
+		if (strcmp(name+1,"clipboard")==0)
+		{
+			W32_FILE[-1].exist=1;
+			W32_FILE[-1].length=-1;
+			W32_FILE[-1].cursor=0;
+			W32_FILE[-1].W32handle=(HANDLE)NULL;
+			W32_FILE[-1].startposition=(char*)LHENDRAW_clipboardbuffer;
+			return W32_FILE-1;
+		}
 		if (strcmp(name+1,"/gfx/buttons.bmp")==0)
 		{
 			W32_FILE[-1].exist=1;
@@ -167,6 +178,20 @@ void __attribute__((__cdecl__)) text_plot(_i8 input)
 		if (text_outtext_left==0)
 		{
 			DESTRET(text_outtext_right);
+		}
+		text_outtext_left--;
+	}
+	*text_outtext=input;
+	*(++text_outtext)=0;
+	text_outtext_right++;
+}
+void __attribute__((__cdecl__)) text_plot_ramfile(_i8 input)
+{
+	if (text_outtext_left!=-1)
+	{
+		if (text_outtext_left==0)
+		{
+			DESTRET(text_outtext_right);//TODO: expand ramfile
 		}
 		text_outtext_left--;
 	}
@@ -413,7 +438,7 @@ int fprintf(FILE * ifile,const char * input,...)
 	{
 		return 0;
 	}
-	if (checkfilevalidity>0)
+	if (checkfilevalidity(ifile)>0)
 	{
 		text_output=text_plot_to_file;
 		text_printfile=ifile;
@@ -422,12 +447,39 @@ int fprintf(FILE * ifile,const char * input,...)
 		long unsigned int num=1;
 		return text_snprintf(&input);
 	}
+	else
+	{
+		if (checkfilevalidity(ifile)==-1)
+		{
+			text_output=text_plot_ramfile;
+			text_outtext=ifile->startposition+ifile->cursor;
+			text_outtext_left=1000000;//TODO
+			text_outtext_right=0;
+			text_snprintf(&input);
+			ifile->cursor+=text_outtext_right;
+			return text_outtext_right;
+		}
+	}
 	__asm__("int3\n");
 	exit(2);
 }
 _uXX fwrite(const void * buffer,int blocksize,int blockcount,FILE * ifile)
 {
 	long unsigned int num=0;
+	if (ifile==(W32_FILE-1))
+	{
+		int num=blocksize*blockcount;
+		if ((*ifile).length!=-1)
+		{
+			if ((*ifile).length-(*ifile).cursor<num)
+			{
+				num=(*ifile).length-(*ifile).cursor;
+			}
+		}
+		memcpy((*ifile).startposition+(*ifile).cursor,buffer,num);
+		(*ifile).cursor+=num;
+		return num;
+	}
 	if (checkfilevalidity(ifile)<1) return 0;
 	WriteFile((*ifile).W32handle,buffer,blocksize*blockcount,&num,NULL);
 	(*ifile).cursor+=num;

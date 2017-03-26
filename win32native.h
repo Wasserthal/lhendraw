@@ -433,7 +433,7 @@ int SDL_PollEvent(SDL_Event * i_Event)
 	{
 		BYTE kb[256];
 		W32_keystates[ilv1]=W32_keystates[ilv1]<<1;
-		if (GetAsyncKeyState(ilv1)&0x8000)
+		if (GetKeyState(ilv1)&0x8000)
 		{
 			W32_keystates[ilv1]|=1;
 		}
@@ -477,7 +477,7 @@ int SDL_PollEvent(SDL_Event * i_Event)
 		W32_mousey=lppoint.y;
 		return 1;
 	}
-	int lbuttonstate=((((GetAsyncKeyState(VK_LBUTTON)&0x8000)!=0)*(1<<SDL_BUTTON_LEFT)) | (((GetAsyncKeyState(VK_RBUTTON)&0x8000)!=0)*(1<<SDL_BUTTON_RIGHT)));
+	int lbuttonstate=((((GetKeyState(VK_LBUTTON)&0x8000)!=0)*(1<<SDL_BUTTON_LEFT)) | (((GetKeyState(VK_RBUTTON)&0x8000)!=0)*(1<<SDL_BUTTON_RIGHT)));
 	for (int ilv1=1;ilv1<3;ilv1++)
 	{
 		if ((W32_lastbuttonstate&(1<<ilv1))!=(lbuttonstate&(1<<ilv1)))

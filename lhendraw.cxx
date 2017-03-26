@@ -28,15 +28,16 @@ LLLLLL H   H EEEEE N    N DDD   R  R A     A    W     W
 #include "lendefs.h"
 #ifdef CROFTOIDAL
 #define NOPOSIX
-#define NOCLIPBOARD
 #include "win32native.h"
 #else
 #include <SDL.h>
 #endif
 #ifndef NOCLIPBOARD
+#ifndef CROFTOIDAL
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
 #include <X11/Xmu/Atoms.h>
+#endif
 #endif
 #ifndef NOPOSIX
 #include <time.h>
@@ -292,7 +293,9 @@ int main(int argc,char * * argv)
 #endif
 		mainloop:
 		#ifndef NOCLIPBOARD
+		#ifndef CROFTOIDAL
 		service_clipboard();
+		#endif
 		#endif
 		switch (LHENDRAW_filedlgmode)
 		{

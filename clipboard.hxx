@@ -7,6 +7,7 @@
 #define clipboard_XCLIB_XCOUT_BAD_TARGET 3
 #define clipboard_XCLIB_XCOUT_INCR 2
 #define clipboard_XCLIB_XCOUT_SENTCONVSEL 1
+#ifndef CROFTOIDAL
 int xcout(Display * dpy,Window win,XEvent evt,Atom sel,Atom target,Atom * type,unsigned char **txt,unsigned long *len,unsigned int *context)
 {
     /* a property for other windows to put their selection into */
@@ -353,3 +354,4 @@ void service_clipboard()
 	}
 	#endif
 }
+#endif

@@ -122,7 +122,7 @@ int __attribute__((sysv_abi))CDXMLREAD_BIN_cdx_String(char * input,void * output
 }
 int __attribute__((sysv_abi))CDXMLWRITE_BIN_cdx_String(char * input,void * output)
 {
-	static int length=strlen(input)+1;
+	int length=strlen(input)+1;
 	fwrite(&length,2,1,(FILE*)output);
 	fprintf((FILE*)output,"%s",input);
 	return strlen(input)+1;
@@ -324,7 +324,7 @@ int __attribute__((sysv_abi))CDXMLREAD_BIN_cdx_Buffered_String(char * input,void
 }
 int __attribute__((sysv_abi))CDXMLWRITE_BIN_cdx_Buffered_String(char * input,void * output)
 {
-	static int length=strlen(input)+1;
+	int length=strlen(input)+1;
 	fwrite(&length,2,1,(FILE*)output);
 	fprintf((FILE*)output,"%s",input);
 	static char zero=0;
@@ -947,7 +947,7 @@ int __attribute__((sysv_abi))CDXMLWRITE_BIN_cdx_Bezierpoints(char * input,void *
 	int intermediate=0;
 	int ilv1=2;
 	cdx_Bezierpoints * list=(cdx_Bezierpoints*)input;
-	static int length=8*list->count;
+	int length=8*list->count;
 	fwrite(&length,2,1,(FILE*)output);
 	for (int ilv2=0;ilv2<count;ilv2++)
 	{

@@ -3868,27 +3868,41 @@ extern int control_textedit_selectmode;
 extern int control_mousestate;
 extern _uXX control_textedit_cursor;
 extern char arbitrarycursorstring[4];
+#ifdef CROFTOIDAL
+int W32_clipformat;
+#endif
 catalogized_command_funcdef(COPY)
 {
 	int control_textedit_cursor2;
 	if (control_mousestate==0x40)
 	{
-		if (LHENDRAW_clipboardmode)
-		{
-			#ifndef NOCLIPBOARD
-			service_clipboard();
-			#endif
-			free(LHENDRAW_clipboardbuffer);
-		}
 		if (control_textedit_selectmode)
 		{
+			if (LHENDRAW_clipboardmode)//an external clipboard has no clipboardmode
+			{
+				#ifndef NOCLIPBOARD
+				#ifndef NOPOSIX
+				service_clipboard();
+				free(LHENDRAW_clipboardbuffer);
+				#endif
+				#endif
+			}
 			if (control_aggresstextcursor(NULL))
 			{
+				#ifdef CROFTOIDAL
+				OpenClipboard(W32_window);
+				EmptyClipboard();
+				#endif
 				control_textedit_cursor+=(_uXX)TELESCOPE_getproperty_contents();
 				control_textedit_cursor+=3;
 				int tl_length;
 				int tl_memsize=256;
+				#ifndef CROFTOIDAL
 				LHENDRAW_clipboardbuffer=(char*)malloc(tl_memsize);
+				#else
+				LHENDRAW_clipboardhandle=GlobalAlloc(GMEM_MOVEABLE,tl_memsize);
+				LHENDRAW_clipboardbuffer=(char*)GlobalLock(LHENDRAW_clipboardhandle);
+				#endif
 				int elapsed=0;
 				int endfound=0;
 				tl_back:;
@@ -3906,7 +3920,13 @@ catalogized_command_funcdef(COPY)
 				}
 				if (tl_length>=tl_memsize-elapsed-1)
 				{
+					#ifndef CROFTOIDAL
 					LHENDRAW_clipboardbuffer=(char*)realloc(LHENDRAW_clipboardbuffer,tl_memsize*2);
+					#else
+					GlobalUnlock(LHENDRAW_clipboardhandle);
+					LHENDRAW_clipboardhandle=GlobalReAlloc(LHENDRAW_clipboardhandle,tl_memsize*2,GMEM_MOVEABLE);
+					LHENDRAW_clipboardbuffer=(char*)GlobalLock(LHENDRAW_clipboardhandle);
+					#endif
 					tl_memsize*=2;
 				}
 				memcpy(LHENDRAW_clipboardbuffer+elapsed,(char*)control_textedit_cursor,tl_length);
@@ -3921,15 +3941,24 @@ catalogized_command_funcdef(COPY)
 				}
 				control_textedit_cursor-=(_uXX)TELESCOPE_getproperty_contents();
 				LHENDRAW_clipboardbuffer_count=elapsed;
+				LHENDRAW_clipboardbuffer[LHENDRAW_clipboardbuffer_count]=0;
+				#ifdef CROFTOIDAL
+				GlobalUnlock(LHENDRAW_clipboardhandle);
+				SetClipboardData(CF_TEXT,LHENDRAW_clipboardhandle);
+				CloseClipboard();
+				#endif
 			}
+			#ifndef NOCLIPBOARD
+			#ifndef CROFTOIDAL
+			XSetSelectionOwner(gfx_Display,clipboard_sseln,gfx_Window,CurrentTime);
+			LHENDRAW_clipboardmode=1;
+			#endif
+			#endif
 		}
-		#ifndef NOCLIPBOARD
-		XSetSelectionOwner(gfx_Display,clipboard_sseln,gfx_Window,CurrentTime);
-		LHENDRAW_clipboardmode=1;
-		#endif
 	}
 	else
 	{
+		#ifndef CROFTOIDAL
 		char control_totalfilename[stringlength+1];
 		sprintf(control_totalfilename,"mkdir -p %s/.clipboard",getenv("HOME"));
 		system(control_totalfilename);
@@ -3944,6 +3973,21 @@ catalogized_command_funcdef(COPY)
 		edit_fileoperationrefersonlytopartofdocument=0;
 		edit_file_always_overwrite=0;
 		LHENDRAW_clipboardmode=0;
+		#else
+		OpenClipboard(W32_window);
+		EmptyClipboard();
+		W32_clipformat=RegisterClipboardFormat("ChemDraw Interchange Format");
+		LHENDRAW_clipboardhandle=GlobalAlloc(GMEM_MOVEABLE,1000000);//TODO:allow size change
+		LHENDRAW_clipboardbuffer=(char*)GlobalLock(LHENDRAW_clipboardhandle);
+		SAVE_TYPE("\000clipboard",".cdx");
+		FILE * schulzfile=fopen("frites.cdx","w+");
+		fwrite(LHENDRAW_clipboardbuffer,999999,1,schulzfile);
+		fclose(schulzfile);
+//		memcpy(LHENDRAW_clipboardbuffer,&(friggin[0]),sizeof(friggin));
+		GlobalUnlock(LHENDRAW_clipboardhandle);
+		SetClipboardData(W32_clipformat,LHENDRAW_clipboardhandle);
+		CloseClipboard();
+		#endif
 		return 1;
 	}
 	return 1;
@@ -3991,6 +4035,7 @@ catalogized_command_funcdef(PASTE)
 	if (LHENDRAW_clipboardmode==1) goto loaded;
 	LHENDRAW_clipboardbuffer=NULL;
 	#ifndef NOCLIPBOARD
+	#ifndef CROFTOIDAL
 	{
 		Atom sel_type = None;
 		XEvent evt;
@@ -4004,13 +4049,46 @@ catalogized_command_funcdef(PASTE)
 			if (context == clipboard_XCLIB_XCOUT_NONE) break;
 		}
 	}
+	#else
+	{
+		OpenClipboard(W32_window);
+/*		int pos=0;//TODO DEBUG
+		pos=EnumClipboardFormats(pos);
+		while (pos!=0)
+		{
+			char type[10000];
+			sprintf(type,"\n%i ",pos);
+			if (pos>=0xC000)
+			{
+				GetClipboardFormatName(pos,type+strlen(type),10000);
+			}
+			TELESCOPE_insertintoproperties_offset(type,strlen(type),control_textedit_cursor);
+			pos=EnumClipboardFormats(pos);
+		}
+		CloseClipboard();//TODO DEBUG
+		return 1;//TODO DEBUG
+*/		
+	}
+	#endif
 	#endif
 	loaded:;
+	#ifndef CROFTOIDAL
 	if (LHENDRAW_clipboardbuffer==NULL) return 1;
+	#endif
 	if (control_mousestate==0x40)
 	{
+		#ifdef CROFTOIDAL
+		LHENDRAW_clipboardhandle=GetClipboardData(CF_TEXT);
+		if (LHENDRAW_clipboardhandle==0)
+		{
+			return 0;
+		}
+		LHENDRAW_clipboardbuffer=(char*)GlobalLock(LHENDRAW_clipboardhandle);
+		LHENDRAW_clipboardbuffer_count=strlen(LHENDRAW_clipboardbuffer);
+		#endif
 		if (control_aggresstextcursor("\uE000"))
 		{
+			char nunwytendsei[40];
 			for (int ilv1=0;ilv1<LHENDRAW_clipboardbuffer_count;ilv1++)
 			{
 				if (LHENDRAW_clipboardbuffer[ilv1]==0)
@@ -4020,14 +4098,22 @@ catalogized_command_funcdef(PASTE)
 				}
 			}
 			ifound:;
+			       goto skipdebug;
+			sprintf(nunwytendsei,"%i\n",LHENDRAW_clipboardbuffer_count);
+			LHENDRAW_clipboardbuffer=nunwytendsei;//TODO DEBUG
+			LHENDRAW_clipboardbuffer_count=strlen(nunwytendsei);//TODO DEBUG
 			//Not needed in this case. is it needed at all?
+skipdebug:;
+			#ifndef NOPOSIX
 			LHENDRAW_clipboardbuffer=(char*)realloc(LHENDRAW_clipboardbuffer,LHENDRAW_clipboardbuffer_count+1);
+			#endif
 			LHENDRAW_clipboardbuffer[LHENDRAW_clipboardbuffer_count]=0;
 			if (control_textedit_selectmode==1)
 			{
 				control_squashselection();
 			}
 			TELESCOPE_insertintoproperties_offset(LHENDRAW_clipboardbuffer,LHENDRAW_clipboardbuffer_count,control_textedit_cursor);
+			return 1;//TODO DEBUG
 			cantinsert:;
 		}
 	}
@@ -4035,16 +4121,37 @@ catalogized_command_funcdef(PASTE)
 	{
 		undo_storcatch(~0,"PASTE");
 		char control_totalfilename[stringlength+1];
+		#ifdef CROFTOIDAL
+		W32_clipformat=RegisterClipboardFormat("ChemDraw Interchange Format");
+		LHENDRAW_clipboardhandle=GetClipboardData(W32_clipformat);
+		if (LHENDRAW_clipboardhandle==0)
+		{
+			return 0;
+		}
+		LHENDRAW_clipboardbuffer=(char*)GlobalLock(LHENDRAW_clipboardhandle);
+		sprintf(control_totalfilename,"Aclipboard");
+		control_totalfilename[0]=0;
+		LHENDRAW_clipboardmode=0;
+		#else
 		system("clipboard -r .cdx 2>/dev/null");//asks clipboard for cdx file
 		sprintf(control_totalfilename,"%s/.clipboard/clipboard.cdx",getenv("HOME"));
+		#endif
 		edit_fileoperationrefersonlytopartofdocument=1;
 		LOAD_TYPE(control_totalfilename,".cdx");
+		#ifndef CROFTOIDAL
 		system("clipboard -q 2>/dev/null");//closes clipboard
+		#endif
 		edit_import_corrections();
 		edit_fileoperationrefersonlytopartofdocument=0;
 	}
 	if (LHENDRAW_clipboardmode==1) return 1;
+	#ifdef CROFTOIDAL
+	if (LHENDRAW_clipboardhandle!=NULL)
+		GlobalUnlock(LHENDRAW_clipboardhandle);
+	CloseClipboard();
+	#else
 	free(LHENDRAW_clipboardbuffer);
+	#endif
 	LHENDRAW_clipboardmode=0;
 	return 1;
 }
@@ -6143,7 +6250,7 @@ int edit_readcolortablefrombuffer(char * input)
 }
 int edit_writecolortabletobuffer(char * input,void * output)
 {
-	static int length=glob_CAMBRIDGE_color_multilist->filllevel*6+2;
+	int length=glob_CAMBRIDGE_color_multilist->filllevel*6+2;
 	fwrite(&length,2,1,(FILE*)output);
 	length=glob_CAMBRIDGE_color_multilist->filllevel;
 	fwrite(&length,2,1,(FILE*)output);
@@ -6358,7 +6465,7 @@ int edit_writestobuffer(char * input,void * output)
 {
 	int segcount=0;
 	int textlength=0;
-	static int length=0x00;
+	int length=0x00;
 	basicmultilistreference * tl_basicmultilistreference=*((basicmultilistreference**)input);
 	int tl_max=tl_basicmultilistreference->start_in_it+tl_basicmultilistreference->count_in_it;
 	for (int ilv1=tl_basicmultilistreference->start_in_it;ilv1<tl_max;ilv1++)

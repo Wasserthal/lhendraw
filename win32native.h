@@ -597,6 +597,5 @@ int SDL_Init(_uXX i_flags)
 		printf("Win32-api init failed");
 		return 0;
 	}
-	printf("OK");
 	return 1;
 }

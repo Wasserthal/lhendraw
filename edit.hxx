@@ -3980,10 +3980,6 @@ catalogized_command_funcdef(COPY)
 		LHENDRAW_clipboardhandle=GlobalAlloc(GMEM_MOVEABLE,1000000);//TODO:allow size change
 		LHENDRAW_clipboardbuffer=(char*)GlobalLock(LHENDRAW_clipboardhandle);
 		SAVE_TYPE("\000clipboard",".cdx");
-		FILE * schulzfile=fopen("frites.cdx","w+");
-		fwrite(LHENDRAW_clipboardbuffer,999999,1,schulzfile);
-		fclose(schulzfile);
-//		memcpy(LHENDRAW_clipboardbuffer,&(friggin[0]),sizeof(friggin));
 		GlobalUnlock(LHENDRAW_clipboardhandle);
 		SetClipboardData(W32_clipformat,LHENDRAW_clipboardhandle);
 		CloseClipboard();
@@ -4052,22 +4048,6 @@ catalogized_command_funcdef(PASTE)
 	#else
 	{
 		OpenClipboard(W32_window);
-/*		int pos=0;//TODO DEBUG
-		pos=EnumClipboardFormats(pos);
-		while (pos!=0)
-		{
-			char type[10000];
-			sprintf(type,"\n%i ",pos);
-			if (pos>=0xC000)
-			{
-				GetClipboardFormatName(pos,type+strlen(type),10000);
-			}
-			TELESCOPE_insertintoproperties_offset(type,strlen(type),control_textedit_cursor);
-			pos=EnumClipboardFormats(pos);
-		}
-		CloseClipboard();//TODO DEBUG
-		return 1;//TODO DEBUG
-*/		
 	}
 	#endif
 	#endif
@@ -4098,12 +4078,6 @@ catalogized_command_funcdef(PASTE)
 				}
 			}
 			ifound:;
-			       goto skipdebug;
-			sprintf(nunwytendsei,"%i\n",LHENDRAW_clipboardbuffer_count);
-			LHENDRAW_clipboardbuffer=nunwytendsei;//TODO DEBUG
-			LHENDRAW_clipboardbuffer_count=strlen(nunwytendsei);//TODO DEBUG
-			//Not needed in this case. is it needed at all?
-skipdebug:;
 			#ifndef NOPOSIX
 			LHENDRAW_clipboardbuffer=(char*)realloc(LHENDRAW_clipboardbuffer,LHENDRAW_clipboardbuffer_count+1);
 			#endif

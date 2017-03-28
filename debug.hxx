@@ -18,6 +18,7 @@ void print(...)
 #ifdef DEBUG
 const char *progname=NULL;
 extern char control_filenamehead[256];
+extern int control_GUI;
 void Signal(int signum)
 {
 	if (control_GUI)

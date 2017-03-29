@@ -3868,12 +3868,24 @@ extern int control_textedit_selectmode;
 extern int control_mousestate;
 extern _uXX control_textedit_cursor;
 extern char arbitrarycursorstring[4];
+int LHENDRAW_clipboardbuffer_max;
 #ifdef CROFTOIDAL
 int W32_clipformat;
+int LHENDRAW_realloc_clipboard()
+{
+	GlobalUnlock(LHENDRAW_clipboardhandle);
+	LHENDRAW_clipboardhandle=GlobalReAlloc(LHENDRAW_clipboardhandle,LHENDRAW_clipboardbuffer_max*2,GMEM_MOVEABLE);
+	LHENDRAW_clipboardbuffer=(char*)GlobalLock(LHENDRAW_clipboardhandle);
+	W32_FILE[-1].startposition=LHENDRAW_clipboardbuffer;
+	W32_FILE[-1].length=LHENDRAW_clipboardbuffer_max;
+	LHENDRAW_clipboardbuffer_max*=2;
+	return 1;
+}
 #endif
 catalogized_command_funcdef(COPY)
 {
 	int control_textedit_cursor2;
+	LHENDRAW_clipboardbuffer_max=256;
 	if (control_mousestate==0x40)
 	{
 		if (control_textedit_selectmode)
@@ -3896,11 +3908,10 @@ catalogized_command_funcdef(COPY)
 				control_textedit_cursor+=(_uXX)TELESCOPE_getproperty_contents();
 				control_textedit_cursor+=3;
 				int tl_length;
-				int tl_memsize=256;
 				#ifndef CROFTOIDAL
-				LHENDRAW_clipboardbuffer=(char*)malloc(tl_memsize);
+				LHENDRAW_clipboardbuffer=(char*)malloc(LHENDRAW_clipboardbuffer_max);
 				#else
-				LHENDRAW_clipboardhandle=GlobalAlloc(GMEM_MOVEABLE,tl_memsize);
+				LHENDRAW_clipboardhandle=GlobalAlloc(GMEM_MOVEABLE,LHENDRAW_clipboardbuffer_max);
 				LHENDRAW_clipboardbuffer=(char*)GlobalLock(LHENDRAW_clipboardhandle);
 				#endif
 				int elapsed=0;
@@ -3918,16 +3929,16 @@ catalogized_command_funcdef(COPY)
 					endfound=1;
 					tl_length=control_textedit_cursor2-control_textedit_cursor;
 				}
-				if (tl_length>=tl_memsize-elapsed-1)
+				if (tl_length>=LHENDRAW_clipboardbuffer_max-elapsed-1)
 				{
 					#ifndef CROFTOIDAL
-					LHENDRAW_clipboardbuffer=(char*)realloc(LHENDRAW_clipboardbuffer,tl_memsize*2);
+					LHENDRAW_clipboardbuffer=(char*)realloc(LHENDRAW_clipboardbuffer,LHENDRAW_clipboardbuffer_max*2);
 					#else
 					GlobalUnlock(LHENDRAW_clipboardhandle);
-					LHENDRAW_clipboardhandle=GlobalReAlloc(LHENDRAW_clipboardhandle,tl_memsize*2,GMEM_MOVEABLE);
+					LHENDRAW_clipboardhandle=GlobalReAlloc(LHENDRAW_clipboardhandle,LHENDRAW_clipboardbuffer_max*2,GMEM_MOVEABLE);
 					LHENDRAW_clipboardbuffer=(char*)GlobalLock(LHENDRAW_clipboardhandle);
 					#endif
-					tl_memsize*=2;
+					LHENDRAW_clipboardbuffer_max*=2;
 				}
 				memcpy(LHENDRAW_clipboardbuffer+elapsed,(char*)control_textedit_cursor,tl_length);
 				elapsed+=tl_length;
@@ -3977,8 +3988,9 @@ catalogized_command_funcdef(COPY)
 		OpenClipboard(W32_window);
 		EmptyClipboard();
 		W32_clipformat=RegisterClipboardFormat("ChemDraw Interchange Format");
-		LHENDRAW_clipboardhandle=GlobalAlloc(GMEM_MOVEABLE,1000000);//TODO:allow size change
+		LHENDRAW_clipboardhandle=GlobalAlloc(GMEM_MOVEABLE,LHENDRAW_clipboardbuffer_max);//TODO:allow size change
 		LHENDRAW_clipboardbuffer=(char*)GlobalLock(LHENDRAW_clipboardhandle);
+		text_outtext_realloc=LHENDRAW_realloc_clipboard;
 		SAVE_TYPE("\000clipboard",".cdx");
 		GlobalUnlock(LHENDRAW_clipboardhandle);
 		SetClipboardData(W32_clipformat,LHENDRAW_clipboardhandle);

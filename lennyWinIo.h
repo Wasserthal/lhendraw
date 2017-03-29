@@ -27,6 +27,7 @@ extern "C" char binary_hotkeys_xml_end[];
 extern "C" char binary_LiberationMono_Regular_bin_end[];
 extern "C" char binary_LiberationMono_Regular_lennardfont_end[];
 extern char * LHENDRAW_clipboardbuffer;
+extern int LHENDRAW_clipboardbuffer_max;
 int checkfilevalidity(FILE * ifile)
 {
 	for (int ilv1=-4;ilv1<W32_FILE_max;ilv1++)
@@ -63,7 +64,7 @@ FILE * fopen(const char * name,const char * mode)
 		if (strcmp(name+1,"clipboard")==0)
 		{
 			W32_FILE[-1].exist=1;
-			W32_FILE[-1].length=-1;
+			W32_FILE[-1].length=LHENDRAW_clipboardbuffer_max;
 			W32_FILE[-1].cursor=0;
 			W32_FILE[-1].W32handle=(HANDLE)NULL;
 			W32_FILE[-1].startposition=(char*)LHENDRAW_clipboardbuffer;
@@ -166,6 +167,8 @@ void printf(const char * input,...)
 char * text_outtext=NULL;
 int text_outtext_left=-1;
 int text_outtext_right=-1;
+int (*text_outtext_realloc)()=NULL;
+FILE * text_outtext_file=NULL;
 #define DESTRET(BACKVAL) \
 {\
 	__asm__ __volatile__ ("LEAVE\npop %%ebx\nret\n": :"a"(BACKVAL):"ebx");\
@@ -191,8 +194,10 @@ void __attribute__((__cdecl__)) text_plot_ramfile(_i8 input)
 	{
 		if (text_outtext_left==0)
 		{
-			DESTRET(text_outtext_right);//TODO: expand ramfile
+			if (text_outtext_realloc()>0) {text_outtext_left=text_outtext_file->length-text_outtext_file->cursor-text_outtext_right; goto could_realloc;}
+			DESTRET(text_outtext_right);
 		}
+		could_realloc:;
 		text_outtext_left--;
 	}
 	*text_outtext=input;
@@ -416,7 +421,6 @@ void vsnprintf(char * output,_uXX size,const char * input,va_list ap)
 {
 	int nprinted=0;
 }
-FILE * text_printfile=NULL;
 void __attribute__((__cdecl__)) text_plot_to_file(_i8 input)
 {
 	if (text_outtext_left!=-1)
@@ -428,8 +432,8 @@ void __attribute__((__cdecl__)) text_plot_to_file(_i8 input)
 		text_outtext_left--;
 	}
 	long unsigned int num=0;
-	WriteFile((*text_printfile).W32handle,&input,1,&num,NULL);
-	(*text_printfile).cursor+=num;
+	WriteFile((*text_outtext_file).W32handle,&input,1,&num,NULL);
+	(*text_outtext_file).cursor+=num;
 	text_outtext_right++;
 }
 int fprintf(FILE * ifile,const char * input,...)
@@ -441,7 +445,7 @@ int fprintf(FILE * ifile,const char * input,...)
 	if (checkfilevalidity(ifile)>0)
 	{
 		text_output=text_plot_to_file;
-		text_printfile=ifile;
+		text_outtext_file=ifile;
 		text_outtext_left=-1;
 		text_outtext_right=0;
 		long unsigned int num=1;
@@ -453,7 +457,8 @@ int fprintf(FILE * ifile,const char * input,...)
 		{
 			text_output=text_plot_ramfile;
 			text_outtext=ifile->startposition+ifile->cursor;
-			text_outtext_left=1000000;//TODO
+			text_outtext_left=ifile->length-ifile->cursor;//TODO
+			text_outtext_file=ifile;
 			text_outtext_right=0;
 			text_snprintf(&input);
 			ifile->cursor+=text_outtext_right;
@@ -469,10 +474,13 @@ _uXX fwrite(const void * buffer,int blocksize,int blockcount,FILE * ifile)
 	if (ifile==(W32_FILE-1))
 	{
 		int num=blocksize*blockcount;
+		iback:;
 		if ((*ifile).length!=-1)
 		{
 			if ((*ifile).length-(*ifile).cursor<num)
 			{
+				text_outtext_realloc();
+				goto iback;//You can never know if it is sufficient now, what if it is still not sufficient for all bytes?
 				num=(*ifile).length-(*ifile).cursor;
 			}
 		}

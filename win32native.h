@@ -367,12 +367,14 @@ void SDL_WM_SetIcon()
 {
 	//TODO
 }
+_u32 * winscreen=(_u32*)malloc(10000000);
 SDL_Surface * SDL_SetVideoMode(int i_screensizex,int i_screensizey,int i_colordepth,_uXX i_flags)
 {
 	//Do nothing, all is done in SDL_Init
+	free(winscreen);
+	winscreen=(_u32*)malloc(i_screensizex*i_screensizey*4);
 	return &W32_surface;//Return happy nothing, because that stuff is done in situ in the window redraw procedure
 }
-_u32 * winscreen=(_u32*)malloc(10000000);
 void SDL_UpdateRect(SDL_Surface * i_surface,int i_left,int i_top,int gfx_screensizex,int gfx_screensizey)
 {
 	PAINTSTRUCT ps;
@@ -518,7 +520,13 @@ int W32_RefreshEvents()
 }
 void SDL_WarpMouse(int x,int y)
 {
-	//TODO
+	W32_mousex=x;
+	W32_mousey=y;
+	RECT lprect;
+	GetWindowRect(W32_window,&lprect);
+	int border_thicknessx=GetSystemMetrics(SM_CXSIZEFRAME);
+	int border_thicknessy=GetSystemMetrics(SM_CYCAPTION);
+	SetCursorPos(x+lprect.left+border_thicknessx,y+lprect.top+border_thicknessy);
 }
 LRESULT CALLBACK W32_WndProc(HWND hWnd,UINT message,WPARAM wParam,LPARAM lParam)
 {
@@ -578,7 +586,7 @@ LRESULT CALLBACK W32_WndProc(HWND hWnd,UINT message,WPARAM wParam,LPARAM lParam)
 				iBitmapInfo.bmiHeader.biHeight=gfx_screensizey;
 				iBitmapInfo.bmiHeader.biCompression=0;
 				iBitmapInfo.bmiHeader.biPlanes=1;
-				iBitmapInfo.bmiHeader.biSizeImage=2000000;
+				iBitmapInfo.bmiHeader.biSizeImage=gfx_screensizex*gfx_screensizey*4;
 				iBitmapInfo.bmiHeader.biClrUsed=0;
 				iBitmapInfo.bmiHeader.biClrImportant=0;
 				iBitmapInfo.bmiHeader.biXPelsPerMeter=1000;
@@ -586,6 +594,18 @@ LRESULT CALLBACK W32_WndProc(HWND hWnd,UINT message,WPARAM wParam,LPARAM lParam)
 				int iret;
 				iret=SetDIBitsToDevice(hdc,0,0,gfx_screensizex,gfx_screensizey,0,0,0,gfx_screensizey,schirm,&iBitmapInfo,DIB_RGB_COLORS);
 				EndPaint(hWnd, &ps);
+			break;
+		}
+		case WM_SIZE:
+		{
+			if ((wParam!=SIZE_RESTORED) && (wParam!=SIZE_MAXIMIZED)) break;
+			if (((W32_Eventfifo_in+1)%W32_Eventfifo_max)==W32_Eventfifo_out) break;
+			SDL_Event i_Event;
+			i_Event.type=SDL_VIDEORESIZE;
+			i_Event.resize.w=lParam&0xFFFF;
+			i_Event.resize.h=(lParam>>16)&0xFFFF;
+			W32_Eventfifo[W32_Eventfifo_in]=i_Event;
+			W32_Eventfifo_in=(W32_Eventfifo_in+1)%W32_Eventfifo_max;
 			break;
 		}
 		default:

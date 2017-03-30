@@ -422,9 +422,25 @@ int SDL_UnlockSurface(SDL_Surface * i_Surface)
 int W32_mousex=0;
 int W32_mousey=0;
 int W32_lastbuttonstate=0;
+#define W32_Eventfifo_max 100
+SDL_Event W32_Eventfifo[W32_Eventfifo_max];
+int W32_Eventfifo_in=0;
+int W32_Eventfifo_out=0;
 int SDL_PollEvent(SDL_Event * i_Event)
 {
+	if (W32_Eventfifo_out!=W32_Eventfifo_in)
+	{
+		(*i_Event)=W32_Eventfifo[W32_Eventfifo_out];
+		W32_Eventfifo_out=(W32_Eventfifo_out+1)%W32_Eventfifo_max;
+		return 1;
+	}
+	return 0;
+}
+int W32_RefreshEvents()
+{
+	SDL_Event * i_Event=W32_Eventfifo+W32_Eventfifo_in;
 	wchar_t resultstring[10];
+	int lbuttonstate;
 	POINT lppoint;
 	GetCursorPos(&lppoint);
 	RECT lprect;
@@ -446,7 +462,7 @@ int SDL_PollEvent(SDL_Event * i_Event)
 			(*i_Event).key.keysym.scancode=MapVirtualKey(ilv1,0);
 			ToUnicode(ilv1,(*i_Event).key.keysym.scancode,kb,resultstring,10,0);
 			(*i_Event).key.keysym.unicode=resultstring[0];
-			return 1;
+			goto eventfinished;
 		}
 		if ((W32_keystates[ilv1]&0x3)==2)
 		{
@@ -457,13 +473,15 @@ int SDL_PollEvent(SDL_Event * i_Event)
 			(*i_Event).key.keysym.scancode=MapVirtualKey(ilv1,0);
 			ToUnicode(ilv1,(*i_Event).key.keysym.scancode,kb,resultstring,10,0);
 			(*i_Event).key.keysym.unicode=resultstring[0];
-			return 1;
+			goto eventfinished;
 		}
 	}
-	int border_thicknessy=GetSystemMetrics(SM_CYCAPTION);
-	int border_thicknessx=GetSystemMetrics(SM_CXSIZEFRAME);
-	lppoint.x-=lprect.left+border_thicknessx;
-	lppoint.y-=lprect.top+border_thicknessy;
+	{
+		int border_thicknessy=GetSystemMetrics(SM_CYCAPTION);
+		int border_thicknessx=GetSystemMetrics(SM_CXSIZEFRAME);
+		lppoint.x-=lprect.left+border_thicknessx;
+		lppoint.y-=lprect.top+border_thicknessy;
+	}
 	if ((lppoint.x!=W32_mousex) || (lppoint.y!=W32_mousey))
 	{
 		(*i_Event).type=SDL_MOUSEMOTION;
@@ -475,9 +493,9 @@ int SDL_PollEvent(SDL_Event * i_Event)
 		(*i_Event).motion.y=lppoint.y;
 		W32_mousex=lppoint.x;
 		W32_mousey=lppoint.y;
-		return 1;
+		goto eventfinished;
 	}
-	int lbuttonstate=((((GetKeyState(VK_LBUTTON)&0x8000)!=0)*(1<<SDL_BUTTON_LEFT)) | (((GetKeyState(VK_RBUTTON)&0x8000)!=0)*(1<<SDL_BUTTON_RIGHT)));
+	lbuttonstate=((((GetKeyState(VK_LBUTTON)&0x8000)!=0)*(1<<SDL_BUTTON_LEFT)) | (((GetKeyState(VK_RBUTTON)&0x8000)!=0)*(1<<SDL_BUTTON_RIGHT)));
 	for (int ilv1=1;ilv1<3;ilv1++)
 	{
 		if ((W32_lastbuttonstate&(1<<ilv1))!=(lbuttonstate&(1<<ilv1)))
@@ -489,10 +507,14 @@ int SDL_PollEvent(SDL_Event * i_Event)
 			(*i_Event).button.y=W32_mousey;
 			W32_lastbuttonstate&=~(1<<ilv1);
 			W32_lastbuttonstate|=(lbuttonstate&(1<<ilv1));
-			return 1;
+			goto eventfinished;
 		}
 	}
 	return 0;
+	eventfinished:;
+	W32_Eventfifo_in=(W32_Eventfifo_in+1)%W32_Eventfifo_max;
+	if (((W32_Eventfifo_in+1)%W32_Eventfifo_max)==W32_Eventfifo_out) return 0;//Buffer full
+	return 1;
 }
 void SDL_WarpMouse(int x,int y)
 {
@@ -517,6 +539,26 @@ LRESULT CALLBACK W32_WndProc(HWND hWnd,UINT message,WPARAM wParam,LPARAM lParam)
 			}
 			default:
 			return DefWindowProc(hWnd,message,wParam,lParam);
+		}
+		break;
+		case WM_MOUSEWHEEL:
+		{
+			if (((W32_Eventfifo_in+1)%W32_Eventfifo_max)==W32_Eventfifo_out) break;
+			SDL_Event i_Event;
+			i_Event.type=SDL_MOUSEBUTTONDOWN;
+			i_Event.button.state=W32_lastbuttonstate;
+			i_Event.button.x=W32_mousex;
+			i_Event.button.y=W32_mousey;
+			if (wParam & 0x80000000)
+			{
+				i_Event.button.button=SDL_BUTTON_WHEELDOWN;
+			}
+			else
+			{
+				i_Event.button.button=SDL_BUTTON_WHEELUP;
+			}
+			W32_Eventfifo[W32_Eventfifo_in]=i_Event;
+			W32_Eventfifo_in=(W32_Eventfifo_in+1)%W32_Eventfifo_max;
 		}
 		break;
 		case WM_PAINT:
@@ -548,6 +590,7 @@ LRESULT CALLBACK W32_WndProc(HWND hWnd,UINT message,WPARAM wParam,LPARAM lParam)
 		}
 		default:
 		{
+			while (W32_RefreshEvents()){}
 			return DefWindowProc(hWnd,message,wParam,lParam);
 		}
 	}

@@ -4282,7 +4282,7 @@ fprintf(ifile,"%s","</colortable><fonttable>\n"
 	janitor_biasids(4);
 	glob_CAMBRIDGE_CDXML_multilist->filllevel=0;
 	CAMBRIDGE_CDXML_instance i_CAMBRIDGE_CDXML_instance=CAMBRIDGE_CDXML_instance();
-	i_CAMBRIDGE_CDXML_instance.BondLength=30;AUTOSTRUCT_EXISTS_SET_NAME(&i_CAMBRIDGE_CDXML_instance,BondLength);
+	i_CAMBRIDGE_CDXML_instance.BondLength.x=30;AUTOSTRUCT_EXISTS_SET_NAME(&i_CAMBRIDGE_CDXML_instance,BondLength);
 	(*glob_CAMBRIDGE_CDXML_multilist).ADD(&i_CAMBRIDGE_CDXML_instance);
 	glob_CAMBRIDGE_page_multilist->filllevel=0;
 	ADD_TO_MULTILISTREFERENCE(&i_CAMBRIDGE_CDXML_instance,page);
@@ -4488,9 +4488,9 @@ catalogized_command_funcdef(LOAD_TYPE)
 	svg_findaround();
 	getatoms();
 	edit_add_deltahydrogens(tl_lastfilllevels[STRUCTURE_OBJECTTYPE_n]);
-	if ((glob_CAMBRIDGE_CDXML_multilist->bufferlist()[0].BondLength!=0) && (glob_CAMBRIDGE_CDXML_multilist->bufferlist()[0].BondLength!=30))
+	if ((glob_CAMBRIDGE_CDXML_multilist->bufferlist()[0].BondLength.x!=0) && (glob_CAMBRIDGE_CDXML_multilist->bufferlist()[0].BondLength.x!=30))
 	{
-		edit_correct_bondlength(tl_lastfilllevels,30.0/glob_CAMBRIDGE_CDXML_multilist->bufferlist()[0].BondLength);
+		edit_correct_bondlength(tl_lastfilllevels,30.0/glob_CAMBRIDGE_CDXML_multilist->bufferlist()[0].BondLength.x);
 	}
 	for (int ilv1=0;ilv1<multilist_count;ilv1++)
 	{

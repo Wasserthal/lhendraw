@@ -6,6 +6,14 @@
 extern int getbufferfromstructure(basicmultilist * input,TELESCOPE_buffer * * bufferptr);
 extern basic_instance_nested * currentinstance;
 #define arcfloat float
+struct cdx_Point1D
+{
+	float x;
+};
+inline void clear_cdx_Point1D(cdx_Point1D & input)
+{
+	input.x=0;
+}
 struct cdx_Point2D
 {
 	float x,y;
@@ -828,6 +836,20 @@ int __attribute__((sysv_abi))CDXMLREAD_cdx_Rectangle(char * input,void * output)
 	*((cdx_Rectangle*)output)=wert;
 	return ilv1;
 }
+int __attribute__((sysv_abi))CDXMLWRITE_cdx_Point1D(char * input,void * output)
+{
+	cdx_Point1D * wert=(cdx_Point1D*)input;
+	fprintf((FILE*)output," %f ",(*wert).x);
+	return 0;
+}
+int __attribute__((sysv_abi))CDXMLREAD_cdx_Point1D(char * input,void * output)
+{
+	int ilv1;
+	cdx_Point1D wert;
+	ilv1=CDXMLREAD_float(input,&(wert.x));
+	*((cdx_Point1D*)output)=wert;
+	return ilv1;
+}
 int __attribute__((sysv_abi))CDXMLWRITE_cdx_Point2D(char * input,void * output)
 {
 	cdx_Point2D * wert=(cdx_Point2D*)input;
@@ -849,6 +871,27 @@ int __attribute__((sysv_abi))CDXMLWRITE_cdx_Point3D(char * input,void * output)
 	cdx_Point3D * wert=(cdx_Point3D*)input;
 	fprintf((FILE*)output," %f %f %f ",(*wert).x,(*wert).y,(*wert).z);
 	return 0;
+}
+int __attribute__((sysv_abi))CDXMLREAD_BIN_cdx_Point1D(char * input,void * output)
+{
+	int ilv1;
+	_i32 ix;
+	cdx_Point1D wert;
+	ilv1=CDXMLREAD_BIN__i32(input,&(ix));
+	wert.x=ix/65536.0;
+	*((cdx_Point1D*)output)=wert;
+	return ilv1;
+}
+int __attribute__((sysv_abi))CDXMLWRITE_BIN_cdx_Point1D(char * input,void * output)
+{
+	int ilv1;
+	_i32 ix;
+	static int length=4;
+	fwrite(&length,2,1,(FILE*)output);
+	cdx_Point1D wert=*((cdx_Point1D*)input);
+	ix=wert.x*65536.0;
+	ilv1=CDXMLWRITE_BIN__i32_headerless((ix),(FILE*)output);
+	return ilv1;
 }
 int __attribute__((sysv_abi))CDXMLREAD_BIN_cdx_Point2D(char * input,void * output)
 {

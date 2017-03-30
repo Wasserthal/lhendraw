@@ -1,5 +1,5 @@
 Total_Document;CDXML ;;
-CDXML;colortable page fonttable color font ;4 BoundingBox s Comment : colortable : fonttable 1 BondLength ;
+CDXML;colortable page fonttable color font ;4 BoundingBox s Comment : colortable : fonttable . BondLength ;
 page;group fragment t graphic arrow curve tlcplate hatch ;0 id 4 BoundingBox 1 Width 1 Height 1 HeaderPosition 1 FooterPosition 1 PageOverlap ! PrintTrimMarks 0 HeightPages 0 WidthPages ! DrawingSpace ;
 group;group fragment t graphic arrow curve tlcplate hatch ;;
 fragment;n b t graphic arrow curve hatch ;4 BoundingBox ;

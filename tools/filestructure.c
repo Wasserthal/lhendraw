@@ -168,6 +168,7 @@ int main(int argc,char * * argv)
 		case 'C' : strcpy(properties_types[properties_count],"_x8");properties_type_nrs[properties_count]=1;break;
 		case '0' : strcpy(properties_types[properties_count],"_i32");properties_type_nrs[properties_count]=1;break;
 		case '1' : strcpy(properties_types[properties_count],"float");properties_type_nrs[properties_count]=1;break;
+		case '.' : strcpy(properties_types[properties_count],"cdx_Point1D");properties_type_nrs[properties_count]=2;break;
 		case '2' : strcpy(properties_types[properties_count],"cdx_Point2D");properties_type_nrs[properties_count]=2;break;
 		case '3' : strcpy(properties_types[properties_count],"cdx_Point3D");properties_type_nrs[properties_count]=2;break;
 		case '4' : strcpy(properties_types[properties_count],"cdx_Rectangle");properties_type_nrs[properties_count]=2;break;

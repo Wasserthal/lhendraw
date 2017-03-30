@@ -407,6 +407,7 @@ int __attribute__((__cdecl__)) snprintf(char * output,_uXX size,const char * inp
 	text_outtext=output;
 	text_outtext_left=size;
 	text_outtext_right=0;
+	text_outtext[0]=0;
 	return text_snprintf(&input);
 }
 int __attribute__((__cdecl__)) sprintf(char * output,const char * input,...)
@@ -415,11 +416,17 @@ int __attribute__((__cdecl__)) sprintf(char * output,const char * input,...)
 	text_outtext=output;
 	text_outtext_left=-1;
 	text_outtext_right=0;
+	text_outtext[0]=0;
 	return text_snprintf(&input);
 }
-void vsnprintf(char * output,_uXX size,const char * input,va_list ap)
+int vsnprintf(char * output,_uXX size,const char * &input,va_list ap)
 {
-	int nprinted=0;
+	text_output=text_plot;
+	text_outtext=output;
+	text_outtext_left=-1;
+	text_outtext_right=0;
+	text_outtext[0]=0;
+	int backval=text_snprintf(&input);
 }
 void __attribute__((__cdecl__)) text_plot_to_file(_i8 input)
 {

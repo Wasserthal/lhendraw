@@ -100,7 +100,7 @@ void control_filedlg_datastorages()
 	{
 		for (int ilv1=0;ilv1<26;ilv1++)
 		{
-			control_devicememory_buffer[ilv1][0]='A'+ilv1;control_devicememory_buffer[ilv1][1]=':';control_devicememory_buffer[ilv1][2]=0;
+			control_devicememory_buffer[ilv1][0]='A'+ilv1;control_devicememory_buffer[ilv1][1]=':';control_devicememory_buffer[ilv1][2]='\\';control_devicememory_buffer[ilv1][3]=0;
 		}
 		control_devicememory.count=26;
 	}

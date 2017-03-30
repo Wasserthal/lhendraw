@@ -4003,6 +4003,10 @@ catalogized_command_funcdef(COPY)
 catalogized_command_funcdef(PRINT)
 {
 	char control_totalfilename[stringlength+1];
+	#ifdef CROFTOIDAL
+	userwarning("printing is not implemented for croftoidal operating systems,\nplease export as svg and print from a different application");
+	return 1;//TODO: print under windows
+	#endif
 	sprintf(control_totalfilename,"mkdir -p %s/.clipboard",getenv("HOME"));
 	system(control_totalfilename);
 	edit_fileoperationrefersonlytopartofdocument=1;
@@ -4514,7 +4518,7 @@ catalogized_command_funcdef(SAVE)
 	if (userwarning(istring))
 	{
 		definitely:;
-		sprintf(istring,"%s/%s",control_currentdirectory,control_filenamehead);
+		sprintf(istring,"%s%c%s",control_currentdirectory,constants_Directoryslash,control_filenamehead);
 		SAVE_TYPE(istring,"");
 	}
 	return 1;
@@ -5717,7 +5721,7 @@ catalogized_command_funcdef(FILEDLG_FILE_SAVE)
 	char retval=-30;
 	if (DD)
 	{
-		sprintf(control_totalfilename,"%s/%s",control_currentdirectory,control_filenamehead);
+		sprintf(control_totalfilename,"%s%c%s",control_currentdirectory,constants_Directoryslash,control_filenamehead);
 		MACRO_ATTACHEXTENSION(control_filememory_ending)
 		retval=SAVE_TYPE(control_totalfilename,fileformat[control_filememory_ending].ending);
 
@@ -5740,7 +5744,7 @@ catalogized_command_funcdef(FILEDLG_FILE_EXPORT)
 	char retval=-30;
 	if (DD)
 	{
-		sprintf(control_totalfilename,"%s/%s",control_currentdirectory_port,control_filenamehead_port);
+		sprintf(control_totalfilename,"%s%c%s",control_currentdirectory_port,constants_Directoryslash,control_filenamehead_port);
 		edit_fileoperationrefersonlytopartofdocument=1;
 		MACRO_ATTACHEXTENSION(control_filememory_port_ending)
 		retval=SAVE_TYPE(control_totalfilename,fileformat[control_filememory_port_ending].ending);
@@ -5766,7 +5770,7 @@ catalogized_command_funcdef(FILEDLG_FILE_LOAD)
 	if (DD)
 	{
 		undo_storcatch(~0,"LOAD");
-		sprintf(control_totalfilename,"%s/%s",control_currentdirectory,control_filenamehead);
+		sprintf(control_totalfilename,"%s%c%s",control_currentdirectory,constants_Directoryslash,control_filenamehead);
 		FILE_NEW("","");
 		retval=LOAD_TYPE(control_totalfilename,fileformat[control_filememory_ending].ending);
 		if (retval>=1)
@@ -5788,7 +5792,7 @@ catalogized_command_funcdef(FILEDLG_FILE_IMPORT)
 	if (DD)
 	{
 		undo_storcatch(~0,"IMPORT");
-		sprintf(control_totalfilename,"%s/%s",control_currentdirectory_port,control_filenamehead_port);
+		sprintf(control_totalfilename,"%s%c%s",control_currentdirectory_port,constants_Directoryslash,control_filenamehead_port);
 		edit_fileoperationrefersonlytopartofdocument=1;
 		retval=LOAD_TYPE(control_totalfilename,fileformat[control_filememory_port_ending].ending);
 		edit_import_corrections();
@@ -6906,6 +6910,7 @@ catalogized_command_funcdef(SEARCHFILE)
 }
 catalogized_command_funcdef(FILEDLG_FILE_SEARCH)
 {
+	char fileseparatorstring[2]={constants_Directoryslash,0};
 	char currentfilename_search[stringlength*2+2];
 	DIR * DD=opendir(control_currentdirectory_search);
 	printf("%s\n",control_currentdirectory_search);
@@ -6918,7 +6923,7 @@ catalogized_command_funcdef(FILEDLG_FILE_SEARCH)
 			dirpy=readdir(DD);
 			if (dirpy==NULL) goto readfinished;
 			strncpy(currentfilename_search,control_currentdirectory_search,stringlength);
-			strncat(currentfilename_search,"/",1);
+			strncat(currentfilename_search,fileseparatorstring,1);
 			strncat(currentfilename_search,dirpy->d_name,stringlength);
 			currentfilename_search[stringlength*2+1]=0;
 			FILE * testfile=fopen(currentfilename_search,"r");
@@ -6931,6 +6936,7 @@ catalogized_command_funcdef(FILEDLG_FILE_SEARCH)
 					if (strchr(currentfilename_search,'\'')==NULL)
 					{
 						sprintf(orderstring,"lhendraw '%s' &",currentfilename_search);
+						//TODO: get the correct path under windows
 						system(orderstring);
 					}
 				}

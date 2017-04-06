@@ -594,6 +594,9 @@ LRESULT CALLBACK W32_WndProc(HWND hWnd,UINT message,WPARAM wParam,LPARAM lParam)
 				int iret;
 				iret=SetDIBitsToDevice(hdc,0,0,gfx_screensizex,gfx_screensizey,0,0,0,gfx_screensizey,schirm,&iBitmapInfo,DIB_RGB_COLORS);
 				EndPaint(hWnd, &ps);
+				SelectObject(hdc,hbm_memdc_old);
+				DeleteObject(hbm_memdc);
+				DeleteObject(hdcmem);
 			break;
 		}
 		case WM_SIZE:

@@ -1,7 +1,6 @@
 #define svg_text_buffer_max 1048576
 char svg_text_buffer[svg_text_buffer_max+1];
 int svg_text_buffer_count=0;
-float svg_startx,svg_starty;
 int svg_get_colorstringv(int number)
 {
 	sprintf(colorstring,"%06X",number);
@@ -292,8 +291,8 @@ int __attribute__((warn_unused_result)) svg_expressgeometry_start(float left,flo
 }
 void svg_expressgeometry_begin(float x,float y)
 {
-	svg_startx=x;
-	svg_starty=y;
+	gfx_geometry.startx=x;
+	gfx_geometry.starty=y;
 	fprintf(outfile,"M %f,%f ",x,y);
 }
 void svg_expressgeometry_arc_enhanced(float centerx,float centery,float radiusx,float radiusy,float startangle,float endangle,float tiltangle)
@@ -324,5 +323,5 @@ void svg_expressgeometry_bezier3(float x1,float y1,float x2,float y2,float x3,fl
 }
 void svg_expressgeometry_backline()
 {
-	fprintf(outfile,"L %f,%f ",svg_startx,svg_starty);
+	fprintf(outfile,"L %f,%f ",gfx_geometry.startx,gfx_geometry.starty);
 }

@@ -207,7 +207,7 @@ void MACRO_DRAWPREFIX(draw_printformatted)(const char * iinput,const char * parm
 		for (int ilv4=start;ilv4<end;ilv4+=backcount)
 		{
 			int ino=utf8resolve((unsigned char*)iinput + ilv4,&backcount);
-			gfx_drawglyph(ino,imode,SDL_glyfstartx,SDL_glyfstarty,&SDL_txcursorx,&SDL_txcursory,SDL_txangle,0.006);
+			MACRO_DRAWPREFIX(drawglyph)(ino,imode,SDL_glyfstartx,SDL_glyfstarty,&SDL_txcursorx,&SDL_txcursory,SDL_txangle,0.006);
 		}
 	}
 }

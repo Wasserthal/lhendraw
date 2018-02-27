@@ -12,6 +12,7 @@ fileformat_ fileformat[]={
 {".png","png (uncompressed)",0xFFFF00,0,1,0},
 {".bmp","Bitmap 24 Bit+Alpha",0xFFFF00,0,1,0},
 {".svg","scalable vector graphics",0xFFFF00,0,1,0},
+{".ps","post-script",0xFFFF00,0,1,0},
 {".cdml","bkchem (highly experimental, incomplete)",0xFF0000,0,0,1},
 };
 int fileformat_count=sizeof(fileformat)/sizeof(fileformat_);

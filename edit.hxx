@@ -3390,9 +3390,9 @@ catalogized_command_funcdef(EDIT_SETOPTION)
 	}
 	for (int ilv1=0;ilv1<maxcount;ilv1++)
 	{
-		printf("%s vs.%s\n",ipulloutlisting[ilv1].variablename,parameter);
 		if (strcmp(ipulloutlisting[ilv1].variablename,parameter)==0)
 		{
+			printf("%s vs.%s\n",ipulloutlisting[ilv1].variablename,parameter);
 			*(int*)(ipulloutlisting[ilv1].variable)=atoi(value);
 		}
 	}
@@ -3709,31 +3709,57 @@ int save_png(gfx_bufferset_ & target,FILE * ifile,_i32 width,_i32 height)
 	fwrite("\x00\x00\x00\x00IEND\xae\x42\x60\x82",12,1,ifile);
 	return 1;
 }
+int getcolor(_RGB input,_RGB * icolortable)
+{
+	int best=0;
+	int bestval=256*4;
+	for (int ilv1=0;ilv1<16;ilv1++)
+	{
+		_RGB currentclr=icolortable[ilv1];
+		int currentval=abs(currentclr.c.A-input.c.A)+abs(currentclr.c.B-input.c.B)+abs(currentclr.c.G-input.c.G)+abs(currentclr.c.R-input.c.R);
+		if (currentval<bestval)
+		{
+			best=ilv1;
+			bestval=currentval;
+		}
+	}
+	return best;
+}
+int edit_16bitcolorcompare(_u8 soll,_u8 ist,int count)
+{
+	return 0;
+}
 void save_bmp(gfx_bufferset_ & target,FILE * ifile,_i32 width,_i32 height)
 {
 	_u32 iihv1;
 	int xtraheadersize=0;
+	int palettesize=0;
+	int bitmap_imagesizestart=0;
 	if (control_export.bmp_compression==3)
 	{
 		xtraheadersize=16;
+	}
+	if (control_export.bmp_compression==2)
+	{
+		palettesize=64;
 	}
 	fprintf(ifile,"BM");
 	iihv1=14+40+xtraheadersize+(4*width*height);
 	fwrite(&iihv1,4,1,ifile);
 	iihv1=0;
 	fwrite(&iihv1,4,1,ifile);
-	iihv1=14+40+xtraheadersize;
+	iihv1=14+40+xtraheadersize+palettesize;
 	fwrite(&iihv1,4,1,ifile);
 	//INFOSTRUCT
 	iihv1=40+xtraheadersize;
 	fwrite(&iihv1,4,1,ifile);
 	iihv1=width;
 	fwrite(&iihv1,4,1,ifile);
-	iihv1=-height;
+	iihv1=(control_export.bmp_compression==2)?height:-height;
 	fwrite(&iihv1,4,1,ifile);
 	iihv1=1;
 	fwrite(&iihv1,2,1,ifile);
-	iihv1=32;
+	iihv1=(control_export.bmp_compression==2)?4:32;
 	fwrite(&iihv1,2,1,ifile);
 	iihv1=control_export.bmp_compression;
 	fwrite(&iihv1,4,1,ifile);
@@ -3743,9 +3769,9 @@ void save_bmp(gfx_bufferset_ & target,FILE * ifile,_i32 width,_i32 height)
 	fwrite(&iihv1,4,1,ifile);
 	iihv1=4000;
 	fwrite(&iihv1,4,1,ifile);
-	iihv1=0;
+	iihv1=(control_export.bmp_compression==2)?16:0;
 	fwrite(&iihv1,4,1,ifile);
-	iihv1=0;
+	iihv1=(control_export.bmp_compression==2)?16:0;
 	fwrite(&iihv1,4,1,ifile);
 	if (xtraheadersize>=12)
 	{
@@ -3761,7 +3787,82 @@ void save_bmp(gfx_bufferset_ & target,FILE * ifile,_i32 width,_i32 height)
 		iihv1=0xFF000000;
 		fwrite(&iihv1,4,1,ifile);
 	}
-	fwrite(target.screen,4*width*height,1,ifile);
+	if (control_export.bmp_compression==2)
+	{
+		bitmap_imagesizestart=ftell(ifile);
+		_RGB tl_colortable[16];
+		int tl_counter=0;
+		for (int intensity=1;intensity>=0;intensity--)
+		{
+			for (_u32 B=0;B<256;B+=255)
+			{
+				for (_u32 G=0;G<65536;G+=65280)
+				{
+					for (_u32 R=0;R<16777216;R+=16711680)
+					{
+						_u32 result=B|G|R;
+						if (intensity==0) result=(result/255)*127;
+						tl_colortable[tl_counter].W=result;
+						tl_counter++;
+					}
+				}
+			}
+		}
+		fwrite(&tl_colortable,4,16,ifile);
+		_u8 current_color;
+		for (int ilv1=height-1;ilv1>=0;ilv1--)
+		{
+			int current_count=0;
+			for (int ilv2=0;ilv2<width;ilv2++)
+			{
+				_u8 thiscolor=getcolor(*(_RGB*)(target.screen+(ilv1*width)+ilv2),tl_colortable);
+				if (current_count!=0)
+				{
+					if (current_color==thiscolor)
+					{
+						current_count++;
+					}
+					else
+					{
+						fwrite(&current_count,1,1,ifile);
+						current_color|=current_color<<4;//TODO:different colors per byte;
+						fwrite(&current_color,1,1,ifile);
+						current_color=thiscolor;
+						current_count=1;
+					}
+				}
+				else
+				{
+					current_color=thiscolor;
+					current_count=1;
+				}
+				if (current_count==254)
+				{
+					fwrite(&current_count,1,1,ifile);
+					current_color|=current_color<<4;//TODO:different colors per byte;
+					fwrite(&current_color,1,1,ifile);
+					current_count=0;
+				}
+			}
+			if (current_count)
+			{
+				fwrite(&current_count,1,1,ifile);
+				current_color|=current_color<<4;//TODO:different colors per byte;
+				fwrite(&current_color,1,1,ifile);
+			}
+			if (ilv1!=0) fwrite("\x00\x00",2,1,ifile);else fwrite("\x00\x01",2,1,ifile);
+		}
+		int bitmap_imagesizestop=ftell(ifile);
+		fseek(ifile,0x22,SEEK_SET);
+		bitmap_imagesizestart=bitmap_imagesizestop-bitmap_imagesizestart;
+		fwrite(&bitmap_imagesizestart,4,1,ifile);
+		fseek(ifile,0x2,SEEK_SET);
+		fwrite(&bitmap_imagesizestop,4,1,ifile);
+	}
+	else
+	{
+		fwrite(target.screen,4*width*height,1,ifile);
+	}
 }
 catalogized_command_funcdef(BITMAP_LORES)
 {

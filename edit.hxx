@@ -3946,6 +3946,8 @@ int save_image(FILE * ifile,const char * value)
 	return 1;
 }
 void ps_controlprocedure(bool irestriction,char clickcollisioncheck);
+extern int ps_printmode;
+extern char ps_buffer[65537];
 int save_postscript(FILE * ifile,const char * value)
 {
 	outfile=ifile;
@@ -3958,6 +3960,8 @@ int save_postscript(FILE * ifile,const char * value)
 	SVG_currentfringex=((unsigned int)-1)>>1;
 	SVG_currentfringey=((unsigned int)-1)>>1;
 	initZlist();
+	ps_printmode=0;
+	ps_buffer[0]=0;
 	ps_controlprocedure(0,0);
 	fprintf(ifile,"showpage\n");
 	fclose(ifile);
@@ -4100,28 +4104,6 @@ catalogized_command_funcdef(COPY)
 		return 1;
 	}
 	return 1;
-}
-catalogized_command_funcdef(PRINT)
-{
-	char control_totalfilename[stringlength+1];
-	#ifdef CROFTOIDAL
-	userwarning("printing is not implemented for croftoidal operating systems,\nplease export as svg and print from a different application");
-	return 1;//TODO: print under windows
-	#endif
-	sprintf(control_totalfilename,"mkdir -p %s/.clipboard",getenv("HOME"));
-	system(control_totalfilename);
-	edit_fileoperationrefersonlytopartofdocument=1;
-	edit_file_always_overwrite=1;
-	system("clipboard -n 2>/dev/null");//new
-	sprintf(control_totalfilename,"%s/.clipboard/clipboard.png",getenv("HOME"));
-	SAVE_TYPE(control_totalfilename,".png");
-	system("clipboard -w 2>/dev/null");//write
-	edit_fileoperationrefersonlytopartofdocument=0;
-	edit_file_always_overwrite=0;
-	LHENDRAW_clipboardmode=0;
-	sprintf(control_totalfilename,"lp %s/.clipboard/clipboard.png",getenv("HOME"));
-	system(control_totalfilename);
-	return 1;//printed
 }
 extern int control_aggresstextcursor(const char *);
 extern int control_squashselection();

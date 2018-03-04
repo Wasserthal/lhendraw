@@ -6,6 +6,7 @@ char LHENDRAW_filedlgmode=0;//Requires reset
 char LHENDRAW_warndlgmode=0;
 int LHENDRAW_userdecision=0;
 char LHENDRAW_leave=0;
+int ps_printmode=0;//0=save to file 1=print
 int control_GUI=1;
 int edit_fileoperationrefersonlytopartofdocument=0;//Hidden parameter
 int edit_file_always_overwrite=0;//Hidden parameter
@@ -29,6 +30,7 @@ char constants_scaleZname[]="scale Z→";
 #define constants_Element_hydrogen 2
 #define constants_Element_implicitcarbon 9
 #define constants_VALUEREPRESENTATION_BUFFERSIZE 4096
+#define constants_PS_PRECISION 10
 //It is assumed that the actual carbon is constants_Element_implicitcarbon+1
 float glob_clickradius=225;
 float glob_subpoint_clickradius=50;
@@ -252,6 +254,7 @@ void error_reset()
 	LHENDRAW_warndlgmode=0;
 	LHENDRAW_userdecision=0;
 	LHENDRAW_leave=0;
+	ps_printmode=0;//0=save to file 1=print
 	edit_fileoperationrefersonlytopartofdocument=0;
 	edit_file_always_overwrite=0;
 	fprintf(stderr,"Error code %+i detected...resetting",error_code);

@@ -32,6 +32,8 @@ makesdl.sh
 oldhotkeys.xml
 *.eps
 *.mol64
+test*
+*.cdxml
 opttools/glyf/fimport
 opttools/glyf/fexport
 opttools/glyf/g

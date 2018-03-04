@@ -6,9 +6,25 @@ float ps_currenty;
 float ps_color_red;
 float ps_color_green;
 float ps_color_blue;
+char ps_buffer[65537];
+
+void print_print(const char * input);
+void ps_printf()
+{
+	if (ps_printmode)
+	{
+		print_print(ps_buffer);
+	}
+	else
+	{
+		fprintf(outfile,"%s",ps_buffer);
+	}
+	ps_buffer[0]=0;
+}
 void ps_express_text_tail()
 {
-	fprintf(outfile,"pop pop\n");
+	sprintf(ps_buffer,"pop pop\n");
+	ps_printf();;
 }
 void ps_express_txinit(char ialignment,float iposx,float iposy,float iatomfontheight,float angle)
 {
@@ -20,12 +36,15 @@ void ps_express_txinit(char ialignment,float iposx,float iposy,float iatomfonthe
 	ps_txposy=SVG_height-iposy-4;
 	ps_fontsize=iatomfontheight;
 	SDL_text_fallback=1;
-	fprintf(outfile,"\nnewpath\n %f %f moveto\n0 0\n",ps_txposx,ps_txposy);
+	sprintf(ps_buffer,"\nnewpath\n %f %f moveto\n0 0\n",ps_txposx,ps_txposy);
+	ps_printf();
 }
 void ps_expressarc_enhanced(float centerx,float oldcentery,float radiusx,float radiusy,float startangle,float endangle,float tiltangle)
 {
-	fprintf(outfile,"\nnewpath\n");
-	fprintf(outfile, "initmatrix\n");
+	sprintf(ps_buffer,"\nnewpath\n");
+	ps_printf();
+	sprintf(ps_buffer, "initmatrix\n");
+	ps_printf();
 	double centery=SVG_height-oldcentery;
 	double tiltcos=cos(tiltangle);
 	double tiltsin=sin(tiltangle);
@@ -35,19 +54,26 @@ void ps_expressarc_enhanced(float centerx,float oldcentery,float radiusx,float r
 	double yeffony=tiltcos*radiusy;
 	double newcenterx=centerx*xeffonx+centery*yeffonx;
 	double newcentery=centerx*xeffony+centery*yeffony;
-	fprintf(outfile, "[%f %f %f %f %f %f] concat\n",xeffonx,xeffony,yeffonx,yeffony,centerx-newcenterx,centery-newcentery);
-	fprintf(outfile,"%f %f 1 %f %f arc\n",centerx,centery,-startangle/Pi*180.0,-endangle/Pi*180.0);
-	fprintf(outfile,"%1.6f %1.6f %1.6f setrgbcolor\n",ps_color_red,ps_color_green,ps_color_blue);
+	sprintf(ps_buffer, "[%f %f %f %f %f %f] concat\n",xeffonx,xeffony,yeffonx,yeffony,centerx-newcenterx,centery-newcentery);
+	ps_printf();
+	sprintf(ps_buffer,"%f %f 1 %f %f arc\n",centerx,centery,-startangle/Pi*180.0,-endangle/Pi*180.0);
+	ps_printf();
+	sprintf(ps_buffer,"%1.6f %1.6f %1.6f setrgbcolor\n",ps_color_red,ps_color_green,ps_color_blue);
+	ps_printf();
 	if (ps_linestyle & 2)
 	{
-		fprintf(outfile,"fill\n");
+		sprintf(ps_buffer,"fill\n");
+		ps_printf();
 	}
 	else
 	{
-		fprintf(outfile,"%1.6f setlinewidth\n",(ps_linestyle&4)?0.1:0.025);
-		fprintf(outfile,"stroke\n");
+		sprintf(ps_buffer,"%1.6f setlinewidth\n",(ps_linestyle&4)?0.1:0.025);
+		ps_printf();
+		sprintf(ps_buffer,"stroke\n");
+		ps_printf();
 	}
-	fprintf(outfile,"initmatrix\n");
+	sprintf(ps_buffer,"initmatrix\n");
+	ps_printf();
 }
 void ps_expressarc(float centerx,float centery,float radiusx,float radiusy,float startangle,float endangle)
 {
@@ -64,27 +90,34 @@ void ps_expressbow(float ileft,float itop,float iright,float ibottom,float irelr
 }
 void ps_expressinfinityangle(int count)
 {
-	fprintf(outfile,"\nnewpath\n%f %f moveto\n",LHENDRAW_inficorn[0].x,SVG_height-LHENDRAW_inficorn[0].y);
+	sprintf(ps_buffer,"\nnewpath\n%f %f moveto\n",LHENDRAW_inficorn[0].x,SVG_height-LHENDRAW_inficorn[0].y);
+	ps_printf();
 	for (int ilv1=0;ilv1<count;ilv1++)
 	{
-		fprintf(outfile,"\n%f %f lineto\n",LHENDRAW_inficorn[(ilv1+1)%count].x,SVG_height-LHENDRAW_inficorn[(ilv1+1)%count].y);
+		sprintf(ps_buffer,"\n%f %f lineto\n",LHENDRAW_inficorn[(ilv1+1)%count].x,SVG_height-LHENDRAW_inficorn[(ilv1+1)%count].y);
+		ps_printf();
 	}
-	fprintf(outfile,"%1.6f %1.6f %1.6f setrgbcolor\n",ps_color_red,ps_color_green,ps_color_blue);
+	sprintf(ps_buffer,"%1.6f %1.6f %1.6f setrgbcolor\n",ps_color_red,ps_color_green,ps_color_blue);
+	ps_printf();
 	if (ps_linestyle & 2)
 	{
-		fprintf(outfile,"fill\n");
+		sprintf(ps_buffer,"fill\n");
+		ps_printf();
 	}
 	else
 	{
-		fprintf(outfile,"%i setlinewidth\n",(ps_linestyle&4)?4:1);
-		fprintf(outfile,"stroke\n");
+		sprintf(ps_buffer,"%i setlinewidth\n",(ps_linestyle&4)?4:1);
+		ps_printf();
+		sprintf(ps_buffer,"stroke\n");
+		ps_printf();
 	}
 }
 void ps_expressline(float ileft,float itop,float iright,float ibottom)
 {
 	itop=SVG_height-itop;
 	ibottom=SVG_height-ibottom;
-	fprintf(outfile,"newpath\n%f %f moveto\n%f %f lineto\n%1.6f %1.6f %1.6f setrgbcolor\n%i setlinewidth\nstroke\n",ileft,itop,iright,ibottom,ps_color_red,ps_color_green,ps_color_blue,(ps_linestyle&4)?4:1);
+	sprintf(ps_buffer,"newpath\n%f %f moveto\n%f %f lineto\n%1.6f %1.6f %1.6f setrgbcolor\n%i setlinewidth\nstroke\n",ileft,itop,iright,ibottom,ps_color_red,ps_color_green,ps_color_blue,(ps_linestyle&4)?4:1);
+	ps_printf();
 }
 void ps_expressspinellipse(float ix,float iy,float irx,float iry,float iangle)
 {
@@ -111,38 +144,47 @@ void ps_printformatted(const char * iinput,const char * parms,int imode,int star
 {
 	if (imode==0x20)
 	{
-		fprintf(outfile,"0 -6 rmoveto\n");
+		sprintf(ps_buffer,"0 -6 rmoveto\n");
+		ps_printf();
 	}
 	if (imode==0x40)
 	{
-		fprintf(outfile,"0 6 rmoveto\n");
+		sprintf(ps_buffer,"0 6 rmoveto\n");
+		ps_printf();
 	}
-	fprintf(outfile,"pop\n");
-	fprintf(outfile,"/Helvetica findfont\n12 scalefont\nsetfont\n(");
+	sprintf(ps_buffer,"pop\n");
+	ps_printf();
+	sprintf(ps_buffer,"/Helvetica findfont\n12 scalefont\nsetfont\n(");
+	ps_printf();
 	for (int ilv1=start;ilv1<end;ilv1++)
 	{
 		char ihv1;
 		ihv1=iinput[ilv1];
 		if (strchr("\\)(	",ihv1)!=NULL)
 		{
-			fprintf(outfile,"\\%c",ihv1);goto ifertig;
+			sprintf(ps_buffer,"\\%c",ihv1);goto ifertig;
+			ps_printf();
 		}
 		if ((((_u8)ihv1) & 0xE0)==0xC0)
 		{
-			fprintf(outfile,"\\%03hho",(_u8)(((ihv1 & 0x3)<<6)|(iinput[ilv1+1] & 0x3F)));goto ifertig;
+			sprintf(ps_buffer,"\\%03hho",(_u8)(((ihv1 & 0x3)<<6)|(iinput[ilv1+1] & 0x3F)));goto ifertig;
+			ps_printf();
 		}
 		if ((((_u8)ihv1) & 0x80)!=0) goto ifertig;
 		fwrite(&ihv1,1,1,outfile);
 		ifertig:;
 	}
-	fprintf(outfile,") dup show stringwidth pop add 0\n");
+	sprintf(ps_buffer,") dup show stringwidth pop add 0\n");
+	ps_printf();
 	if (imode==0x20)
 	{
-		fprintf(outfile,"0 6 rmoveto\n");
+		sprintf(ps_buffer,"0 6 rmoveto\n");
+		ps_printf();
 	}
 	if (imode==0x40)
 	{
-		fprintf(outfile,"0 -6 rmoveto\n");
+		sprintf(ps_buffer,"0 -6 rmoveto\n");
+		ps_printf();
 	}
 }
 void ps_stylegenestring(int flags,unsigned int fillcolor=0)
@@ -151,21 +193,27 @@ void ps_stylegenestring(int flags,unsigned int fillcolor=0)
 }
 int ps_text_rewind(const _u8 * sizestring,int length,int imode)
 {
-	fprintf(outfile,"exch 0 exch sub exch rmoveto\n");
-	fprintf(outfile,"(");
+	sprintf(ps_buffer,"exch 0 exch sub exch rmoveto\n");
+	ps_printf();
+	sprintf(ps_buffer,"(");
+	ps_printf();
 	fwrite(sizestring,1,length,outfile);
-	fprintf(outfile,") stringwidth exch 0 exch sub exch rmoveto\n");
-	fprintf(outfile,"0 0\n");
+	sprintf(ps_buffer,") stringwidth exch 0 exch sub exch rmoveto\n");
+	ps_printf();
+	sprintf(ps_buffer,"0 0\n");
+	ps_printf();
 	return 0;
 }
 int __attribute__((warn_unused_result)) ps_expressgeometry_start(float left,float top,float right,float bottom)
 {
-	fprintf(outfile,"newpath\n");
+	sprintf(ps_buffer,"newpath\n");
+	ps_printf();
 	return 1;
 }
 void ps_expressgeometry_begin(float x,float y)
 {
-	fprintf(outfile,"%1.6f %1.6f moveto\n",x,SVG_height-y);
+	sprintf(ps_buffer,"%1.6f %1.6f moveto\n",x,SVG_height-y);
+	ps_printf();
 	gfx_geometry.startx=x;
 	gfx_geometry.starty=y;
 	ps_currentx=x;
@@ -176,20 +224,25 @@ void ps_expressgeometry_arc_enhanced(float centerx,float centery,float radiusx,f
 }
 void ps_expressgeometry_end()
 {
-	fprintf(outfile,"%1.6f %1.6f %1.6f setrgbcolor\n",ps_color_red,ps_color_green,ps_color_blue);
+	sprintf(ps_buffer,"%1.6f %1.6f %1.6f setrgbcolor\n",ps_color_red,ps_color_green,ps_color_blue);
+	ps_printf();
 	if (ps_linestyle & 2)
 	{
-		fprintf(outfile,"fill\n");
+		sprintf(ps_buffer,"fill\n");
+		ps_printf();
 	}
 	else
 	{
-		fprintf(outfile,"%i setlinewidth\n",(ps_linestyle&4)?4:1);
-		fprintf(outfile,"stroke\n");
+		sprintf(ps_buffer,"%i setlinewidth\n",(ps_linestyle&4)?4:1);
+		ps_printf();
+		sprintf(ps_buffer,"stroke\n");
+		ps_printf();
 	}
 }
 void ps_expressgeometry_line(float x,float y)
 {
-	fprintf(outfile,"%f %f lineto\n",x,SVG_height-y);
+	sprintf(ps_buffer,"%f %f lineto\n",x,SVG_height-y);
+	ps_printf();
 	ps_currentx=x;
 	ps_currenty=y;
 }
@@ -199,25 +252,30 @@ void ps_expressgeometry_bezier2(float x1,float y1,float x2,float y2)
 	double ay=(ps_currenty+y1*2)/3.0;
 	double bx=(x2+x1*2)/3.0;
 	double by=(y2+y1*2)/3.0;
-	fprintf(outfile,"%1.9f %1.9f %1.9f %1.9f %1.9f %1.9f curveto\n",ax,SVG_height-ay,bx,SVG_height-by,x2,SVG_height-y2);
+	sprintf(ps_buffer,"%1.9f %1.9f %1.9f %1.9f %1.9f %1.9f curveto\n",ax,SVG_height-ay,bx,SVG_height-by,x2,SVG_height-y2);
+	ps_printf();
 	ps_currentx=x2;
 	ps_currenty=y2;
 	if (((SVG_height-y2)==350.0) && (x2==0))
 	{
-		fprintf(outfile,"%%ursprungspunktfehler quadratisch\n");
+		sprintf(ps_buffer,"%%ursprungspunktfehler quadratisch\n");
+		ps_printf();
 	}
 }
 void ps_expressgeometry_bezier3(float x1,float y1,float x2,float y2,float x3,float y3)
 {
-	fprintf(outfile,"%1.6f %1.6f %1.6f %1.6f %1.6f %1.6f curveto\n",x1,SVG_height-y1,x2,SVG_height-y2,x3,SVG_height-y3);
+	sprintf(ps_buffer,"%1.6f %1.6f %1.6f %1.6f %1.6f %1.6f curveto\n",x1,SVG_height-y1,x2,SVG_height-y2,x3,SVG_height-y3);
+	ps_printf();
 	ps_currentx=x3;
 	ps_currenty=y3;
 	if (((SVG_height-y3)==350.0) && (x3==0))
 	{
-		fprintf(outfile,"%%ursprungspunktfehler kubisch\n");
+		sprintf(ps_buffer,"%%ursprungspunktfehler kubisch\n");
+		ps_printf();
 	}
 }
 void ps_expressgeometry_backline()
 {
-	fprintf(outfile,"%1.6f %1.6f lineto\n",gfx_geometry.startx,SVG_height-gfx_geometry.starty);
+	sprintf(ps_buffer,"%1.6f %1.6f lineto\n",gfx_geometry.startx,SVG_height-gfx_geometry.starty);
+	ps_printf();
 }

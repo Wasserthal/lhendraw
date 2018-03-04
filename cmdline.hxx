@@ -95,7 +95,7 @@ void executeparameter(const char which,int parameter,int posinparameter,int argc
 		case 'w' :      parameter_filetype=NULL;parameter_filename=getparameter(parameter,posinparameter,NULL,NULL,argc,argv);SAVE_TYPE(parameter_filename,parameter_filetype);break;
 		case 'l' :      parameter_filetype=NULL;parameter_filename=getparameter(parameter,posinparameter,NULL,NULL,argc,argv);LOAD_TYPE(parameter_filename,parameter_filetype);break;
 		case 'e' :      parameter_filetype=NULL;parameter_filename=getparameter(parameter,posinparameter,NULL,NULL,argc,argv);LOAD_TYPE(parameter_filename,parameter_filetype);break;
-		case '5' :	WARN_HYPERC("","");
+		case '5' :	WARN_HYPERC("","");break;
 		case '-' :      if ((argv[parameter][posinparameter])!=0)
 				{
 					if (strcmp(argv[parameter]+posinparameter,"search")==0)
@@ -140,6 +140,8 @@ void executeparameter(const char which,int parameter,int posinparameter,int argc
 		case 'n' :	parameter_filetype=NULL;parameter_filename=getparameter(parameter,posinparameter,NULL,NULL,argc,argv);
 				if (SEARCHFILE(parameter_filename,parameter_filetype)>0) {printf("%s\n",parameter_filename);}
 				break;
+		case 'p' :	PRINT("","");
+				break;
 		case 'h' :      printf(
 "Usage:\n"
 "lhendraw [-I] [-O output] [-<parameter> <parameter_filename>] (...) <filename> (...) [--search] <filenames>\n"
@@ -162,6 +164,7 @@ void executeparameter(const char which,int parameter,int posinparameter,int argc
 "-l<fn>  : loads. Set no current filename\n"
 "-e<fn>  : loads. Set current filename, overrides -o's filename\n"
 "-q<fn>  : exits. saves if -o specified\n"
+"-p      : prints the whole view to a single page\n"
 "-c<cmd>(<prm>,<prm>) : executes command in the form COMMAND(valuea,valueb)\n"
 "     Example: -cSAVEAS(SUCKER.xml,.cdxml)\n"
 "     saves the file as the name SUCKER.xml, but with the filetype .cdxml\n"

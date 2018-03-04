@@ -147,6 +147,7 @@ extern int undo_storcatch(_u32 flags,const char * iname);
 #define MACRO_DRAWPREFIX(content) ps_ ## content
 #include "draw.hxx"
 #undef MACRO_DRAWPREFIX
+#include "print.hxx"
 //#include "hatch.hxx" //TODO SUBJECT HATCH needs the moleculefill buffer
 
 

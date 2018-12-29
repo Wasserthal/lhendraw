@@ -8,6 +8,7 @@ int print_start_job(const char * destname,int partly)
 	int backval1=cupsStartDocument(CUPS_HTTP_DEFAULT,destname,job_id,ps_buffer,CUPS_FORMAT_POSTSCRIPT,1);
 	edit_fileoperationrefersonlytopartofdocument=0;
 	edit_fileoperationrefersonlytopartofdocument=partly;
+	ps_newmatrix();
 	ps_controlprocedure(0,0);
 	edit_fileoperationrefersonlytopartofdocument=0;
 	int backval3=cupsFinishDocument(CUPS_HTTP_DEFAULT,destname);
@@ -31,15 +32,49 @@ void print_print(const char * input)
 	cupsWriteRequestData(CUPS_HTTP_DEFAULT,input,strlen(input));
 }
 #else
-int print_start_job(char * destname)//TODO WINDOWS
+int print_start_job(const char * destname,int partly)
 {
+	memset(&W32_pd,0,sizeof(PRINTDLG));
+	W32_pd.lStructSize=sizeof(PRINTDLG);
+	W32_pd.hwndOwner=NULL;
+	W32_pd.Flags=PD_RETURNDC;
+	if (PrintDlg(&W32_pd))
+	{
+		DOCINFO di;
+		memset(&di,0,sizeof(DOCINFO));
+		di.cbSize=sizeof(DOCINFO);
+		di.lpszDocName="lhendraw";
+		ps_sizex=GetDeviceCaps(W32_pd.hDC,HORZRES);
+		ps_sizey=GetDeviceCaps(W32_pd.hDC,VERTRES);
+		StartDoc(W32_pd.hDC,&di);
+		StartPage(W32_pd.hDC);
+		ps_printmode=1;
+		edit_fileoperationrefersonlytopartofdocument=partly;
+		ps_newmatrix();
+		ps_controlprocedure(0,0);
+		ps_printmode=0;
+		edit_fileoperationrefersonlytopartofdocument=0;
+		EndPage(W32_pd.hDC);
+		EndDoc(W32_pd.hDC);
+	}
 }
-const char * printer_default_name()//TODO WINDOWS
+void print_print(const char * input)
 {
-	return "";
+	if (input!=ps_buffer)
+	{
+		MessageBoxA(NULL,"Windows-Programmierfehler 1\nFalscher Postscript-Puffer benutzt","__1__",0);
+		exit(1);
+	}
+	*((_u16*)ps_overbuffer)=strlen(input);
+	ExtEscape(W32_pd.hDC,POSTSCRIPT_PASSTHROUGH,strlen(input)+2,ps_overbuffer,0,NULL);
 }
-void print_print(const char * input)//TODO WINDOWS
-{}
+const char * printer_default_name()
+{
+	unsigned long default_printer_name_size=256;
+	GetDefaultPrinter((char*)W32_default_printer_name,&default_printer_name_size);
+	W32_default_printer_name[sizeof(W32_default_printer_name)-1]=0;
+	return (char*)W32_default_printer_name;
+}
 #endif
 #else
 int print_start_job(char * destname,partly)

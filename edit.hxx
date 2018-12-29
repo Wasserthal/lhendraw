@@ -3947,7 +3947,11 @@ int save_image(FILE * ifile,const char * value)
 }
 void ps_controlprocedure(bool irestriction,char clickcollisioncheck);
 extern int ps_printmode;
+#ifndef CROFTOIDAL
 extern char ps_buffer[65537];
+#else
+extern char * ps_buffer;
+#endif
 int save_postscript(FILE * ifile,const char * value)
 {
 	outfile=ifile;

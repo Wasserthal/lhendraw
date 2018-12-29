@@ -4,6 +4,7 @@ It is only used for Win32 compatible systems like MS or ReactOS.
 //#include <stdio.h>
 //#include <stdlib.h>
 #include <windows.h>
+#include <wingdi.h>
 #include "lennyWinIo.h"
 #define SDL_HWSURFACE 0
 #define SDL_SWSURFACE 0
@@ -16,6 +17,8 @@ HINSTANCE W32_hInst;
 char szWindowClass[]="WindowMain1";
 _u32 schirm[2000000];
 int W32_painting=0;
+PRINTDLG W32_pd;
+_u8 W32_default_printer_name[257];
 typedef struct
 {
 	_u32 * pixels;

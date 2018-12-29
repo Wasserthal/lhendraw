@@ -6,8 +6,18 @@ float ps_currenty;
 float ps_color_red;
 float ps_color_green;
 float ps_color_blue;
+int ps_sizex;
+int ps_sizey;
+int ps_RESX=600;
+int ps_RESY=842;
+float ps_scalex=1;
+float ps_scaley=1;
+#ifndef CROFTOIDAL
 char ps_buffer[65537];
-
+#else
+char ps_overbuffer[65539];
+char * ps_buffer=ps_overbuffer+2;
+#endif
 void print_print(const char * input);
 void ps_printf()
 {
@@ -20,6 +30,28 @@ void ps_printf()
 		fprintf(outfile,"%s",ps_buffer);
 	}
 	ps_buffer[0]=0;
+}
+void ps_newmatrix()
+{
+	ps_scalex=1;
+	ps_scaley=1;
+	#ifdef CROFTOIDAL
+	sprintf(ps_buffer,"initmatrix\n");
+	ps_printf();
+	#endif
+	if (SVG_height>ps_RESY)
+	{
+		ps_scaley=((float)ps_RESY)/SVG_height;
+		ps_scalex=ps_scaley;
+		printf("ps_scaley=%f\n",ps_scaley);
+	}
+	if ((SVG_width*ps_scalex)>ps_RESX)
+	{
+		ps_scalex=ps_RESX/SVG_width;
+		ps_scaley=ps_scalex;
+	}
+	sprintf(ps_buffer, "[%f 0 0 %f 0 0] concat\n",ps_scalex,ps_scaley);
+	ps_printf();
 }
 void ps_express_text_tail()
 {

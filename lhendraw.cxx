@@ -112,6 +112,8 @@ int clockid=0;
 #ifndef NOCLIPBOARD
 #include "clipboard.hxx"
 #endif
+#include "ps.hxx"
+#include "print.hxx"
 #include "conv_config_internalconfig.hxx"
 #include "conv_internalconfig_config.hxx"
 #include "selection.hxx"
@@ -143,11 +145,9 @@ extern int undo_storcatch(_u32 flags,const char * iname);
 #define MACRO_DRAWPREFIX(content) svg_ ## content
 #include "draw.hxx"
 #undef MACRO_DRAWPREFIX
-#include "ps.hxx"
 #define MACRO_DRAWPREFIX(content) ps_ ## content
 #include "draw.hxx"
 #undef MACRO_DRAWPREFIX
-#include "print.hxx"
 //#include "hatch.hxx" //TODO SUBJECT HATCH needs the moleculefill buffer
 
 

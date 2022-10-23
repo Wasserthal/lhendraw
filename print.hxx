@@ -1,3 +1,4 @@
+void ps_controlprocedure(bool irestriction,char clickcollisioncheck);
 #ifndef NOPRINT
 #ifndef CROFTOIDAL
 #include <cups/cups.h>
@@ -5,10 +6,9 @@ int print_start_job(const char * destname,int partly)
 {
 	int job_id;
 	job_id=cupsCreateJob(CUPS_HTTP_DEFAULT,destname,"Lhendraw",0,NULL);
-	int backval1=cupsStartDocument(CUPS_HTTP_DEFAULT,destname,job_id,ps_buffer,CUPS_FORMAT_POSTSCRIPT,1);
-	edit_fileoperationrefersonlytopartofdocument=0;
+	int backval1=cupsStartDocument(CUPS_HTTP_DEFAULT,destname,job_id,"lhendraw",CUPS_FORMAT_POSTSCRIPT,1);
 	edit_fileoperationrefersonlytopartofdocument=partly;
-	ps_newmatrix();
+	ps_newmatrix(0);
 	ps_controlprocedure(0,0);
 	edit_fileoperationrefersonlytopartofdocument=0;
 	int backval3=cupsFinishDocument(CUPS_HTTP_DEFAULT,destname);
@@ -50,7 +50,7 @@ int print_start_job(const char * destname,int partly)
 		StartPage(W32_pd.hDC);
 		ps_printmode=1;
 		edit_fileoperationrefersonlytopartofdocument=partly;
-		ps_newmatrix();
+		ps_newmatrix(1);
 		ps_controlprocedure(0,0);
 		ps_printmode=0;
 		edit_fileoperationrefersonlytopartofdocument=0;
@@ -111,11 +111,15 @@ catalogized_command_funcdef(PRINT)
 	if (strcmp(value,"")==0)
 	{
 		leerer_parameter:;
-		print_start_job(printer_default_name(),atoi(value)^1);
+		print_start_job(printer_default_name(),atoi(parameter)^1);
 	}
 	else
 	{
-		print_start_job(parameter,atoi(value)^1);
+		print_start_job(value,atoi(parameter)^1);
 	}
+	return 1;
+}
+catalogized_command_funcdef(PORTRAIT)
+{
 	return 1;
 }

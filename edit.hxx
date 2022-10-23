@@ -3947,11 +3947,6 @@ int save_image(FILE * ifile,const char * value)
 }
 void ps_controlprocedure(bool irestriction,char clickcollisioncheck);
 extern int ps_printmode;
-#ifndef CROFTOIDAL
-extern char ps_buffer[65537];
-#else
-extern char * ps_buffer;
-#endif
 int save_postscript(FILE * ifile,const char * value)
 {
 	outfile=ifile;
@@ -3966,6 +3961,7 @@ int save_postscript(FILE * ifile,const char * value)
 	initZlist();
 	ps_printmode=0;
 	ps_buffer[0]=0;
+	ps_newmatrix(0);
 	ps_controlprocedure(0,0);
 	fprintf(ifile,"showpage\n");
 	fclose(ifile);
@@ -4407,6 +4403,14 @@ fprintf(ifile,"%s","</colortable><fonttable>\n"
 		fwrite(&iu16,2,1,ifile);
 	}
 	fclose(ifile);
+	return 1;
+}
+catalogized_command_funcdef(PRINTCFG)
+{
+	LHENDRAW_filedlgmode=1;
+	control_filemenu_mode=5;
+	menu_selectedmenuelement=0;
+	control_mousestate=0;
 	return 1;
 }
 catalogized_command_funcdef(SAVEAS)

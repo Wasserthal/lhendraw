@@ -1,0 +1,27 @@
+
+getbufferfromstructure is only used when basicmultilist-based items use a expandable memory. they are highly provisoric not-mutable buffers.
+One needs some sort of redirection of the type names, the alternative would be to give dynamic idnos to the cdx/cdxml items.- or do we need at all?
+Mutability is unimportant on export/import.
+
+initializer of each basic_bufferlisted_instance {TELESCOPIC_buffer * ibuffer; getbufferfromstructure(retrievemultilist<%s>(),ibuffer);pos_in_bufferlist=(*ibuffer).count;}(done)
+TODO: getbufferfromstructure for all, automatically.//DONE
+TODO: no referencing of objects with telescope-id's! reference by actual number only and sack the referencing numbers when obj-sacking!//DONE
+Irgendwie schrottet das jetzt hier ab. wenn nur und genau die Labels für Elementtext gequencht werden, crashts.//DONE
+in die multilistlist die multilists statisch reinlinken! die müssen dazu statisch sein. werden bei undo/redo überschrieben//DONE
+accept only 0 multilists in initZlist in janitor, discard _xml_//DONE
+make page into multilist upon SAVE//DONE
+CORRECT reference insterter also for fragment.
+CORRECT PCTEXT output.
+AUTOMATIC BUFFER EXPANSION
+atom's charge owned by fragment
+output file when closed
+Multiple string fragments transformed when export_converting atom string
+edit_flexicopy (overwrite==1) crashes when reaching max undo//DONE
+show marking point precisely, there is some uncertainity about them.//DONE
+there ARE still problems with undobuffer when undo does overflow.//OR ARE THEY?//YES, when meeting with consti
+Rotate tool text, correct end of arrow rotated (pivot not correctly tracked).
+Depending whether the vertipos starts prematurely or delayedly, the pixpicture is cropped or prolonged//DONE
+INTERPRET labels correctly (empty to carbon, minus to charge)
+oh scheiße, wie mach ich, dass, wenn ein Objekt gelöscht wird, die subelementselektion nachgeschoben wird?
+Zum Glück werden beim Löschen die Objekte nach den Subelementen gelöscht.
+in interpretkey wenn ihot==1, da ist manchmal die tl_multilist auf _start, in dem Moment wo das katalogisierte Kommando ausgeführt werden soll.

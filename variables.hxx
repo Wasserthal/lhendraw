@@ -1,4 +1,5 @@
 //defines and processes internal variables
+#define CLEANUPRELEVANT
 char LHENDRAW_clipboardmode=0;//0: no clipboardmode 1: lhendraw is providing a X11 clipboard content
 char LHENDRAW_wassaved=1;//0 if the file was modified after the last save
 int error_code=0;
@@ -8,8 +9,8 @@ int LHENDRAW_userdecision=0;
 char LHENDRAW_leave=0;
 int ps_printmode=0;//0=save to file 1=print
 int control_GUI=1;
-int edit_fileoperationrefersonlytopartofdocument=0;//Hidden parameter
-int edit_file_always_overwrite=0;//Hidden parameter
+CLEANUPRELEVANT int edit_fileoperationrefersonlytopartofdocument=0;//Hidden parameter
+CLEANUPRELEVANT int edit_file_always_overwrite=0;//Hidden parameter
 const char * LHENDRAW_warning=NULL;
 int userwarning(const char*warning);
 _i32 janitor_maxZ=0;

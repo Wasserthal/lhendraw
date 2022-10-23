@@ -142,6 +142,7 @@ FILE * fopen(const char * name,const char * mode)
 void fclose(FILE * ifile)
 {
 	if (checkfilevalidity(ifile)<1) return;
+	ifile->exist=0;
 	CloseHandle((*ifile).W32handle);
 }
 int feof(FILE * ifile)

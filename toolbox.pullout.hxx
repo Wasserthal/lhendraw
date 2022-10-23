@@ -352,6 +352,16 @@ menuitem pullout_toolbox[]={
 "PRINT","PRINT",
 0xFFFF00,
 },
+{8,1,
+204,//Picture
+"PRINT SETTINGS",
+3,0,
+0,
+"printer settings",
+"",
+"PRINTCFG","",
+0xFFFF00,
+},
 {4,2,
 43,//Picture
 "Save Immediately",

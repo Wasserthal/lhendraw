@@ -36,10 +36,8 @@ char pulloutlisting_string[]="\n"
 "	int toolnr;\n"
 "	const char * explanation;\n"
 "	const char * variablename;\n"
-"	const char * LMBfunction;\n"
-"	const char * RMBfunction;\n"//Either called on RMB or, amongst sliders, for every item after calling LMBfunction
 "	catalogized_command_functype LMB_function;\n"
-"	catalogized_command_functype RMB_function;\n"
+"	catalogized_command_functype RMB_function;\n"//Either called on RMB or, amongst sliders, for every item after calling LMBfunction
 "	int bgcolor;\n"
 "	void * variable;\n//Either char, at 2 or _u32 at 4 \n"
 "	int maxx,maxy;\n"
@@ -110,10 +108,7 @@ void domenu(menuitem * input,int count,char * name)
 		addstring(input[ilv1].explanation);
 		fprintf(structfile,"AUTOSTRUCT_STRINGLIST_PULLOUT+%i,",stringlist_count);
 		addstring(input[ilv1].variablename);
-		fprintf(structfile,"\nAUTOSTRUCT_STRINGLIST_PULLOUT+%i,\n",stringlist_count);
-		addstring(input[ilv1].LMBfunction);
-		fprintf(structfile,"\nAUTOSTRUCT_STRINGLIST_PULLOUT+%i\n,%s,%s,0x%08X,&(%s),%i,%i},",stringlist_count,stringifnull(input[ilv1].LMBfunction),stringifnull(input[ilv1].RMBfunction),input[ilv1].bgcolor,stringifnope(input[ilv1].variablename),input[ilv1].maxx,input[ilv1].maxy);
-		addstring(input[ilv1].RMBfunction);
+		fprintf(structfile,"%s,%s,0x%08X,&(%s),%i,%i},",stringifnull(input[ilv1].LMBfunction),stringifnull(input[ilv1].RMBfunction),input[ilv1].bgcolor,stringifnope(input[ilv1].variablename),input[ilv1].maxx,input[ilv1].maxy);
 	}
 	fprintf(reflectfile,"{\"%s\",%i,%i,&AUTOSTRUCT_PULLOUTLISTING_%s,sizeof(AUTOSTRUCT_PULLOUTLISTING_%s)},",name,count,count,name,name);
 	fprintf(structfile,"};\nint AUTOSTRUCT_PULLOUTLISTING_%s_Size=sizeof(AUTOSTRUCT_PULLOUTLISTING_%s)/sizeof(AUTOSTRUCT_PULLOUTLISTING_);",name,name);

@@ -681,6 +681,11 @@ int addartificialmenu(int type,int alignx=0,int aligny=0)
 }
 extern int control_tool;
 extern structenum dynamicmenustructenum;
+void sdl_printmenucommon()
+{
+	menu_list_count=0;
+	addmenu("printmenu_buttons",4);
+}
 void sdl_popupmenucommon()
 {
 	menu_list[0].type=3;
@@ -743,6 +748,7 @@ void sdl_filemenucommon()
 		case 2: addmenu("filedlg_buttons_export",4);addmenu("filedlg_port_lists",3);break;
 		case 3: addmenu("filedlg_buttons_import",4);addmenu("filedlg_port_lists",3);break;
 		case 4: addmenu("filedlg_buttons_search",4);addmenu("filedlg_search_lists",3);break;
+		case 5: addmenu("printdlg_buttons",4);break;
 	}
 }
 void sdl_optionsmenucommon()

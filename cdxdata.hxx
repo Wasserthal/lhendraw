@@ -1108,8 +1108,6 @@ typedef struct AUTOSTRUCT_PULLOUTLISTING_
 	int toolnr;
 	const char * explanation;
 	const char * variablename;
-	const char * LMBfunction;
-	const char * RMBfunction;
 	catalogized_command_functype LMB_function;
 	catalogized_command_functype RMB_function;
 	int bgcolor;

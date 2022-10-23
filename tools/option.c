@@ -38,10 +38,6 @@ fprintf(outfile,"\n\
 //	char * explanation;\n\
 	\"%s.%s\",\n\
 //	char * variablename;\n\
-	\"%s\",\n\
-//	char * LMBfunction;\n\
-	\"%s\",\n\
-//	char * RMBfunction;\n\
 	NULL,\n\
 //	catalogized_command_functype LMB_function;\n\
 	NULL,\n\
@@ -52,7 +48,7 @@ fprintf(outfile,"\n\
 //	void * variable;\n\
 	480,%i,\n\
 //	int maxx,maxy;\n\
-},",currentitemcount*16,substring,substring,structname,substring,substring,substring,variablename,(currentitemcount+1)*16);
+},",currentitemcount*16,substring,substring,structname,substring,variablename,(currentitemcount+1)*16);
 
 }
 int main(int argc,char**argv)

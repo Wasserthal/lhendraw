@@ -254,6 +254,7 @@ void cmdline(int argc,char ** argv)
 							executeparameter(argv[ilv1][paramaddress],ilv1,ilv2,argc,argv);
 						}
 						if (wfn==1) goto ifertig;
+						if (argv[ilv1][ilv2]==0) goto ifertig;
 					}
 					ifertig:;
 				}

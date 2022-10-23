@@ -39,3 +39,4 @@ opttools/glyf/fexport
 opttools/glyf/g
 opttools/glyf/*.ttf
 opttools/glyf/*.lennardfont
+*.py

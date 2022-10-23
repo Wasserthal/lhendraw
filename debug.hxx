@@ -26,6 +26,7 @@ void Signal(int signum)
 		char localbuf[512+1];
 		snprintf(localbuf,512,"gdb %s %d",progname,getpid());
 		system(localbuf);
+		signal(signum,&Signal);
 	}
 	else
 	fprintf(stderr,"FILE crashes:%s\n",control_filenamehead);exit(1);

@@ -131,7 +131,7 @@ FILE * fopen(const char * name,const char * mode)
 		exit(2);//opening type not used yet
 		return 0;
 	}
-	(*wertfile).W32handle=CreateFile(name,readmode,1,NULL,createmode,FILE_ATTRIBUTE_NORMAL,NULL);
+	(*wertfile).W32handle=CreateFileA(name,readmode,1,NULL,createmode,FILE_ATTRIBUTE_NORMAL,NULL);
 	if ((*wertfile).W32handle==INVALID_HANDLE_VALUE)
 	{
 		(*wertfile).exist=0;

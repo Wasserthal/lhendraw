@@ -3,8 +3,116 @@ It is only used for Win32 compatible systems like MS or ReactOS.
 */
 //#include <stdio.h>
 //#include <stdlib.h>
+#ifndef FULLCROSS
 #include <windows.h>
 #include <wingdi.h>
+#else
+typedef void*HANDLE;
+typedef void*HGLOBAL;
+typedef void*HINSTANCE;
+typedef void*HDC;
+typedef void*HWND;
+#define VK_LBUTTON 1
+#define VK_RBUTTON 2
+#define CREATE_NEW 1
+#define CREATE_ALWAYS 2
+#define OPEN_EXISTING 3
+#define OPEN_ALWAYS 4
+#define TRUNCATE_EXISTING 5
+#define GENERIC_READ 0x80000000
+#define GENERIC_WRITE 0x40000000
+#define GENERIC_EXECUTE 0x20000000
+#define FILE_ATTRIBUTE_NORMAL 0x00000080
+#define SEEK_SET 0
+#define SEEK_CUR 1
+#define SEEK_END 2
+#define CF_TEXT 1
+#define GMEM_MOVEABLE 2
+#define HORZRES 8
+#define PD_RETURNDC 0x00000100
+#define SM_CXSIZEFRAME 32
+#define SM_CYCAPTION 4
+#define VERTRES 10
+#define	POSTSCRIPT_PASSTHROUGH 4115
+struct RECT
+{
+	_u32 left;
+	_u32 top;
+	_u32 right;
+	_u32 bottom;
+};
+struct PAINTSTRUCT
+{
+	HDC hdc;
+	_u32 fErase;
+	RECT rcPaint;
+	_u32 fRestore;
+	_u32 fIncUpdate;
+	_u8 rgbReserved[32];
+};
+struct DOCINFOA
+{
+	_i32 cbSize;
+	const _u8*lpszDocName;
+	const _u8*lpszOutput;
+	const _u8*lpszDatatype;
+	_u32 fwType;
+};
+struct POINT
+{
+	_u32 x;
+	_u32 y;
+};
+struct MSG
+{
+	HWND hwnd;
+	_u32 message;
+	_u32 wParam;
+	_u32 lParam;
+	_u32 time;
+	POINT pt;
+};
+struct PRINTDLG
+{
+	_u32 lStructSize;
+	HWND hwndOwner;
+	HGLOBAL hDevMode;
+	HGLOBAL hDevNames;
+	HDC hDC;
+	_u32 Flags;
+	_u16 nFromPage;
+	_u16 nToPage;
+	_u16 nMinPage;
+	_u16 nMaxPage;
+	_u16 nCopies;
+	HINSTANCE hInstance;
+	_u32 lCustData;
+	void*lpfnPrintHook;
+	void*lpfnSetupHook;
+	const _u8*lpPrintTemplateName;
+	const _u8*lpSetupTemplateName;
+	HGLOBAL hPrintTemplate;
+	HGLOBAL hSetupTemplate;
+};
+extern void*malloc(_u32);
+extern void*alloca(_u32);
+extern void*free(_u32);
+extern _i32 abs(_i32);
+extern HANDLE CreateFileA(const char*,_u32,_u32,void*,_u32,_u32,HANDLE);
+extern _u32 DispatchMessageA(const MSG*);
+extern _u32 GetDefaultPrinterA(_u8*,_u32*);
+extern _u32 GetMessageA(MSG*,HWND,_u32,_u32);
+extern HINSTANCE GetModuleHandleA(const _u8*);
+extern _u32 MapVirtualKeyA(_u32,_u32);
+extern _u32 PeekMessageA(MSG*,HWND,_u32,_u32,_u32);
+extern _u32 PrintDlgA(PRINTDLG*);
+extern _u32 RegisterClipboardFormatA(const _u8*);
+extern _i32 StartDocA(HDC,const DOCINFOA*);
+#define INVALID_HANDLE_VALUE (void*)(~(long)0)
+extern void ExitProcess(long);
+extern void Sleep(int);
+#define exit ExitProcess
+#endif
 #include "lennyWinIo.h"
 #define SDL_HWSURFACE 0
 #define SDL_SWSURFACE 0
@@ -383,12 +491,12 @@ void SDL_UpdateRect(SDL_Surface * i_surface,int i_left,int i_top,int gfx_screens
 	PAINTSTRUCT ps;
 	HDC hdc;
 	MSG msg;
-	while (PeekMessage(&msg,W32_window,0,0,0)>0)
+	while (PeekMessageA(&msg,W32_window,0,0,0)>0)
 	{
-		if (GetMessage(&msg,W32_window,0,0)>0)
+		if (GetMessageA(&msg,W32_window,0,0)>0)
 		{
 			TranslateMessage(&msg);
-			DispatchMessage(&msg);
+			DispatchMessageA(&msg);
 		}
 	}
 	if (W32_window_set!=0)
@@ -452,7 +560,7 @@ int W32_RefreshEvents()
 	GetWindowRect(W32_window,&lprect);
 	for (int ilv1=0;ilv1<sizeof(W32_keystates)/sizeof(W32_keystates[0]);ilv1++)
 	{
-		BYTE kb[256];
+		_u8 kb[256];
 		W32_keystates[ilv1]=W32_keystates[ilv1]<<1;
 		if (GetKeyState(ilv1)&0x8000)
 		{
@@ -464,7 +572,7 @@ int W32_RefreshEvents()
 			(*i_Event).type=SDL_KEYDOWN;
 			(*i_Event).key.state=SDL_PRESSED;
 			(*i_Event).key.keysym.sym=(SDLKey)ilv1;
-			(*i_Event).key.keysym.scancode=MapVirtualKey(ilv1,0);
+			(*i_Event).key.keysym.scancode=MapVirtualKeyA(ilv1,0);
 			ToUnicode(ilv1,(*i_Event).key.keysym.scancode,kb,resultstring,10,0);
 			(*i_Event).key.keysym.unicode=resultstring[0];
 			goto eventfinished;
@@ -475,7 +583,7 @@ int W32_RefreshEvents()
 			(*i_Event).type=SDL_KEYUP;
 			(*i_Event).key.state=SDL_RELEASED;
 			(*i_Event).key.keysym.sym=(SDLKey)ilv1;
-			(*i_Event).key.keysym.scancode=MapVirtualKey(ilv1,0);
+			(*i_Event).key.keysym.scancode=MapVirtualKeyA(ilv1,0);
 			ToUnicode(ilv1,(*i_Event).key.keysym.scancode,kb,resultstring,10,0);
 			(*i_Event).key.keysym.unicode=resultstring[0];
 			goto eventfinished;
@@ -639,7 +747,7 @@ ATOM W32_MyRegisterClass(HINSTANCE hInstance)
 	wcex.hIconSm=NULL;
 	return RegisterClassEx(&wcex);
 }
-BOOL W32_InitInstance(HINSTANCE hInstance,int nCmdShow)
+_u32 W32_InitInstance(HINSTANCE hInstance,int nCmdShow)
 {
 	HWND hWnd;
 	W32_MyRegisterClass(hInstance);
@@ -660,7 +768,7 @@ int SDL_Init(_uXX i_flags)
 	{
 		W32_keystates[ilv1]=0;
 	}
-	W32_hInst=GetModuleHandle(NULL);
+	W32_hInst=GetModuleHandleA(NULL);
 	if (!W32_InitInstance(W32_hInst,1))
 	{
 		printf("Win32-api init failed");

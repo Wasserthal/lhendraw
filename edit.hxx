@@ -4092,7 +4092,7 @@ catalogized_command_funcdef(COPY)
 		#else
 		OpenClipboard(W32_window);
 		EmptyClipboard();
-		W32_clipformat=RegisterClipboardFormat("ChemDraw Interchange Format");
+		W32_clipformat=RegisterClipboardFormatA("ChemDraw Interchange Format");
 		LHENDRAW_clipboardhandle=GlobalAlloc(GMEM_MOVEABLE,LHENDRAW_clipboardbuffer_max);//TODO:allow size change
 		LHENDRAW_clipboardbuffer=(char*)GlobalLock(LHENDRAW_clipboardhandle);
 		text_outtext_realloc=LHENDRAW_realloc_clipboard;
@@ -4195,7 +4195,7 @@ catalogized_command_funcdef(PASTE)
 		undo_storcatch(~0,"PASTE");
 		char control_totalfilename[stringlength+1];
 		#ifdef CROFTOIDAL
-		W32_clipformat=RegisterClipboardFormat("ChemDraw Interchange Format");
+		W32_clipformat=RegisterClipboardFormatA("ChemDraw Interchange Format");
 		LHENDRAW_clipboardhandle=GetClipboardData(W32_clipformat);
 		if (LHENDRAW_clipboardhandle==0)
 		{

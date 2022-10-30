@@ -38,15 +38,15 @@ int print_start_job(const char * destname,int partly)
 	W32_pd.lStructSize=sizeof(PRINTDLG);
 	W32_pd.hwndOwner=NULL;
 	W32_pd.Flags=PD_RETURNDC;
-	if (PrintDlg(&W32_pd))
+	if (PrintDlgA(&W32_pd))
 	{
-		DOCINFO di;
-		memset(&di,0,sizeof(DOCINFO));
-		di.cbSize=sizeof(DOCINFO);
+		DOCINFOA di;
+		memset(&di,0,sizeof(DOCINFOA));
+		di.cbSize=sizeof(DOCINFOA);
 		di.lpszDocName="lhendraw";
 		ps_sizex=GetDeviceCaps(W32_pd.hDC,HORZRES);
 		ps_sizey=GetDeviceCaps(W32_pd.hDC,VERTRES);
-		StartDoc(W32_pd.hDC,&di);
+		StartDocA(W32_pd.hDC,&di);
 		StartPage(W32_pd.hDC);
 		ps_printmode=1;
 		edit_fileoperationrefersonlytopartofdocument=partly;
@@ -71,7 +71,7 @@ void print_print(const char * input)
 const char * printer_default_name()
 {
 	unsigned long default_printer_name_size=256;
-	GetDefaultPrinter((char*)W32_default_printer_name,&default_printer_name_size);
+	GetDefaultPrinterA((char*)W32_default_printer_name,&default_printer_name_size);
 	W32_default_printer_name[sizeof(W32_default_printer_name)-1]=0;
 	return (char*)W32_default_printer_name;
 }

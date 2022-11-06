@@ -22,6 +22,12 @@
 #define _iXX signed long long
 #define _uXX unsigned long long
 #endif
+#ifdef CROFTOIDAL
+#undef _iXX
+#undef _uXX
+#define _iXX signed long
+#define _uXX unsigned long
+#endif
 float Pi=3.141592654;
 #define _small int
 #define minfloat -1.0e20

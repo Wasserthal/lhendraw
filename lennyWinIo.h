@@ -439,7 +439,7 @@ void __attribute__((__cdecl__)) text_plot_to_file(_i8 input)
 		}
 		text_outtext_left--;
 	}
-	long unsigned int num=0;
+	_uXX num=0;
 	WriteFile((*text_outtext_file).W32handle,&input,1,&num,NULL);
 	(*text_outtext_file).cursor+=num;
 	text_outtext_right++;

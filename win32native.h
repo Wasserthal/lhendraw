@@ -7,11 +7,19 @@ It is only used for Win32 compatible systems like MS or ReactOS.
 #include <windows.h>
 #include <wingdi.h>
 #else
+#include "windows/imports.h"
 typedef void*HANDLE;
 typedef void*HGLOBAL;
 typedef void*HINSTANCE;
 typedef void*HDC;
 typedef void*HWND;
+typedef void*HBRUSH;
+typedef void*HBITMAP;
+typedef void*HGDIOBJ;
+typedef void*HMENU;
+#define LRESULT _u32
+#define CALLBACK
+typedef _u32 (CALLBACK *WNDPROC)(HWND,_u32,_u32,_uXX);
 #define VK_LBUTTON 1
 #define VK_RBUTTON 2
 #define CREATE_NEW 1
@@ -34,12 +42,57 @@ typedef void*HWND;
 #define SM_CYCAPTION 4
 #define VERTRES 10
 #define	POSTSCRIPT_PASSTHROUGH 4115
+#define CS_HREDRAW 2
+#define CS_VREDRAW 1
+#define COLOR_WINDOW 5
+#define DIB_RGB_COLORS 0
+#define HIWORD(word) ((_u16)(((word)>>16)&0xFFFF))
+#define LOWORD(word) ((_u16)((word)&0xFFFF))
+#define SIZE_MAXIMIZED 2
+#define SIZE_RESTORED 0
+#define WM_COMMAND 273
+#define WM_MOUSEWHEEL 522
+#define WM_PAINT 15
+#define WM_SIZE 5
+struct BITMAPINFOHEADER
+{
+	_u32 biSize;
+	_u64 biWidth;
+	_u64 biHeight;
+	_u16 biPlanes;
+	_u16 biBitCount;
+	_u32 biCompression;
+	_u32 biSizeImage;
+	_u64 biXPelsPerMeter;
+	_u64 biYPelsPerMeter;
+	_u32 biClrUsed;
+	_u32 biClrImportant;
+};
+struct BITMAPINFO{
+BITMAPINFOHEADER bmiHeader;
+_RGB bmiColors[1];
+};
 struct RECT
 {
 	_u32 left;
 	_u32 top;
 	_u32 right;
 	_u32 bottom;
+};
+struct WNDCLASSEXA
+{
+	_u32 cbSize;
+	_u32 style;
+	WNDPROC lpfnWndProc;
+	_i32 cbClsExtra;
+	_i32 cbWndExtra;
+	HINSTANCE hInstance;
+	void*hIcon;
+	void*hCursor;
+	HBRUSH hbrBackground;
+	char*lpszMenuName;
+	char*lpszClassName;
+	void*hIconSm;
 };
 struct PAINTSTRUCT
 {
@@ -53,7 +106,7 @@ struct PAINTSTRUCT
 struct DOCINFOA
 {
 	_i32 cbSize;
-	const _u8*lpszDocName;
+	const char*lpszDocName;
 	const _u8*lpszOutput;
 	const _u8*lpszDatatype;
 	_u32 fwType;
@@ -96,22 +149,73 @@ struct PRINTDLG
 };
 extern void*malloc(_u32);
 extern void*alloca(_u32);
-extern void*free(_u32);
+extern void free(void*);
+double atof(const char*);
+_i32 atoi(const char*);
+char*getenv(const char*);
+_i32 rand(void);
+void*realloc(void *,_u32 size);
+_i32 system(const char *command);
 extern _i32 abs(_i32);
 extern HANDLE CreateFileA(const char*,_u32,_u32,void*,_u32,_u32,HANDLE);
 extern _u32 DispatchMessageA(const MSG*);
-extern _u32 GetDefaultPrinterA(_u8*,_u32*);
+extern _u32 GetDefaultPrinterA(char*,_u32*);
 extern _u32 GetMessageA(MSG*,HWND,_u32,_u32);
 extern HINSTANCE GetModuleHandleA(const _u8*);
 extern _u32 MapVirtualKeyA(_u32,_u32);
 extern _u32 PeekMessageA(MSG*,HWND,_u32,_u32,_u32);
 extern _u32 PrintDlgA(PRINTDLG*);
-extern _u32 RegisterClipboardFormatA(const _u8*);
+extern _u32 RegisterClipboardFormatA(const char*);
 extern _i32 StartDocA(HDC,const DOCINFOA*);
+extern _u32 MessageBoxA(HWND,const char*,const char*,_u32);
+#define WS_OVERLAPPEDWINDOW 0xcf0000
 #define INVALID_HANDLE_VALUE (void*)(~(long)0)
 extern void ExitProcess(long);
 extern void Sleep(int);
 #define exit ExitProcess
+
+extern HDC BeginPaint(HWND,PAINTSTRUCT*);
+extern _u32 CloseClipboard(void);
+extern _u32 CloseHandle(HANDLE);
+extern HBITMAP CreateCompatibleBitmap(HDC,_i32,_i32);
+extern HDC CreateCompatibleDC(HDC);
+extern _u32 DeleteObject(HGDIOBJ);
+extern _u32 DestroyWindow(HWND);
+extern _u32 EmptyClipboard(void);
+extern _i32 EndDoc(HDC);
+extern _i32 EndPage(HDC);
+extern _u32 EndPaint(HWND,const PAINTSTRUCT*);
+extern _i32 ExtEscape(HDC,_i32,_i32,const char*,_i32,_u8*);
+extern _u32 GetClientRect(HWND,RECT*);
+extern HANDLE GetClipboardData(_u32);
+extern _u32 GetCursorPos(POINT*);
+extern _i32 GetDeviceCaps(HDC,_i32);
+extern _u32 GetKeyboardState(_u8*);
+extern _u16 GetKeyState(_i32);
+extern _i32 GetSystemMetrics(_i32);
+extern _u32 GetWindowRect(HWND,RECT*);
+extern HGLOBAL GlobalAlloc(_u32,_u32);
+extern void*GlobalLock(HGLOBAL);
+extern HGLOBAL GlobalReAlloc(HGLOBAL,_u32,_u32);
+extern _u32 GlobalUnlock(HGLOBAL);
+extern _u32 InvalidateRect(HWND,const RECT*,_u32);
+extern _u32 OpenClipboard(HWND);
+extern _u32 ReadFile(HANDLE,void*,_u32,_uXX*,void*);
+extern HGDIOBJ SelectObject(HDC,HGDIOBJ);
+extern HANDLE SetClipboardData(_u32,HANDLE);
+extern _u32 SetCursorPos(_i32,_i32);
+extern _i32 SetDIBitsToDevice(HDC,_i32,_i32,_u32,_u32,_i32,_i32,_u32,_u32,const void*,const BITMAPINFO*,_u32);
+extern _u32 SetFilePointer(HANDLE,_u32,_u32*,_u32);
+extern _u32 ShowWindow(HWND,_i32);
+extern _i32 StartPage(HDC);
+extern _i32 ToUnicode(_u32,_u32,const _u8*,_u16*,_i32,_u32);
+extern _u32 TranslateMessage(const MSG*);
+extern _u32 UpdateWindow(HWND);
+extern _u32 WriteFile(HANDLE,const void*,_u32,_uXX*,void*);
+extern _u32 DefWindowProcA(HWND,_u32,_u32,_u32);
+extern _u16 RegisterClassExA(const WNDCLASSEXA*);
+extern HWND CreateWindowExA(_u32,char*,const char*,_u32,_i32,_i32,_i32,_i32,HWND,HMENU,HINSTANCE,void*);
+void*__dso_handle=NULL;
 #endif
 #include "lennyWinIo.h"
 #define SDL_HWSURFACE 0
@@ -552,7 +656,7 @@ int SDL_PollEvent(SDL_Event * i_Event)
 int W32_RefreshEvents()
 {
 	SDL_Event * i_Event=W32_Eventfifo+W32_Eventfifo_in;
-	wchar_t resultstring[10];
+	_u16 resultstring[10];
 	int lbuttonstate;
 	POINT lppoint;
 	GetCursorPos(&lppoint);
@@ -639,7 +743,7 @@ void SDL_WarpMouse(int x,int y)
 	int border_thicknessy=GetSystemMetrics(SM_CYCAPTION);
 	SetCursorPos(x+lprect.left+border_thicknessx,y+lprect.top+border_thicknessy);
 }
-LRESULT CALLBACK W32_WndProc(HWND hWnd,UINT message,WPARAM wParam,LPARAM lParam)
+LRESULT CALLBACK W32_WndProc(HWND hWnd,_u32 message,_u32 wParam,_uXX lParam)
 {
 	int wmId,wmEvent;
 	PAINTSTRUCT ps;
@@ -657,7 +761,7 @@ LRESULT CALLBACK W32_WndProc(HWND hWnd,UINT message,WPARAM wParam,LPARAM lParam)
 				break;
 			}
 			default:
-			return DefWindowProc(hWnd,message,wParam,lParam);
+			return DefWindowProcA(hWnd,message,wParam,lParam);
 		}
 		break;
 		case WM_MOUSEWHEEL:
@@ -725,15 +829,15 @@ LRESULT CALLBACK W32_WndProc(HWND hWnd,UINT message,WPARAM wParam,LPARAM lParam)
 		default:
 		{
 			while (W32_RefreshEvents()){}
-			return DefWindowProc(hWnd,message,wParam,lParam);
+			return DefWindowProcA(hWnd,message,wParam,lParam);
 		}
 	}
 	return 1;
 }
-ATOM W32_MyRegisterClass(HINSTANCE hInstance)
+_u16 W32_MyRegisterClass(HINSTANCE hInstance)
 {
-	WNDCLASSEX wcex;
-	wcex.cbSize=sizeof(WNDCLASSEX);
+	WNDCLASSEXA wcex;
+	wcex.cbSize=sizeof(WNDCLASSEXA);
 	wcex.style=CS_HREDRAW|CS_VREDRAW;
 	wcex.lpfnWndProc=W32_WndProc;
 	wcex.cbClsExtra=0;
@@ -745,7 +849,7 @@ ATOM W32_MyRegisterClass(HINSTANCE hInstance)
 	wcex.lpszMenuName=NULL;
 	wcex.lpszClassName=szWindowClass;
 	wcex.hIconSm=NULL;
-	return RegisterClassEx(&wcex);
+	return RegisterClassExA(&wcex);
 }
 _u32 W32_InitInstance(HINSTANCE hInstance,int nCmdShow)
 {
@@ -753,7 +857,7 @@ _u32 W32_InitInstance(HINSTANCE hInstance,int nCmdShow)
 	W32_MyRegisterClass(hInstance);
 	int border_thicknessy=GetSystemMetrics(SM_CYCAPTION);
 	int border_thicknessx=GetSystemMetrics(SM_CXSIZEFRAME);
-	hWnd=CreateWindow(szWindowClass,"lhendraw",WS_OVERLAPPEDWINDOW,0,0,gfx_screensizex+border_thicknessx*2,gfx_screensizey+border_thicknessy+border_thicknessx,NULL,NULL,hInstance,NULL);
+	hWnd=CreateWindowExA(0,szWindowClass,"lhendraw",WS_OVERLAPPEDWINDOW,0,0,gfx_screensizex+border_thicknessx*2,gfx_screensizey+border_thicknessy+border_thicknessx,NULL,NULL,hInstance,NULL);
 	if (!hWnd)
 	{
 		return 0;

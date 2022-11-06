@@ -70,7 +70,7 @@ void print_print(const char * input)
 }
 const char * printer_default_name()
 {
-	unsigned long default_printer_name_size=256;
+	_u32 default_printer_name_size=256;
 	GetDefaultPrinterA((char*)W32_default_printer_name,&default_printer_name_size);
 	W32_default_printer_name[sizeof(W32_default_printer_name)-1]=0;
 	return (char*)W32_default_printer_name;

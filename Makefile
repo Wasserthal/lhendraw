@@ -89,3 +89,17 @@ insert32:
 	./tools/binary hotkeys.xml ./generated/bininclude2.txt
 	./tools/binary LiberationMono-Regular.bin ./generated/bininclude3.txt
 	./tools/binary LiberationMono-Regular.lennardfont ./generated/bininclude4.txt
+cross_pe32:
+	ld -m elf_i386 -r -b binary -o ob1.o gfx/buttons.bmp --oformat elf32-i386
+	ld -m elf_i386 -r -b binary -o ob2.o hotkeys.xml --oformat elf32-i386
+	ld -m elf_i386 -r -b binary -o ob3.o LiberationMono-Regular.bin --oformat elf32-i386
+	ld -m elf_i386 -r -b binary -o ob4.o LiberationMono-Regular.lennardfont --oformat elf32-i386
+	g++ -v -S -O0 --std=c++0x --static -Wl,--relocatable  lhendraw.cxx -m32 -o lhendraw.s -mno-red-zone -Wno-invalid-offsetof -D CROFTOIDAL -D BITMODE32 -DFULLCROSS -ffreestanding -fno-pie -fno-exceptions -fno-asynchronous-unwind-tables
+	sed -b -i -e 's/\.section	\.text\.\(_Z[NT1].*\),"axG",@progbits,\([^,]*\),comdat/.globl	\1/' lhendraw.s
+	sed -b -i -e 's/\.section	\.rodata\.\(_Z[NT1].*\),"aG",@progbits,\([^,]*\),comdat/.globl	\1/' lhendraw.s
+	#sed -z -b -i -e 's/\.section	\.rodata\x0a/.section	.text\x0a/g' lhendraw.s
+	as -v --32 -o lhendraw.o lhendraw.s
+	/usr/lib/gcc/x86_64-linux-gnu/4.8/collect2 --sysroot=/ --build-id -m elf_i386 --hash-style=gnu --as-needed -static -z relro -o lhendraw_cross_pe32.o /usr/lib/gcc/x86_64-linux-gnu/4.8/../../../i386-linux-gnu/crt1.o /usr/lib/gcc/x86_64-linux-gnu/4.8/../../../i386-linux-gnu/crti.o /usr/lib/gcc/x86_64-linux-gnu/4.8/32/crtbeginT.o -L/usr/lib/gcc/x86_64-linux-gnu/4.8/32 -L/usr/lib/gcc/x86_64-linux-gnu/4.8/../../../i386-linux-gnu -L/usr/lib/gcc/x86_64-linux-gnu/4.8/../../../../lib32 -L/lib/i386-linux-gnu -L/lib/../lib32 -L/usr/lib/i386-linux-gnu -L/usr/lib/../lib32 -L/usr/lib/gcc/x86_64-linux-gnu/4.8 -L/usr/lib/gcc/x86_64-linux-gnu/4.8/../../../i386-linux-gnu -L/usr/lib/gcc/x86_64-linux-gnu/4.8/../../.. -L/lib/i386-linux-gnu -L/usr/lib/i386-linux-gnu --relocatable lhendraw.o -lstdc++ -lm --start-group -lgcc -lgcc_eh -lc --end-group /usr/lib/gcc/x86_64-linux-gnu/4.8/32/crtend.o /usr/lib/gcc/x86_64-linux-gnu/4.8/../../../i386-linux-gnu/crtn.o
+	objcopy lhendraw_cross_pe32.o -R .gnu_debuglink
+	objcopy lhendraw_cross_pe32.o -R .comment
+	ld -m i386pe windows/imports.def -format=elf32-i386 -format=pei-i386 ob1.o ob2.o ob3.o ob4.o lhendraw_cross_pe32.o -o lhendraw.exe --oformat=pei-i386 --subsystem console -e main --ignore-unresolved-symbol _ZTVN10__cxxabiv117__class_type_infoE --ignore-unresolved-symbol _ZTVN10__cxxabiv120__si_class_type_infoE --ignore-unresolved-symbol _ZTVN10__cxxabiv121__vmi_class_type_infoE --ignore-unresolved-symbol _GLOBAL_OFFSET_TABLE_ --ignore-unresolved-symbol 	__preinit_array_start --ignore-unresolved-symbol 	__preinit_array_end --ignore-unresolved-symbol 	__init_array_start --ignore-unresolved-symbol 	__init_array_end --ignore-unresolved-symbol 	__fini_array_start --ignore-unresolved-symbol 	__fini_array_end --ignore-unresolved-symbol ___tls_get_addr  --ignore-unresolved-symbol alloca

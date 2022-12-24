@@ -147,75 +147,123 @@ struct PRINTDLG
 	HGLOBAL hPrintTemplate;
 	HGLOBAL hSetupTemplate;
 };
-extern void*malloc(_u32);
-extern void*alloca(_u32);
-extern void free(void*);
-double atof(const char*);
-_i32 atoi(const char*);
-char*getenv(const char*);
-_i32 rand(void);
-void*realloc(void *,_u32 size);
-_i32 system(const char *command);
-extern _i32 abs(_i32);
-extern HANDLE CreateFileA(const char*,_u32,_u32,void*,_u32,_u32,HANDLE);
-extern _u32 DispatchMessageA(const MSG*);
-extern _u32 GetDefaultPrinterA(char*,_u32*);
-extern _u32 GetMessageA(MSG*,HWND,_u32,_u32);
-extern HINSTANCE GetModuleHandleA(const _u8*);
-extern _u32 MapVirtualKeyA(_u32,_u32);
-extern _u32 PeekMessageA(MSG*,HWND,_u32,_u32,_u32);
-extern _u32 PrintDlgA(PRINTDLG*);
-extern _u32 RegisterClipboardFormatA(const char*);
-extern _i32 StartDocA(HDC,const DOCINFOA*);
-extern _u32 MessageBoxA(HWND,const char*,const char*,_u32);
+extern "C" void*malloc(_u32);
+extern "C" void*alloca(_u32);
+extern "C" void free(void*);
+extern "C" double atof(const char*);
+extern "C" _i32 atoi(const char*);
+extern "C" char*getenv(const char*);
+extern "C" _i32 rand(void);
+extern "C" void*realloc(void *,_u32 size);
+extern "C" _i32 system(const char *command);
+extern "C" _i32 abs(_i32);
+extern "C" HANDLE CreateFileA(const char*,_u32,_u32,void*,_u32,_u32,HANDLE);
+extern "C" _u32 DispatchMessageA(const MSG*);
+extern "C" _u32 GetDefaultPrinterA(char*,_u32*);
+extern "C" _u32 GetMessageA(MSG*,HWND,_u32,_u32);
+extern "C" HINSTANCE GetModuleHandleA(const _u8*);
+extern "C" _u32 MapVirtualKeyA(_u32,_u32);
+extern "C" _u32 PeekMessageA(MSG*,HWND,_u32,_u32,_u32);
+extern "C" _u32 PrintDlgA(PRINTDLG*);
+extern "C" _u32 RegisterClipboardFormatA(const char*);
+extern "C" _i32 StartDocA(HDC,const DOCINFOA*);
+extern "C" _u32 MessageBoxA(HWND,const char*,const char*,_u32);
 #define WS_OVERLAPPEDWINDOW 0xcf0000
 #define INVALID_HANDLE_VALUE (void*)(~(long)0)
-extern void ExitProcess(long);
-extern void Sleep(int);
-#define exit ExitProcess
-
-extern HDC BeginPaint(HWND,PAINTSTRUCT*);
-extern _u32 CloseClipboard(void);
-extern _u32 CloseHandle(HANDLE);
-extern HBITMAP CreateCompatibleBitmap(HDC,_i32,_i32);
-extern HDC CreateCompatibleDC(HDC);
-extern _u32 DeleteObject(HGDIOBJ);
-extern _u32 DestroyWindow(HWND);
-extern _u32 EmptyClipboard(void);
-extern _i32 EndDoc(HDC);
-extern _i32 EndPage(HDC);
-extern _u32 EndPaint(HWND,const PAINTSTRUCT*);
-extern _i32 ExtEscape(HDC,_i32,_i32,const char*,_i32,_u8*);
-extern _u32 GetClientRect(HWND,RECT*);
-extern HANDLE GetClipboardData(_u32);
-extern _u32 GetCursorPos(POINT*);
-extern _i32 GetDeviceCaps(HDC,_i32);
-extern _u32 GetKeyboardState(_u8*);
-extern _u16 GetKeyState(_i32);
-extern _i32 GetSystemMetrics(_i32);
-extern _u32 GetWindowRect(HWND,RECT*);
-extern HGLOBAL GlobalAlloc(_u32,_u32);
-extern void*GlobalLock(HGLOBAL);
-extern HGLOBAL GlobalReAlloc(HGLOBAL,_u32,_u32);
-extern _u32 GlobalUnlock(HGLOBAL);
-extern _u32 InvalidateRect(HWND,const RECT*,_u32);
-extern _u32 OpenClipboard(HWND);
-extern _u32 ReadFile(HANDLE,void*,_u32,_uXX*,void*);
-extern HGDIOBJ SelectObject(HDC,HGDIOBJ);
-extern HANDLE SetClipboardData(_u32,HANDLE);
-extern _u32 SetCursorPos(_i32,_i32);
-extern _i32 SetDIBitsToDevice(HDC,_i32,_i32,_u32,_u32,_i32,_i32,_u32,_u32,const void*,const BITMAPINFO*,_u32);
-extern _u32 SetFilePointer(HANDLE,_u32,_u32*,_u32);
-extern _u32 ShowWindow(HWND,_i32);
-extern _i32 StartPage(HDC);
-extern _i32 ToUnicode(_u32,_u32,const _u8*,_u16*,_i32,_u32);
-extern _u32 TranslateMessage(const MSG*);
-extern _u32 UpdateWindow(HWND);
-extern _u32 WriteFile(HANDLE,const void*,_u32,_uXX*,void*);
-extern _u32 DefWindowProcA(HWND,_u32,_u32,_u32);
-extern _u16 RegisterClassExA(const WNDCLASSEXA*);
-extern HWND CreateWindowExA(_u32,char*,const char*,_u32,_i32,_i32,_i32,_i32,HWND,HMENU,HINSTANCE,void*);
-void*__dso_handle=NULL;
+extern "C" void ExitProcess(long);
+extern "C" void Sleep(int);
+extern "C" void exit(_u32);
+extern "C" HDC BeginPaint(HWND,PAINTSTRUCT*);
+extern "C" _u32 CloseClipboard(void);
+extern "C" _u32 CloseHandle(HANDLE);
+extern "C" HBITMAP CreateCompatibleBitmap(HDC,_i32,_i32);
+extern "C" HDC CreateCompatibleDC(HDC);
+extern "C" _u32 DeleteObject(HGDIOBJ);
+extern "C" _u32 DestroyWindow(HWND);
+extern "C" _u32 EmptyClipboard(void);
+extern "C" _i32 EndDoc(HDC);
+extern "C" _i32 EndPage(HDC);
+extern "C" _u32 EndPaint(HWND,const PAINTSTRUCT*);
+extern "C" _i32 ExtEscape(HDC,_i32,_i32,const char*,_i32,_u8*);
+extern "C" _u32 GetClientRect(HWND,RECT*);
+extern "C" HANDLE GetClipboardData(_u32);
+extern "C" _u32 GetCursorPos(POINT*);
+extern "C" _i32 GetDeviceCaps(HDC,_i32);
+extern "C" _u32 GetKeyboardState(_u8*);
+extern "C" _u16 GetKeyState(_i32);
+extern "C" _i32 GetSystemMetrics(_i32);
+extern "C" _u32 GetWindowRect(HWND,RECT*);
+extern "C" HGLOBAL GlobalAlloc(_u32,_u32);
+extern "C" void*GlobalLock(HGLOBAL);
+extern "C" HGLOBAL GlobalReAlloc(HGLOBAL,_u32,_u32);
+extern "C" _u32 GlobalUnlock(HGLOBAL);
+extern "C" _u32 InvalidateRect(HWND,const RECT*,_u32);
+extern "C" _u32 OpenClipboard(HWND);
+extern "C" _u32 ReadFile(HANDLE,void*,_u32,_uXX*,void*);
+extern "C" HGDIOBJ SelectObject(HDC,HGDIOBJ);
+extern "C" HANDLE SetClipboardData(_u32,HANDLE);
+extern "C" _u32 SetCursorPos(_i32,_i32);
+extern "C" _i32 SetDIBitsToDevice(HDC,_i32,_i32,_u32,_u32,_i32,_i32,_u32,_u32,const void*,const BITMAPINFO*,_u32);
+extern "C" _u32 SetFilePointer(HANDLE,_u32,_u32*,_u32);
+extern "C" _u32 ShowWindow(HWND,_i32);
+extern "C" _i32 StartPage(HDC);
+extern "C" _i32 ToUnicode(_u32,_u32,const _u8*,_u16*,_i32,_u32);
+extern "C" _u32 TranslateMessage(const MSG*);
+extern "C" _u32 UpdateWindow(HWND);
+extern "C" _u32 WriteFile(HANDLE,const void*,_u32,_uXX*,void*);
+extern "C" _u32 DefWindowProcA(HWND,_u32,_u32,_u32);
+extern "C" _u16 RegisterClassExA(const WNDCLASSEXA*);
+extern "C" HWND CreateWindowExA(_u32,char*,const char*,_u32,_i32,_i32,_i32,_i32,HWND,HMENU,HINSTANCE,void*);
+extern "C" void*memcpy(void*,const void*,_u32);
+extern "C" char*strcpy(char*,const char*);
+extern "C" char*strncpy(char*,const char*,int);
+extern "C" _u32 strcmp(const char*,const char*);
+extern "C" _u32 strncmp(const char*,const char*,int);
+extern "C" _u32 strlen(const char*);
+extern "C" char*strstr(const char*,const char*);
+extern "C" char*strchr(const char*,_u32);
+extern "C" double tan(double);
+extern "C" double sin(double);
+extern "C" double cos(double);
+extern "C" double atan(double);
+extern "C" double asin(double);
+extern "C" double acos(double);
+extern "C" char*strcat(char*,const char*);
+extern "C" char*strncat(char*,const char*,_u32);
+extern "C" void longjmp(jmp_buf,_u32 val);
+extern "C" double fabs(double);
+extern "C" double fmod(double,double);
+extern "C" double sqrt(double);
+extern "C" double pow(double,double);
+extern "C" void*memset(void*,_u32,_u32);
+extern "C" double modf(double,double*);
+extern "C" int _setjmp3(jmp_buf env);
+#define setjmp _setjmp3
+#define binary_gfx_buttons_bmp_start _binary_gfx_buttons_bmp_start
+#define binary_hotkeys_xml_start _binary_hotkeys_xml_start
+#define binary_LiberationMono_Regular_bin_start _binary_LiberationMono_Regular_bin_start
+#define binary_LiberationMono_Regular_lennardfont_start _binary_LiberationMono_Regular_lennardfont_start
+#define binary_gfx_buttons_bmp_end _binary_gfx_buttons_bmp_end
+#define binary_hotkeys_xml_end _binary_hotkeys_xml_end
+#define binary_LiberationMono_Regular_bin_end _binary_LiberationMono_Regular_bin_end
+#define binary_LiberationMono_Regular_lennardfont_end _binary_LiberationMono_Regular_lennardfont_end
+double nan(_u8*irrelevant)
+{
+	char*nanstring="\x00\x00\x00\x00\x00\x00\xf8\x7f";
+	return *(double*)(nanstring);
+}
+float nanf(_u8*irrelevant)
+{
+	char*nanstring="\x00\x00\xc0\x7f";
+	return *(float*)(nanstring);
+}
+int abs(_i32 in)
+{
+	if (((_u32)in)==0xFFFFFFFF) return 0x7FFFFFFF;
+	if (in<0) return -in;
+	return in;
+}
+//void*__dso_handle=NULL;
 #endif
 #include "lennyWinIo.h"
 #define SDL_HWSURFACE 0

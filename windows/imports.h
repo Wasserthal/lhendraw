@@ -152,3 +152,6 @@
 #define memset _DLLIMPORTS_memset
 #define abs _DLLIMPORTS_abs
 #define setjmp3 _DLLIMPORTS_setjmp3
+#define ExitProcess _DLLIMPORTS_ExitProcess
+#define GetStdHandle _DLLIMPORTS_GetStdHandle
+#define WriteConsoleA _DLLIMPORTS_WriteConsoleA

@@ -25,3 +25,10 @@ INTERPRET labels correctly (empty to carbon, minus to charge)
 oh scheiße, wie mach ich, dass, wenn ein Objekt gelöscht wird, die subelementselektion nachgeschoben wird?
 Zum Glück werden beim Löschen die Objekte nach den Subelementen gelöscht.
 in interpretkey wenn ihot==1, da ist manchmal die tl_multilist auf _start, in dem Moment wo das katalogisierte Kommando ausgeführt werden soll.
+
+
+Windows
+Man muss die executable mit -ffreestanding compilieren und mit -S den assemblier- und Linkprozess abtrennen.
+Die Sektionen .gnu_debug und .comment müssen gelöscht werden und viele .text- und .rodata- Sektionen zu .globl degradiert werden, sonst gibt es zu viele. .bss-Sektionen müssen in .data-Sektionen umgeändert werden, damit sie existieren.
+die Funktion __cxa_atexit schmiert ab, sobald ihr innerer Zähler 32 wird, dann schreibt sie in einen nicht-genullten Bereich des .text -Segments.
+Es muss nun zweimal gelinkt werden: Einmal, um das normale freestanding-Target trotz der Unterbrechung vor dem assemblierprozess zu builden, ein zweites Mal um die .o-Datei in eine PE-Executable zu linken.

@@ -191,6 +191,11 @@ void memory_spacecheck()//checks for space lack and raises memory when needed
 	//TODO
 }
 extern int error_code;
+#ifdef FULLCROSS
+struct _jmp_buf;
+typedef _jmp_buf jmp_buf[1];
+extern "C" void longjmp(jmp_buf,unsigned int val);
+#endif
 void memory_overflow_hook()
 {
 	memory_realloc_x2();

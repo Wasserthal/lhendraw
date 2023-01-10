@@ -19,12 +19,18 @@ LLLLLL H   H EEEEE N    N DDD   R  R A     A    W     W
 #include <stdlib.h>
 #include <stdio.h>
 #endif
+#ifndef FULLCROSS
 #include <dirent.h>
+#endif
 #include <typeinfo>
+#ifndef FULLCROSS
 #include <string.h>
+#endif
 #include <stdarg.h>
 #include <math.h>
+#ifndef FULLCROSS
 #include <setjmp.h>
+#endif
 #include "lendefs.h"
 #ifdef CROFTOIDAL
 #define NOPOSIX

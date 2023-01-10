@@ -7,7 +7,6 @@ It is only used for Win32 compatible systems like MS or ReactOS.
 #include <windows.h>
 #include <wingdi.h>
 #else
-#include "windows/imports.h"
 typedef void*HANDLE;
 typedef void*HGLOBAL;
 typedef void*HINSTANCE;
@@ -152,6 +151,8 @@ extern "C" void*malloc(_u32);
 extern "C" void free(void*);
 extern "C" double atof(const char*);
 extern "C" _i32 atoi(const char*);
+extern "C" float strtof(const char*);
+extern "C" double strtod(const char*);
 extern "C" char*getenv(const char*);
 extern "C" _i32 rand(void);
 extern "C" void*realloc(void *,_u32 size);
@@ -215,6 +216,7 @@ extern "C" _u32 __attribute__((__stdcall__))DefWindowProcA(HWND,_u32,_u32,_u32);
 extern "C" _u16 __attribute__((__stdcall__))RegisterClassExA(const WNDCLASSEXA*);
 extern "C" HWND __attribute__((__stdcall__))CreateWindowExA(_u32,char*,const char*,_u32,_i32,_i32,_i32,_i32,HWND,HMENU,HINSTANCE,void*);
 extern "C" void*memcpy(void*,const void*,_u32);
+extern "C" int memcmp(const void*,const void*,_u32);
 extern "C" char*strcpy(char*,const char*);
 extern "C" char*strncpy(char*,const char*,int);
 extern "C" _u32 strcmp(const char*,const char*);
@@ -230,6 +232,56 @@ extern "C" double asin(double);
 extern "C" double acos(double);
 extern "C" char*strcat(char*,const char*);
 extern "C" char*strncat(char*,const char*,_u32);
+struct dirent
+{
+	_u32 d_ino;
+	_u16 int d_reclen;
+	_u16 d_namelen;
+	char*d_name;
+};
+struct winDIR
+{
+	_u32 dwFileAttributes;
+	_u64 ftCreationTime;
+	_u64 ftLastAccessTime;
+	_u64 ftLastWriteTime;
+	_u32 nFileSizeHigh;
+	_u32 nFileSizeLow;
+	_u32 dwReserved0;
+	_u32 dwReserved1;
+	char cFileName[260];
+	char cAlternateFileName[14];
+	_u32 stuffword1;
+	_u32 stuffword2;
+	_u32 stuffword3;
+	_u16 stuffshort;
+};
+struct DIR
+{
+	_u32 windowshandle;
+	_u32 fsm;//0: empty 1: one name waiting 2: await next read 3: empty after opening
+	winDIR windowsstruct;
+	dirent linuxstruct;
+}__attribute__((packed));
+DIR W32_DIR_instance={0};
+extern "C" DIR*opendir(const char*);
+extern "C" dirent*readdir(DIR*);
+extern "C" void closedir(DIR*);
+struct _jmp_buf
+{
+	_u32 ebp;
+	_u32 ebx;
+	_u32 edi;
+	_u32 esi;
+	_u32 esp;
+	_u32 eip;
+	_u32 reg;
+	_u32 attempt;
+	_u32 cookie;
+	_u32 unwind_func;
+	_u32 unwind_data[6];
+};
+typedef _jmp_buf jmp_buf[1];
 extern "C" void longjmp(jmp_buf,_u32 val);
 extern "C" double fabs(double);
 extern "C" double fmod(double,double);
@@ -237,10 +289,12 @@ extern "C" double sqrt(double);
 extern "C" double pow(double,double);
 extern "C" void*memset(void*,_u32,_u32);
 extern "C" double modf(double,double*);
-extern "C" int _setjmp3(jmp_buf env);
 extern "C" int __attribute__((__stdcall__))GetStdHandle(_i32);
 extern "C" void __attribute__((__stdcall__))WriteConsoleA(_u32,const char*,_u32,void*,_u32);
-#define setjmp _setjmp3
+extern "C" _u32 __attribute__((__stdcall__))FindFirstFileA(const char*,winDIR*);
+extern "C" _u32 __attribute__((__stdcall__))FindNextFileA(_u32,winDIR*);
+extern "C" void __attribute__((__stdcall__))FindClose(_u32);
+extern "C" _u32 setjmp(jmp_buf env);
 #define binary_gfx_buttons_bmp_start _binary_gfx_buttons_bmp_start
 #define binary_hotkeys_xml_start _binary_hotkeys_xml_start
 #define binary_LiberationMono_Regular_bin_start _binary_LiberationMono_Regular_bin_start
@@ -265,7 +319,6 @@ int abs(_i32 in)
 	if (in<0) return -in;
 	return in;
 }
-//void*__dso_handle=NULL;
 #endif
 #include "lennyWinIo.h"
 #define SDL_HWSURFACE 0
@@ -530,7 +583,7 @@ typedef enum
 	SDLK_UNDERSCORE,
 	SDLK_max//No comma to make sure it stays at the end
 }SDLKey;
-_u8 W32_keystates[SDLK_max];//Bit0: current Bit1: last
+_u8 W32_keystates[SDLK_AGAIN];//Bit0: current Bit1: last
 typedef enum
 {
 KMOD_NONE=0,

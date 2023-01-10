@@ -58,9 +58,9 @@ _u32 CAMBRIDGECONV_getcolorfrompalette(int ino)
 }
 int edit_interpretaselementwithimplicithydrogens(multilist<n_instance> * imultilist,int inumber);
 char edit_resortstring(basicmultilist * imultilist,int iinstance);
+static CAMBRIDGE_font_instance defaultfont;
 CAMBRIDGE_font_instance * getfont(_small iid)
 {
-	static CAMBRIDGE_font_instance defaultfont;
 	for (int ilv1=0;ilv1<(*glob_CAMBRIDGE_font_multilist).filllevel;ilv1++)
 	{
 		if (((*glob_CAMBRIDGE_font_multilist)[ilv1]).id==iid)

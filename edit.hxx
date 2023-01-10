@@ -5587,6 +5587,9 @@ catalogized_command_funcdef(FILEDLG_FILE_PATH)
 			control_filememory_attribs[ilv1]=0;
 			#endif
 			control_filememory.count++;
+			char tl_DEBUGSTRING[1000];
+			sprintf(tl_DEBUGSTRING,">%s<\n",dirpy->d_name);
+			WriteConsoleA(GetStdHandle(-11),tl_DEBUGSTRING,strlen(tl_DEBUGSTRING),0,0);
 		}
 		readfinished:;
 		control_filememory.scroll=0;

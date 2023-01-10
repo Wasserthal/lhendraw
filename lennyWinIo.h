@@ -1,6 +1,3 @@
-#define stderr win_stderr
-#define stdout win_stdout
-#define stdin win_stdin
 HGLOBAL LHENDRAW_clipboardhandle;
 typedef struct FILE
 {
@@ -14,9 +11,9 @@ char * internaladdress=NULL;
 #define W32_FILE_max 5
 FILE W32_FILEHEAP[W32_FILE_max+4];
 FILE * W32_FILE=W32_FILEHEAP+3;
-FILE * win_stderr=W32_FILE-3;
-FILE * win_stdout=W32_FILE-2;
-FILE * win_stdin=W32_FILE-4;
+FILE * stderr=W32_FILE-3;
+FILE * stdout=W32_FILE-2;
+FILE * stdin=W32_FILE-4;
 FILE * win_internal=W32_FILE-1;
 extern "C" char binary_gfx_buttons_bmp_start[];
 extern "C" char binary_hotkeys_xml_start[];
@@ -476,7 +473,7 @@ int fprintf(FILE * ifile,const char * input,...)
 	__asm__("int3\n");
 	exit(2);
 }
-_uXX fwrite(const void * buffer,int blocksize,int blockcount,FILE * ifile)
+extern "C" _uXX fwrite(const void * buffer,int blocksize,int blockcount,FILE * ifile)
 {
 	long unsigned int num=0;
 	if (ifile==(W32_FILE-1))
@@ -548,3 +545,98 @@ _uXX ftell(FILE * ifile)
 	(*ifile).cursor=SetFilePointer((*ifile).W32handle,0,NULL,1);
 	return (*ifile).cursor;
 }
+#ifdef FULLCROSS
+extern "C" int fputc(_u32 i_c,FILE*i_file)
+{
+	long unsigned int num=0;
+	WriteFile((*i_file).W32handle,&i_c,1,&num,NULL);
+	return num;
+}
+extern "C" int fputs(const char*i_s,FILE*i_file)
+{
+	long unsigned int num=0;
+	WriteFile((*i_file).W32handle,i_s,1,&num,NULL);
+	return num;
+}
+extern "C" _u32 __assert_fail()
+{
+	return 0;
+}
+extern "C" _u32 __stack_chk_fail_local()
+{
+	return 0;
+}
+extern "C" _u32 __sprintf_chk()
+{
+	return 0;
+}
+extern "C" _u32 __libc_start_main()
+{
+	return 0;
+}
+extern "C" _u32 __libc_csu_init()
+{
+	return 0;
+}
+extern "C" _u32 __libc_csu_fini()
+{
+	return 0;
+}
+extern "C" _u32 dl_iterate_phdr()
+{
+	return 0;
+}
+extern "C" _u32 write()
+{
+	return 0;
+}
+char W32_path_name_extended_with_asterisk[1024+2];
+extern "C" DIR*opendir(const char*i_name)
+{
+	snprintf(W32_path_name_extended_with_asterisk,1024+2,"%s/*",i_name);
+	W32_DIR_instance.windowshandle=FindFirstFileA(W32_path_name_extended_with_asterisk,&(W32_DIR_instance.windowsstruct));
+	W32_DIR_instance.linuxstruct.d_ino=0;
+	if (W32_DIR_instance.windowshandle!=0xFFFFFFFF)
+	{
+		W32_DIR_instance.fsm=1;
+	}
+	else
+	{
+		W32_DIR_instance.fsm=3;
+	}
+	return &W32_DIR_instance;
+}
+extern "C" dirent*readdir(DIR*i_DIR)
+{
+	if ((*i_DIR).fsm==3)
+	{
+		return NULL;
+	}
+	if ((*i_DIR).fsm==2)
+	{
+		if (FindNextFileA((*i_DIR).windowshandle,&(*i_DIR).windowsstruct))
+		{
+			goto l_found;
+		}
+		return NULL;
+	}
+	if ((*i_DIR).fsm==1)
+	{
+		(*i_DIR).fsm=2;
+		l_found:;
+		(*i_DIR).linuxstruct.d_ino++;
+		(*i_DIR).linuxstruct.d_name=(*i_DIR).windowsstruct.cFileName;
+		(*i_DIR).linuxstruct.d_namelen=strlen((*i_DIR).windowsstruct.cFileName);
+		return &(*i_DIR).linuxstruct;
+	}
+	if ((*i_DIR).fsm==0)
+	{
+		WriteConsoleA(GetStdHandle(-11),"Directory not opened",20,0,0);
+		return NULL;
+	}
+}
+extern "C" void closedir(DIR*i_DIR)
+{
+	FindClose((*i_DIR).windowshandle);
+}
+#endif

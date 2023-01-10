@@ -76,10 +76,7 @@
 #define atoi _DLLIMPORTS_atoi
 #define calloc _DLLIMPORTS_calloc
 #define exit _DLLIMPORTS_exit
-#define fputc _DLLIMPORTS_fputc
-#define fputs _DLLIMPORTS_fputs
 #define free _DLLIMPORTS_free
-#define fwrite _DLLIMPORTS_fwrite
 #define getenv _DLLIMPORTS_getenv
 #define localeconv _DLLIMPORTS_localeconv
 #define longjmp _DLLIMPORTS_longjmp

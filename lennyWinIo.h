@@ -309,17 +309,20 @@ int __attribute__((__cdecl__)) text_snprintf(const char ** inputpointer)
 				{
 					(*(((char*)&tl_zuverwoschtendes)+ilv1))=(*(input2+ilv1));
 				}
-				if ((*(((char*)&tl_zuverwoschtendes)+ilv1-1))&0x80)
+				if (input[nread]=='i')
 				{
-					for (ilv1=tl_bytes;ilv1<sizeof(tl_zuverwoschtendes);ilv1++)
+					if ((*(((char*)&tl_zuverwoschtendes)+ilv1-1))&0x80)
 					{
-						(*(((char*)&tl_zuverwoschtendes)+ilv1))=0xFF;
+						for (ilv1=tl_bytes;ilv1<sizeof(tl_zuverwoschtendes);ilv1++)
+						{
+							(*(((char*)&tl_zuverwoschtendes)+ilv1))=0xFF;
+						}
 					}
-				}
-				if (tl_zuverwoschtendes<0)
-				{
-					tl_zuverwoschtendes=-tl_zuverwoschtendes;
-					text_output('-');
+					if (tl_zuverwoschtendes<0)
+					{
+						tl_zuverwoschtendes=-tl_zuverwoschtendes;
+						text_output('-');
+					}
 				}
 				i_outputbufferpos=0;
 				do
@@ -638,5 +641,135 @@ extern "C" dirent*readdir(DIR*i_DIR)
 extern "C" void closedir(DIR*i_DIR)
 {
 	FindClose((*i_DIR).windowshandle);
+}
+char**W32_argpointer;
+int W32_argpointer_count;
+int main(int argc,char**argv);
+void W32_strshorten(char*o_char)
+{
+	_u32 l_strlen=strlen(o_char);
+	for (_u32 tl_lv1=0;tl_lv1<l_strlen;tl_lv1++)
+	{
+		o_char[tl_lv1]=o_char[tl_lv1+1];
+	}
+}
+extern "C" _u32 W32_constants_sweet_escape=1381322579;
+extern "C" _u32 W32_main()
+{
+	__asm__("\n\
+	pushl	%ebp\n\
+	movl	%esp, %ebp\n\
+	subl	$24, %esp\n\
+	movl	$65535, 4(%esp)\n\
+	movl	$1, (%esp)\n\
+	call	_Z41__static_initialization_and_destruction_0ii\n\
+	leave\n\
+	");
+	char*l_commandline=GetCommandLineA();
+	WriteConsoleA(GetStdHandle(-11),l_commandline,strlen(l_commandline),0,0);
+	_u32 l_length=strlen(l_commandline);
+	_u32 W32_argpointer_count=0;
+	_u32 W32_argpointer_index=0;
+	for (_u32 pass=0;pass<=1;pass++)
+	{
+		_u32 tl_fsm=0;
+		if (pass==1)
+		{
+			W32_argpointer_count=W32_argpointer_index+1;
+			W32_argpointer=(char**)malloc(W32_argpointer_count*4);
+			tl_fsm=2;
+		}
+		W32_argpointer_index=0;
+		for (_u32 tl_lv1=0;tl_lv1<l_length;tl_lv1++)
+		{
+			if (tl_fsm==2)
+			{
+				tl_fsm=0;
+				if (pass==1)
+				{
+					W32_argpointer[W32_argpointer_index]=l_commandline+tl_lv1;
+				}
+			}
+			if (l_commandline[tl_lv1]=='"')
+			{
+				if (tl_fsm!=1)
+				{
+					tl_fsm=1;
+				}
+				else
+				{
+					tl_fsm=0;
+				}
+			}
+			else
+			{
+				if (tl_fsm==1)
+				{
+				}
+				else if (tl_fsm==2)
+				{
+					tl_fsm=0;
+				}
+				else
+				{
+					if (l_commandline[tl_lv1]==' ')
+					{
+						W32_argpointer_index++;
+						tl_fsm=2;
+						if (pass==1)
+						{
+							l_commandline[tl_lv1]=0;
+						}
+					}
+				}
+			}
+		}
+	}
+	for (_u32 tl_lv1=0;tl_lv1<W32_argpointer_count;tl_lv1++)
+	{
+		if (W32_constants_sweet_escape==1413830483)
+		{
+			_u32 tl_fsm=0;
+			_u32 tl_lv2=0;
+			_u32 old_strlen=strlen(W32_argpointer[tl_lv1]);
+			while ((W32_argpointer[tl_lv1][tl_lv2]!=0)&&(tl_lv2<old_strlen))
+			{
+				if (tl_fsm==0)
+				{
+					if (W32_argpointer[tl_lv1][tl_lv2]=='"')
+					{
+						W32_strshorten(W32_argpointer[tl_lv1]+tl_lv2);
+						continue;
+					}
+					else if (W32_argpointer[tl_lv1][tl_lv2]=='/')
+					{
+						W32_strshorten(W32_argpointer[tl_lv1]+tl_lv2);
+						tl_fsm=1;
+						continue;
+					}
+				}
+				else if (tl_fsm==1)
+				{
+					tl_fsm=0;
+				}
+				tl_lv2++;
+			}
+		}
+		else
+		{
+			if (W32_argpointer[tl_lv1][0]=='"')
+			{
+				W32_argpointer[tl_lv1]++;
+			}
+			if (strlen(W32_argpointer[tl_lv1])>0)
+			{
+				if (W32_argpointer[tl_lv1][strlen(W32_argpointer[tl_lv1])-1]=='"')
+				{
+					W32_argpointer[tl_lv1][strlen(W32_argpointer[tl_lv1])-1]=0;
+				}
+			}
+		}
+	}
+	return main(W32_argpointer_count,W32_argpointer);
 }
 #endif

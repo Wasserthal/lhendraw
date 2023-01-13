@@ -186,18 +186,6 @@ structenum * searchreflectedstruct(const char * input)
 }
 int main(int argc,char * * argv)
 {
-	#ifdef FULLCROSS
-	__asm__("\n\
-	pushl	%ebp\n\
-	movl	%esp, %ebp\n\
-	subl	$24, %esp\n\
-	movl	$65535, 4(%esp)\n\
-	movl	$1, (%esp)\n\
-	call	_Z41__static_initialization_and_destruction_0ii\n\
-	leave\n\
-	");
-	argc=1;//TODO DEBUG
-	#endif
 #ifdef DEBUG
 	progname=argv[0];
 	signal(SIGSEGV,&Signal);

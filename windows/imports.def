@@ -155,3 +155,4 @@ IMPORTS strtof = MSVCRT.strtof
 IMPORTS FindFirstFileA = KERNEL32.FindFirstFileA
 IMPORTS FindNextFileA = KERNEL32.FindNextFileA
 IMPORTS FindClose = KERNEL32.FindClose
+IMPORTS GetCommandLineA = KERNEL32.GetCommandLineA

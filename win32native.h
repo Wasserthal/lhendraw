@@ -295,6 +295,7 @@ extern "C" _u32 __attribute__((__stdcall__))FindFirstFileA(const char*,winDIR*);
 extern "C" _u32 __attribute__((__stdcall__))FindNextFileA(_u32,winDIR*);
 extern "C" void __attribute__((__stdcall__))FindClose(_u32);
 extern "C" _u32 setjmp(jmp_buf env);
+extern "C" char*GetCommandLineA();
 #define binary_gfx_buttons_bmp_start _binary_gfx_buttons_bmp_start
 #define binary_hotkeys_xml_start _binary_hotkeys_xml_start
 #define binary_LiberationMono_Regular_bin_start _binary_LiberationMono_Regular_bin_start

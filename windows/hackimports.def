@@ -1,2 +1,2 @@
-IMPORTS strtod = MSVCRT.strtof
-IMPORTS setjmp = MSVCRT._setjmp
+IMPORTS strtof = msvcrt.strtod
+IMPORTS setjmp = msvcrt._setjmp

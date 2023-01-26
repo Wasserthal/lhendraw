@@ -40,3 +40,6 @@ opttools/glyf/g
 opttools/glyf/*.ttf
 opttools/glyf/*.lennardfont
 *.py
+lhendraw_cross_pe32.a
+lhendraw_cross_pe32.o
+tools/pemodder

@@ -215,14 +215,32 @@ _u32 writeLn()
 	printf("\n");
 }
 _u32 getheader_obtainmenttype=0;
+section_*sectionstart;
+_u32 placeholder__pos;
+_u32 placeholder0_pos;
+_u32 placeholder_old_pos;
+_u32 placeholder_new_pos;
+_u32 placeholder_movestart;
 _u32 getheader(char*i_name)
 {
+	//obtainmenttype: 1: entry in header 2: entry in directories 3: entry in sections 4: position in binary file
+	if (i_name[0]=='0') i_name++;
+	if (i_name[0]==0)
+	{
+		getheader_obtainmenttype=4;
+		return 0;
+	}
+	if ((i_name[0]>='1')&&(i_name[0]<='9'))
+	{
+		getheader_obtainmenttype=4;
+		return atoi(i_name);
+	}
 	_u32 l_lv1=0;
 	for (l_lv1=0;l_lv1<sizeof(headertype)/sizeof(headertype_);l_lv1++)
 	{
 		if (strcmp(headertype[l_lv1].name,i_name)==0)
 		{
-			getheader_obtainmenttype = 1;
+			getheader_obtainmenttype=1;
 			return PEpos+(_u32)headertype[l_lv1].pos;
 		}
 	}
@@ -230,16 +248,73 @@ _u32 getheader(char*i_name)
 	{
 		if (strcmp(DIRECTORYNAMES[l_lv1],i_name)==0)
 		{
-			getheader_obtainmenttype = 2;
+			getheader_obtainmenttype=2;
 			return PEpos+sizeof(header_)+(l_lv1*8);
 		}
 	}
 	if (strncmp("SECTION",i_name,7)==0)
 	{
-		getheader_obtainmenttype = 3;
+		getheader_obtainmenttype=3;
 		return PEpos+sizeof(header_)+(16*8)+(40*xtoi(i_name+8))+((i_name[7]-'0')*4);
 	}
-	fprintf(stderr,"Header type not recognized");
+	if (strncmp("SECTname0",i_name,9)==0)
+	{
+		getheader_obtainmenttype=3;
+		for (l_lv1=0;l_lv1<(*header1).NumberOfSections;l_lv1++)
+		{
+			if (strncmp((_u8*)(sectionstart+l_lv1),i_name+10,8)==0)
+			{
+				return PEpos+sizeof(header_)+(16*8)+(40*l_lv1)+((i_name[9]-'0')*4);
+			}
+		}
+		fprintf(stderr,"Section for delta 0 not found!");
+		exit(1);
+	}
+	if (strncmp("SECTname_",i_name,9)==0)
+	{
+		getheader_obtainmenttype=3;
+		for (l_lv1=0;l_lv1<(*header1).NumberOfSections;l_lv1++)
+		{
+			if (strncmp((_u8*)(sectionstart+l_lv1),i_name+10,8)==0)
+			{
+				return PEpos+sizeof(header_)+(16*8)+(40*(l_lv1-1))+((i_name[9]-'0')*4);
+			}
+		}
+		fprintf(stderr,"Section for delta -1 not found!");
+		exit(1);
+	}
+	if (strncmp("x",i_name,1)==0)
+	{
+		getheader_obtainmenttype=4;
+		return xtoi(i_name+1);
+	}
+	if (strcmp("{_}",i_name)==0)
+	{
+		getheader_obtainmenttype=3;
+		return placeholder__pos;
+	}
+	if (strcmp("{0}",i_name)==0)
+	{
+		getheader_obtainmenttype=3;
+		return placeholder0_pos;
+	}
+	if (strcmp("{x0}",i_name)==0)
+	{
+		getheader_obtainmenttype=4;
+		return placeholder_old_pos;
+	}
+	if (strcmp("{x1}",i_name)==0)
+	{
+		getheader_obtainmenttype=4;
+		return placeholder_new_pos;
+	}
+	if (strcmp("{xm}",i_name)==0)
+	{
+		getheader_obtainmenttype=4;
+		return placeholder_movestart;
+	}
+	fprintf(stderr,"Header type %s not recognized",i_name);
+	exit(1);
 }
 _u32 searchsection(_u32 i_size)
 {
@@ -279,31 +354,60 @@ int main(int argc,char**argv)
 	print_var32("PEpos",PEpos);
 	writeLn();
 	header1=(header_*)(original_buffer+PEpos);
+	sectionstart=(section_*)(original_buffer+PEpos+sizeof(header_)+(16*8));
 	if (argc>2)
 	{
 		if (argv[2][0]=='-')
 		{
 			_u8*argvpointer=argv[2]+1;
 			_u32 argvcursor=3;
+			_u32 argv_repeat_tooling_active;
+			_u8*argv_repeat_tooling_argvpointer=NULL;
+			_u32 argv_repeat_tooling_argvcursor=0x7FFFFFFF;
+			_u32 argv_repeat_tooling_section;
+			goto skip_argv_repeat_tooling;
+			argv_repeat_tooling_hook:;
+			while(argv_repeat_tooling_section<(*header1).NumberOfSections)
+			{
+				if (sectionstart[argv_repeat_tooling_section].PRAW==0)
+				{
+					placeholder0_pos=((_u8*)(sectionstart+argv_repeat_tooling_section))-original_buffer;
+					placeholder__pos=((_u8*)(sectionstart+argv_repeat_tooling_section-1))-original_buffer;
+					argvpointer=argv_repeat_tooling_argvpointer;
+					argvcursor=argv_repeat_tooling_argvcursor;
+					goto argv_repeat_tooling_go;
+				}
+				argv_repeat_tooling_section++;
+			}
+			goto argv_repeat_tooling_continue;
+			skip_argv_repeat_tooling:;
 			file_to_analyze=open(argv[1],O_RDWR);
+			argv_repeat_tooling_go:;
 			while ((*argvpointer)!=0)
 			{
 				switch (*argvpointer)
 				{
+					case '0': //activate argv_repeat_tooling
+					{
+						argv_repeat_tooling_active=1;
+						argv_repeat_tooling_argvpointer=argvpointer+1;
+						argv_repeat_tooling_argvcursor=argvcursor;
+						argv_repeat_tooling_section=0;
+						goto argv_repeat_tooling_hook;
+					}
 					case '>':
 					{
 						_u32 tl_lv1;
-						_u8*tl_sectionpos=original_buffer+getheader("SECTION00");
 						for (tl_lv1=0;tl_lv1<(*header1).NumberOfSections;tl_lv1++)
 						{
-							if ((*(section_*)(tl_sectionpos+(40*tl_lv1))).SIZE==0)
+							if (sectionstart[tl_lv1].SIZE==0)
 							{
-								(*(section_*)(tl_sectionpos+(40*tl_lv1))).SIZE=(*(section_*)(tl_sectionpos+(40*tl_lv1))).PHY_ADDR;
-								while ((*(section_*)(tl_sectionpos+(40*tl_lv1))).SIZE%0x200)
+								sectionstart[tl_lv1].SIZE=sectionstart[tl_lv1].PHY_ADDR;
+								while (sectionstart[tl_lv1].SIZE%0x200)
 								{
-									(*(section_*)(tl_sectionpos+(40*tl_lv1))).SIZE+=1;
+									sectionstart[tl_lv1].SIZE+=1;
 								}
-								(*(section_*)(tl_sectionpos+(40*tl_lv1))).PRAW=searchsection((*(section_*)(tl_sectionpos+(40*tl_lv1))).SIZE);
+								sectionstart[tl_lv1].PRAW=searchsection(sectionstart[tl_lv1].SIZE);
 							}
 						}
 						break;
@@ -323,47 +427,99 @@ int main(int argc,char**argv)
 					}
 					case 's':
 					{
-						_u32 tl_value=xtoi(argv[argvcursor+1]);
+						_u32 tl_value=getheader(argv[argvcursor+1]);
 						*((_u32*)(original_buffer+getheader(argv[argvcursor])))=tl_value;
 						if (getheader_obtainmenttype == 2)
 						{
-							_u32 value=xtoi(argv[argvcursor+2]);
+							_u32 value=getheader(argv[argvcursor+2]);
 							*((_u32*)(original_buffer+getheader(argv[argvcursor])+4))=tl_value;
 							argvcursor++;
 						}
 						argvcursor+=2;
 						break;
 					}
-					case 'm':
+					case 'c':
+					{
+						memcpy(original_buffer+getheader(argv[argvcursor]),original_buffer+getheader(argv[argvcursor+1]),getheader(argv[argvcursor+2]));
+						argvcursor+=3;
+						break;
+					}
+					case 'i': //add indirect
+					{
+						_u32 tl_value=*((_u32*)(original_buffer+getheader(argv[argvcursor])));
+						tl_value+=*((_u32*)(original_buffer+getheader(argv[argvcursor+1])));
+						*((_u32*)(original_buffer+getheader(argv[argvcursor])))=tl_value;
+						argvcursor+=2;
+						break;
+					}
+					case 'R': //round up
+					{
+						_u32 tl_value=*((_u32*)(original_buffer+getheader(argv[argvcursor])));
+						tl_value+=getheader(argv[argvcursor+1])-1;
+						tl_value%=getheader(argv[argvcursor+1]);
+						*((_u32*)(original_buffer+getheader(argv[argvcursor])))=tl_value;
+						argvcursor+=2;
+						break;
+					}
+					case 'm': //moves the physical data the section refers to (and everything after) in the file. 
 					{
 						section_*tl_sectionpos=(section_*)(original_buffer+getheader(argv[argvcursor]));
-						_u32 tl_firstpos=(*tl_sectionpos).PRAW;
+						placeholder_movestart=(*tl_sectionpos).PRAW;
+						if (placeholder_movestart==0)goto move_skip;//empty sections will not be moved
 						_u32 tl_SIZE=(*tl_sectionpos).SIZE;
-						_u32 tl_nextpos=xtoi(argv[argvcursor+1]);
+						_u32 tl_nextpos=getheader(argv[argvcursor+1]);
 						(*tl_sectionpos).PRAW=tl_nextpos;
 						if (tl_nextpos+tl_SIZE>original_length)
 						{
 							original_buffer=realloc(original_buffer,tl_nextpos+tl_SIZE);
+							sectionstart=(section_*)(original_buffer+PEpos+sizeof(header_)+(16*8));
+							header1=(header_*)(original_buffer+PEpos);
 							original_length=tl_nextpos+tl_SIZE;
 						}
-						memmove(original_buffer+tl_nextpos,original_buffer+tl_firstpos,tl_SIZE);
-						argvcursor+=3;
+						memmove(original_buffer+tl_nextpos,original_buffer+placeholder_movestart,tl_SIZE);
+						move_skip:;
+						argvcursor+=2;
 						break;
 					}
 					case 'z':
 					{
-						_u32 tl_end=xtoi(argv[argvcursor+1]);
+						_u32 tl_end=getheader(argv[argvcursor+1]);
 						_u32 tl_lv1;
-						for (tl_lv1=xtoi(argv[argvcursor]);tl_lv1<tl_end;tl_lv1++)
+						if (getheader(argv[argvcursor])==0)goto zero_skip;
+						for (tl_lv1=getheader(argv[argvcursor]);tl_lv1<tl_end;tl_lv1++)
 						{
 							original_buffer[tl_lv1]=0;
 						}
+						zero_skip:;
 						argvcursor+=2;
+						break;
+					}
+					case 'F': //fuses a bss section with the prior one
+					{
+						section_*tl_to_keep=(section_*)(original_buffer+getheader(argv[argvcursor]));
+						section_*tl_to_consume=(section_*)(original_buffer+getheader(argv[argvcursor])+40);
+						placeholder_old_pos=(*tl_to_keep).PRAW+(*tl_to_keep).SIZE;
+						(*tl_to_keep).SIZE=(*tl_to_consume).VADDR-(*tl_to_keep).VADDR+(*tl_to_consume).SIZE;
+						if ((*tl_to_consume).VADDR==0)
+						{
+							fprintf(stderr,"Fuse with VADDR 0\n");
+							exit(1);
+						}
+						placeholder_new_pos=(*tl_to_keep).PRAW+(*tl_to_keep).SIZE;
+						(*tl_to_keep).PHY_ADDR=(*tl_to_keep).SIZE;
+						memmove(tl_to_consume,tl_to_consume+1,((_u8*)(sectionstart+((*header1).NumberOfSections)))-((_u8*)tl_to_consume)-40);
+						(*header1).NumberOfSections--;
+						argvcursor+=1;
 						break;
 					}
 				}
 				argvpointer++;
 			}
+			if (argv_repeat_tooling_active)
+			{
+				goto argv_repeat_tooling_hook;
+			}
+			argv_repeat_tooling_continue:;
 			file_to_analyze=open(argv[1],O_RDWR,0660);
 			_u32 backval=write(file_to_analyze,original_buffer,original_length);
 			close(file_to_analyze);

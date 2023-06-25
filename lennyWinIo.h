@@ -606,6 +606,7 @@ extern "C" DIR*opendir(const char*i_name)
 	else
 	{
 		W32_DIR_instance.fsm=3;
+		return NULL;
 	}
 	return &W32_DIR_instance;
 }
@@ -634,7 +635,7 @@ extern "C" dirent*readdir(DIR*i_DIR)
 	}
 	if ((*i_DIR).fsm==0)
 	{
-		WriteConsoleA(GetStdHandle(-11),"Directory not opened",20,0,0);
+		WriteConsoleA(GetStdHandle(-11),"Directory not opened\n",21,0,0);
 		return NULL;
 	}
 }
@@ -666,17 +667,22 @@ extern "C" _u32 W32_main()
 	leave\n\
 	");
 	char*l_commandline=GetCommandLineA();
-	WriteConsoleA(GetStdHandle(-11),l_commandline,strlen(l_commandline),0,0);
 	_u32 l_length=strlen(l_commandline);
+	if (l_commandline[l_length-1]==' ')
+	{
+		l_commandline[l_length-1]=0;
+		l_length--;
+	}
 	_u32 W32_argpointer_count=0;
 	_u32 W32_argpointer_index=0;
+	W32_argpointer=0;
 	for (_u32 pass=0;pass<=1;pass++)
 	{
 		_u32 tl_fsm=0;
 		if (pass==1)
 		{
 			W32_argpointer_count=W32_argpointer_index+1;
-			W32_argpointer=(char**)malloc(W32_argpointer_count*4);
+			W32_argpointer=(char**)malloc(W32_argpointer_count*sizeof(void*));
 			tl_fsm=2;
 		}
 		W32_argpointer_index=0;
@@ -718,6 +724,7 @@ extern "C" _u32 W32_main()
 						tl_fsm=2;
 						if (pass==1)
 						{
+							W32_argpointer[W32_argpointer_index]=l_commandline+tl_lv1;
 							l_commandline[tl_lv1]=0;
 						}
 					}

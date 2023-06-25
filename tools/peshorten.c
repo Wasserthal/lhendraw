@@ -90,6 +90,11 @@ int main(int argc,char**argv)
 			des(lv1);
 			lv1--;
 		}
+		if (lv1>=2)
+		{
+			des(lv1);
+			lv1--;
+		}
 	}
 	for (lv1=0;lv1<nos;lv1++)
 	{

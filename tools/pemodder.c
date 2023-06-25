@@ -456,16 +456,18 @@ int main(int argc,char**argv)
 					{
 						_u32 tl_value=*((_u32*)(original_buffer+getheader(argv[argvcursor])));
 						tl_value+=getheader(argv[argvcursor+1])-1;
-						tl_value%=getheader(argv[argvcursor+1]);
+						tl_value/=getheader(argv[argvcursor+1]);
+						tl_value*=getheader(argv[argvcursor+1]);
 						*((_u32*)(original_buffer+getheader(argv[argvcursor])))=tl_value;
 						argvcursor+=2;
 						break;
 					}
-					case 'm': //moves the physical data the section refers to (and everything after) in the file. 
+					case 'm': //moves the physical data the section refers to (and everything after) in the file. TODO: move the following sections as well
 					{
 						section_*tl_sectionpos=(section_*)(original_buffer+getheader(argv[argvcursor]));
 						placeholder_movestart=(*tl_sectionpos).PRAW;
 						if (placeholder_movestart==0)goto move_skip;//empty sections will not be moved
+						printf("[31mMOVING %08X %08X[0m\n",placeholder_old_pos,placeholder_new_pos);
 						_u32 tl_SIZE=(*tl_sectionpos).SIZE;
 						_u32 tl_nextpos=getheader(argv[argvcursor+1]);
 						(*tl_sectionpos).PRAW=tl_nextpos;
@@ -499,6 +501,10 @@ int main(int argc,char**argv)
 						section_*tl_to_keep=(section_*)(original_buffer+getheader(argv[argvcursor]));
 						section_*tl_to_consume=(section_*)(original_buffer+getheader(argv[argvcursor])+40);
 						placeholder_old_pos=(*tl_to_keep).PRAW+(*tl_to_keep).SIZE;
+						(*tl_to_consume).SIZE=(*tl_to_consume).PHY_ADDR;
+						(*tl_to_consume).SIZE+=((*header1).FileAlignment-1);
+						(*tl_to_consume).SIZE/=(*header1).FileAlignment;
+						(*tl_to_consume).SIZE*=(*header1).FileAlignment;
 						(*tl_to_keep).SIZE=(*tl_to_consume).VADDR-(*tl_to_keep).VADDR+(*tl_to_consume).SIZE;
 						if ((*tl_to_consume).VADDR==0)
 						{

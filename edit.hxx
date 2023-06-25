@@ -4359,7 +4359,7 @@ fprintf(ifile,"%s","</colortable><fonttable>\n"
 "<font id=\"3\" charset=\"iso-10646\" name=\"Arial\"/>\n"
 "</fonttable>");
 	}
-	if (strcmp(value,".cdx")==0)
+	else
 	{
 		fprintf(ifile,"VjCD0100\4\3\2\1");
 		_u16 iu16=0;
@@ -4394,7 +4394,7 @@ fprintf(ifile,"%s","</colortable><fonttable>\n"
 		output_object(ifile,tl_CAMBRIDGE_page_instance);
 		fprintf(ifile,"</CDXML>");
 	}
-	if (strcmp(value,".cdx")==0)
+	else
 	{
 		AUTOSTRUCT_EXISTS_SET_NAME((&i_CAMBRIDGE_CDXML_instance),colortable);
 		AUTOSTRUCT_EXISTS_SET_NAME((&i_CAMBRIDGE_CDXML_instance),fonttable);

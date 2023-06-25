@@ -912,6 +912,8 @@ void sdl_psedraw(int istartx,int istarty)
 	{
 		int borderx=istartx+element[ilv1].PSEX*32;
 		int bordery=istarty+element[ilv1].PSEY*48;
+		if (bordery+48>gfx_screensizey)continue;
+		if (borderx+32>gfx_screensizex)continue;
 		int bordercolor=0;
 		if (ilv1==control_drawproperties.Element)
 		{
@@ -938,6 +940,8 @@ void sdl_psedraw(int istartx,int istarty)
 	{
 		int borderx=istartx+element_wildcards[ilv1].PSEX*32;
 		int bordery=istarty+element_wildcards[ilv1].PSEY*24;
+		if (bordery+24>gfx_screensizey)continue;
+		if (borderx+32>gfx_screensizex)continue;
 		int bordercolor=0;
 		if (ilv1==control_drawproperties.WildcardType)
 		{

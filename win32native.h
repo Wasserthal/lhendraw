@@ -53,6 +53,8 @@ typedef _u32 (CALLBACK *WNDPROC)(HWND,_u32,_u32,_uXX);
 #define WM_MOUSEWHEEL 522
 #define WM_PAINT 15
 #define WM_SIZE 5
+#define WM_CLOSE 16
+#define WM_QUIT 18
 struct BITMAPINFOHEADER
 {
 	_u32 biSize;
@@ -316,7 +318,7 @@ float nanf(_u8*irrelevant)
 }
 int abs(_i32 in)
 {
-	if (((_u32)in)==0xFFFFFFFF) return 0x7FFFFFFF;
+	if (((_u32)in)==0x80000000) return 0x7FFFFFFF;
 	if (in<0) return -in;
 	return in;
 }
@@ -926,6 +928,16 @@ LRESULT CALLBACK W32_WndProc(HWND hWnd,_u32 message,_u32 wParam,_uXX lParam)
 			i_Event.type=SDL_VIDEORESIZE;
 			i_Event.resize.w=lParam&0xFFFF;
 			i_Event.resize.h=(lParam>>16)&0xFFFF;
+			W32_Eventfifo[W32_Eventfifo_in]=i_Event;
+			W32_Eventfifo_in=(W32_Eventfifo_in+1)%W32_Eventfifo_max;
+			break;
+		}
+		case WM_QUIT:
+		//FALLTHROUGH
+		case WM_CLOSE:
+		{
+			SDL_Event i_Event;
+			i_Event.type=SDL_QUIT;
 			W32_Eventfifo[W32_Eventfifo_in]=i_Event;
 			W32_Eventfifo_in=(W32_Eventfifo_in+1)%W32_Eventfifo_max;
 			break;

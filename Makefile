@@ -105,7 +105,7 @@ cross_pe32: ./generated/structure.hxx ./generated/reflection.hxx ./tools/pemodde
 	objcopy lhendraw_cross_pe32.o -R .gnu_debuglink
 	objcopy lhendraw_cross_pe32.o -R .comment
 	#objcopy lhendraw_cross_pe32.o -R '*.bss._*'
-	ld -m i386pe windows/imports.def windows/hackimports.def ob1.o ob2.o ob3.o ob4.o lhendraw_cross_pe32.o -o lhendraw.exe --oformat=pei-i386 --subsystem console -e W32_main --ignore-unresolved-symbol _GLOBAL_OFFSET_TABLE_ --ignore-unresolved-symbol 	__preinit_array_start --ignore-unresolved-symbol 	__preinit_array_end --ignore-unresolved-symbol 	__init_array_start --ignore-unresolved-symbol 	__init_array_end --ignore-unresolved-symbol 	__fini_array_start --ignore-unresolved-symbol 	__fini_array_end --ignore-unresolved-symbol ___tls_get_addr --no-leading-underscore
+	ld -m i386pe windows/imports.def windows/hackimports.def ob1.o ob2.o ob3.o ob4.o lhendraw_cross_pe32.o -o lhendraw.exe --oformat=pei-i386 --subsystem windows -e W32_main --ignore-unresolved-symbol _GLOBAL_OFFSET_TABLE_ --ignore-unresolved-symbol 	__preinit_array_start --ignore-unresolved-symbol 	__preinit_array_end --ignore-unresolved-symbol 	__init_array_start --ignore-unresolved-symbol 	__init_array_end --ignore-unresolved-symbol 	__fini_array_start --ignore-unresolved-symbol 	__fini_array_end --ignore-unresolved-symbol ___tls_get_addr --no-leading-underscore
 	dd conv=notrunc if=/dev/zero bs=1 count=4 of=lhendraw.exe seek=216
 	./tools/pemodder lhendraw.exe -c SECTname05.bss SECTname_5.bss 4
 	./tools/pemodder lhendraw.exe -i SECTname05.bss SECTname_4.bss

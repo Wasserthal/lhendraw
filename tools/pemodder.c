@@ -216,8 +216,8 @@ _u32 writeLn()
 }
 _u32 getheader_obtainmenttype=0;
 section_*sectionstart;
-_u32 placeholder__pos;
 _u32 placeholder0_pos;
+_u32 placeholder1_pos;
 _u32 placeholder_old_pos;
 _u32 placeholder_new_pos;
 _u32 placeholder_movestart;
@@ -270,6 +270,19 @@ _u32 getheader(char*i_name)
 		fprintf(stderr,"Section for delta 0 not found!");
 		exit(1);
 	}
+	if (strncmp("SECTname1",i_name,9)==0)
+	{
+		getheader_obtainmenttype=3;
+		for (l_lv1=0;l_lv1<(*header1).NumberOfSections;l_lv1++)
+		{
+			if (strncmp((_u8*)(sectionstart+l_lv1),i_name+10,8)==0)
+			{
+				return PEpos+sizeof(header_)+(16*8)+(40*(l_lv1+1))+((i_name[9]-'0')*4);
+			}
+		}
+		fprintf(stderr,"Section for delta 0 not found!");
+		exit(1);
+	}
 	if (strncmp("SECTname_",i_name,9)==0)
 	{
 		getheader_obtainmenttype=3;
@@ -291,12 +304,17 @@ _u32 getheader(char*i_name)
 	if (strcmp("{_}",i_name)==0)
 	{
 		getheader_obtainmenttype=3;
-		return placeholder__pos;
+		return (placeholder0_pos*2)-placeholder1_pos;
 	}
 	if (strcmp("{0}",i_name)==0)
 	{
 		getheader_obtainmenttype=3;
 		return placeholder0_pos;
+	}
+	if (strcmp("{1}",i_name)==0)
+	{
+		getheader_obtainmenttype=3;
+		return placeholder1_pos;
 	}
 	if (strcmp("{x0}",i_name)==0)
 	{
@@ -369,10 +387,10 @@ int main(int argc,char**argv)
 			argv_repeat_tooling_hook:;
 			while(argv_repeat_tooling_section<(*header1).NumberOfSections)
 			{
-				if (sectionstart[argv_repeat_tooling_section].PRAW==0)
+				if ((sectionstart[argv_repeat_tooling_section].PRAW==0))
 				{
 					placeholder0_pos=((_u8*)(sectionstart+argv_repeat_tooling_section))-original_buffer;
-					placeholder__pos=((_u8*)(sectionstart+argv_repeat_tooling_section-1))-original_buffer;
+					placeholder1_pos=((_u8*)(sectionstart+argv_repeat_tooling_section+1))-original_buffer;
 					argvpointer=argv_repeat_tooling_argvpointer;
 					argvcursor=argv_repeat_tooling_argvcursor;
 					goto argv_repeat_tooling_go;
@@ -452,6 +470,14 @@ int main(int argc,char**argv)
 						argvcursor+=2;
 						break;
 					}
+					case 'd': //add indirect
+					{
+						_u32 tl_value=*((_u32*)(original_buffer+getheader(argv[argvcursor])));
+						tl_value-=*((_u32*)(original_buffer+getheader(argv[argvcursor+1])));
+						*((_u32*)(original_buffer+getheader(argv[argvcursor])))=tl_value;
+						argvcursor+=2;
+						break;
+					}
 					case 'R': //round up
 					{
 						_u32 tl_value=*((_u32*)(original_buffer+getheader(argv[argvcursor])));
@@ -496,7 +522,7 @@ int main(int argc,char**argv)
 						argvcursor+=2;
 						break;
 					}
-					case 'F': //fuses a bss section with the prior one
+					case 'F': //fuses a section with the prior one
 					{
 						section_*tl_to_keep=(section_*)(original_buffer+getheader(argv[argvcursor]));
 						section_*tl_to_consume=(section_*)(original_buffer+getheader(argv[argvcursor])+40);
@@ -513,6 +539,27 @@ int main(int argc,char**argv)
 						}
 						placeholder_new_pos=(*tl_to_keep).PRAW+(*tl_to_keep).SIZE;
 						(*tl_to_keep).PHY_ADDR=(*tl_to_keep).SIZE;
+						memmove(tl_to_consume,tl_to_consume+1,((_u8*)(sectionstart+((*header1).NumberOfSections)))-((_u8*)tl_to_consume)-40);
+						(*header1).NumberOfSections--;
+						argvcursor+=1;
+						break;
+					}
+					case 'f': //fuses a bss section with the prior one
+					{
+						section_*tl_to_keep=(section_*)(original_buffer+getheader(argv[argvcursor]));
+						section_*tl_to_consume=(section_*)(original_buffer+getheader(argv[argvcursor])+40);
+						placeholder_old_pos=(*tl_to_keep).PRAW+(*tl_to_keep).SIZE;
+						if ((*tl_to_consume).VADDR==(*(tl_to_consume+1)).VADDR)
+						{
+							placeholder_new_pos=placeholder_old_pos;
+							goto done;
+						}
+						(*tl_to_keep).PHY_ADDR+=((*header1).SectionAlignment-1);
+						(*tl_to_keep).PHY_ADDR/=(*header1).SectionAlignment;
+						(*tl_to_keep).PHY_ADDR*=(*header1).SectionAlignment;
+						(*tl_to_keep).PHY_ADDR+=(*tl_to_consume).PHY_ADDR;
+						placeholder_new_pos=(*tl_to_keep).PRAW+(*tl_to_keep).SIZE;
+						done:;
 						memmove(tl_to_consume,tl_to_consume+1,((_u8*)(sectionstart+((*header1).NumberOfSections)))-((_u8*)tl_to_consume)-40);
 						(*header1).NumberOfSections--;
 						argvcursor+=1;

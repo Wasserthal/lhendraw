@@ -97,16 +97,12 @@ cross_pe32: ./generated/structure.hxx ./generated/reflection.hxx ./tools/pemodde
 	ld -m elf_i386 -r -b binary -o ob3.o LiberationMono-Regular.bin --oformat elf32-i386
 	ld -m elf_i386 -r -b binary -o ob4.o LiberationMono-Regular.lennardfont --oformat elf32-i386
 	g++ -v -S -O0 --std=c++0x -Wl,--relocatable  lhendraw.cxx -m32 -o lhendraw.s -mno-red-zone -Wno-invalid-offsetof -D CROFTOIDAL -D BITMODE32 -DFULLCROSS -ffreestanding -fno-pie -fno-exceptions -fno-asynchronous-unwind-tables -fno-use-cxa-atexit -fno-common -mno-tls-direct-seg-refs
-	sed -b -i -e 's/\.section	\.text\.\(_Z[NT1].*\),"axG",@progbits,\([^,]*\),comdat/.globl	\1/' lhendraw.s
-	sed -b -i -e 's/\.section	\.rodata\.\(_Z[NT1].*\),"aG",@progbits,\([^,]*\),comdat/.globl	\1/' lhendraw.s
-	sed -b -i -e 's/^	\.bss\>/	\.data/g' lhendraw.s
 	as -v --32 -o lhendraw.o lhendraw.s
 	/usr/lib/gcc/x86_64-linux-gnu/4.8/collect2 --sysroot=/ --build-id -m elf_i386 --hash-style=gnu --as-needed -static -z relro -o lhendraw_cross_pe32.o /usr/lib/gcc/x86_64-linux-gnu/4.8/../../../i386-linux-gnu/crt1.o /usr/lib/gcc/x86_64-linux-gnu/4.8/../../../i386-linux-gnu/crti.o /usr/lib/gcc/x86_64-linux-gnu/4.8/32/crtbeginT.o -L/usr/lib/gcc/x86_64-linux-gnu/4.8/32 -L/usr/lib/gcc/x86_64-linux-gnu/4.8/../../../i386-linux-gnu -L/usr/lib/gcc/x86_64-linux-gnu/4.8/../../../../lib32 -L/lib/i386-linux-gnu -L/lib/../lib32 -L/usr/lib/i386-linux-gnu -L/usr/lib/../lib32 -L/usr/lib/gcc/x86_64-linux-gnu/4.8 -L/usr/lib/gcc/x86_64-linux-gnu/4.8/../../../i386-linux-gnu -L/usr/lib/gcc/x86_64-linux-gnu/4.8/../../.. -L/lib/i386-linux-gnu -L/usr/lib/i386-linux-gnu --relocatable lhendraw.o -lstdc++ -lm --start-group -lgcc -lgcc_eh --end-group /usr/lib/gcc/x86_64-linux-gnu/4.8/32/crtend.o /usr/lib/gcc/x86_64-linux-gnu/4.8/../../../i386-linux-gnu/crtn.o
 	objcopy lhendraw_cross_pe32.o -R .gnu_debuglink
 	objcopy lhendraw_cross_pe32.o -R .comment
-	#objcopy lhendraw_cross_pe32.o -R '*.bss._*'
 	ld -m i386pe windows/imports.def windows/hackimports.def ob1.o ob2.o ob3.o ob4.o lhendraw_cross_pe32.o -o lhendraw.exe --oformat=pei-i386 --subsystem windows -e W32_main --ignore-unresolved-symbol _GLOBAL_OFFSET_TABLE_ --ignore-unresolved-symbol 	__preinit_array_start --ignore-unresolved-symbol 	__preinit_array_end --ignore-unresolved-symbol 	__init_array_start --ignore-unresolved-symbol 	__init_array_end --ignore-unresolved-symbol 	__fini_array_start --ignore-unresolved-symbol 	__fini_array_end --ignore-unresolved-symbol ___tls_get_addr --no-leading-underscore
 	dd conv=notrunc if=/dev/zero bs=1 count=4 of=lhendraw.exe seek=216
 	./tools/pemodder lhendraw.exe -c SECTname05.bss SECTname_5.bss 4
 	./tools/pemodder lhendraw.exe -i SECTname05.bss SECTname_4.bss
-	./tools/pemodder lhendraw.exe -0Fmz "{_}" "{0}" "{x1}" "{xm}" "{x1}"
+	./tools/pemodder lhendraw.exe -0f "{_}" "{0}" "{x1}" "{xm}" "{x1}"

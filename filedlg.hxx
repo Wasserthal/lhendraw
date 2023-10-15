@@ -306,6 +306,10 @@ void control_filedlg()
 								}
 								default:
 								_u16 ihv1=(getunicode(&control_Event));
+								if (ihv1==0)
+								{
+									break;
+								}
 								for (int ilv1=tl_structenum->number+1;ilv1<tl_structenum->count;ilv1++)
 								{
 									if (((char*)(((char*)tl_structenum->pointer)+tl_structenum->size*ilv1))[0]==ihv1)
@@ -481,6 +485,10 @@ void control_filedlg()
 								default:
 								{
 									_u16 ihv1=(getunicode(&control_Event));
+									if (ihv1==0)
+									{
+										break;
+									}
 									if (control_menutexteditcursor<=strlen(tl_editedstring))
 									{
 										for (int ilv1=strlen(tl_editedstring);ilv1>=control_menutexteditcursor;ilv1--)

@@ -435,6 +435,10 @@ int interpretkey(int listnr=-1)
 		default:;
 		careaboutshift=0;
 		_u16 ihv1=getunicode(&control_Event);
+		if (ihv1==0)
+		{
+			return 0;
+		}
 		if ((ihv1>=1) && (ihv1<=26))
 		{
 			ihv1+=0x60;

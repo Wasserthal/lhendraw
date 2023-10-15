@@ -235,6 +235,23 @@ _u32 getheader(char*i_name)
 		getheader_obtainmenttype=4;
 		return atoi(i_name);
 	}
+	if (i_name[0]=='#')
+	{
+		if (strncmp(i_name+1,"MINHEADER%",10)==0)
+		{
+			_u32 h_r=PEpos+0x18+SizeOfOptionalHeader+(40*(*header1).NumberOfSections);
+			_u32 h_mod=getheader(i_name+11);
+			if (getheader_obtainmenttype!=4)
+			{
+				h_mod=*(_u32*)(original_buffer+h_mod);
+			}
+			h_r+=h_mod-1;
+			h_r/=h_mod;
+			h_r*=h_mod;
+			getheader_obtainmenttype=4;
+			return h_r;
+		}
+	}
 	_u32 l_lv1=0;
 	for (l_lv1=0;l_lv1<sizeof(headertype)/sizeof(headertype_);l_lv1++)
 	{
@@ -301,35 +318,35 @@ _u32 getheader(char*i_name)
 		getheader_obtainmenttype=4;
 		return xtoi(i_name+1);
 	}
-	if (strcmp("{_}",i_name)==0)
+	if (strncmp("{_}",i_name,3)==0)
 	{
 		getheader_obtainmenttype=3;
-		return (placeholder0_pos*2)-placeholder1_pos;
+		return (placeholder0_pos*2)-placeholder1_pos+(xtoi(i_name+3)*4);
 	}
-	if (strcmp("{0}",i_name)==0)
+	if (strncmp("{0}",i_name,3)==0)
 	{
 		getheader_obtainmenttype=3;
-		return placeholder0_pos;
+		return placeholder0_pos+(xtoi(i_name+3)*4);
 	}
-	if (strcmp("{1}",i_name)==0)
+	if (strncmp("{1}",i_name,3)==0)
 	{
 		getheader_obtainmenttype=3;
-		return placeholder1_pos;
+		return placeholder1_pos+(xtoi(i_name+3)*4);
 	}
-	if (strcmp("{x0}",i_name)==0)
+	if (strncmp("{x0}",i_name,4)==0)
 	{
 		getheader_obtainmenttype=4;
-		return placeholder_old_pos;
+		return placeholder_old_pos+(xtoi(i_name+4)*4);
 	}
-	if (strcmp("{x1}",i_name)==0)
+	if (strncmp("{x1}",i_name,4)==0)
 	{
 		getheader_obtainmenttype=4;
-		return placeholder_new_pos;
+		return placeholder_new_pos+(xtoi(i_name+4)*4);
 	}
-	if (strcmp("{xm}",i_name)==0)
+	if (strncmp("{xm}",i_name,4)==0)
 	{
 		getheader_obtainmenttype=4;
-		return placeholder_movestart;
+		return placeholder_movestart+(xtoi(i_name+4)*4);
 	}
 	fprintf(stderr,"Header type %s not recognized",i_name);
 	exit(1);
@@ -360,6 +377,10 @@ _u32 searchsection(_u32 i_size)
 	}
 	return 0;
 }
+void clear_section_trail()
+{
+	memset(sectionstart+(*header1).NumberOfSections,0,40);
+}
 int main(int argc,char**argv)
 {
 	file_to_analyze=open(argv[1],O_RDONLY);
@@ -383,16 +404,18 @@ int main(int argc,char**argv)
 			_u8*argv_repeat_tooling_argvpointer=NULL;
 			_u32 argv_repeat_tooling_argvcursor=0x7FFFFFFF;
 			_u32 argv_repeat_tooling_section=0;
+			_u32 argv_repeat_tooling_sectioncount=0;
 			goto skip_argv_repeat_tooling;
 			argv_repeat_tooling_hook:;
+			argv_repeat_tooling_sectioncount=(*header1).NumberOfSections;
 			while(argv_repeat_tooling_section<(*header1).NumberOfSections)
 			{
-				if ((sectionstart[argv_repeat_tooling_section].PRAW==0))
+				if ((strncmp(sectionstart[argv_repeat_tooling_section].name,argv[argv_repeat_tooling_argvcursor],strlen(argv[argv_repeat_tooling_argvcursor]))==0)&&(strncmp(sectionstart[argv_repeat_tooling_section+1].name,argv[argv_repeat_tooling_argvcursor],strlen(argv[argv_repeat_tooling_argvcursor]))==0))
 				{
 					placeholder0_pos=((_u8*)(sectionstart+argv_repeat_tooling_section))-original_buffer;
 					placeholder1_pos=((_u8*)(sectionstart+argv_repeat_tooling_section+1))-original_buffer;
 					argvpointer=argv_repeat_tooling_argvpointer;
-					argvcursor=argv_repeat_tooling_argvcursor;
+					argvcursor=argv_repeat_tooling_argvcursor+1;
 					goto argv_repeat_tooling_go;
 				}
 				argv_repeat_tooling_section++;
@@ -411,9 +434,10 @@ int main(int argc,char**argv)
 						argv_repeat_tooling_argvpointer=argvpointer+1;
 						argv_repeat_tooling_argvcursor=argvcursor;
 						argv_repeat_tooling_section=0;
+						argv_repeat_tooling_sectioncount=(*header1).NumberOfSections;
 						goto argv_repeat_tooling_hook;
 					}
-					case '>':
+					case '>': //WTF? search for a free zeroed are with the desired size, but returning no error on failure.
 					{
 						_u32 tl_lv1;
 						for (tl_lv1=0;tl_lv1<(*header1).NumberOfSections;tl_lv1++)
@@ -470,7 +494,7 @@ int main(int argc,char**argv)
 						argvcursor+=2;
 						break;
 					}
-					case 'd': //add indirect
+					case 'd': //sub indirect
 					{
 						_u32 tl_value=*((_u32*)(original_buffer+getheader(argv[argvcursor])));
 						tl_value-=*((_u32*)(original_buffer+getheader(argv[argvcursor+1])));
@@ -488,12 +512,29 @@ int main(int argc,char**argv)
 						argvcursor+=2;
 						break;
 					}
+					case 'D': //dump memory area to file
+					{
+						_u32 tl_start=getheader(argv[argvcursor]);
+						if (getheader_obtainmenttype==3)
+						{
+							tl_start=*((_u32*)(original_buffer+tl_start));
+						}
+						_u32 tl_end=getheader(argv[argvcursor+1]);
+						if (getheader_obtainmenttype==3)
+						{
+							tl_end=*((_u32*)(original_buffer+tl_end));
+						}
+						_u32 tl_dumpfile=open("/tmp/pemodder.dump",O_RDWR|O_CREAT,0664);
+						write(tl_dumpfile,original_buffer+tl_start,tl_end-tl_start);
+						close(tl_dumpfile);
+						argvcursor+=2;
+						break;
+					}
 					case 'm': //moves the physical data the section refers to (and everything after) in the file. TODO: move the following sections as well
 					{
 						section_*tl_sectionpos=(section_*)(original_buffer+getheader(argv[argvcursor]));
 						placeholder_movestart=(*tl_sectionpos).PRAW;
 						if (placeholder_movestart==0)goto move_skip;//empty sections will not be moved
-						printf("[31mMOVING %08X %08X[0m\n",placeholder_old_pos,placeholder_new_pos);
 						_u32 tl_SIZE=(*tl_sectionpos).SIZE;
 						_u32 tl_nextpos=getheader(argv[argvcursor+1]);
 						(*tl_sectionpos).PRAW=tl_nextpos;
@@ -506,6 +547,34 @@ int main(int argc,char**argv)
 						}
 						memmove(original_buffer+tl_nextpos,original_buffer+placeholder_movestart,tl_SIZE);
 						move_skip:;
+						argvcursor+=2;
+						break;
+					}
+					case 'M': //moves the file contents starting from a certain position so that they start from the new position
+					{
+						_u32 l_lv1;
+						_u32 tl_sourcepos=getheader(argv[argvcursor]);
+						_u32 tl_targetpos=getheader(argv[argvcursor+1]);
+						_u32 l_old_original_length=original_length;
+						original_length+=tl_targetpos-tl_sourcepos;
+						if (tl_targetpos>tl_sourcepos)
+						{
+							original_buffer=realloc(original_buffer,original_length);
+							sectionstart=(section_*)(original_buffer+PEpos+sizeof(header_)+(16*8));
+							header1=(header_*)(original_buffer+PEpos);
+						}
+						for (l_lv1=0;l_lv1<(*header1).NumberOfSections;l_lv1++)
+						{
+							section_*tl_sectionpos=(section_*)(original_buffer+PEpos+sizeof(header_)+(16*8)+(40*l_lv1));
+							_u32 tl_sectionstart=(*tl_sectionpos).PRAW;
+							if (tl_sectionstart==0)goto contentmove_skip_section;//empty sections will not be moved
+							if (tl_sectionstart>=tl_sourcepos)
+							{
+								(*tl_sectionpos).PRAW+=tl_targetpos-tl_sourcepos;
+							}
+							contentmove_skip_section:;
+						}
+						memmove(original_buffer+tl_targetpos,original_buffer+tl_sourcepos,l_old_original_length-tl_sourcepos);
 						argvcursor+=2;
 						break;
 					}
@@ -522,29 +591,26 @@ int main(int argc,char**argv)
 						argvcursor+=2;
 						break;
 					}
-					case 'F': //fuses a section with the prior one
+					case 'F': //fuses a section with the next one
 					{
 						section_*tl_to_keep=(section_*)(original_buffer+getheader(argv[argvcursor]));
 						section_*tl_to_consume=(section_*)(original_buffer+getheader(argv[argvcursor])+40);
-						placeholder_old_pos=(*tl_to_keep).PRAW+(*tl_to_keep).SIZE;
-						(*tl_to_consume).SIZE=(*tl_to_consume).PHY_ADDR;
-						(*tl_to_consume).SIZE+=((*header1).FileAlignment-1);
-						(*tl_to_consume).SIZE/=(*header1).FileAlignment;
-						(*tl_to_consume).SIZE*=(*header1).FileAlignment;
+						placeholder_old_pos=(*tl_to_consume).PRAW;
 						(*tl_to_keep).SIZE=(*tl_to_consume).VADDR-(*tl_to_keep).VADDR+(*tl_to_consume).SIZE;
+						(*tl_to_keep).PHY_ADDR=(*tl_to_consume).VADDR-(*tl_to_keep).VADDR+(*tl_to_consume).PHY_ADDR;
 						if ((*tl_to_consume).VADDR==0)
 						{
 							fprintf(stderr,"Fuse with VADDR 0\n");
 							exit(1);
 						}
-						placeholder_new_pos=(*tl_to_keep).PRAW+(*tl_to_keep).SIZE;
-						(*tl_to_keep).PHY_ADDR=(*tl_to_keep).SIZE;
+						placeholder_new_pos=(*tl_to_keep).PRAW+(*tl_to_consume).VADDR-(*tl_to_keep).VADDR;
 						memmove(tl_to_consume,tl_to_consume+1,((_u8*)(sectionstart+((*header1).NumberOfSections)))-((_u8*)tl_to_consume)-40);
 						(*header1).NumberOfSections--;
+						clear_section_trail();
 						argvcursor+=1;
 						break;
 					}
-					case 'f': //fuses a bss section with the prior one
+					case 'f': //fuses a bss section with the next one
 					{
 						section_*tl_to_keep=(section_*)(original_buffer+getheader(argv[argvcursor]));
 						section_*tl_to_consume=(section_*)(original_buffer+getheader(argv[argvcursor])+40);
@@ -562,14 +628,82 @@ int main(int argc,char**argv)
 						done:;
 						memmove(tl_to_consume,tl_to_consume+1,((_u8*)(sectionstart+((*header1).NumberOfSections)))-((_u8*)tl_to_consume)-40);
 						(*header1).NumberOfSections--;
+						clear_section_trail();
 						argvcursor+=1;
 						break;
+					}
+					case '?': //Remove blind sections
+					{
+						_u32 l_lv1=0;
+						while (l_lv1<(*header1).NumberOfSections-1)
+						{
+							section_*tl_sectionpos=(section_*)(original_buffer+PEpos+sizeof(header_)+(16*8)+(40*l_lv1));
+							_u32 tl_sectionplacement=(*tl_sectionpos).VADDR;
+							_u32 tl_sectionplacement2=(*(tl_sectionpos+1)).VADDR;
+							if (tl_sectionplacement==tl_sectionplacement2)
+							{
+								memmove(original_buffer+PEpos+sizeof(header_)+(16*8)+(40*l_lv1),original_buffer+PEpos+sizeof(header_)+(16*8)+(40*(l_lv1+1)),((*header1).NumberOfSections-(l_lv1+1))*40);
+								(*header1).NumberOfSections--;
+								clear_section_trail();
+							}
+							else
+							{
+								l_lv1++;
+							}
+						}
+						break;
+					}
+					case 'H': //Shrink header to size
+					{
+						_u32 l_lv1=0;
+						_u32 tl_sourcepos=(*header1).SizeOfHeaders;
+						_u32 tl_targetpos=getheader(argv[argvcursor]);
+						_u32 tl_start_after_sections=(PEpos+sizeof(header_)+(16*8)+(40*(*header1).NumberOfSections));
+						if (tl_targetpos<(PEpos+sizeof(header_)+(16*8)+(40*(*header1).NumberOfSections)))
+						{
+							fprintf(stderr,"There would not bee enough space for the section declarations\n");
+							exit(1);
+						}
+						if ((*header1).SizeOfHeaders!=sectionstart[0].PRAW)
+						{
+							fprintf(stderr,"Header does not end where first section starts!\n");
+							exit(1);
+						}
+						for (l_lv1=0;l_lv1<(*header1).NumberOfSections;l_lv1++)
+						{
+							section_*tl_sectionpos=(section_*)(original_buffer+PEpos+sizeof(header_)+(16*8)+(40*l_lv1));
+							(*tl_sectionpos).PRAW+=tl_targetpos-tl_sourcepos;
+						}
+						memmove(original_buffer+tl_targetpos,original_buffer+tl_sourcepos,original_length-tl_sourcepos);
+						(*header1).SizeOfHeaders+=tl_targetpos-tl_sourcepos;
+						argvcursor+=1;
+						break;
+					}
+					case 'C': //DEBUG! shrinks a section by FileAlignment;
+					{
+						section_*tl_to_keep=(section_*)(original_buffer+getheader(argv[argvcursor]));
+						placeholder_old_pos=(*tl_to_keep).PRAW+(*tl_to_keep).SIZE;
+						(*tl_to_keep).SIZE+=((*header1).FileAlignment-1);
+						(*tl_to_keep).SIZE/=(*header1).FileAlignment;
+						(*tl_to_keep).SIZE*=(*header1).FileAlignment;
+						(*tl_to_keep).SIZE-=(*header1).FileAlignment;
+						placeholder_new_pos=(*tl_to_keep).PRAW+(*tl_to_keep).SIZE;
+						argvcursor+=1;
+						break;
+					}
+					case 'Q': //exit without saving
+					{
+						exit(0);
 					}
 				}
 				argvpointer++;
 			}
 			if (argv_repeat_tooling_active)
 			{
+				if ((*header1).NumberOfSections==argv_repeat_tooling_sectioncount)//Do not try the same section again when it was not deleted
+				{
+					argv_repeat_tooling_section++;
+				}
 				goto argv_repeat_tooling_hook;
 			}
 			argv_repeat_tooling_continue:;

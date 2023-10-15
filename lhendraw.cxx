@@ -9,11 +9,11 @@ L      H   H E     N   NN D  D  R  R A     A   W W   W W
 LLLLLL H   H EEEEE N    N DDD   R  R A     A    W     W
 
 */
+#define _XOPEN_SOURCE 700
 #include <new>
 #ifdef DEBUG
 #include <signal.h>
 #endif
-#define _XOPEN_SOURCE 700
 #include <stddef.h>
 #ifndef CROFTOIDAL
 #include <stdlib.h>

@@ -91,6 +91,7 @@ insert32:
 	./tools/binary LiberationMono-Regular.lennardfont ./generated/bininclude4.txt
 ./tools/pemodder: ./tools/pemodder.c
 	gcc -g -O0 -m32 ./tools/pemodder.c -o ./tools/pemodder
+WINDOWS_SECTION_ALIGNMENT:=0x1000
 cross_pe32: ./generated/structure.hxx ./generated/reflection.hxx ./tools/pemodder
 	ld -m elf_i386 -r -b binary -o ob1.o gfx/buttons.bmp --oformat elf32-i386
 	ld -m elf_i386 -r -b binary -o ob2.o hotkeys.xml --oformat elf32-i386
@@ -101,8 +102,9 @@ cross_pe32: ./generated/structure.hxx ./generated/reflection.hxx ./tools/pemodde
 	/usr/lib/gcc/x86_64-linux-gnu/4.8/collect2 --sysroot=/ --build-id -m elf_i386 --hash-style=gnu --as-needed -static -z relro -o lhendraw_cross_pe32.o /usr/lib/gcc/x86_64-linux-gnu/4.8/../../../i386-linux-gnu/crt1.o /usr/lib/gcc/x86_64-linux-gnu/4.8/../../../i386-linux-gnu/crti.o /usr/lib/gcc/x86_64-linux-gnu/4.8/32/crtbeginT.o -L/usr/lib/gcc/x86_64-linux-gnu/4.8/32 -L/usr/lib/gcc/x86_64-linux-gnu/4.8/../../../i386-linux-gnu -L/usr/lib/gcc/x86_64-linux-gnu/4.8/../../../../lib32 -L/lib/i386-linux-gnu -L/lib/../lib32 -L/usr/lib/i386-linux-gnu -L/usr/lib/../lib32 -L/usr/lib/gcc/x86_64-linux-gnu/4.8 -L/usr/lib/gcc/x86_64-linux-gnu/4.8/../../../i386-linux-gnu -L/usr/lib/gcc/x86_64-linux-gnu/4.8/../../.. -L/lib/i386-linux-gnu -L/usr/lib/i386-linux-gnu --relocatable lhendraw.o -lstdc++ -lm --start-group -lgcc -lgcc_eh --end-group /usr/lib/gcc/x86_64-linux-gnu/4.8/32/crtend.o /usr/lib/gcc/x86_64-linux-gnu/4.8/../../../i386-linux-gnu/crtn.o
 	objcopy lhendraw_cross_pe32.o -R .gnu_debuglink
 	objcopy lhendraw_cross_pe32.o -R .comment
-	ld -m i386pe windows/imports.def windows/hackimports.def ob1.o ob2.o ob3.o ob4.o lhendraw_cross_pe32.o -o lhendraw.exe --oformat=pei-i386 --subsystem windows -e W32_main --ignore-unresolved-symbol _GLOBAL_OFFSET_TABLE_ --ignore-unresolved-symbol 	__preinit_array_start --ignore-unresolved-symbol 	__preinit_array_end --ignore-unresolved-symbol 	__init_array_start --ignore-unresolved-symbol 	__init_array_end --ignore-unresolved-symbol 	__fini_array_start --ignore-unresolved-symbol 	__fini_array_end --ignore-unresolved-symbol ___tls_get_addr --no-leading-underscore --section-alignment=0x1000
-	dd conv=notrunc if=/dev/zero bs=1 count=4 of=lhendraw.exe seek=216
+	ld -m i386pe windows/imports.def windows/hackimports.def ob1.o ob2.o ob3.o ob4.o lhendraw_cross_pe32.o -o lhendraw.exe --oformat=pei-i386 --subsystem windows -e W32_main --ignore-unresolved-symbol _GLOBAL_OFFSET_TABLE_ --ignore-unresolved-symbol  __preinit_array_start --ignore-unresolved-symbol  __preinit_array_end --ignore-unresolved-symbol  __init_array_start --ignore-unresolved-symbol  __init_array_end --ignore-unresolved-symbol  __fini_array_start --ignore-unresolved-symbol  __fini_array_end --ignore-unresolved-symbol ___tls_get_addr --no-leading-underscore --section-alignment=$(WINDOWS_SECTION_ALIGNMENT)
+	./tools/pemodder lhendraw.exe -s CheckSum 0
+	./tools/pemodder lhendraw.exe -s SectionAlignment 0x1000
 	./tools/pemodder lhendraw.exe -?
 	./tools/pemodder lhendraw.exe -0FM .rodata "{0}" "{x0}" "{x1}"
 	./tools/pemodder lhendraw.exe -0f .bss "{0}"
@@ -111,3 +113,23 @@ cross_pe32: ./generated/structure.hxx ./generated/reflection.hxx ./tools/pemodde
 	./tools/pemodder lhendraw.exe -0c .bss "{1}5" SECTname05.idata 4
 	./tools/pemodder lhendraw.exe -c SECTname05.bss SECTname05.idata 4
 	./tools/pemodder lhendraw.exe -H '#MINHEADER%FileAlignment'
+cross_pe32_small: WINDOWS_SECTION_ALIGNMENT:=0x200
+cross_pe32_small: cross_pe32
+	./tools/pemodder lhendraw.exe -^ SECTION00
+	./tools/pemodder lhendraw.exe -F SECTION00 SECTION01
+	./tools/pemodder lhendraw.exe -F SECTION00 SECTION01
+	./tools/pemodder lhendraw.exe -F SECTION00 SECTION01
+	./tools/pemodder lhendraw.exe -F SECTION00 SECTION01
+	./tools/pemodder lhendraw.exe -F SECTION00 SECTION01
+	./tools/pemodder lhendraw.exe -F SECTION00 SECTION01
+	./tools/pemodder lhendraw.exe -F SECTION00 SECTION01
+	./tools/pemodder lhendraw.exe -F SECTION00 SECTION01
+	./tools/pemodder lhendraw.exe -F SECTION00 SECTION01
+	./tools/pemodder lhendraw.exe -^ SECTION01
+	./tools/pemodder lhendraw.exe -s SECTION90 xC0700060
+	./tools/pemodder lhendraw.exe -r BaseOfData SectionAlignment
+	./tools/pemodder lhendraw.exe -r BaseOfCode SectionAlignment
+	./tools/pemodder lhendraw.exe -R SizeOfInitializedData SectionAlignment
+	./tools/pemodder lhendraw.exe -R SizeOfUninitializedData SectionAlignment
+	./tools/pemodder lhendraw.exe -R SizeOfImage SectionAlignment
+	./tools/pemodder lhendraw.exe -x

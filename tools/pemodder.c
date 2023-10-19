@@ -100,6 +100,7 @@ header_*header1,header2;
 _u32 file_to_analyze;
 _u32 PEpos=0;
 _u32 original_length=0;
+_u32 g_truncating_is_on=0;
 _u8*original_buffer=NULL;
 headertype_ headertype[]={
 {"Signature",&((*((header_*)0)).Signature),2},
@@ -251,6 +252,11 @@ _u32 getheader(char*i_name)
 			getheader_obtainmenttype=4;
 			return h_r;
 		}
+		if (strncmp(i_name+1,"FILESIZE",8)==0)
+		{
+			getheader_obtainmenttype=4;
+			return original_length;
+		}
 	}
 	_u32 l_lv1=0;
 	for (l_lv1=0;l_lv1<sizeof(headertype)/sizeof(headertype_);l_lv1++)
@@ -381,6 +387,30 @@ void clear_section_trail()
 {
 	memset(sectionstart+(*header1).NumberOfSections,0,40);
 }
+void move(i_sourcepos,i_targetpos)
+{
+	_u32 l_lv1;
+	_u32 l_old_original_length=original_length;
+	original_length+=i_targetpos-i_sourcepos;
+	if (i_targetpos>i_sourcepos)
+	{
+		original_buffer=realloc(original_buffer,original_length);
+		sectionstart=(section_*)(original_buffer+PEpos+sizeof(header_)+(16*8));
+		header1=(header_*)(original_buffer+PEpos);
+	}
+	for (l_lv1=0;l_lv1<(*header1).NumberOfSections;l_lv1++)
+	{
+		section_*tl_sectionpos=(section_*)(original_buffer+PEpos+sizeof(header_)+(16*8)+(40*l_lv1));
+		_u32 tl_sectionstart=(*tl_sectionpos).PRAW;
+		if (tl_sectionstart==0)goto contentmove_skip_section;//empty sections will not be moved
+		if (tl_sectionstart>=i_sourcepos)
+		{
+			(*tl_sectionpos).PRAW+=i_targetpos-i_sourcepos;
+		}
+		contentmove_skip_section:;
+	}
+	memmove(original_buffer+i_targetpos,original_buffer+i_sourcepos,l_old_original_length-i_sourcepos);
+}
 int main(int argc,char**argv)
 {
 	file_to_analyze=open(argv[1],O_RDONLY);
@@ -426,6 +456,7 @@ int main(int argc,char**argv)
 			argv_repeat_tooling_go:;
 			while ((*argvpointer)!=0)
 			{
+				_u32 tl_direction=0;
 				switch (*argvpointer)
 				{
 					case '0': //activate argv_repeat_tooling
@@ -502,12 +533,40 @@ int main(int argc,char**argv)
 						argvcursor+=2;
 						break;
 					}
+					case '|': //yes indeed, BITWISE OR implemented as the pipe symbol. Note you must escape it in order not to mess something up.
+					{
+						_u32 tl_value=*((_u32*)(original_buffer+getheader(argv[argvcursor])));
+						tl_value|=*((_u32*)(original_buffer+getheader(argv[argvcursor+1])));
+						*((_u32*)(original_buffer+getheader(argv[argvcursor])))=tl_value;
+						argvcursor+=2;
+						break;
+					}
+					case '&': //yes indeed, BITWISE AND implemented as the ampersand symbol. Note you must escape it in order not to mess something up.
+					{
+						_u32 tl_value=*((_u32*)(original_buffer+getheader(argv[argvcursor])));
+						tl_value&=*((_u32*)(original_buffer+getheader(argv[argvcursor+1])));
+						*((_u32*)(original_buffer+getheader(argv[argvcursor])))=tl_value;
+						argvcursor+=2;
+						break;
+					}
+					case 'r': //round down
+					{
+						tl_direction=1;
+					}
 					case 'R': //round up
 					{
 						_u32 tl_value=*((_u32*)(original_buffer+getheader(argv[argvcursor])));
-						tl_value+=getheader(argv[argvcursor+1])-1;
-						tl_value/=getheader(argv[argvcursor+1]);
-						tl_value*=getheader(argv[argvcursor+1]);
+						_u32 tl_divisor=getheader(argv[argvcursor+1]);
+						if(getheader_obtainmenttype!=4)
+						{
+							tl_divisor=*((_u32*)(original_buffer+tl_divisor));
+						}
+						if(tl_direction==0)
+						{
+							tl_value+=tl_divisor-1;
+						}
+						tl_value/=tl_divisor;
+						tl_value*=tl_divisor;
 						*((_u32*)(original_buffer+getheader(argv[argvcursor])))=tl_value;
 						argvcursor+=2;
 						break;
@@ -555,26 +614,7 @@ int main(int argc,char**argv)
 						_u32 l_lv1;
 						_u32 tl_sourcepos=getheader(argv[argvcursor]);
 						_u32 tl_targetpos=getheader(argv[argvcursor+1]);
-						_u32 l_old_original_length=original_length;
-						original_length+=tl_targetpos-tl_sourcepos;
-						if (tl_targetpos>tl_sourcepos)
-						{
-							original_buffer=realloc(original_buffer,original_length);
-							sectionstart=(section_*)(original_buffer+PEpos+sizeof(header_)+(16*8));
-							header1=(header_*)(original_buffer+PEpos);
-						}
-						for (l_lv1=0;l_lv1<(*header1).NumberOfSections;l_lv1++)
-						{
-							section_*tl_sectionpos=(section_*)(original_buffer+PEpos+sizeof(header_)+(16*8)+(40*l_lv1));
-							_u32 tl_sectionstart=(*tl_sectionpos).PRAW;
-							if (tl_sectionstart==0)goto contentmove_skip_section;//empty sections will not be moved
-							if (tl_sectionstart>=tl_sourcepos)
-							{
-								(*tl_sectionpos).PRAW+=tl_targetpos-tl_sourcepos;
-							}
-							contentmove_skip_section:;
-						}
-						memmove(original_buffer+tl_targetpos,original_buffer+tl_sourcepos,l_old_original_length-tl_sourcepos);
+						move(tl_sourcepos,tl_targetpos);
 						argvcursor+=2;
 						break;
 					}
@@ -679,6 +719,52 @@ int main(int argc,char**argv)
 						argvcursor+=1;
 						break;
 					}
+					case '^': //grows the top of a section until it reaches SectionAlignment
+					{
+						section_*tl_to_grow=(section_*)(original_buffer+getheader(argv[argvcursor]));
+						_u32 tl_section_nr=tl_to_grow-(section_*)(original_buffer+PEpos+sizeof(header_)+(16*8));
+						_u32 tl_cutoff=(*tl_to_grow).VADDR&(-((*header1).SectionAlignment));
+						if (tl_section_nr==0)
+						{
+							_u32 h_mincutoff=(PEpos+sizeof(header_)+(16*8)+(40*(*header1).NumberOfSections))+((*header1).SectionAlignment-1);
+							h_mincutoff/=(*header1).SectionAlignment;
+							h_mincutoff*=(*header1).SectionAlignment;
+							if (h_mincutoff>tl_cutoff)
+							{
+								fprintf(stderr,"No room to bring head section to alignment!\n");
+								exit(1);
+							}
+							if (h_mincutoff<tl_cutoff)
+							{
+								tl_cutoff=h_mincutoff;
+							}
+						}
+						_u32 h_size=(*tl_to_grow).VADDR-tl_cutoff;
+						_u32 tl_newpos=(*tl_to_grow).PRAW+h_size;
+						move((*tl_to_grow).PRAW,tl_newpos);
+						tl_to_grow=(section_*)(original_buffer+getheader(argv[argvcursor]));//remember, file contents were reallocated
+						(*tl_to_grow).PRAW-=h_size;
+						(*tl_to_grow).SIZE+=h_size;
+						(*tl_to_grow).VADDR-=h_size;
+						(*tl_to_grow).PHY_ADDR+=h_size;
+						if (tl_section_nr!=0)
+						{
+							section_*h_to_fit=(section_*)(original_buffer+PEpos+sizeof(header_)+(16*8)+(40*(tl_section_nr-1)));
+							if (((*h_to_fit).PHY_ADDR+(*h_to_fit).VADDR)>(*tl_to_grow).VADDR)
+							{
+								(*h_to_fit).PHY_ADDR=(*tl_to_grow).VADDR-(*h_to_fit).VADDR;
+							}
+							if ((*h_to_fit).PRAW!=0)
+							{
+								if (((*h_to_fit).SIZE+(*h_to_fit).PRAW)>(*tl_to_grow).PRAW)
+								{
+									(*h_to_fit).SIZE=(*tl_to_grow).PRAW-(*h_to_fit).PRAW;
+								}
+							}
+						}
+						argvcursor+=1;
+						break;
+					}
 					case 'C': //DEBUG! shrinks a section by FileAlignment;
 					{
 						section_*tl_to_keep=(section_*)(original_buffer+getheader(argv[argvcursor]));
@@ -689,6 +775,16 @@ int main(int argc,char**argv)
 						(*tl_to_keep).SIZE-=(*header1).FileAlignment;
 						placeholder_new_pos=(*tl_to_keep).PRAW+(*tl_to_keep).SIZE;
 						argvcursor+=1;
+						break;
+					}
+					case 'x':
+					{
+						_u32 h_filesize=sectionstart[(*header1).NumberOfSections-1].PRAW+sectionstart[(*header1).NumberOfSections-1].SIZE;
+						g_truncating_is_on=1;
+						if (original_length>h_filesize)
+						{
+							original_length=h_filesize;
+						}
 						break;
 					}
 					case 'Q': //exit without saving
@@ -707,7 +803,7 @@ int main(int argc,char**argv)
 				goto argv_repeat_tooling_hook;
 			}
 			argv_repeat_tooling_continue:;
-			file_to_analyze=open(argv[1],O_RDWR,0660);
+			file_to_analyze=open(argv[1],O_RDWR|(g_truncating_is_on?O_TRUNC:0),0660);
 			_u32 backval=write(file_to_analyze,original_buffer,original_length);
 			close(file_to_analyze);
 			return 0;

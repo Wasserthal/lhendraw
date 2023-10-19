@@ -116,15 +116,7 @@ cross_pe32: ./generated/structure.hxx ./generated/reflection.hxx ./tools/pemodde
 cross_pe32_small: WINDOWS_SECTION_ALIGNMENT:=0x200
 cross_pe32_small: cross_pe32
 	./tools/pemodder lhendraw.exe -^ SECTION00
-	./tools/pemodder lhendraw.exe -F SECTION00 SECTION01
-	./tools/pemodder lhendraw.exe -F SECTION00 SECTION01
-	./tools/pemodder lhendraw.exe -F SECTION00 SECTION01
-	./tools/pemodder lhendraw.exe -F SECTION00 SECTION01
-	./tools/pemodder lhendraw.exe -F SECTION00 SECTION01
-	./tools/pemodder lhendraw.exe -F SECTION00 SECTION01
-	./tools/pemodder lhendraw.exe -F SECTION00 SECTION01
-	./tools/pemodder lhendraw.exe -F SECTION00 SECTION01
-	./tools/pemodder lhendraw.exe -F SECTION00 SECTION01
+	./tools/pemodder lhendraw.exe -'/F' .idata SECTION00 SECTION01
 	./tools/pemodder lhendraw.exe -^ SECTION01
 	./tools/pemodder lhendraw.exe -s SECTION90 xC0700060
 	./tools/pemodder lhendraw.exe -r BaseOfData SectionAlignment
@@ -133,3 +125,4 @@ cross_pe32_small: cross_pe32
 	./tools/pemodder lhendraw.exe -R SizeOfUninitializedData SectionAlignment
 	./tools/pemodder lhendraw.exe -R SizeOfImage SectionAlignment
 	./tools/pemodder lhendraw.exe -x
+	#TODO: ZERO the the overwritten bytes of the .bss section that are sparse, and retransfer the NON_SPARSE ONES!

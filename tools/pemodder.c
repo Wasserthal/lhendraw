@@ -453,7 +453,6 @@ int main(int argc,char**argv)
 			}
 			goto argv_repeat_tooling_continue;
 			skip_argv_repeat_tooling:;
-			file_to_analyze=open(argv[1],O_RDWR);
 			argv_repeat_tooling_go:;
 			while ((*argvpointer)!=0)
 			{

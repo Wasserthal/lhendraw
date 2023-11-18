@@ -125,4 +125,3 @@ cross_pe32_small: cross_pe32
 	./tools/pemodder lhendraw.exe -R SizeOfUninitializedData SectionAlignment
 	./tools/pemodder lhendraw.exe -R SizeOfImage SectionAlignment
 	./tools/pemodder lhendraw.exe -x
-	#TODO: ZERO the the overwritten bytes of the .bss section that are sparse, and retransfer the NON_SPARSE ONES!

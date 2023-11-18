@@ -36,6 +36,7 @@ int checkfilevalidity(FILE * ifile)
 			return 1;
 		}
 	}
+	return 0;
 }
 FILE * W32_summonfile()
 {

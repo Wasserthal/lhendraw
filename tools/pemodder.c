@@ -1,3 +1,5 @@
+#ifndef CROFTOIDAL
+#include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <fcntl.h>
@@ -5,6 +7,55 @@
 #define _u8 unsigned char
 #define _u16 unsigned short
 #define _u32 unsigned int
+#define _i32 signed int
+#else
+#include <windows.h>
+#include <math.h>
+#define _u8 unsigned char
+#define _u16 unsigned short
+#define _u32 unsigned int
+#define _i8 signed char
+#define _i16 signed short
+#define _i32 signed int
+#define _uXX unsigned long
+#define _iXX signed long
+#define _u64 long long
+extern void exit(_u32);
+typedef struct
+{
+	_u32 d_ino;
+	_u16 int d_reclen;
+	_u16 d_namelen;
+	char*d_name;
+}dirent;
+typedef struct
+{
+	_u32 dwFileAttributes;
+	_u64 ftCreationTime;
+	_u64 ftLastAccessTime;
+	_u64 ftLastWriteTime;
+	_u32 nFileSizeHigh;
+	_u32 nFileSizeLow;
+	_u32 dwReserved0;
+	_u32 dwReserved1;
+	char cFileName[260];
+	char cAlternateFileName[14];
+	_u32 stuffword1;
+	_u32 stuffword2;
+	_u32 stuffword3;
+	_u16 stuffshort;
+}winDIR;
+typedef struct
+{
+	_u32 windowshandle;
+	_u32 fsm;//0: empty 1: one name waiting 2: await next read 3: empty after opening
+	winDIR windowsstruct;
+	dirent linuxstruct;
+}__attribute__((packed))DIR;
+DIR W32_DIR_instance={0};
+#include "..\lennyWinIo.h"
+#endif
+#define STRINGSIZE 64
 typedef struct
 {
 	_u32 idx;
@@ -100,6 +151,8 @@ header_*header1,header2;
 _u32 file_to_analyze;
 _u32 PEpos=0;
 _u32 original_length=0;
+_u8*additional_buffer=NULL;
+_u32 additional_length=0;
 _u32 g_truncating_is_on=0;
 _u8*original_buffer=NULL;
 headertype_ headertype[]={
@@ -152,11 +205,12 @@ typedef struct
 	_u32 SIZE;
 	_u32 PRAW;
 	_u32 RELO;
-	_u32 CHRXTICS;
 	_u32 Q;
 	_u32 R;
+	_u32 CHRXTICS;
 }section_;
 section_ l_section;
+#include "idata.h"
 _u32 lv1,lv2,lv3;
 _u32 hxout(_u32 in,_u32 size)
 {
@@ -387,7 +441,7 @@ void clear_section_trail()
 {
 	memset(sectionstart+(*header1).NumberOfSections,0,40);
 }
-void move(i_sourcepos,i_targetpos)
+void move(_u32 i_sourcepos,_u32 i_targetpos)
 {
 	_u32 l_lv1;
 	_u32 l_old_original_length=original_length;
@@ -413,7 +467,7 @@ void move(i_sourcepos,i_targetpos)
 }
 int main(int argc,char**argv)
 {
-	file_to_analyze=open(argv[1],O_RDONLY);
+	file_to_analyze=open(argv[1],O_RDONLY,0);
 	original_length=lseek(file_to_analyze,0,SEEK_END);
 	original_buffer=malloc(original_length);
 	lseek(file_to_analyze,0,SEEK_SET);
@@ -832,6 +886,245 @@ int main(int argc,char**argv)
 					{
 						exit(0);
 					}
+					case 'I':
+					{
+						_u32 tl_additional_file=open(argv[argvcursor],O_RDONLY,0);
+						additional_length=lseek(tl_additional_file,0,SEEK_END);
+						lseek(tl_additional_file,0,SEEK_SET);
+						additional_buffer=malloc(additional_length);
+						read(tl_additional_file,additional_buffer,additional_length);
+						close(tl_additional_file);
+						section_*tl_new=(section_*)(original_buffer+PEpos+sizeof(header_)+(16*8)+(40*(*header1).NumberOfSections));
+						(*tl_new).name[0]='.';
+						(*tl_new).name[1]='s';
+						(*tl_new).name[2]='m';
+						(*tl_new).name[3]='c';
+						(*tl_new).name[4]=0;
+						(*tl_new).PHY_ADDR=additional_length;
+						_u32 tl_old_vpos=(*(section_*)(original_buffer+PEpos+sizeof(header_)+(16*8)+(40*((*header1).NumberOfSections-1)))).VADDR;
+						tl_old_vpos+=(*(section_*)(original_buffer+PEpos+sizeof(header_)+(16*8)+(40*((*header1).NumberOfSections-1)))).SIZE;
+						tl_old_vpos+=((*header1).SectionAlignment-1);
+						tl_old_vpos&=~((*header1).SectionAlignment-1);
+						_u32 tl_old_pos=(*(section_*)(original_buffer+PEpos+sizeof(header_)+(16*8)+(40*((*header1).NumberOfSections-1)))).PRAW;
+						tl_old_pos+=(*(section_*)(original_buffer+PEpos+sizeof(header_)+(16*8)+(40*((*header1).NumberOfSections-1)))).SIZE;
+						(*tl_new).VADDR=tl_old_vpos;
+						(*tl_new).PRAW=tl_old_pos;
+						(*tl_new).SIZE=additional_length;
+						(*tl_new).RELO=0;
+						(*tl_new).Q=0;
+						(*tl_new).R=0;
+						(*tl_new).CHRXTICS=0xD0000060;
+						(*header1).NumberOfSections++;
+						_u32 tl_jumptarget=(*header1).AddressOfEntryPoint;
+						_u32 tl_jumpsource=(*tl_new).VADDR+5;
+						(*(_u32*)(additional_buffer+1))=tl_jumptarget-tl_jumpsource;
+						(*header1).AddressOfEntryPoint=(*tl_new).VADDR;
+						(*header1).SizeOfUninitializedData+=additional_length;
+						(*header1).SizeOfImage+=additional_length;
+						argvcursor+=1;
+						break;
+					}
+					case 'J':
+					{
+						_u32 tl_additional_file=open(argv[argvcursor],O_RDONLY,0);
+						additional_length=lseek(tl_additional_file,0,SEEK_END);
+						lseek(tl_additional_file,0,SEEK_SET);
+						additional_buffer=malloc(additional_length);
+						read(tl_additional_file,additional_buffer,additional_length);
+						close(tl_additional_file);
+						_u32 h_start_of_linking_table=*(_u32*)(additional_buffer+additional_length-4);
+						_u8*h_linking_table=NULL;
+						_u8*h_linking_table_end=NULL;
+						_u8*h_target;
+						section_*tl_new=(section_*)(original_buffer+PEpos+sizeof(header_)+(16*8)+(40*(*header1).NumberOfSections));
+						(*tl_new).name[0]='.';
+						(*tl_new).name[1]='s';
+						(*tl_new).name[2]='m';
+						(*tl_new).name[3]='c';
+						(*tl_new).name[4]=0;
+						_u32 tl_old_vpos=(*(section_*)(original_buffer+PEpos+sizeof(header_)+(16*8)+(40*((*header1).NumberOfSections-1)))).VADDR;
+						tl_old_vpos+=(*(section_*)(original_buffer+PEpos+sizeof(header_)+(16*8)+(40*((*header1).NumberOfSections-1)))).SIZE;
+						tl_old_vpos+=((*header1).SectionAlignment-1);
+						tl_old_vpos&=~((*header1).SectionAlignment-1);
+						_u32 tl_old_pos=(*(section_*)(original_buffer+PEpos+sizeof(header_)+(16*8)+(40*((*header1).NumberOfSections-1)))).PRAW;
+						tl_old_pos+=(*(section_*)(original_buffer+PEpos+sizeof(header_)+(16*8)+(40*((*header1).NumberOfSections-1)))).SIZE;
+						(*tl_new).VADDR=tl_old_vpos;
+						(*tl_new).PRAW=tl_old_pos;
+						(*tl_new).SIZE=additional_length;
+						if (h_start_of_linking_table<additional_length)
+						{
+							(*tl_new).SIZE=h_start_of_linking_table;
+						}
+						if((*tl_new).SIZE&0xFFF)
+						{
+							(*tl_new).SIZE=((*tl_new).SIZE&(~0xFFF))+0x1000;
+						}
+						(*tl_new).RELO=0;
+						(*tl_new).Q=0;
+						(*tl_new).R=0;
+						(*tl_new).CHRXTICS=0xD0000060;
+						(*header1).NumberOfSections++;
+						_u32 tl_jumptarget=(*header1).AddressOfEntryPoint;
+						if (h_start_of_linking_table<additional_length)
+						{
+							h_linking_table=additional_buffer+h_start_of_linking_table;
+							h_linking_table_end=additional_buffer+additional_length-4;
+							additional_length=h_start_of_linking_table;
+							while(h_linking_table<h_linking_table_end)
+							{
+								_u32 h_fill=0;
+								_u8*h_find=additional_buffer+*(_u32*)(h_linking_table+strlen(h_linking_table)+1);
+								if(strcmp(h_linking_table,"REL")==0)
+								{
+									(*(_u32*)h_find)+=(*tl_new).VADDR+(*header1).ImageBase;
+								}
+								else
+								{
+									while((*(_u32*)h_find)!=0xFF0000FF)
+									{
+										h_find++;
+									}
+									_u32 b_addr=idata_srch_entry(idata_srch_section(),h_linking_table);
+									if(b_addr)
+									{
+										h_fill=b_addr;
+									}
+									if(strcmp(h_linking_table,"startsingle")==0)h_fill=additional_length+(*tl_new).VADDR+(*header1).ImageBase;
+									if(strcmp(h_linking_table,"jumpintoprogram")==0)h_fill=(*header1).AddressOfEntryPoint-(h_find-additional_buffer+(*tl_new).VADDR+4);
+										(*(_u32*)h_find)=h_fill;
+								}
+								h_linking_table+=strlen(h_linking_table)+5;
+							}
+						}
+						else
+						{
+							fprintf(stderr,"error! Start of linking table is out of bounds!\n");
+							exit(1);
+						}
+						(*header1).AddressOfEntryPoint=(*tl_new).VADDR;
+						(*header1).SizeOfInitializedData+=(*tl_new).SIZE;
+						(*header1).SizeOfImage+=(*tl_new).SIZE;
+						(*tl_new).PHY_ADDR=additional_length;
+						argvcursor+=1;
+						break;
+					}
+					case 'K':
+					{
+						_u32 h_inputmode=0;
+						_u8 h_dllname[STRINGSIZE+1];
+						_u32 h_dllname_length=0;
+						_u8 h_functionname[STRINGSIZE+1];
+						_u32 h_functionname_length;
+						_u8*h_additional_buffer;
+						_u8 h_beenden=0;
+						_u8 h_v1=0;
+						if(additional_buffer==NULL)
+						{
+							fprintf(stderr,"error! used -K without -J usage before\n");
+							exit(1);
+						}
+						section_*h_section=(section_*)(original_buffer+PEpos+sizeof(header_)+(16*8)+(40*((*header1).NumberOfSections-1)));
+						(*header1).SizeOfInitializedData-=(*h_section).SIZE;
+						(*header1).SizeOfImage-=(*h_section).SIZE;
+						_u32 h_additional_file=open(argv[argvcursor],O_RDONLY,0);
+						_u32 h_additional_length=lseek(h_additional_file,0,SEEK_END);
+						lseek(h_additional_file,0,SEEK_SET);
+						_u32 h_list_file=open(argv[argvcursor+1],O_RDONLY,0);
+						while(h_beenden==0)
+						{
+							read(h_list_file,&h_v1,1);
+							if(h_v1==0)
+							{
+								goto additionalfile_out;
+							}
+							if(h_v1==1)
+							{
+								h_inputmode=0;
+								h_dllname_length=0;
+								read(h_list_file,&h_v1,1);
+								while((h_v1!=10)&&(h_dllname_length<STRINGSIZE))
+								{
+									h_dllname[h_dllname_length]=h_v1;
+									h_dllname_length++;
+									read(h_list_file,&h_v1,1);
+								}
+								h_dllname[h_dllname_length]=0;
+								continue;
+							}
+							if((h_v1==2)||(h_v1==3))
+							{
+								if(h_v1==3)
+								{
+									additional_buffer=realloc(additional_buffer,additional_length+h_additional_length);
+									h_additional_buffer=additional_buffer+additional_length;
+									memset(h_additional_buffer,0,h_additional_length);
+									additional_length+=h_additional_length;
+								}
+								h_inputmode=1;
+								h_dllname_length=0;
+								read(h_list_file,&h_v1,1);
+								while((h_v1!=10)&&(h_dllname_length<STRINGSIZE))
+								{
+									h_dllname[h_dllname_length]=h_v1;
+									h_dllname_length++;
+									read(h_list_file,&h_v1,1);
+								}
+								h_dllname[h_dllname_length]=0;
+								continue;
+							}
+							else
+							{
+								h_functionname_length=0;
+								while((h_v1!=10)&&(h_functionname_length<STRINGSIZE))
+								{
+									h_functionname[h_functionname_length]=h_v1;
+									h_functionname_length++;
+									read(h_list_file,&h_v1,1);
+								}
+								h_functionname[h_functionname_length]=0;
+							}
+							lseek(h_additional_file,0,SEEK_SET);
+							additional_buffer=realloc(additional_buffer,additional_length+h_additional_length);
+							h_additional_buffer=additional_buffer+additional_length;
+							read(h_additional_file,h_additional_buffer,h_additional_length);
+							additional_length+=h_additional_length;
+							_i32 h_searchcursor=additional_length-4;
+							while((*(_u32*)(additional_buffer+h_searchcursor))!=0)
+							{
+								h_searchcursor--;
+								if(h_searchcursor<0)
+								{
+									fprintf(stderr,"cannot find zero of single\n");
+									exit(1);
+								}
+							}
+							if(h_inputmode==0)//IMPORT
+							{
+								*(_u32*)(additional_buffer+h_searchcursor)=idata_srch_dllentry(idata_srch_section(),h_dllname,h_functionname);
+							}
+							if(h_inputmode==1)//FIXED ADDRESS
+							{
+								*(_u32*)(additional_buffer+h_searchcursor)=xtoi(h_functionname);
+							}
+						}
+						additionalfile_out:;
+						close(h_additional_file);
+						close(h_list_file);
+						additional_buffer=realloc(additional_buffer,additional_length+h_additional_length);
+						h_additional_buffer=additional_buffer+additional_length;
+						memset(h_additional_buffer,0,h_additional_length);
+						additional_length+=h_additional_length;
+						(*h_section).SIZE=additional_length;
+						if((*h_section).SIZE&0xFFF)
+						{
+							(*h_section).SIZE=((*h_section).SIZE&(~0xFFF))+0x1000;
+						}
+						argvcursor+=2;
+						(*header1).SizeOfInitializedData+=(*h_section).SIZE;
+						(*header1).SizeOfImage+=(*h_section).SIZE;
+						(*h_section).PHY_ADDR=additional_length;
+						break;
+					}
 				}
 				argvpointer++;
 			}
@@ -846,6 +1139,16 @@ int main(int argc,char**argv)
 			argv_repeat_tooling_continue:;
 			file_to_analyze=open(argv[1],O_RDWR|(g_truncating_is_on?O_TRUNC:0),0660);
 			_u32 backval=write(file_to_analyze,original_buffer,original_length);
+			backval=write(file_to_analyze,additional_buffer,additional_length);
+			_u32 h_actual_size=lseek(file_to_analyze,0,SEEK_CUR);
+			section_*h_section=((section_*)(original_buffer+PEpos+sizeof(header_)+(16*8)+(40*((*header1).NumberOfSections-1))));
+			_u32 h_intended_size=(*h_section).PRAW+(*h_section).SIZE;
+			while(h_intended_size>h_actual_size)
+			{
+				_u32 h_hv1=0;
+				write(file_to_analyze,&h_hv1,1);
+				h_actual_size++;
+			}
 			close(file_to_analyze);
 			return 0;
 		}
@@ -901,9 +1204,9 @@ int main(int argc,char**argv)
 				found:;
 			}
 		}
-		print_var32("CHRXTICS",l_section.CHRXTICS);
 		print_var32("Q",l_section.Q);
 		print_var32("R",l_section.R);
+		print_var32("CHRXTICS",l_section.CHRXTICS);
 		writeLn();
 	}
 	return 0;

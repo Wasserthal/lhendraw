@@ -90,7 +90,7 @@ insert32:
 	./tools/binary LiberationMono-Regular.bin ./generated/bininclude3.txt
 	./tools/binary LiberationMono-Regular.lennardfont ./generated/bininclude4.txt
 ./tools/pemodder: ./tools/pemodder.c
-	gcc -g -O0 -m32 ./tools/pemodder.c -o ./tools/pemodder
+	gcc --std=c99 -g -O0 -m32 ./tools/pemodder.c -o ./tools/pemodder
 WINDOWS_SECTION_ALIGNMENT:=0x1000
 cross_pe32: ./generated/structure.hxx ./generated/reflection.hxx ./tools/pemodder
 	ld -m elf_i386 -r -b binary -o ob1.o gfx/buttons.bmp --oformat elf32-i386
